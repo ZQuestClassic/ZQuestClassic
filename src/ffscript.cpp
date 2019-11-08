@@ -117,6 +117,33 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
         sfx_cleanup();
 }
 
+mapscr* GetMapscr(long mapref)
+{
+    switch(mapref)
+    {
+        case LONG_MAX: return NULL; //shouldn't happen, as error should already have been thrown before calling this func
+        case MAPSCR_TEMP0: return FFCore.tempScreens[0]; //Temp layer 0
+        case MAPSCR_TEMP1: return FFCore.tempScreens[1]; //Temp layer 1
+        case MAPSCR_TEMP2: return FFCore.tempScreens[2]; //Temp layer 2
+        case MAPSCR_TEMP3: return FFCore.tempScreens[3]; //Temp layer 3
+        case MAPSCR_TEMP4: return FFCore.tempScreens[4]; //Temp layer 4
+        case MAPSCR_TEMP5: return FFCore.tempScreens[5]; //Temp layer 5
+        case MAPSCR_TEMP6: return FFCore.tempScreens[6]; //Temp layer 6
+        case MAPSCR_SCROLL0: return FFCore.ScrollingScreens[0]; //Temp scrolllayer 0
+        case MAPSCR_SCROLL1: return FFCore.ScrollingScreens[1]; //Temp scrolllayer 1
+        case MAPSCR_SCROLL2: return FFCore.ScrollingScreens[2]; //Temp scrolllayer 2
+        case MAPSCR_SCROLL3: return FFCore.ScrollingScreens[3]; //Temp scrolllayer 3
+        case MAPSCR_SCROLL4: return FFCore.ScrollingScreens[4]; //Temp scrolllayer 4
+        case MAPSCR_SCROLL5: return FFCore.ScrollingScreens[5]; //Temp scrolllayer 5
+        case MAPSCR_SCROLL6: return FFCore.ScrollingScreens[6]; //Temp scrolllayer 6
+        default:
+        {
+            if(mapref < 0) return NULL; //Bad negative value
+            else return &TheMaps[mapref]; //Standard mapdata
+        }
+    }
+}
+
 #ifdef _WIN32
 // ConsoleLogger.cpp: implementation of the CConsoleLogger class.
 //
@@ -5877,7 +5904,7 @@ case SCREENDATAFLAGS:
 	} 
 	else 
 	{ 
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		ret = m->screeninitd[ri->d[0]/10000];
 	} 
 	break;
@@ -5900,7 +5927,7 @@ case SCREENDATAFLAGS:
 		}
 		else
 		{
-			mapscr *m = &TheMaps[ri->mapsref];
+			mapscr *m = GetMapscr(ri->mapsref);
 			ret = ((m->hidelayers >> indx) & 1) *10000;
 		}
 	}
@@ -5923,7 +5950,7 @@ case MAPDATASCRIPTDRAWS:
 		}
 		else
 		{
-			mapscr *m = &TheMaps[ri->mapsref];
+			mapscr *m = GetMapscr(ri->mapsref);
 			ret = ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 		}
 	}
@@ -6205,7 +6232,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			ret = (m->member *10000); \
 		} \
 	} \
@@ -6219,7 +6246,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			ret = (m->member *10000); \
 		} \
 	} \
@@ -6233,7 +6260,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			ret = (m->member *10000); \
 		} \
 	} \
@@ -6255,7 +6282,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			} \
 			else \
 			{ \
-				mapscr *m = &TheMaps[ri->mapsref]; \
+				mapscr *m = GetMapscr(ri->mapsref); \
 				ret = (m->member[indx] *10000); \
 			} \
 		} \
@@ -6278,7 +6305,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			} \
 			else \
 			{ \
-				mapscr *m = &TheMaps[ri->mapsref]; \
+				mapscr *m = GetMapscr(ri->mapsref); \
 				ret = (m->member[indx] *10000); \
 			} \
 		} \
@@ -6301,7 +6328,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			} \
 			else \
 			{ \
-				mapscr *m = &TheMaps[ri->mapsref]; \
+				mapscr *m = GetMapscr(ri->mapsref); \
 				ret = (m->member[indx] *10000); \
 			} \
 		} \
@@ -6311,7 +6338,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		mapscr *m = &TheMaps[ri->mapsref]; \
+		mapscr *m = GetMapscr(ri->mapsref); \
 		if ( indx == 0 ) \
 		{ \
 			\
@@ -6341,7 +6368,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			} \
 			else \
 			{ \
-				mapscr *m = &TheMaps[ri->mapsref]; \
+				mapscr *m = GetMapscr(ri->mapsref); \
 				ret = (m->member[indx-1] *10000); \
 			} \
 		} \
@@ -6364,7 +6391,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			} \
 			else \
 			{ \
-				mapscr *m = &TheMaps[ri->mapsref]; \
+				mapscr *m = GetMapscr(ri->mapsref); \
 				ret = (m->member[indx]?10000:0); \
 			} \
 		} \
@@ -6380,7 +6407,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			ret = (m->member&flag) ? 10000 : 0); \
 		} \
 	} \
@@ -6394,7 +6421,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			int pos = ri->d[0] / 10000; \
 			if(BC::checkComboPos(pos, str) != SH::_NoError) \
 			ret = -10000; \
@@ -6412,7 +6439,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			int pos = ri->d[0] / 10000; \
 			if(BC::checkComboPos(pos, str) != SH::_NoError) \
 				ret = -10000; \
@@ -6436,7 +6463,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             ret = (m->member[indx]); \
         } \
     } \
@@ -6456,7 +6483,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             ret = (m->member[indx])*10000; \
         } \
     } \
@@ -6476,7 +6503,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             ret = (m->member[indx])*10000; \
         } \
     } \
@@ -6579,7 +6606,7 @@ case MAPDATASIDEWARPID:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = (((m->flags2 >> indx) & 1)
 			? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
 			: -1 //Returns -1 if no warp is set
@@ -6609,7 +6636,7 @@ case MAPDATANUMFF:
 	else
 	{
 		--indx;
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = (((m->numff) & (1<<indx))) ? 10000 : 0;
 		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 	}
@@ -6631,7 +6658,7 @@ case MAPDATATILEWARPOVFLAGS:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
 	}
 	break;
@@ -6652,7 +6679,7 @@ case MAPDATASIDEWARPOVFLAGS:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
 	}
 	break;
@@ -6674,7 +6701,7 @@ case MAPDATATWARPRETSQR:
         }
         else 
         { 
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
 	}
 	break;
@@ -6696,7 +6723,7 @@ case MAPDATASWARPRETSQR:
         }
         else 
         { 
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
 	}
 	break;
@@ -6712,7 +6739,7 @@ case MAPDATAFFWIDTH:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 32 )
         {
@@ -6740,7 +6767,7 @@ case MAPDATAFFHEIGHT:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 32 )
         {
@@ -6767,7 +6794,7 @@ case MAPDATAFFEFFECTWIDTH:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 32 )
         {
@@ -6792,7 +6819,7 @@ case MAPDATAFFEFFECTHEIGHT:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 32 )
         {
@@ -6822,7 +6849,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		int ffid = (ri->d[0]/10000) -1;
 		int indx = ri->d[1]/10000;
 			
@@ -6863,7 +6890,7 @@ case MAPDATAINITA:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -6907,7 +6934,7 @@ case MAPDATASCREENMIDI:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 	}
 	break;
@@ -6938,7 +6965,7 @@ case MAPDATASCREEN:
 case MAPDATAFLAGS: 
 {
 	int flagid = (ri->d[0])/10000;
-	mapscr *m = &TheMaps[ri->mapsref]; 
+	mapscr *m = GetMapscr(ri->mapsref); 
 	//bool valtrue = ( value ? 10000 : 0);
 	switch(flagid)
 	{
@@ -6991,7 +7018,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7020,7 +7047,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7049,7 +7076,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7080,7 +7107,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7109,7 +7136,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7139,7 +7166,7 @@ case MAPDATAMISCD:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -7167,14 +7194,14 @@ case MAPDATAMISCD:
     break;
     case MAPDATASCREENFLAGSD:
     {
-	mapscr *m = &TheMaps[ri->mapsref];
+	mapscr *m = GetMapscr(ri->mapsref);
         ret = get_screenflags(m,vbound(ri->d[0] / 10000,0,9));
         break;
     }
         
     case MAPDATASCREENEFLAGSD:
     {
-	mapscr *m = &TheMaps[ri->mapsref];
+	mapscr *m = GetMapscr(ri->mapsref);
         ret = get_screeneflags(m,vbound(ri->d[0] / 10000,0,2));
         break;
     }
@@ -12797,7 +12824,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member = vbound((value / 10000),-214747,214747); \
 		} \
 	} \
@@ -12811,7 +12838,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member = vbound((value / 10000),0,32767); \
 		} \
 	} \
@@ -12825,7 +12852,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member = vbound((value / 10000),0,255); \
 		} \
 	} \
@@ -12845,7 +12872,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx] = vbound((value / 10000),-214747,214747); \
 		} \
 	} \
@@ -12865,7 +12892,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx] = vbound((value / 10000),-32767,32767); \
 		} \
 	} \
@@ -12885,7 +12912,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx] = vbound((value / 10000),0,255); \
 		} \
 	}\
@@ -12906,7 +12933,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx-1] = vbound((value / 10000),0,255); \
 		} \
 	} \
@@ -12934,7 +12961,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 		} \
 	}\
@@ -12954,7 +12981,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			m->member[indx] =( (value/10000) ? 1 : 0 ); \
 		} \
 	} \
@@ -12969,7 +12996,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 		else \
 		{ \
-			mapscr *m = &TheMaps[ri->mapsref]; \
+			mapscr *m = GetMapscr(ri->mapsref); \
 			if ( flag != 0 ) \
 			{ \
 				m->member|=flag; \
@@ -12993,7 +13020,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             m->member[indx] = value; \
         } \
     } \
@@ -13013,7 +13040,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             m->member[indx] = value/10000; \
         } \
     } \
@@ -13039,7 +13066,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
         } \
         else \
         { \
-            mapscr *m = &TheMaps[ri->mapsref]; \
+            mapscr *m = GetMapscr(ri->mapsref); \
             m->member[indx] = v; \
         } \
     } \
@@ -13084,7 +13111,7 @@ case MAPDATAINITDARRAY:
 	} 
 	else 
 	{ 
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		m->screeninitd[ri->d[0]/10000] = value;
 	} 
 	break;
@@ -13109,7 +13136,7 @@ case MAPDATALAYERINVIS:
 		}
 		else
 		{
-			mapscr *m = &TheMaps[ri->mapsref];
+			mapscr *m = GetMapscr(ri->mapsref);
 			if(value)
 			{
 				tmpscr->hidelayers |= (1<<indx);
@@ -13137,7 +13164,7 @@ case MAPDATASCRIPTDRAWS:
 			break;
 		}
 		else
-		{	mapscr *m = &TheMaps[ri->mapsref];
+		{	mapscr *m = GetMapscr(ri->mapsref);
 			if(value)
 			{
 				tmpscr->hidescriptlayers &= ~(1<<indx);
@@ -13164,7 +13191,7 @@ case MAPDATATILEWARPOVFLAGS:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		if ( value ) m->tilewarpoverlayflags |= (1<<indx);
 		else m->tilewarpoverlayflags &= ~(1<<indx);
 	}
@@ -13184,7 +13211,7 @@ case MAPDATASIDEWARPOVFLAGS:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		if ( value ) m->sidewarpoverlayflags |= (1<<indx);
 		else m->sidewarpoverlayflags &= ~(1<<indx);
 	}
@@ -13224,7 +13251,7 @@ case MAPDATASCRIPT:
 	{ 
 		//FFScript::deallocateAllArrays(SCRIPT_SCREEN, ri->mapsref);//Mapdata never updates a running script, so does not need this deallocation block.
 		
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
         
 		/*if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE)) //Mapdata never updates a running script. Why would it clear `tmpscr`, in any case?
 		{
@@ -13274,7 +13301,7 @@ case MAPDATANUMFF:
 	else
 	{
 		--indx;
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		if ( value ) { (((m->numff) |= (1<<indx))); }
 		else { (((m->numff) &= ~(1<<indx))); }
 	}
@@ -13292,7 +13319,7 @@ case MAPDATASIDEWARPID:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 		if(new_warp_return == -1)
 		{
@@ -13322,7 +13349,7 @@ case MAPDATATWARPRETSQR:
         } 
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		int wrindex = vbound(value/10000, 0, 3);
 		m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
 	}
@@ -13344,7 +13371,7 @@ case MAPDATASWARPRETSQR:
         } 
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		int wrindex = vbound(value/10000, 0, 3);
 		m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
 	}
@@ -13364,7 +13391,7 @@ case MAPDATAFFWIDTH:
     }
     else
     {
-    mapscr *m = &TheMaps[ri->mapsref];
+    mapscr *m = GetMapscr(ri->mapsref);
     int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 32 )
         {
@@ -13393,7 +13420,7 @@ case MAPDATAFFHEIGHT:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
@@ -13423,7 +13450,7 @@ case MAPDATAFFEFFECTWIDTH:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
@@ -13451,7 +13478,7 @@ case MAPDATAFFEFFECTHEIGHT:
     }
     else
     {
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
@@ -13483,7 +13510,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -13520,7 +13547,7 @@ case MAPDATAINITA:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
+		mapscr *m = GetMapscr(ri->mapsref); 
 		//int ffindex = ri->d[0]/10000;
 		//int d = ri->d[1]/10000;
 		//int v = (value/10000);
@@ -13561,7 +13588,7 @@ case MAPDATASCREENMIDI:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref];
+		mapscr *m = GetMapscr(ri->mapsref);
 		m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 	}
 	break;
@@ -13572,7 +13599,7 @@ case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	/
 case MAPDATAFLAGS: 
 {
 	int flagid = (ri->d[0])/10000;
-	mapscr *m = &TheMaps[ri->mapsref]; 
+	mapscr *m = GetMapscr(ri->mapsref); 
 	//bool valtrue = ( value ? 10000 : 0);
 	switch(flagid)
 	{
@@ -13618,7 +13645,7 @@ case MAPDATAMISCD:
   case MAPDATACOMBODD:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(m,pos);
@@ -13631,7 +13658,7 @@ case MAPDATAMISCD:
     case MAPDATACOMBOCD:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(m,pos);
@@ -13644,7 +13671,7 @@ case MAPDATAMISCD:
     case MAPDATACOMBOFD:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
             m->sflag[pos]=(value/10000);
     }
@@ -13653,7 +13680,7 @@ case MAPDATAMISCD:
     case MAPDATACOMBOTD:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
         {
             // Preprocess each instance of the combo on the screen
@@ -13681,7 +13708,7 @@ case MAPDATAMISCD:
     case MAPDATACOMBOID:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
             combobuf[m->data[pos]].flag=value/10000;
     }
@@ -13690,7 +13717,7 @@ case MAPDATAMISCD:
     case MAPDATACOMBOSD:
     {
         int pos = (ri->d[0])/10000;
-        mapscr *m = &TheMaps[ri->mapsref];
+        mapscr *m = GetMapscr(ri->mapsref);
         if(pos >= 0 && pos < 176)
             combobuf[m->data[pos]].walk=(value/10000)&15;
     }
@@ -15736,12 +15763,65 @@ void do_mapdataissolid()
 	}
 	else
 	{
-		//mapscr *m = &TheMaps[ri->mapsref]; 
+		//mapscr *m = GetMapscr(ri->mapsref); 
 		int x = int(ri->d[0] / 10000);
 		int y = int(ri->d[1] / 10000);
-    
-    
-		set_register(sarg1, (_walkflag(x, y, 1, ri->mapsref) ? 10000 : 0));
+		switch(ri->mapsref)
+		{
+			case MAPSCR_TEMP0:
+				set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
+				break;
+			case MAPSCR_SCROLL0:
+				set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
+				break;
+			default:
+				set_register(sarg1, (_walkflag(x, y, 1, GetMapscr(ri->mapsref)) ? 10000 : 0));
+		}
+	}
+}
+
+void do_mapdataissolid_layer()
+{
+	if ( ri->mapsref == LONG_MAX  )
+	{
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
+		set_register(sarg1,10000);
+	}
+	else
+	{
+		//mapscr *m = GetMapscr(ri->mapsref); 
+		int x = int(ri->d[0] / 10000);
+		int y = int(ri->d[1] / 10000);
+		int layer = int(ri->d[2] / 10000);
+		if(BC::checkBounds(layer, 0, 6, "mapdata->isSolidLayer()") != SH::_NoError)
+		{
+			set_register(sarg1,10000);
+		}
+		else
+		{
+			switch(ri->mapsref)
+			{
+				case MAPSCR_TEMP0:
+					set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
+					break;
+				case MAPSCR_SCROLL0:
+					set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.ScrollingScreens[layer])) ? 10000 : 0);
+					break;
+				default:
+					mapscr* m = GetMapscr(ri->mapsref);
+					if(layer > 0)
+					{
+						if(m->layermap[layer] == 0)
+						{
+							set_register(sarg1,10000);
+							break;
+						}
+						m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+					}
+					set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
+					break;
+			}
+		}
 	}
 }
 
@@ -16910,6 +16990,45 @@ void FFScript::do_loadmapdata(const bool v)
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
+void FFScript::do_loadmapdata_tempscr(const bool v)
+{
+	int layer = SH::get_arg(sarg1, v) / 10000;
+	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		return;
+	}
+	switch(layer)
+	{
+		case 0: ri->mapsref = MAPSCR_TEMP0; break;
+		case 1: ri->mapsref = MAPSCR_TEMP1; break;
+		case 2: ri->mapsref = MAPSCR_TEMP2; break;
+		case 3: ri->mapsref = MAPSCR_TEMP3; break;
+		case 4: ri->mapsref = MAPSCR_TEMP4; break;
+		case 5: ri->mapsref = MAPSCR_TEMP5; break;
+		case 6: ri->mapsref = MAPSCR_TEMP6; break;
+	}
+}
+
+void FFScript::do_loadmapdata_scrollscr(const bool v)
+{
+	int layer = SH::get_arg(sarg1, v) / 10000;
+	if(BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		return;
+	}
+	switch(layer)
+	{
+		case 0: ri->mapsref = MAPSCR_SCROLL0; break;
+		case 1: ri->mapsref = MAPSCR_SCROLL1; break;
+		case 2: ri->mapsref = MAPSCR_SCROLL2; break;
+		case 3: ri->mapsref = MAPSCR_SCROLL3; break;
+		case 4: ri->mapsref = MAPSCR_SCROLL4; break;
+		case 5: ri->mapsref = MAPSCR_SCROLL5; break;
+		case 6: ri->mapsref = MAPSCR_SCROLL6; break;
+	}
+}
 	
 void FFScript::do_loadshopdata(const bool v)
 {
@@ -23565,6 +23684,13 @@ void FFScript::init()
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();
+	tempScreens[0] = &tmpscr[0];
+	ScrollingScreens[0] = &tmpscr[1];
+	for(int q = 0; q < 6; ++q)
+	{
+		tempScreens[q+1] = &tmpscr2[q];
+		ScrollingScreens[q+1] = &tmpscr3[q];
+	}
 }
 
 

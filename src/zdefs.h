@@ -4314,4 +4314,23 @@ extern void removeFromItemCache(int itemid);
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
 
+enum //Mapscr hardcodes for temp mapscrs
+{
+	MAPSCR_SCROLL6 = -14,
+	MAPSCR_SCROLL5,
+	MAPSCR_SCROLL4,
+	MAPSCR_SCROLL3,
+	MAPSCR_SCROLL2,
+	MAPSCR_SCROLL1,
+	MAPSCR_SCROLL0,
+	MAPSCR_TEMP6,
+	MAPSCR_TEMP5,
+	MAPSCR_TEMP4,
+	MAPSCR_TEMP3,
+	MAPSCR_TEMP2,
+	MAPSCR_TEMP1,
+	MAPSCR_TEMP0
+};
+
 #endif                                                      //_ZDEFS_H_
+

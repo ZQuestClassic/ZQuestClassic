@@ -238,6 +238,8 @@ public:
 //FFScript();
 void init();
 int max_ff_rules;
+mapscr* tempScreens[7];
+mapscr* ScrollingScreens[7];
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
 bool getRule(int rule_bit);
@@ -1161,6 +1163,8 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);
 	static void do_loadmapdata(const bool v);
+	static void do_loadmapdata_tempscr(const bool v);
+	static void do_loadmapdata_scrollscr(const bool v);
 	static long loadMapData();
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);

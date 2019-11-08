@@ -4480,7 +4480,7 @@ bool _walkflag(int x,int y,int cnt)
 }
 
 //used by mapdata->isSolid(x,y) in ZScript:
-bool _walkflag(int x,int y,int cnt, int mapref)
+bool _walkflag(int x,int y,int cnt, mapscr* m)
 {
     //  walkflagx=x; walkflagy=y;
     if(get_bit(quest_rules,qr_LTTPWALK))
@@ -4503,8 +4503,6 @@ bool _walkflag(int x,int y,int cnt, int mapref)
         
         if(y>168) return false;
     }
-    
-    mapscr *m = &TheMaps[mapref]; 
     
     mapscr *s1, *s2;
     
@@ -4554,6 +4552,125 @@ bool _walkflag(int x,int y,int cnt, int mapref)
     }
     
     return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+}
+
+bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2)
+{
+    //  walkflagx=x; walkflagy=y;
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>255) return false;
+        
+        if(x>247&&cnt==2) return false;
+        
+        if(y>175) return false;
+    }
+    else
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>248) return false;
+        
+        if(x>240&&cnt==2) return false;
+        
+        if(y>168) return false;
+    }
+    
+    if(!s1) s1 = m;
+	if(!s2) s2 = m;
+    
+    int bx=(x>>4)+(y&0xF0);
+    newcombo c = combobuf[m->data[bx]];
+    newcombo c1 = combobuf[s1->data[bx]];
+    newcombo c2 = combobuf[s2->data[bx]];
+    bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+                   (iswater_type(c2.type))) && DRIEDLAKE);
+    int b=1;
+    
+    if(x&8) b<<=2;
+    
+    if(y&8) b<<=1;
+    
+    if(((c.walk&b) || (c1.walk&b) || (c2.walk&b)) && !dried)
+        return true;
+        
+    if(cnt==1) return false;
+    
+    ++bx;
+    
+    if(!(x&8))
+        b<<=2;
+    else
+    {
+        c  = combobuf[m->data[bx]];
+        c1 = combobuf[s1->data[bx]];
+        c2 = combobuf[s2->data[bx]];
+        dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+                  (iswater_type(c2.type))) && DRIEDLAKE);
+        b=1;
+        
+        if(y&8) b<<=1;
+    }
+    
+    return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+}
+
+//Only check the given mapscr*, not it's layer 1&2
+bool _walkflag_layer(int x,int y,int cnt, mapscr* m)
+{
+    //  walkflagx=x; walkflagy=y;
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>255) return false;
+        
+        if(x>247&&cnt==2) return false;
+        
+        if(y>175) return false;
+    }
+    else
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>248) return false;
+        
+        if(x>240&&cnt==2) return false;
+        
+        if(y>168) return false;
+    }
+	if(!m) return true;
+    
+    int bx=(x>>4)+(y&0xF0);
+    newcombo c = combobuf[m->data[bx]];
+    bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+    int b=1;
+    
+    if(x&8) b<<=2;
+    
+    if(y&8) b<<=1;
+    
+    if((c.walk&b) && !dried)
+        return true;
+        
+    if(cnt==1) return false;
+    
+    ++bx;
+    
+    if(!(x&8))
+        b<<=2;
+    else
+    {
+        c  = combobuf[m->data[bx]];
+        dried = ((iswater_type(c.type)) && DRIEDLAKE);
+        b=1;
+        
+        if(y&8) b<<=1;
+    }
+    
+    return (c.walk&b) ? !dried : false;
 }
 
 bool water_walkflag(int x,int y,int cnt)
