@@ -19,10 +19,11 @@
 //1.09  //Added screen change tracking and compass beep
 //1.10  //Added ffc script ScreenGuyMusic and fuction: bool __classic_zh_ScreenGuyAlive()
 //1.11  //Added arg for BossExplode ffc for enemy ID override as D7
-import "ffcscript.zh"
-import "stdExtra.zh"
-import "ghost.zh"
-import "tango.zh"
+//1.12  //Changed import to #include
+#include "ffcscript.zh"
+#include "stdExtra.zh"
+#include "ghost.zh"
+#include "tango.zh"
 
 //Internal Data Array and its indices.
 int __classic_zc_internal[128];

@@ -1,6 +1,10 @@
 ChangeLog for 2.53.1
 
 //Beta 11
+Updated qst.dat so that the script buffer uses '#include', not 'import'.
+Classic.zh: v1.12. Use '#include', not 'import'.
+	( ZoriaRPG, 9th November, 2019 )
+	
 Fixed instability and improper offsets from Import/Export tiles. 
 	( ZoriaRPG, 8th November, 2019 )
 
