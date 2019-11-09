@@ -1147,13 +1147,16 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 {
 	visit(host.left.get());
+	syncDisable(host, *host.left);
 	if (breakRecursion(host)) return;
 	checkCast(*host.left->getReadType(scope, this), DataType::UNTYPED, &host);
 	if (breakRecursion(host)) return;
 	
 	visit(host.middle.get());
+	syncDisable(host, *host.middle);
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
+	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
 	checkCast(*host.middle->getReadType(scope, this), *host.right->getReadType(scope, this), &host);
 	if (breakRecursion(host)) return;
