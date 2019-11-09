@@ -7,7 +7,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
-#define MAX_SCRIPT_REGISTERS 1024
+#define BITS_SP	10
+#define MAX_SCRIPT_REGISTERS	(1<<BITS_SP)
 
 namespace ZScript
 {
