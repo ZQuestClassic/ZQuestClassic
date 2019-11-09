@@ -12444,6 +12444,7 @@ bool LinkClass::dowarp(int type, int index)
     case wtSCROLL:                                          // scrolling warp
     {
         int c = DMaps[currdmap].color;
+		scrolling_map = currmap;
         currmap = DMaps[wdmap].map;
 	update_subscreens(wdmap);
 	
@@ -12522,6 +12523,7 @@ bool LinkClass::dowarp(int type, int index)
     
     case wtWHISTLE:                                         // whistle warp
     {
+		scrolling_map = currmap;
         currmap = DMaps[wdmap].map;
         scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
         reset_hookshot();
@@ -13797,6 +13799,7 @@ void LinkClass::checkscroll()
             }
             else if(!edge_of_dmap(up))
             {
+				scrolling_map = currmap;
                 scrollscr(up);
                 
                 if(tmpscr->flags4&fAUTOSAVE)
@@ -13854,6 +13857,7 @@ void LinkClass::checkscroll()
             }
             else if(!edge_of_dmap(down))
             {
+				scrolling_map = currmap;
                 scrollscr(down);
                 
                 if(tmpscr->flags4&fAUTOSAVE)
@@ -13912,6 +13916,7 @@ void LinkClass::checkscroll()
             }
             else if(!edge_of_dmap(left))
             {
+				scrolling_map = currmap;
                 scrollscr(left);
                 
                 if(tmpscr->flags4&fAUTOSAVE)
@@ -13970,6 +13975,7 @@ void LinkClass::checkscroll()
             }
             else if(!edge_of_dmap(right))
             {
+				scrolling_map = currmap;
                 scrollscr(right);
                 
                 if(tmpscr->flags4&fAUTOSAVE)
@@ -14562,7 +14568,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         unsetmapflag(mSECRET);
         fixed_door = false;
     }
-    
+    Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
+	scrolling_scr = currscr;
+	
     switch(scrolldir)
     {
     case up:

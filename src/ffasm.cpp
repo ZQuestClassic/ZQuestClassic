@@ -912,6 +912,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LOADLWEAPONBYSUID",        1,   0,   0,   0},
 	{ "LOADWEAPONCBYSUID",        1,   0,   0,   0},
     { "LOADDROPSETR",       1,   0,   0,   0},
+    { "LOADTMPSCR",             1,   0,   0,   0},
+    { "LOADSCROLLSCR",             1,   0,   0,   0},
+    { "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
+    { "ISSOLIDLAYER",             1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}

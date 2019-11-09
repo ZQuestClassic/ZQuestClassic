@@ -3222,6 +3222,50 @@ namespace ZScript
 		}
 	};
 
+	class OIsSolidMapdataLayer : public UnaryOpcode
+	{
+	public:
+		OIsSolidMapdataLayer(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OIsSolidMapdataLayer(a->clone());
+		}
+	};
+
+	class OIsSolidLayer : public UnaryOpcode
+	{
+	public:
+		OIsSolidLayer(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OIsSolidLayer(a->clone());
+		}
+	};
+
+	class OLoadTmpScr : public UnaryOpcode
+	{
+	public:
+		OLoadTmpScr(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadTmpScr(a->clone());
+		}
+	};
+
+	class OLoadScrollScr : public UnaryOpcode
+	{
+	public:
+		OLoadScrollScr(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadScrollScr(a->clone());
+		}
+	};
+
 	class OSetSideWarpRegister : public Opcode
 	{
 	public:

@@ -144,6 +144,79 @@ mapscr* GetMapscr(long mapref)
     }
 }
 
+long getMap(long ref)
+{
+	switch(ref)
+	{
+		case MAPSCR_TEMP0:
+			return currmap+1;
+		case MAPSCR_TEMP1:
+			return FFCore.tempScreens[0]->layermap[0];
+		case MAPSCR_TEMP2:
+			return FFCore.tempScreens[0]->layermap[1];
+		case MAPSCR_TEMP3:
+			return FFCore.tempScreens[0]->layermap[2];
+		case MAPSCR_TEMP4:
+			return FFCore.tempScreens[0]->layermap[3];
+		case MAPSCR_TEMP5:
+			return FFCore.tempScreens[0]->layermap[4];
+		case MAPSCR_TEMP6:
+			return FFCore.tempScreens[0]->layermap[5];
+		case MAPSCR_SCROLL0:
+			return scrolling_map+1;
+		case MAPSCR_SCROLL1:
+			return FFCore.ScrollingScreens[0]->layermap[0];
+		case MAPSCR_SCROLL2:
+			return FFCore.ScrollingScreens[0]->layermap[1];
+		case MAPSCR_SCROLL3:
+			return FFCore.ScrollingScreens[0]->layermap[2];
+		case MAPSCR_SCROLL4:
+			return FFCore.ScrollingScreens[0]->layermap[3];
+		case MAPSCR_SCROLL5:
+			return FFCore.ScrollingScreens[0]->layermap[4];
+		case MAPSCR_SCROLL6:
+			return FFCore.ScrollingScreens[0]->layermap[5];
+		default:
+			return (ref / MAPSCRS + 1);
+	}
+}
+long getScreen(long ref)
+{
+	switch(ref)
+	{
+		case MAPSCR_TEMP0:
+			return currscr;
+		case MAPSCR_TEMP1:
+			return FFCore.tempScreens[0]->layerscreen[0];
+		case MAPSCR_TEMP2:
+			return FFCore.tempScreens[0]->layerscreen[1];
+		case MAPSCR_TEMP3:
+			return FFCore.tempScreens[0]->layerscreen[2];
+		case MAPSCR_TEMP4:
+			return FFCore.tempScreens[0]->layerscreen[3];
+		case MAPSCR_TEMP5:
+			return FFCore.tempScreens[0]->layerscreen[4];
+		case MAPSCR_TEMP6:
+			return FFCore.tempScreens[0]->layerscreen[5];
+		case MAPSCR_SCROLL0:
+			return scrolling_scr;
+		case MAPSCR_SCROLL1:
+			return FFCore.ScrollingScreens[0]->layerscreen[0];
+		case MAPSCR_SCROLL2:
+			return FFCore.ScrollingScreens[0]->layerscreen[1];
+		case MAPSCR_SCROLL3:
+			return FFCore.ScrollingScreens[0]->layerscreen[2];
+		case MAPSCR_SCROLL4:
+			return FFCore.ScrollingScreens[0]->layerscreen[3];
+		case MAPSCR_SCROLL5:
+			return FFCore.ScrollingScreens[0]->layerscreen[4];
+		case MAPSCR_SCROLL6:
+			return FFCore.ScrollingScreens[0]->layerscreen[5];
+		default:
+			return (ref % MAPSCRS);
+	}
+}
+
 #ifdef _WIN32
 // ConsoleLogger.cpp: implementation of the CConsoleLogger class.
 //
@@ -6960,7 +7033,7 @@ case MAPDATAMAP:
 		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Map");
 		ret = -10000;
 	}
-	ret = (ri->mapsref / MAPSCRS + 1) * 10000;
+	ret = getMap(ri->mapsref) * 10000;
 	break;
 }
 case MAPDATASCREEN:
@@ -6970,10 +7043,9 @@ case MAPDATASCREEN:
 		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Screen");
 		ret = -10000;
 	}
-	ret = (ri->mapsref % MAPSCRS) * 10000;
+	ret = getScreen(ri->mapsref) * 10000;
 	break;
 }
-	
 
 case MAPDATAFLAGS: 
 {
@@ -15851,6 +15923,21 @@ void do_mapdataissolid_layer()
 	}
 }
 
+void do_issolid_layer()
+{
+	int x = int(ri->d[0] / 10000);
+	int y = int(ri->d[1] / 10000);
+	int layer = int(ri->d[2] / 10000);
+	if(BC::checkBounds(layer, 0, 6, "Screen->isSolidLayer()") != SH::_NoError)
+	{
+		set_register(sarg1,10000);
+	}
+	else
+	{
+		set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
+	}
+}
+
 void do_setsidewarp()
 {
     long warp   = SH::read_stack(ri->sp + 3) / 10000;
@@ -17034,6 +17121,7 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 		case 5: ri->mapsref = MAPSCR_TEMP5; break;
 		case 6: ri->mapsref = MAPSCR_TEMP6; break;
 	}
+	set_register(sarg1, ri->mapsref);
 }
 
 void FFScript::do_loadmapdata_scrollscr(const bool v)
@@ -17054,6 +17142,7 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 		case 5: ri->mapsref = MAPSCR_SCROLL5; break;
 		case 6: ri->mapsref = MAPSCR_SCROLL6; break;
 	}
+	set_register(sarg1, ri->mapsref);
 }
 	
 void FFScript::do_loadshopdata(const bool v)
@@ -18303,6 +18392,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		case wtSCROLL:                                          // scrolling warp
 		{
 			int c = DMaps[currdmap].color;
+			scrolling_map = currmap;
 			currmap = DMaps[dmapID].map;
 			update_subscreens(dmapID);
 			
@@ -20333,6 +20423,12 @@ int run_script(const byte type, const word script, const long i)
 		case LOADMAPDATAV:
 		    FFScript::do_loadmapdata(true);
 		    break;
+		case LOADTMPSCR:
+			FFScript::do_loadmapdata_tempscr(false);
+			break;
+		case LOADSCROLLSCR:
+			FFScript::do_loadmapdata_scrollscr(false);
+			break;
 		
 		case LOADSPRITEDATAR:
 		    FFScript::do_loadspritedata(false);
@@ -20543,6 +20639,14 @@ int run_script(const byte type, const word script, const long i)
 		case MAPDATAISSOLID:
 		    do_mapdataissolid();
 		    break;
+			
+		case MAPDATAISSOLIDLYR:
+			do_mapdataissolid_layer();
+			break;
+			
+		case ISSOLIDLAYER:
+			do_issolid_layer();
+			break;
 		    
 		case SETSIDEWARP:
 		    do_setsidewarp();
@@ -23710,12 +23814,12 @@ void FFScript::init()
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();
-	tempScreens[0] = &tmpscr[0];
-	ScrollingScreens[0] = &tmpscr[1];
+	tempScreens[0] = tmpscr;
+	ScrollingScreens[0] = tmpscr+1;
 	for(int q = 0; q < 6; ++q)
 	{
-		tempScreens[q+1] = &tmpscr2[q];
-		ScrollingScreens[q+1] = &tmpscr3[q];
+		tempScreens[q+1] = tmpscr2+q;
+		ScrollingScreens[q+1] = tmpscr3+q;
 	}
 }
 
@@ -28299,6 +28403,14 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "CLOSEWIPESHAPE",                1,   0,   0,   0},
     { "FILEEXISTS",                1,   0,   0,   0},
     { "BITMAPCLEARTOCOLOR",                0,   0,   0,   0},
+	{ "LOADNPCBYSUID",        1,   0,   0,   0},
+	{ "LOADLWEAPONBYSUID",        1,   0,   0,   0},
+	{ "LOADWEAPONCBYSUID",        1,   0,   0,   0},
+    { "LOADDROPSETR",       1,   0,   0,   0},
+    { "LOADTMPSCR",             1,   0,   0,   0},
+    { "LOADSCROLLSCR",             1,   0,   0,   0},
+    { "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
+    { "ISSOLIDLAYER",             1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

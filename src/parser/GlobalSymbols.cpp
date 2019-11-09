@@ -2298,6 +2298,7 @@ static AccessorTable ScreenTable[] =
 	{ "LoadEWeapon",                  ZVARTYPEID_EWPN,          FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateEWeapon",                ZVARTYPEID_EWPN,          FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "isSolid",                      ZVARTYPEID_BOOL,          FUNCTION,     0,                                1,            0,                                    3,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "isSolidLayer",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                                1,            0,                                    4,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SetSideWarp",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    5,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,     -1,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "SetTileWarp",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    5,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,     -1,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "LayerScreen",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3315,6 +3316,23 @@ void ScreenSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+	//bool isSolidLayer(screen, int, int, int)
+	{
+		Function* function = getFunction("isSolidLayer", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OIsSolidLayer(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
     //void SetSideWarp(screen, float, float, float, float)
     {
 	    Function* function = getFunction("SetSideWarp", 5);
@@ -4226,6 +4244,8 @@ static AccessorTable gameTable[] =
 	{ "LoadNPCData",                   ZVARTYPEID_NPCDATA,       FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadComboData",                 ZVARTYPEID_COMBOS,        FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadMapData",                   ZVARTYPEID_MAPDATA,       FUNCTION,     0,                    1,              0,                                    3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadTempScreen",                ZVARTYPEID_MAPDATA,       FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadScrollingScreen",           ZVARTYPEID_MAPDATA,       FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadSpriteData",                ZVARTYPEID_SPRITEDATA,    FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadShopData",                  ZVARTYPEID_SHOPDATA,      FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadInfoShopData",              ZVARTYPEID_SHOPDATA,      FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -4389,6 +4409,39 @@ void GameSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    
+    //int LoadTempScreen(game, int layer)
+    {
+        Function* function = getFunction("LoadTempScreen", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadTmpScr(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+    //int LoadScrollingScreen(game, int layer)
+    {
+        Function* function = getFunction("LoadScrollingScreen", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadScrollScr(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+	
     //long Create(bitmap, int map,int scr)
 	{
 		Function* function = getFunction("CreateBitmap", 3);
@@ -7562,6 +7615,7 @@ static AccessorTable MapDataTable[] =
 	{ "GetWarpReturnY",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                          1,             0,                                    4,           {  ZVARTYPEID_MAPDATA,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "isSolid",                        ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             0,                                    3,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "isSolidLayer",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             0,                                    4,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 //	mapdata m-> class variables
 	{ "getValid",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAVALID,               1,             0,                                    1,           {  ZVARTYPEID_MAPDATA,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -8100,6 +8154,24 @@ void MapDataSymbols::generateCode()
 		//pop pointer
 		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OIsSolidMapdata(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//bool isSolidLayer(screen, int, int, int)
+	{
+		Function* function = getFunction("isSolidLayer", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OIsSolidMapdataLayer(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}

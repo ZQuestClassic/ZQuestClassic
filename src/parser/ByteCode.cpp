@@ -2854,6 +2854,26 @@ string OIsSolidMapdata::toString()
     return "MAPDATAISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdataLayer::toString()
+{
+    return "MAPDATAISSOLIDLYR " + getArgument()->toString();
+}
+
+string OIsSolidLayer::toString()
+{
+    return "ISSOLIDLAYER " + getArgument()->toString();
+}
+
+string OLoadTmpScr::toString()
+{
+    return "LOADTMPSCR " + getArgument()->toString();
+}
+
+string OLoadScrollScr::toString()
+{
+    return "LOADSCROLLSCR " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";

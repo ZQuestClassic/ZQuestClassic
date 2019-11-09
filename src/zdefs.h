@@ -1944,7 +1944,8 @@ public:
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
-	dword mapsref, screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
+	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
+	long mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
