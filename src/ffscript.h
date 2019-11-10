@@ -1232,7 +1232,7 @@ enum __Error
     //only if the player is messing with their pointers...
     ZScriptArray& InvalidError(const long ptr)
     {
-        //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+        Z_scripterrlog("FFSScript::InvalidError - Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
     }
     

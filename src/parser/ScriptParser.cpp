@@ -227,13 +227,14 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	IntermediateData *rval = new IntermediateData(fdata);
     
 	// Push 0s for init stack space.
+	/* Why? The stack should already be init'd to all 0, anyway?
 	rval->globalsInit.push_back(
 			new OSetImmediate(new VarArgument(EXP1),
 			                  new LiteralArgument(0)));
 	int globalStackSize = *program.getScope().getRootStackSize();
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
-				new OPushRegister(new VarArgument(EXP1)));
+				new OPushRegister(new VarArgument(EXP1)));*/
     
 	// Generate variable init code.
 	for (vector<Datum*>::iterator it = globalVariables.begin();
@@ -252,9 +253,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	}
     
 	// Pop off everything.
+	/* See above; why push this in the first place?
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
-				new OPopRegister(new VarArgument(EXP2)));
+				new OPopRegister(new VarArgument(EXP2)));*/
         
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
