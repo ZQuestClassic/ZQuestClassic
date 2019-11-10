@@ -19,13 +19,13 @@ int std_zh___GlobalRAM[4096];
 //! It's essentially a catch-all for questmakers, as a way to later expand a quest, without breaking player
 //! save files, or requiring them to start from scratch, to play the update. 
 
-const float STD_VERSION = 1.5001;
+const float STD_VERSION = 1.5002;
 
 const int STD_DATE_YEAR = 2019;
-const int STD_DATE_MONTH = 9;
-const int STD_DATE_DAY = 16;
-const int STD_DATE_HOUR = 2;
-const int STD_DATE_MINUTE = 30;
+const int STD_DATE_MONTH = 11;
+const int STD_DATE_DAY = 6;
+const int STD_DATE_HOUR = 0;
+const int STD_DATE_MINUTE = 2;
 
 float __stdzh_getVersion() { return STD_VERSION; }
 float __stdzh_getVersionDate()

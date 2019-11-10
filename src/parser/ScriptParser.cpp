@@ -276,8 +276,48 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
     
     for(vector<ASTImportDecl *>::iterator it = imports.begin(); it != imports.end(); it++)
     {
+	    //the filename
+	    //Plan:
+	    /*
+		Add an iterator for number of imports
+		If iterator < 1:
+			Store it in a vector of strings
+			Incr iterator
+		else
+		scan vector for a match
+		if it matches, issue a warning in box_out
+			AND skip it
+			else incr iterator and try to import the file
+
+		if importing, scan include paths
+		this needs to be done in go()?
+	    
+		No
+		before callong go(fn)
+		std::str tmpfn = "@@" +fn;
+		//if registerednames has no substring matching tempfn
+		    registerednames += tempfn;
+		//else, warn and skip
+		
+		We need a string that is global to the parser
+		As the parser INVOKES, clear it, and start tacking on delim+filename
+		string.find("substr")
+			if that returns string::npos, then we add it
+			if it returns anything else, then we warn and skip
+			    
+				if(string::npos == foundImports.find(name))
+				{
+				    foundImports += "@@" + name;
+				    //GO
+				}
+				else
+				{
+				    //WARN
+				}
+	    
+	    */
         string fn = trimQuotes((*it)->getFilename());
-        
+        //this handles correcting the path for the host OS
         for(int i=0; fn[i]; i++)
         {
 #ifdef _ALLEGRO_WINDOWS

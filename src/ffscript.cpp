@@ -27,6 +27,8 @@ FFScript FFCore;
 #include "rendertarget.h"
 #include "metadata/versionsig.h"
 
+extern byte monochrome_console;
+
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 
@@ -475,8 +477,8 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 
 	va_end(argList);
 
-
-	return _cprint(attributes,tmp,ret);
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
+	else	return _cprint(attributes,tmp,ret);
 
 }
 
@@ -504,8 +506,8 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 
 	va_end(argList);
 
-
-	return _cprint(m_dwCurrentAttributes,tmp,ret);
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
+	else return _cprint(m_dwCurrentAttributes,tmp,ret);
 
 }
 

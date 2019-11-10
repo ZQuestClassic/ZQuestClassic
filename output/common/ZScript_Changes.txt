@@ -1,8 +1,8 @@
-2.53.0 Release 3 ZScript Changes
-23rd September, 2019
+2.53.1 ZScript Changes
+29th October, 2019
 
 The following ZScript instructons have been changed, or added
-to ZC v2.53.x.
+to ZC v2.53.1.
 
 Some behaviour may differ if the player uses a quest with these
 insrtrcutions in an older version of ZC Player.
@@ -11,7 +11,7 @@ This document detals the new/revised instructions and the ramificatons
 of using them in older ZC Player versions.
 
 You may use Version.zh to check for ZC version 2.5301 to validate that
-the player is using ZC Player 2.53.0 Release 3.
+the player is using ZC Player 2.53.1, or higher.
 
 /////////////
 /// Game-> //
@@ -75,3 +75,93 @@ int Equipment;				ZASM Instruction:
 * you can use the functions GetEquipmentA(), GetEquipmentB(), and SetEquipment(int  int b) in std.zh.
 *
 */ Example Use: !#!
+
+//////////////////
+/// New Tokens ///
+//////////////////
+
+#include
+This is identical in function in 2.53.1 to 'import', however as
+'#include' is now standardised in 2.55, we have included a simplified
+version of this directive in 2.53.1, to aid in transition from using
+the 'import' directive, to the '#include' directive.
+
+//////////////////////////
+/// Alternative Tokens ///
+//////////////////////////
+
+2.53.1 now supports the following ZScript tokens:
+
+//Operational
++		:	Addition
+-		: 	Subtraction
+*		:	Multiplication
+/		:	Division
+++		: 	Increment (Pre, or Post)
+--		: 	Decrement (Pre, or Post)
+
+//Assignment
+=		: 	Assign
+:=		: 	Assign (alternative)
++=		: 	Add-Assign
+-=		: 	Subtract-Assign
+*=		: 	Multiply-Assign
+/=		:	Divide-Assign
+
+//Relational
+<		:	Less-Than
+>		:	Greater-Than
+<=		:	Less-Than-or-Equal
+>=		:	More-Than-or-Equal
+==		: 	Equal
+!=		:	Not-Equal
+equals		: 	Equivalent to 	==
+not_equal 	:	Equivalent to 	!=
+
+//Logical
+!		: 	Not
+||		:	Logical OR
+&&		:	Logical AND
+and 		: 	Equivalent to 	&&
+xor		: 	Equivalent to 	^^
+or 		: 	Equivalent to 	||
+not 		: 	Equivalent to 	!
+not_eq 		:	Equivalent to 	!=
+
+//Resolution
+.		:	Script Name Scope Resolution
+
+//Bitwise
+&		: 	Bitwise AND
+~		: 	Bitwise NOT
+|		: 	Bitwise OR
+^		: 	Bitwise XOR
+|=		:	Bitwise OR-Assign
+&=		:	Bitwise AND-Assign
+^=		:	Bitwise XOR-Assign
+bitand 		: 	Equivalent to 	&
+bitor 		: 	Equivalent to 	|
+bitxor 		: 	Equivalent to 	^
+compl		: 	Equivalent to	~
+bitnot		: 	Equivalent to	~
+or_eq 		: 	Equivalent to 	|=
+or_equal 	: 	Equivalent to 	|=
+xor_eq 		: 	Equivalent to 	^=
+xor_equal 	: 	Equivalent to 	^=
+and_eq 		: 	Equivalent to 	&=
+and_equal 	: 	Equivalent to 	&=
+
+////////////////////
+// Comment Blocks //
+////////////////////
+
+The ZScript language now supports C-Style comment blocks using the traditional syntax of:
+
+	[example--
+
+		/* 
+			COMMENT BLOCK
+			
+		*/
+		
+	--end example]

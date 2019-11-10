@@ -8803,7 +8803,7 @@ bool eGanon::animate(int index)
 	item *dustpile = NULL;
 	//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
 	dustpile = (item *)items.spr(items.Count() - 1);
-	dustpile->miscellaneous[15] = eeGANON;
+	dustpile->linked_parent = eeGANON; 
         break;
     }
     case 4:
@@ -8813,15 +8813,27 @@ bool eGanon::animate(int index)
             
             if(getmapflag())
             {
-                game->lvlitems[dlevel]|=liBOSS;
+                if ( !(game->lvlitems[dlevel]&liBOSS) ) game->lvlitems[dlevel]|=liBOSS;
                 //play_DmapMusic();
                 playLevelMusic();
                 return true;
             }
             
             sfx(WAV_CLEARED);
-            items.add(new item(x+8,y+8,(fix)0,iBigTri,ipBIGTRI,0));
+            
+	    //Add the big TF over the ashes!
+		for(word q = 0; q < items.Count(); q++)
+		{
+			item *ashes = (item*)items.spr(q);
+			if ( ashes->linked_parent == eeGANON )
+			{
+				Z_scripterrlog("Found correct dustpile!\n");
+				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
+			}
+		}
+		if ( !(game->lvlitems[dlevel]&liBOSS) ) game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
             setmapflag();
+		
         }
         
         break;

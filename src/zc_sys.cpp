@@ -61,6 +61,8 @@ extern FFScript FFCore;
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
+byte monochrome_console = 0;
+
 extern FONT *lfont;
 extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
@@ -369,7 +371,8 @@ void load_game_configs()
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
 	
 	// And this one fixes patches unloading on some MIDI setups
-	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
+	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
+	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
     
 #ifdef ALLEGRO_MACOSX
@@ -520,6 +523,7 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
+	set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
 	set_config_int("zeldadx","debug_console",zconsole);
 #endif
     
@@ -6216,32 +6220,25 @@ int onMIDICredits()
 
 int onAbout()
 {
-    switch(IS_BETA)
-    {
-    case 1:
-        sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
-        break;
-        
-    case -1:
-        sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
-        break;
-        
-    case 0:
-	sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
-	break;
-    default:
-        if ( IS_BETA > 0 )
-	{
-		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
-		break;
-	}
-	else
+	if ( V_ZC_ALPHA )
 	{
 		sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
-		break;
 	}
-        break;
-    }
+		
+	else if ( V_ZC_BETA )
+	{
+		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
+	}
+	else if ( V_ZC_GAMMA )
+	{
+		sprintf(str_s,"(v.%s, Gamma %d, Build %d)",ZC_PLAYER_V,V_ZC_GAMMA, VERSION_BUILD);
+	}
+	else /*( V_ZC_RELEASE )*/
+	{
+		sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
+	}
+		
+	
     
     //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
     about_dlg[0].dp2=lfont;
@@ -7101,6 +7098,7 @@ static MENU game_menu[] =
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"Linear Quest Progression",             onLinearQuestLoad,                NULL,                      0, NULL },
+    { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
     
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
@@ -7213,8 +7211,34 @@ int onLinearQuestLoad()
 	    if (linear_quest_loading ) linear_quest_loading = 0;
 	    
 	    else linear_quest_loading = 1;	
+		game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
 		
 	}
+	save_game_configs();
+    return D_O_K;
+}
+
+int onMIDIPatch()
+{
+	if(jwin_alert3(
+			"Toggle Windows MIDI Fix", 
+			"This action will change whether ZC Player auto-restarts a MIDI at its",
+			"last index if you move ZC Player out of focus, then back into focus.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (midi_patch_fix) midi_patch_fix = 0;
+	    
+	    else midi_patch_fix = 1;	
+		
+	}
+	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
 	save_game_configs();
     return D_O_K;
 }
@@ -8717,7 +8741,8 @@ void System()
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
-    game_menu[4].flags =
+	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
+    game_menu[5].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     
@@ -8835,6 +8860,7 @@ void System()
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
         //Epilepsy Prevention
 	settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+	
 	reset_snapshot_format_menu();
         snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
         

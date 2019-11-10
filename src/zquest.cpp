@@ -73,6 +73,7 @@ void setZScriptVersion(int) { } //bleh...
 #include "zqscale.h"
 
 #include "questReport.h"
+#include "metadata/versionsig.h"
 
 //SDL_Surface *sdl_screen;
 
@@ -517,6 +518,7 @@ static MENU import_250x_files[]=
 	{ (char *)"&Tiles (2.50.x)",                     onImport_Tiles_old,            NULL,                     0,            NULL   },
         { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
         { (char *)"&DMaps",             onImport_DMaps_old,              NULL,                     0,            NULL   },
+	{ (char *)"&Combo Table",               onImport_Combos_old,           NULL,                     0,            NULL   },
     
 	//TO-DO: Move old combo and combo alias here
 	// make new comboset and aliasset functions
@@ -536,27 +538,39 @@ static MENU import_250x_files[]=
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU import_graphics[]=
+{
+	{ (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onImport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"T&ile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
+    
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Combo Set (Range)",               onImport_Combos,           NULL,                     0,            NULL   },
+    { (char *)"Combo Pack (Full, 1:1)",           	    onImport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo Pack to... (Dest)",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
+    { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU import_menu[] =
 {
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps Set",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tileset",                     onImport_Tiles,            NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
-    { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
-    { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
     { (char *)"2.50.x Files",           	    NULL,   import_250x_files,                     0,            NULL   },
       
     // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
@@ -564,40 +578,75 @@ static MENU import_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU export_graphics[]=
+{
+	{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+	{ (char *)"&Combo Set",               onExport_Combos,           NULL,                     0,            NULL   },
+    
+	{ (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU export_250_menu[] =
+{
+	{ (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
+	{ (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
+	//known to have problems in 2.55: DMaps
+    { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
+    
+};
+
 static MENU export_menu[] =
 {
+	{ (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
+    //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
     //known to have be fine in 2.55: Maps
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
-    //known to have problems in 2.55: DMaps
-    { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-    //New format for 2.55: Tiles
-    { (char *)"&Tileset",                     onExport_Tiles,            NULL,                     0,            NULL   },
-    //known to have be fine in 2.55: Maps
-    { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
-    //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
+    { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     //unchecked for 2.55 but at present should work (unchanged): Palettes
-    //Includes palette cycles, so, absolutely not future safe, given that there are half 
-    //as many pal cycles as there are palettes.
-    //At least CV and SV are written, so we will need to depend entirely on those.
-    { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    //known to have problems in 2.55: DMaps
+    //{ (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
     //Seems future-safe, and works in 2.55: Strings
     { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+    
+    //New format for 2.55: Tiles
+    //{ (char *)"&Tileset",                     onExport_Tiles,            NULL,                     0,            NULL   },
+    //known to have be fine in 2.55: Maps
+    //Includes palette cycles, so, absolutely not future safe, given that there are half 
+    //as many pal cycles as there are palettes.
+    //At least CV and SV are written, so we will need to depend entirely on those.
+    //{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+    
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      export_graphics,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"2.50 (Broken)",                  NULL,                      export_250_menu,               0,            NULL   },
+    
     //known to have problems in 2.55: Combos
-    { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
+    //{ (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     //known to have problems in 2.55: Combo Alias
-    { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
+    //{ (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
     //No longer supported.
     //{ (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
-    //Untested for 2.55 and needs validation: QSU
-    { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    //{ (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     //known to have be fine in 2.55: Everything below here
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    //Untested for 2.55 and needs validation: QSU
+    { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    //{ (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
+    //{ (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+    //{ (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
     //Missing: Itemset, Weaponset
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1480,18 +1529,18 @@ void savesomecombos(const char *prompt,int initialval)
 }
 
 
-static DIALOG read_combopack_dlg[] =
+static DIALOG load_comboset_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
 
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Pack To:", NULL, NULL },
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Combo Set (Range)", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
     //4
-    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First:",               NULL,   NULL  },
     { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
     //6
     {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
@@ -1499,35 +1548,42 @@ static DIALOG read_combopack_dlg[] =
     //8
     { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-
-void writesomecombos_to(const char *prompt,int initialval)
+void writesomecombos(const char *prompt,int initialval)
 {
 	
-	char firsttile[8];;
+	char firsttile[8];
 	int first_tile_id = 0; int the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
 		//int ret;
 	
 	
 	
-	read_combopack_dlg[0].dp2 = lfont;
+	load_comboset_dlg[0].dp2 = lfont;
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
 	
-	read_combopack_dlg[5].dp = firsttile;
+	load_comboset_dlg[5].dp = firsttile;
+	
+	byte nooverwrite = 0;
+	
 	
 	if(is_large)
-		large_dialog(read_combopack_dlg);
+		large_dialog(load_comboset_dlg);
 	
-	int ret = zc_popup_dialog(read_combopack_dlg,-1);
-	jwin_center_dialog(read_combopack_dlg);
+	int ret = zc_popup_dialog(load_comboset_dlg,-1);
+	jwin_center_dialog(load_comboset_dlg);
 	
 	if(ret == 8)
 	{
+		if (load_comboset_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+	
+		al_trace("Nooverwrite is: %d\n", nooverwrite);
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
@@ -1538,7 +1594,7 @@ void writesomecombos_to(const char *prompt,int initialval)
 			if(f)
 			{
 				
-				if (!readcombofile_to_location(f,first_tile_id))
+				if (!readcombofile(f,first_tile_id,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
 					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1555,6 +1611,272 @@ void writesomecombos_to(const char *prompt,int initialval)
 	}
 }
 
+static DIALOG load_combopack_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Import Full Combo Package 1:1", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  d_dummy_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { d_dummy_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_check_proc,        10,     42,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void loadcombopack(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	load_combopack_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	load_combopack_dlg[5].dp = firsttile;
+	
+	byte nooverwrite = 0;
+	
+	
+	if(is_large)
+		large_dialog(load_combopack_dlg);
+	
+	int ret = zc_popup_dialog(load_combopack_dlg,-1);
+	jwin_center_dialog(load_combopack_dlg);
+	
+	if(ret == 8)
+	{
+		if (load_combopack_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+	
+		al_trace("Nooverwrite is: %d\n", nooverwrite);
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				//need dialogue here
+				if (!readcombofile(f,0,nooverwrite))
+				{
+					al_trace("Could not read from .zcombo packfile %s\n", name);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+			}
+	
+			pack_fclose(f);
+		}
+	}
+}
+
+
+static DIALOG read_combopack_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combos (Specific Dest)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    24,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     22,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //10
+    { jwin_check_proc,        10,     58,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    //11
+    {  jwin_text_proc,        10,    42,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Skip:",               NULL,   NULL  },
+    //12
+    { jwin_edit_proc,          55,     40,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+
+void writesomecombos_to(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];
+	char skiptile[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	read_combopack_dlg[0].dp2 = lfont;
+	
+	sprintf(skiptile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_combopack_dlg[5].dp = firsttile;
+	
+	byte nooverwrite = 0;
+	int skipover = 0;
+	
+	sprintf(skiptile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_combopack_dlg[12].dp = skiptile;
+	
+	if(is_large)
+		large_dialog(read_combopack_dlg);
+	
+	int ret = zc_popup_dialog(read_combopack_dlg,-1);
+	jwin_center_dialog(read_combopack_dlg);
+	
+	if(ret == 8)
+	{
+		if (read_combopack_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+		
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
+		skipover = vbound(atoi(skiptile), 0, (MAXCOMBOS-1));
+		al_trace("skipover is: %d\n", skipover);
+		//skipover = vbound(skipover, 0, (MAXCOMBOS-1-skipover));
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readcombofile_to_location(f,first_tile_id,nooverwrite, skipover))
+				{
+					al_trace("Could not read from .zcombo packfile %s\n", name);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+			
+		}
+	}
+}
+
+static DIALOG save_dmaps_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save DMaps (.zdmap)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Last",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesomedmaps(const char *prompt,int initialval)
+{
+	
+	char firstdmap[8], lastdmap[8];
+	int first_dmap_id = 0; int last_dmap_id = 0;
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",1);
+	//int ret;
+	
+	
+	
+	save_dmaps_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",0);
+	
+	save_dmaps_dlg[5].dp = firstdmap;
+	save_dmaps_dlg[7].dp = lastdmap;
+	
+	if(is_large)
+		large_dialog(save_dmaps_dlg);
+	
+	int ret = zc_popup_dialog(save_dmaps_dlg,-1);
+	jwin_center_dialog(save_dmaps_dlg);
+	
+	if(ret == 8)
+	{
+		first_dmap_id = vbound(atoi(firstdmap), 0, MAXDMAPS-1);
+		last_dmap_id = vbound(atoi(lastdmap), 0,  MAXDMAPS-1);
+		
+		if ( last_dmap_id < first_dmap_id )
+		{
+			int swap = last_dmap_id;
+			last_dmap_id = first_dmap_id;
+			first_dmap_id = swap;			
+		}
+		if(!getname("Export DMaps(.zdmapzq)_)","zdmap",NULL,datapath,false))
+		
+		
+		saved=false;
+	    
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(f)
+		{
+			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
+			{
+				char buf[80],name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				sprintf(buf,"Unable to load %s",name);
+				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+			else
+			{
+				char name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+		pack_fclose(f);
+	}
+}
 
 
 static DIALOG save_comboaliasfiles_dlg[] =
@@ -2978,8 +3300,17 @@ int onGotoPage()
     
     if(!cancelgetnum)
     {
-        int page=(zc_min(choosepage,COMBO_PAGES-1));
-        First[current_combolist]=page<<8;
+	if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
+	{
+		int page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
+		//First[current_comboalist]=page<<8;
+		combo_alistpos[current_comboalist] = vbound(page*96, 0, MAXCOMBOALIASES-97);
+	}
+	else
+	{
+		int page=(zc_min(choosepage,COMBO_PAGES-1));
+		First[current_combolist]=page<<8;
+	}
     }
     
     return D_O_K;
@@ -5260,7 +5591,8 @@ void refresh(int flags)
             
             int rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
             int ry = layer_panel.y+16;
-            draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
+            //draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
+            draw_layer_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
             draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
             
             // Draw the group divider
@@ -8163,7 +8495,8 @@ void domouse()
                 redraw|=rMENU;
             }
         }
-        
+        //little arrows that scroll combos
+	//Up and Down Arrows for Combo Banks
         if(draw_mode!=dm_alias)
         {
             for(int temp_counter=0; temp_counter<3; ++temp_counter)
@@ -8193,6 +8526,7 @@ void domouse()
                 
                 if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && First[temp_counter]>0 && !mouse_down)
                 {
+			al_trace("Arrow\n");
                     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                     {
                         First[temp_counter]-=zc_min(First[temp_counter],256);
@@ -8206,6 +8540,7 @@ void domouse()
                 }
                 else if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && First[temp_counter]<(MAXCOMBOS-(combolist[0].w*combolist[0].h)) && !mouse_down)
                 {
+			al_trace("Arrow\n");
                     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                     {
                         First[temp_counter]+=zc_min((MAXCOMBOS-256)-First[temp_counter],256);
@@ -8260,9 +8595,47 @@ void domouse()
                 }
             }
         }
-        else
+	//Up and Down Arrows for Combo Alias Banks
+        else if(draw_mode==dm_alias)
         {
-            for(int j=0; j<3; ++j)
+            for(int temp_counter=0; temp_counter<3; ++temp_counter)
+            {
+                int temp_x1=combolistscrollers[temp_counter].x;
+                int temp_y1=combolistscrollers[temp_counter].y;
+                int temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                int temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
+                
+                int temp_x3=combolistscrollers[temp_counter].x;
+                int temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                int temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                int temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
+                
+                if(is_large)
+                {
+                    temp_x1=combolistscrollers[temp_counter].x;
+                    temp_y1=combolistscrollers[temp_counter].y;
+                    temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                    temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                    
+                    temp_x3=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w;
+                    temp_y3=combolistscrollers[temp_counter].y;
+                    temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w*2-1;
+                    temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                }
+                
+                if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_alistpos[temp_counter]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h))) && !mouse_down)
+                {
+			combo_alistpos[temp_counter]=zc_min((MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)),combo_alistpos[temp_counter]+(comboaliaslist[0].w*comboaliaslist[0].h));
+			refresh(rCOMBOS);
+                }
+                else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_alistpos[temp_counter]>0) && !mouse_down)
+                {
+			combo_alistpos[temp_counter]-=zc_min(combo_alistpos[temp_counter],(comboaliaslist[0].w*comboaliaslist[0].h));
+			refresh(rCOMBOS);
+                }
+            }
+	    
+	    for(int j=0; j<3; ++j)
             {
                 if(j==0||is_large)
                 {
@@ -8272,7 +8645,9 @@ void domouse()
                     }
                 }
             }
-        }
+            
+	}
+	
         
         //on the favorites list
         if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
@@ -8445,7 +8820,7 @@ void domouse()
         
         mouse_down = true;
     }
-    else if(gui_mouse_b()&2)
+    else if(gui_mouse_b()&2) //right click
     {
         if(isinRect(x,y,startxint,startyint, int(startx+(256*mapscreensize)-1), int(starty+(176*mapscreensize)-1)))
         {
@@ -8902,7 +9277,7 @@ void domouse()
     {
     }
     
-    if(mouse_z!=0)
+    if(mouse_z!=0) //scroll wheel
     {
         int z=0;
         
@@ -10223,7 +10598,7 @@ void build_bii_list(bool usenone)
         start=1;
     }
     
-    for(int i=start; i<iMax; i++)
+    for(int i=0; i<iMax; i++)
     {
         bii[bii_cnt].s = item_string[i];
         bii[bii_cnt].i = i;
@@ -14053,7 +14428,10 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
 	
-    
+	if(!p_iputl(V_ZDMAP,f))
+	{
+		return 0;
+	}
   
     //section version info
 	if(!p_iputl(zversion,f))
@@ -14260,12 +14638,24 @@ int readsomedmaps(PACKFILE *f)
 	memset(&tempdmap, 0, sizeof(dmap));
 	
 	int first = 0, last = 0, max = 0, count = 0;
+	int datatype_version = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&datatype_version,f,true))
 	{
 		return 0;
+	}
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&zversion,f,true))
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		zversion = datatype_version;
 	}
 	if(!p_igetl(&zbuild,f,true))
 	{
@@ -14281,22 +14671,31 @@ int readsomedmaps(PACKFILE *f)
 	{
 		return 0;
 	}
-	
-	if(!p_igetl(&max,f,true))
+	if ( datatype_version < 0 )
 	{
-		return 0;
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		} 
 	}
-	if(!p_igetl(&first,f,true))
+	else
 	{
-		return 0;
-	}
-	if(!p_igetl(&last,f,true))
-	{
-		return 0;
-	}
-	if(!p_igetl(&count,f,true))
-	{
-		return 0;
+		first = 0;
+		last = 0;
+		count = 1;
+		max = 255;
 	}
 	
 	
@@ -14483,9 +14882,13 @@ int writeonedmap(PACKFILE *f, int i)
     dword section_cversion=CV_DMAPS;
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
-    
+	
   
     //section version info
+	if(!p_iputl(V_ZDMAP,f))
+	{
+		return 0;
+	}
 	if(!p_iputl(zversion,f))
 	{
 		return 0;
@@ -14664,13 +15067,28 @@ int readonedmap(PACKFILE *f, int index)
 	int zbuild = 0;
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
-     
+	int datatype_version = 0;
+	int first = 0;
+	int last = 0;
+	int max = 0;
+	int count = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&datatype_version,f,true))
 	{
 		return 0;
+	}
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&zversion,f,true))
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		zversion = datatype_version;
 	}
 	if(!p_igetl(&zbuild,f,true))
 	{
@@ -14689,6 +15107,26 @@ int readonedmap(PACKFILE *f, int index)
 	al_trace("readonedmap section_version: %d\n", section_version);
 	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
+	
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		}
+	}
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -14900,10 +15338,8 @@ void dmap_rclick_func(int index, int x, int y)
 		al_trace("Could not write to .znpc packfile %s\n", temppath);
 	}
 	*/
-	writeonedmap(f,index);
+	writesomedmaps(f,index, index, MAXDMAPS);
 	pack_fclose(f);
-     
-        
     }
     else if(ret==3) // load
     {
@@ -23309,19 +23745,42 @@ sprite_list Sitems, Lwpns;
 
 int main(int argc,char **argv)
 {
-    switch(IS_BETA)
-    {
-    case -1:
-        Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
-        
-    case 1:
-        Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
-        
-    case 0:
-        Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-    }
+    if ( V_ZC_ALPHA )
+	{
+		Z_title("%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA);
+	}
+		
+	else if ( V_ZC_BETA )
+	{
+		Z_title("%s, v.%s Beta %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_BETA);
+	}
+	else if ( V_ZC_GAMMA )
+	{
+		Z_title("%s, v.%s Gamma %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_GAMMA);
+	}
+	else /*( V_ZC_RELEASE )*/
+	{
+		Z_title("%s, v.%s Release %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_RELEASE);
+	}
+	
+	/*
+		    switch(IS_BETA)
+		    {
+		    case -1:
+		    {
+			Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			//Print the current time to allegro.log as a test.
+			
+			break;
+		    }
+		    case 1:
+			Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			break;
+			
+		    case 0:
+			Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		    }
+	*/
     
     scrtmp = NULL;
     
@@ -24798,7 +25257,17 @@ int main(int argc,char **argv)
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     show_mouse(screen);
     //Display annoying beta warning message
-#if IS_BETA
+#if V_ZC_ALPHA
+    char *curcontrol = getBetaControlString();
+    const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+    
+    if(strcmp(curcontrol, oldcontrol))
+    {
+        jwin_alert("       !!WARNING - This is ALPHA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+    }
+    
+    delete[] curcontrol;
+#elif V_ZC_BETA
     char *curcontrol = getBetaControlString();
     const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
     

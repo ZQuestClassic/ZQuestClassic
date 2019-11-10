@@ -679,6 +679,29 @@ void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int 
     }
 }
 
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags)
+{
+	if(flags&D_SELECTED)
+	{
+		rect(dest, x, y, x+w-1, y+h-1, jwin_pal[jcDARK]);
+		++x;
+		++y;
+		--w;
+		--h;
+	}
+	//rect(dest,x+1,y+1,x+w-1,y+h-1,jwin_pal[jcDARK]);
+	rectfill(dest,x+1,y+1,x+w-3,y+h-3,jwin_pal[(flags&D_SELECTED ? jcMEDDARK : jcBOX)]);
+	//rect(dest,x,y,x+w-2,y+h-2,jwin_pal[jcDARK]);
+	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
+	if(flags&D_DISABLED)
+	{
+		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
+	}
+	else
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+}
+
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
 {
     bool over=false;
@@ -8405,12 +8428,12 @@ int readtilefile(PACKFILE *f)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8425,10 +8448,11 @@ int readtilefile(PACKFILE *f)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, index+(tilect-1), format);
-		memcpy(newtilebuf[index+(tilect-1)].data,temp_tile,tilesize(newtilebuf[index+(tilect-1)].format));
+		reset_tile(newtilebuf, index+(tilect), format);
+		memcpy(newtilebuf[index+(tilect)].data,temp_tile,tilesize(newtilebuf[index+(tilect)].format));
+		delete[] temp_tile;
 	}
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8500,12 +8524,12 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8520,20 +8544,24 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, start+(tilect-1), format);
+		reset_tile(newtilebuf, start+(tilect), format);
 		if ( skip )
 		{
-			if ( (start+(tilect-1)) < skip ) goto skip_tile_memcpy;
+			if ( (start+(tilect)) < skip ) 
+			{
+				delete[] temp_tile;
+				continue;
+			}
 			
 		}
-		if ( start+(tilect-1) < NEWMAXTILES )
+		if ( start+(tilect) < NEWMAXTILES )
 		{
-			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
 		}
+		delete[] temp_tile;
 		
 	}
-	skip_tile_memcpy:
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8605,12 +8633,12 @@ int readtilefile_to_location(PACKFILE *f, int start)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8625,13 +8653,14 @@ int readtilefile_to_location(PACKFILE *f, int start)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, start+(tilect-1), format);
-		if ( start+(tilect-1) < NEWMAXTILES )
+		reset_tile(newtilebuf, start+(tilect), format);
+		if ( start+(tilect) < NEWMAXTILES )
 		{
-			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
 		}
+		delete[] temp_tile;
 	}
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8681,12 +8710,12 @@ int writetilefile(PACKFILE *f, int index, int count)
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
-		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
+		if(!p_putc(newtilebuf[index+(tilect)].format,f))
 		{
 			return 0;
 		}
 		    
-		if(!pfwrite(newtilebuf[index+(tilect-1)].data,tilesize(newtilebuf[index+(tilect-1)].format),f))
+		if(!pfwrite(newtilebuf[index+(tilect)].data,tilesize(newtilebuf[index+(tilect)].format),f))
 		{
 			return 0;
 		}
@@ -12665,7 +12694,7 @@ void center_zq_tiles_dialogs()
 
 //.ZCOMBO
 
-int readcombofile(PACKFILE *f)
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 {
 	dword section_version=0;
 	dword section_cversion=0;
@@ -12724,7 +12753,6 @@ int readcombofile(PACKFILE *f)
 		return 0;
 	}
 	al_trace("Reading combo: count(%d)\n", count);
-	
 	
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
@@ -12801,7 +12829,52 @@ int readcombofile(PACKFILE *f)
 		{
 			return 0;
 		}
-		memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+		
+		if ( skip )
+		{
+			if ( (index+(tilect-1)) < skip ) goto skip_combo_copy; //is -1 here an error?
+			
+		}
+		
+		if ( nooverwrite )
+		{
+			
+			if ( combobuf[index+(tilect)].tile ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flip ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].walk ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].type ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].csets ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].foo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].frames ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].speed ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcombo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcset ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flag ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanim ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nexttimer ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanimy ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].animflags ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[0] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[1] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[2] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[3] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[4] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[5] ) goto skip_combo_copy;
+			
+			
+			{
+				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+			}
+			
+			
+		}
+		else
+		{
+			memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+		}
+		skip_combo_copy:
+		{
+		}
 	}
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
@@ -12812,7 +12885,7 @@ int readcombofile(PACKFILE *f)
 }
 
 
-int readcombofile_to_location(PACKFILE *f, int start)
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip)
 {
 	dword section_version=0;
 	dword section_cversion=0;
@@ -12875,7 +12948,7 @@ int readcombofile_to_location(PACKFILE *f, int start)
 	
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
-
+	
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
@@ -12949,10 +13022,55 @@ int readcombofile_to_location(PACKFILE *f, int start)
 			return 0;
 		}
 		
+		if ( skip )
+		{
+			if ( (tilect) < skip ) 
+			{
+				continue;
+			}
+			
+		}
 		
 		if ( start+(tilect) < MAXCOMBOS )
 		{
-			memcpy(&combobuf[start+(tilect)],&temp_combo,sizeof(newcombo));
+			if ( nooverwrite )
+			{
+				
+				if ( combobuf[start+(tilect)-skip].tile ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flip ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].walk ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].type ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].csets ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].foo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].frames ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].speed ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcombo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcset ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flag ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanim ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nexttimer ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanimy ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].animflags ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[0] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[1] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[2] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[3] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[4] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[5] ) goto skip_combo_copy2;
+				
+				
+				{
+					memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+				}
+					
+					
+			}
+			else
+			{
+				memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+			}
+			skip_combo_copy2:
+			{}
 		}
 	}
 	

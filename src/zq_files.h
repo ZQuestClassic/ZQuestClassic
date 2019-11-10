@@ -44,7 +44,9 @@ int onImport_Msgs();
 int onExport_Msgs();
 int onExport_MsgsText();
 int onImport_Combos();
+int onImport_Combos_old();
 int onExport_Combos();
+int onExport_Combos_old();
 int onImport_Tiles();
 int onExport_Tiles();
 

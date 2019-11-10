@@ -1,5 +1,5 @@
 //std_functions.zh
-//23rd September, 2019 for ZC 2.53.0 R3
+//6th November, 2019 for ZC 2.53.1
 
 //A
 
@@ -1167,46 +1167,27 @@ int GetHighestLevelItem(item i)
 	return ret;
 }
 
-//Returns the item ID of the item with the highest level of a given class that Link owns. 
-//Returns -1 on failure. 
-//Note that this may be a slow process if used in iteration, because of the array sorting involved! -Z
+// Faster than the old function; this now works
+// exactly how the engine handles it. -V
 int GetHighestLevelItemOwned(int itemclass)
 {
-	itemdata id;
-	int ret = -1;
-	int items[256]; //holds the level of each item
-	int levels[8];  //holds the item ID of each level (1 to 8)
-	int i; int lv;
-	int curitem = -1; 
-	//143 is default max items, increase if you add lots of your own
-	for( i = 0; i <= 255; ++i)
+	int result = -1;
+	int highestlevel = -1;
+	
+	for(int i=0; i<=MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i)
 	{
-		id = Game->LoadItemData(i);
-		if(id->Family != itemclass)
-			continue;
-		
-		items[i] = id->Level;
-	}
-	//Sort the ids of the levels
-	for ( i = 0; i < 256; ++i )
-	{
-		if ( items[i] > 0 ) 
+		itemdata id = Game->LoadItemData(i);
+		if(id->Family == itemclass && Link->Item[i])
 		{
-			lv = items[i];
-			levels[lv] = i;
+			if(id->Level >= highestlevel)
+			{
+				highestlevel = id->Level;
+				result=i;
+			}
 		}
 	}
 	
-	//Determine if Link owns any of the items in levels
-	for ( i = 0; i < 8; ++i )
-	{
-		//Trace(levels[i]);
-		if ( Link->Item[ levels[i] ] ) 
-		{
-			curitem = levels[i];
-		}
-	}
-	return curitem;
+	return result;
 }
 
 

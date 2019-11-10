@@ -244,6 +244,7 @@ int onExport_DMaps_old();
 
 int onImport_Msgs();
 int onImport_Combos();
+int onImport_Combos_old();
 int onImport_Tiles();
 
 int onImport_Tiles_old();
@@ -261,6 +262,7 @@ int onExport_DMaps();
 int onExport_Msgs();
 int onExport_MsgsText();
 int onExport_Combos();
+int onExport_Combos_old();
 int onExport_Tiles();
 int onExport_Guys();
 int onExport_Subscreen();

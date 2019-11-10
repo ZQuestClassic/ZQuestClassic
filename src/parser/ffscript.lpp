@@ -22,6 +22,7 @@ void doLines();
 
 script                    { doLines();return SCRIPT; }
 float				  { doLines(); return ZFLOAT; }
+char32				  { doLines(); return ZFLOAT; }
 int					  { doLines(); return ZFLOAT; }
 for				  { doLines(); return FOR; }
 bool				  { doLines();return ZBOOL; }
@@ -30,6 +31,7 @@ if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
 return			  { doLines();return RETURN; }
 import			  { doLines();return IMPORT; }
+"#include"			  { doLines();return IMPORT; }
 true				  { doLines();return ZTRUE; }
 false				  { doLines();return ZFALSE; }
 while				{doLines(); return WHILE;}
@@ -115,8 +117,546 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 <COMMENT>([^*]|\n)+|.    { ; }
 <COMMENT><<EOF>>         {
 				char temp[512];
-				sprintf(temp, "Scanner: Unterminated comment.\n");
-				box_out(temp);
+				sprintf(temp, "Scanner: Unterminated comment.");
+				box_eol();box_out(temp); box_eol();
+				box_eol();
+				return 0;
+			}
+			
+			
+
+"Hero"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'Hero' pointer is exclusive to ZScript v14 and higher."); 
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"Player"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'Player' pointer is exclusive to ZScript v14 and higher");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"case"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'case' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"default"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'default' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"^^"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '^^' logical xor operator is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"xor"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'xor' logical xor operator is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"repeat"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The statement type 'repeat()' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"unless"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The statement type 'unless()' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"switch"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The statement type 'switch()' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"until"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The statement type 'until()' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"typedef"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'typedef' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+		
+"catch"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'catch' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"#ignore error"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '#ignore error' directive is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"#ignore ERROR"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '#ignore ERROR' directive is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"#ignore WARNING"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '#ignore WARNING' directive is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"#ignore warning"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '#ignore warning' directive is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"#option"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The '#option warning' directive is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"try"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'try' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"namespace"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'namespace' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+			
+"using"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'using' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"always"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'always' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"asm"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'asm' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"zasm"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'zasm' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"inline"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'inline' qualifier requires ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"enum"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "Enumerated lists and types 'enum' require ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"::"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "Namespace scope resolution '::' requires ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+".."			{
+				char temp[512], temp2[512];
+				sprintf(temp, "Namespace scope resolution '::' requires ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"?"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "Ternary expressions '?' require ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+":"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "Ternary expressions '?' require ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+		
+
+"script typedef"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The 'script typedef' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+
+"rgbdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'rgbdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"npcdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'npcdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"dmapdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'dmapdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"untyped"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'untyped' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"screendata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'screendata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"cheatdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'cheatdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"dropsetdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'dropsetdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"doorsetdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'doorsetdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"gamedata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'gamedata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"messagedata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'messagedata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"misccolordata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'misccolordata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"misccolourdata"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'misccolordata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"palcycledata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'palcycledata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+		
+"palette"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'palette' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"mapdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'mapdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"ponddata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'ponddata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+
+"bitmap"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'bitmap' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"spritedata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'spritedata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"shopdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'shopdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"musicdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'musicdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"warpringdata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'warpringdata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"combodata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'combodata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"itemsprite"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'itemsprite' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"file"			{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'file' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"subscreendata"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'subscreendata' keyword is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"eweapon script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'eweapon' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"lweapon script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'lweapon' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"hero script"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'hero' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"link script"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'link' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"player script"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'player' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"dmapdata script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'dmapdata' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"screendata script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'screendata' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"subscreendata script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'subscreendata' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"combodata script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'combodata' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"npcdata script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'npcdata' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"itemsprite script"	{
+				char temp[512], temp2[512];
+				sprintf(temp, "The script type 'itemsprite' is exclusive to ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
 				box_eol();
 				return 0;
 			}

@@ -2,24 +2,24 @@
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
-// and import it separately.
+// and #include it separately.
 
 //Main Files
-import "std_zh/std_constants.zh"
-import "std_zh/std_functions.zh"
-import "std_zh/std_vars.zh"	//Basic array, and some generic handlers. Useful in preventing quest fixing/expansion issues. 
+#include "std_zh/std_constants.zh"
+#include "std_zh/std_functions.zh"
+#include "std_zh/std_vars.zh"	//Basic array, and some generic handlers. Useful in preventing quest fixing/expansion issues. 
 
 //ZScript string handling functions, akin to those found in C
-//import "string.zh"
-import "std_zh/string_constants.zh" //Now imported from here. This prevents conflicts for those people
-import "std_zh/string_functions.zh" //who would import string.zh from a secondary source, as that file is now 
+//#include "string.zh"
+#include "std_zh/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
+#include "std_zh/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
 			     //empty, and the string.ch components load from here. 
 
 //New Functions, for 2.53.0 and above
-import "std_zh/std_extension.zh"
+#include "std_zh/std_extension.zh"
 
 //Locale
-import "std_zh/locale/std_EnglishIntl.zh" //International English Localisation
+#include "std_zh/locale/std_EnglishIntl.zh" //International English Localisation
 
 //Settings
-import "std_zh/std.cfg"
+#include "std_zh/std.cfg"

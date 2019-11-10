@@ -33,9 +33,11 @@ int readtilefile(PACKFILE *f);
 int writetilefile(PACKFILE *f, int index, int count);
 int readtilefile_to_location(PACKFILE *f, int start, int skip);
 int readtilefile_to_location(PACKFILE *f, int start);
-int readcombofile(PACKFILE *f);
-int readcombofile_to_location(PACKFILE *f, int start);
+
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite);
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip);
 int writecombofile(PACKFILE *f, int index, int count);
+
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
@@ -46,6 +48,7 @@ void comeback_combos();
 void little_x(BITMAP *dest, int x, int y, int c, int s);
 void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m);
 void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int bg,int fg,int flags,bool jwin);
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags);
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,int flags,bool jwin,bool overlay);

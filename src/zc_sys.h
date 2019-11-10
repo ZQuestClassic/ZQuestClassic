@@ -31,6 +31,7 @@ void draw_lens_over();
 void fix_menu();
 int onFullscreenMenu();
 int onLinearQuestLoad();
+int onMIDIPatch();
 void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);
 void updatescr(bool allowwavy);

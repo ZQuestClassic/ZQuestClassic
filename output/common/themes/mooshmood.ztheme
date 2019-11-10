@@ -1,4 +1,7 @@
 [Theme]
+////////////////////////////////////////////////////////
+// VGA Colours 1 to 8
+////////////////////////////////////////////////////////
 dvc1_r = 52
 dvc1_g = 56
 dvc1_b = 63
@@ -27,20 +30,28 @@ dvc7_r = 4
 dvc7_g = 1
 dvc7_b = 8
 
-dvc8_r = 0
+dvc8_r = 60
 dvc8_g = 0
-dvc8_b = 0
+dvc8_b = 5
 
-jcbox = 5 //Box BG
-jclight = 3 //Box Outlines (Lightest to darkest)
+////////////////////////////////////////////////////////
+// System Elements
+////////////////////////////////////////////////////////
+jcbox = 5		//Box BG
+jclight = 3		//Box Outlines (Lightest to darkest)
 jcmedlt = 4
 jcmeddark = 6
 jcdark = 7
-jcboxfg = 1 //Box Text
-jctitlel = 2 //Title Bar (Left End)
-jctitler = 6 //Title Bar (Right End)
-jctitlefg = 1 //Title Bar (Text)
-jctextbg = 6 //Radio Button BG
-jctextfg = 2 //Radio Button FG
-jcselbg = 2 //Menu Selection BG
-jcselfg = 6 //Menu Selection Text
+jcboxfg = 1		//Box Text
+jctitlel = 2		//Title Bar (Left End)
+jctitler = 6		//Title Bar (Right End)
+jctitlefg = 1		//Title Bar (Text)
+jctextbg = 6		//Radio Button BG
+jctextfg = 2		//Radio Button FG
+jcselbg = 2		//Menu Selection BG
+jcselfg = 6		//Menu Selection Text
+
+jccursormisc = 1	//Mouse Bottom Edge
+jccursoroutline = 1 	//Mouse Left/Right Edges
+jccursorlight = 8	//Mouse Core, Light Half
+jccursordark = 8	//Mouse Core, Dark Half

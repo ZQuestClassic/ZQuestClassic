@@ -98,12 +98,12 @@
 
 #define ZELDA_VERSION       0x0250  //version of the program
 #define ZC_VERSION 25301 //Version ID for ZScript Game->Version
-#define ABOUT_VERSION 0x0253
+//#define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       33                           //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53.1"               //version of the program as presented in text
-#define IS_BETA             8                       //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "19th October, 2019, 22:00GMT"
-#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' v2.53.1"
+//#define ZELDA_VERSION_STR   "Omnius, 2.53.1"               //version of the program as presented in text
+//#define IS_BETA             10                    //is this a beta? (1: beta, -1: alpha)
+//#define DATE_STR            "19th October, 2019, 22:00GMT"
+//#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' v2.53.1"
 #define COPYRIGHT_YEAR      "2019"     
                      //shown on title screen and in ending
 
@@ -235,6 +235,25 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_FFSCRIPT        1
 #define CV_SFX             5
 #define CV_FAVORITES       1
+
+
+// Loose Object Version Metadata
+// If the version is 0, it is ther original.
+// 'Higher Versions' use negative numbers, so -1 is newer than 0, -2 is newer than -1.
+// Sorry for the ugly hack, but it maintains full compatibility through
+// Packfile magic. -Z
+#define V_ZCOMBO -1
+#define V_ZMOD -1
+#define V_ZTHEME -1
+#define V_ZASM -1
+#define V_ZTILE -1
+#define V_ZTILESET -1
+#define V_ZDMAP -1
+#define V_ZALIAS -1
+#define V_ZNPC -1
+#define V_ZITEM -1
+#define V_ZWPNSPR -1
+
 
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
