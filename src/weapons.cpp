@@ -251,53 +251,63 @@ weapon::weapon(weapon const & other):
     ScriptGenerated(other.ScriptGenerated),
     isLWeapon(other.isLWeapon),
 	linkedItem(other.linkedItem),
+	isLWeapon(other.isLWeapon),
+	ScriptGenerated(other.ScriptGenerated),
+	weaponscript(other.weaponscript),
+	parent_script_UID(other.parent_script_UID), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
+	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
+	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
+	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame)
     
 	
 	//End Weapon editor non-arrays. 
 
 {
-	script_wrote_otile = 0;
-	if ( isLWeapon ) goto skip_eweapon_script_init;
+	//script_wrote_otile = 0;
+	//if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
-	if ( parentid > -1 && parentid != Link.getUID() 
-		&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
-	) 
+	//if ( parentid > -1 && parentid != Link.getUID() 
+	//	&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
+	//) 
+	//{
+	//	enemy *s = (enemy *)guys.getByUID(parentid);
+	//
+	//	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+	//	parent_script_UID = s->script_UID;
+	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	{
+	//		//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+	//	
+	//		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
+	//		
+	//	}
+		
+	//}
+	//skip_eweapon_script_init:
+	//if ( parentitem > -1 ) //lweapons
+	//{
+	//	
+	//	weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
+	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	{
+	//		weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
+	//		
+	//	}
+		
+	//}
+	
+	for( int q = 0; q < 8; q++ ) 
 	{
-		enemy *s = (enemy *)guys.getByUID(parentid);
-	
-		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-		parent_script_UID = s->script_UID;
-		for ( int q = 0; q < INITIAL_D; q++ ) 
-		{
-			//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
-		
-			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
-			
-		}
-		
+		weap_initd[q] = other.weap_initd[q];
 	}
-	skip_eweapon_script_init:
-	if ( parentitem > -1 ) //lweapons
+	for(int i=0; i<10; ++i)
 	{
-		
-		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
-		for ( int q = 0; q < INITIAL_D; q++ ) 
-		{
-			weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
-			
-		}
-		
+		dummy_int[i]=other.dummy_int[i];
+		dummy_fix[i]=other.dummy_fix[i];
+		dummy_float[i]=other.dummy_float[i];
+		dummy_bool[i]=other.dummy_bool[i];
 	}
-	
-	
-    for(int i=0; i<10; ++i)
-    {
-        dummy_int[i]=other.dummy_int[i];
-        dummy_fix[i]=other.dummy_fix[i];
-        dummy_float[i]=other.dummy_float[i];
-        dummy_bool[i]=other.dummy_bool[i];
-    }
     
     //memset(stack,0,sizeof(stack));
     //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
