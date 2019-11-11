@@ -1165,7 +1165,7 @@ public:
         return INVALIDARRAY;
     }
     
-    static void write_stack(const int stackoffset, const long value)
+    static void write_stack(const unsigned int stackoffset, const long value)
     {
         if(stackoffset == 0)
         {
@@ -1176,7 +1176,7 @@ public:
         (*stack)[stackoffset] = value;
     }
     
-    static long read_stack(const int stackoffset)
+    static long read_stack(const unsigned int stackoffset)
     {
         if(stackoffset == 0)
         {
@@ -6647,7 +6647,7 @@ case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3
 case MAPDATAINITD:	 	GET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
 case MAPDATAUNDERCSET:	 	GET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
 case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 
@@ -13318,7 +13318,7 @@ case MAPDATASIDEWARPOVFLAGS:
 
 case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
-case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
 case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
 case MAPDATACATCHALL:	 	SET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 
@@ -15130,14 +15130,14 @@ void do_set(const bool v, const byte whichType, const long whichUID)
 void do_push(const bool v)
 {
     const long value = SH::get_arg(sarg1, v);
-    ri->sp--;
+    --ri->sp;
     SH::write_stack(ri->sp, value);
 }
 
 void do_pop()
 {
     const long value = SH::read_stack(ri->sp);
-    ri->sp++;
+    ++ri->sp;
     set_register(sarg1, value);
 }
 

@@ -128,7 +128,8 @@
 
 #define MAX_INTERNAL_QUESTS 	5
 
-#define MAX_SCRIPT_REGISTERS 1024
+#define BITS_SP	10
+#define MAX_SCRIPT_REGISTERS (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250 256
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
@@ -1939,7 +1940,7 @@ public:
     
     long d[8]; //d registers
     long a[2]; //a regsisters (reference to another ffc on screen)
-    byte sp; //stack pointer for current script
+    word sp : BITS_SP; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
     
     byte ffcref, idata; //current object pointers
