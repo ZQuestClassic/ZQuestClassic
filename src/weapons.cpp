@@ -3078,6 +3078,7 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
@@ -4208,6 +4209,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4241,6 +4243,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4288,6 +4291,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4378,6 +4382,7 @@ bool weapon::animate(int index)
 				    break;
 				}
                         }
+			w->weaponscript = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
@@ -4430,6 +4435,7 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
@@ -4519,6 +4525,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4552,6 +4559,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4599,6 +4607,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -4689,6 +4698,7 @@ mirrors:
 				    break;
 				}
                         }
+			w->weaponscript = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
@@ -4741,6 +4751,7 @@ mirrors:
 				break;
 			    }
                     }
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
@@ -5512,6 +5523,7 @@ bool weapon::animateandrunscript(int ii)
 				    break;
 				}
                         }
+			w->weaponscript = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
@@ -5562,6 +5574,7 @@ bool weapon::animateandrunscript(int ii)
 				break;
 			    }
                     }
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
@@ -6584,6 +6597,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -6617,6 +6631,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -6664,6 +6679,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
@@ -6754,6 +6770,7 @@ mirrors:
 				    break;
 				}
                         }
+			w->weaponscript = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
@@ -6806,6 +6823,7 @@ mirrors:
 				break;
 			    }
                     }
+		    w->weaponscript = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
