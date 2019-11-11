@@ -14568,7 +14568,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         unsetmapflag(mSECRET);
         fixed_door = false;
     }
-    Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
+    //Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
 	scrolling_scr = currscr;
 	
     switch(scrolldir)
