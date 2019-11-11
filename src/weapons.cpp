@@ -3079,7 +3079,14 @@ bool weapon::animate(int index)
 			    }
                     }
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                 }
                 
                 dead=0;
@@ -4210,7 +4217,14 @@ bool weapon::animate(int index)
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4244,7 +4258,14 @@ bool weapon::animate(int index)
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4292,7 +4313,14 @@ bool weapon::animate(int index)
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4383,7 +4411,14 @@ bool weapon::animate(int index)
 				}
                         }
 			w->weaponscript = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				w->weap_initd = 0; 
+				w->doscript = 0;
+			}
+			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+			else delete w;
                     }
                 }
                 
@@ -4436,7 +4471,14 @@ bool weapon::animate(int index)
 			    }
                     }
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                 }
                 
                 dead=0;
@@ -4526,7 +4568,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4560,7 +4609,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4608,7 +4664,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -4699,7 +4762,14 @@ mirrors:
 				}
                         }
 			w->weaponscript = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				w->weap_initd = 0; 
+				w->doscript = 0;
+			}
+			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+			else delete w;
                     }
                 }
                 
@@ -4752,7 +4822,14 @@ mirrors:
 			    }
                     }
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                 }
                 
                 dead=0;
@@ -5524,7 +5601,14 @@ bool weapon::animateandrunscript(int ii)
 				}
                         }
 			w->weaponscript = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				w->weap_initd = 0; 
+				w->doscript = 0;
+			}
+			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+			else delete w;
                     }
                 }
                 
@@ -5575,7 +5659,14 @@ bool weapon::animateandrunscript(int ii)
 			    }
                     }
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                 }
                 
                 dead=0;
@@ -6598,7 +6689,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -6632,7 +6730,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -6680,7 +6785,14 @@ mirrors:
                 if(id==ewMagic)
                 {
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                     dead=0;
                 }
                 else
@@ -6771,7 +6883,14 @@ mirrors:
 				}
                         }
 			w->weaponscript = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				w->weap_initd = 0; 
+				w->doscript = 0;
+			}
+			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+			else delete w;
                     }
                 }
                 
@@ -6824,7 +6943,14 @@ mirrors:
 			    }
                     }
 		    w->weaponscript = 0;
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			w->weap_initd = 0; 
+			w->doscript = 0;
+		    }
+		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
+		    else delete w;
                 }
                 
                 dead=0;
