@@ -101,7 +101,7 @@ public:
     byte isLWeapon;
 	bool weapon_dying_frame; //a last_hurrah for weapons -V
     
-    
+    void convertType(bool toLW);
     weapon(weapon const &other);
     //weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0);

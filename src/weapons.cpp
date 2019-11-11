@@ -187,6 +187,18 @@ int weapon::seekEnemy2(int j)
     return j;
 }
 
+void weapon::convertType(bool toLW)
+{
+	if(isLWeapon == toLW) return; //Already the right type
+	weaponscript = 0;
+	doscript = 0;
+	initialised = 0;
+	for(int q = 0; q < 8; ++q)
+	{
+		weap_initd[q] = 0;
+	}
+}
+
 weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
@@ -3078,15 +3090,8 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
-		    else delete w;
+					else delete w;
                 }
                 
                 dead=0;
@@ -4216,15 +4221,8 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
-		    else delete w;
+                    else delete w;
                     dead=0;
                 }
                 else
@@ -4237,7 +4235,7 @@ bool weapon::animate(int index)
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -4257,13 +4255,6 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -4277,7 +4268,7 @@ bool weapon::animate(int index)
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -4312,13 +4303,6 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -4332,7 +4316,7 @@ bool weapon::animate(int index)
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -4379,7 +4363,7 @@ bool weapon::animate(int index)
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -4410,13 +4394,6 @@ bool weapon::animate(int index)
 				    break;
 				}
                         }
-			w->weaponscript = 0;
-			for ( int q = 0; q < 8; q++ )
-			{
-				w->weap_initd = 0; 
-				w->doscript = 0;
-			}
-			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 			else delete w;
                     }
@@ -4438,7 +4415,7 @@ bool weapon::animate(int index)
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -4470,13 +4447,6 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                 }
@@ -4567,13 +4537,6 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -4588,7 +4551,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -4608,13 +4571,6 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -4628,7 +4584,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -4663,13 +4619,6 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -4683,7 +4632,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -4730,7 +4679,7 @@ mirrors:
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -4761,13 +4710,6 @@ mirrors:
 				    break;
 				}
                         }
-			w->weaponscript = 0;
-			for ( int q = 0; q < 8; q++ )
-			{
-				w->weap_initd = 0; 
-				w->doscript = 0;
-			}
-			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 			else delete w;
                     }
@@ -4789,7 +4731,7 @@ mirrors:
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -4821,13 +4763,6 @@ mirrors:
 				break;
 			    }
                     }
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                 }
@@ -5600,13 +5535,6 @@ bool weapon::animateandrunscript(int ii)
 				    break;
 				}
                         }
-			w->weaponscript = 0;
-			for ( int q = 0; q < 8; q++ )
-			{
-				w->weap_initd = 0; 
-				w->doscript = 0;
-			}
-			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 			else delete w;
                     }
@@ -5658,13 +5586,6 @@ bool weapon::animateandrunscript(int ii)
 				break;
 			    }
                     }
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                 }
@@ -6688,13 +6609,6 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -6709,7 +6623,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -6729,13 +6643,6 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
 		    else delete w;
                     dead=0;
@@ -6749,7 +6656,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -6784,15 +6691,8 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
-		    else delete w;
+					else delete w;
                     dead=0;
                 }
                 else
@@ -6804,7 +6704,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -6851,7 +6751,7 @@ mirrors:
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -6882,15 +6782,8 @@ mirrors:
 				    break;
 				}
                         }
-			w->weaponscript = 0;
-			for ( int q = 0; q < 8; q++ )
-			{
-				w->weap_initd = 0; 
-				w->doscript = 0;
-			}
-			w->initialised = 0;
                         if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
-			else delete w;
+						else delete w;
                     }
                 }
                 
@@ -6910,7 +6803,7 @@ mirrors:
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -6942,15 +6835,8 @@ mirrors:
 				break;
 			    }
                     }
-		    w->weaponscript = 0;
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			w->weap_initd = 0; 
-			w->doscript = 0;
-		    }
-		    w->initialised = 0;
                     if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
-		    else delete w;
+					else delete w;
                 }
                 
                 dead=0;
