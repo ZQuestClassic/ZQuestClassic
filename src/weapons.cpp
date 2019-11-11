@@ -309,6 +309,7 @@ weapon::weapon(weapon const & other):
 		dummy_bool[i]=other.dummy_bool[i];
 	}
     
+	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
     //memset(stack,0,sizeof(stack));
     //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
