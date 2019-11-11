@@ -251,9 +251,7 @@ weapon::weapon(weapon const & other):
     ScriptGenerated(other.ScriptGenerated),
     isLWeapon(other.isLWeapon),
 	linkedItem(other.linkedItem),
-	isLWeapon(other.isLWeapon),
-	ScriptGenerated(other.ScriptGenerated),
-	weaponscript(other.weaponscript),
+	//weaponscript(other.weaponscript),
 	parent_script_UID(other.parent_script_UID), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
 	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
@@ -264,6 +262,8 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays. 
 
 {
+	weaponscript = other.weaponscript;
+	doscript = other.doscript;
 	//script_wrote_otile = 0;
 	//if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
