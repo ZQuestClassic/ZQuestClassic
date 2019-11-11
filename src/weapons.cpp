@@ -3078,7 +3078,7 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
                 dead=0;
@@ -4208,7 +4208,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4241,7 +4241,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4288,7 +4288,7 @@ bool weapon::animate(int index)
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4378,7 +4378,7 @@ bool weapon::animate(int index)
 				    break;
 				}
                         }
-                        if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                        if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
                 
@@ -4430,7 +4430,7 @@ bool weapon::animate(int index)
 				break;
 			    }
                     }
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
                 dead=0;
@@ -4519,7 +4519,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4552,7 +4552,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4599,7 +4599,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -4689,7 +4689,7 @@ mirrors:
 				    break;
 				}
                         }
-                        if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                        if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
                 
@@ -4741,7 +4741,7 @@ mirrors:
 				break;
 			    }
                     }
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
                 dead=0;
@@ -5512,7 +5512,7 @@ bool weapon::animateandrunscript(int ii)
 				    break;
 				}
                         }
-                        if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                        if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
                 
@@ -5562,7 +5562,7 @@ bool weapon::animateandrunscript(int ii)
 				break;
 			    }
                     }
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
                 dead=0;
@@ -6584,7 +6584,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -6617,7 +6617,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -6664,7 +6664,7 @@ mirrors:
                 
                 if(id==ewMagic)
                 {
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     dead=0;
                 }
                 else
@@ -6754,7 +6754,7 @@ mirrors:
 				    break;
 				}
                         }
-                        if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                        if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                     }
                 }
                 
@@ -6806,7 +6806,7 @@ mirrors:
 				break;
 			    }
                     }
-                    if ( Lwpns.Count() < 255 ) Lwpns.add(w);
+                    if ( Lwpns.Count() < MAX_LWPN_SPRITES ) Lwpns.add(w);
                 }
                 
                 dead=0;
