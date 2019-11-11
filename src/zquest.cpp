@@ -30585,7 +30585,11 @@ void FFScript::init()
 	FFCore.user_bitmaps_init();
 	initIncludePaths();
 	initRunString();
-	
+	for(int q = 0; q < 7; ++q)
+	{
+		tempScreens[q] = NULL;
+		ScrollingScreens[q] = NULL;
+	}
 }
 
 void FFScript::updateIncludePaths()

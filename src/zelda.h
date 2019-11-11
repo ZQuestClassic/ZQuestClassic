@@ -362,7 +362,7 @@ extern bool usebombpal;
 extern int slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
-extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
+extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
