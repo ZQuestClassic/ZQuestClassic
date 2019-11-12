@@ -151,6 +151,8 @@ extern YYLTYPE noloc;
 %token ITEMSPRITE
 %token FILE
 %token SUBSCREENDATA
+%token PARTICLE
+%token DECORATION
 
  // Syntax
 %token COMMA
