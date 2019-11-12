@@ -29,6 +29,9 @@ extern byte use_dwm_flush;
 //#include "zc_sys.h"
 #include "script_drawing.h"
 
+//Define this register, so it can be treated specially
+#define NUL		5
+
 extern zinitdata zinit;
 
 extern byte monochrome_console;
@@ -19147,6 +19150,32 @@ void do_combotile(const bool v)
     set_register(sarg1, combobuf[combo].tile * 10000);
 }
 
+bool zasm_advance()
+{
+	if( zc_readkey(KEY_INSERT, true) )
+	{
+		if(zc_getkey(KEY_LSHIFT, true) || zc_getkey(KEY_RSHIFT, true))
+		{
+			FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
+		}
+		else if(zc_getkey(KEY_ALT, true) || zc_getkey(KEY_ALTGR, true))
+		{
+			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+		}
+		else if(zc_getkey(KEY_LCONTROL, true) || zc_getkey(KEY_RCONTROL, true))
+		{
+			FFCore.ZASMPrint(false); //Close debugger
+			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+		}
+		return true;
+	}
+	if(!zasm_debugger)
+	{
+		FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+		return true;
+	}
+	return false;
+}
 
 ///----------------------------------------------------------------------------------------------------//
 //                                       Run the script                                                //
@@ -19459,6 +19488,30 @@ int run_script(const byte type, const word script, const long i)
     
     bool increment = true;
     
+	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT )
+	{
+		if( zasm_debugger )
+		{
+			//Halt on new script if set to advance to next script
+			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
+			FFCore.TraceScriptIDs(true);
+			#ifdef _WIN32
+			coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Breaking for script start\n");
+			#endif
+		}
+		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+	}
+	else if( zasm_debugger )
+	{
+		//Print new script metadata when starting script
+		FFCore.TraceScriptIDs(true);
+		#ifdef _WIN32
+		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
+		#endif
+	}
+	
     while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
     {
         numInstructions++;
@@ -19470,6 +19523,20 @@ int run_script(const byte type, const word script, const long i)
                 scommand=0xFFFF;
         }
         
+		//Handle manual breaking
+		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readkey(KEY_INSERT, true))
+			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
+		//Break
+		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
+		{
+			if(zasm_advance()) break;
+			checkQuitKeys();
+			if(Quit)
+			{
+				scommand=0xFFFF;
+				break;
+			}
+		}
 #ifdef _FFDEBUG
 #ifdef _FFDISSASSEMBLY
         ffdebug::print_dissassembly(scommand);
@@ -20107,6 +20174,12 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case TRACE6:
 		    FFCore.do_tracestring();
+		    break;
+		case BREAKPOINT:
+		    if( zasm_debugger )
+			{
+				FFCore.do_breakpoint();
+			}
 		    break;
 		    
 		case WARP:
@@ -23693,6 +23766,7 @@ void FFScript::setFFRules()
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
+	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 	for ( int q = 0; q < MAXITEMS; q++ )
 	{
 		item_messages_played[q] = 0;
@@ -28411,6 +28485,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "LOADSCROLLSCR",             1,   0,   0,   0},
     { "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
     { "ISSOLIDLAYER",             1,   0,   0,   0},
+    { "BREAKPOINT",             1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -29567,7 +29642,7 @@ void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
 
 void FFScript::ZASMPrint(bool open)
 {
-	Z_scripterrlog("Opening ZASM Console");
+	Z_scripterrlog("%s ZASM Console\n", open ? "Opening" : "Closing");
 	#ifdef _WIN32
 	if ( open )
 	{
@@ -29750,6 +29825,40 @@ void FFScript::do_tracestring()
     }
 }
 
+void FFScript::do_breakpoint()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    string str;
+	if(arrayptr && sarg1 != NUL)
+	{
+		ArrayH::getString(arrayptr, str, 512);
+		str = "Breakpoint: " + str;
+	}
+	else str = "Breakpoint";
+    TraceScriptIDs();
+    al_trace("%s\n", str.c_str());
+	
+    if(zconsole)
+        printf("%s\n", str.c_str());
+    
+    if ( zscript_debugger ) 
+    {
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
+
+		#endif
+    }
+	if( zasm_debugger )
+	{
+		FFCore.zasm_break_mode = ZASM_BREAK_HALT; //Halt ZASM debugger; break execution
+		#ifdef _WIN32
+		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
+		#endif
+	}
+}
+
 void FFScript::do_tracenl()
 {
     al_trace("\n");
@@ -29766,16 +29875,19 @@ void FFScript::do_tracenl()
 }
 
 
-void FFScript::TraceScriptIDs()
+void FFScript::TraceScriptIDs(bool zasm_console)
 {
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 0 )
 	{
+		if(!zasm_debugger && zasm_console) return;
+		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
+		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
 			    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
 					curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
 				#endif
@@ -29784,7 +29896,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_LINK:
 			    al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
 				#endif    
 			break;
@@ -29792,7 +29904,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_LWPN:
 			    al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
 				#endif    
 			break;
@@ -29800,7 +29912,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_EWPN:
 			    al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());}
 				#endif    
 			break;
@@ -29808,7 +29920,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_NPC:
 			    al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
 				#endif    
 			break;
@@ -29817,7 +29929,7 @@ void FFScript::TraceScriptIDs()
 			    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
 			    
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
@@ -29825,7 +29937,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_ITEM:
 			    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
@@ -29834,7 +29946,7 @@ void FFScript::TraceScriptIDs()
 			    al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
 			    
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
@@ -29842,7 +29954,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_ITEMSPRITE:
 			    al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
@@ -29850,7 +29962,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_SCREEN:
 			    al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
@@ -29858,7 +29970,7 @@ void FFScript::TraceScriptIDs()
 			case SCRIPT_SUBSCREEN:
 			    al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;

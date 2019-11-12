@@ -10667,6 +10667,7 @@ static AccessorTable DebugTable[] =
 	{ "Null",                    ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           {  ZVARTYPEID_DEBUG,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getNULL",                 ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           {  ZVARTYPEID_DEBUG,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getNull",                 ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           {  ZVARTYPEID_DEBUG,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Breakpoint",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_DEBUG,          ZVARTYPEID_CHAR,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                        -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -10915,6 +10916,19 @@ void DebugSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+	//void Breakpoint(debug, char)
+	{
+	    Function* function = getFunction("Breakpoint", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+        code.push_back(new OBreakpoint(new VarArgument(EXP2)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+	}
 }
 
 

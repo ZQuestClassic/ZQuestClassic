@@ -71,7 +71,12 @@ enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 LSprjumpspr, LSprchargespr, LSprcastingspr, 
 	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
 
-	
+enum zasmBreak
+{
+	ZASM_BREAK_NONE,
+	ZASM_BREAK_HALT,
+	ZASM_BREAK_ADVANCE_SCRIPT
+};
 
 //suspend types
 enum { 
@@ -358,13 +363,14 @@ void do_xtoa();
 
 void do_tracebool(const bool v);
 void do_tracestring();
+void do_breakpoint();
 void do_trace(bool v);
 void do_tracenl();
 void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void TraceScriptIDs();
+void TraceScriptIDs(bool zasm_console = false);
 void ZScriptConsolePrint(int colourformat, const char * const format,...);
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
@@ -459,6 +465,8 @@ byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
+
+byte zasm_break_mode;
 
 //Enemy removal bounds
 int enemy_removal_point[6];
@@ -2425,9 +2433,10 @@ enum ASM_DEFINE
     LOADSCROLLSCR,
     MAPDATAISSOLIDLYR,
     ISSOLIDLAYER,
+	BREAKPOINT,
 
 
-	NUMCOMMANDS           //0x016D
+	NUMCOMMANDS           //0x016E
 };
 
 

@@ -916,6 +916,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "LOADSCROLLSCR",             1,   0,   0,   0},
     { "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
     { "ISSOLIDLAYER",             1,   0,   0,   0},
+    { "BREAKPOINT",             1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
