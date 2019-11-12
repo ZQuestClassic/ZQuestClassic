@@ -27054,7 +27054,7 @@ bool no_subscreen()
 }
 
 int Awpn=0, Bwpn=0, Bpos=0;
-sprite_list Sitems, Lwpns;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 int main(int argc,char **argv)
 {

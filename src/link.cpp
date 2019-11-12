@@ -6291,12 +6291,12 @@ bool LinkClass::startwpn(int itemid)
             int hookitem = itemsbuf[itemid].fam_type;
             int hookpower = itemsbuf[itemid].power;
             
-            if(Lwpns.Count()>=SLMAX)
+            if(Lwpns.Count()>=Lwpns.getMax())
             {
                 Lwpns.del(0);
             }
             
-            if(Lwpns.Count()>=SLMAX-1)
+            if(Lwpns.Count()>=Lwpns.getMax()-1)
             {
                 Lwpns.del(0);
             }

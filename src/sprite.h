@@ -164,13 +164,14 @@ public:
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255*256
+#define SLMAX 255*(511*4)+1
 
 class sprite_list
 {
     sprite *sprites[SLMAX];
     int count;
 	int active_iterator;
+	long max_sprites;
     map<long, int> containedUIDs;
     // Cache requests from scripts
     mutable long lastUIDRequested;
@@ -190,6 +191,8 @@ public:
     fix getY(int j);
     int getID(int j);
     int getMisc(int j);
+	long getMax() {return max_sprites;}
+	void setMax(long max) {max_sprites = (max < SLMAX ? max : SLMAX);}
     bool del(int j);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);

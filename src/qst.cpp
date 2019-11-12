@@ -44,6 +44,7 @@
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 //FFSCript   FFEngine;
 
 int temp_ffscript_version = 0;
@@ -1108,6 +1109,32 @@ bool init_combos(bool validate, zquestheader *Header)
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc)
 {
     return init_section(Header, ID_CSETS, Misc, NULL, validate);
+}
+
+void init_spritelists()
+{
+	if(FFCore.quest_format[vZelda] < 0x255)
+	{
+		guys.setMax(255);
+		items.setMax(255);
+		Ewpns.setMax(255);
+		Lwpns.setMax(255);
+		Sitems.setMax(255);
+		chainlinks.setMax(255);
+		decorations.setMax(255);
+		particles.setMax(255);
+	}
+	else
+	{
+		guys.setMax(255);
+		items.setMax(255);
+		Ewpns.setMax(255);
+		Lwpns.setMax(255);
+		Sitems.setMax(255);
+		chainlinks.setMax(255);
+		decorations.setMax(255);
+		particles.setMax(255*((255*4)+1)); //255 per sprite that can use particles; guys, items, ewpns, lwpns, +link
+	}
 }
 
 bool reset_items(bool validate, zquestheader *Header)
@@ -16957,6 +16984,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         box_eol();
     }
     
+	init_spritelists();
+	
     // check data
     if(f)
     {
