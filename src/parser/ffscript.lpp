@@ -555,6 +555,22 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 				box_eol();
 				return 0;
 			}
+"particle"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'particle' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"decoration"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'decoration' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
 "itemsprite"		{
 				char temp[512], temp2[512];
 				sprintf(temp, "The datatype 'itemsprite' keyword is exclusive to ZScript v14 and higher.");

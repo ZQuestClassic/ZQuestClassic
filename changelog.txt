@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 12
+Reserved 'particle' and 'decoration' as datatypes.
+	( ZoriaRPG, 12th November, 2019 )
+
 //Beta 11
 Updated qst.dat so that the script buffer uses '#include', not 'import'.
 Classic.zh: v1.12. Use '#include', not 'import'.
