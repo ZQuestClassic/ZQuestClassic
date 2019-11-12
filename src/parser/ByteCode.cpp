@@ -2326,6 +2326,11 @@ string OTrace6Register::toString()
     return "TRACE6 " + getArgument()->toString();
 }
 
+string OBreakpoint::toString()
+{
+    return "BREAKPOINT " + getArgument()->toString();
+}
+
 
 string ORandRegister::toString()
 {

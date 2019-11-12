@@ -1813,6 +1813,17 @@ namespace ZScript
 		}
 	};
 
+	class OBreakpoint : public UnaryOpcode
+	{
+	public:
+		OBreakpoint(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBreakpoint(a->clone());
+		}
+	};
+
 	class OAndImmediate : public BinaryOpcode
 	{
 	public:
