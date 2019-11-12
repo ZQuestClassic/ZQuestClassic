@@ -15547,19 +15547,27 @@ void do_power(const bool v)
     set_register(sarg1, long(pow(temp2, temp) * 10000.0));
 }
 
+//could use recursion or something to avoid truncation.
 void do_ipower(const bool v)
 {
-    double temp = 10000.0 / double(SH::get_arg(sarg2, v));
-    double temp2 = double(get_register(sarg1)) / 10000.0;
+	double sarg2val = double(SH::get_arg(sarg2, v));
+	if ( sarg2val == 0 )
+	{
+		Z_scripterrlog("Division by 0 Err: InvPower() exponent divisor cannot be 0!!\n");
+		set_register(sarg1, 1);
+		return;
+	}
+	double temp = 10000.0 / sarg2val;
+	double temp2 = double(get_register(sarg1)) / 10000.0;
     
-    if(temp == 0 && temp2 == 0)
-    {
-        Z_scripterrlog("Script attempted to calculate 0 to the power 0!\n");
-        set_register(sarg1, 1);
-        return;
-    }
+	if(temp == 0 && temp2 == 0)
+	{
+		Z_scripterrlog("Script attempted to calculate 0 to the power 0!\n");
+		set_register(sarg1, 1);
+		return;
+	}
     
-    set_register(sarg1, long(pow(temp2, temp) * 10000.0));
+	set_register(sarg1, long(pow(temp2, temp) * 10000.0));
 }
 
 void do_sqroot(const bool v)
