@@ -201,6 +201,7 @@ public:
     void animate();
     void check_conveyor();
     int Count();
+	bool has_space(int space = 1);
     int hit(sprite *s);
     int hit(int x,int y,int z,int xsize, int ysize, int zsize);
     // returns the number of sprites with matching id

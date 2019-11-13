@@ -2437,6 +2437,11 @@ int sprite_list::Count()
     return count;
 }
 
+bool sprite_list::has_space(int space)
+{
+	return (count+space) <= max_sprites;
+}
+
 int sprite_list::hit(sprite *s)
 {
     for(int i=0; i<count; i++)

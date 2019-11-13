@@ -17280,7 +17280,7 @@ void do_createlweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
     
-	if ( Lwpns.Count() < 256 )
+	if ( Lwpns.has_space() )
 	{
 			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
@@ -17300,7 +17300,7 @@ void do_createlweapon(const bool v)
 	}
 	return; //do not use the old code, below here. 
         //old version is below
-	if ( (Lwpns.Count()-1) < Lwpns.getMax() )
+	if ( Lwpns.has_space() )
 	{
 		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
@@ -17333,7 +17333,7 @@ void do_createeweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
         return;
 		
-    if ( (Lwpns.Count()-1) < Lwpns.getMax() )
+    if ( Ewpns.has_space() )
     {
 	    addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
 	    //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
@@ -17381,7 +17381,7 @@ void do_createitem(const bool v)
     if(BC::checkItemID(ID, "Screen->CreateItem") != SH::_NoError)
         return;
 
-    if ( (items.Count()-1) < items.getMax() )
+    if ( items.has_space() )
     {
 	additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
 	ri->itemref = items.spr(items.Count() - 1)->getUID();
