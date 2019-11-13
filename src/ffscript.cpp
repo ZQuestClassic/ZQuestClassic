@@ -17300,10 +17300,19 @@ void do_createlweapon(const bool v)
 	}
 	return; //do not use the old code, below here. 
         //old version is below
-    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
-		
+	if ( (Lwpns.Count()-1) < Lwpns.getMax() )
+	{
+		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
+	}
+	else
+	{
+		ri->lwpn = 0;
+		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
+	}
     //addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
-    
+    /*
     if(Lwpns.Count() < 1)
     {
         ri->lwpn = LONG_MAX;
@@ -17314,6 +17323,7 @@ void do_createlweapon(const bool v)
         ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
         Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
     }
+	*/
 }
 
 void do_createeweapon(const bool v)
@@ -17323,24 +17333,34 @@ void do_createeweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
         return;
 		
-    addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
-    //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
-    //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
-    //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
-    if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
+    if ( (Lwpns.Count()-1) < Lwpns.getMax() )
     {
-	weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-	w->LOADGFX(FFCore.getDefWeaponSprite(ID));
-	w->ScriptGenerated = 1;
-	w->isLWeapon = 0;
+	    addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
+	    //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
+	    //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
+	    //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
+	    if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
+	    {
+		weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+		w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+		w->ScriptGenerated = 1;
+		w->isLWeapon = 0;
+		ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
+		Z_eventlog("Script created eweapon %ld with UID = %ld\n", ID, ri->ewpn);
+	    }
+	    else
+	    {
+		Z_scripterrlog("Couldn't create eweapon %ld: Invalid ID/Type (%d) specified.\n", ID);
+		return;
+	    }
     }
     else
     {
-	Z_scripterrlog("Couldn't create eweapon %ld: Invalid ID/Type (%d) specified.\n", ID);
-	return;
+        ri->ewpn = 0;
+        Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
     }
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
-    
+    /*
     if(Ewpns.Count() < 1)
     {
         ri->ewpn = LONG_MAX;
@@ -17351,6 +17371,7 @@ void do_createeweapon(const bool v)
         ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
         Z_eventlog("Script created eweapon %ld with UID = %ld\n", ID, ri->ewpn);
     }
+    */
 }
 
 void do_createitem(const bool v)
@@ -17359,9 +17380,19 @@ void do_createitem(const bool v)
     
     if(BC::checkItemID(ID, "Screen->CreateItem") != SH::_NoError)
         return;
-        
-    additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
-    
+
+    if ( (items.Count()-1) < items.getMax() )
+    {
+	additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
+	ri->itemref = items.spr(items.Count() - 1)->getUID();
+        Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
+    }
+    else
+    {
+        ri->itemref = 0;
+        Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
+    }
+    /*
     if(items.Count() < 1)
     {
         ri->itemref = LONG_MAX;
@@ -17372,6 +17403,7 @@ void do_createitem(const bool v)
         ri->itemref = items.spr(items.Count() - 1)->getUID();
         Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
     }
+    */
 }
 
 void do_createnpc(const bool v)
@@ -17386,7 +17418,8 @@ void do_createnpc(const bool v)
     
     if(numcreated == 0)
     {
-        ri->guyref = LONG_MAX;
+        //ri->guyref = LONG_MAX;
+        ri->guyref = 0;
         Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
     }
     else
