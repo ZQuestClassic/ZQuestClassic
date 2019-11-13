@@ -141,8 +141,8 @@ hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
 subscreendata	TOKEN( SUBSCREENDATA );
-particle	TOKEN( PARTICLE );
-decoration	TOKEN( DECORATION );
+particlesprite	TOKEN( PARTICLE );
+decorationsprite	TOKEN( DECORATION );
 "try"	{
 		char temp[512];
 		//char temp2[512];
