@@ -4315,7 +4315,7 @@ void f_Quit(int type)
     
     eat_buttons();
     
-    zc_readkey(KEY_ESC);
+    zc_readrawkey(KEY_ESC);
         
     zc_readkey(KEY_ENTER);
 }
@@ -4566,24 +4566,24 @@ void syskeys()
     
     if(zc_readkey(KEY_F2))    ShowFPS=!ShowFPS;
     
-    if(zc_readkey(KEY_F3) && Playing)    Paused=!Paused;
+    if(zc_readrawkey(KEY_F3) && Playing)    Paused=!Paused;
     
-    if(zc_readkey(KEY_F4) && Playing)
+    if(zc_readrawkey(KEY_F4) && Playing)
     {
         Paused=true;
         Advance=true;
     }
     
-    if(zc_readkey(KEY_F6)) onTryQuit();
+    if(zc_readrawkey(KEY_F6)) onTryQuit();
     
 #ifndef ALLEGRO_MACOSX
-    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F9))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F7))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
 #endif
     if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))    onSaveMapPic();
     
@@ -4835,13 +4835,13 @@ bottom:
 void checkQuitKeys()
 {
 #ifndef ALLEGRO_MACOSX
-    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F9))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F7))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
 #endif
 }
 
@@ -4905,6 +4905,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
         
     Advance=false;
     ++frame;
+	update_keys(); //Update ZScript key arrays
     
     syskeys();
 	if(allowF6Script)
@@ -5276,7 +5277,7 @@ int onContinue()
 
 int onEsc() // Unused?? -L
 {
-    return zc_getkey(KEY_ESC, true)?D_CLOSE:D_O_K;
+    return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
 int onVsync()
@@ -6492,7 +6493,7 @@ int onGoToComplete()
     onGoTo();
     eat_buttons();
     
-    zc_readkey(KEY_ESC);
+    zc_readrawkey(KEY_ESC);
         
     show_mouse(NULL);
     game_pal();
@@ -9278,7 +9279,7 @@ void System()
     }
     
     // drop the menu on startup if menu button pressed
-    if(joybtn(Mbtn)||zc_getkey(KEY_ESC))
+    if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
         simulate_keypress(KEY_G << 8);
         
     do
@@ -10142,6 +10143,36 @@ bool disabledKeys[127]=
 	false,false,false,false,false,false,false
 };
 
+bool KeyInput[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
+bool KeyPress[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
+bool key_truestate[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
@@ -10247,7 +10278,7 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			ret = zc_getkey(KEY_ESC, ignoreDisable);
+			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			flag = &Mdown;
 			break;
 		default: //control_state[] index
@@ -10591,7 +10622,37 @@ void eat_buttons()
 
 bool zc_readkey(int k, bool ignoreDisable)
 {
-    if(zc_getkey(k, ignoreDisable))
+    if(ignoreDisable) return KeyPress[k];
+	switch(k)
+	{
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return KeyPress[k];
+			
+		default:
+			return KeyPress[k] && !disabledKeys[k];
+	}
+}
+
+bool zc_getkey(int k, bool ignoreDisable)
+{
+	if(ignoreDisable) return KeyInput[k];
+	switch(k)
+	{
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return KeyInput[k];
+			
+		default:
+			return KeyInput[k] && !disabledKeys[k];
+	}
+}
+
+bool zc_readrawkey(int k, bool ignoreDisable)
+{
+    if(zc_getrawkey(k, ignoreDisable))
     {
         key[k]=0;
         return true;
@@ -10600,7 +10661,7 @@ bool zc_readkey(int k, bool ignoreDisable)
     return false;
 }
 
-bool zc_getkey(int k, bool ignoreDisable)
+bool zc_getrawkey(int k, bool ignoreDisable)
 {
 	if(ignoreDisable) return key[k];
 	switch(k)
@@ -10612,6 +10673,16 @@ bool zc_getkey(int k, bool ignoreDisable)
 			
 		default:
 			return key[k] && !disabledKeys[k];
+	}
+}
+
+void update_keys()
+{
+	for(int q = 0; q < 128; ++q)
+	{
+		KeyPress[q] = key[q] && !key_truestate[q];
+		KeyInput[q] = key[q];
+		key_truestate[q] = key[q];
 	}
 }
 

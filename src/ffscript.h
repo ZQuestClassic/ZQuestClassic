@@ -2982,7 +2982,7 @@ enum ASM_DEFINE
 #define BUTTONPRESS 0x10F4
 #define BUTTONINPUT 0x10F5
 #define BUTTONHELD 0x10F6
-#define KEYPRESS 0x10F7
+#define RAWKEY 0x10F7
 #define READKEY 0x10F8
 #define JOYPADPRESS 0x10F9
 #define DISABLEDITEM 0x10FA
@@ -3683,11 +3683,13 @@ enum ASM_DEFINE
 #define DROPSETCHANCES		0x137F
 #define DROPSETNULLCHANCE		0x1380
 #define DROPSETCHOOSE		0x1381
+#define KEYPRESS		0x1382
+#define KEYINPUT		0x1383
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1382
+#define NUMVARIABLES         	0x1384
 
 // Script types
 
