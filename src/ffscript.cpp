@@ -17327,10 +17327,18 @@ void do_createeweapon(const bool v)
     //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
     //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
     //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
-    weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-    w->LOADGFX(FFCore.getDefWeaponSprite(ID));
-    w->ScriptGenerated = 1;
-    w->isLWeapon = 0;
+    if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
+    {
+	weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+	w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+	w->ScriptGenerated = 1;
+	w->isLWeapon = 0;
+    }
+    else
+    {
+	Z_scripterrlog("Couldn't create eweapon %ld: Invalid ID/Type (%d) specified.\n", ID);
+	return;
+    }
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
     
     if(Ewpns.Count() < 1)
