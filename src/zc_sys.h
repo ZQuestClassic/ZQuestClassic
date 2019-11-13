@@ -67,6 +67,9 @@ int  next_press_btn();
 bool joybtn(int b);
 bool zc_readkey(int k, bool ignoreDisable = false);
 bool zc_getkey(int k, bool ignoreDisable = false);
+bool zc_readrawkey(int k, bool ignoreDisable = false);
+bool zc_getrawkey(int k, bool ignoreDisable = false);
+void update_keys();
 bool zc_disablekey(int k, bool val);
 void eat_buttons();
 
@@ -74,6 +77,9 @@ extern bool control_state[18];
 extern bool disable_control[18];
 extern bool drunk_toggle_state[11];
 extern bool disabledKeys[127];
+extern bool KeyInput[127]; //ZScript 'Input->Key[]'
+extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
+extern bool key_truestate[127]; //Internal, used for ZScript 'Input->KeyPress[]'
 extern bool button_press[18];
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 

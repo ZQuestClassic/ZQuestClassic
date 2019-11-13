@@ -253,7 +253,7 @@ string ZScript::VarToString(long ID)
 	case BUTTONPRESS: return "BUTTONPRESS";
 	case BUTTONINPUT: return "BUTTONINPUT";
 	case BUTTONHELD: return "BUTTONHELD";
-	case KEYPRESS: return "KEYPRESS";
+	case RAWKEY: return "RAWKEY";
 	case READKEY: return "READKEY";
 	case DISABLEKEY: return "DISABLEKEY";
 	case DISABLEBUTTON: return "DISABLEBUTTON";
@@ -1784,6 +1784,8 @@ string ZScript::VarToString(long ID)
 	case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
 	case DROPSETCHOOSE: return "DROPSETCHOOSE";
 	case NPCPARENTUID: return "NPCPARENTUID";
+	case KEYPRESS: return "KEYPRESS";
+	case KEYINPUT: return "KEYINPUT";
 	
 	
 	default:

@@ -2961,7 +2961,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case KEYPRESS:
+	case RAWKEY:
 	{	//Game->KeyPressed[], read-only
 		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
 		//hmm...no, this won;t return properly for modifier keys. 
@@ -2971,6 +2971,19 @@ long get_register(const long arg)
 		ret = pressed?10000:0;
 	}
 	break;
+	
+	case KEYINPUT:
+	{
+		ret = KeyInput[ri->d[0]/10000] ? 10000 : 0;
+		break;
+	}
+	case KEYPRESS:
+	{
+		ret = KeyPress[ri->d[0]/10000] ? 10000 : 0;
+		break;
+	}
+	
+	
 	
 	case KEYMODIFIERS:
 	{
@@ -9498,7 +9511,7 @@ void set_register(const long arg, const long value)
 	}
 	break;
 
-	case KEYPRESS:
+	case RAWKEY:
 	{	//Game->KeyPressed[], read-only
 		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
 		//hmm...no, this won;t return properly for modifier keys. 
@@ -9508,6 +9521,23 @@ void set_register(const long arg, const long value)
 		//but they *can* be set false; ??? -Z
 	}
 	break;
+	
+	case KEYINPUT:
+	{
+		KeyInput[ri->d[0]/10000] = (value/10000)!=0;
+		switch(ri->d[0]/10000)
+		{
+			case KEY_F6: onTryQuit(); break;
+			case KEY_F3: Paused = !Paused; break;
+			case KEY_F4: Paused = true; Advance = true; break;
+		}
+		break;
+	}
+	case KEYPRESS:
+	{
+		KeyPress[ri->d[0]/10000] = (value/10000)!=0;
+		break;
+	}
 	
 	case SIMULATEKEYPRESS:
 	{	//Game->KeyPressed[], read-only
@@ -19160,17 +19190,17 @@ void do_combotile(const bool v)
 
 bool zasm_advance()
 {
-	if( zc_readkey(KEY_INSERT, true) )
+	if( zc_readrawkey(KEY_INSERT, true) )
 	{
-		if(zc_getkey(KEY_LSHIFT, true) || zc_getkey(KEY_RSHIFT, true))
+		if(zc_getrawkey(KEY_LSHIFT, true) || zc_getrawkey(KEY_RSHIFT, true))
 		{
 			FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
 		}
-		else if(zc_getkey(KEY_ALT, true) || zc_getkey(KEY_ALTGR, true))
+		else if(zc_getrawkey(KEY_ALT, true) || zc_getrawkey(KEY_ALTGR, true))
 		{
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
-		else if(zc_getkey(KEY_LCONTROL, true) || zc_getkey(KEY_RCONTROL, true))
+		else if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
 		{
 			FFCore.ZASMPrint(false); //Close debugger
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
@@ -28948,7 +28978,7 @@ script_variable ZASMVars[]=
 	{ "BUTTONPRESS",	BUTTONPRESS,        0,             0 },
 	{ "BUTTONINPUT",	BUTTONINPUT,        0,             0 },
 	{ "BUTTONHELD",		BUTTONHELD,        0,             0 },
-	{ "KEYPRESS",		KEYPRESS,        0,             0 },
+	{ "RAWKEY",		RAWKEY,        0,             0 },
 	{ "READKEY",		READKEY,        0,             0 },
 	{ "JOYPADPRESS",	JOYPADPRESS,        0,             0 },
 	{ "DISABLEDITEM",	DISABLEDITEM,            0,             0 },
@@ -29594,6 +29624,8 @@ script_variable ZASMVars[]=
 	{ "DROPSETNULLCHANCE",		DROPSETNULLCHANCE,        0,             0 },
 	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
 	{ "NPCPARENTUID",		NPCPARENTUID,        0,             0 },
+	{ "KEYPRESS",		KEYPRESS,        0,             0 },
+	{ "KEYINPUT",		KEYINPUT,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

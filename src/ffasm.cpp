@@ -1373,7 +1373,7 @@ script_variable variable_list[]=
 	{ "BUTTONPRESS",	BUTTONPRESS,        0,             0 },
 	{ "BUTTONINPUT",	BUTTONINPUT,        0,             0 },
 	{ "BUTTONHELD",		BUTTONHELD,        0,             0 },
-	{ "KEYPRESS",		KEYPRESS,        0,             0 },
+	{ "RAWKEY",		RAWKEY,        0,             0 },
 	{ "READKEY",		READKEY,        0,             0 },
 	{ "JOYPADPRESS",	JOYPADPRESS,        0,             0 },
 	{ "DISABLEDITEM",	DISABLEDITEM,            0,             0 },
@@ -2028,6 +2028,8 @@ script_variable variable_list[]=
 	{ "DROPSETCHANCES",		DROPSETCHANCES,        0,             0 },
 	{ "DROPSETNULLCHANCE",		DROPSETNULLCHANCE,        0,             0 },
 	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
+	{ "KEYPRESS",		KEYPRESS,        0,             0 },
+	{ "KEYINPUT",		KEYINPUT,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
