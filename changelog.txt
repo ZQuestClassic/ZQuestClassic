@@ -1,6 +1,13 @@
 ChangeLog for 2.53.1
 
 //Beta 12
+Because 'particle' and 'decoration' are potentially already common
+	identifiers in scripts, I have reversed the reservation of these 
+	tokens, changing them to 'decorationsprite' and 'particlesprite'.
+	We can add user typedefs to <std> if we want, later, to shorten
+	the datatype to something like 'particles' or 'deco'.
+	( ZoriaRPG, 13th November, 2019 )
+
 Reserved 'particle' and 'decoration' as datatypes.
 	( ZoriaRPG, 12th November, 2019 )
 
