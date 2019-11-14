@@ -3955,7 +3955,7 @@ long get_register(const long arg)
 		case SPRITEMAXNPC:
 		{
 			//No bounds check, as this is a universal function and works from NULL pointers!
-			guys.getMax() * 10000;
+			ret = guys.getMax() * 10000;
 			break;
 		}
 		
