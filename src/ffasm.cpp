@@ -2029,6 +2029,12 @@ script_variable variable_list[]=
 	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
 	{ "KEYPRESS",		KEYPRESS,        0,             0 },
 	{ "KEYINPUT",		KEYINPUT,        0,             0 },
+	{ "SPRITEMAXNPC",		SPRITEMAXNPC,        0,             0 },
+	{ "SPRITEMAXLWPN",		SPRITEMAXLWPN,        0,             0 },
+	{ "SPRITEMAXEWPN",		SPRITEMAXEWPN,        0,             0 },
+	{ "SPRITEMAXITEM",		SPRITEMAXITEM,        0,             0 },
+	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
+	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

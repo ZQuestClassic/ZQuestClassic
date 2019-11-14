@@ -3140,6 +3140,13 @@ long get_register(const long arg)
 				ret=((int)((item*)(s))->lvl)*10000;
 			}
 			break;
+			
+		case SPRITEMAXITEM:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			ret = items.getMax() * 10000;
+			break;
+		}
 		
 		case ITEMSCRIPTUID:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -3945,6 +3952,13 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case SPRITEMAXNPC:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			guys.getMax() * 10000;
+			break;
+		}
+		
 		case NPCSUBMERGED:
 		{
 			if(GuyH::loadNPC(ri->guyref, "Submerged()") != SH::_NoError) 
@@ -4417,7 +4431,14 @@ long get_register(const long arg)
 			}
 				
 			break;
-			
+		
+		case SPRITEMAXLWPN:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			ret = Lwpns.getMax() * 10000;
+			break;
+		}
+	
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
 			{
@@ -4763,6 +4784,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case SPRITEMAXEWPN:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			ret = Ewpns.getMax() * 10000;
+			break;
+		}
+	
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Y")))
 			{
@@ -9582,6 +9610,13 @@ void set_register(const long arg, const long value)
 		}
 		
 		break;
+		
+	case SPRITEMAXITEM:
+	{
+		//No bounds check, as this is a universal function and works from NULL pointers!
+		items.setMax(vbound((value/10000),1,MAX_ITEM_SPRITES));
+		break;
+	}
 	
 	case ITEMX:
 		if(0!=(s=checkItem(ri->itemref)))
@@ -10408,7 +10443,12 @@ void set_register(const long arg, const long value)
 			((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
 		break;
 	
-	
+	case SPRITEMAXLWPN:
+	{
+		//No bounds check, as this is a universal function and works from NULL pointers!
+		Lwpns.setMax(vbound((value/10000),1,MAX_LWPN_SPRITES));
+		break;
+	}
 		
 	case LWPNY:
 		if(0!=(s=checkLWpn(ri->lwpn,"Y")))
@@ -10741,7 +10781,14 @@ void set_register(const long arg, const long value)
 			((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
 			
 		break;
-		
+	
+	case SPRITEMAXEWPN:
+	{
+		//No bounds check, as this is a universal function and works from NULL pointers!
+		Ewpns.setMax(vbound((value/10000),1,MAX_EWPN_SPRITES));
+		break;
+	}
+	
 	case EWPNY:
 		if(0!=(s=checkEWpn(ri->ewpn,"Y")))
 			((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
@@ -11099,6 +11146,13 @@ void set_register(const long arg, const long value)
 		}
 		break;
 	
+	case SPRITEMAXNPC:
+	{
+		//No bounds check, as this is a universal function and works from NULL pointers!
+		guys.setMax(vbound((value/10000),1,MAX_NPC_SPRITES));
+		break;
+	}
+		
 	case NPCY:
 	{
 		if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
@@ -16723,7 +16777,7 @@ void do_loadlweapon(const bool v)
 	long index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkLWeaponIndex(index, "Screen->LoadLWeapon") != SH::_NoError)
-		ri->lwpn = LONG_MAX;
+		ri->lwpn = 0; //LONG_MAX; //Now NULL
 	else
 	{
 		ri->lwpn = Lwpns.spr(index)->getUID();
@@ -16737,7 +16791,7 @@ void do_loadeweapon(const bool v)
 	long index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkEWeaponIndex(index, "Screen->LoadEWeapon") != SH::_NoError)
-		ri->ewpn = LONG_MAX;
+		ri->ewpn = 0; //LONG_MAX; //Now NULL
 	else
 	{
 		ri->ewpn = Ewpns.spr(index)->getUID();
@@ -16750,7 +16804,7 @@ void do_loaditem(const bool v)
 	long index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkItemIndex(index, "Screen->LoadItem") != SH::_NoError)
-		ri->itemref = LONG_MAX;
+		ri->itemref = 0; //LONG_MAX; //Now NULL
 	else
 	{
 		ri->itemref = items.spr(index)->getUID();
@@ -16776,7 +16830,7 @@ void do_loadnpc(const bool v)
 	long index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkGuyIndex(index, "Screen->LoadNPC") != SH::_NoError)
-		ri->guyref = LONG_MAX;
+		ri->guyref = 0; // LONG_MAX;
 	else
 	{
 		ri->guyref = guys.spr(index)->getUID();
@@ -29561,6 +29615,12 @@ script_variable ZASMVars[]=
 	{ "NPCPARENTUID",		NPCPARENTUID,        0,             0 },
 	{ "KEYPRESS",		KEYPRESS,        0,             0 },
 	{ "KEYINPUT",		KEYINPUT,        0,             0 },
+	{ "SPRITEMAXNPC",		SPRITEMAXNPC,        0,             0 },
+	{ "SPRITEMAXLWPN",		SPRITEMAXLWPN,        0,             0 },
+	{ "SPRITEMAXEWPN",		SPRITEMAXEWPN,        0,             0 },
+	{ "SPRITEMAXITEM",		SPRITEMAXITEM,        0,             0 },
+	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
+	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

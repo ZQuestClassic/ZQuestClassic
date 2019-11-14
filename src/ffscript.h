@@ -16,10 +16,10 @@
 #define ZS_FIX 214748
 #define ZS_DWORD 65535
 
-#define MAX_LWPN_SPRITES 256
-#define MAX_EWPN_SPRITES 256
-#define MAX_NPC_SPRITES 256
-#define MAX_ITEM_SPRITES 256
+#define MAX_LWPN_SPRITES 1024
+#define MAX_EWPN_SPRITES 1024
+#define MAX_NPC_SPRITES 1024
+#define MAX_ITEM_SPRITES 1024
 
 #define MAX_ZQ_LAYER 6
 #define MAX_DRAW_LAYER 7
@@ -3689,7 +3689,14 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1384
+#define SPRITEMAXNPC 		0x1384
+#define SPRITEMAXLWPN 		0x1385
+#define SPRITEMAXEWPN 		0x1386
+#define SPRITEMAXITEM 		0x1387
+#define SPRITEMAXPARTICLE 		0x1388
+#define SPRITEMAXDECO 		0x1389
+
+#define NUMVARIABLES         	0x138A
 
 // Script types
 

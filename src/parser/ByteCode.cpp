@@ -1787,6 +1787,13 @@ string ZScript::VarToString(long ID)
 	case KEYPRESS: return "KEYPRESS";
 	case KEYINPUT: return "KEYINPUT";
 	
+	case SPRITEMAXNPC: return "SPRITEMAXNPC";
+	case SPRITEMAXLWPN: return "SPRITEMAXLWPN";
+	case SPRITEMAXEWPN: return "SPRITEMAXEWPN";
+	case SPRITEMAXITEM: return "SPRITEMAXITEM";
+	case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
+	case SPRITEMAXDECO: return "SPRITEMAXDECO";
+	
 	
 	default:
 	{
