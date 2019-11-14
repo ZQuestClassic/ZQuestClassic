@@ -189,7 +189,8 @@ int weapon::seekEnemy2(int j)
 
 void weapon::convertType(bool toLW)
 {
-	if(isLWeapon == toLW) return; //Already the right type
+	if((isLWeapon && toLW) || (!isLWeapon && !toLW)) return; //Already the right type
+	//== here is unsafe!
 	weaponscript = 0;
 	doscript = 0;
 	initialised = 0;
