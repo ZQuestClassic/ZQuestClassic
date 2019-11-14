@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 40
-Document Revision: 6th November, 2019
+Document Revision: 14th November, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1949,6 +1949,42 @@ bool FileExists(char32[] "filepath");
 
 Adds ZScript:
 
+int MaxNPCs();
+ * Returns the maximum number of npc sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxNPCs(int newmax);
+ * Sets the maximum number of npc sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+int MaxLWeapons();
+ * Returns the maximum number of lweapon sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxLWeapons(int newmax);
+ * Sets the maximum number of lweapon sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+int MaxEWeapons();
+ * Returns the maximum number of eweapon sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxEWeapons(int newmax);
+ * Sets the maximum number of eweapon sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+ int MaxItemsprites();
+ * Returns the maximum number of itemsprite sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxItemsprites(int newmax);
+ * Sets the maximum number of itemsprite sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+
 float Gravity[3];
  * Read or write to the Game's Gravity values.
  * Use the 'GR_' constants to access this array
@@ -2635,6 +2671,19 @@ bool Flags[14];
 ///  Itemsprite  ///
 ////////////////////
 
+int Max();
+ * Returns the maximum number of itemsprite sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of itemsprite sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
+ 
 untyped InitD[8];
  * The 8 D args for the itemsprite.
  * Used as this->InitD[] for itemsprite scripts.
@@ -2711,6 +2760,18 @@ int ScriptFlip;
 ///  *weapon  ///
 /////////////////
 
+int Max();
+ * Returns the maximum number of weapon sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of weapon sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
 bool Gravity;
  * If set true, the weapon falls in sideview gravity.
  * Some weapons (e.g. fire, bombs) have this set true by default.
@@ -2808,6 +2869,19 @@ int AClock
 /////////////
 ///  NPC  ///
 /////////////
+
+int Max();
+ * Returns the maximum number of npc sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of npc sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
 
 bool isSubmerged();
  * Returns if the npc is submerged (in the ground, in the water, or in a wall).
