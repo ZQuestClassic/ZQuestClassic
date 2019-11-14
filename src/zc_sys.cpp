@@ -10184,20 +10184,20 @@ bool button_hold[18] = {false, false, false, false, false, false, false, false, 
 
 void load_control_state()
 {
-    control_state[0]=zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
-    control_state[1]=zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
-    control_state[2]=zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
-    control_state[3]=zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
-    control_state[4]=zc_getkey(Akey, true)||joybtn(Abtn);
-    control_state[5]=zc_getkey(Bkey, true)||joybtn(Bbtn);
-    control_state[6]=zc_getkey(Skey, true)||joybtn(Sbtn);
-    control_state[7]=zc_getkey(Lkey, true)||joybtn(Lbtn);
-    control_state[8]=zc_getkey(Rkey, true)||joybtn(Rbtn);
-    control_state[9]=zc_getkey(Pkey, true)||joybtn(Pbtn);
-    control_state[10]=zc_getkey(Exkey1, true)||joybtn(Exbtn1);
-    control_state[11]=zc_getkey(Exkey2, true)||joybtn(Exbtn2);
-    control_state[12]=zc_getkey(Exkey3, true)||joybtn(Exbtn3);
-    control_state[13]=zc_getkey(Exkey4, true)||joybtn(Exbtn4);
+    control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+    control_state[1]=zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+    control_state[2]=zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+    control_state[3]=zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
+    control_state[4]=zc_getrawkey(Akey, true)||joybtn(Abtn);
+    control_state[5]=zc_getrawkey(Bkey, true)||joybtn(Bbtn);
+    control_state[6]=zc_getrawkey(Skey, true)||joybtn(Sbtn);
+    control_state[7]=zc_getrawkey(Lkey, true)||joybtn(Lbtn);
+    control_state[8]=zc_getrawkey(Rkey, true)||joybtn(Rbtn);
+    control_state[9]=zc_getrawkey(Pkey, true)||joybtn(Pbtn);
+    control_state[10]=zc_getrawkey(Exkey1, true)||joybtn(Exbtn1);
+    control_state[11]=zc_getrawkey(Exkey2, true)||joybtn(Exbtn2);
+    control_state[12]=zc_getrawkey(Exkey3, true)||joybtn(Exbtn3);
+    control_state[13]=zc_getrawkey(Exkey4, true)||joybtn(Exbtn4);
     
     if(num_joysticks != 0)
     {
@@ -10230,21 +10230,22 @@ void load_control_state()
 // Returns true if any game key is pressed. This is needed because keypressed()
 // doesn't detect modifier keys and control_state[] can be modified by scripts.
 bool zc_key_pressed()
+//may also need to use zc_getrawkey
 {
-    if((zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
-       (zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
-       (zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
-       (zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
-       (zc_getkey(Akey, true)||joybtn(Abtn)) ||
-       (zc_getkey(Bkey, true)||joybtn(Bbtn)) ||
-       (zc_getkey(Skey, true)||joybtn(Sbtn)) ||
-       (zc_getkey(Lkey, true)||joybtn(Lbtn)) ||
-       (zc_getkey(Rkey, true)||joybtn(Rbtn)) ||
-       (zc_getkey(Pkey, true)||joybtn(Pbtn)) ||
-       (zc_getkey(Exkey1, true)||joybtn(Exbtn1)) ||
-       (zc_getkey(Exkey2, true)||joybtn(Exbtn2)) ||
-       (zc_getkey(Exkey3, true)||joybtn(Exbtn3)) ||
-       (zc_getkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
+    if((zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
+       (zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
+       (zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
+       (zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
+       (zc_getrawkey(Akey, true)||joybtn(Abtn)) ||
+       (zc_getrawkey(Bkey, true)||joybtn(Bbtn)) ||
+       (zc_getrawkey(Skey, true)||joybtn(Sbtn)) ||
+       (zc_getrawkey(Lkey, true)||joybtn(Lbtn)) ||
+       (zc_getrawkey(Rkey, true)||joybtn(Rbtn)) ||
+       (zc_getrawkey(Pkey, true)||joybtn(Pbtn)) ||
+       (zc_getrawkey(Exkey1, true)||joybtn(Exbtn1)) ||
+       (zc_getrawkey(Exkey2, true)||joybtn(Exbtn2)) ||
+       (zc_getrawkey(Exkey3, true)||joybtn(Exbtn3)) ||
+       (zc_getrawkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
         return true;
     
     return false;
