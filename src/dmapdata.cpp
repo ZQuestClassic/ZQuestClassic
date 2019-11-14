@@ -447,178 +447,173 @@ case DMAPDATAFLAGS:	 //long
 static void do_loaddmapdata(const bool v);
 void FFScript::do_loaddmapdata(const bool v)
 {
-    long ID = SH::get_arg(sarg1, v) / 10000;
-    
-    if ( ID < 0 || ID > 511 )
-    {
-	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-	ri->dmapsref = LONG_MAX;
-    }
-        
-    else ri->dmapsref = ID;
-    //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+	long ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if ( ID < 0 || ID > 511 )
+	{
+		Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
+		ri->dmapsref = LONG_MAX;
+	}
+	else ri->dmapsref = ID;
+	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
 }
 
 static void do_getDMapData_dmapname(const bool v);
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    
-    if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
-        return;
-        
-    if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'dmapdata->GetName()' not large enough\n");
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	
+	if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
+		return;
+		
+	if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'dmapdata->GetName()' not large enough\n");
 }
 
 static void do_setDMapData_dmapname(const bool v);
 void FFScript::do_setDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
 
-    string filename_str;
-    
-    if(BC::checkDMapID(ID, "dmapdata->SetName()") != SH::_NoError)
-        return;
-        
-        
-    ArrayH::getString(arrayptr, filename_str, 73);
-    strncpy(DMaps[ID].name, filename_str.c_str(), 72);
-    DMaps[ID].name[72]='\0';
+	string filename_str;
+	
+	if(BC::checkDMapID(ID, "dmapdata->SetName()") != SH::_NoError)
+		return;
+		
+	ArrayH::getString(arrayptr, filename_str, 73);
+	strncpy(DMaps[ID].name, filename_str.c_str(), 72);
+	DMaps[ID].name[72]='\0';
 }
 
 static void do_getDMapData_dmaptitle(const bool v);
 void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    
-    if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
-        return;
-        
-    if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	
+	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
+		return;
+	
+	if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
 }
 
 static void do_setDMapData_dmaptitle(const bool v);
 void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    string filename_str;
-    
-    if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
-        return;
-        
-        
-    ArrayH::getString(arrayptr, filename_str, 21);
-    strncpy(DMaps[ID].title, filename_str.c_str(), 20);
-    DMaps[ID].title[20]='\0';
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
+	
+	if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
+		return;
+	
+	ArrayH::getString(arrayptr, filename_str, 21);
+	strncpy(DMaps[ID].title, filename_str.c_str(), 20);
+	DMaps[ID].title[20]='\0';
 }
 
 static void do_getDMapData_dmapintro(const bool v);
 void FFScript::do_getDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    
-    if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
-        return;
-        
-    if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	
+	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
+		return;
+	
+	if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
 }
 
 static void do_setDMapData_dmapintro(const bool v);
 void FFScript::do_setDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    string filename_str;
-    
-    if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
-        return;
-        
-        
-    ArrayH::getString(arrayptr, filename_str, 73);
-    strncpy(DMaps[ID].intro, filename_str.c_str(), 72);
-    DMaps[ID].intro[72]='\0';
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
+	
+	if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
+		return;
+	
+	ArrayH::getString(arrayptr, filename_str, 73);
+	strncpy(DMaps[ID].intro, filename_str.c_str(), 72);
+	DMaps[ID].intro[72]='\0';
 }
 
 
 static void do_getDMapData_music(const bool v);
 void FFScript::do_getDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    
-    if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
-        return;
-        
-    if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'dmapdata->GetMusic()' not large enough\n");
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	
+	if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
+		return;
+	
+	if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'dmapdata->GetMusic()' not large enough\n");
 }
 
 static void do_setDMapData_music(const bool v);
 void FFScript::do_setDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
-    long arrayptr = get_register(sarg2) / 10000;
-    string filename_str;
-    
-    if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
-        return;
-        
-        
-    ArrayH::getString(arrayptr, filename_str, 56);
-    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
-    DMaps[ID].tmusic[55]='\0';
+	long ID = ri->zmsgref;
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
+	
+	if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
+		return;
+	
+	ArrayH::getString(arrayptr, filename_str, 56);
+	strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
+	DMaps[ID].tmusic[55]='\0';
 }
 
 
 struct dmap
 {
-    byte map;
-    word level;
-    char xoff;
-    byte compass;
-    word color;
-    byte midi;
-    byte cont;
-    byte type;
-    //8
-    byte grid[8];
-    //16
-    char name[21];
-    char title[21];
-    char intro[73];
-    //byte padding;
-    //132
-    word minimap_1_tile;                                      //before getting map
-    byte minimap_1_cset;                                      //cset for minimap 1
-    //byte padding;
-    word minimap_2_tile;                                      //after getting map
-    byte minimap_2_cset;                                      //cset for minimap 2
-    //byte padding;
-    //140
-    word largemap_1_tile;                                     //large map
-    byte largemap_1_cset;                                     //cset for large
-    //byte padding;
-    word largemap_2_tile;                                     //large map
-    byte largemap_2_cset;                                     //cset for large
-    char tmusic[56];
-    byte tmusictrack;
-    byte active_subscreen;
-    byte passive_subscreen;
-    // int emusic;
-    //byte padding;
-    //204
-    byte disableditems[iMax];
-    // 460
-    long flags;
-    //gravity[2], jumpthreshold
+	byte map;
+	word level;
+	char xoff;
+	byte compass;
+	word color;
+	byte midi;
+	byte cont;
+	byte type;
+	//8
+	byte grid[8];
+	//16
+	char name[21];
+	char title[21];
+	char intro[73];
+	//byte padding;
+	//132
+	word minimap_1_tile;                                      //before getting map
+	byte minimap_1_cset;                                      //cset for minimap 1
+	//byte padding;
+	word minimap_2_tile;                                      //after getting map
+	byte minimap_2_cset;                                      //cset for minimap 2
+	//byte padding;
+	//140
+	word largemap_1_tile;                                     //large map
+	byte largemap_1_cset;                                     //cset for large
+	//byte padding;
+	word largemap_2_tile;                                     //large map
+	byte largemap_2_cset;                                     //cset for large
+	char tmusic[56];
+	byte tmusictrack;
+	byte active_subscreen;
+	byte passive_subscreen;
+	// int emusic;
+	//byte padding;
+	//204
+	byte disableditems[iMax];
+	// 460
+	long flags;
+	//gravity[2], jumpthreshold
 };
 
 // DMap flags

@@ -10,7 +10,8 @@
 
 namespace ffdebug
 {
-void print_disassembly(const word scommand);
+	void print_disassembly(const word scommand);
 }
 
 #endif
+
