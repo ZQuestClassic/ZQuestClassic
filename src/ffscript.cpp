@@ -2092,22 +2092,22 @@ public:
     
     static INLINE int checkGuyIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, guys.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
     }
     
     static INLINE int checkItemIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, items.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
     }
     
     static INLINE int checkEWeaponIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, Ewpns.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
     }
     
     static INLINE int checkLWeaponIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, Lwpns.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
     }
     
     static INLINE int checkGuyID(const long ID, const char * const str)
@@ -2144,6 +2144,17 @@ public:
         }
         
         return _NoError;
+    }
+    
+    static INLINE int checkBoundsOneIndexed(const long n, const long boundlow, const long boundup, const char * const funcvar)
+    {
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
     }
     
     static INLINE int checkUserArrayIndex(const long index, const dword size)

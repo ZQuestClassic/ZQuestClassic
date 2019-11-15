@@ -1,5 +1,10 @@
 ChangeLog for 2.53.1
 
+//Beta 13
+Fixed the error messages for Screen->LoadItem, LoadNPC, LoadLWeapom
+	and load EWeapon to return a 1-indexed value.
+
+
 //Beta 12
 Because 'particle' and 'decoration' are potentially already common
 	identifiers in scripts, I have reversed the reservation of these 
