@@ -29,6 +29,7 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
+#include "zq_class.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -1609,7 +1610,7 @@ void copyPal(int src, int dest)
 int onColors_Levels()
 {
     int cycle = get_bit(quest_rules,qr_FADE);
-    int index=0;
+    int index=Map.getcolor();
     
     while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
     {
