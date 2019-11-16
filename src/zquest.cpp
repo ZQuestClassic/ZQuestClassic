@@ -343,7 +343,7 @@ map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo;
+int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 bool Vsync, ShowFPS;
 int ComboBrush;                                             //show the brush instead of the normal mouse
@@ -7092,10 +7092,10 @@ void doflags()
             else
             {
                 // Notify if they are using a flag that doesn't work on this layer.
-                if((Flag >= mfTRAP_H && Flag <= mfNOBLOCKS) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
+                if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag <= mfNOBLOCKS) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
                         || (Flag == mfALLFAIRY) || (Flag == mfRAFT) || (Flag == mfRAFT_BRANCH)
                         || (Flag == mfDIVE_ITEM) || (Flag == mfARMOS_SECRET) || (Flag == mfNOENEMY)
-                        || (Flag == mfBLOCKHOLE) || (Flag == mfZELDA))
+                        || (Flag == mfBLOCKHOLE) || (Flag == mfZELDA)))
                 {
                     char buf[38];
                     sprintf(buf, "You are currently working on layer %d.", CurrentLayer);
@@ -24158,6 +24158,7 @@ int main(int argc,char **argv)
     
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
+    skipLayerWarning               = get_config_int("zquest","skip_layer_warning",0);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
@@ -26420,6 +26421,7 @@ int save_config_file()
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
     set_config_int("zquest","invalid_static",InvalidStatic);
+    set_config_int("zquest","skip_layer_warning",skipLayerWarning);
     set_config_int("zquest","tile_protection",TileProtection);
     set_config_int("zquest","showinfo",ShowInfo);
     set_config_int("zquest","show_grid",ShowGrid);
