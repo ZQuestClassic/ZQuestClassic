@@ -19587,1247 +19587,1245 @@ int run_script(const byte type, const word script, const long i)
 		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
 		{
-		case QUIT:
-			scommand = 0xFFFF;
-			break;
-			
-		case GOTO:
-			pc = sarg1;
-			increment = false;
-			break;
-			
-		case GOTOR:
-		{
-			pc = (get_register(sarg1) / 10000) - 1;
-			increment = false;
-		}
-		break;
-		
-		case GOTOTRUE:
-			if(ri->scriptflag & TRUEFLAG)
+			case QUIT:
+				scommand = 0xFFFF;
+				break;
+				
+			case GOTO:
+				pc = sarg1;
+				increment = false;
+				break;
+				
+			case GOTOR:
 			{
-			pc = sarg1;
-			increment = false;
-			}
-			
-			break;
-			
-		case GOTOFALSE:
-			if(!(ri->scriptflag & TRUEFLAG))
-			{
-			pc = sarg1;
-			increment = false;
-			}
-			
-			break;
-			
-		case GOTOMORE:
-			if(ri->scriptflag & MOREFLAG)
-			{
-			pc = sarg1;
-			increment = false;
-			}
-			
-			break;
-			
-		case GOTOLESS:
-			if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
-			{
-			pc = sarg1;
-			increment = false;
-			}
-			
-			break;
-			
-		case LOOP:
-		{
-			if(get_register(sarg2) > 0)
-			{
-			pc = sarg1;
-			increment = false;
-			}
-			else
-			{
-			set_register(sarg1, sarg1 - 1);
-			}
-		}
-		break;
-
-		case RETURN:
-		{
-			pc = SH::read_stack(ri->sp) - 1;
-			++ri->sp;
-			increment = false;
-			break;
-		}
-		
-		case SETTRUE:
-			set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
-			break;
-			
-		case SETFALSE:
-			set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
-			break;
-			
-		case SETMORE:
-			set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
-			break;
-			
-		case SETLESS:
-			set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-					 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
-			break;
-		
-		case SETTRUEI:
-			set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 10000 : 0);
-			break;
-			
-		case SETFALSEI:
-			set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 10000);
-			break;
-			
-		case SETMOREI:
-			set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 10000 : 0);
-			break;
-			
-		case SETLESSI:
-			set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-					 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
-			break;
-			
-		case NOT:
-			do_not(false);
-			break;
-			
-		case COMPAREV:
-			do_comp(true);
-			break;
-			
-		case COMPARER:
-			do_comp(false);
-			break;
-			
-		case SETV:
-			do_set(true, type, i);
-			break;
-			
-		case SETR:
-			do_set(false, type, i);
-			break;
-			
-		case PUSHR:
-			do_push(false);
-			break;
-			
-		case PUSHV:
-			do_push(true);
-			break;
-			
-		case POP:
-			do_pop();
-			break;
-			
-		case LOADI:
-			do_loadi();
-			break;
-			
-		case STOREI:
-			do_storei();
-			break;
-			
-		case LOAD1:
-			do_loada(0);
-			break;
-			
-		case LOAD2:
-			do_loada(1);
-			break;
-			
-		case SETA1:
-			do_seta(0);
-			break;
-			
-		case SETA2:
-			do_seta(1);
-			break;
-			
-		case ALLOCATEGMEMR:
-			if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type, i);
-			
-			break;
-			
-		case ALLOCATEGMEMV:
-			if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type, i);
-			
-			break;
-			
-		case ALLOCATEMEMR:
-			do_allocatemem(false, true, type, i);
-			break;
-			
-		case ALLOCATEMEMV:
-			do_allocatemem(true, true, type, i);
-			break;
-			
-		case DEALLOCATEMEMR:
-			do_deallocatemem();
-			break;
-			
-		case SAVEGAMESTRUCTS:
-			FFCore.do_savegamestructs(false,false);
-			break;
-		case READGAMESTRUCTS:
-			FFCore.do_loadgamestructs(false,false);
-			break;
-		case ARRAYSIZE:
-			do_arraysize();
-			break;
-		 case ARRAYSIZEB:
-			do_arraysize();
-			break;
-		case ARRAYSIZEF:
-			do_arraysize();
-			break;
-		case ARRAYSIZEN:
-			do_arraysize();
-			break;
-		case ARRAYSIZEI:
-			do_arraysize();
-			break;
-		case ARRAYSIZEID:
-			do_arraysize();
-			break;
-		case ARRAYSIZEL:
-			do_arraysize();
-			break;
-		case ARRAYSIZEE:
-			do_arraysize();
-			break;
-		
-		case GETFFCSCRIPT:
-			do_getffcscript();
-			break;
-		case GETITEMSCRIPT:
-			do_getitemscript();
-			break;
-			
-		case CASTBOOLI:
-			do_boolcast(false);
-			break;
-			
-		case CASTBOOLF:
-			do_boolcast(true);
-			break;
-			
-		case ADDV:
-			do_add(true);
-			break;
-			
-		case ADDR:
-			do_add(false);
-			break;
-			
-		case SUBV:
-			do_sub(true);
-			break;
-			
-		case SUBR:
-			do_sub(false);
-			break;
-			
-		case MULTV:
-			do_mult(true);
-			break;
-			
-		case MULTR:
-			do_mult(false);
-			break;
-			
-		case DIVV:
-			do_div(true);
-			break;
-			
-		case DIVR:
-			do_div(false);
-			break;
-			
-		case MODV:
-			do_mod(true);
-			break;
-			
-		case MODR:
-			do_mod(false);
-			break;
-			
-		case SINV:
-			do_trig(true, 0);
-			break;
-			
-		case SINR:
-			do_trig(false, 0);
-			break;
-			
-		case COSV:
-			do_trig(true, 1);
-			break;
-			
-		case COSR:
-			do_trig(false, 1);
-			break;
-			
-		case TANV:
-			do_trig(true, 2);
-			break;
-			
-		case TANR:
-			do_trig(false, 2);
-			break;
-		
-		case STRINGLENGTH:
-			FFCore.do_strlen(false);
-			break;
-			
-		case ARCSINR:
-			do_asin(false);
-			break;
-			
-		case ARCCOSR:
-			do_acos(false);
-			break;
-			
-		case ARCTANR:
-			do_arctan();
-			break;
-		
-		//Text ptr functions
-		case FONTHEIGHTR:
-			do_fontheight();
-			break;
-		case STRINGWIDTHR:
-			do_strwidth();
-			break;
-		case CHARWIDTHR:
-			do_charwidth();
-			break;
-		case MESSAGEWIDTHR:
-			do_msgwidth(get_register(sarg1)/10000);
-			break;
-		case MESSAGEHEIGHTR:
-			do_msgheight(get_register(sarg1)/10000);
-			break;
-		//
-		
-		//String.h functions 2.55 Alpha 23
-		case STRINGCOMPARE: FFCore.do_strcmp(); break;
-		case STRINGCOPY: FFCore.do_strcpy(false,false); break;
-		case ARRAYCOPY: FFCore.do_arraycpy(false,false); break;
-		case STRINGNCOMPARE: FFCore.do_strncmp(); break;
-		
-		//More string.h functions, 19th May, 2019 
-		case XLEN: FFCore.do_xlen(false); break;
-		case XTOI: FFCore.do_xtoi(false); break;
-		case ILEN: FFCore.do_ilen(false); break;
-		case ATOI: FFCore.do_atoi(false); break;
-		case STRCSPN: FFCore.do_strcspn(); break;
-		case STRSTR: FFCore.do_strstr(); break;
-		case XTOA: FFCore.do_xtoa(); break;
-		case ITOA: FFCore.do_itoa(); break;
-		case STRCAT: FFCore.do_strcat(); break;
-		case STRSPN: FFCore.do_strspn(); break;
-		case STRCHR: FFCore.do_strchr(); break;
-		case STRRCHR: FFCore.do_strrchr(); break;
-		case XLEN2: FFCore.do_xlen2(); break;
-		case XTOI2: FFCore.do_xtoi2(); break;
-		case ILEN2: FFCore.do_ilen2(); break;
-		case ATOI2: FFCore.do_atoi2(); break;
-		case REMCHR2: FFCore.do_remchr2(); break;
-		case UPPERTOLOWER: FFCore.do_UpperToLower(false); break;
-		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
-		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
-			
-		case GETNPCSCRIPT:	FFCore.do_getnpcscript(); break;
-		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
-		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
-		case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
-		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(); break;
-		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(); break;
-		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(); break;
-		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(); break;
-		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(); break;
-		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(); break;
-		case GETNPCBYNAME:	FFCore.do_getnpcbyname(); break;
-		case GETITEMBYNAME:	FFCore.do_getitembyname(); break;
-		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
-		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
-			
-		case ABSR:
-			do_abs(false);
-			break;
-			
-		case MINR:
-			do_min(false);
-			break;
-			
-		case MINV:
-			do_min(true);
-			break;
-			
-		case MAXR:
-			do_max(false);
-			break;
-			
-		case MAXV:
-			do_max(true);
-			break;
-			
-		case RNDR:
-			do_rnd(false);
-			break;
-			
-		case RNDV:
-			do_rnd(true);
-			break;
-			
-		case SRNDR:
-			do_srnd(false);
-			break;
-			
-		case SRNDV:
-			do_srnd(true);
-			break;
-			
-		case SRNDRND:
-			do_srndrnd();
-			break;
-		
-		case GETRTCTIMER:
-			FFCore.getRTC(false);
-			break;
-		case GETRTCTIMEV:
-			FFCore.getRTC(true);
-			break;
-			
-		case FACTORIAL:
-			do_factorial(false);
-			break;
-			
-		case SQROOTV:
-			do_sqroot(true);
-			break;
-			
-		case SQROOTR:
-			do_sqroot(false);
-			break;
-			
-		case POWERR:
-			do_power(false);
-			break;
-			
-		case POWERV:
-			do_power(true);
-			break;
-			
-		case IPOWERR:
-			do_ipower(false);
-			break;
-			
-		case IPOWERV:
-			do_ipower(true);
-			break;
-			
-		case LOG10:
-			do_log10(false);
-			break;
-			
-		case LOGE:
-			do_naturallog(false);
-			break;
-			
-		case ANDR:
-			do_and(false);
-			break;
-			
-		case ANDV:
-			do_and(true);
-			break;
-			
-		case ORR:
-			do_or(false);
-			break;
-			
-		case ORV:
-			do_or(true);
-			break;
-			
-		case XORR:
-			do_xor(false);
-			break;
-			
-		case XORV:
-			do_xor(true);
-			break;
-			
-		case NANDR:
-			do_nand(false);
-			break;
-			
-		case NANDV:
-			do_nand(true);
-			break;
-			
-		case NORR:
-			do_nor(false);
-			break;
-			
-		case NORV:
-			do_nor(true);
-			break;
-			
-		case XNORR:
-			do_xnor(false);
-			break;
-			
-		case XNORV:
-			do_xnor(true);
-			break;
-			
-		case BITNOT:
-			do_bitwisenot(false);
-			break;
-			
-		case LSHIFTR:
-			do_lshift(false);
-			break;
-			
-		case LSHIFTV:
-			do_lshift(true);
-			break;
-			
-		case RSHIFTR:
-			do_rshift(false);
-			break;
-			
-		case RSHIFTV:
-			do_rshift(true);
-			break;
-			
-		case ANDR32:
-			do_and32(false);
-			break;
-			
-		case ANDV32:
-			do_and32(true);
-			break;
-			
-		case ORR32:
-			do_or32(false);
-			break;
-			
-		case ORV32:
-			do_or32(true);
-			break;
-			
-		case XORR32:
-			do_xor32(false);
-			break;
-			
-		case XORV32:
-			do_xor32(true);
-			break;
-			
-		case BITNOT32:
-			do_bitwisenot32(false);
-			break;
-			
-		case LSHIFTR32:
-			do_lshift32(false);
-			break;
-			
-		case LSHIFTV32:
-			do_lshift32(true);
-			break;
-			
-		case RSHIFTR32:
-			do_rshift32(false);
-			break;
-			
-		case RSHIFTV32:
-			do_rshift32(true);
-			break;
-			
-		case TRACER:
-			FFCore.do_trace(false);
-			break;
-			
-		case TRACEV:
-			FFCore.do_trace(true);
-			break;
-			
-		case TRACE2R:
-			FFCore.do_tracebool(false);
-			break;
-		
-		//Zap and Wavy Effects
-		case FXWAVYR:
-			FFCore.do_fx_wavy(false);
-			break;
-		case FXZAPR:
-			FFCore.do_fx_zap(false);
-			break;
-		//Zap and Wavy Effects
-		case FXWAVYV:
-			FFCore.do_fx_wavy(true);
-			break;
-		case FXZAPV:
-			FFCore.do_fx_zap(true);
-			break;
-		case GREYSCALER:
-			FFCore.do_greyscale(false);
-			break;
-		case GREYSCALEV:
-			FFCore.do_greyscale(true);
-			break;
-		case MONOCHROMER:
-			FFCore.do_monochromatic(false);
-			break;
-		case MONOCHROMEV:
-			FFCore.do_monochromatic(true);
-			break;
-			
-		case TRACE2V:
-			FFCore.do_tracebool(true);
-			break;
-			
-		case TRACE3:
-			FFCore.do_tracenl();
-			break;
-			
-		case TRACE4:
-			FFCore.do_cleartrace();
-			break;
-			
-		case TRACE5:
-			FFCore.do_tracetobase();
-			break;
-			
-		case TRACE6:
-			FFCore.do_tracestring();
-			break;
-		case BREAKPOINT:
-			if( zasm_debugger )
-			{
-				FFCore.do_breakpoint();
+				pc = (get_register(sarg1) / 10000) - 1;
+				increment = false;
 			}
 			break;
 			
-		case WARP:
-			do_warp(true);
+			case GOTOTRUE:
+				if(ri->scriptflag & TRUEFLAG)
+				{
+				pc = sarg1;
+				increment = false;
+				}
+				
+				break;
+				
+			case GOTOFALSE:
+				if(!(ri->scriptflag & TRUEFLAG))
+				{
+					pc = sarg1;
+					increment = false;
+				}
+				
+				break;
+				
+			case GOTOMORE:
+				if(ri->scriptflag & MOREFLAG)
+				{
+					pc = sarg1;
+					increment = false;
+				}
+				
+				break;
+				
+			case GOTOLESS:
+				if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
+				{
+					pc = sarg1;
+					increment = false;
+				}
+				
+				break;
+				
+			case LOOP:
+			{
+				if(get_register(sarg2) > 0)
+				{
+					pc = sarg1;
+					increment = false;
+				}
+				else
+				{
+					set_register(sarg1, sarg1 - 1);
+				}
+			}
 			break;
-			
-		case WARPR:
-			do_warp(false);
-			break;
-			
-		case PITWARP:
-			do_pitwarp(true);
-			break;
-			
-		case PITWARPR:
-			do_pitwarp(false);
-			break;
-			
-		case BREAKSHIELD:
-			do_breakshield();
-			break;
-			
-		case SELECTAWPNV:
-			do_selectweapon(true, true);
-			break;
-			
-		case SELECTAWPNR:
-			do_selectweapon(false, true);
-			break;
-			
-		case SELECTBWPNV:
-			do_selectweapon(true, false);
-			break;
-			
-		case SELECTBWPNR:
-			do_selectweapon(false, false);
-			break;
-			
-		case PLAYSOUNDR:
-			do_sfx(false);
-			break;
-			
-		case PLAYSOUNDV:
-			do_sfx(true);
-			break;
-		
-		case ADJUSTSFXVOLUMER: FFCore.do_adjustsfxvolume(false); break;
-		case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
-		case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
-		case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
-			
-		case TRIGGERSECRETR:
-			FFScript::do_triggersecret(false);
-			break;
-			
-		case TRIGGERSECRETV:
-			FFScript::do_triggersecret(true);
-			break;
-			
-		case PLAYMIDIR:
-			do_midi(false);
-			break;
-			
-		case PLAYMIDIV:
-			do_midi(true);
-			break;
-			
-		case PLAYENHMUSIC:
-			do_enh_music(false);
-			break;
-			
-		case GETMUSICFILE:
-			do_get_enh_music_filename(false);
-			break;
-			
-		case GETMUSICTRACK:
-			do_get_enh_music_track(false);
-			break;
-			
-		case SETDMAPENHMUSIC:
-			do_set_dmap_enh_music(false);
-			break;
-		
-		// Audio->
-		
-		case ENDSOUNDR:
-			stop_sfx(false);
-			break;
-			
-		case ENDSOUNDV:
-			stop_sfx(true);
-			break;
-		
-		case PAUSESOUNDR:
-			pause_sfx(false);
-			break;
-			
-		case PAUSESOUNDV:
-			pause_sfx(true);
-			break;
-		
-		case RESUMESOUNDR:
-			resume_sfx(false);
-			break;
-			
-		case RESUMESOUNDV:
-			resume_sfx(true);
-			break;
-		
-		
-		
-		case PAUSESFX:
-		{
-			int sound = ri->d[0]/10000;
-			pause_sfx(sound);
-			
-		}
-		break;
 
-		case RESUMESFX:
-		{
-			int sound = ri->d[0]/10000;
-			resume_sfx(sound);
-		}
-		break;
+			case RETURN:
+			{
+				pc = SH::read_stack(ri->sp) - 1;
+				++ri->sp;
+				increment = false;
+				break;
+			}
+			
+			case SETTRUE:
+				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
+				break;
+				
+			case SETFALSE:
+				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
+				break;
+				
+			case SETMORE:
+				set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
+				break;
+				
+			case SETLESS:
+				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+						 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
+				break;
+			
+			case SETTRUEI:
+				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 10000 : 0);
+				break;
+				
+			case SETFALSEI:
+				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 10000);
+				break;
+				
+			case SETMOREI:
+				set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 10000 : 0);
+				break;
+				
+			case SETLESSI:
+				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+						 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
+				break;
+				
+			case NOT:
+				do_not(false);
+				break;
+				
+			case COMPAREV:
+				do_comp(true);
+				break;
+				
+			case COMPARER:
+				do_comp(false);
+				break;
+				
+			case SETV:
+				do_set(true, type, i);
+				break;
+				
+			case SETR:
+				do_set(false, type, i);
+				break;
+				
+			case PUSHR:
+				do_push(false);
+				break;
+				
+			case PUSHV:
+				do_push(true);
+				break;
+				
+			case POP:
+				do_pop();
+				break;
+				
+			case LOADI:
+				do_loadi();
+				break;
+				
+			case STOREI:
+				do_storei();
+				break;
+				
+			case LOAD1:
+				do_loada(0);
+				break;
+				
+			case LOAD2:
+				do_loada(1);
+				break;
+				
+			case SETA1:
+				do_seta(0);
+				break;
+				
+			case SETA2:
+				do_seta(1);
+				break;
+				
+			case ALLOCATEGMEMR:
+				if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type, i);
+				
+				break;
+				
+			case ALLOCATEGMEMV:
+				if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type, i);
+				
+				break;
+				
+			case ALLOCATEMEMR:
+				do_allocatemem(false, true, type, i);
+				break;
+				
+			case ALLOCATEMEMV:
+				do_allocatemem(true, true, type, i);
+				break;
+				
+			case DEALLOCATEMEMR:
+				do_deallocatemem();
+				break;
+				
+			case SAVEGAMESTRUCTS:
+				FFCore.do_savegamestructs(false,false);
+				break;
+			case READGAMESTRUCTS:
+				FFCore.do_loadgamestructs(false,false);
+				break;
+			case ARRAYSIZE:
+				do_arraysize();
+				break;
+			 case ARRAYSIZEB:
+				do_arraysize();
+				break;
+			case ARRAYSIZEF:
+				do_arraysize();
+				break;
+			case ARRAYSIZEN:
+				do_arraysize();
+				break;
+			case ARRAYSIZEI:
+				do_arraysize();
+				break;
+			case ARRAYSIZEID:
+				do_arraysize();
+				break;
+			case ARRAYSIZEL:
+				do_arraysize();
+				break;
+			case ARRAYSIZEE:
+				do_arraysize();
+				break;
+			
+			case GETFFCSCRIPT:
+				do_getffcscript();
+				break;
+			case GETITEMSCRIPT:
+				do_getitemscript();
+				break;
+				
+			case CASTBOOLI:
+				do_boolcast(false);
+				break;
+				
+			case CASTBOOLF:
+				do_boolcast(true);
+				break;
+				
+			case ADDV:
+				do_add(true);
+				break;
+				
+			case ADDR:
+				do_add(false);
+				break;
+				
+			case SUBV:
+				do_sub(true);
+				break;
+				
+			case SUBR:
+				do_sub(false);
+				break;
+				
+			case MULTV:
+				do_mult(true);
+				break;
+				
+			case MULTR:
+				do_mult(false);
+				break;
+				
+			case DIVV:
+				do_div(true);
+				break;
+				
+			case DIVR:
+				do_div(false);
+				break;
+				
+			case MODV:
+				do_mod(true);
+				break;
+				
+			case MODR:
+				do_mod(false);
+				break;
+				
+			case SINV:
+				do_trig(true, 0);
+				break;
+				
+			case SINR:
+				do_trig(false, 0);
+				break;
+				
+			case COSV:
+				do_trig(true, 1);
+				break;
+				
+			case COSR:
+				do_trig(false, 1);
+				break;
+				
+			case TANV:
+				do_trig(true, 2);
+				break;
+				
+			case TANR:
+				do_trig(false, 2);
+				break;
+			
+			case STRINGLENGTH:
+				FFCore.do_strlen(false);
+				break;
+				
+			case ARCSINR:
+				do_asin(false);
+				break;
+				
+			case ARCCOSR:
+				do_acos(false);
+				break;
+				
+			case ARCTANR:
+				do_arctan();
+				break;
+			
+			//Text ptr functions
+			case FONTHEIGHTR:
+				do_fontheight();
+				break;
+			case STRINGWIDTHR:
+				do_strwidth();
+				break;
+			case CHARWIDTHR:
+				do_charwidth();
+				break;
+			case MESSAGEWIDTHR:
+				do_msgwidth(get_register(sarg1)/10000);
+				break;
+			case MESSAGEHEIGHTR:
+				do_msgheight(get_register(sarg1)/10000);
+				break;
+			//
+			
+			//String.h functions 2.55 Alpha 23
+			case STRINGCOMPARE: FFCore.do_strcmp(); break;
+			case STRINGCOPY: FFCore.do_strcpy(false,false); break;
+			case ARRAYCOPY: FFCore.do_arraycpy(false,false); break;
+			case STRINGNCOMPARE: FFCore.do_strncmp(); break;
+			
+			//More string.h functions, 19th May, 2019 
+			case XLEN: FFCore.do_xlen(false); break;
+			case XTOI: FFCore.do_xtoi(false); break;
+			case ILEN: FFCore.do_ilen(false); break;
+			case ATOI: FFCore.do_atoi(false); break;
+			case STRCSPN: FFCore.do_strcspn(); break;
+			case STRSTR: FFCore.do_strstr(); break;
+			case XTOA: FFCore.do_xtoa(); break;
+			case ITOA: FFCore.do_itoa(); break;
+			case STRCAT: FFCore.do_strcat(); break;
+			case STRSPN: FFCore.do_strspn(); break;
+			case STRCHR: FFCore.do_strchr(); break;
+			case STRRCHR: FFCore.do_strrchr(); break;
+			case XLEN2: FFCore.do_xlen2(); break;
+			case XTOI2: FFCore.do_xtoi2(); break;
+			case ILEN2: FFCore.do_ilen2(); break;
+			case ATOI2: FFCore.do_atoi2(); break;
+			case REMCHR2: FFCore.do_remchr2(); break;
+			case UPPERTOLOWER: FFCore.do_UpperToLower(false); break;
+			case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
+			case CONVERTCASE: FFCore.do_ConvertCase(false); break;
+				
+			case GETNPCSCRIPT:	FFCore.do_getnpcscript(); break;
+			case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
+			case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
+			case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
+			case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(); break;
+			case GETDMAPSCRIPT:	FFCore.do_getdmapscript(); break;
+			case GETSCREENSCRIPT:	FFCore.do_getscreenscript(); break;
+			case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(); break;
+			case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(); break;
+			case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(); break;
+			case GETNPCBYNAME:	FFCore.do_getnpcbyname(); break;
+			case GETITEMBYNAME:	FFCore.do_getitembyname(); break;
+			case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
+			case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
+				
+			case ABSR:
+				do_abs(false);
+				break;
+				
+			case MINR:
+				do_min(false);
+				break;
+				
+			case MINV:
+				do_min(true);
+				break;
+				
+			case MAXR:
+				do_max(false);
+				break;
+				
+			case MAXV:
+				do_max(true);
+				break;
+				
+			case RNDR:
+				do_rnd(false);
+				break;
+				
+			case RNDV:
+				do_rnd(true);
+				break;
+				
+			case SRNDR:
+				do_srnd(false);
+				break;
+				
+			case SRNDV:
+				do_srnd(true);
+				break;
+				
+			case SRNDRND:
+				do_srndrnd();
+				break;
+			
+			case GETRTCTIMER:
+				FFCore.getRTC(false);
+				break;
+			case GETRTCTIMEV:
+				FFCore.getRTC(true);
+				break;
+				
+			case FACTORIAL:
+				do_factorial(false);
+				break;
+				
+			case SQROOTV:
+				do_sqroot(true);
+				break;
+				
+			case SQROOTR:
+				do_sqroot(false);
+				break;
+				
+			case POWERR:
+				do_power(false);
+				break;
+				
+			case POWERV:
+				do_power(true);
+				break;
+				
+			case IPOWERR:
+				do_ipower(false);
+				break;
+				
+			case IPOWERV:
+				do_ipower(true);
+				break;
+				
+			case LOG10:
+				do_log10(false);
+				break;
+				
+			case LOGE:
+				do_naturallog(false);
+				break;
+				
+			case ANDR:
+				do_and(false);
+				break;
+				
+			case ANDV:
+				do_and(true);
+				break;
+				
+			case ORR:
+				do_or(false);
+				break;
+				
+			case ORV:
+				do_or(true);
+				break;
+				
+			case XORR:
+				do_xor(false);
+				break;
+				
+			case XORV:
+				do_xor(true);
+				break;
+				
+			case NANDR:
+				do_nand(false);
+				break;
+				
+			case NANDV:
+				do_nand(true);
+				break;
+				
+			case NORR:
+				do_nor(false);
+				break;
+				
+			case NORV:
+				do_nor(true);
+				break;
+				
+			case XNORR:
+				do_xnor(false);
+				break;
+				
+			case XNORV:
+				do_xnor(true);
+				break;
+				
+			case BITNOT:
+				do_bitwisenot(false);
+				break;
+				
+			case LSHIFTR:
+				do_lshift(false);
+				break;
+				
+			case LSHIFTV:
+				do_lshift(true);
+				break;
+				
+			case RSHIFTR:
+				do_rshift(false);
+				break;
+				
+			case RSHIFTV:
+				do_rshift(true);
+				break;
+				
+			case ANDR32:
+				do_and32(false);
+				break;
+				
+			case ANDV32:
+				do_and32(true);
+				break;
+				
+			case ORR32:
+				do_or32(false);
+				break;
+				
+			case ORV32:
+				do_or32(true);
+				break;
+				
+			case XORR32:
+				do_xor32(false);
+				break;
+				
+			case XORV32:
+				do_xor32(true);
+				break;
+				
+			case BITNOT32:
+				do_bitwisenot32(false);
+				break;
+				
+			case LSHIFTR32:
+				do_lshift32(false);
+				break;
+				
+			case LSHIFTV32:
+				do_lshift32(true);
+				break;
+				
+			case RSHIFTR32:
+				do_rshift32(false);
+				break;
+				
+			case RSHIFTV32:
+				do_rshift32(true);
+				break;
+				
+			case TRACER:
+				FFCore.do_trace(false);
+				break;
+				
+			case TRACEV:
+				FFCore.do_trace(true);
+				break;
+				
+			case TRACE2R:
+				FFCore.do_tracebool(false);
+				break;
+			
+			//Zap and Wavy Effects
+			case FXWAVYR:
+				FFCore.do_fx_wavy(false);
+				break;
+			case FXZAPR:
+				FFCore.do_fx_zap(false);
+				break;
+			//Zap and Wavy Effects
+			case FXWAVYV:
+				FFCore.do_fx_wavy(true);
+				break;
+			case FXZAPV:
+				FFCore.do_fx_zap(true);
+				break;
+			case GREYSCALER:
+				FFCore.do_greyscale(false);
+				break;
+			case GREYSCALEV:
+				FFCore.do_greyscale(true);
+				break;
+			case MONOCHROMER:
+				FFCore.do_monochromatic(false);
+				break;
+			case MONOCHROMEV:
+				FFCore.do_monochromatic(true);
+				break;
+				
+			case TRACE2V:
+				FFCore.do_tracebool(true);
+				break;
+				
+			case TRACE3:
+				FFCore.do_tracenl();
+				break;
+				
+			case TRACE4:
+				FFCore.do_cleartrace();
+				break;
+				
+			case TRACE5:
+				FFCore.do_tracetobase();
+				break;
+				
+			case TRACE6:
+				FFCore.do_tracestring();
+				break;
+			case BREAKPOINT:
+				if( zasm_debugger )
+				{
+					FFCore.do_breakpoint();
+				}
+				break;
+				
+			case WARP:
+				do_warp(true);
+				break;
+				
+			case WARPR:
+				do_warp(false);
+				break;
+				
+			case PITWARP:
+				do_pitwarp(true);
+				break;
+				
+			case PITWARPR:
+				do_pitwarp(false);
+				break;
+				
+			case BREAKSHIELD:
+				do_breakshield();
+				break;
+				
+			case SELECTAWPNV:
+				do_selectweapon(true, true);
+				break;
+				
+			case SELECTAWPNR:
+				do_selectweapon(false, true);
+				break;
+				
+			case SELECTBWPNV:
+				do_selectweapon(true, false);
+				break;
+				
+			case SELECTBWPNR:
+				do_selectweapon(false, false);
+				break;
+				
+			case PLAYSOUNDR:
+				do_sfx(false);
+				break;
+				
+			case PLAYSOUNDV:
+				do_sfx(true);
+				break;
+			
+			case ADJUSTSFXVOLUMER: FFCore.do_adjustsfxvolume(false); break;
+			case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
+			case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
+			case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
+				
+			case TRIGGERSECRETR:
+				FFScript::do_triggersecret(false);
+				break;
+				
+			case TRIGGERSECRETV:
+				FFScript::do_triggersecret(true);
+				break;
+				
+			case PLAYMIDIR:
+				do_midi(false);
+				break;
+				
+			case PLAYMIDIV:
+				do_midi(true);
+				break;
+				
+			case PLAYENHMUSIC:
+				do_enh_music(false);
+				break;
+				
+			case GETMUSICFILE:
+				do_get_enh_music_filename(false);
+				break;
+				
+			case GETMUSICTRACK:
+				do_get_enh_music_track(false);
+				break;
+				
+			case SETDMAPENHMUSIC:
+				do_set_dmap_enh_music(false);
+				break;
+			
+			// Audio->
+			
+			case ENDSOUNDR:
+				stop_sfx(false);
+				break;
+				
+			case ENDSOUNDV:
+				stop_sfx(true);
+				break;
+			
+			case PAUSESOUNDR:
+				pause_sfx(false);
+				break;
+				
+			case PAUSESOUNDV:
+				pause_sfx(true);
+				break;
+			
+			case RESUMESOUNDR:
+				resume_sfx(false);
+				break;
+				
+			case RESUMESOUNDV:
+				resume_sfx(true);
+				break;
+			
+			
+			
+			case PAUSESFX:
+			{
+				int sound = ri->d[0]/10000;
+				pause_sfx(sound);
+				
+			}
+			break;
 
-		case ADJUSTSFX:
-		{
-			int sound = ri->d[2]/10000;
-			int pan = ri->d[1];
-			// control_state[6]=((value/10000)!=0)?true:false;
-			bool loop = ((ri->d[0]/10000)!=0)?true:false;
-			//SFXBackend.adjust_sfx(sound,pan,loop);
-			
-			//! adjust_sfx was not ported to the new back end!!! -Z
-		}
-		break;
+			case RESUMESFX:
+			{
+				int sound = ri->d[0]/10000;
+				resume_sfx(sound);
+			}
+			break;
+
+			case ADJUSTSFX:
+			{
+				int sound = ri->d[2]/10000;
+				int pan = ri->d[1];
+				// control_state[6]=((value/10000)!=0)?true:false;
+				bool loop = ((ri->d[0]/10000)!=0)?true:false;
+				//SFXBackend.adjust_sfx(sound,pan,loop);
+				
+				//! adjust_sfx was not ported to the new back end!!! -Z
+			}
+			break;
 
 
-		case CONTINUESFX:
-		{
-			int sound = ri->d[0]/10000;
-			//Backend::sfx->cont_sfx(sound);
-			
-			//! cont_sfx was not ported to the new back end!!!
-			// I believe this restarted the loop. 
-			resume_sfx(sound);
-			//What was the old instruction, again? Did it exist? -Z
-			//continue_sfx(sound);
-		}
-		break;	
-
-		
-		/*
-		case STOPITEMSOUND:
-			void stop_item_sfx(int family)
-		*/
-		
-		case PAUSEMUSIC:
-			//What was the instruction prior to adding backends?
-		//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
-			//Check AllOff() -Z
-		//zcmusic_pause(ZCMUSIC* zcm, int pause); is in zcmusic.h
-			midi_paused = true; 
-			//pause_all_sfx();
-		
-			//Backend::sfx->pauseAll();
-			break;
-		case RESUMEMUSIC:
-			//What was the instruction prior to adding backends?
-			//Check AllOff() -Z
-			//resume_all_sfx();
-			midi_paused = false; 
-			//Backend::sfx->resumeAll();
-			break;
-		
-		//!!! typecasting
-		case LWPNARRPTR:
-		case EWPNARRPTR:
-		case ITEMARRPTR:
-		case IDATAARRPTR:
-		case FFCARRPTR:
-		case BOOLARRPTR:
-		case NPCARRPTR:
-			
-		case LWPNARRPTR2:
-		case EWPNARRPTR2:
-		case ITEMARRPTR2:
-		case IDATAARRPTR2:
-		case FFCARRPTR2:
-		case BOOLARRPTR2:
-		case NPCARRPTR2:
-		FFScript::do_typedpointer_typecast(false);
-		break;
-			
-		case MSGSTRR:
-			do_message(false);
-			break;
-			
-		case MSGSTRV:
-			do_message(true);
-			break;
-			
-		case ITEMNAME:
-			do_getitemname();
-			break;
-			
-		case NPCNAME:
-			do_getnpcname();
-			break;
-		
-		case NPCDATAGETNAME:
-			FFCore.do_getnpcdata_getname();
-			break;
-			
-		case GETSAVENAME:
-			do_getsavename();
-			break;
-			
-		case SETSAVENAME:
-			do_setsavename();
-			break;
-			
-		case GETMESSAGE:
-			do_getmessage(false);
-			break;
-		case SETMESSAGE:
-			do_setmessage(false);
-			break;
-			
-		case GETDMAPNAME:
-			do_getdmapname(false);
-			break;
-			
-		case GETDMAPTITLE:
-			do_getdmaptitle(false);
-			break;
-			
-		case GETDMAPINTRO:
-			do_getdmapintro(false);
-			break;
-			
-		case SETDMAPNAME:
-			do_setdmapname(false);
-			break;
-			
-		case SETDMAPTITLE:
-			do_setdmaptitle(false);
-			break;
-		
-		case SETDMAPINTRO:
-			do_setdmapintro(false);
-			break;
-		
-		case LOADLWEAPONR:
-			do_loadlweapon(false);
-			break;
-			
-		case LOADLWEAPONV:
-			do_loadlweapon(true);
-			break;
-			
-		case LOADEWEAPONR:
-			do_loadeweapon(false);
-			break;
-			
-		case LOADEWEAPONV:
-			do_loadeweapon(true);
-			break;
-			
-		case LOADITEMR:
-			do_loaditem(false);
-			break;
-			
-		case LOADITEMV:
-			do_loaditem(true);
-			break;
-			
-		case LOADITEMDATAR:
-			do_loaditemdata(false);
-			break;
-		
-		//New Datatypes
-		case LOADSHOPR:
-			FFScript::do_loadshopdata(false);
-			break;
-		case LOADSHOPV:
-			FFScript::do_loadshopdata(true);
-			break;
-		
-		case LOADINFOSHOPR:
-			FFScript::do_loadinfoshopdata(false);
-			break;
-		case LOADINFOSHOPV:
-			FFScript::do_loadinfoshopdata(true);
-			break;
-		case LOADNPCDATAR:
-			FFScript::do_loadnpcdata(false);
-			break;
-		case LOADNPCDATAV:
-			FFScript::do_loadnpcdata(true);
-			break;
-		
-		case LOADCOMBODATAR:
-			FFScript::do_loadcombodata(false);
-			break;
-		case LOADCOMBODATAV:
-			FFScript::do_loadcombodata(true);
-			break;
-		
-		case LOADMAPDATAR:
-			FFScript::do_loadmapdata(false);
-			break;
-		case LOADMAPDATAV:
-			FFScript::do_loadmapdata(true);
-			break;
-		case LOADTMPSCR:
-			FFScript::do_loadmapdata_tempscr(false);
-			break;
-		case LOADSCROLLSCR:
-			FFScript::do_loadmapdata_scrollscr(false);
-			break;
-		
-		case LOADSPRITEDATAR:
-			FFScript::do_loadspritedata(false);
-			break;
-		case LOADSPRITEDATAV:
-			FFScript::do_loadspritedata(true);
-			break;
-		
-		case LOADSCREENDATAR:
-			FFScript::do_loadscreendata(false);
-			break;
-		case LOADSCREENDATAV:
-			FFScript::do_loadscreendata(true);
-			break;
-		
-		case LOADBITMAPDATAR:
-			FFScript::do_loadbitmapid(false);
-			break;
-		
-		
-		case LOADBITMAPDATAV:
-			FFScript::do_loadbitmapid(true);
-			break;
-		
-	//functions
-	case LOADDMAPDATAR: //command
-		FFScript::do_loaddmapdata(false); break;
-	case LOADDMAPDATAV: //command
-		FFScript::do_loaddmapdata(true); break;
-	case LOADDROPSETR: //command
-		FFScript::do_loaddropset(false); break;
-
-
-	case DMAPDATAGETNAMER: //command
-		FFScript::do_getDMapData_dmapname(false); break;
-	case DMAPDATAGETNAMEV: //command
-		FFScript::do_getDMapData_dmapname(true); break;
-
-	case DMAPDATASETNAMER: //command
-		FFScript::do_setDMapData_dmapname(false); break;
-	case DMAPDATASETNAMEV: //command
-		FFScript::do_setDMapData_dmapname(true); break;
-
-
-
-	case DMAPDATAGETTITLER: //command
-		FFScript::do_getDMapData_dmaptitle(false); break;
-	case DMAPDATAGETTITLEV: //command
-		FFScript::do_getDMapData_dmaptitle(true); break;
-	case DMAPDATASETTITLER: //command
-		FFScript::do_setDMapData_dmaptitle(false); break;
-	case DMAPDATASETTITLEV: //command
-		FFScript::do_setDMapData_dmaptitle(true); break;
-
-
-	case DMAPDATAGETINTROR: //command
-		FFScript::do_getDMapData_dmapintro(false); break;
-	case DMAPDATAGETINTROV: //command
-		FFScript::do_getDMapData_dmapintro(true); break;
-	case DMAPDATANSETITROR: //command
-		FFScript::do_setDMapData_dmapintro(false); break;
-	case DMAPDATASETINTROV: //command
-		FFScript::do_setDMapData_dmapintro(true); break;
-
-
-	case DMAPDATAGETMUSICR: //command, string to load a music file
-		FFScript::do_getDMapData_music(false); break;
-	case DMAPDATAGETMUSICV: //command, string to load a music file
-		FFScript::do_getDMapData_music(true); break;
-	case DMAPDATASETMUSICR: //command, string to load a music file
-		FFScript::do_setDMapData_music(false); break;
-	case DMAPDATASETMUSICV: //command, string to load a music file
-		FFScript::do_setDMapData_music(true); break;
-
-		case LOADMESSAGEDATAR: //COMMAND
-		FFScript::do_loadmessagedata(false);
-			break;
-		case LOADMESSAGEDATAV: //COMMAND
-		FFScript::do_loadmessagedata(false);
-			break;
-		
-
-		case MESSAGEDATASETSTRINGR: //command
-		FFScript::do_messagedata_setstring(false);
-			break;
-		case MESSAGEDATASETSTRINGV: //command
-		FFScript::do_messagedata_setstring(false);
-			break;
-		
-		case MESSAGEDATAGETSTRINGR: //command
-		FFScript::do_messagedata_getstring(false);
-			break;
-		case MESSAGEDATAGETSTRINGV: //command
-		FFScript::do_messagedata_getstring(false);
+			case CONTINUESFX:
+			{
+				int sound = ri->d[0]/10000;
+				//Backend::sfx->cont_sfx(sound);
+				
+				//! cont_sfx was not ported to the new back end!!!
+				// I believe this restarted the loop. 
+				resume_sfx(sound);
+				//What was the old instruction, again? Did it exist? -Z
+				//continue_sfx(sound);
+			}
 			break;	
-		case LOADITEMDATAV:
-			do_loaditemdata(true);
-			break;
+
 			
-		case LOADNPCBYSUID:
-			FFCore.do_loadnpc_by_script_uid(false);
-			break;
-		
-		case LOADLWEAPONBYSUID:
-			FFCore.do_loadlweapon_by_script_uid(false);
-			break;
-		
-		case LOADWEAPONCBYSUID:
-			FFCore.do_loadeweapon_by_script_uid(false);
-			break;
-		
-		case LOADNPCR:
-			do_loadnpc(false);
-			break;
+			/*
+			case STOPITEMSOUND:
+				void stop_item_sfx(int family)
+			*/
 			
-		case LOADNPCV:
-			do_loadnpc(true);
-			break;
+			case PAUSEMUSIC:
+				//What was the instruction prior to adding backends?
+				//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
+				//Check AllOff() -Z
+				//zcmusic_pause(ZCMUSIC* zcm, int pause); is in zcmusic.h
+				midi_paused = true; 
+				//pause_all_sfx();
 			
-		case CREATELWEAPONR:
-			do_createlweapon(false);
-			break;
+				//Backend::sfx->pauseAll();
+				break;
+			case RESUMEMUSIC:
+				//What was the instruction prior to adding backends?
+				//Check AllOff() -Z
+				//resume_all_sfx();
+				midi_paused = false; 
+				//Backend::sfx->resumeAll();
+				break;
 			
-		case CREATELWEAPONV:
-			do_createlweapon(true);
-			break;
+			//!!! typecasting
+			case LWPNARRPTR:
+			case EWPNARRPTR:
+			case ITEMARRPTR:
+			case IDATAARRPTR:
+			case FFCARRPTR:
+			case BOOLARRPTR:
+			case NPCARRPTR:
+				
+			case LWPNARRPTR2:
+			case EWPNARRPTR2:
+			case ITEMARRPTR2:
+			case IDATAARRPTR2:
+			case FFCARRPTR2:
+			case BOOLARRPTR2:
+			case NPCARRPTR2:
+				FFScript::do_typedpointer_typecast(false);
+				break;
+				
+			case MSGSTRR:
+				do_message(false);
+				break;
+				
+			case MSGSTRV:
+				do_message(true);
+				break;
+				
+			case ITEMNAME:
+				do_getitemname();
+				break;
+				
+			case NPCNAME:
+				do_getnpcname();
+				break;
 			
-		case CREATEEWEAPONR:
-			do_createeweapon(false);
-			break;
+			case NPCDATAGETNAME:
+				FFCore.do_getnpcdata_getname();
+				break;
+				
+			case GETSAVENAME:
+				do_getsavename();
+				break;
+				
+			case SETSAVENAME:
+				do_setsavename();
+				break;
+				
+			case GETMESSAGE:
+				do_getmessage(false);
+				break;
+			case SETMESSAGE:
+				do_setmessage(false);
+				break;
+				
+			case GETDMAPNAME:
+				do_getdmapname(false);
+				break;
+				
+			case GETDMAPTITLE:
+				do_getdmaptitle(false);
+				break;
+				
+			case GETDMAPINTRO:
+				do_getdmapintro(false);
+				break;
+				
+			case SETDMAPNAME:
+				do_setdmapname(false);
+				break;
+				
+			case SETDMAPTITLE:
+				do_setdmaptitle(false);
+				break;
 			
-		case CREATEEWEAPONV:
-			do_createeweapon(true);
-			break;
+			case SETDMAPINTRO:
+				do_setdmapintro(false);
+				break;
 			
-		case CREATEITEMR:
-			do_createitem(false);
-			break;
+			case LOADLWEAPONR:
+				do_loadlweapon(false);
+				break;
+				
+			case LOADLWEAPONV:
+				do_loadlweapon(true);
+				break;
+				
+			case LOADEWEAPONR:
+				do_loadeweapon(false);
+				break;
+				
+			case LOADEWEAPONV:
+				do_loadeweapon(true);
+				break;
+				
+			case LOADITEMR:
+				do_loaditem(false);
+				break;
+				
+			case LOADITEMV:
+				do_loaditem(true);
+				break;
+				
+			case LOADITEMDATAR:
+				do_loaditemdata(false);
+				break;
 			
-		case CREATEITEMV:
-			do_createitem(true);
-			break;
+			//New Datatypes
+			case LOADSHOPR:
+				FFScript::do_loadshopdata(false);
+				break;
+			case LOADSHOPV:
+				FFScript::do_loadshopdata(true);
+				break;
 			
-		case CREATENPCR:
-			do_createnpc(false);
-			break;
+			case LOADINFOSHOPR:
+				FFScript::do_loadinfoshopdata(false);
+				break;
+			case LOADINFOSHOPV:
+				FFScript::do_loadinfoshopdata(true);
+				break;
+			case LOADNPCDATAR:
+				FFScript::do_loadnpcdata(false);
+				break;
+			case LOADNPCDATAV:
+				FFScript::do_loadnpcdata(true);
+				break;
 			
-		case CREATENPCV:
-			do_createnpc(true);
-			break;
+			case LOADCOMBODATAR:
+				FFScript::do_loadcombodata(false);
+				break;
+			case LOADCOMBODATAV:
+				FFScript::do_loadcombodata(true);
+				break;
 			
-		case ISVALIDARRAY:
-			do_isvalidarray();
-			break;
+			case LOADMAPDATAR:
+				FFScript::do_loadmapdata(false);
+				break;
+			case LOADMAPDATAV:
+				FFScript::do_loadmapdata(true);
+				break;
+			case LOADTMPSCR:
+				FFScript::do_loadmapdata_tempscr(false);
+				break;
+			case LOADSCROLLSCR:
+				FFScript::do_loadmapdata_scrollscr(false);
+				break;
 			
-		case ISVALIDITEM:
-			do_isvaliditem();
-			break;
-		
-		case ISVALIDBITMAP:
-			FFCore.do_isvalidbitmap();
-			break;
-		
-		case ISALLOCATEDBITMAP:
-			FFCore.do_isallocatedbitmap();
-			break;
+			case LOADSPRITEDATAR:
+				FFScript::do_loadspritedata(false);
+				break;
+			case LOADSPRITEDATAV:
+				FFScript::do_loadspritedata(true);
+				break;
 			
-		case ISVALIDNPC:
-			do_isvalidnpc();
-			break;
+			case LOADSCREENDATAR:
+				FFScript::do_loadscreendata(false);
+				break;
+			case LOADSCREENDATAV:
+				FFScript::do_loadscreendata(true);
+				break;
 			
-		case ISVALIDLWPN:
-			do_isvalidlwpn();
-			break;
+			case LOADBITMAPDATAR:
+				FFScript::do_loadbitmapid(false);
+				break;
 			
-		case ISVALIDEWPN:
-			do_isvalidewpn();
-			break;
 			
-		case LWPNUSESPRITER:
-			do_lwpnusesprite(false);
-			break;
+			case LOADBITMAPDATAV:
+				FFScript::do_loadbitmapid(true);
+				break;
 			
-		case LWPNUSESPRITEV:
-			do_lwpnusesprite(true);
-			break;
+			//functions
+			case LOADDMAPDATAR: //command
+				FFScript::do_loaddmapdata(false); break;
+			case LOADDMAPDATAV: //command
+				FFScript::do_loaddmapdata(true); break;
+			case LOADDROPSETR: //command
+				FFScript::do_loaddropset(false); break;
+
+
+			case DMAPDATAGETNAMER: //command
+				FFScript::do_getDMapData_dmapname(false); break;
+			case DMAPDATAGETNAMEV: //command
+				FFScript::do_getDMapData_dmapname(true); break;
+
+			case DMAPDATASETNAMER: //command
+				FFScript::do_setDMapData_dmapname(false); break;
+			case DMAPDATASETNAMEV: //command
+				FFScript::do_setDMapData_dmapname(true); break;
+
+
+
+			case DMAPDATAGETTITLER: //command
+				FFScript::do_getDMapData_dmaptitle(false); break;
+			case DMAPDATAGETTITLEV: //command
+				FFScript::do_getDMapData_dmaptitle(true); break;
+			case DMAPDATASETTITLER: //command
+				FFScript::do_setDMapData_dmaptitle(false); break;
+			case DMAPDATASETTITLEV: //command
+				FFScript::do_setDMapData_dmaptitle(true); break;
+
+
+			case DMAPDATAGETINTROR: //command
+				FFScript::do_getDMapData_dmapintro(false); break;
+			case DMAPDATAGETINTROV: //command
+				FFScript::do_getDMapData_dmapintro(true); break;
+			case DMAPDATANSETITROR: //command
+				FFScript::do_setDMapData_dmapintro(false); break;
+			case DMAPDATASETINTROV: //command
+				FFScript::do_setDMapData_dmapintro(true); break;
+
+
+			case DMAPDATAGETMUSICR: //command, string to load a music file
+				FFScript::do_getDMapData_music(false); break;
+			case DMAPDATAGETMUSICV: //command, string to load a music file
+				FFScript::do_getDMapData_music(true); break;
+			case DMAPDATASETMUSICR: //command, string to load a music file
+				FFScript::do_setDMapData_music(false); break;
+			case DMAPDATASETMUSICV: //command, string to load a music file
+				FFScript::do_setDMapData_music(true); break;
+
+			case LOADMESSAGEDATAR: //COMMAND
+				FFScript::do_loadmessagedata(false);
+				break;
+			case LOADMESSAGEDATAV: //COMMAND
+				FFScript::do_loadmessagedata(false);
+				break;
 			
-		case EWPNUSESPRITER:
-			do_ewpnusesprite(false);
-			break;
+
+			case MESSAGEDATASETSTRINGR: //command
+				FFScript::do_messagedata_setstring(false);
+				break;
+			case MESSAGEDATASETSTRINGV: //command
+				FFScript::do_messagedata_setstring(false);
+				break;
 			
-		case EWPNUSESPRITEV:
-			do_ewpnusesprite(true);
-			break;
+			case MESSAGEDATAGETSTRINGR: //command
+				FFScript::do_messagedata_getstring(false);
+				break;
+			case MESSAGEDATAGETSTRINGV: //command
+				FFScript::do_messagedata_getstring(false);
+				break;	
+			case LOADITEMDATAV:
+				do_loaditemdata(true);
+				break;
+				
+			case LOADNPCBYSUID:
+				FFCore.do_loadnpc_by_script_uid(false);
+				break;
 			
-		case CLEARSPRITESR:
-			do_clearsprites(false);
-			break;
+			case LOADLWEAPONBYSUID:
+				FFCore.do_loadlweapon_by_script_uid(false);
+				break;
 			
-		case CLEARSPRITESV:
-			do_clearsprites(true);
-			break;
+			case LOADWEAPONCBYSUID:
+				FFCore.do_loadeweapon_by_script_uid(false);
+				break;
 			
-		case ISSOLID:
-			do_issolid();
-			break;
-		
-		case MAPDATAISSOLID:
-			do_mapdataissolid();
-			break;
+			case LOADNPCR:
+				do_loadnpc(false);
+				break;
+				
+			case LOADNPCV:
+				do_loadnpc(true);
+				break;
+				
+			case CREATELWEAPONR:
+				do_createlweapon(false);
+				break;
+				
+			case CREATELWEAPONV:
+				do_createlweapon(true);
+				break;
+				
+			case CREATEEWEAPONR:
+				do_createeweapon(false);
+				break;
+				
+			case CREATEEWEAPONV:
+				do_createeweapon(true);
+				break;
+				
+			case CREATEITEMR:
+				do_createitem(false);
+				break;
+				
+			case CREATEITEMV:
+				do_createitem(true);
+				break;
+				
+			case CREATENPCR:
+				do_createnpc(false);
+				break;
+				
+			case CREATENPCV:
+				do_createnpc(true);
+				break;
+				
+			case ISVALIDARRAY:
+				do_isvalidarray();
+				break;
+				
+			case ISVALIDITEM:
+				do_isvaliditem();
+				break;
 			
-		case MAPDATAISSOLIDLYR:
-			do_mapdataissolid_layer();
-			break;
+			case ISVALIDBITMAP:
+				FFCore.do_isvalidbitmap();
+				break;
 			
-		case ISSOLIDLAYER:
-			do_issolid_layer();
-			break;
+			case ISALLOCATEDBITMAP:
+				FFCore.do_isallocatedbitmap();
+				break;
+				
+			case ISVALIDNPC:
+				do_isvalidnpc();
+				break;
+				
+			case ISVALIDLWPN:
+				do_isvalidlwpn();
+				break;
+				
+			case ISVALIDEWPN:
+				do_isvalidewpn();
+				break;
+				
+			case LWPNUSESPRITER:
+				do_lwpnusesprite(false);
+				break;
+				
+			case LWPNUSESPRITEV:
+				do_lwpnusesprite(true);
+				break;
+				
+			case EWPNUSESPRITER:
+				do_ewpnusesprite(false);
+				break;
+				
+			case EWPNUSESPRITEV:
+				do_ewpnusesprite(true);
+				break;
+				
+			case CLEARSPRITESR:
+				do_clearsprites(false);
+				break;
+				
+			case CLEARSPRITESV:
+				do_clearsprites(true);
+				break;
+				
+			case ISSOLID:
+				do_issolid();
+				break;
 			
-		case SETSIDEWARP:
-			do_setsidewarp();
-			break;
+			case MAPDATAISSOLID:
+				do_mapdataissolid();
+				break;
+				
+			case MAPDATAISSOLIDLYR:
+				do_mapdataissolid_layer();
+				break;
+				
+			case ISSOLIDLAYER:
+				do_issolid_layer();
+				break;
+				
+			case SETSIDEWARP:
+				do_setsidewarp();
+				break;
+				
+			case SETTILEWARP:
+				do_settilewarp();
+				break;
+				
+			case GETSIDEWARPDMAP:
+				do_getsidewarpdmap(false);
+				break;
+				
+			case GETSIDEWARPSCR:
+				do_getsidewarpscr(false);
+				break;
+				
+			case GETSIDEWARPTYPE:
+				do_getsidewarptype(false);
+				break;
+				
+			case GETTILEWARPDMAP:
+				do_gettilewarpdmap(false);
+				break;
+				
+			case GETTILEWARPSCR:
+				do_gettilewarpscr(false);
+				break;
+				
+			case GETTILEWARPTYPE:
+				do_gettilewarptype(false);
+				break;
+				
+			case LAYERSCREEN:
+				do_layerscreen();
+				break;
+				
+			case LAYERMAP:
+				do_layermap();
+				break;
+				
+			case SECRETS:
+				do_triggersecrets();
+				break;
+				
+			case GETSCREENFLAGS:
+				do_getscreenflags();
+				break;
+				
+			case GETSCREENEFLAGS:
+				do_getscreeneflags();
+				break;
 			
-		case SETTILEWARP:
-			do_settilewarp();
-			break;
+			case GRAPHICSGETPIXEL:
+				FFCore.do_graphics_getpixel();
+				break;
 			
-		case GETSIDEWARPDMAP:
-			do_getsidewarpdmap(false);
-			break;
+			case GETSCREENDOOR:
+				do_getscreendoor();
+				break;
 			
-		case GETSIDEWARPSCR:
-			do_getsidewarpscr(false);
-			break;
+			case GETSCREENENEMY:
+				do_getscreennpc();
+				break;
 			
-		case GETSIDEWARPTYPE:
-			do_getsidewarptype(false);
-			break;
-			
-		case GETTILEWARPDMAP:
-			do_gettilewarpdmap(false);
-			break;
-			
-		case GETTILEWARPSCR:
-			do_gettilewarpscr(false);
-			break;
-			
-		case GETTILEWARPTYPE:
-			do_gettilewarptype(false);
-			break;
-			
-		case LAYERSCREEN:
-			do_layerscreen();
-			break;
-			
-		case LAYERMAP:
-			do_layermap();
-			break;
-			
-		case SECRETS:
-			do_triggersecrets();
-			break;
-			
-		case GETSCREENFLAGS:
-			do_getscreenflags();
-			break;
-			
-		case GETSCREENEFLAGS:
-			do_getscreeneflags();
-			break;
-		
-		case GRAPHICSGETPIXEL:
-			FFCore.do_graphics_getpixel();
-			break;
-		
-		case GETSCREENDOOR:
-			do_getscreendoor();
-			break;
-		
-		case GETSCREENENEMY:
-			do_getscreennpc();
-			break;
-		
-		//screendata and mapdata
+			//screendata and mapdata
 			case SETSCREENENEMY:
 			{ //void SetScreenEnemy(int map, int screen, int index, int value);
-			
-				
 				long map     = (ri->d[1] / 10000) - 1; 
 				long scrn  = ri->d[2] / 10000; 
 				long index = ri->d[0] / 10000; 
@@ -20845,21 +20843,18 @@ int run_script(const byte type, const word script, const long i)
 					BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
 					return RUNSCRIPT_ERROR;
 				
-			//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
-			//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
+				//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
+				//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
 				FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
-				
-				
-				
 			}
 			break;
 			
 			case SETSCREENDOOR:
 			{ //void SetScreenDoor(int map, int screen, int index, int value);
-			long map     = (ri->d[1] / 10000) - 1; 
-			long scrn  = ri->d[2] / 10000; 
-			long index = ri->d[0] / 10000; 
-			int nn = ri->d[3]/10000; 
+				long map     = (ri->d[1] / 10000) - 1; 
+				long scrn  = ri->d[2] / 10000; 
+				long index = ri->d[0] / 10000; 
+				int nn = ri->d[3]/10000; 
 				
 				if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
 					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
@@ -20874,950 +20869,949 @@ int run_script(const byte type, const word script, const long i)
 				}
 				
 			}
-			
-		case GETSCREENLAYOP:
-			do_getscreenLayerOpacity();
-			break;
-		case GETSCREENSECCMB:
-			do_getscreenSecretCombo();
-			break;
-		case GETSCREENSECCST:
-			do_getscreenSecretCSet();
-			break;
-		case GETSCREENSECFLG:
-			do_getscreenSecretFlag();
-			break;
-		case GETSCREENLAYMAP:
-			do_getscreenLayerMap();
-			break;
-		case GETSCREENLAYSCR:
-			do_getscreenLayerscreen();
-			break;
-		case GETSCREENPATH:
-			do_getscreenPath();
-			break;
-		case GETSCREENWARPRX:
-			do_getscreenWarpReturnX();
-			break;
-		case GETSCREENWARPRY:
-			do_getscreenWarpReturnY();
-			break;
-
-		case COMBOTILE:
-			do_combotile(false);
-			break;
-			
-		case RECTR:
-		case CIRCLER:
-		case ARCR:
-		case ELLIPSER:
-		case LINER:
-		case PUTPIXELR:
-		case PIXELARRAYR:
-		case TILEARRAYR:
-		case LINESARRAY:
-		case COMBOARRAYR:
-		case DRAWTILER:
-		case DRAWTILECLOAKEDR:
-		case DRAWCOMBOR:
-		case DRAWCOMBOCLOAKEDR:
-		case DRAWCHARR:
-		case DRAWINTR:
-		case QUADR:
-		case TRIANGLER:
-		case QUAD3DR:
-		case TRIANGLE3DR:
-		case FASTTILER:
-		case FASTCOMBOR:
-		case DRAWSTRINGR:
-		case SPLINER:
-		case BITMAPR:
-		case BITMAPEXR:
-		case DRAWLAYERR:
-		case DRAWSCREENR:
-		case POLYGONR:
-			do_drawing_command(scommand);
-			break;
-		
-		case BMPRECTR:	
-		case BMPCIRCLER:
-		case BMPARCR:
-		case BMPELLIPSER:
-		case BMPLINER:
-		case BMPSPLINER:
-		case BMPPUTPIXELR:
-		case BMPDRAWTILER:
-		case BMPDRAWTILECLOAKEDR:
-		case BMPDRAWCOMBOR:
-		case BMPDRAWCOMBOCLOAKEDR:
-		case BMPFASTTILER:
-		case BMPFASTCOMBOR:
-		case BMPDRAWCHARR:
-		case BMPDRAWINTR:
-		case BMPDRAWSTRINGR:
-		case BMPQUADR:
-		case BMPQUAD3DR:
-		case BMPTRIANGLER:
-		case BMPTRIANGLE3DR:
-		case BMPPOLYGONR:
-		case BMPDRAWLAYERR: 
-		case BMPDRAWLAYERSOLIDR: 
-		case BMPDRAWLAYERCFLAGR: 
-		case BMPDRAWLAYERCTYPER: 
-		case BMPDRAWLAYERCIFLAGR: 
-		case BMPDRAWLAYERSOLIDITYR: 
-		case BMPDRAWSCREENR:
-		case BMPDRAWSCREENSOLIDR:
-		case BMPDRAWSCREENSOLID2R:
-		case BMPDRAWSCREENCOMBOFR:
-		case BMPDRAWSCREENCOMBOIR:
-		case BMPDRAWSCREENCOMBOTR:
-		case BITMAPGETPIXEL:
-		case BMPBLIT:
-		case BMPBLITTO:
-		case BMPMODE7:
-		case READBITMAP:
-		case WRITEBITMAP:
-		case CLEARBITMAP:
-		case BITMAPCLEARTOCOLOR:
-		case REGENERATEBITMAP:
-			do_drawing_command(scommand);
-			break;
-			
-		case COPYTILEVV:
-			do_copytile(true, true);
-			break;
-			
-		case COPYTILEVR:
-			do_copytile(true, false);
-			break;
-			
-		case COPYTILERV:
-			do_copytile(false, true);
-			break;
-			
-		case COPYTILERR:
-			do_copytile(false, false);
-			break;
-			
-		case SWAPTILEVV:
-			do_swaptile(true, true);
-			break;
-			
-		case SWAPTILEVR:
-			do_swaptile(true, false);
-			break;
-			
-		case SWAPTILERV:
-			do_swaptile(false, true);
-			break;
-			
-		case SWAPTILERR:
-			do_swaptile(false, false);
-			break;
-			
-		case CLEARTILEV:
-			do_cleartile(true);
-			break;
-			
-		case CLEARTILER:
-			do_cleartile(false);
-			break;
-			
-		case OVERLAYTILEVV:
-			do_overlaytile(true, true);
-			break;
-			
-		case OVERLAYTILEVR:
-			do_overlaytile(true, false);
-			break;
-			
-		case OVERLAYTILERV:
-			do_overlaytile(false, true);
-			break;
-			
-		case OVERLAYTILERR:
-			do_overlaytile(false, false);
-			break;
-			
-		case FLIPROTTILEVV:
-			do_fliprotatetile(true, true);
-			break;
-			
-		case FLIPROTTILEVR:
-			do_fliprotatetile(true, false);
-			break;
-			
-		case FLIPROTTILERV:
-			do_fliprotatetile(false, true);
-			break;
-			
-		case FLIPROTTILERR:
-			do_fliprotatetile(false, false);
-			break;
-			
-		case GETTILEPIXELV:
-			do_gettilepixel(true);
-			break;
-			
-		case GETTILEPIXELR:
-			do_gettilepixel(false);
-			break;
-			
-		case SETTILEPIXELV:
-			do_settilepixel(true);
-			break;
-			
-		case SETTILEPIXELR:
-			do_settilepixel(false);
-			break;
-			
-		case SHIFTTILEVV:
-			do_shifttile(true, true);
-			break;
-			
-		case SHIFTTILEVR:
-			do_shifttile(true, false);
-			break;
-			
-		case SHIFTTILERV:
-			do_shifttile(false, true);
-			break;
-			
-		case SHIFTTILERR:
-			do_shifttile(false, false);
-			break;
-			
-		case SETRENDERTARGET:
-			do_set_rendertarget(true);
-			break;
-			
-		case GAMEEND:
-			Quit = qQUIT;
-			skipcont = 1;
-			scommand = 0xFFFF;
-			break;
-		
-		case GAMECONTINUE:
-			reset_combo_animations();
-			reset_combo_animations2();
-		
-			Quit = qCONT;
-			skipcont = 1;
-			//cont_game();
-			scommand = 0xFFFF;
-			break;
-			
-		case GAMESAVEQUIT:
-			Quit = qSAVE;
-			skipcont = 1;
-			scommand =0xFFFF;
-			break;
-			
-		case GAMESAVECONTINUE:
-			Quit = qSAVECONT;
-			skipcont = 1;
-			scommand =0xFFFF;
-			break;
-			
-		case SAVE:
-			if(scriptCanSave)
-			{
-			save_game(false);
-			scriptCanSave=false;
-			
-			}
-			break;
-			
-		case SAVESCREEN:
-			do_showsavescreen();
-			break;
-		
-		case SHOWF6SCREEN:
-			onTryQuit();
-			break;
-			
-		case SAVEQUITSCREEN:
-			save_game(false, 1);
-			break;
-			
-			//Not Implemented
-		case ELLIPSE2:
-		case FLOODFILL:
-			break;
-			
-		case SETCOLORB:
-		case SETDEPTHB:
-		case GETCOLORB:
-		case GETDEPTHB:
-			break;
-			
-		case ENQUEUER:
-			do_enqueue(false);
-			break;
-			
-		case ENQUEUEV:
-			do_enqueue(true);
-			break;
-			
-		case DEQUEUE:
-			do_dequeue(false);
-			break;
-		
-		//Visual Effects
-		case WAVYIN:
-			FFScript::do_wavyin();
-			break;
-		case WAVYOUT:
-			FFScript::do_wavyout();
-			break;
-		case ZAPIN:
-			FFScript::do_zapin();
-			break;
-		case ZAPOUT:
-			FFScript::do_zapout();
-			break;
-		case OPENWIPE:
-		{
-			FFScript::do_openscreen();
-			break;
-		}
-		case CLOSEWIPE:
-		{
-			FFScript::do_closescreen();
-			break;
-		}
-		case OPENWIPESHAPE:
-		{
-			FFScript::do_openscreenshape();
-			break;
-		}
-		case CLOSEWIPESHAPE:
-		{
-			FFScript::do_closescreenshape();
-			break;
-		}
-		
-		//Monochrome
-		case GREYSCALEON:
-			setMonochrome(true);
-			break;
-		case GREYSCALEOFF:
-			setMonochrome(false);
-			break;
-		
-		case TINT:
-		{
-			FFCore.Tint();
-			break;
-		}
-		
-		case CLEARTINT:
-		{
-			FFCore.clearTint();
-			break;
-		}
-		
-		case MONOHUE:
-		{
-			FFCore.gfxmonohue();
-			break;
-		}
-		
-		case LINKWARPEXR:
-		{
-			
-			FFCore.do_warp_ex(false);
-			//terminate sprite scripts
-			//switch(type)
-			//{
-			//	case SCRIPT_NPC:
-			//	case SCRIPT_LWPN:
-			//	case SCRIPT_EWPN:
-			//	case SCRIPT_ITEMSPRITE:
-			//	{
-			//		Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
-			//		break;
-			//	}
-			//	default: 
-			//	{
-			//		FFCore.do_warp_ex(false);
-			//		break;
-			//	}
-			//}
-			break;
-			
-		}
-		
-		case LINKEXPLODER:
-		{
-			int mode = get_register(sarg1) / 10000;
-			if ( (unsigned) mode > 2 ) 
-			{
-				Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int mode)\n",mode);
-			}
-			else Link.explode(mode);
-			break;
-		}
-		case NPCEXPLODER:
-		{
-			
-			int mode = get_register(sarg1) / 10000;
-			al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
-			if ( (unsigned) mode > 2 ) 
-			{
-				Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
-			}
-			else
-			{
-				if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
-				{
-				al_trace("npc->Explode() is loading the npc into a pointer.\n");
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				al_trace("npc->Explode() is calling enemy::explode.\n");
-				//(enemy *) guys.explode(eid);
-				//e->explode(mode);
-					//enemy *en=GuyH::getNPC();
-					//en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-					guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
-				}
-			}
-			break;
-		}
-		
-		case ITEMEXPLODER:
-		{
-			
-			int mode = get_register(sarg1) / 10000;
-			al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
-			if ( (unsigned) mode > 2 ) 
-			{
-				Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
-			}
-			else
-			{
-				if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
-				{
-					items.spr(ItemH::getItemIndex(ri->itemref))->explode(mode);
-				}
-			}
-			break;
-		}
-		case LWEAPONEXPLODER:
-		{
-			
-			int mode = get_register(sarg1) / 10000;
-			al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
-			if ( (unsigned) mode > 2 ) 
-			{
-				Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
-			}
-			else
-			{
-				if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
-				{
-					Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
-				}
-			}
-			break;
-		}
-		case EWEAPONEXPLODER:
-		{
-			
-			int mode = get_register(sarg1) / 10000;
-			al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
-			if ( (unsigned) mode > 2 ) 
-			{
-				Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
-			}
-			else
-			{
-				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
-				{
-					Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
-				}
-			}
-			break;
-		}
-		
-		case RUNITEMSCRIPT:
-		{
-			int itemid = ri->idata;
-			int mode = get_register(sarg1) / 10000;
-			Z_scripterrlog("Trying to run the script on item: %d\n",itemid);
-			Z_scripterrlog("The script ID is: %d\n",itemsbuf[itemid].script);
-			Z_scripterrlog("Runitemscript mode is: %d\n", mode);
-			switch(mode)
-			{
-				case 0:
-				{
-					item_doscript[itemid] = 4;
-					break;
-				}
-				case 1:
-				{
-					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
-					{
-						if ( !item_doscript[itemid] ) 
-						{
-							for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
-							itemScriptData[itemid].Clear();
-							item_doscript[itemid] = 1;
-							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
-						}
-						else
-						{
-							//Rob, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
-						}
-					}
-					break;
-				}
-				case 2:
-				default:
-				{
-					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
-					{
-						if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
-					}
-					break;
-				}
-				/*
-				case 0:
-				{
-					item_doscript[itemid] = 0;
-					break;
-				}
-				default:
-				{
 				
-					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
-					{
-						//itemScriptData[itemid].Clear();
-						//for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-						//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-						item_doscript[itemid] = 2;
-					}
-					break;
+			case GETSCREENLAYOP:
+				do_getscreenLayerOpacity();
+				break;
+			case GETSCREENSECCMB:
+				do_getscreenSecretCombo();
+				break;
+			case GETSCREENSECCST:
+				do_getscreenSecretCSet();
+				break;
+			case GETSCREENSECFLG:
+				do_getscreenSecretFlag();
+				break;
+			case GETSCREENLAYMAP:
+				do_getscreenLayerMap();
+				break;
+			case GETSCREENLAYSCR:
+				do_getscreenLayerscreen();
+				break;
+			case GETSCREENPATH:
+				do_getscreenPath();
+				break;
+			case GETSCREENWARPRX:
+				do_getscreenWarpReturnX();
+				break;
+			case GETSCREENWARPRY:
+				do_getscreenWarpReturnY();
+				break;
+
+			case COMBOTILE:
+				do_combotile(false);
+				break;
+				
+			case RECTR:
+			case CIRCLER:
+			case ARCR:
+			case ELLIPSER:
+			case LINER:
+			case PUTPIXELR:
+			case PIXELARRAYR:
+			case TILEARRAYR:
+			case LINESARRAY:
+			case COMBOARRAYR:
+			case DRAWTILER:
+			case DRAWTILECLOAKEDR:
+			case DRAWCOMBOR:
+			case DRAWCOMBOCLOAKEDR:
+			case DRAWCHARR:
+			case DRAWINTR:
+			case QUADR:
+			case TRIANGLER:
+			case QUAD3DR:
+			case TRIANGLE3DR:
+			case FASTTILER:
+			case FASTCOMBOR:
+			case DRAWSTRINGR:
+			case SPLINER:
+			case BITMAPR:
+			case BITMAPEXR:
+			case DRAWLAYERR:
+			case DRAWSCREENR:
+			case POLYGONR:
+				do_drawing_command(scommand);
+				break;
+			
+			case BMPRECTR:	
+			case BMPCIRCLER:
+			case BMPARCR:
+			case BMPELLIPSER:
+			case BMPLINER:
+			case BMPSPLINER:
+			case BMPPUTPIXELR:
+			case BMPDRAWTILER:
+			case BMPDRAWTILECLOAKEDR:
+			case BMPDRAWCOMBOR:
+			case BMPDRAWCOMBOCLOAKEDR:
+			case BMPFASTTILER:
+			case BMPFASTCOMBOR:
+			case BMPDRAWCHARR:
+			case BMPDRAWINTR:
+			case BMPDRAWSTRINGR:
+			case BMPQUADR:
+			case BMPQUAD3DR:
+			case BMPTRIANGLER:
+			case BMPTRIANGLE3DR:
+			case BMPPOLYGONR:
+			case BMPDRAWLAYERR: 
+			case BMPDRAWLAYERSOLIDR: 
+			case BMPDRAWLAYERCFLAGR: 
+			case BMPDRAWLAYERCTYPER: 
+			case BMPDRAWLAYERCIFLAGR: 
+			case BMPDRAWLAYERSOLIDITYR: 
+			case BMPDRAWSCREENR:
+			case BMPDRAWSCREENSOLIDR:
+			case BMPDRAWSCREENSOLID2R:
+			case BMPDRAWSCREENCOMBOFR:
+			case BMPDRAWSCREENCOMBOIR:
+			case BMPDRAWSCREENCOMBOTR:
+			case BITMAPGETPIXEL:
+			case BMPBLIT:
+			case BMPBLITTO:
+			case BMPMODE7:
+			case READBITMAP:
+			case WRITEBITMAP:
+			case CLEARBITMAP:
+			case BITMAPCLEARTOCOLOR:
+			case REGENERATEBITMAP:
+				do_drawing_command(scommand);
+				break;
+				
+			case COPYTILEVV:
+				do_copytile(true, true);
+				break;
+				
+			case COPYTILEVR:
+				do_copytile(true, false);
+				break;
+				
+			case COPYTILERV:
+				do_copytile(false, true);
+				break;
+				
+			case COPYTILERR:
+				do_copytile(false, false);
+				break;
+				
+			case SWAPTILEVV:
+				do_swaptile(true, true);
+				break;
+				
+			case SWAPTILEVR:
+				do_swaptile(true, false);
+				break;
+				
+			case SWAPTILERV:
+				do_swaptile(false, true);
+				break;
+				
+			case SWAPTILERR:
+				do_swaptile(false, false);
+				break;
+				
+			case CLEARTILEV:
+				do_cleartile(true);
+				break;
+				
+			case CLEARTILER:
+				do_cleartile(false);
+				break;
+				
+			case OVERLAYTILEVV:
+				do_overlaytile(true, true);
+				break;
+				
+			case OVERLAYTILEVR:
+				do_overlaytile(true, false);
+				break;
+				
+			case OVERLAYTILERV:
+				do_overlaytile(false, true);
+				break;
+				
+			case OVERLAYTILERR:
+				do_overlaytile(false, false);
+				break;
+				
+			case FLIPROTTILEVV:
+				do_fliprotatetile(true, true);
+				break;
+				
+			case FLIPROTTILEVR:
+				do_fliprotatetile(true, false);
+				break;
+				
+			case FLIPROTTILERV:
+				do_fliprotatetile(false, true);
+				break;
+				
+			case FLIPROTTILERR:
+				do_fliprotatetile(false, false);
+				break;
+				
+			case GETTILEPIXELV:
+				do_gettilepixel(true);
+				break;
+				
+			case GETTILEPIXELR:
+				do_gettilepixel(false);
+				break;
+				
+			case SETTILEPIXELV:
+				do_settilepixel(true);
+				break;
+				
+			case SETTILEPIXELR:
+				do_settilepixel(false);
+				break;
+				
+			case SHIFTTILEVV:
+				do_shifttile(true, true);
+				break;
+				
+			case SHIFTTILEVR:
+				do_shifttile(true, false);
+				break;
+				
+			case SHIFTTILERV:
+				do_shifttile(false, true);
+				break;
+				
+			case SHIFTTILERR:
+				do_shifttile(false, false);
+				break;
+				
+			case SETRENDERTARGET:
+				do_set_rendertarget(true);
+				break;
+				
+			case GAMEEND:
+				Quit = qQUIT;
+				skipcont = 1;
+				scommand = 0xFFFF;
+				break;
+			
+			case GAMECONTINUE:
+				reset_combo_animations();
+				reset_combo_animations2();
+			
+				Quit = qCONT;
+				skipcont = 1;
+				//cont_game();
+				scommand = 0xFFFF;
+				break;
+				
+			case GAMESAVEQUIT:
+				Quit = qSAVE;
+				skipcont = 1;
+				scommand =0xFFFF;
+				break;
+				
+			case GAMESAVECONTINUE:
+				Quit = qSAVECONT;
+				skipcont = 1;
+				scommand =0xFFFF;
+				break;
+				
+			case SAVE:
+				if(scriptCanSave)
+				{
+					save_game(false);
+					scriptCanSave=false;
 				}
-				*/
-			}
-			break;
-		}
-		
-		//case NPCData
-		
-		case GETNPCDATATILE: FFScript::getNPCData_tile(); break;
-		case	GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
-		case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
-		case	GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
-		case	GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
-		case	GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
-		case	GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
-		case	GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
-		case	GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
-		case	GETNPCDATAETILE: FFScript::getNPCData_e_tile(); break;
-		case	GETNPCDATAEWIDTH: FFScript::getNPCData_e_width(); break;
-		case	GETNPCDATAHP: FFScript::getNPCData_hp(); break;
-		case	GETNPCDATAFAMILY: FFScript::getNPCData_family(); break;
-		case	GETNPCDATACSET: FFScript::getNPCData_cset(); break;
-		case	GETNPCDATAANIM: FFScript::getNPCData_anim(); break;
-		case	GETNPCDATAEANIM: FFScript::getNPCData_e_anim(); break;
-		case	GETNPCDATAFRAMERATE: FFScript::getNPCData_frate(); break;
-		case	GETNPCDATAEFRAMERATE: FFScript::getNPCData_e_frate(); break;
-		case	GETNPCDATATOUCHDMG: FFScript::getNPCData_dp(); break;
-		case	GETNPCDATAWPNDAMAGE: FFScript::getNPCData_wdp(); break;
-		case	GETNPCDATAWEAPON: FFScript::getNPCData_wdp(); break;
-		case	GETNPCDATARANDOM: FFScript::getNPCData_rate(); break;
-		case	GETNPCDATAHALT: FFScript::getNPCData_hrate(); break;
-		case	GETNPCDATASTEP: FFScript::getNPCData_step(); break;
-		case	GETNPCDATAHOMING: FFScript::getNPCData_homing(); break;
-		case	GETNPCDATAHUNGER: FFScript::getNPCData_grumble(); break;
-		case	GETNPCDATADROPSET: FFScript::getNPCData_item_set(); break;
-		case	GETNPCDATABGSFX: FFScript::getNPCData_bgsfx(); break;
-		case	GETNPCDATADEATHSFX: FFScript::getNPCData_deadsfx(); break; 
-		case	GETNPCDATAXOFS: FFScript::getNPCData_xofs(); break;
-		case	GETNPCDATAYOFS: FFScript::getNPCData_yofs(); break;
-		case	GETNPCDATAZOFS: FFScript::getNPCData_zofs(); break;
-		case	GETNPCDATAHXOFS: FFScript::getNPCData_hxofs(); break;
-		case	GETNPCDATAHYOFS: FFScript::getNPCData_hyofs(); break;
-		case	GETNPCDATAHITWIDTH: FFScript::getNPCData_hxsz(); break;
-		case	GETNPCDATAHITHEIGHT: FFScript::getNPCData_hysz(); break;
-		case	GETNPCDATAHITZ: FFScript::getNPCData_hzsz(); break;
-		case	GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
-		case	GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
-		case	GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
-		//case	GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
-		case	GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
-		case	GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
-		case	GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
-		case	GETNPCDATAHITSFX: FFScript::getNPCData_hitsfx(); break;
+				break;
+				
+			case SAVESCREEN:
+				do_showsavescreen();
+				break;
 			
-		case	SETNPCDATAFLAGS: FFScript::setNPCData_flags(); break;
-		case	SETNPCDATAFLAGS2: FFScript::setNPCData_flags2(); break;
-		case	SETNPCDATAWIDTH: FFScript::setNPCData_width(); break;
-		case	SETNPCDATAHEIGHT: FFScript::setNPCData_height(); break;
-		case	SETNPCDATASTILE: FFScript::setNPCData_s_tile(); break;
-		case	SETNPCDATASWIDTH: FFScript::setNPCData_s_width(); break;
-		case	SETNPCDATASHEIGHT: FFScript::setNPCData_s_height(); break;
-		case	SETNPCDATAETILE: FFScript::setNPCData_e_tile(); break;
-		case	SETNPCDATAEWIDTH: FFScript::setNPCData_e_width(); break;
-		case	SETNPCDATAHP: FFScript::setNPCData_hp(); break;
-		case	SETNPCDATAFAMILY: FFScript::setNPCData_family(); break;
-		case	SETNPCDATACSET: FFScript::setNPCData_cset(); break;
-		case	SETNPCDATAANIM: FFScript::setNPCData_anim(); break;
-		case	SETNPCDATAEANIM: FFScript::setNPCData_e_anim(); break;
-		case	SETNPCDATAFRAMERATE: FFScript::setNPCData_frate(); break;
-		case	SETNPCDATAEFRAMERATE: FFScript::setNPCData_e_frate(); break;
-		case	SETNPCDATATOUCHDMG: FFScript::setNPCData_dp(); break;
-		case	SETNPCDATAWPNDAMAGE: FFScript::setNPCData_wdp(); break;
-		case	SETNPCDATAWEAPON: FFScript::setNPCData_weapon(); break;
-		case	SETNPCDATARANDOM: FFScript::setNPCData_rate(); break;
-		case	SETNPCDATAHALT: FFScript::setNPCData_hrate(); break;
-		case	SETNPCDATASTEP: FFScript::setNPCData_step(); break;
-		case	SETNPCDATAHOMING: FFScript::setNPCData_homing(); break;
-		case	SETNPCDATAHUNGER: FFScript::setNPCData_grumble(); break;
-		case	SETNPCDATADROPSET: FFScript::setNPCData_item_set(); break;
-		case	SETNPCDATABGSFX: FFScript::setNPCData_bgsfx(); break;
-		case	SETNPCDATADEATHSFX: FFScript::setNPCData_hitsfx(); break;
-		case	SETNPCDATAXOFS: FFScript::setNPCData_xofs(); break;
-		case	SETNPCDATAYOFS: FFScript::setNPCData_yofs(); break;
-		case	SETNPCDATAZOFS: FFScript::setNPCData_zofs(); break;
-		case	SETNPCDATAHXOFS: FFScript::setNPCData_hxofs(); break;
-		case	SETNPCDATAHYOFS: FFScript::setNPCData_hyofs(); break;
-		case	SETNPCDATAHITWIDTH: FFScript::setNPCData_hxsz(); break;
-		case	SETNPCDATAHITHEIGHT: FFScript::setNPCData_hysz(); break;
-		case	SETNPCDATAHITZ: FFScript::setNPCData_hzsz(); break;
-		case	SETNPCDATATILEWIDTH: FFScript::setNPCData_txsz(); break;
-		case	SETNPCDATATILEHEIGHT: FFScript::setNPCData_tysz(); break;
-		case	SETNPCDATAWPNSPRITE: FFScript::setNPCData_wpnsprite(); break;
-		case	SETNPCDATAHITSFX: FFScript::setNPCData_hitsfx(); break;
-		case	SETNPCDATATILE: FFScript::setNPCData_tile(); break;
-		case	SETNPCDATAEHEIGHT: FFScript::setNPCData_e_height(); break;
-		
-		
-		
-		
-
+			case SHOWF6SCREEN:
+				onTryQuit();
+				break;
+				
+			case SAVEQUITSCREEN:
+				save_game(false, 1);
+				break;
+				
+				//Not Implemented
+			case ELLIPSE2:
+			case FLOODFILL:
+				break;
+				
+			case SETCOLORB:
+			case SETDEPTHB:
+			case GETCOLORB:
+			case GETDEPTHB:
+				break;
+				
+			case ENQUEUER:
+				do_enqueue(false);
+				break;
+				
+			case ENQUEUEV:
+				do_enqueue(true);
+				break;
+				
+			case DEQUEUE:
+				do_dequeue(false);
+				break;
 			
-	//	case	SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
-		case SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[2]); break;
-		case SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[2]); break;
-		case SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[2]); break;
-		
-		
-		//ComboData
-		
-		case	GCDBLOCKENEM:  FFScript::getComboData_block_enemies(); break;
-		case	GCDBLOCKHOLE:  FFScript::getComboData_block_hole(); break;
-		case	GCDBLOCKTRIG:  FFScript::getComboData_block_trigger(); break;
-		case	GCDCONVEYSPDX:  FFScript::getComboData_conveyor_x_speed(); break;
-		case	GCDCONVEYSPDY:  FFScript::getComboData_conveyor_y_speed(); break;
-		case	GCDCREATEENEM:  FFScript::getComboData_create_enemy(); break;
-		case	GCDCREATEENEMWH:  FFScript::getComboData_create_enemy_when(); break;
-		case	GCDCREATEENEMCH:  FFScript::getComboData_create_enemy_change(); break;
-		case	GCDDIRCHTYPE:  FFScript::getComboData_directional_change_type(); break;
-		case	GCDDISTCHTILES:  FFScript::getComboData_distance_change_tiles(); break;
-		case	GCDDIVEITEM:  FFScript::getComboData_dive_item(); break;
-		case	GCDDOCK:  FFScript::getComboData_dock(); break;
-		case	GCDFAIRY:  FFScript::getComboData_fairy(); break;
-		case	GCDFFCOMBOATTRIB:  FFScript::getComboData_ff_combo_attr_change(); break;
-		case	GCDFOOTDECOTILE:  FFScript::getComboData_foot_decorations_tile(); break;
-		case	GCDFOOTDECOTYPE:  FFScript::getComboData_foot_decorations_type(); break;
-		case	GCDHOOKSHOTGRAB:  FFScript::getComboData_hookshot_grab_point(); break;
-		case	GCDLADDERPASS:  FFScript::getComboData_ladder_pass(); break;
-		case	GCDLOCKBLOCKTYPE:  FFScript::getComboData_lock_block_type(); break;
-		case	GCDLOCKBLOCKCHANGE:  FFScript::getComboData_lock_block_change(); break;
-		case	GCDMAGICMIRRORTYPE:  FFScript::getComboData_magic_mirror_type(); break;
-		case	GCDMODIFYHPAMOUNT:  FFScript::getComboData_modify_hp_amount(); break;
-		case	GCDMODIFYHPDELAY:  FFScript::getComboData_modify_hp_delay(); break;
-		case	GCDMODIFYHPTYPE:  FFScript::getComboData_modify_hp_type(); break;
-		case	GCDMODIFYMPAMOUNT:  FFScript::getComboData_modify_mp_amount(); break;
-		case	GCDMODIFYMPDELAY:  FFScript::getComboData_modify_mp_delay(); break;
-		case	GCDMODIFYMPTYPE:  FFScript::getComboData_modify_mp_type(); break;
-		case	GCDNOPUSHBLOCKS:  FFScript::getComboData_no_push_blocks(); break;
-		case	GCDOVERHEAD:  FFScript::getComboData_overhead(); break;
-		case	GCDPLACEENEMY:  FFScript::getComboData_place_enemy(); break;
-		case	GCDPUSHDIR:  FFScript::getComboData_push_direction(); break;
-		case	GCDPUSHWEIGHT:  FFScript::getComboData_push_weight(); break;
-		case	GCDPUSHWAIT:  FFScript::getComboData_push_wait(); break;
-		case	GCDPUSHED:  FFScript::getComboData_pushed(); break;
-		case	GCDRAFT:  FFScript::getComboData_raft(); break;
-		case	GCDRESETROOM:  FFScript::getComboData_reset_room(); break;
-		case	GCDSAVEPOINT:  FFScript::getComboData_save_point_type(); break;
-		case	GCDSCREENFREEZE:  FFScript::getComboData_screen_freeze_type(); break;
-		case	GCDSECRETCOMBO:  FFScript::getComboData_secret_combo(); break;
-		case	GCDSINGULAR:  FFScript::getComboData_singular(); break;
-		case	GCDSLOWMOVE:  FFScript::getComboData_slow_movement(); break;
-		case	GCDSTATUE:  FFScript::getComboData_statue_type(); break;
-		case	GCDSTEPTYPE:  FFScript::getComboData_step_type(); break;
-		case	GCDSTEPCHANGETO:  FFScript::getComboData_step_change_to(); break;
-		case	GCDSTRIKEREMNANTS:  FFScript::getComboData_strike_remnants(); break;
-		case	GCDSTRIKEREMNANTSTYPE:  FFScript::getComboData_strike_remnants_type(); break;
-		case	GCDSTRIKECHANGE:  FFScript::getComboData_strike_change(); break;
-		case	GCDSTRIKECHANGEITEM:  FFScript::getComboData_strike_item(); break;
-		case	GCDTOUCHITEM:  FFScript::getComboData_touch_item(); break;
-		case	GCDTOUCHSTAIRS:  FFScript::getComboData_touch_stairs(); break;
-		case	GCDTRIGGERTYPE:  FFScript::getComboData_trigger_type(); break;
-		case	GCDTRIGGERSENS:  FFScript::getComboData_trigger_sensitive(); break;
-		case	GCDWARPTYPE:  FFScript::getComboData_warp_type(); break;
-		case	GCDWARPSENS:  FFScript::getComboData_warp_sensitive(); break;
-		case	GCDWARPDIRECT:  FFScript::getComboData_warp_direct(); break;
-		case	GCDWARPLOCATION:  FFScript::getComboData_warp_location(); break;
-		case	GCDWATER:  FFScript::getComboData_water(); break;
-		case	GCDWHISTLE:  FFScript::getComboData_whistle(); break;
-		case	GCDWINGAME:  FFScript::getComboData_win_game(); break;
-		case	GCDBLOCKWEAPLVL:  FFScript::getComboData_block_weapon_lvl(); break;
-		case	GCDTILE:  FFScript::getComboData_tile(); break;
-		case	GCDFLIP:  FFScript::getComboData_flip(); break;
-		case	GCDWALK:  FFScript::getComboData_walk(); break;
-		case	GCDTYPE:  FFScript::getComboData_type(); break;
-		case	GCDCSETS:  FFScript::getComboData_csets(); break;
-		case	GCDFOO:  FFScript::getComboData_foo(); break;
-		case	GCDFRAMES:  FFScript::getComboData_frames(); break;
-		case	GCDSPEED:  FFScript::getComboData_speed(); break;
-		case	GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
-		case	GCDNEXTCSET:  FFScript::getComboData_nextcset(); break;
-		case	GCDFLAG:  FFScript::getComboData_flag(); break;
-		case	GCDSKIPANIM:  FFScript::getComboData_skipanim(); break;
-		case	GCDNEXTTIMER:  FFScript::getComboData_nexttimer(); break;
-		case	GCDSKIPANIMY:  FFScript::getComboData_skipanimy(); break;
-		case	GCDANIMFLAGS:  FFScript::getComboData_animflags(); break;
-		case	GCDBLOCKWEAPON:  FFScript::getComboData_block_weapon(); break;
-		case	GCDEXPANSION:  FFScript::getComboData_expansion(); break;
-		case	GCDSTRIKEWEAPONS:  FFScript::getComboData_strike_weapons(); break;
-		case	SCDBLOCKENEM:  FFScript::setComboData_block_enemies(); break;
-		case	SCDBLOCKHOLE:  FFScript::setComboData_block_hole(); break;
-		case	SCDBLOCKTRIG:  FFScript::setComboData_block_trigger(); break;
-		case	SCDCONVEYSPDX:  FFScript::setComboData_conveyor_x_speed(); break;
-		case	SCDCONVEYSPDY:  FFScript::setComboData_conveyor_y_speed(); break;
-		case	SCDCREATEENEM:  FFScript::setComboData_create_enemy(); break;
-		case	SCDCREATEENEMWH:  FFScript::setComboData_create_enemy_when(); break;
-		case	SCDCREATEENEMCH:  FFScript::setComboData_create_enemy_change(); break;
-		case	SCDDIRCHTYPE:  FFScript::setComboData_directional_change_type(); break;
-		case	SCDDISTCHTILES:  FFScript::setComboData_distance_change_tiles(); break;
-		case	SCDDIVEITEM:  FFScript::setComboData_dive_item(); break;
-		case	SCDDOCK:  FFScript::setComboData_dock(); break;
-		case	SCDFAIRY:  FFScript::setComboData_fairy(); break;
-		case	SCDFFCOMBOATTRIB:  FFScript::setComboData_ff_combo_attr_change(); break;
-		case	SCDFOOTDECOTILE:  FFScript::setComboData_foot_decorations_tile(); break;
-		case	SCDFOOTDECOTYPE:  FFScript::setComboData_foot_decorations_type(); break;
-		case	SCDHOOKSHOTGRAB:  FFScript::setComboData_hookshot_grab_point(); break;
-		case	SCDLADDERPASS:  FFScript::setComboData_ladder_pass(); break;
-		case	SCDLOCKBLOCKTYPE:  FFScript::setComboData_lock_block_type(); break;
-		case	SCDLOCKBLOCKCHANGE:  FFScript::setComboData_lock_block_change(); break;
-		case	SCDMAGICMIRRORTYPE:  FFScript::setComboData_magic_mirror_type(); break;
-		case	SCDMODIFYHPAMOUNT:  FFScript::setComboData_modify_hp_amount(); break;
-		case	SCDMODIFYHPDELAY:  FFScript::setComboData_modify_hp_delay(); break;
-		case	SCDMODIFYHPTYPE:  FFScript::setComboData_modify_hp_type(); break;
-		case	SCDMODIFYMPAMOUNT:  FFScript::setComboData_modify_mp_amount(); break;
-		case	SCDMODIFYMPDELAY:  FFScript::setComboData_modify_mp_delay(); break;
-		case	SCDMODIFYMPTYPE:  FFScript::setComboData_modify_mp_type(); break;
-		case	SCDNOPUSHBLOCKS:  FFScript::setComboData_no_push_blocks(); break;
-		case	SCDOVERHEAD:  FFScript::setComboData_overhead(); break;
-		case	SCDPLACEENEMY:  FFScript::setComboData_place_enemy(); break;
-		case	SCDPUSHDIR:  FFScript::setComboData_push_direction(); break;
-		case	SCDPUSHWEIGHT:  FFScript::setComboData_push_weight(); break;
-		case	SCDPUSHWAIT:  FFScript::setComboData_push_wait(); break;
-		case	SCDPUSHED:  FFScript::setComboData_pushed(); break;
-		case	SCDRAFT:  FFScript::setComboData_raft(); break;
-		case	SCDRESETROOM:  FFScript::setComboData_reset_room(); break;
-		case	SCDSAVEPOINT:  FFScript::setComboData_save_point_type(); break;
-		case	SCDSCREENFREEZE:  FFScript::setComboData_screen_freeze_type(); break;
-		case	SCDSECRETCOMBO:  FFScript::setComboData_secret_combo(); break;
-		case	SCDSINGULAR:  FFScript::setComboData_singular(); break;
-		case	SCDSLOWMOVE:  FFScript::setComboData_slow_movement(); break;
-		case	SCDSTATUE:  FFScript::setComboData_statue_type(); break;
-		case	SCDSTEPTYPE:  FFScript::setComboData_step_type(); break;
-		case	SCDSTEPCHANGETO:  FFScript::setComboData_step_change_to(); break;
-		case	SCDSTRIKEREMNANTS:  FFScript::setComboData_strike_remnants(); break;
-		case	SCDSTRIKEREMNANTSTYPE:  FFScript::setComboData_strike_remnants_type(); break;
-		case	SCDSTRIKECHANGE:  FFScript::setComboData_strike_change(); break;
-		case	SCDSTRIKECHANGEITEM:  FFScript::setComboData_strike_item(); break;
-		case	SCDTOUCHITEM:  FFScript::setComboData_touch_item(); break;
-		case	SCDTOUCHSTAIRS:  FFScript::setComboData_touch_stairs(); break;
-		case	SCDTRIGGERTYPE:  FFScript::setComboData_trigger_type(); break;
-		case	SCDTRIGGERSENS:  FFScript::setComboData_trigger_sensitive(); break;
-		case	SCDWARPTYPE:  FFScript::setComboData_warp_type(); break;
-		case	SCDWARPSENS:  FFScript::setComboData_warp_sensitive(); break;
-		case	SCDWARPDIRECT:  FFScript::setComboData_warp_direct(); break;
-		case	SCDWARPLOCATION:  FFScript::setComboData_warp_location(); break;
-		case	SCDWATER:  FFScript::setComboData_water(); break;
-		case	SCDWHISTLE:  FFScript::setComboData_whistle(); break;
-		case	SCDWINGAME:  FFScript::setComboData_win_game(); break;
-		case	SCDBLOCKWEAPLVL:  FFScript::setComboData_block_weapon_lvl(); break;
-		case	SCDTILE:  FFScript::setComboData_tile(); break;
-		case	SCDFLIP:  FFScript::setComboData_flip(); break;
-		case	SCDWALK:  FFScript::setComboData_walk(); break;
-		case	SCDTYPE:  FFScript::setComboData_type(); break;
-		case	SCDCSETS:  FFScript::setComboData_csets(); break;
-		case	SCDFOO:  FFScript::setComboData_foo(); break;
-		case	SCDFRAMES:  FFScript::setComboData_frames(); break;
-		case	SCDSPEED:  FFScript::setComboData_speed(); break;
-		case	SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
-		case	SCDNEXTCSET:  FFScript::setComboData_nextcset(); break;
-		case	SCDFLAG:  FFScript::setComboData_flag(); break;
-		case	SCDSKIPANIM:  FFScript::setComboData_skipanim(); break;
-		case	SCDNEXTTIMER:  FFScript::setComboData_nexttimer(); break;
-		case	SCDSKIPANIMY:  FFScript::setComboData_skipanimy(); break;
-		case	SCDANIMFLAGS:  FFScript::setComboData_animflags(); break;
-		case	SCDBLOCKWEAPON:  FFScript::setComboData_block_weapon(ri->d[2]); break;
-		case	SCDEXPANSION:  FFScript::setComboData_expansion(ri->d[2]); break;
-		case	SCDSTRIKEWEAPONS:  FFScript::setComboData_strike_weapons(ri->d[2]); break;
-
-		//SpriteData
-		
-		//case	GETSPRITEDATASTRING: 
-		case	GETSPRITEDATATILE: FFScript::getSpriteDataTile(); break;
-		case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets(); break;
-		case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets(); break;
-		case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames(); break;
-		case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed(); break;
-		case	GETSPRITEDATATYPE: FFScript::getSpriteDataType(); break;
-
-		//case	SETSPRITEDATASTRING:
-		case	SETSPRITEDATATILE: FFScript::setSpriteDataTile(); break;
-		case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc(); break;
-		case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets(); break;
-		case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames(); break;
-		case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed(); break;
-		case	SETSPRITEDATATYPE: FFScript::setSpriteDataType(); break;
-		
-		//Game over Screen
-		case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText(); break;
-		case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting(); break;
-		
-		//new npc functions for npc scripts
-		
-		case NPCDEAD:
-			FFCore.do_isdeadnpc();
-			break;
-		
-		case NPCCANSLIDE:
-			FFCore.do_canslidenpc();
-			break;
-		
-		case NPCSLIDE:
-			FFCore.do_slidenpc();
-			break;
-		
-		case NPCKICKBUCKET:
-			FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
-			if(type == SCRIPT_NPC && ri->guyref == i)
+			//Visual Effects
+			case WAVYIN:
+				FFScript::do_wavyin();
+				break;
+			case WAVYOUT:
+				FFScript::do_wavyout();
+				break;
+			case ZAPIN:
+				FFScript::do_zapin();
+				break;
+			case ZAPOUT:
+				FFScript::do_zapout();
+				break;
+			case OPENWIPE:
 			{
+				FFScript::do_openscreen();
+				break;
+			}
+			case CLOSEWIPE:
+			{
+				FFScript::do_closescreen();
+				break;
+			}
+			case OPENWIPESHAPE:
+			{
+				FFScript::do_openscreenshape();
+				break;
+			}
+			case CLOSEWIPESHAPE:
+			{
+				FFScript::do_closescreenshape();
+				break;
+			}
+			
+			//Monochrome
+			case GREYSCALEON:
+				setMonochrome(true);
+				break;
+			case GREYSCALEOFF:
+				setMonochrome(false);
+				break;
+			
+			case TINT:
+			{
+				FFCore.Tint();
+				break;
+			}
+			
+			case CLEARTINT:
+			{
+				FFCore.clearTint();
+				break;
+			}
+			
+			case MONOHUE:
+			{
+				FFCore.gfxmonohue();
+				break;
+			}
+			
+			case LINKWARPEXR:
+			{
+				
+				FFCore.do_warp_ex(false);
+				//terminate sprite scripts
+				//switch(type)
+				//{
+				//	case SCRIPT_NPC:
+				//	case SCRIPT_LWPN:
+				//	case SCRIPT_EWPN:
+				//	case SCRIPT_ITEMSPRITE:
+				//	{
+				//		Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
+				//		break;
+				//	}
+				//	default: 
+				//	{
+				//		FFCore.do_warp_ex(false);
+				//		break;
+				//	}
+				//}
+				break;
+				
+			}
+			
+			case LINKEXPLODER:
+			{
+				int mode = get_register(sarg1) / 10000;
+				if ( (unsigned) mode > 2 ) 
+				{
+					Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int mode)\n",mode);
+				}
+				else Link.explode(mode);
+				break;
+			}
+			case NPCEXPLODER:
+			{
+				
+				int mode = get_register(sarg1) / 10000;
+				al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+				if ( (unsigned) mode > 2 ) 
+				{
+					Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
+				}
+				else
+				{
+					if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
+					{
+						al_trace("npc->Explode() is loading the npc into a pointer.\n");
+						//enemy *e = (enemy*)guys.spr(ri->guyref);
+						al_trace("npc->Explode() is calling enemy::explode.\n");
+						//(enemy *) guys.explode(eid);
+						//e->explode(mode);
+						//enemy *en=GuyH::getNPC();
+						//en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+						guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
+					}
+				}
+				break;
+			}
+			
+			case ITEMEXPLODER:
+			{
+				
+				int mode = get_register(sarg1) / 10000;
+				al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+				if ( (unsigned) mode > 2 ) 
+				{
+					Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
+				}
+				else
+				{
+					if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
+					{
+						items.spr(ItemH::getItemIndex(ri->itemref))->explode(mode);
+					}
+				}
+				break;
+			}
+			case LWEAPONEXPLODER:
+			{
+				
+				int mode = get_register(sarg1) / 10000;
+				al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+				if ( (unsigned) mode > 2 ) 
+				{
+					Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
+				}
+				else
+				{
+					if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
+					{
+						Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
+					}
+				}
+				break;
+			}
+			case EWEAPONEXPLODER:
+			{
+				
+				int mode = get_register(sarg1) / 10000;
+				al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+				if ( (unsigned) mode > 2 ) 
+				{
+					Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
+				}
+				else
+				{
+					if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
+					{
+						Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
+					}
+				}
+				break;
+			}
+			
+			case RUNITEMSCRIPT:
+			{
+				int itemid = ri->idata;
+				int mode = get_register(sarg1) / 10000;
+				Z_scripterrlog("Trying to run the script on item: %d\n",itemid);
+				Z_scripterrlog("The script ID is: %d\n",itemsbuf[itemid].script);
+				Z_scripterrlog("Runitemscript mode is: %d\n", mode);
+				switch(mode)
+				{
+					case 0:
+					{
+						item_doscript[itemid] = 4;
+						break;
+					}
+					case 1:
+					{
+						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						{
+							if ( !item_doscript[itemid] ) 
+							{
+								for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+								itemScriptData[itemid].Clear();
+								item_doscript[itemid] = 1;
+								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+							}
+							else
+							{
+								//Rob, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
+							}
+						}
+						break;
+					}
+					case 2:
+					default:
+					{
+						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						{
+							if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
+						}
+						break;
+					}
+					/*
+					case 0:
+					{
+						item_doscript[itemid] = 0;
+						break;
+					}
+					default:
+					{
+					
+						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						{
+							//itemScriptData[itemid].Clear();
+							//for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
+							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+							item_doscript[itemid] = 2;
+						}
+						break;
+					}
+					*/
+				}
+				break;
+			}
+			
+			//case NPCData
+			
+			case GETNPCDATATILE: FFScript::getNPCData_tile(); break;
+			case GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
+			case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
+			case GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
+			case GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
+			case GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
+			case GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
+			case GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
+			case GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
+			case GETNPCDATAETILE: FFScript::getNPCData_e_tile(); break;
+			case GETNPCDATAEWIDTH: FFScript::getNPCData_e_width(); break;
+			case GETNPCDATAHP: FFScript::getNPCData_hp(); break;
+			case GETNPCDATAFAMILY: FFScript::getNPCData_family(); break;
+			case GETNPCDATACSET: FFScript::getNPCData_cset(); break;
+			case GETNPCDATAANIM: FFScript::getNPCData_anim(); break;
+			case GETNPCDATAEANIM: FFScript::getNPCData_e_anim(); break;
+			case GETNPCDATAFRAMERATE: FFScript::getNPCData_frate(); break;
+			case GETNPCDATAEFRAMERATE: FFScript::getNPCData_e_frate(); break;
+			case GETNPCDATATOUCHDMG: FFScript::getNPCData_dp(); break;
+			case GETNPCDATAWPNDAMAGE: FFScript::getNPCData_wdp(); break;
+			case GETNPCDATAWEAPON: FFScript::getNPCData_wdp(); break;
+			case GETNPCDATARANDOM: FFScript::getNPCData_rate(); break;
+			case GETNPCDATAHALT: FFScript::getNPCData_hrate(); break;
+			case GETNPCDATASTEP: FFScript::getNPCData_step(); break;
+			case GETNPCDATAHOMING: FFScript::getNPCData_homing(); break;
+			case GETNPCDATAHUNGER: FFScript::getNPCData_grumble(); break;
+			case GETNPCDATADROPSET: FFScript::getNPCData_item_set(); break;
+			case GETNPCDATABGSFX: FFScript::getNPCData_bgsfx(); break;
+			case GETNPCDATADEATHSFX: FFScript::getNPCData_deadsfx(); break; 
+			case GETNPCDATAXOFS: FFScript::getNPCData_xofs(); break;
+			case GETNPCDATAYOFS: FFScript::getNPCData_yofs(); break;
+			case GETNPCDATAZOFS: FFScript::getNPCData_zofs(); break;
+			case GETNPCDATAHXOFS: FFScript::getNPCData_hxofs(); break;
+			case GETNPCDATAHYOFS: FFScript::getNPCData_hyofs(); break;
+			case GETNPCDATAHITWIDTH: FFScript::getNPCData_hxsz(); break;
+			case GETNPCDATAHITHEIGHT: FFScript::getNPCData_hysz(); break;
+			case GETNPCDATAHITZ: FFScript::getNPCData_hzsz(); break;
+			case GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
+			case GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
+			case GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
+			//case GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
+			case GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
+			case GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
+			case GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
+			case GETNPCDATAHITSFX: FFScript::getNPCData_hitsfx(); break;
+				
+			case SETNPCDATAFLAGS: FFScript::setNPCData_flags(); break;
+			case SETNPCDATAFLAGS2: FFScript::setNPCData_flags2(); break;
+			case SETNPCDATAWIDTH: FFScript::setNPCData_width(); break;
+			case SETNPCDATAHEIGHT: FFScript::setNPCData_height(); break;
+			case SETNPCDATASTILE: FFScript::setNPCData_s_tile(); break;
+			case SETNPCDATASWIDTH: FFScript::setNPCData_s_width(); break;
+			case SETNPCDATASHEIGHT: FFScript::setNPCData_s_height(); break;
+			case SETNPCDATAETILE: FFScript::setNPCData_e_tile(); break;
+			case SETNPCDATAEWIDTH: FFScript::setNPCData_e_width(); break;
+			case SETNPCDATAHP: FFScript::setNPCData_hp(); break;
+			case SETNPCDATAFAMILY: FFScript::setNPCData_family(); break;
+			case SETNPCDATACSET: FFScript::setNPCData_cset(); break;
+			case SETNPCDATAANIM: FFScript::setNPCData_anim(); break;
+			case SETNPCDATAEANIM: FFScript::setNPCData_e_anim(); break;
+			case SETNPCDATAFRAMERATE: FFScript::setNPCData_frate(); break;
+			case SETNPCDATAEFRAMERATE: FFScript::setNPCData_e_frate(); break;
+			case SETNPCDATATOUCHDMG: FFScript::setNPCData_dp(); break;
+			case SETNPCDATAWPNDAMAGE: FFScript::setNPCData_wdp(); break;
+			case SETNPCDATAWEAPON: FFScript::setNPCData_weapon(); break;
+			case SETNPCDATARANDOM: FFScript::setNPCData_rate(); break;
+			case SETNPCDATAHALT: FFScript::setNPCData_hrate(); break;
+			case SETNPCDATASTEP: FFScript::setNPCData_step(); break;
+			case SETNPCDATAHOMING: FFScript::setNPCData_homing(); break;
+			case SETNPCDATAHUNGER: FFScript::setNPCData_grumble(); break;
+			case SETNPCDATADROPSET: FFScript::setNPCData_item_set(); break;
+			case SETNPCDATABGSFX: FFScript::setNPCData_bgsfx(); break;
+			case SETNPCDATADEATHSFX: FFScript::setNPCData_hitsfx(); break;
+			case SETNPCDATAXOFS: FFScript::setNPCData_xofs(); break;
+			case SETNPCDATAYOFS: FFScript::setNPCData_yofs(); break;
+			case SETNPCDATAZOFS: FFScript::setNPCData_zofs(); break;
+			case SETNPCDATAHXOFS: FFScript::setNPCData_hxofs(); break;
+			case SETNPCDATAHYOFS: FFScript::setNPCData_hyofs(); break;
+			case SETNPCDATAHITWIDTH: FFScript::setNPCData_hxsz(); break;
+			case SETNPCDATAHITHEIGHT: FFScript::setNPCData_hysz(); break;
+			case SETNPCDATAHITZ: FFScript::setNPCData_hzsz(); break;
+			case SETNPCDATATILEWIDTH: FFScript::setNPCData_txsz(); break;
+			case SETNPCDATATILEHEIGHT: FFScript::setNPCData_tysz(); break;
+			case SETNPCDATAWPNSPRITE: FFScript::setNPCData_wpnsprite(); break;
+			case SETNPCDATAHITSFX: FFScript::setNPCData_hitsfx(); break;
+			case SETNPCDATATILE: FFScript::setNPCData_tile(); break;
+			case SETNPCDATAEHEIGHT: FFScript::setNPCData_e_height(); break;
+			
+			
+			
+			
+
+				
+			//case SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
+			case SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[2]); break;
+			case SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[2]); break;
+			case SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[2]); break;
+			
+			
+			//ComboData
+			
+			case GCDBLOCKENEM:  FFScript::getComboData_block_enemies(); break;
+			case GCDBLOCKHOLE:  FFScript::getComboData_block_hole(); break;
+			case GCDBLOCKTRIG:  FFScript::getComboData_block_trigger(); break;
+			case GCDCONVEYSPDX:  FFScript::getComboData_conveyor_x_speed(); break;
+			case GCDCONVEYSPDY:  FFScript::getComboData_conveyor_y_speed(); break;
+			case GCDCREATEENEM:  FFScript::getComboData_create_enemy(); break;
+			case GCDCREATEENEMWH:  FFScript::getComboData_create_enemy_when(); break;
+			case GCDCREATEENEMCH:  FFScript::getComboData_create_enemy_change(); break;
+			case GCDDIRCHTYPE:  FFScript::getComboData_directional_change_type(); break;
+			case GCDDISTCHTILES:  FFScript::getComboData_distance_change_tiles(); break;
+			case GCDDIVEITEM:  FFScript::getComboData_dive_item(); break;
+			case GCDDOCK:  FFScript::getComboData_dock(); break;
+			case GCDFAIRY:  FFScript::getComboData_fairy(); break;
+			case GCDFFCOMBOATTRIB:  FFScript::getComboData_ff_combo_attr_change(); break;
+			case GCDFOOTDECOTILE:  FFScript::getComboData_foot_decorations_tile(); break;
+			case GCDFOOTDECOTYPE:  FFScript::getComboData_foot_decorations_type(); break;
+			case GCDHOOKSHOTGRAB:  FFScript::getComboData_hookshot_grab_point(); break;
+			case GCDLADDERPASS:  FFScript::getComboData_ladder_pass(); break;
+			case GCDLOCKBLOCKTYPE:  FFScript::getComboData_lock_block_type(); break;
+			case GCDLOCKBLOCKCHANGE:  FFScript::getComboData_lock_block_change(); break;
+			case GCDMAGICMIRRORTYPE:  FFScript::getComboData_magic_mirror_type(); break;
+			case GCDMODIFYHPAMOUNT:  FFScript::getComboData_modify_hp_amount(); break;
+			case GCDMODIFYHPDELAY:  FFScript::getComboData_modify_hp_delay(); break;
+			case GCDMODIFYHPTYPE:  FFScript::getComboData_modify_hp_type(); break;
+			case GCDMODIFYMPAMOUNT:  FFScript::getComboData_modify_mp_amount(); break;
+			case GCDMODIFYMPDELAY:  FFScript::getComboData_modify_mp_delay(); break;
+			case GCDMODIFYMPTYPE:  FFScript::getComboData_modify_mp_type(); break;
+			case GCDNOPUSHBLOCKS:  FFScript::getComboData_no_push_blocks(); break;
+			case GCDOVERHEAD:  FFScript::getComboData_overhead(); break;
+			case GCDPLACEENEMY:  FFScript::getComboData_place_enemy(); break;
+			case GCDPUSHDIR:  FFScript::getComboData_push_direction(); break;
+			case GCDPUSHWEIGHT:  FFScript::getComboData_push_weight(); break;
+			case GCDPUSHWAIT:  FFScript::getComboData_push_wait(); break;
+			case GCDPUSHED:  FFScript::getComboData_pushed(); break;
+			case GCDRAFT:  FFScript::getComboData_raft(); break;
+			case GCDRESETROOM:  FFScript::getComboData_reset_room(); break;
+			case GCDSAVEPOINT:  FFScript::getComboData_save_point_type(); break;
+			case GCDSCREENFREEZE:  FFScript::getComboData_screen_freeze_type(); break;
+			case GCDSECRETCOMBO:  FFScript::getComboData_secret_combo(); break;
+			case GCDSINGULAR:  FFScript::getComboData_singular(); break;
+			case GCDSLOWMOVE:  FFScript::getComboData_slow_movement(); break;
+			case GCDSTATUE:  FFScript::getComboData_statue_type(); break;
+			case GCDSTEPTYPE:  FFScript::getComboData_step_type(); break;
+			case GCDSTEPCHANGETO:  FFScript::getComboData_step_change_to(); break;
+			case GCDSTRIKEREMNANTS:  FFScript::getComboData_strike_remnants(); break;
+			case GCDSTRIKEREMNANTSTYPE:  FFScript::getComboData_strike_remnants_type(); break;
+			case GCDSTRIKECHANGE:  FFScript::getComboData_strike_change(); break;
+			case GCDSTRIKECHANGEITEM:  FFScript::getComboData_strike_item(); break;
+			case GCDTOUCHITEM:  FFScript::getComboData_touch_item(); break;
+			case GCDTOUCHSTAIRS:  FFScript::getComboData_touch_stairs(); break;
+			case GCDTRIGGERTYPE:  FFScript::getComboData_trigger_type(); break;
+			case GCDTRIGGERSENS:  FFScript::getComboData_trigger_sensitive(); break;
+			case GCDWARPTYPE:  FFScript::getComboData_warp_type(); break;
+			case GCDWARPSENS:  FFScript::getComboData_warp_sensitive(); break;
+			case GCDWARPDIRECT:  FFScript::getComboData_warp_direct(); break;
+			case GCDWARPLOCATION:  FFScript::getComboData_warp_location(); break;
+			case GCDWATER:  FFScript::getComboData_water(); break;
+			case GCDWHISTLE:  FFScript::getComboData_whistle(); break;
+			case GCDWINGAME:  FFScript::getComboData_win_game(); break;
+			case GCDBLOCKWEAPLVL:  FFScript::getComboData_block_weapon_lvl(); break;
+			case GCDTILE:  FFScript::getComboData_tile(); break;
+			case GCDFLIP:  FFScript::getComboData_flip(); break;
+			case GCDWALK:  FFScript::getComboData_walk(); break;
+			case GCDTYPE:  FFScript::getComboData_type(); break;
+			case GCDCSETS:  FFScript::getComboData_csets(); break;
+			case GCDFOO:  FFScript::getComboData_foo(); break;
+			case GCDFRAMES:  FFScript::getComboData_frames(); break;
+			case GCDSPEED:  FFScript::getComboData_speed(); break;
+			case GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
+			case GCDNEXTCSET:  FFScript::getComboData_nextcset(); break;
+			case GCDFLAG:  FFScript::getComboData_flag(); break;
+			case GCDSKIPANIM:  FFScript::getComboData_skipanim(); break;
+			case GCDNEXTTIMER:  FFScript::getComboData_nexttimer(); break;
+			case GCDSKIPANIMY:  FFScript::getComboData_skipanimy(); break;
+			case GCDANIMFLAGS:  FFScript::getComboData_animflags(); break;
+			case GCDBLOCKWEAPON:  FFScript::getComboData_block_weapon(); break;
+			case GCDEXPANSION:  FFScript::getComboData_expansion(); break;
+			case GCDSTRIKEWEAPONS:  FFScript::getComboData_strike_weapons(); break;
+			case SCDBLOCKENEM:  FFScript::setComboData_block_enemies(); break;
+			case SCDBLOCKHOLE:  FFScript::setComboData_block_hole(); break;
+			case SCDBLOCKTRIG:  FFScript::setComboData_block_trigger(); break;
+			case SCDCONVEYSPDX:  FFScript::setComboData_conveyor_x_speed(); break;
+			case SCDCONVEYSPDY:  FFScript::setComboData_conveyor_y_speed(); break;
+			case SCDCREATEENEM:  FFScript::setComboData_create_enemy(); break;
+			case SCDCREATEENEMWH:  FFScript::setComboData_create_enemy_when(); break;
+			case SCDCREATEENEMCH:  FFScript::setComboData_create_enemy_change(); break;
+			case SCDDIRCHTYPE:  FFScript::setComboData_directional_change_type(); break;
+			case SCDDISTCHTILES:  FFScript::setComboData_distance_change_tiles(); break;
+			case SCDDIVEITEM:  FFScript::setComboData_dive_item(); break;
+			case SCDDOCK:  FFScript::setComboData_dock(); break;
+			case SCDFAIRY:  FFScript::setComboData_fairy(); break;
+			case SCDFFCOMBOATTRIB:  FFScript::setComboData_ff_combo_attr_change(); break;
+			case SCDFOOTDECOTILE:  FFScript::setComboData_foot_decorations_tile(); break;
+			case SCDFOOTDECOTYPE:  FFScript::setComboData_foot_decorations_type(); break;
+			case SCDHOOKSHOTGRAB:  FFScript::setComboData_hookshot_grab_point(); break;
+			case SCDLADDERPASS:  FFScript::setComboData_ladder_pass(); break;
+			case SCDLOCKBLOCKTYPE:  FFScript::setComboData_lock_block_type(); break;
+			case SCDLOCKBLOCKCHANGE:  FFScript::setComboData_lock_block_change(); break;
+			case SCDMAGICMIRRORTYPE:  FFScript::setComboData_magic_mirror_type(); break;
+			case SCDMODIFYHPAMOUNT:  FFScript::setComboData_modify_hp_amount(); break;
+			case SCDMODIFYHPDELAY:  FFScript::setComboData_modify_hp_delay(); break;
+			case SCDMODIFYHPTYPE:  FFScript::setComboData_modify_hp_type(); break;
+			case SCDMODIFYMPAMOUNT:  FFScript::setComboData_modify_mp_amount(); break;
+			case SCDMODIFYMPDELAY:  FFScript::setComboData_modify_mp_delay(); break;
+			case SCDMODIFYMPTYPE:  FFScript::setComboData_modify_mp_type(); break;
+			case SCDNOPUSHBLOCKS:  FFScript::setComboData_no_push_blocks(); break;
+			case SCDOVERHEAD:  FFScript::setComboData_overhead(); break;
+			case SCDPLACEENEMY:  FFScript::setComboData_place_enemy(); break;
+			case SCDPUSHDIR:  FFScript::setComboData_push_direction(); break;
+			case SCDPUSHWEIGHT:  FFScript::setComboData_push_weight(); break;
+			case SCDPUSHWAIT:  FFScript::setComboData_push_wait(); break;
+			case SCDPUSHED:  FFScript::setComboData_pushed(); break;
+			case SCDRAFT:  FFScript::setComboData_raft(); break;
+			case SCDRESETROOM:  FFScript::setComboData_reset_room(); break;
+			case SCDSAVEPOINT:  FFScript::setComboData_save_point_type(); break;
+			case SCDSCREENFREEZE:  FFScript::setComboData_screen_freeze_type(); break;
+			case SCDSECRETCOMBO:  FFScript::setComboData_secret_combo(); break;
+			case SCDSINGULAR:  FFScript::setComboData_singular(); break;
+			case SCDSLOWMOVE:  FFScript::setComboData_slow_movement(); break;
+			case SCDSTATUE:  FFScript::setComboData_statue_type(); break;
+			case SCDSTEPTYPE:  FFScript::setComboData_step_type(); break;
+			case SCDSTEPCHANGETO:  FFScript::setComboData_step_change_to(); break;
+			case SCDSTRIKEREMNANTS:  FFScript::setComboData_strike_remnants(); break;
+			case SCDSTRIKEREMNANTSTYPE:  FFScript::setComboData_strike_remnants_type(); break;
+			case SCDSTRIKECHANGE:  FFScript::setComboData_strike_change(); break;
+			case SCDSTRIKECHANGEITEM:  FFScript::setComboData_strike_item(); break;
+			case SCDTOUCHITEM:  FFScript::setComboData_touch_item(); break;
+			case SCDTOUCHSTAIRS:  FFScript::setComboData_touch_stairs(); break;
+			case SCDTRIGGERTYPE:  FFScript::setComboData_trigger_type(); break;
+			case SCDTRIGGERSENS:  FFScript::setComboData_trigger_sensitive(); break;
+			case SCDWARPTYPE:  FFScript::setComboData_warp_type(); break;
+			case SCDWARPSENS:  FFScript::setComboData_warp_sensitive(); break;
+			case SCDWARPDIRECT:  FFScript::setComboData_warp_direct(); break;
+			case SCDWARPLOCATION:  FFScript::setComboData_warp_location(); break;
+			case SCDWATER:  FFScript::setComboData_water(); break;
+			case SCDWHISTLE:  FFScript::setComboData_whistle(); break;
+			case SCDWINGAME:  FFScript::setComboData_win_game(); break;
+			case SCDBLOCKWEAPLVL:  FFScript::setComboData_block_weapon_lvl(); break;
+			case SCDTILE:  FFScript::setComboData_tile(); break;
+			case SCDFLIP:  FFScript::setComboData_flip(); break;
+			case SCDWALK:  FFScript::setComboData_walk(); break;
+			case SCDTYPE:  FFScript::setComboData_type(); break;
+			case SCDCSETS:  FFScript::setComboData_csets(); break;
+			case SCDFOO:  FFScript::setComboData_foo(); break;
+			case SCDFRAMES:  FFScript::setComboData_frames(); break;
+			case SCDSPEED:  FFScript::setComboData_speed(); break;
+			case SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
+			case SCDNEXTCSET:  FFScript::setComboData_nextcset(); break;
+			case SCDFLAG:  FFScript::setComboData_flag(); break;
+			case SCDSKIPANIM:  FFScript::setComboData_skipanim(); break;
+			case SCDNEXTTIMER:  FFScript::setComboData_nexttimer(); break;
+			case SCDSKIPANIMY:  FFScript::setComboData_skipanimy(); break;
+			case SCDANIMFLAGS:  FFScript::setComboData_animflags(); break;
+			case SCDBLOCKWEAPON:  FFScript::setComboData_block_weapon(ri->d[2]); break;
+			case SCDEXPANSION:  FFScript::setComboData_expansion(ri->d[2]); break;
+			case SCDSTRIKEWEAPONS:  FFScript::setComboData_strike_weapons(ri->d[2]); break;
+
+			//SpriteData
+			
+			//case GETSPRITEDATASTRING: 
+			case GETSPRITEDATATILE: FFScript::getSpriteDataTile(); break;
+			case GETSPRITEDATAMISC: FFScript::getSpriteDataCSets(); break;
+			case GETSPRITEDATACGETS: FFScript::getSpriteDataCSets(); break;
+			case GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames(); break;
+			case GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed(); break;
+			case GETSPRITEDATATYPE: FFScript::getSpriteDataType(); break;
+
+			//case SETSPRITEDATASTRING:
+			case SETSPRITEDATATILE: FFScript::setSpriteDataTile(); break;
+			case SETSPRITEDATAMISC: FFScript::setSpriteDataMisc(); break;
+			case SETSPRITEDATACSETS: FFScript::setSpriteDataCSets(); break;
+			case SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames(); break;
+			case SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed(); break;
+			case SETSPRITEDATATYPE: FFScript::setSpriteDataType(); break;
+			
+			//Game over Screen
+			case SETCONTINUESCREEN: FFScript::FFChangeSubscreenText(); break;
+			case SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting(); break;
+			
+			//new npc functions for npc scripts
+			
+			case NPCDEAD:
+				FFCore.do_isdeadnpc();
+				break;
+			
+			case NPCCANSLIDE:
+				FFCore.do_canslidenpc();
+				break;
+			
+			case NPCSLIDE:
+				FFCore.do_slidenpc();
+				break;
+			
+			case NPCKICKBUCKET:
+				FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
+				if(type == SCRIPT_NPC && ri->guyref == i)
+				{
+					FFCore.do_npckickbucket();
+					return RUNSCRIPT_SELFDELETE;
+				}
 				FFCore.do_npckickbucket();
-				return RUNSCRIPT_SELFDELETE;
-			}
-			FFCore.do_npckickbucket();
-			break;
-		
-		case NPCSTOPBGSFX:
-			FFCore.do_npc_stopbgsfx();
-			break;
-		
-		case NPCATTACK:
-			FFCore.do_npcattack();
-			break;
-		
-		case NPCNEWDIR:
-			FFCore.do_npc_newdir();
-			break;
-		
-		case NPCCONSTWALK:
-			FFCore.do_npc_constwalk();
-			break;
-		
-		
-		
-		case NPCVARWALK:
-			FFCore.do_npc_varwalk();
-			break;
-		
-		case NPCVARWALK8:
-			FFCore.do_npc_varwalk8();
-			break;
-		
-		case NPCCONSTWALK8:
-			FFCore.do_npc_constwalk8();
-			break;
-		
-		case NPCHALTWALK:
-			FFCore.do_npc_haltwalk();
-			break;
-		
-		case NPCHALTWALK8:
-			FFCore.do_npc_haltwalk8();
-			break;
-		
-		case NPCFLOATWALK:
-			FFCore.do_npc_floatwalk();
-			break;
-		
-		case NPCFIREBREATH:
-			FFCore.do_npc_breathefire();
-			break;
-		
-		case NPCNEWDIR8:
-			FFCore.do_npc_newdir8();
-			break;
-		
-		case NPCLINKINRANGE:
-			FFCore.do_npc_link_in_range(false);
-			break;
-		
-		case NPCCANMOVE:
-			FFCore.do_npc_canmove(false);
-			break;
-		
-		case NPCHITWITH:
-			FFCore.do_npc_simulate_hit(false);
-			break;
+				break;
 			
-		case NPCKNOCKBACK:
-			FFCore.do_npc_knockback(false);
-			break;
-		
-		case NPCGETINITDLABEL:
-			FFCore.get_npcdata_initd_label(false);
-			break;
-		
-		case NPCADD:
-			FFCore.do_npc_add(false);
-			break;
-		
-		case PLAYENHMUSICEX:
-			FFCore.do_playogg_ex(false);
-			break;
+			case NPCSTOPBGSFX:
+				FFCore.do_npc_stopbgsfx();
+				break;
 			
-		case GETENHMUSICPOS:
-			FFCore.go_get_oggex_position();
-			break;
+			case NPCATTACK:
+				FFCore.do_npcattack();
+				break;
 			
-		case SETENHMUSICPOS:
-			FFCore.do_set_oggex_position(false);
-			break;
+			case NPCNEWDIR:
+				FFCore.do_npc_newdir();
+				break;
 			
-		case SETENHMUSICSPEED:
-			FFCore.do_set_oggex_speed(false);
-			break;
-		
-		case DIREXISTS:
-			FFCore.do_checkdir(true);
-			break;
-		
-		case FILEEXISTS:
-			FFCore.do_checkdir(false);
-			break;
-		
-		case NOP: //No Operation. Do nothing. -V
-			break;
-		
-		default:
-		{
-			Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
-			break;
-		}
-	}
+			case NPCCONSTWALK:
+				FFCore.do_npc_constwalk();
+				break;
+			
+			
+			
+			case NPCVARWALK:
+				FFCore.do_npc_varwalk();
+				break;
+			
+			case NPCVARWALK8:
+				FFCore.do_npc_varwalk8();
+				break;
+			
+			case NPCCONSTWALK8:
+				FFCore.do_npc_constwalk8();
+				break;
+			
+			case NPCHALTWALK:
+				FFCore.do_npc_haltwalk();
+				break;
+			
+			case NPCHALTWALK8:
+				FFCore.do_npc_haltwalk8();
+				break;
+			
+			case NPCFLOATWALK:
+				FFCore.do_npc_floatwalk();
+				break;
+			
+			case NPCFIREBREATH:
+				FFCore.do_npc_breathefire();
+				break;
+			
+			case NPCNEWDIR8:
+				FFCore.do_npc_newdir8();
+				break;
+			
+			case NPCLINKINRANGE:
+				FFCore.do_npc_link_in_range(false);
+				break;
+			
+			case NPCCANMOVE:
+				FFCore.do_npc_canmove(false);
+				break;
+			
+			case NPCHITWITH:
+				FFCore.do_npc_simulate_hit(false);
+				break;
 				
+			case NPCKNOCKBACK:
+				FFCore.do_npc_knockback(false);
+				break;
+			
+			case NPCGETINITDLABEL:
+				FFCore.get_npcdata_initd_label(false);
+				break;
+			
+			case NPCADD:
+				FFCore.do_npc_add(false);
+				break;
+			
+			case PLAYENHMUSICEX:
+				FFCore.do_playogg_ex(false);
+				break;
+				
+			case GETENHMUSICPOS:
+				FFCore.go_get_oggex_position();
+				break;
+				
+			case SETENHMUSICPOS:
+				FFCore.do_set_oggex_position(false);
+				break;
+				
+			case SETENHMUSICSPEED:
+				FFCore.do_set_oggex_speed(false);
+				break;
+			
+			case DIREXISTS:
+				FFCore.do_checkdir(true);
+				break;
+			
+			case FILEEXISTS:
+				FFCore.do_checkdir(false);
+				break;
+			
+			case NOP: //No Operation. Do nothing. -V
+				break;
+			
+			default:
+			{
+				Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+				break;
+			}
+		}
+		
 #ifdef _SCRIPT_COUNTER
 		end_time = script_counter;
 		script_timer[*command] += end_time - start_time;
