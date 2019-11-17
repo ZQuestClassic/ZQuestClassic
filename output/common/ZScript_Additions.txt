@@ -1,18 +1,58 @@
 		
-/////////////////
-///  ZScript  ///
-/////////////////
+
+
+ /@@@@@@@@  /@@@@@@                      /@@             /@@                        /@@ /@@   /@@
+|_____ @@  /@@__  @@                    |__/            | @@                      /@@@@| @@  | @@
+     /@@/ | @@  \__/  /@@@@@@@  /@@@@@@  /@@  /@@@@@@  /@@@@@@         /@@    /@@|_  @@| @@  | @@
+    /@@/  |  @@@@@@  /@@_____/ /@@__  @@| @@ /@@__  @@|_  @@_/        |  @@  /@@/  | @@| @@@@@@@@
+   /@@/    \____  @@| @@      | @@  \__/| @@| @@  \ @@  | @@           \  @@/@@/   | @@|_____  @@
+  /@@/     /@@  \ @@| @@      | @@      | @@| @@  | @@  | @@ /@@        \  @@@/    | @@      | @@
+ /@@@@@@@@|  @@@@@@/|  @@@@@@@| @@      | @@| @@@@@@@/  |  @@@@/         \  @/    /@@@@@@    | @@
+|________/ \______/  \_______/|__/      |__/| @@____/    \___/            \_/    |______/    |__/
+                                            | @@                                                 
+                                            | @@                                                 
+                                            |__/                                                 
+
 
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 40
-Document Revision: 14th November, 2019
+Document for: 2.55, Alpha 41
+Document Revision: 17th November, 2019
 
+
+ __           _   _                 
+/ _\ ___  ___| |_(_) ___  _ __  ___ 
+\ \ / _ \/ __| __| |/ _ \| '_ \/ __|
+_\ \  __/ (__| |_| | (_) | | | \__ \
+\__/\___|\___|\__|_|\___/|_| |_|___/
+                                    
+1. Syntax
+2. Namespaces
+3. Global Pointers
+4. Datatypes
+5. Typedef
+6. Custom Datatypes & Enum
+7. Arrays
+8. Strings
+9. New Features
+10. Bugfixes
+11. Script Types
+12. Compiler
+13. New Instructions
 
 ////////////////////////////////////////////////////
 /// ZSCRIPT PARSER AND LEXER ///////////////////////
 ////////////////////////////////////////////////////
+
+  _________             __                 
+ /   _____/__.__. _____/  |______  ___  ___
+ \_____  <   |  |/    \   __\__  \ \  \/  /
+ /        \___  |   |  \  |  / __ \_>    < 
+/_______  / ____|___|  /__| (____  /__/\_ \
+        \/\/         \/          \/      \/
+
+									// Syntax
 
 ////////////
 // Tokens //
@@ -100,6 +140,200 @@ Notes: Xor abd Logical Xor alternative Tokens
 	the alternative tokens more uniform, and easier to remember.
 		-ZoriaRPG ( 28th October, 2019 )
 	
+	
+______                                                                  
+ \      \ _____    _____   ____   _________________    ____  ____   ______
+ /   |   \\__  \  /     \_/ __ \ /  ___/\____ \__  \ _/ ___\/ __ \ /  ___/
+/    |    \/ __ \|  Y Y  \  ___/ \___ \ |  |_> > __ \\  \__\  ___/ \___ \ 
+\____|__  (____  /__|_|  /\___  >____  >|   __(____  /\___  >___  >____  >
+        \/     \/      \/     \/     \/ |__|       \/     \/    \/     \/ 
+
+									// Namespaces
+	
+///////////////
+// Namespace //
+///////////////
+
+ZScript now supports C-style namespaces.
+
+Declaration examples:
+
+namespace foo
+{
+	int x(){return 16;}
+}
+
+namespace bar
+{
+	int y(){return 32;}
+	namespace foobar
+	{
+		int z(){ return 64;}
+	}
+}
+
+namespace doh
+{
+	int xyz(){return 128;}
+}
+
+Access examples:
+
+foo::x();
+bar::y();
+bar::foobar::z();
+
+
+/////////////////////
+// Using Namespace //
+/////////////////////
+
+You may invoke the 'using' token to bring the contents of a namespaces
+into the current scope, thus ignoring the requirement for scope-resolution
+(::) until the end of that scope.
+
+You may also invoke 'using' as 'always using' to make that namespace global; this cannot be undone.
+
+The following scopes are valid:
+
+file
+namespace
+script
+function
+
+Using the above namespaces as examples:
+	[example--
+
+	//buffer
+	always using namespace doh;
+	//now in scope in all files, functions, and scripts
+	//never falls out of scope
+	//cannot be undone
+
+	///file 1
+	using namespace foo;
+
+	//we can now ignore scope resolution for namespace foo
+	x(); //now equivalent to foo::x();
+	//end of file; namespace falls out of scope.
+
+	//file 2
+	using namespace bar::foobar;
+	z(); //now equivalent to bar:foobar::z();
+	//end of file; namespace falls out of scope.
+
+	//function
+	void main()
+	{
+		using namespace bar;
+		y();
+	} //namespace falls out of scope
+
+	ffc script f
+	{
+		using namespace foo; //whole script
+		void run()
+		{
+			using namespace bar; //only in run()
+			int v = x();
+			int w = y();
+		}
+		void n()
+		{
+			int r = y(); //illegal
+		}
+	}
+	
+	--end example]
+	
+Ambigious identifier access is an error that can occur with 'using'.
+	[example--
+	void foo(){}
+	namespace bar
+	{
+		void foo(){}
+	}
+	
+	void example()
+	{
+		using namespace bar;
+		foo(); //Illegal; which 'foo()' are you trying to call?
+	}
+	--end example]
+	
+In this case, you can select which identifier to reference using scope resolution.
+	[example--
+	void example2()
+	{
+		using namespace bar;
+		bar::foo(); //Calls 'foo()' within namespace 'bar'
+		::foo(); //Calls 'foo()' that is not in a namespace
+	}
+	--end example]
+Another example:
+	[example--
+	namespace bar
+	{
+		void foo(){}
+	}
+	namespace foo
+	{
+		using namespace bar;
+		void foo(){}
+		void example3()
+		{
+			foo(); //This is LEGAL.
+		}
+	}
+	--end example]
+	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
+	there is no local match. In this case, since 'example3()' is in 'namespace foo',
+	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
+	
+
+  ________.__        ___.          .__    __________      .__        __                       
+ /  _____/|  |   ____\_ |__ _____  |  |   \______   \____ |__| _____/  |_  ___________  ______
+/   \  ___|  |  /  _ \| __ \\__  \ |  |    |     ___/  _ \|  |/    \   __\/ __ \_  __ \/  ___/
+\    \_\  \  |_(  <_> ) \_\ \/ __ \|  |__  |    |  (  <_> )  |   |  \  | \  ___/|  | \/\___ \ 
+ \______  /____/\____/|___  (____  /____/  |____|   \____/|__|___|  /__|  \___  >__|  /____  >
+        \/                \/     \/                               \/          \/           \/ 
+
+									// Global Pointers
+//////////////////
+// New Pointers //
+//////////////////
+
+	Hero->
+	Player->
+	
+		These are synonymous with the old Link-> pointer, which is now deprecated but retained
+		for compatibility purposes. 
+	
+	Graphics->
+		Used for graphical functions.
+
+	Audio->
+		Used for sound and music functions.
+
+	Input->
+		Used to read and write buttons, and keyboard keys; as well as control states.
+
+	Text->
+		Used to get information on fonts, or to display text.
+
+	FileSystem->
+		Used to get information on the user filesystem, such as fileexists(), pathexists().
+
+
+
+________          __          __                                
+\______ \ _____ _/  |______ _/  |_ ___.__.______   ____   ______
+ |    |  \\__  \\   __\__  \\   __<   |  |\____ \_/ __ \ /  ___/
+ |    `   \/ __ \|  |  / __ \|  |  \___  ||  |_> >  ___/ \___ \ 
+/_______  (____  /__| (____  /__|  / ____||   __/ \___  >____  >
+        \/     \/          \/      \/     |__|        \/     \/ 
+
+									// Datatypes
 
 ///////////////////////
 /// Basic Datatypes ///
@@ -176,6 +410,7 @@ untyped : A special datatype that can be cast to and from any other type.
 	ffc:
 		Used to create a pointer to one of the 32 freeform combo objects on the current
 		screen, and to access its members. You cannot create ffcs.
+		The ffc datatype is the 'this' pointer for ffc scripts.
 		
 	npc: 
 		Used to create a pointer to an npc object. 
@@ -184,6 +419,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		The maximum number of npc objects is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
 		Use this to access npc varibles, arrays, and functions. 
+		The npc datatype is the 'this' pointer for npc scripts.
 		
 	eweapon:
 	lweapon:
@@ -194,6 +430,10 @@ untyped : A special datatype that can be cast to and from any other type.
 		The maximum number of weapon objects (per type) is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
 		Use this to access lweapon and eweaopon varibles, arrays, and functions. 
+		The eweapon datatype is the 'this' pointer for eweapon scripts.
+		The lweapon datatype is the 'this' pointer for lweapon scripts.
+		Note that while eweapon and lweapon share most members, that some members are unique
+		to one or the other, and that these script types are not 1:1 interchangeable.
 		
 	itemsprite: 
 		Used to create a pointer to an itemsprite object. 
@@ -203,6 +443,12 @@ untyped : A special datatype that can be cast to and from any other type.
 		directed at a single object in memory.
 		Use this to access itemsprite varibles, arrays, and functions.
 		NOTE: In previous versions, this type was simply called "item".
+	
+	itemdata:
+		Used to access the Item Editor values.
+		You may load item IDs 0 to 255 to a pointer, and edit the values in the Item Editor
+		for that item, or read its editor values for other use.
+		The itemdata datatype is the 'this' pointer for itemdata (formerly item) scripts.
 	
 	bitmap:
 		Used to create user bitmaps, similar to the old 2.50 Render Target bitmaps,
@@ -214,29 +460,49 @@ untyped : A special datatype that can be cast to and from any other type.
 		There are a maximum of 250 user bitmaps at any one time.
 	
 	npcdata: 
-		Access to all Eemy Editor data.
+		Used to access the Enemy/NPC Editor values.
+		You may load NPC IDs 0 to 255 to a pointer, and edit the values in the Enemy Editor
+		for that npc, or read its editor values for other use.
 
 	combodata:
-		Access to all Combo Editor data.
+		Used to access the Combo Editor values.
+		You may load Combo IDs 0 to 65279 to a pointer, and edit the values in the Combo Editor
+		for that combo, or read its editor values for other use.
+		The combodata datatype is the 'this' pointer for combodata (T/B/A) scripts.
 
 	spritedata:
-		Access to Weapon Sprite Editor data.
+		Used to access the Weapon Sprite Editor values.
+		You may load Combo IDs 0 to 255 to a pointer, and edit the values in the Weapon Sprite 
+		Editor for that sprite, or read its editor values for other use.
 
 	mapdata: 
-		Access to all data contained on MAPS (mapscreens).
+		Used to access all data contained on MAPS (mapscreens).
+		You may load a mapscreen by referencing the map, and the screen; or load
+		tempscreen or scrolling screen layers to a pointer, and edit the values for that screen;
+		or read its values for other use.
 
 	dmapdata : 
-		Access to all DMap Editor data.
+		Used to access all all DMap Editor data.
+		You may load a DMap IDs 0 to 511 to a pointer, and edit the values for that DMap;
+		or read its editor values for other use.
+		The dmapdata datatype is the 'this' pointer for dmapdata scripts.
 
 	messagedata :
-		Access to all String Editor data.
+		Used to access all String Editor data.
+		You may load a Message String IDs 1 to 65535 to a pointer, and edit the values for
+		that message string; or read its editor values for other use.
 
 	shopdata :
-		Access to all Item Shop Editor and Info Shop Editor data.
+		Used to access all Item Shop Editor and Info Shop Editor data.
+		You may load a Shop Type IDs 0 to 255, or Info Shop IDs 0 to 255, to a pointer, 
+		and edit the values for that shop; or read its editor values for other use.
+		
+	dropsetdata :
+		Used to access all Item Dropset Editor data.
+		You may load a Item Dropset Type IDs 0 to 255, to a pointer, and edit the values for 
+		the dropset; or read its editor values for other use.
 
 	//Planned/Incomplete
-	dropsetdata : t/b/a
-		(Planned) Access to all Dropset Editor data.
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
 	doorsetdata : t/b/a
@@ -263,65 +529,6 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
 	subscreendata: t/b/a
 	
-		
-//////////////////////
-// Enumerated Lists //
-//////////////////////
-
-You can now define enumerated lists of constant values using the
-standard C-style syntax of:
-
-	enum { A, B, C, D = 10, E, F, G = 100, H, I = B };
-
-	In this declaration, A == 0, B == 1, C == 2, D == 10, 
-		E == 11, F == 12, G == 100, H == 101, and I == 1
-		
-		
-You can also define a C style enumerated list with an identifier. 
-This act defines a pseudo-datatype, with assignable values limited to
-the values in the enumerated list.
-
-	enum actiontype { none, walk, attack };
-	
-	Now, you can declare 'actiontype' as a datatype.
-	
-	actiontype act;
-	
-	If you wish to assign a value to it, the value must be validated
-	from the enumeration:
-		act = walk; //Legal
-		act = 7; //Error
-		
-	You can explicit cast values to these types to circumnavigate the
-	restrictions.
-		act = <actiontype>7; //this is legal. 
-		
-	voiod foo(actiontype action)
-	{
-		actiontype newaction = action; 
-	}
-	You can only pass legal values in the actiontype enum to the parameter of this function.
-
-///////////////////
-/// Logical Xor ///
-///////////////////
-
-ZScript now supports logical xor operations using the following tokens:
-	^^
-	logicalxor
-	
-	Examples:
-	if ( a ^^ b ) return true;
-	if ( c logicalxor d ) return true;
-	
-If you chain logical xor operations, they are handled in a linear sequence
-for their order of operations.
-	Example:
-	if ( a ^^ b ^^ c ^^ d )
-	becomes
-	if ( ( a ^^ b ) ^^ c ) ^^ d ) )
-	
-	It is prudent therefore, to properly specify order of operations for this operation.
 
 ///////////////////////
 /// Type Specifiers ///
@@ -360,6 +567,237 @@ If the type is NOT constant at compile time, the declaration is treated as a nor
 This type specifier can be applied to ALL datatypes, including enum-specified types.
 
 
+___________                        .___      _____ 
+\__    ___/__.__.______   ____   __| _/_____/ ____\
+  |    | <   |  |\____ \_/ __ \ / __ |/ __ \   __\ 
+  |    |  \___  ||  |_> >  ___// /_/ \  ___/|  |   
+  |____|  / ____||   __/ \___  >____ |\___  >__|   
+          \/     |__|        \/     \/    \/       
+	  
+									// Typedef
+
+/////////////
+// Typedef //
+/////////////
+
+	You can now define your own types using typedef using normal C syntax:
+
+	typedef old_type new_type;
+
+	[example--
+		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 		
+
+		typedef const int DEFINE;
+		//Allows you to use the token DEFINE to declare constant ints. 
+		
+	--end example]
+	
+	
+////////////////////
+// Script Typedef //
+////////////////////
+
+	 You may also typedef script tokens, creating your own types that resolve into existing script types.
+
+	e.g. script typedef hero villain;
+	
+	You may now declare the script type 'villain script', that resolves into the normal 'hero script' type.
+
+
+
+_________                 __                   ________          __          __                                
+\_   ___ \ __ __  _______/  |_  ____   _____   \______ \ _____ _/  |______ _/  |_ ___.__.______   ____   ______
+/    \  \/|  |  \/  ___/\   __\/  _ \ /     \   |    |  \\__  \\   __\__  \\   __<   |  |\____ \_/ __ \ /  ___/
+\     \___|  |  /\___ \  |  | (  <_> )  Y Y  \  |    `   \/ __ \|  |  / __ \|  |  \___  ||  |_> >  ___/ \___ \ 
+ \______  /____//____  > |__|  \____/|__|_|  / /_______  (____  /__| (____  /__|  / ____||   __/ \___  >____  >
+        \/           \/                    \/          \/     \/          \/      \/     |__|        \/     \/ 
+
+									// Custom Datatypes	
+									// Enum
+//////////////////////
+// Enumerated Lists //
+//////////////////////
+
+You can now define enumerated lists of constant values using the
+standard C-style syntax of:
+
+	enum { A, B, C, D = 10, E, F, G = 100, H, I = B };
+
+	In this declaration, A == 0, B == 1, C == 2, D == 10, 
+		E == 11, F == 12, G == 100, H == 101, and I == 1
+		
+		
+You can also define a C style enumerated list with an identifier. 
+This act defines a pseudo-datatype, with assignable values limited to
+the values in the enumerated list.
+
+	enum actiontype { none, walk, attack };
+	
+	Now, you can declare 'actiontype' as a datatype.
+	
+	actiontype act;
+	
+	If you wish to assign a value to it, the value must be validated
+	from the enumeration:
+		act = walk; //Legal
+		act = 7; //Error
+		
+	You can explicit cast values to these types to circumnavigate the
+	restrictions.
+		act = <actiontype>7; //this is legal. 
+		
+	[example--
+	
+		void foo(actiontype action)
+		{
+			actiontype newaction = action; 
+		}
+	
+	--end example]
+	You can only pass legal values in the actiontype enum to the parameter of this function.
+	
+	You can further declare functions to return an enum type:
+	
+	[example--
+	
+		actiontype walking()
+		{
+			return walk;
+		}
+		
+	--end example]
+	
+	
+	You can declare enums inside namespaces, and scripts, and then dereference them as any
+	other namespace or script scoped component.
+	
+	[example--
+	
+		namespace myns
+		{
+			enum sizeflag { szNone, szSmall, szMedium, szLarge = 4 };
+			enum othertype { otA, otB, otC, otD, otE, otF, otG, otH, otI, otJ };
+		};
+		
+		myns::othertype getFlag(myns::sizeflag sz, actiontype act)
+		{
+			switch(act)
+			{
+				case none:				
+				case walk:
+				{
+					switch(sz)
+					{
+						case myns::szNone: return myns::otA;  // Need to dereference the constant, as it 
+						case myns::szSmall: return myns::otC; // is part of an enum, inside a namespace.
+						case myns::szMedium: return myns::otD;
+						case myns::szLarge: return myns::otI;
+					}
+				}
+				case attack:
+				{
+					switch(sz)
+					{
+						case myns::szNone: return myns::otA;
+						case myns::szSmall: return myns::otE;
+						case myns::szMedium: return myns::otG;
+						case myns::szLarge: return myns::otH;
+					}
+				}
+				default: return myns::otA;	
+			}
+		}
+	
+	--end example]
+	
+	Because these count as specific types, like int, itemdata, and npc, you can use them as overloads 
+	in function signatures, and as long as you always pass the enum constants, you will guarantee a match.
+	
+	[example--
+	
+		int myoverloads(int a, npc b, eweapon c);
+		myns::othertype myoverloads(actiontype a, npc b, eweapon c);
+		
+		//If you call:
+		
+		othertype(walk, n, e);
+			//This will use 'myns::othertype myoverloads(actiontype a, npc b, eweapon c)'
+			
+		//If you instead call:
+		
+		othertype(1, n, e);
+			//This will use 'myoverloads(int a, npc b, eweapon c)'
+		
+	--end example]
+	
+	Thus, enum types allow you very precise control over function overloads.
+	
+	Last, you can use script-scoping, instead of namespace-scoping, if you wish:
+	
+	[example--
+	
+		untyped script fakestruct
+		{
+			enum fktype { seNone, seA, seB, seC };
+			enum fkflag { sfNone, sfA, sfB, sfC = 4 }; 
+		}
+		
+		int getfakestructflag(fakestruct.fkflag flag)
+		{
+			int r = <int>flag; //cast to int
+			return r;
+		}
+		
+		//Convert a flag to its type ID
+		fakestruct.fktype flagtype(fakestruct.fkflag flag)
+		{
+			switch(flag)
+			{
+				case fakestruct.sfNone: return fakestruct.seNone; 
+				case fakestruct.sfA: return fakestruct.seA; 
+				case fakestruct.sfB: return fakestruct.seB; 
+				case fakestruct.sfC: return fakestruct.seC; 
+			}
+		}
+	
+	--end example]
+	
+	
+
+   _____                                    
+  /  _  \___________________  ___.__. ______
+ /  /_\  \_  __ \_  __ \__  \<   |  |/  ___/
+/    |    \  | \/|  | \// __ \\___  |\___ \ 
+\____|__  /__|   |__|  (____  / ____/____  >
+        \/                  \/\/         \/ 
+
+									// Arrays
+
+////////////////////////////////////
+// Array Declaration Improvements //
+////////////////////////////////////
+
+	Arrays now support being declared with any constant expression.:
+
+	[example--
+
+		int arr[10*4]; 
+		//This is now the same as int arr[40];
+		
+	--end example]
+
+	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrD[4] ] ] ] )
+
+	Further, you may now use constants in array declarations:
+
+	[example--
+
+		const int sARR_MAX = 20;
+		int arr[sARR_MAX];
+		
+	--end example]
+
+
 /////////////////////	
 // Datatype Arrays //
 /////////////////////
@@ -385,98 +823,424 @@ char32 IDENTIFIER[] = "string"; //Sized implicitely to number of characters +1 f
 	Explicitely-sized string arrays must be sized to the length + 1 to include a NULL terminator.
 
 
-//////////////
-// Bugfixes //
-//////////////
-{
-	//Alpha 24
+  _________ __         .__                      
+ /   _____//  |________|__| ____    ____  ______
+ \_____  \\   __\_  __ \  |/    \  / ___\/  ___/
+ /        \|  |  |  | \/  |   |  \/ /_/  >___ \ 
+/_______  /|__|  |__|  |__|___|  /\___  /____  >
+        \/                     \//_____/     \/ 
+
+									// Strings
+
+/////////////////////
+// String Literals //
+/////////////////////
+
+	You may now use C-style string literals at any non-global scope.
+
+	[example--
+
+		TraceS("Trace this string.");
+		
+	--end example]
+
+
+	You may use standard C-style escape characters in string literals:
+
+	- \a\b\f\n\r\t\v for the standard values,
+	- \" for quotes
+	- You can escape a newline to make it not appear in the string
+
+	Additionally, adjacent strings are merged by the compiler.
+
+	[example--
+
+		TraceS("This is a string"
+			" on two lines");
+		
+	--end example]
 	
-	///////////////
-	// NOT Token //
-	///////////////
+
+///////////////////////////////////////
+// Single Character Escape Sequences //
+///////////////////////////////////////
+
+You may now use escape sequences in a SINGLECHAR type:
+	char32 tab = '\t';
 	
-	You may now use the Not (!) token on any datatype, as in C++.
+	Valid Escape Characters
+	\a     		Alert (Beep, Bell) (added in C89)[1]
+	\b    		Backspace
+	\f     		Formfeed Page Break
+	\n     		Newline (Line Feed); see notes below
+	\r     		Carriage Return
+	\t     		Horizontal Tab
+	\v     		Vertical Tab
+	\\     		Backslash
+	\'     		Single quotation mark
+	\"     		Double quotation mark
+	\?     		Question mark (used to avoid trigraphs) 
+	\x0 to \xFF   	Normal ANSI characters, as hex value. 
+	
+
+	
+///////////////////////////////
+/// Expanded Array Literals ///
+///////////////////////////////
+
+	Array Literals of the following form may be used in lots of places,
+	not just array variable declarations.
+
+	{0, 1, 2}
+	(int[]){0, 1, 2}
+	(int[3]){}
+	(int[3]){4}
+
+	[example--
+	
+		RunFFCScript(script_no, (int[8]){arg1, arg2, arg3});
+		
+	--end example]
+	
+	If no type is specified, the array will default to 'untyped'.
+
+
+	
+
+ _______                  ___________            __                               
+ \      \   ______  _  __ \_   _____/___ _____ _/  |_ __ _________   ____   ______
+ /   |   \_/ __ \ \/ \/ /  |    __)/ __ \\__  \\   __\  |  \_  __ \_/ __ \ /  ___/
+/    |    \  ___/\     /   |     \\  ___/ / __ \|  | |  |  /|  | \/\  ___/ \___ \ 
+\____|__  /\___  >\/\_/    \___  / \___  >____  /__| |____/ |__|    \___  >____  >
+        \/     \/              \/      \/     \/                        \/     \/ 
+
+									// New Features
+
+/////////////////////////
+// Ternary Expressions //
+/////////////////////////
+
+You may now use C-style ternary expressions:
+
+	int x = Rand(6,8);
+	int y = x > 7 ? 1 : 0;
+	
+	Assigns, and operations inside ternary blocks must be in parens:
+		bool V = true;
+		int b;
+		int a = V ? ( b =  5 ) ? ( b = 4 );
+		
+		int c = V ? ( b -= 2 ) ? 0; 
+		
+		int y; int z; 
+		int x = (y += 10) ? (z = 5) : (a -= 2);
+		
+	In all of these cases, parens are mandatory. 
+	
+	Further, compound ternary expressions should be placed in parens:
+		int a = (V ? 1 : 0) ? 5 : 6
+		
+	The default, is to evaluate in a linear sequence.
+			
+	Thus, 
+		bool ? int : int ? bool : int
+	...would evaluate as: 
+		bool ? int : (int ? bool : int)
+	
+	Using parens to define your order of operations and scope, is prudent. 
+
+
+///////////////////////////
+// Variable Declarations //
+///////////////////////////
+
+You can now declare, and initialise variables on one line, as in C.
+	Format:
+	TYPE (identifier | identifier ASSIGN NUMBER) comma [repeating] SEMICOLON
+	Examples:
+		int a, b, c = 9, h = 16, f = c+h;
+		float n = 1.04, m = 6.03;
+		
+		These are equivalent to:
+		int a; int b; int c = 9; int h = 16; int f = c+h;
+		float n = 1.04; float m = 6.03;
+
+
+///////////////////
+// Explicit Cast //
+///////////////////
+
+You may now explicitly cast a value, using a type in angle braces.
+
+	ffc f = Screen->LoadFFC(15);
+	int x = <int>f;
+
+	f = <ffc>2;
+
+
+///////////////////////////
+/// Arrow from Function ///
+///////////////////////////
+
+You may now use the arrow (->) operator on functions of datatypes/pointers, including
+cases where you are not using the base function in an assign.
+	Examples:
+	int x = Screen->LoadNPCByUID(this->ParentUID)->X;
+	int sfx = Game->LoadItemData(16)->UseSound;
+	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
+	
+	Previously, you were required to declare a variable and make an assign
+		in multiple stages.#
+		e.g., this: 
+		int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
+	
+		...used to require:
+		
+		lweapon l = Screen->LoadLWeapon(1);
+		itemdata id = Game->LoadItemData(l->Parent);
+		int lvl = id->Level;
+		
+		You can now skip these useless declarations, unless you have a 
+		reason or desire to cache the data in a variable. This saves stack space, 
+		and, in some circumstances, may improve performance; however repeated
+		use of the same variables may benefit from caching the values in a register.
+		
+		
+////////////////////
+// Comment Blocks //
+////////////////////
+
+	The ZScript language now supports C-Style comment blocks using the traditional syntax of:
+
+	[example--
+
+		/* 
+			COMMENT BLOCK
+			
+		*/
+		
+	--end example]
+
+
+/////////////////////
+// Global Pointers //
+/////////////////////
+
+	You may now declare any datatype, including arrays for any datatype at a global scope.
+	*	Data saved to these may become invalid and require manual cleansing by the user!
+	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
+
+
+////////////
+// Unless //
+////////////
+
+	This statement runs the code block attached to it if its statement would evaluate false
+	in an if statement.
+	Aside from the obvious semantical enhancement over 'if(!expression)', the advantage of 
+	this, is that 'unless(expression)' is faster (in ASM instructions) than 'if(!expression)'.
+
+	Example: 
+		int x = 6; int y;
+		unless(x==6)
+		{
+			y = 1;
+		}
+	
+	In this example, the code block would never run, because x == 6. 
+	This is the opposite of 'if', and supports 'else unless' and 'else'
+	blocks following the unless statement.
+	
+	
+////////////
+// Repeat //
+////////////
+
+Repeats a command a given number of times.
+The value passed to repeat(const int v) must be constant at compile time.
+
+Example:
+	const int N = 10;
+	int x;
+	repeat(N) { ++x; }
+	
+This is similar to a for loop, but it produces faster ZASM, because the number
+of iterations is known at compile-time.
+
+
+/////////////////////
+// Until, do-until //
+/////////////////////
+
+	ZScript now supports the Pascal-style token 'until'. 
+	This functions as an inverted 'while' statement.
+	Aside from the obvious semantical enhancement over 'while(!expression)', the advantage of 
+	this, is that 'until(expression)' is faster (in ASM instructions) than 'while(!expression)'.
+	
+	Examples:
+	
+		until(x > 7) { DoSomething(); }
+		
+		do
+		{
+			Something();
+		} until ( x > 7 );
+
+
+
+/////////////////
+// Switch-Case //
+/////////////////
+
+	ZScript now supports C-style switch statements. Case values must be numeric literals,
+	or constant expressions. Switch-case cases must end in a break instruction, and a you
+	may provide a default case.
+
+	[example-- 
+
+		const int SOME_CONST = 11;
+
+		switch(var)
+		{
+			case 1:
+			{
+				DoSomething(); 
+				break
+			}
+			case SOME_CONST:
+			{
+				DoSomethingElse();
+				break:
+			}
+			case SOME_CONST+(10*2)
+			{
+				DoOther();
+				break;
+			}
+			default:
+			{
+				DoDefault();
+				break;
+			}
+		}
+
+	--end example]
+
+	
+///////////////////
+/// Logical Xor ///
+///////////////////
+
+ZScript now supports logical xor operations using the following tokens:
+	^^
+	logicalxor
+	
+	[example--
+		if ( a ^^ b ) return true;
+		if ( c logicalxor d ) return true;
+	--end example]
+	
+If you chain logical xor operations, they are handled in a linear sequence
+for their order of operations.
+	[example--
+		if ( a ^^ b ^^ c ^^ d )
+		becomes
+		if ( ( a ^^ b ) ^^ c ) ^^ d ) )
+	--end example]
+	
+	It is prudent therefore, to properly specify order of operations for this operation.
+
+
+///////////////
+// NOT Token //
+///////////////
+
+You may now use the Not (!) token on any datatype, as in C++.
+Example:
+	ffc f;
+	if ( !f ) f = Screen->LoadFFC(3);
+	
+	bitmap b;
+	if ( !b ) b = Game->CreateBitmap(16,16);
+	else b->Create(0, 16, 16);
+	
+This allows checking if a pointer is initialised, easily. 
+
+
+///////////////////
+// Short Circuit //
+///////////////////
+
+Fixed short-circuiting. Logical AND and Logical OR now short-circuit as in C,
+based on a compiler flag.
+
+If short-circuiting is enabled, the following occurs:
+
+	if ( a && b ) 
+		//if 'a' is false, 'b' is skipped.
+	if ( a || b )
+		//if 'a' is true, 'b' is skipped. 
+
+
+
+__________              _____.__                      
+\______   \__ __  _____/ ____\__|__  ___ ____   ______
+ |    |  _/  |  \/ ___\   __\|  \  \/  // __ \ /  ___/
+ |    |   \  |  / /_/  >  |  |  |>    <\  ___/ \___ \ 
+ |______  /____/\___  /|__|  |__/__/\_ \\___  >____  >
+        \/     /_____/                \/    \/     \/ 
+
+									// Bugfixes
+	
+///////////////////////
+// Constant Division //
+///////////////////////
+
+Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
+Fixed issues with division by an integer, where values would be truncated.
+Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag to enable the old, 2.50.x behaviour
+Fixed scope resolution for identifiers and variables when used across
+	imported files.
 	Example:
-		ffc f;
-		if ( !f ) f = Screen->LoadFFC(3);
+
+		//buffer
+
+		import "bar.zs"
+		void foo()
+		{
+			scrid.bar();
+		}
+		////////////////////end of buffer
 		
-		bitmap b;
-		if ( !b ) b = Game->CreateBitmap(16,16);
-		else b->Create(0, 16, 16);
+		//bar.zs
 		
-	This allows checking if a pointer is initialised, easily. 
-
-	//Alpha 16
+		ffc script scrid
+		{
+			void run(){}
+			voud bar(){ Trace(1); }
+		}
 	
-	///////////////////
-	// Short Circuit //
-	///////////////////
-	
-	Fixed short-circuiting. Logical AND and Logical OR now short-circuit as in C,
-	based on a compiler flag.
-	
-	If short-circuiting is enabled, the following occurs:
-	
-		if ( a && b ) 
-			//if 'a' is false, 'b' is skipped.
-		if ( a || b )
-			//if 'a' is true, 'b' is skipped. 
-	
-	//Alpha 13
-	
-	///////////////////////
-	// Constant Division //
-	///////////////////////
-	
-	Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
-	Fixed issues with division by an integer, where values would be truncated.
-	Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag to enable the old, 2.50.x behaviour
-	Fixed scope resolution for identifiers and variables when used across
-		imported files.
-		Example:
-
-			//buffer
-
-			import "bar.zs"
-			void foo()
-			{
-				scrid.bar();
-			}
-			////////////////////end of buffer
-			
-			//bar.zs
-			
-			ffc script scrid
-			{
-				void run(){}
-				voud bar(){ Trace(1); }
-			}
+	This worked in 2.50.x, but broke at some point in 2.55, and the
+	correct behaviour has been restored. 
 		
-		This worked in 2.50.x, but broke at some point in 2.55, and the
-		correct behaviour has been restored. 
-			
-	Script errors will now give line and column references prior to the
-		error type.
-			
-		Old:
-			Error S007: Variable X can't have type VOID.
-				@ LINE 4 COLUMNS 1-11
-			
-		New: 
-			LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
-	Syntax errors have yet to be updated.
-			
-	Fixed some issues where compiler errors improperly carried over. 
+Script errors will now give line and column references prior to the
+	error type.
+		
+	Old:
+		Error S007: Variable X can't have type VOID.
+			@ LINE 4 COLUMNS 1-11
+		
+	New: 
+		LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
+Syntax errors have yet to be updated.
+		
+Fixed some issues where compiler errors improperly carried over. 
 
-	Fixed import directive pathing with backslashes:
-		Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
-		As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
-		This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
-}
+Fixed import directive pathing with backslashes:
+	Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
+	As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
+	This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
 
-//////////////////
-// Script Types //
-//////////////////
 
 //////////////
 // Waitdraw //
@@ -491,6 +1255,17 @@ You may disable Waitdraw support (for compatibility reasons) for ffc scripts,
 	and itemdata scripts in the ZScript Quest Settings Dialogue.
 	
 Waitdraw support for npc, and lweapon scripts remains t/b/a.
+
+
+
+  _________            .__        __    ___________                            
+ /   _____/ ___________|__|______/  |_  \__    ___/__.__.______   ____   ______
+ \_____  \_/ ___\_  __ \  \____ \   __\   |    | <   |  |\____ \_/ __ \ /  ___/
+ /        \  \___|  | \/  |  |_> >  |     |    |  \___  ||  |_> >  ___/ \___ \ 
+/_______  /\___  >__|  |__|   __/|__|     |____|  / ____||   __/ \___  >____  >
+        \/     \/         |__|                    \/     |__|        \/     \/ 
+
+ 									// Script Types
 
 ///////////////////
 /// FFC Scripts ///
@@ -1101,7 +1876,14 @@ To be added in a future spec. Will run on combos, set by in the Combo Editor.
 
 
 
+_________                       .__.__                
+\_   ___ \  ____   _____ ______ |__|  |   ___________ 
+/    \  \/ /  _ \ /     \\____ \|  |  | _/ __ \_  __ \
+\     \___(  <_> )  Y Y  \  |_> >  |  |_\  ___/|  | \/
+ \______  /\____/|__|_|  /   __/|__|____/\___  >__|   
+        \/             \/|__|                \/       
 
+									// Compiler
 
 ///////////////////////////
 /// Compiler Directives ///
@@ -1240,468 +2022,26 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
 	
 
-///////////////////////////////////////
-// Single Character Escape Sequences //
-///////////////////////////////////////
+/////////////////////////////
+///  Registration System  ///
+/////////////////////////////
 
-You may now use escape sequences in a SINGLECHAR type:
-	char32 tab = '\t';
+	A new registration handler has been added to the parser.
+	Now, global references do NOT need to be placed in order.
 	
-	Valid Escape Characters
-	\a     		Alert (Beep, Bell) (added in C89)[1]
-	\b    		Backspace
-	\f     		Formfeed Page Break
-	\n     		Newline (Line Feed); see notes below
-	\r     		Carriage Return
-	\t     		Horizontal Tab
-	\v     		Vertical Tab
-	\\     		Backslash
-	\'     		Single quotation mark
-	\"     		Double quotation mark
-	\?     		Question mark (used to avoid trigraphs) 
-	\x0 to \xFF   	Normal ANSI characters, as hex value. 
-	
-
-/////////////////////////
-// Ternary Expressions //
-/////////////////////////
-
-You may now use C-style ternary expressions:
-
-	int x = Rand(6,8);
-	int y = x > 7 ? 1 : 0;
-	
-	Assigns, and operations inside ternary blocks must be in parens:
-		bool V = true;
-		int b;
-		int a = V ? ( b =  5 ) ? ( b = 4 );
-		
-		int c = V ? ( b -= 2 ) ? 0; 
-		
-		int y; int z; 
-		int x = (y += 10) ? (z = 5) : (a -= 2);
-		
-	In all of these cases, parens are mandatory. 
-	
-	Further, compound ternary expressions should be placed in parens:
-		int a = (V ? 1 : 0) ? 5 : 6
-		
-	The default, is to evaluate in a linear sequence.
-			
-	Thus, 
-		bool ? int : int ? bool : int
-	...would evaluate as: 
-		bool ? int : (int ? bool : int)
-	
-	Using parens to define your order of operations and scope, is prudent. 
-
-///////////////////////////
-// Variable Declarations //
-///////////////////////////
-
-You can now declare, and initialise variables on one line, as in C.
-	Format:
-	TYPE (identifier | identifier ASSIGN NUMBER) comma [repeating] SEMICOLON
-	Examples:
-		int a, b, c = 9, h = 16, f = c+h;
-		float n = 1.04, m = 6.03;
-		
-		These are equivalent to:
-		int a; int b; int c = 9; int h = 16; int f = c+h;
-		float n = 1.04; float m = 6.03;
-
-///////////////////
-// Explicit Cast //
-///////////////////
-
-You may now explicitly cast a value, using a type in angle braces.
-
-	ffc f = Screen->LoadFFC(15);
-	int x = <int>f;
-
-	f = <ffc>2;
-
-///////////////////////////
-/// Arrow from Function ///
-///////////////////////////
-
-You may now use the arrow (->) operator on functions of datatypes/pointers, including
-cases where you are not using the base function in an assign.
-	Examples:
-	int x = Screen->LoadNPCByUID(this->ParentUID)->X;
-	int sfx = Game->LoadItemData(16)->UseSound;
-	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
-	
-	Previously, you were required to declare a variable and make an assign
-		in multiple stages.#
-		e.g., this: 
-		int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
-	
-		...used to require:
-		
-		lweapon l = Screen->LoadLWeapon(1);
-		itemdata id = Game->LoadItemData(l->Parent);
-		int lvl = id->Level;
-		
-		You can now skip these useless declarations, unless you have a 
-		reason or desire to cache the data in a variable. This saves stack space, 
-		and, in some circumstances, may improve performance; however repeated
-		use of the same variables may benefit from caching the values in a register.
-		
-////////////////////
-// Comment Blocks //
-////////////////////
-
-	The ZScript language now supports C-Style comment blocks using the traditional syntax of:
-
-	[example--
-
-		/* 
-			COMMENT BLOCK
-			
-		*/
-		
-	--end example]
-	
-///////////////
-// Namespace //
-///////////////
-
-ZScript now supports C-style namespaces.
-
-Declaration examples:
-
-namespace foo
-{
-	int x(){return 16;}
-}
-
-namespace bar
-{
-	int y(){return 32;}
-	namespace foobar
-	{
-		int z(){ return 64;}
-	}
-}
-
-namespace doh
-{
-	int xyz(){return 128;}
-}
-
-Access examples:
-
-foo::x();
-bar::y();
-bar::foobar::z();
-
-/////////////////////
-// Using Namespace //
-/////////////////////
-
-You may invoke the 'using' token to bring the contents of a namespaces
-into the current scope, thus ignoring the requirement for scope-resolution
-(::) until the end of that scope.
-
-You may also invoke 'using' as 'always using' to make that namespace global; this cannot be undone.
-
-The following scopes are valid:
-
-file
-namespace
-script
-function
-
-Using the above namespaces as examples:
-	[example--
-
-	//buffer
-	always using namespace doh;
-	//now in scope in all files, functions, and scripts
-	//never falls out of scope
-	//cannot be undone
-
-	///file 1
-	using namespace foo;
-
-	//we can now ignore scope resolution for namespace foo
-	x(); //now equivalent to foo::x();
-	//end of file; namespace falls out of scope.
-
-	//file 2
-	using namespace bar::foobar;
-	z(); //now equivalent to bar:foobar::z();
-	//end of file; namespace falls out of scope.
-
-	//function
-	void main()
-	{
-		using namespace bar;
-		y();
-	} //namespace falls out of scope
-
-	ffc script f
-	{
-		using namespace foo; //whole script
-		void run()
-		{
-			using namespace bar; //only in run()
-			int v = x();
-			int w = y();
-		}
-		void n()
-		{
-			int r = y(); //illegal
-		}
-	}
-	
-	--end example]
-	
-Ambigious identifier access is an error that can occur with 'using'.
-	[example--
-	void foo(){}
-	namespace bar
-	{
-		void foo(){}
-	}
-	
-	void example()
-	{
-		using namespace bar;
-		foo(); //Illegal; which 'foo()' are you trying to call?
-	}
-	--end example]
-	
-In this case, you can select which identifier to reference using scope resolution.
-	[example--
-	void example2()
-	{
-		using namespace bar;
-		bar::foo(); //Calls 'foo()' within namespace 'bar'
-		::foo(); //Calls 'foo()' that is not in a namespace
-	}
-	--end example]
-Another example:
-	[example--
-	namespace bar
-	{
-		void foo(){}
-	}
-	namespace foo
-	{
-		using namespace bar;
-		void foo(){}
-		void example3()
-		{
-			foo(); //This is LEGAL.
-		}
-	}
-	--end example]
-	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
-	there is no local match. In this case, since 'example3()' is in 'namespace foo',
-	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
-
-
-////////////////////////////////////
-// Array Declaration Improvements //
-////////////////////////////////////
-
-	Arrays now support being declared with any constant expression.:
-
-	[example--
-
-		int arr[10*4]; 
-		//This is now the same as int arr[40];
-		
-	--end example]
-
-	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrD[4] ] ] ] )
-
-	Further, you may now use constants in array declarations:
-
-	[example--
-
-		const int sARR_MAX = 20;
-		int arr[sARR_MAX];
-		
-	--end example]
-
-/////////////////////
-// String Literals //
-/////////////////////
-
-	You may now use C-style string literals at any non-global scope.
-
-	[example--
-
-		TraceS("Trace this string.");
-		
-	--end example]
-
-
-	You may use standard C-style escape characters in string literals:
-
-	- \a\b\f\n\r\t\v for the standard values,
-	- \" for quotes
-	- You can escape a newline to make it not appear in the string
-
-	Additionally, adjacent strings are merged by the compiler.
-
-	[example--
-
-		TraceS("This is a string"
-			" on two lines");
-		
-	--end example]
-	
-/////////////////////
-// Global Pointers //
-/////////////////////
-
-	You may now declare any datatype, including arrays for any datatype at a global scope.
-	*	Data saved to these may become invalid and require manual cleansing by the user!
-	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
-
-////////////
-// Unless //
-////////////
-
-	This statement runs the code block attached to it if its statement would evaluate false
-	in an if statement.
-	Aside from the obvious semantical enhancement over 'if(!expression)', the advantage of 
-	this, is that 'unless(expression)' is faster (in ASM instructions) than 'if(!expression)'.
-
-	Example: 
-		int x = 6; int y;
-		unless(x==6)
-		{
-			y = 1;
-		}
-	
-	In this example, the code block would never run, because x == 6. 
-	This is the opposite of 'if', and supports 'else unless' and 'else'
-	blocks following the unless statement.
-	
-////////////
-// Repeat //
-////////////
-
-Repeats a command a given number of times.
-The value passed to repeat(const int v) must be constant at compile time.
-
-Example:
-	const int N = 10;
-	int x;
-	repeat(N) { ++x; }
-	
-This is similar to a for loop, but it produces faster ZASM, because the number
-of iterations is known at compile-time.
-
-/////////////////////
-// Until, do-until //
-/////////////////////
-
-	ZScript now supports the Pascal-style token 'until'. 
-	This functions as an inverted 'while' statement.
-	Aside from the obvious semantical enhancement over 'while(!expression)', the advantage of 
-	this, is that 'until(expression)' is faster (in ASM instructions) than 'while(!expression)'.
-	
-	Examples:
-	
-		until(x > 7) { DoSomething(); }
-		
-		do
-		{
-			Something();
-		} until ( x > 7 );
-
-
-/////////////////
-// Switch-Case //
-/////////////////
-
-	ZScript now supports C-style switch statements. Case values must be numeric literals,
-	or constant expressions. Switch-case cases must end in a break instruction, and a you
-	may provide a default case.
-
-	[example-- 
-
-		const int SOME_CONST = 11;
-
-		switch(var)
-		{
-			case 1:
-			{
-				DoSomething(); 
-				break
-			}
-			case SOME_CONST:
-			{
-				DoSomethingElse();
-				break:
-			}
-			case SOME_CONST+(10*2)
-			{
-				DoOther();
-				break;
-			}
-			default:
-			{
-				DoDefault();
-				break;
-			}
-		}
-
-	--end example]
-
-/////////////
-// Typedef //
-/////////////
-
-	You can now define your own types using typedef using normal C syntax:
-
-	typedef old_type new_type;
-
-	[example--
-		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 		
-
-		typedef const int DEFINE;
-		//Allows you to use the token DEFINE to declare constant ints. 
-		
-	--end example]
-	
-	
-////////////////////
-// Script Typedef //
-////////////////////
-
-	 You may also typedef script tokens, creating your own types that resolve into existing script types.
-
-	e.g. script typedef hero villain;
-	
-	You may now declare the script type 'villain script', that resolves into the normal 'hero script' type.
-
-
-///////////////////////////////
-/// Expanded Array Literals ///
-///////////////////////////////
-
-	Array Literals of the following form may be used in lots of places,
-	not just array variable declarations.
-
-	{0, 1, 2}
-	(int[]){0, 1, 2}
-	(int[3]){}
-	(int[3]){4}
-
 	[example--
 	
-		RunFFCScript(script_no, (int[8]){arg1, arg2, arg3});
-		
+		const int A = B;
+		const int B = 10;
+		const int C = B;
+	
 	--end example]
 	
-	If no type is specified, the array will default to 'untyped'.
+	Both 'A' and 'C' will be equal to '10'.
+	Previously, a compiler error 'Variable B has not been declared' would occur,
+	as 'B' would not have been processed by the time it is needed.
+	The registration system ensures that everything is registered beforehand, removing this issue.
+
 
 //////////////////////////////////
 /// Mechanical and AST Changes ///
@@ -1759,55 +2099,16 @@ of iterations is known at compile-time.
 	--end example]
 
 
-/////////////////////////////
-///  Registration System  ///
-/////////////////////////////
-
-	A new registration handler has been added to the parser.
-	Now, global references do NOT need to be placed in order.
-	
-	[example--
-	
-		const int A = B;
-		const int B = 10;
-		const int C = B;
-	
-	--end example]
-	
-	Both 'A' and 'C' will be equal to '10'.
-	Previously, a compiler error 'Variable B has not been declared' would occur,
-	as 'B' would not have been processed by the time it is needed.
-	The registration system ensures that everything is registered beforehand, removing this issue.
-
-//////////////////
-// New Pointers //
-//////////////////
-
-	Hero->
-	Player->
-	
-		These are synonymous with the old Link-> pointer, which is now deprecated but retained
-		for compatibility purposes. 
-	
-	Graphics->
-		Used for graphical functions.
-
-	Audio->
-		Used for sound and music functions.
-
-	Input->
-		Used to read and write buttons, and keyboard keys; as well as control states.
-
-	Text->
-		Used to get information on fonts, or to display text.
-
-	FileSystem->
-		Used to get information on the user filesystem, such as fileexists(), pathexists().
 
 
-////////////////////////////////////////////////////
-/// NEW ZSCRIPT INSTRUCTIONS ///////////////////////
-////////////////////////////////////////////////////
+ _______                  .___                 __                        __  .__                      
+ \      \   ______  _  __ |   | ____   _______/  |________ __ __   _____/  |_|__| ____   ____   ______
+ /   |   \_/ __ \ \/ \/ / |   |/    \ /  ___/\   __\_  __ \  |  \_/ ___\   __\  |/  _ \ /    \ /  ___/
+/    |    \  ___/\     /  |   |   |  \\___ \  |  |  |  | \/  |  /\  \___|  | |  (  <_> )   |  \\___ \ 
+\____|__  /\___  >\/\_/   |___|___|  /____  > |__|  |__|  |____/  \___  >__| |__|\____/|___|  /____  >
+        \/     \/                  \/     \/                          \/                    \/     \/ 
+
+									// New Instructions
 
 //////////////
 //  Global  //
