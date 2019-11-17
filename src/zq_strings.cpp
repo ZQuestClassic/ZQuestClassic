@@ -928,8 +928,25 @@ void editmsg(int index, int addAfter)
             ret = -1;
             // Show string help
             editmsg_help_dlg[0].dp2= lfont;
-            editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
-            editmsg_help_dlg[2].bg = vc(15);
+	    FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
+	    if (!stringshelpfile )
+	    {
+		stringshelpfile = fopen("zstrings.txt", "r");
+		if ( stringshelpfile )
+		{
+			editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+           
+		}
+		else
+		{
+			Z_error("File Missing: zstrings.txt.");
+		}
+	    }
+	    else
+	    {
+		editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+            }
+	    editmsg_help_dlg[2].bg = vc(15);
             ((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
         }
     }

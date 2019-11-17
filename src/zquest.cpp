@@ -476,8 +476,8 @@ int fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf;
-string helpstr;
+char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf;
+string helpstr, shieldblockhelpstr, zscripthelpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int midi_volume = 255;
@@ -649,6 +649,15 @@ static MENU export_250_menu[] =
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU zq_help_menu[] =
+{
+    { (char *)"&ZQuest Editor Help",                     onHelp,            NULL,                     0,            NULL   },
+    { (char *)"&Shield Block Flags",                     onshieldblockhelp,            NULL,                     0,            NULL   },
+    { (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -984,7 +993,7 @@ static MENU tunes_menu[] =
 
 static MENU etc_menu[] =
 {
-    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+    { (char *)"&Help",                      NULL /*onHelp*/,                    zq_help_menu,                     0,            NULL   },
     { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
     { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
     { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
@@ -1056,7 +1065,7 @@ static MENU module_menu[] =
 
 static MENU etc_menu_smallmode[] =
 {
-	{ (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+	{ (char *)"&Help",                      NULL /*onHelp*/,                    zq_help_menu,                     0,            NULL   },
 	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
 	{ (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
 	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
@@ -26450,6 +26459,64 @@ int onHelp()
     return D_O_K;
 }
 
+static DIALOG shieldblockhelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Shield Block Flags Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void doshieldblockhelp(int bg,int fg)
+{
+    shieldblockhelp_dlg[0].dp2= lfont;
+    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    shieldblockhelp_dlg[2].bg = bg;
+    zc_popup_dialog(shieldblockhelp_dlg,2);
+    delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
+}
+
+int onshieldblockhelp()
+{
+    restore_mouse();
+    doshieldblockhelp(vc(15),vc(0));
+    return D_O_K;
+}
+
+static DIALOG zscripthelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZScript Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void dozscripthelp(int bg,int fg)
+{
+    zscripthelp_dlg[0].dp2= lfont;
+    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    zscripthelp_dlg[2].bg = bg;
+    zc_popup_dialog(zscripthelp_dlg,2);
+    delete(EditboxModel*)(zscripthelp_dlg[2].dp);
+}
+
+int onZScripthelp()
+{
+    restore_mouse();
+    dozscripthelp(vc(15),vc(0));
+    return D_O_K;
+}
+
 static DIALOG layerdata_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -27596,12 +27663,16 @@ int main(int argc,char **argv)
         }
     }
     
-    int helpsize = file_size_ex_password("zquest.txt","");
+    int helpsize = file_size_ex_password("docs/zquest.txt","");
     
     if(helpsize==0)
     {
-        Z_error("Error: zquest.txt not found.");
-        quit_game();
+	helpsize = file_size_ex_password("zquest.txt","");
+	if(helpsize==0)
+	{
+		Z_error("Error: zquest.txt not found.");
+		quit_game();
+	}
     }
     
     helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
@@ -27613,12 +27684,16 @@ int main(int argc,char **argv)
     }
     
     //if(!readfile("zquest.txt",helpbuf,helpsize))
-    FILE *hb = fopen("zquest.txt", "r");
+    FILE *hb = fopen("docs/zquest.txt", "r");
     
     if(!hb)
     {
-        Z_error("Error loading zquest.txt.");
-        quit_game();
+	hb = fopen("zquest.txt", "r");
+	if(!hb)
+	{
+		Z_error("Error loading zquest.txt.");
+		quit_game();
+	}
     }
     
     char c = fgetc(hb);
@@ -27636,6 +27711,102 @@ int main(int argc,char **argv)
     helpbuf[helpsize]=0;
     helpstr = helpbuf;
     Z_message("OK\n");                                      // loading data files...
+    
+    int shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
+    
+    if(shieldblockhelpsize==0)
+    {
+	shieldblockhelpsize = file_size_ex_password("shield_block_flags.txt","");
+	if(shieldblockhelpsize==0)
+	{
+		Z_error("Error: shield_block_flags.txt not found.");
+		quit_game();
+	}
+    }
+    
+    shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
+    
+    if(!shieldblockhelpbuf)
+    {
+        Z_error("Error allocating shieldblockhelp buffer.");
+        quit_game();
+    }
+    
+    FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
+    
+    if(!shieldhb)
+    {
+	shieldhb = fopen("shield_block_flags.txt", "r");
+	if(!shieldhb)
+	{
+		Z_error("Error loading shield_block_flags.txt.");
+		quit_game();
+	}
+    }
+    
+    char shieldc = fgetc(shieldhb);
+    int shieldhelpindex=0;
+    
+    while(!feof(shieldhb))
+    {
+        shieldblockhelpbuf[shieldhelpindex] = shieldc;
+        shieldhelpindex++;
+        shieldc = fgetc(shieldhb);
+    }
+    
+    fclose(shieldhb);
+    
+    shieldblockhelpbuf[shieldblockhelpsize]=0;
+    shieldblockhelpstr = shieldblockhelpbuf;
+    
+    int zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
+    
+    if(zscripthelpsz==0)
+    {
+	zscripthelpsz = file_size_ex_password("zscript.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
+	if(zscripthelpsz==0)
+	{
+		Z_error("Error: zscript.txt not found.");
+		quit_game();
+	}
+    }
+    
+    zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
+    
+    if(!zscripthelpbuf)
+    {
+        Z_error("Error allocating ZScript Help buffer.");
+        quit_game();
+    }
+    
+    FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
+    
+    if(!zscripthelphb)
+    {
+	zscripthelphb = fopen("zscript.txt", "r");
+	if(!zscripthelphb)
+	{
+		Z_error("Error loading zscript.txt.");
+		quit_game();
+	}
+    }
+    
+    char zscripthelpc = fgetc(zscripthelphb);
+    int zscripthelpindex=0;
+    
+    while(!feof(zscripthelphb))
+    {
+        zscripthelpbuf[zscripthelpindex] = zscripthelpc;
+        zscripthelpindex++;
+        zscripthelpc = fgetc(zscripthelphb);
+    }
+    
+    fclose(zscripthelphb);
+    
+    zscripthelpbuf[zscripthelpsz]=0;
+    zscripthelpstr = zscripthelpbuf;
+    
+    
     
     init_qts();
     
@@ -27887,13 +28058,29 @@ int main(int argc,char **argv)
         commands_list.w=2;
         commands_list.h=4;
         
-        
+        //Help Dialogue Sizing
         help_dlg[0].w=800;
         help_dlg[0].h=600;
         help_dlg[1].w=800-8;
         help_dlg[1].h=600-27;
         help_dlg[2].w=800-8-4;
         help_dlg[2].h=600-27-4;
+	
+	
+	zscripthelp_dlg[0].w=800;
+        zscripthelp_dlg[0].h=600;
+        zscripthelp_dlg[1].w=800-8;
+        zscripthelp_dlg[1].h=600-27;
+        zscripthelp_dlg[2].w=800-8-4;
+        zscripthelp_dlg[2].h=600-27-4;
+	
+	
+	shieldblockhelp_dlg[0].w=800;
+        shieldblockhelp_dlg[0].h=600;
+        shieldblockhelp_dlg[1].w=800-8;
+        shieldblockhelp_dlg[1].h=600-27;
+        shieldblockhelp_dlg[2].w=800-8-4;
+        shieldblockhelp_dlg[2].h=600-27-4;
         
         edit_zscript_dlg[0].w=800;
         edit_zscript_dlg[0].h=600;
