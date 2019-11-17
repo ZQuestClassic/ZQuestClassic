@@ -24148,41 +24148,26 @@ void ZModule::init(bool d) //bool default
 	moduledata.refresh_title_screen = 0;
 	
 	memset(moduledata.moduletitle, 0, sizeof(moduledata.moduletitle));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","title",""));
-	
 	memset(moduledata.moduleauthor, 0, sizeof(moduledata.moduleauthor));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","author",""));
-	
 	memset(moduledata.moduleinfo0, 0, sizeof(moduledata.moduleinfo0));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_0",""));
-	
-	memset(moduledata.moduleinfo1, 0, sizeof(moduledata.moduleinfo1));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_1",""));
-	
+	memset(moduledata.moduleinfo1, 0, sizeof(moduledata.moduleinfo1));	
 	memset(moduledata.moduleinfo2, 0, sizeof(moduledata.moduleinfo2));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_2",""));
-	
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_3",""));
-	
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_4",""));
-	
 	memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
-	strcpy(moduledata.moduletitle,get_config_string("METADATA","nsf",""));
-	
-	moduledata.modver_1 = get_config_int("METADATA","version_first",0);
-	moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
-	moduledata.modver_3 = get_config_int("METADATA","version_third",0);
-	moduledata.modver_4 = get_config_int("METADATA","version_fourth",0);
-	moduledata.modbuild = get_config_int("METADATA","version_build",0);
-	moduledata.modbeta = get_config_int("METADATA","version_beta",0);
-	moduledata.modmonth = get_config_int("METADATA","version_month",0);
-	moduledata.modday = get_config_int("METADATA","version_day",0);
-	moduledata.modyear = get_config_int("METADATA","version_year",0);
-	moduledata.modhour = get_config_int("METADATA","version_hour",0);
-	moduledata.modminute = get_config_int("METADATA","version_minute",0);
-	
+		
+	moduledata.modver_1 = 0;
+	moduledata.modver_2 = 0;	
+	moduledata.modver_3 = 0;
+	moduledata.modver_4 = 0;
+	moduledata.modbuild = 0;
+	moduledata.modbeta = 0;
+	moduledata.modmonth = 0;
+	moduledata.modday = 0;
+	moduledata.modyear = 0;
+	moduledata.modhour = 0;
+	moduledata.modminute = 0;
+
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	//al_trace("Module name set to %s\n",moduledata.module_name);
@@ -24197,6 +24182,27 @@ void ZModule::init(bool d) //bool default
 		//zcm path
 		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
 		//al_trace("Module name set to %s\n",moduledata.module_name);
+		
+		//Metadata
+		strcpy(moduledata.moduletitle,get_config_string("METADATA","title",""));
+		strcpy(moduledata.moduleauthor,get_config_string("METADATA","author",""));
+		strcpy(moduledata.moduleinfo0,get_config_string("METADATA","info_0",""));
+		strcpy(moduledata.moduleinfo1,get_config_string("METADATA","info_1",""));
+		strcpy(moduledata.moduleinfo2,get_config_string("METADATA","info_2",""));
+		strcpy(moduledata.moduleinfo3,get_config_string("METADATA","info_3",""));
+		strcpy(moduledata.moduleinfo4,get_config_string("METADATA","info_4",""));
+		strcpy(moduledata.module_base_nsf,get_config_string("METADATA","nsf",""));
+		moduledata.modver_1 = get_config_int("METADATA","version_first",0);
+		moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
+		moduledata.modver_3 = get_config_int("METADATA","version_third",0);
+		moduledata.modver_4 = get_config_int("METADATA","version_fourth",0);
+		moduledata.modbuild = get_config_int("METADATA","version_build",0);
+		moduledata.modbeta = get_config_int("METADATA","version_beta",0);
+		moduledata.modmonth = get_config_int("METADATA","version_month",0);
+		moduledata.modday = get_config_int("METADATA","version_day",0);
+		moduledata.modyear = get_config_int("METADATA","version_year",0);
+		moduledata.modhour = get_config_int("METADATA","version_hour",0);
+		moduledata.modminute = get_config_int("METADATA","version_minute",0); 
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
@@ -24485,20 +24491,24 @@ void ZModule::init(bool d) //bool default
 			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
+		al_trace("Module Title: %s\n", moduledata.moduletitle);
+		al_trace("Module Author: %s\n", moduledata.moduleauthor);
+		al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
+		al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
+		
+		al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
+		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+		
+		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
+		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
+		//al_trace("Build Year: %d\n",moduledata.modyear);
+		al_trace("Build Date: %s %s, %d at @ %d:%d\n", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+		
 		
 	}
 	
-	al_trace("Module Title: %s\n", moduledata.moduletitle);
-	al_trace("Module Author: %s\n", moduledata.moduleauthor);
-	al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
-	al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
 	
-	al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
-	al_trace("Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-	al_trace("Module Date: %s %s, %d at @ %s %s", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-	
-	al_trace("Build Date: %s %s, %d at @ %s %s", dayextension(moduledata.modday), (char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
-    
 	
 	set_config_file("zc.cfg"); //shift back to the normal config file, when done
 	

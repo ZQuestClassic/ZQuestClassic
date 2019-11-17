@@ -3726,7 +3726,8 @@ struct zcmodule
 	
 	char moduletitle[255];
 	byte modver_1, modver_2, modver_3, modver_4, modbuild, modbeta;
-	byte modmonth, modday, modyear, modhour, modminute;
+	byte modmonth, modday, modhour, modminute;
+	word modyear;
 	char moduleauthor[255];
 	char moduleinfo0[255];
 	char moduleinfo1[255];
