@@ -1,9 +1,29 @@
 ChangeLog for 2.53.1
 
 //Beta 13
+
+Edited the item help info for shields to reference ZQ Shield Help
+	instead of the ZC.com Wiki.
+Changed 'Shield Block Flags' in the Help submenu to 'Shield Help'.
+Allow zstrings.txt to be in root or in ./docs
+Changed the menu entry for ZQuest>>>Help to a 'Help' submenu.
+	Added ZQuest Help, Shield Block Flag Help, and ZScript Help to
+	the new submenu. These require zquest.txt, shield_block_flags.txt,
+	and zscript.txt, respectively. 
+	( ZoriaRPG, 17th November, 2019 )
+
+Added 'skip_layer_warning' config int, under '[zquest]'
+	If non-zero, the warning message when trying to place flags
+	on layers they don't work on, is not displayed. This is helpful
+	for scripts which read flags off of layers.
+Changed the level palette editor, so that it starts with the
+	palette of the current screen selected, instead of
+	level palette 0.
+	( Venrob, 16th November, 2019 )
+	
 Fixed the error messages for Screen->LoadItem, LoadNPC, LoadLWeapom
 	and load EWeapon to return a 1-indexed value.
-
+	( ZoriaRPG, 15th November, 2019 )
 
 //Beta 12
 Because 'particle' and 'decoration' are potentially already common
