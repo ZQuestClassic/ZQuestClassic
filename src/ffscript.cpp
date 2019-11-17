@@ -24074,6 +24074,43 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
 };
 
+static const char months[13][13] =
+{ 
+	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+};
+
+static std::string dayextension(int dy)
+{ 
+	char temp[6]; 
+	switch(dy)
+	{
+		
+		
+		//st
+		case 1:
+		case 21:
+		case 31:
+			sprintf(temp,"%d%s",dy,"st"); 
+			break;
+		//nd
+		case 2:
+		case 22:
+			sprintf(temp,"%d%s",dy,"nd"); 
+			break;
+		//rd
+		case 3:
+		case 23:
+			sprintf(temp,"%d%s",dy,"rd"); 
+			break;
+		//th
+		default:
+			sprintf(temp,"%d%s",dy,"th");
+			break;
+	}
+	
+	return std::string(temp); 
+} 
+
 
 void ZModule::init(bool d) //bool default
 {
@@ -24109,6 +24146,42 @@ void ZModule::init(bool d) //bool default
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
 	moduledata.refresh_title_screen = 0;
+	
+	memset(moduledata.moduletitle, 0, sizeof(moduledata.moduletitle));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","title",""));
+	
+	memset(moduledata.moduleauthor, 0, sizeof(moduledata.moduleauthor));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","author",""));
+	
+	memset(moduledata.moduleinfo0, 0, sizeof(moduledata.moduleinfo0));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_0",""));
+	
+	memset(moduledata.moduleinfo1, 0, sizeof(moduledata.moduleinfo1));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_1",""));
+	
+	memset(moduledata.moduleinfo2, 0, sizeof(moduledata.moduleinfo2));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_2",""));
+	
+	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_3",""));
+	
+	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","info_4",""));
+	
+	memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
+	strcpy(moduledata.moduletitle,get_config_string("METADATA","nsf",""));
+	
+	moduledata.modver_1 = get_config_int("METADATA","version_first",0);
+	moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
+	moduledata.modver_3 = get_config_int("METADATA","version_third",0);
+	moduledata.modver_4 = get_config_int("METADATA","version_fourth",0);
+	moduledata.modbuild = get_config_int("METADATA","version_build",0);
+	moduledata.modbeta = get_config_int("METADATA","version_beta",0);
+	moduledata.modmonth = get_config_int("METADATA","version_month",0);
+	moduledata.modday = get_config_int("METADATA","version_day",0);
+	moduledata.modyear = get_config_int("METADATA","version_year",0);
+	moduledata.modhour = get_config_int("METADATA","version_hour",0);
+	moduledata.modminute = get_config_int("METADATA","version_minute",0);
 	
 	
 	//strcpy(moduledata.module_name,"default.zmod");
@@ -24414,6 +24487,19 @@ void ZModule::init(bool d) //bool default
 		
 		
 	}
+	
+	al_trace("Module Title: %s\n", moduledata.moduletitle);
+	al_trace("Module Author: %s\n", moduledata.moduleauthor);
+	al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
+	al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
+	
+	al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
+	al_trace("Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+	al_trace("Module Date: %s %s, %d at @ %s %s", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+	
+	al_trace("Build Date: %s %s, %d at @ %s %s", dayextension(moduledata.modday), (char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+    
+	
 	set_config_file("zc.cfg"); //shift back to the normal config file, when done
 	
 	//int x = get_config_int("zeldadx","gui_colorset",0);

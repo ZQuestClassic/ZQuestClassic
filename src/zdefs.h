@@ -3723,6 +3723,18 @@ struct zcmodule
 	//to add, and init
 	//word startingdmap, startingscreen;
 	//char enemy_script_weapon_names[10][255];
+	
+	char moduletitle[255];
+	byte modver_1, modver_2, modver_3, modver_4, modbuild, modbeta;
+	byte modmonth, modday, modyear, modhour, modminute;
+	char moduleauthor[255];
+	char moduleinfo0[255];
+	char moduleinfo1[255];
+	char moduleinfo2[255];
+	char moduleinfo3[255];
+	char moduleinfo4[255];
+	char module_base_nsf[255];
+	
         
 
 }; //zcmodule
