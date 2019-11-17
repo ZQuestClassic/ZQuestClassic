@@ -1147,6 +1147,7 @@ void cycle_palette();
 
 void doHelp(int bg,int fg);
 int onshieldblockhelp();
+int onZstringshelp();
 int onHelp();
 int onZScripthelp();
 int edit_layers(mapscr* tempscr);
