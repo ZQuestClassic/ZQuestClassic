@@ -2,6 +2,7 @@
 
 //Alpha 41
 
+Re-designed ZSA.txt.
 Added Strings Help to the Help submenu.
 Changed 'ZQuest Editor Help' to 'Editor Help'.
 Edited the item help info for shields to reference ZQ Shield Help
