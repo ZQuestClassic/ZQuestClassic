@@ -361,6 +361,43 @@ int onImport_ComboAlias();
 int onExport_ComboAlias();
 
 
+static const char months[13][13] =
+{ 
+	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+};
+
+static std::string dayextension(int dy)
+{ 
+	char temp[6]; 
+	switch(dy)
+	{
+		
+		
+		//st
+		case 1:
+		case 21:
+		case 31:
+			sprintf(temp,"%d%s",dy,"st"); 
+			break;
+		//nd
+		case 2:
+		case 22:
+			sprintf(temp,"%d%s",dy,"nd"); 
+			break;
+		//rd
+		case 3:
+		case 23:
+			sprintf(temp,"%d%s",dy,"rd"); 
+			break;
+		//th
+		default:
+			sprintf(temp,"%d%s",dy,"th");
+			break;
+	}
+	
+	return std::string(temp); 
+} 
+
 typedef struct map_and_screen
 {
     int map;
@@ -1011,6 +1048,7 @@ static MENU zscript_menu[] =
 static MENU module_menu[] =
 {
     { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"&About Module",        onAbout_Module,           NULL,                     0,            NULL   },
     //divider
    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1501,6 +1539,98 @@ void savesometiles(const char *prompt,int initialval)
 		}
 	}
 }
+
+static DIALOG module_info_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+    { jwin_win_proc,      0,   0,   200,  200,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "About Current Module", NULL, NULL },
+    //1
+    {  jwin_text_proc,        10,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Module:",               NULL,   NULL  },
+    //2
+    {  jwin_text_proc,        50,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+   {  jwin_text_proc,        10,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Author:",               NULL,   NULL  },
+    //4
+    {  jwin_text_proc,        50,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    40,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    50,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Information:",               NULL,   NULL  },
+    //7
+    
+    {  jwin_text_proc,        10,    60,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    70,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    80,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    90,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    100,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    110,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    120,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    130,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    140,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+   
+    { jwin_button_proc,   40,   160,  50,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+
+void about_module(const char *prompt,int initialval)
+{	
+	
+	module_info_dlg[0].dp2 = lfont;
+	if ( moduledata.moduletitle[0] != NULL )
+		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
+	
+	if ( moduledata.moduleauthor[0] != NULL )
+		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
+	
+	if ( moduledata.moduleinfo0[0] != NULL )
+		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
+	if ( moduledata.moduleinfo1[0] != NULL )
+		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
+	if ( moduledata.moduleinfo2[0] != NULL )
+		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
+	if ( moduledata.moduleinfo3[0] != NULL )
+		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
+	if ( moduledata.moduleinfo4[0] != NULL )
+		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
+	
+	char module_date[255];
+	memset(module_date, 0, sizeof(module_date));
+	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+	
+	
+	
+	char module_vers[255];
+	memset(module_vers, 0, sizeof(module_vers));
+	sprintf(module_vers, "Version: %d.%d.%d.%d", moduledata.modver_1, moduledata.modver_2, moduledata.modver_3, moduledata.modver_4);
+	
+	
+	//sprintf(tilecount,"%d",1);
+	
+	char module_build[255];
+	memset(module_build, 0, sizeof(module_build));
+	if ( moduledata.modbeta )
+		sprintf(module_build,"Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+	else
+		sprintf(module_build,"Module Build: %d", moduledata.modbuild);
+	
+	module_info_dlg[12].dp = (char*)module_date;
+	module_info_dlg[13].dp = (char*)module_vers;
+	module_info_dlg[14].dp = (char*)module_build;
+	
+	if(is_large)
+		large_dialog(module_info_dlg);
+	
+	int ret = zc_popup_dialog(module_info_dlg,-1);
+	jwin_center_dialog(module_info_dlg);
+	
+	
+}
+
+
+
 
 
 static DIALOG read_tiles_dlg[] =
@@ -31342,42 +31472,6 @@ const char *itemclass_help_string_cats[itype_max*3]=
 
 //ZModule Functions
 
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
 
 void ZModule::init(bool d) //bool default
 {

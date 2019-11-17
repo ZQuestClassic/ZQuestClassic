@@ -269,6 +269,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c);
 int getnumber(const char *prompt,int initialval);
 int gettilepagenumber(const char *prompt, int initialval);
 
+void about_module(const char *prompt,int initialval);
 void savesometiles(const char *prompt,int initialval);
 void writesometiles_to(const char *prompt,int initialval);
 

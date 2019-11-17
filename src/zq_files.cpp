@@ -1044,6 +1044,12 @@ int onExport_Tilepack()
 	return D_O_K;	
 }
 
+int onAbout_Module()
+{
+	about_module("About Module (.zmod)", 0);
+	return D_O_K;
+}
+
 int onImport_Tilepack_To()
 {
 	writesometiles_to("Load Tile Package to:", 0);
