@@ -1,7 +1,232 @@
 //2.55 Changes
 
-//Alpha 40
+//Alpha 41
 
+Added Strings Help to the Help submenu.
+Changed 'ZQuest Editor Help' to 'Editor Help'.
+Edited the item help info for shields to reference ZQ Shield Help
+	instead of the ZC.com Wiki.
+Changed 'Shield Block Flags' in the Help submenu to 'Shield Help'.
+Add 'found file' messages for new help files.
+Changed the menu entry for ZQuest>>>Help to a 'Help' submenu.
+	Added ZQuest Help, Shield Block Flag Help, and ZScript Help to
+	the new submenu. These require zquest.txt, shield_block_flags.txt,
+	and zscript.txt, respectively.
+Allow zstrings.txt to be in root or in ./docs
+Updated .zmod files (Classic, Default) with Metadata
+Remove duplicate 'nsf' value from .zmod files.
+Add 'About Module' Dialogue to ZC Player, Fix ZQ Dialogue Spacing
+Added 'About Module' Dialogue to ZQuest
+Fixed ZMOD Metadata as follows:
+	Fixed crash when printing the date.
+	Fixed overflow with date_year.
+	Fixed timing for reading from .zmod file.
+Added the following Metadata to Module (.zmod) files:
+	[METADATA]
+	title = string
+	author = string
+	info_0 = string
+	info_1 = string
+	info_2 = string
+	info_3 = string
+	info_4 = string
+	nsf = string
+	version_first = int
+	version_second = int
+	version_third = int
+	version_fourth = int
+	version_build = int
+	version_beta = int
+	version_year = int
+	version_month = int
+	version_day = int
+	version_hour = int
+	version_minute = int
+	( ZoriaRPG, 17th November, 2019 )
+
+Fixed beam shard tiles being drawn when swiping your sword, due to the sword
+	obeying the 'live one frame longer' QR. 'wSword' must ignore this.
+	( Venrob, 17th November, 2019 )
+
+Continued to retab src files (through ffscript.cpp)
+Spacing: ffscript.cpp, 'run_script()'
+Spacing: ffscript.cpp, get_register()
+Added 'skip_layer_warning' config int, under '[zquest]'
+	If non-zero, the warning message when trying to place flags
+	on layers they don't work on, is not displayed. This is helpful
+	for scripts which read flags off of layers.
+Changed the level palette editor, so that it starts with the
+	palette of the current screen selected, instead of
+	level palette 0.
+	( Venrob, 16th November, 2019 )
+	
+Fixed the error messages for Screen->LoadItem, LoadNPC, LoadLWeapom
+	and load EWeapon to return a 1-indexed value.
+	( ZoriaRPG, 15th November, 2019 )
+	
+Fix normal input keys. Pressing Enter as 'Start' on the Continue/Retry/Save screen
+	was getting stuck in a loop.
+Fix: MAXSPRITESNPC not returning a value.
+Updated ZSA.txt
+Fixed illegal/unsafe compare. 
+	While C++ 'allows' bool == int, it is usafe and MSVC will warn you about this.
+Set and Get Max Sprites 
+Added:
+	int Game->MaxNPCs();
+	void Game->MaxNPCs(int newmax);
+	int Game->MaxLWeapons();
+	void Game->MaxLWeapons(int newmax);
+	int Game->MaxEWeapons();
+	void Game->MaELWeapons(int newmax);
+	int Game->MaxItemsprites();
+	void Game->MaxItemsprites(int newmax);
+	These work globally.
+All four current sprite datatypes (npc, lweapon, eweapon, and item)
+	further, now have:
+	int Max(); // Returns the maximum number of sprites
+		   // that can be active at one time.
+	void Max(int newmax); // Sets the maximum.
+	These fail on null pointers, but on an initialised pointer,
+	they are identical to the Game-> functions, and they work from
+	uninitialised pointers; thus:
+		lweapon l; l->Max(400); //This is legal and works.
+	( ZoriaRPG, 14th November, 2019 )
+
+Retabbed src files: 'a' -> 'ffscript.cpp (partially)
+	Spacing: ffscript.cpp (incomplete) 
+	Still need to space `run_script()` and `set_register()`
+	Spacing: ffdebug.h to aglogo.cpp
+	( Venrob, 14th November, 2019 )
+
+Add 'has_space()' to sprite list, for cehcking if there is a certain amount
+	of space in a list. This is now used instead of checking
+	'list.Count() < list.getMax()', everywhere this occurred.
+Now keys are handled through a wrapper, rather than directly via allegro.
+	This means that keys are accessible similarly to buttons (control_state[]) now.
+	( Venrob, 13th November, 2019 )
+	
+If the user attempts to create an  item, lweapon, or an eweapon
+	but they are already at the system limit,
+	set the script pointer to NULL, and give
+	an error message.
+	This replaces the old mechanic from 2.50.2
+	that set the pointer to LONG_MAX.
+Fixed assign to script npc pointerb (NULL, not LONG_MAX)
+	if CreateNPC fails to create an enemy.
+Fixed a crash when creating invalid eweapon
+	types by script. May not be fully handled if
+	the type is > enemyWeapons (new types), but I restored the
+	old behaviour and added new logging.
+Remove decompressed al_gif path. It was confusing git.
+Because 'particle' and 'decoration' are potentially already common
+	identifiers in scripts, I have reversed the reservation of these
+	tokens, changing them to 'decorationsprite' and 'particlesprite'.
+	We can add user typedefs to <std> if we want, later, to shorten
+	the datatype to something like 'particles' or 'deco'.
+	( ZoriaRPG, 13th November, 2019 )
+	
+Don't allow div by 0 in InvPow()
+	( ZoriaRPG, 12th November, 2019 )
+
+Added ZASM breakpoints, for the ZASM debugger
+	In ZScript, 'Debug->Breakpoint(string)', or 'Debug->Breakpoint(NULL)'
+	In ZASM, 'BREAKPOINT reg', or 'BREAKPOINT NUL'
+	Controls:
+	INSERT - Break, or if broken, step once
+	SHIFT+INSERT - Step to next script start, or next breakpoint; whichever first
+	ALT+INSERT - Step to the next breakpoint
+	CTRL+INSERT - Kill the ZASM debugger, ending debugging
+Parser: Reserve 'particle', 'decoration'
+Made SLMAX member of sprite_list 
+	Sprite maxes for each sprite type are now per-list
+	Default is 255 for all types, save for particle
+	Particle is '255*(255*4)+1'
+	( Venrob, 12th November, 2019 )
+	
+Centralize weapon type conversion
+	( Venrob, 11th November, 2019 )
+
+Delete dangling weapon pointers.
+LWeapons generted by mirror combos no longer
+	inherit the script from the eweapon that
+	was used to spawn them.
+	Their InitD, doscript, and initialised status
+	is further, cleared to zero.
+Increased the sprite limits per type by +1 in ffscript.h
+Add MAX_*_SPRITES constants to ffscript.h
+	Called MAX_LWPN_SPRITES in weapons.cpp
+Cap reflected weapons from prisms at 255.
+Other changes to cloned weapon constructor.
+Give cloned weapons a script_UID
+Fixed cloned weapon crashes with mirror beams.
+	( ZoriaRPG, 11th November, 2019 )
+
+Merged fixSP, tempLayerMapdata
+	( Venrob, 11th November, 2019 )
+	
+Parser no longer pushes/pops a ton of 0's in ~Init
+Uncommented an error message in ffscript.h
+	( Venrob, 10th November, 2019 )
+	
+Converted 'ri->sp' from a byte to a bitfield, sized to 0->1023.
+Fix ternary crash & 'Undercombo' typo
+Fix: Capitalization typo
+Fix: NO_ERROR_HALT crash Ternary
+Docs: Update ZSA
+Add access to temp layers, and scrolling layers
+	'Game->LoadTempScreen(int layer);'
+	'Game->LoadScrollingScreen(int layer);'
+Using these pointers can write temporarily to the screen and layers,
+	as well as to the "scrolling" screen buffer; which is displayed
+	only during scrolling. While not scrolling, the 'scrolling' screen
+	represents the previous screen you scrolled from, including temp
+	changes made when you were there.
+Add 'Screen->' and 'mapdata->isSolidLayer(x, y, layer);'
+	These function similarly to 'isSolid()', but instead of
+	returning if there is solidity on layers 0,1, or 2 of the
+	given screen, it will return for only the specified layer;
+	so you can check just 0, or just 1, or even check 5, or 6.
+	( Venrob, 9th November, 2019 )
+	
+Disable logging tile ID during export.
+Fixed instability and improper offsets from Import/Export tiles.
+It is now possible to write to eweapon->ParentUID
+	and to npc->ScriptUID.
+	This does NOT automatically associate the object
+	with the parent, and it exists purely for
+	the semantics of allowing fully-scripted sprites
+	to set the parent UID of child sprites solely
+	within the context of the script.
+	It may be overwritten by the engine animation
+	of the normal parent sprite, particularly if
+	used on a normally segmented enemy type.
+Added new instructions to debug commands list.
+Added npc::parent_scriptUID to guys.
+	Moldorm, Lanmola, Manhandla, Gleeok, and
+	Patra set this during their animate functions.
+	ZScript can read npc->ParentUID, and compare
+	it against other_npc->UID to find the parent
+	and core of segmented enemies.
+	ParentUID is read-only.
+	( ZoriaRPG, 8th November, 2019 )
+
+Abstracted loading of mapscr* for FFCore functions
+	Now will load the appropriate tmpscr for special vals
+Set up FFCore functions for loading special mapdata pointers
+	Still need to add to GlobalSymbols/Opcodes
+Set up FFCore for 'mapdata->isSolidLayer(int x, int y, int lyr)'
+	Still need to add to GlobalSymbols/Opcodes
+	Still need to add Screen-> version
+	( Venrob, 8th November, 2019 )
+
+Fixed the .cfg file to read monochrome_console under [CONSOLE]
+Add zc.cfg value monochrome_console to display the new
+	ZScript Debugger in monochrome (white) for those who dislike colour [i.e., Moosh].
+Fix version info on ZSA.txt
+Chore: midi_patch_fix now defaults at 1 if not set in zc.cfg for weird people who use soundfonts.
+	( ZoriaRPG, 7th November, 2019 )
+	
+//Alpha 40
 Converted the hardcoded removal bounds macro
 	NEWOUTOFBOUNDS into a function that pulls
 	variable values from FFCore.
