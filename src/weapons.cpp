@@ -4837,6 +4837,7 @@ mirrors:
             
 			if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 			{
+				if(id==wSword) return true;
 				weapon_dying_frame = true;
 				return false;
 			}
@@ -5147,6 +5148,7 @@ mirrors:
     
 	if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 	{
+		if(id==wSword) return true;
 		weapon_dying_frame = true;
 		return false;
 	}
