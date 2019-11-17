@@ -1073,7 +1073,9 @@ void cycle_palette();
 /********************/
 
 void doHelp(int bg,int fg);
+int onshieldblockhelp();
 int onHelp();
+int onZScripthelp();
 int edit_layers(mapscr* tempscr);
 void autolayer(mapscr* tempscr, int layer, int al[6][3]);
 int findblankcombo();
