@@ -2,6 +2,7 @@ ChangeLog for 2.53.1
 
 //Beta 13
 
+Changed 'ZQuest Editor Help' to 'Editor Help'.
 Edited the item help info for shields to reference ZQ Shield Help
 	instead of the ZC.com Wiki.
 Changed 'Shield Block Flags' in the Help submenu to 'Shield Help'.
