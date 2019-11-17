@@ -31515,7 +31515,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo2, 0, sizeof(moduledata.moduleinfo2));
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
-	memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
+	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
 	moduledata.modver_1 = 0;
 	moduledata.modver_2 = 0;	
@@ -31551,7 +31551,7 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata.moduleinfo2,get_config_string("METADATA","info_2",""));
 		strcpy(moduledata.moduleinfo3,get_config_string("METADATA","info_3",""));
 		strcpy(moduledata.moduleinfo4,get_config_string("METADATA","info_4",""));
-		strcpy(moduledata.module_base_nsf,get_config_string("METADATA","nsf",""));
+		//strcpy(moduledata.module_base_nsf,get_config_string("METADATA","nsf",""));
 		moduledata.modver_1 = get_config_int("METADATA","version_first",0);
 		moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
 		moduledata.modver_3 = get_config_int("METADATA","version_third",0);
@@ -32061,7 +32061,7 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);
 		al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
-		al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
+		//al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
 		
 		al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
 		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
