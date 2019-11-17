@@ -27710,7 +27710,7 @@ int main(int argc,char **argv)
     
     helpbuf[helpsize]=0;
     helpstr = helpbuf;
-    Z_message("OK\n");                                      // loading data files...
+    Z_message("Found zquest.txt\n");                                      // loading data files...
     
     int shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
     
@@ -27758,6 +27758,7 @@ int main(int argc,char **argv)
     
     shieldblockhelpbuf[shieldblockhelpsize]=0;
     shieldblockhelpstr = shieldblockhelpbuf;
+    Z_message("Found shield_block_flags.txt\n");    
     
     int zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
     
@@ -27805,7 +27806,7 @@ int main(int argc,char **argv)
     
     zscripthelpbuf[zscripthelpsz]=0;
     zscripthelpstr = zscripthelpbuf;
-    
+    Z_message("Found zscript.txt\n");    
     
     
     init_qts();
