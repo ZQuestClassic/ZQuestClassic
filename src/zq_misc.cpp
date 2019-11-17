@@ -509,7 +509,7 @@ const char *itemclass_help_string[(itype_last-20)*3] =
     "Divides the damage that Link takes, and changes his palette.","If a magic cost is set, Link loses magic when he takes","damage, and the item is disabled without magic.",
     "Can provide infinite rupees to Link,","or provide a regenerating supply of rupees.","Typically also set to increase his Rupee max.",
     "Also called the Cross, this makes invisible","enemies visible. Currently does not affect Ganon.","",
-    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed on the Wiki.",
+    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed in Shield Help.",
     "Required to wield the Arrow. This affects the speed of","the arrow fired. The Action settings are not used.","",
     "Allows Link to traverse Raft Paths. When at a Raft","Branch combo flag, hold the arrow keys to","decide which path the raft will take.",
     "Used to cross Water combos and certain combo types.","If Four-Way > 1, Link can step sideways off the ladder.","",
