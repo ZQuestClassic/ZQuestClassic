@@ -2,6 +2,7 @@ ChangeLog for 2.53.1
 
 //Beta 13
 
+Added Strings Help to the Help submenu.
 Changed 'ZQuest Editor Help' to 'Editor Help'.
 Edited the item help info for shields to reference ZQ Shield Help
 	instead of the ZC.com Wiki.

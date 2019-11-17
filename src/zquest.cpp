@@ -401,8 +401,8 @@ int fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf;
-string helpstr, shieldblockhelpstr, zscripthelpstr;
+char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf, *zstringshelpbuf;
+string helpstr, shieldblockhelpstr, zscripthelpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int midi_volume = 255;
@@ -599,6 +599,7 @@ static MENU zq_help_menu[] =
     { (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
     { (char *)"&Shield Help",                     onshieldblockhelp,            NULL,                     0,            NULL   },
     { (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
+    { (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
     
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -23081,6 +23082,34 @@ int onZScripthelp()
     return D_O_K;
 }
 
+static DIALOG Zstringshelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Zstrings Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void doZstringshelp(int bg,int fg)
+{
+    Zstringshelp_dlg[0].dp2= lfont;
+    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    Zstringshelp_dlg[2].bg = bg;
+    zc_popup_dialog(Zstringshelp_dlg,2);
+    delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
+}
+
+int onZstringshelp()
+{
+    restore_mouse();
+    doZstringshelp(vc(15),vc(0));
+    return D_O_K;
+}
 
 static DIALOG layerdata_dlg[] =
 {
@@ -24307,6 +24336,55 @@ int main(int argc,char **argv)
     zscripthelpstr = zscripthelpbuf;
     Z_message("Found zscript.txt\n");                                         // loading data files...
     
+    int zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
+    
+    if(zstringshelpsz==0)
+    {
+	zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
+	if(zstringshelpsz==0)
+	{
+		Z_error("Error: zstrings.txt not found.");
+		quit_game();
+	}
+    }
+    
+    zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
+    
+    if(!zstringshelpbuf)
+    {
+        Z_error("Error allocating zstrings Help buffer.");
+        quit_game();
+    }
+    
+    FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
+    
+    if(!zstringshelphb)
+    {
+	zstringshelphb = fopen("zstrings.txt", "r");
+	if(!zstringshelphb)
+	{
+		Z_error("Error loading zstrings.txt.");
+		quit_game();
+	}
+    }
+    
+    char zstringshelpc = fgetc(zstringshelphb);
+    int zstringshelpindex=0;
+    
+    while(!feof(zstringshelphb))
+    {
+        zstringshelpbuf[zstringshelpindex] = zstringshelpc;
+        zstringshelpindex++;
+        zstringshelpc = fgetc(zstringshelphb);
+    }
+    
+    fclose(zstringshelphb);
+    
+    zstringshelpbuf[zstringshelpsz]=0;
+    zstringshelpstr = zstringshelpbuf;
+    Z_message("Found zstrings.txt\n");                               
+    // loading data files...
+    
     init_qts();
     
     filepath[0]=temppath[0]=0;
@@ -24574,6 +24652,12 @@ int main(int argc,char **argv)
         zscripthelp_dlg[2].w=800-8-4;
         zscripthelp_dlg[2].h=600-27-4;
 	
+	Zstringshelp_dlg[0].w=800;
+        Zstringshelp_dlg[0].h=600;
+        Zstringshelp_dlg[1].w=800-8;
+        Zstringshelp_dlg[1].h=600-27;
+        Zstringshelp_dlg[2].w=800-8-4;
+        Zstringshelp_dlg[2].h=600-27-4;
 	
 	shieldblockhelp_dlg[0].w=800;
         shieldblockhelp_dlg[0].h=600;
