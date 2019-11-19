@@ -1,0 +1,245 @@
+/**
+*	This namespace contains functions used for handling bitmap
+*	allocation, for freeing bitmaps, and for determining if 
+*	bitmaps are available for use. 
+*/
+namespace bitmaps
+{
+	bitmap allocated_bitmaps[255]; /**< This array holds pointers of allocated bitmaps,
+					and freed bitmaps (-1) */
+	/**
+	*	Acquires a bitmap, trying to find freed bitmaps first.
+	*	Returns the pointer to the bitmap.
+	*	@param h the height of the bitmap to attempt to acquire
+	*	@param w the width of the bitmap to attempt to acquire
+	*	@see release()
+	*/
+	bitmap acquire(int w, int h)
+	{
+		bitmap acquire(w,h,0);
+	}
+	/**
+	*	Acquires a bitmap, trying to find freed bitmaps first.
+	*	Returns the pointer to the bitmap.
+	*	@param h the height of the bitmap to attempt to acquire
+	*	@param w the width of the bitmap to attempt to acquire
+	*	@param layer the layer (draw timing to use for ->Create calls
+	*	@see release()
+	*/
+	bitmap acquire(int w, int h, int layer)
+	{
+		bitmap temp;
+		if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
+		{
+			int ww = h;
+			int h = w;
+			w = ww; 
+		}
+		//first look for a bitmap marked freed
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( <int>allocated_bitmaps[q] == -1 )
+			{
+				temp->Create(layer, w,h);
+				allocated_bitmaps[q] = temp;
+				return temp;
+			}
+		}
+		//Nothing was freed, so try just creating one. 
+		temp = Game->CreateBitmap(w,h);
+		if ( !temp )
+		{
+			//could not allocate, so try to find one that is marked as 0
+			for ( int q = 0; q < 256; ++q )
+			{
+				if ( allocated_bitmaps[q] ) continue;
+				else
+				{
+					temp->Create(layer, w,h);
+					allocated_bitmaps[q] = temp;
+					return temp;
+				}
+			}
+		}
+		
+		//reached end of ability to allocate
+		sprintf("Could not allocate a bitmap. All bitmaps are in use!\n");
+		return NULL;
+	}
+	/*!
+	*	Marks a bitmap as being released, and clears it.
+	*	@param b a bitmap datatype of the bitmap pointer
+	*/
+	bool release(bitmap b)
+	{
+		int id = <int>b*10000;
+		b->Clear(0);
+		allocated_bitmaps[id] = <bitmap>-2;
+		return true;
+	}
+	/*!
+	*	Marks a bitmap as being released, and clears it.
+	*	@param b a bitmap datatype of the bitmap pointer
+	*	@param layer an ineger datatype of the bitmap layer to clear
+	*/
+	bool release(bitmap b, int layer)
+	{
+		int id = <int>b*10000;
+		b->Clear(layer);
+		allocated_bitmaps[id] = <bitmap>-2;
+		return true;
+	}
+	/*!
+	*	Returns if a bitmap allocated to <b> is in use. 
+	*	@param b an integer datatype of the allocation slot
+	*/
+	bool inuse(int b)
+	{
+		if ( <int>allocated_bitmaps[b] > 0 ) return true;
+		return false;
+	}
+	/*!
+	*	Returns if a bitmap <b> is allocated.
+	*	@param b a bitmap datatype of the bitmap pointer
+	*/
+	bool inuse(bitmap b)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( allocated_bitmaps[q] == b ) return true;
+		}
+		return false;
+	}
+	/*!
+	*	Returns if a bitmap allocation slot <b> is free. 
+	*	@param b an integer datatype of the allocation slot
+	*/
+	bool freed(int b)
+	{
+		return ( <int>allocated_bitmaps[b] == -1 );
+	}
+	/*!
+	*	Call at the beginning of each frame in the global active
+	* 	to update / poll freed bitmaps so that draws do not overwrite them.
+	*/
+	bool updatefreed()
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( <int>allocated_bitmaps[q] == -2 )
+			{
+				allocated_bitmaps[q] = <int> -1;
+			}
+		}
+	}
+	const float VERSION = 1.0002;	/**< The header version ID */
+	const int ALPHA = 3;		/**< The header Alpha ID */
+	const int BETA = 0;		/**< The header Beta ID */
+	const int GAMMA = 0;		/**< The header Gamma ID */
+	const int RELEASE = 0;		/**< The header Release ID */
+	const int YEAR = 2019;		/**< The header Year of Update */
+	const int MONTH = 11;		/**< The header Month of Update */
+	const int DAY = 19;		/**< The header Day of Update */
+	const int HOUR = 8;		/**< The header Hour of Update */
+	const int MINUTE = 54;		/**< The header Minute of Update */
+	/*!
+	*	Returns the datestamp of the header in the format of DDMM.YYYY
+	*/
+	float GetDatestamp()
+	{
+		float dt = MONTH;
+		dt += DAY * 100;
+		dt += YEAR / 10000;
+		return dt;
+	}
+	/*!
+	*	Returns the timestamp of the header in the format of HH.MM
+	*/
+	float GetTimestamp()
+	{
+		float tm = HOUR;
+		tm += MINUTE / 10000;
+		return tm;
+	}
+	/*!
+	*	Returns the version ID as a wrapper. 
+	*/
+	float GetVersion()
+	{
+		return VERSION;
+	}
+	/*!
+	*	Prints all header version metadata to the logfile and to the console. 
+	*/
+	void PrintVersionInfo()
+	{
+		printf("Bitmap.zh version %f", VERSION);
+		if ( ALPHA ) printf(", Alpha %d\n", ALPHA);
+		else if ( BETA ) printf(", Beta %d\n", BETA);
+		else if ( GAMMA ) printf(", Beta %d\n", GAMMA);
+		else if ( RELEASE ) printf(", Beta %d\n", RELEASE);
+		else printf("\n");
+		PrintDate();
+	}
+	/*!
+	*	Generic function for printing the date in a human-friendly manner. 
+	* 	Prints as "0th, Nonetober, 9999"
+	*/
+	void PrintDate()
+	{
+		int day[5];
+		int month[10];
+		switch(DAY)
+		{
+			case 1:
+			case 21:
+			case 31:
+				sprintf(temp,"%d%s",dy,"st"); 
+				break;
+			//nd
+			case 2:
+			case 22:
+				sprintf(temp,"%d%s",dy,"nd"); 
+				break;
+			//rd
+			case 3:
+			case 23:
+				sprintf(temp,"%d%s",dy,"rd"); 
+				break;
+			//th
+			default:
+				sprintf(temp,"%d%s",dy,"th");
+				break;
+		}
+		
+		switch(MONTH)
+		{
+			case 1:
+				strcpy(month, "January"); break;
+			case 2:
+				strcpy(month, "February"); break;
+			case 3:
+				strcpy(month, "March"); break;
+			case 4:
+				strcpy(month, "April"); break;
+			case 5:
+				strcpy(month, "May"); break;
+			case 6:
+				strcpy(month, "June"); break;
+			case 7:
+				strcpy(month, "July"); break;
+			case 8:
+				strcpy(month, "August"); break;
+			case 9:
+				strcpy(month, "September"); break;
+			case 10:
+				strcpy(month, "October"); break;
+			case 11:
+				strcpy(month, "November"); break;
+			case 12:
+				strcpy(month, "December"); break;
+			
+		}
+		printf("%s %s %d, at %d:%d GMT\n"), day, month, YEAR, HOUR, MINUTE);
+	}
+}
