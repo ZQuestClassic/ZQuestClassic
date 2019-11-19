@@ -2896,6 +2896,126 @@ void LinkClass::check_slash_block(int bx, int by)
     }
 }
 
+void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
+{
+	int par_item = w->parentitem;
+	al_trace("check_wpn_triggers(weapon *w): par_item is: %d\n", par_item);
+	int usewpn = -1;
+	if ( par_item > -1 )
+	{
+		usewpn = itemsbuf[par_item].useweapon;
+	}
+	else if ( par_item == -1 && w->ScriptGenerated ) 
+	{
+		usewpn = w->useweapon;
+	}
+	al_trace("check_wpn_triggers(weapon *w): usewpn is: %d\n", usewpn);
+	
+	
+	switch(usewpn)
+	{
+		case wArrow:
+			findentrance(bx,by,mfARROW,true);
+			findentrance(bx,by,mfSARROW,true);
+			findentrance(bx,by,mfGARROW,true);
+		case wBeam:
+			for(int i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			break;
+		case wHookshot:
+			findentrance(bx,by,mfHOOKSHOT,true);
+			break;
+		case wBrang:
+			for(int i = 0; i <3; i++) findentrance(bx,by,mfBRANG+i,true);
+			break;
+		case wMagic:
+			findentrance(bx,by,mfWANDMAGIC,true);
+			break;
+		case wRefMagic:
+			findentrance(bx,by,mfWANDMAGIC,true);
+			break;
+		case wRefBeam:
+			for(int i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			break;
+		//reflected magic needs to happen in mirrors:
+		//
+		//findentrance(bx,by,mfREFMAGIC,true)
+		case wRefFireball:
+			findentrance(bx,by,mfREFFIREBALL,true);
+			break;
+		case wBomb:
+			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfBOMB,true);
+			break;
+		
+		case wSBomb:
+			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfSBOMB,true);
+			break;
+			
+		case wFire:
+			findentrance(bx,by,mfBCANDLE,true);
+			findentrance(bx,by,mfRCANDLE,true);
+			findentrance(bx,by,mfWANDFIRE,true);
+		/* if we want the weapon to die
+		if (findentrance(bx,by,mfBCANDLE,true) ) dead = 1;
+			if (findentrance(bx,by,mfRCANDLE,true) ) dead = 1;
+			if (findentrance(bx,by,mfWANDFIRE,true)) dead = 1;
+		*/
+			break;
+		
+		case wScript1:
+			break;
+		case wScript2:
+			break;
+		case wScript3:
+			break;
+		case wScript4:
+			break;
+		case wScript5:
+			break;
+		case wScript6:
+			break;
+		case wScript7:
+			break;
+		case wScript8:
+			break;
+		case wScript9:
+			break;
+		case wScript10:
+			break;
+		case wIce:
+			break;
+		case wCByrna:
+			break;
+		case wWhistle:
+			break;
+		case wSSparkle:
+		case wFSparkle:
+			break;
+		case wWind:
+			break;
+		case wBait:
+			break;
+		case wFlame:
+		case wThrowRock:
+		case wBombos:
+		case wEther:
+		case wQuake:
+		case wSwordLA:
+		case wSword180:
+		case wStomp:
+			break;
+		case wSword:
+		case wWand:
+		//case wCandle:
+		case wHSHandle:
+		case wLitBomb:
+		case wLitSBomb:
+			break;
+		default: break;
+		
+	}
+}
+
+
 
 void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 {

@@ -348,6 +348,7 @@ public:
     void stepforward(int steps, bool adjust);
     void draw_under(BITMAP* dest);
     void check_slash_block(int bx, int by);
+    void check_wpn_triggers(int bx, int by, weapon *w);
     void check_slash_block2(int bx, int by, weapon *w);
     void check_wand_block2(int bx, int by, weapon *w);
     void check_pound_block2(int bx, int by, weapon *w);
