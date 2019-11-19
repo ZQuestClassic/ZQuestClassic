@@ -49,9 +49,9 @@ namespace time
 	enum { 
 		tzGMT, tzBST, tzIST, tzADT, tzEDT, tzCDT, tzMDT, tzPDT,
 		tzCET, tzWAT, tzEET, tzMSK, tzSMT, tzAZT, tzEAT, tzYDT,
-		tzGET, tzMVT, tzMUT, tzNZT, tzCST, tzWST, tzBST, tzCAT,
-		tzJST, tzEST, tzPKT, tzWAT, tzART, tzAST, tzYST, tzHST,
-		tzHDT, tzAT, tzNT, tzCXT, tzCST, tzMST, tzPST, tzWEDT,
+		tzGET, tzMVT, tzMUT, tzNZT, tzCST, tzWST, tzCAT,
+		tzJST, tzEST, tzPKT, tzART, tzAST, tzYST, tzHST,
+		tzHDT, tzAT, tzNT, tzCXT, tzMST, tzPST, tzWEDT,
 		tzWEST, tzCEDT, tzCEST, tzMEDT, tzMEST, tzMESZ, tzEEDT, tzNZDT,
 		tzEEST, tzEADT, tzWADT, tzHADT, tzAKDT, tzIDLW, tzAHST, tzAKST,
 		tzHAST, tzUSZ1, tzYEKT, tzOMSK, tzKRAT, tzIRKT, tzAWST, tzEAST,
@@ -83,13 +83,13 @@ namespace time
 	*	@param m is the the minute
 	*	@param zone is the the timezone
 	*/
-	void PrintDate(int d, int m, int y, int h, int m, int zone)
+	void PrintDate(int d, int m, int y, int h, int mn, int zone)
 	{
 		int day[5];
 		int month[10];
 		int timezone[5];
 		GetDay(day,d);
-		GetMonth(month,m);
+		GetMonth(month,mn);
 		GetZone(timezone, zone);
 		printf("%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
 	}
@@ -136,14 +136,14 @@ namespace time
 	*	Appends 'st', 'nd', 'rd', 'th', as appropriate
 	*	Buffer size should be [5]
 	*	@param buffer is the the dest string[]
-	*	@param m is an integer for a day
+	*	@param dy is an integer for a day
 	*/
-	void GetDay(char32 buffer, int d)
+	void GetDay(char32 buffer, int dy)
 	{
 		int day[5];
 		int month[10];
 		int timezone[5];
-		switch(d)
+		switch(dy)
 		{
 			case 1:
 			case 21:
@@ -201,12 +201,10 @@ namespace time
 			case tzNZT: strcpy(buffer, "NZT"); break;
 			case tzCST: strcpy(buffer, "CST"); break;
 			case tzWST: strcpy(buffer, "WST"); break;
-			case tzBST: strcpy(buffer, "BST"); break;
 			case tzCAT: strcpy(buffer, "CAT"); break;
 			case tzJST: strcpy(buffer, "JST"); break;
 			case tzEST: strcpy(buffer, "EST"); break;
 			case tzPKT: strcpy(buffer, "PKT"); break;
-			case tzWAT: strcpy(buffer, "WAT"); break;
 			case tzART: strcpy(buffer, "ART"); break;
 			case tzAST: strcpy(buffer, "AST"); break;
 			case tzYST: strcpy(buffer, "YST"); break;
@@ -215,7 +213,6 @@ namespace time
 			case tzAT: strcpy(buffer, "AT"); break;
 			case tzNT: strcpy(buffer, "NT"); break;
 			case tzCXT: strcpy(buffer, "CXT"); break;
-			case tzCST: strcpy(buffer, "CST"); break;
 			case tzMST: strcpy(buffer, "MST"); break;
 			case tzPST: strcpy(buffer, "PST"); break;
 			case tzWEDT: strcpy(buffer, "WEDT"); break;
@@ -262,13 +259,13 @@ namespace time
 	*	@param zone is the the timezone
 	*	@param buffer is the the dest string[]
 	*/
-	void GetDate(int d, int m, int y, int h, int m, int zone, char32 buffer)
+	void GetDate(int d, int mn, int y, int h, int m, int zone, char32 buffer)
 	{
 		int day[5];
 		int month[10];
 		int timezone[5];
 		GetDay(day,d);
-		GetMonth(month,m);
+		GetMonth(month,mn);
 		GetZone(timezone, zone);
 		sprintf(buffer, "%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
 	}
@@ -276,16 +273,16 @@ namespace time
 	
 	namespace version
 	{
-		const float VERSION = 1.0002;		/**< The header version ID */
+		const float VERSION = 1.0003;		/**< The header version ID */
 		const int ALPHA = 0;			/**< The header Alpha ID */
-		const int BETA = 3;			/**< The header Beta ID */
+		const int BETA = 4;			/**< The header Beta ID */
 		const int GAMMA = 0;			/**< The header Gamma ID */
 		const int RELEASE = 0;			/**< The header Release ID */
 		const int YEAR = 2019;			/**< The header Year of Update */
 		const int MONTH = 11;			/**< The header Month of Update */
 		const int DAY = 19;			/**< The header Day of Update */
-		const int HOUR = 11;			/**< The header Hour of Update */
-		const int MINUTE = 41;			/**< The header Minute of Update */
+		const int HOUR = 13;			/**< The header Hour of Update */
+		const int MINUTE = 07;			/**< The header Minute of Update */
 		const int TIMEZONE = time::tzGMT;	/**< The header Timezone of Update */
 		/*!
 		*	Returns the datestamp of the header in the format of DDMM.YYYY
