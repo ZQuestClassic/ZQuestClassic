@@ -38,11 +38,17 @@ namespace bitmaps
 		//first look for a bitmap marked freed
 		for ( int q = 0; q < 256; ++q )
 		{
-			if ( <int>allocated_bitmaps[q] == -1 )
+			if ( <int>allocated_bitmaps[q] < 0 )
 			{
-				temp->Create(layer, w,h);
-				allocated_bitmaps[q] = temp;
-				return temp;
+				if ( !allocated_bitmaps[q+256] ) //this will be 0 one frame after it is cleared
+				{
+					int t = <int>allocated_bitmaps[q];
+					t *= -1;
+					temp = <bitmap>t;
+					temp->Create(layer, w,h);
+					allocated_bitmaps[q] = temp;
+					return temp;
+				}
 			}
 		}
 		//Nothing was freed, so try just creating one. 
@@ -74,8 +80,113 @@ namespace bitmaps
 	{
 		int id = <int>b*10000;
 		b->Clear(0);
-		allocated_bitmaps[id] = <bitmap>-2;
+		int t = <int>b; 
+		t*= -1;
+		allocated_bitmaps[id] = <bitmap>t;
+		allocated_bitmaps[id+256] = <int>-1;
+		
 		return true;
+	}
+	/*!
+	*	Marks a bitmap as being released, and clears it.
+	*	@param b a the id to release in the array
+	*/
+	bool release(int id)
+	{
+		if ( allocated_bitmaps[is] ) allocated_bitmaps[id]->Clear(0);
+		int t = <int>allocated_bitmaps[id]; 
+		t*= -1;
+		allocated_bitmaps[id] = <bitmap>t;
+		allocated_bitmaps[id+256] = <int>-1;
+		
+		return true;
+	}
+	/*!
+	*	Locks a bitmap so that it cannot be released at all, or recycled. 
+	*	@param b an bitmap pointer to match
+	*/
+	void lock(bitmap b)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( b == allocated_bitmaps[q] )
+				allocated_bitmaps[q+256] = <int>-10000;
+		}
+	}
+	/*!
+	*	Unlocks a bitmap so that it can be reused.
+	*	@param b an bitmap pointer to match
+	*	@param soft determines if it is unlocked to a held (true) state, or a ready (false) state.
+	*/
+	void unlock(bitmap b, bool soft)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( b == allocated_bitmaps[q] )
+				allocated_bitmaps[q+256] = ((soft) ? <int>-1 : <int> 0);
+		}
+	}
+	/*!
+	*	Locks a bitmap so that it cannot be released at all, or recycled. 
+	*	@param b an ineger datatype of the bitmap index to lock
+	*/
+	void lock(int b)
+	{
+		allocated_bitmaps[id+256] = <int>-10000;
+	}
+	/*!
+	*	Unlocks a bitmap so that it can be reused this frame
+	*	@param b an ineger datatype of the bitmap index to lock
+	*	@param soft determines if it is unlocked to a held (true) state, or a ready (false) state.
+	*/
+	void unlock(int b, bool soft)
+	{
+		allocated_bitmaps[id+256] =  ((soft) ? <int>-1 : <int> 0);
+	}
+	/*!
+	*	Marks a bitmap as being released, and clears it.
+	*	@param b a bitmap datatype of the bitmap pointer
+	*	@param layer an ineger datatype of the bitmap layer to clear
+	*/
+	/*!
+	*	Holds a bitmap so that it cannot be reused this frame
+	*	@param b an bitmap pointer to match
+	*/
+	void hold(bitmap b)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( b == allocated_bitmaps[q] )
+				allocated_bitmaps[q+256] = <int>-1;
+		}
+	}
+	/*!
+	*	Unlocks a bitmap so that it can be reused this frame
+	*	@param b an bitmap pointer to match
+	*/
+	void unhold(bitmap b)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( b == allocated_bitmaps[q] )
+				allocated_bitmaps[q+256] = <int>0;
+		}
+	}
+	/*!
+	*	Locks a bitmap so that it cannot be reused this frame
+	*	@param b an ineger datatype of the bitmap index to hold
+	*/
+	void hold(int b)
+	{
+		allocated_bitmaps[id+256] = <int>-1;
+	}
+	/*!
+	*	Holds a bitmap so that it can be reused this frame
+	*	@param b an ineger datatype of the bitmap index to hold
+	*/
+	void unhold(int b)
+	{
+		allocated_bitmaps[id+256] = <int>0;
 	}
 	/*!
 	*	Marks a bitmap as being released, and clears it.
@@ -86,8 +197,24 @@ namespace bitmaps
 	{
 		int id = <int>b*10000;
 		b->Clear(layer);
-		allocated_bitmaps[id] = <bitmap>-2;
+		int t = <int>b;
+		t*= -1;
+		allocated_bitmaps[id] = <bitmap>t;
+		allocated_bitmaps[id+256] = <int>-1;
 		return true;
+	}
+	bool locked(int b)
+	{
+		return ( <int>allocated_bitmaps[b+256] == -10000 );
+	}
+	bool locked(bitmap b)
+	{
+		for ( int q = 0; q < 256; ++q )
+		{
+			if ( b == allocated_bitmaps[q] )
+				return ( <int>allocated_bitmaps[b+256] == -10000 );
+		}
+		return false;
 	}
 	/*!
 	*	Returns if a bitmap allocated to <b> is in use. 
@@ -119,6 +246,15 @@ namespace bitmaps
 		return ( <int>allocated_bitmaps[b] == -1 );
 	}
 	/*!
+	*	Returns if a bitmap is freed, and unlocked for use. 
+	*	@param b an integer datatype of the allocation slot
+	*/
+	bool canuse(int b)
+	{
+		return ( <int>allocated_bitmaps[b] == <= 0 && !allocated_bitmaps[b] );
+
+	}
+	/*!
 	*	Call at the beginning of each frame in the global active
 	* 	to update / poll freed bitmaps so that draws do not overwrite them.
 	*/
@@ -126,14 +262,14 @@ namespace bitmaps
 	{
 		for ( int q = 0; q < 256; ++q )
 		{
-			if ( <int>allocated_bitmaps[q] == -2 )
+			if ( <int>allocated_bitmaps[q+256] == -1 )
 			{
-				allocated_bitmaps[q] = <int> -1;
+				allocated_bitmaps[q+256] = <int>0;
 			}
 		}
 	}
-	const float VERSION = 1.0002;	/**< The header version ID */
-	const int ALPHA = 4;		/**< The header Alpha ID */
+	const float VERSION = 1.0010;	/**< The header version ID */
+	const int ALPHA = 5;		/**< The header Alpha ID */
 	const int BETA = 0;		/**< The header Beta ID */
 	const int GAMMA = 0;		/**< The header Gamma ID */
 	const int RELEASE = 0;		/**< The header Release ID */
