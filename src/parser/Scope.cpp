@@ -1305,7 +1305,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 	string fname = node->getFilename();
 	for ( int q = 0; q < fname.size(); ++q )
 	{
-		if ( fname.at(q) >= 'A' || fname.at(q) <= 'Z' )
+		if ( fname.at(q) >= 'A' && fname.at(q) <= 'Z' )
 		{
 			fname.at(q) += 32;
 		}
