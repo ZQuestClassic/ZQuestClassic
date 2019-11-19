@@ -1,0 +1,146 @@
+	
+namespace time
+{
+	enum { 
+		tzGMT, tzBST, tzIST, tzADT, tzEDT, tzCDT, tzMDT, tzPDT,
+		tzCET, tzWAT, tzEET, tzMSK, tzSMT, tzAZT, tzEAT, tzYDT,
+		tzGET, tzMVT, tzMUT, tzNZT, tzCST, tzWST, tzBST, tzCAT,
+		tzJST, tzEST, tzPKT, tzWAT, tzART, tzAST, tzYST, tzHST,
+		tzHDT, tzAT, tzNT, tzCXT, tzCST, tzMST, tzPST, tzWEDT,
+		tzWEST, tzCEDT, tzCEST, tzMEDT, tzMEST, tzMESZ, tzEEDT, tzNZDT,
+		tzEEST, tzEADT, tzWADT, tzHADT, tzAKDT, tzIDLW, tzAHST, tzAKST,
+		tzHAST, tzUSZ1, tzYEKT, tzOMSK, tzKRAT, tzIRKT, tzAWST, tzEAST,
+		tzVLAT, tzSAKT, tzIDLE, tzNZST, tzMAGT
+	};
+	void PrintDate(int d, int m, int y, int h, int m, int zone)
+	{
+		int day[5];
+		int month[10];
+		int timezone[5];
+		switch(d)
+		{
+			case 1:
+			case 21:
+			case 31:
+				sprintf(temp,"%d%s",dy,"st"); 
+				break;
+			//nd
+			case 2:
+			case 22:
+				sprintf(temp,"%d%s",dy,"nd"); 
+				break;
+			//rd
+			case 3:
+			case 23:
+				sprintf(temp,"%d%s",dy,"rd"); 
+				break;
+			//th
+			default:
+				sprintf(temp,"%d%s",dy,"th");
+				break;
+		}
+		
+		switch(m)
+		{
+			case 1:
+				strcpy(month, "January"); break;
+			case 2:
+				strcpy(month, "February"); break;
+			case 3:
+				strcpy(month, "March"); break;
+			case 4:
+				strcpy(month, "April"); break;
+			case 5:
+				strcpy(month, "May"); break;
+			case 6:
+				strcpy(month, "June"); break;
+			case 7:
+				strcpy(month, "July"); break;
+			case 8:
+				strcpy(month, "August"); break;
+			case 9:
+				strcpy(month, "September"); break;
+			case 10:
+				strcpy(month, "October"); break;
+			case 11:
+				strcpy(month, "November"); break;
+			case 12:
+				strcpy(month, "December"); break;
+			
+		}
+		switch(zone)
+		{
+			case tzGMT: strcpy(timezone, "GMT"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzIST: strcpy(timezone, "IST"); break;
+			case tzADT: strcpy(timezone, "ADT"); break;
+			case tzEDT: strcpy(timezone, "EDT"); break;
+			case tzCDT: strcpy(timezone, "CDT"); break;
+			case tzMDT: strcpy(timezone, "MDT"); break;
+			case tzPDT: strcpy(timezone, "PDT"); break;
+			case tzCET: strcpy(timezone, "CET"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzEET: strcpy(timezone, "EET"); break;
+			case tzMSK: strcpy(timezone, "MSK"); break;
+			case tzSMT: strcpy(timezone, "SMT"); break;
+			case tzAZT: strcpy(timezone, "AZT"); break;
+			case tzEAT: strcpy(timezone, "EAT"); break;
+			case tzYDT: strcpy(timezone, "YDT"); break;
+			case tzGET: strcpy(timezone, "GET"); break;
+			case tzMVT: strcpy(timezone, "MVT"); break;
+			case tzMUT: strcpy(timezone, "MUT"); break;
+			case tzNZT: strcpy(timezone, "NZT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzWST: strcpy(timezone, "WST"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzCAT: strcpy(timezone, "CAT"); break;
+			case tzJST: strcpy(timezone, "JST"); break;
+			case tzEST: strcpy(timezone, "EST"); break;
+			case tzPKT: strcpy(timezone, "PKT"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzART: strcpy(timezone, "ART"); break;
+			case tzAST: strcpy(timezone, "AST"); break;
+			case tzYST: strcpy(timezone, "YST"); break;
+			case tzHST: strcpy(timezone, "HST"); break;
+			case tzHDT: strcpy(timezone, "HDT"); break;
+			case tzAT: strcpy(timezone, "AT"); break;
+			case tzNT: strcpy(timezone, "NT"); break;
+			case tzCXT: strcpy(timezone, "CXT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzMST: strcpy(timezone, "MST"); break;
+			case tzPST: strcpy(timezone, "PST"); break;
+			case tzWEDT: strcpy(timezone, "WEDT"); break;
+			case tzWEST: strcpy(timezone, "WEST"); break;
+			case tzCEDT: strcpy(timezone, "CEDT"); break;
+			case tzCEST: strcpy(timezone, "CEST"); break;
+			case tzMEDT: strcpy(timezone, "MEDT"); break;
+			case tzMEST: strcpy(timezone, "MEST"); break;
+			case tzMESZ: strcpy(timezone, "MESZ"); break;
+			case tzEEDT: strcpy(timezone, "EEDT"); break;
+			case tzNZDT: strcpy(timezone, "NZDT"); break;
+			case tzEEST: strcpy(timezone, "EEST"); break;
+			case tzEADT: strcpy(timezone, "EADT"); break;
+			case tzWADT: strcpy(timezone, "WADT"); break;
+			case tzHADT: strcpy(timezone, "HADT"); break;
+			case tzAKDT: strcpy(timezone, "AKDT"); break;
+			case tzIDLW: strcpy(timezone, "IDLW"); break;
+			case tzAHST: strcpy(timezone, "AHST"); break;
+			case tzAKST: strcpy(timezone, "AKST"); break;
+			case tzHAST: strcpy(timezone, "HAST"); break;
+			case tzUSZ1: strcpy(timezone, "USZ1"); break;
+			case tzYEKT: strcpy(timezone, "YEKT"); break;
+			case tzOMSK: strcpy(timezone, "OMSK"); break;
+			case tzKRAT: strcpy(timezone, "KRAT"); break;
+			case tzIRKT: strcpy(timezone, "IRKT"); break;
+			case tzAWST: strcpy(timezone, "AWST"); break;
+			case tzEAST: strcpy(timezone, "EAST"); break;
+			case tzVLAT: strcpy(timezone, "VLAT"); break;
+			case tzSAKT: strcpy(timezone, "SAKT"); break;
+			case tzIDLE: strcpy(timezone, "IDLE"); break;
+			case tzNZST: strcpy(timezone, "NZST"); break;
+			case tzMAGT: strcpy(timezone, "MAGT"); break;
+			
+		}
+		printf("%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
+	}
+};
