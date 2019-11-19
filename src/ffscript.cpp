@@ -27083,7 +27083,7 @@ void FFScript::do_LowerToUpper(const bool v)
 	}
 	for ( int q = 0; q < strA.size(); ++q )
 	{
-		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
 			if ( strA[q] < 'a' ) { continue; }
 			else strA[q] -= 32;
@@ -27117,7 +27117,7 @@ void FFScript::do_UpperToLower(const bool v)
 	}
 	for ( int q = 0; q < strA.size(); ++q )
 	{
-		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
 			if ( strA[q] < 'a' ) { strA[q] += 32; }
 			else continue;
