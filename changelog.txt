@@ -1,7 +1,62 @@
 //2.55 Changes
 
-//Alpha 41
+//Alpha 42
 
+Fix inverted logical operator
+Fix: Header Guard case-sensitivity
+Overhaul bitmap.zh; removing unsafe pointer math, and setting it up
+	more similarly to my prior bitmap rental system I coded.
+This was written before Zoria added locking, so that was lost; will
+	need to be re-added.
+	( Venrob, 19th November, 2019 )
+
+Fix: utol() and ltou()
+Fix ffcore string header prototype sigs.
+Fix some string functions in FFCore to take pointers.
+Fixed a ZASM logging message in LowerToUpper
+Bitmap.ch: Change casing for including time.zh
+Fix: Restore itemdata->Max
+Time.zh: Fix Compile
+Time.zh: Added GetMonth(*buffer,m), GetDay(*buffer,d), GetZone(*buffer,z)
+	Print and Get Date functions now call these, rather than repeating
+	large blocks.
+	Changed ::versioninfo to ::version
+Bitmap.zh: Moved version metadata into bitmap::versioninfo
+Time.zh: Added time.cfg, and namespace versioninfo
+Bitmap.zh: Move PrintTime to Time.zh
+File: Added Time.zh to ./include
+Bitmap.zh: Add lock() and timezones
+File: Add bitmaps.zh to ./include
+Added zc.cfg section [ZSCRIPT} with config int ZASM_Hangcount.
+	This is used in place of the hardcoded number of instructions to
+	wait, ere checking quit keys. It defaults to 1000.
+Check for hangs every 1000 ZScript instructions, instead of 100,000.
+The Item Editor 'Default Defence' list no longer displays
+	unimplemented enemy defence resolution types.
+Removed Lit Bomb and Lit Superbomb from the LWEAPONS list in
+	both the Classic Module, and in the Default Module
+Weapon Type List (Weapon tab in Item Editor) is now resized
+	to the number of valid weapons. Starting a weapon string with '-'
+	will remove it from the list. It no longer displays 'n/a' types.
+Fix: Check UseWeapon Every 16 Pixels Only, Plus Edge/Corner
+The UseWeapon property now triggers secret combos set by screen
+	and combo flags.
+Fix missing braces.
+Fix: UseWeapon Respects Hit X/Y Offsets
+Weapons with a UseWeapon set are no longer continuous, and
+	they now check combos along every 8 pixels of their hitbox.
+	Each weapon now has its own screengrid (wscreengrid) for this
+	application.
+Weapon->UseWeapon set to Hammer or Wand now activates
+	hammer pound and wand strike combos.
+Setting a weapon to mimic swords should now both correctly
+	read the weapon's centre, and should no longer create a permanent
+	location on the screengrid that cannot be affected.
+	Exiting and re-entering the screen should reset its grid.
+Alpha now 42, applies to all UseWeapon Commits
+	( ZoriaRPG, 19th November, 2019 )
+
+//Alpha 41
 Re-designed ZSA.txt.
 Added Strings Help to the Help submenu.
 Changed 'ZQuest Editor Help' to 'Editor Help'.
