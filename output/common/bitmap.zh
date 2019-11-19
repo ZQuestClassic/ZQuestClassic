@@ -12,6 +12,7 @@ namespace bitmaps
 		STATE_FREE,
 		STATE_INUSE,
 		STATE_FREEING
+		STATE_LOCKED
 	};
 	/**
 	*	Acquires a bitmap, trying to find freed bitmaps first.
@@ -72,6 +73,39 @@ namespace bitmaps
 		return release(b, 0);
 	}
 	/*!
+	*	Locks a bitmap so that it cannot be released. 
+	*	@param b a bitmap datatype of the bitmap pointer
+	*/
+	bool lock(bitmap b)
+	{
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
+		{
+			if ( allocated_bitmaps[q+1] == b )
+			{
+				allocated_bitmaps[q] = STATE_LOCKED;
+				return true;
+			}
+		}
+		return false;
+	}
+	/*!
+	*	Unlocks a bitmap so that it cannot be released. 
+	*	@param b a bitmap datatype of the bitmap pointer
+	*	@param free determines if it is unlocked to an INUSE (true) state, or a FREEING (false) state.
+	*/
+	bool unlock(bitmap b, bool free)
+	{
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
+		{
+			if ( allocated_bitmaps[q+1] == b )
+			{
+				allocated_bitmaps[q] = ( free ) ? STATE_INUSE : STATE_FREEING;
+				return true;
+			}
+		}
+		return false;
+	}
+	/*!
 	*	Marks a bitmap as being released, and clears it.
 	*	@param b a bitmap datatype of the bitmap pointer
 	*	@param layer an ineger datatype of the bitmap layer to clear
@@ -82,9 +116,12 @@ namespace bitmaps
 		{
 			if ( allocated_bitmaps[q+1] == b )
 			{
-				allocated_bitmaps[q] = STATE_FREEING;
-				b->Clear(layer);
-				return true;
+				unless ( allocated_bitmaps[q] == STATE_LOCKED )
+				{
+					allocated_bitmaps[q] = STATE_FREEING;
+					b->Clear(layer);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -148,8 +185,20 @@ namespace bitmaps
 			}
 		}
 	}
-	const float VERSION = 1.1000;	/**< The header version ID */
-	const int ALPHA = 6;		/**< The header Alpha ID */
+	/**> Timezones */
+	enum { 
+		tzGMT, tzBST, tzIST, tzADT, tzEDT, tzCDT, tzMDT, tzPDT,
+		tzCET, tzWAT, tzEET, tzMSK, tzSMT, tzAZT, tzEAT, tzYDT,
+		tzGET, tzMVT, tzMUT, tzNZT, tzCST, tzWST, tzBST, tzCAT,
+		tzJST, tzEST, tzPKT, tzWAT, tzART, tzAST, tzYST, tzHST,
+		tzHDT, tzAT, tzNT, tzCXT, tzCST, tzMST, tzPST, tzWEDT,
+		tzWEST, tzCEDT, tzCEST, tzMEDT, tzMEST, tzMESZ, tzEEDT, tzNZDT,
+		tzEEST, tzEADT, tzWADT, tzHADT, tzAKDT, tzIDLW, tzAHST, tzAKST,
+		tzHAST, tzUSZ1, tzYEKT, tzOMSK, tzKRAT, tzIRKT, tzAWST, tzEAST,
+		tzVLAT, tzSAKT, tzIDLE, tzNZST, tzMAGT
+	};
+	const float VERSION = 1.1001;	/**< The header version ID */
+	const int ALPHA = 7;		/**< The header Alpha ID */
 	const int BETA = 0;		/**< The header Beta ID */
 	const int GAMMA = 0;		/**< The header Gamma ID */
 	const int RELEASE = 0;		/**< The header Release ID */
@@ -158,6 +207,7 @@ namespace bitmaps
 	const int DAY = 19;		/**< The header Day of Update */
 	const int HOUR = 9;		/**< The header Hour of Update */
 	const int MINUTE = 53;		/**< The header Minute of Update */
+	const int TIMEZONE = tzGMT;	/**< The header Timezone of Update */
 	/*!
 	*	Returns the datestamp of the header in the format of DDMM.YYYY
 	*/
@@ -205,6 +255,7 @@ namespace bitmaps
 	{
 		int day[5];
 		int month[10];
+		int timezone[5];
 		switch(DAY)
 		{
 			case 1:
@@ -256,6 +307,79 @@ namespace bitmaps
 				strcpy(month, "December"); break;
 			
 		}
-		printf("%s %s %d, at %d:%d GMT\n"), day, month, YEAR, HOUR, MINUTE);
+		switch(TIMEZONE)
+		{
+			case tzGMT: strcpy(timezone, "GMT"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzIST: strcpy(timezone, "IST"); break;
+			case tzADT: strcpy(timezone, "ADT"); break;
+			case tzEDT: strcpy(timezone, "EDT"); break;
+			case tzCDT: strcpy(timezone, "CDT"); break;
+			case tzMDT: strcpy(timezone, "MDT"); break;
+			case tzPDT: strcpy(timezone, "PDT"); break;
+			case tzCET: strcpy(timezone, "CET"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzEET: strcpy(timezone, "EET"); break;
+			case tzMSK: strcpy(timezone, "MSK"); break;
+			case tzSMT: strcpy(timezone, "SMT"); break;
+			case tzAZT: strcpy(timezone, "AZT"); break;
+			case tzEAT: strcpy(timezone, "EAT"); break;
+			case tzYDT: strcpy(timezone, "YDT"); break;
+			case tzGET: strcpy(timezone, "GET"); break;
+			case tzMVT: strcpy(timezone, "MVT"); break;
+			case tzMUT: strcpy(timezone, "MUT"); break;
+			case tzNZT: strcpy(timezone, "NZT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzWST: strcpy(timezone, "WST"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzCAT: strcpy(timezone, "CAT"); break;
+			case tzJST: strcpy(timezone, "JST"); break;
+			case tzEST: strcpy(timezone, "EST"); break;
+			case tzPKT: strcpy(timezone, "PKT"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzART: strcpy(timezone, "ART"); break;
+			case tzAST: strcpy(timezone, "AST"); break;
+			case tzYST: strcpy(timezone, "YST"); break;
+			case tzHST: strcpy(timezone, "HST"); break;
+			case tzHDT: strcpy(timezone, "HDT"); break;
+			case tzAT: strcpy(timezone, "AT"); break;
+			case tzNT: strcpy(timezone, "NT"); break;
+			case tzCXT: strcpy(timezone, "CXT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzMST: strcpy(timezone, "MST"); break;
+			case tzPST: strcpy(timezone, "PST"); break;
+			case tzWEDT: strcpy(timezone, "WEDT"); break;
+			case tzWEST: strcpy(timezone, "WEST"); break;
+			case tzCEDT: strcpy(timezone, "CEDT"); break;
+			case tzCEST: strcpy(timezone, "CEST"); break;
+			case tzMEDT: strcpy(timezone, "MEDT"); break;
+			case tzMEST: strcpy(timezone, "MEST"); break;
+			case tzMESZ: strcpy(timezone, "MESZ"); break;
+			case tzEEDT: strcpy(timezone, "EEDT"); break;
+			case tzNZDT: strcpy(timezone, "NZDT"); break;
+			case tzEEST: strcpy(timezone, "EEST"); break;
+			case tzEADT: strcpy(timezone, "EADT"); break;
+			case tzWADT: strcpy(timezone, "WADT"); break;
+			case tzHADT: strcpy(timezone, "HADT"); break;
+			case tzAKDT: strcpy(timezone, "AKDT"); break;
+			case tzIDLW: strcpy(timezone, "IDLW"); break;
+			case tzAHST: strcpy(timezone, "AHST"); break;
+			case tzAKST: strcpy(timezone, "AKST"); break;
+			case tzHAST: strcpy(timezone, "HAST"); break;
+			case tzUSZ1: strcpy(timezone, "USZ1"); break;
+			case tzYEKT: strcpy(timezone, "YEKT"); break;
+			case tzOMSK: strcpy(timezone, "OMSK"); break;
+			case tzKRAT: strcpy(timezone, "KRAT"); break;
+			case tzIRKT: strcpy(timezone, "IRKT"); break;
+			case tzAWST: strcpy(timezone, "AWST"); break;
+			case tzEAST: strcpy(timezone, "EAST"); break;
+			case tzVLAT: strcpy(timezone, "VLAT"); break;
+			case tzSAKT: strcpy(timezone, "SAKT"); break;
+			case tzIDLE: strcpy(timezone, "IDLE"); break;
+			case tzNZST: strcpy(timezone, "NZST"); break;
+			case tzMAGT: strcpy(timezone, "MAGT"); break;
+			
+		}
+		printf("%s %s %d, at %d:%d %s\n", day, month, YEAR, HOUR, MINUTE, timezone);
 	}
 }
