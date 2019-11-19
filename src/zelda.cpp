@@ -134,6 +134,7 @@ int passive_subscreen_offset=0;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
+extern int hangcount;
 
 extern bool kb_typing_mode;
 
@@ -4850,6 +4851,8 @@ int main(int argc, char* argv[])
     // set up an initial game save slot (for the list_saves function)
     game = new gamedata;
     game->Clear();
+    
+    hangcount = get_config_int("ZSCRIPT","ZASM_Hangcount",1000);
     
 #ifdef _WIN32
     

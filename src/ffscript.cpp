@@ -33,6 +33,7 @@ extern byte use_dwm_flush;
 #define NUL		5
 
 extern zinitdata zinit;
+int hangcount = 0;
 
 extern byte monochrome_console;
 
@@ -19553,7 +19554,7 @@ int run_script(const byte type, const word script, const long i)
 	while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
 	{
 		numInstructions++;
-		if(numInstructions==1000) // No need to check frequently
+		if(numInstructions==hangcount) // No need to check frequently
 		{
 			numInstructions=0;
 			checkQuitKeys();
