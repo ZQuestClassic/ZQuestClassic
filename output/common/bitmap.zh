@@ -13,7 +13,7 @@ namespace bitmaps
 	{
 		STATE_FREE,
 		STATE_INUSE,
-		STATE_FREEING
+		STATE_FREEING,
 		STATE_LOCKED
 	};
 	/**
@@ -25,7 +25,7 @@ namespace bitmaps
 	*/
 	bitmap acquire(int w, int h)
 	{
-		bitmap acquire(w,h,0);
+		acquire(w,h,0);
 	}
 	/**
 	*	Acquires a bitmap, trying to find freed bitmaps first.
