@@ -1,7 +1,9 @@
 ChangeLog for 2.53.1
 
-//Beta 13
+//Beta 14
+Check for hangs every 1000 ZScript instructions, instead of 100,000.
 
+//Beta 13
 Added Strings Help to the Help submenu.
 Changed 'ZQuest Editor Help' to 'Editor Help'.
 Edited the item help info for shields to reference ZQ Shield Help
