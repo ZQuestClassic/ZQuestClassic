@@ -19553,7 +19553,7 @@ int run_script(const byte type, const word script, const long i)
 	while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
 	{
 		numInstructions++;
-		if(numInstructions==100000) // No need to check frequently
+		if(numInstructions==1000) // No need to check frequently
 		{
 			numInstructions=0;
 			checkQuitKeys();
