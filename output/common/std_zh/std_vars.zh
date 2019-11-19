@@ -3,12 +3,12 @@
 
 //A generic array, pre-included with all quests. 
 
-const float STD_VERSION = 1.6004;
+const float STD_VERSION = 1.6005;
 const int STD_DATE_YEAR = 2019;
 const int STD_DATE_MONTH = 11;
-const int STD_DATE_DAY = 5;
-const int STD_DATE_HOUR = 22;
-const int STD_DATE_MINUTE = 34;
+const int STD_DATE_DAY = 19;
+const int STD_DATE_HOUR = 11;
+const int STD_DATE_MINUTE = 45;
 
 namespace std
 {
@@ -32,7 +32,7 @@ namespace std
 	*  save files, or requiring them to start from scratch, to play the update. 
 	*/
 
-	namespace version
+	namespace versioninfo
 	{
 		float Get() { return STD_VERSION; }
 		

@@ -188,7 +188,7 @@ namespace bitmaps
 		}
 	}
 
-	namespace versioninfo
+	namespace version
 	{
 		const float VERSION = 1.1001;		/**< The header version ID */
 		const int ALPHA = 7;			/**< The header Alpha ID */

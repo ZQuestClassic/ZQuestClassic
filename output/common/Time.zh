@@ -358,7 +358,7 @@ namespace time
 	}
 	
 	
-	namespace versioninfo
+	namespace version
 	{
 		const float VERSION = 1.0001;		/**< The header version ID */
 		const int ALPHA = 0;			/**< The header Alpha ID */
