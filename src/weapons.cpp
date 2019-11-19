@@ -2678,16 +2678,44 @@ bool weapon::animate(int index)
 		
 	    }*/
 	    
-		for ( int q = 0; q < hysz; q+=8 )
+		for(int dx = 0; dx < hxsz; dx += 16)
 		{
-			for ( int w = 0; w < hxsz; w+=8 )
+			for(int dy = 0; dy < hysz; dy += 16)
 			{
-				Link.check_slash_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
-				Link.check_wand_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
-				Link.check_pound_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
-				Link.check_wpn_triggers((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
+				Link.check_slash_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_wand_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_pound_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+			}
+			Link.check_slash_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_wand_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_pound_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+		}
+		for(int dy = 0; dy < hysz; dy += 16)
+		{
+			Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+		}
+		Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+	    
+		/* Don't check every single pixel.
+		for ( int w = 0; q < hysz; q++ )
+		{
+			for ( int q = 0; w < hxsz; w++ )
+			{
+				Link.check_slash_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_wand_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_pound_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_wpn_triggers((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
 			}
 		}
+		*/
 	    //Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
 					  //Non-script-generated eweapons should be safe.
