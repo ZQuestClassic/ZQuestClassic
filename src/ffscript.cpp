@@ -731,7 +731,7 @@ const char script_types[11][16]=
 	
 	
 	
-int FFScript::UpperToLower(std::string s)
+int FFScript::UpperToLower(std::string *s)
 {
 	if ( s.size() < 1 ) 
 	{
@@ -748,7 +748,7 @@ int FFScript::UpperToLower(std::string s)
 	return 1;
 }
 
-int FFScript::LowerToUpper(std::string s)
+int FFScript::LowerToUpper(std::string *s)
 {
 	if ( s.size() < 1 ) 
 	{
@@ -765,7 +765,7 @@ int FFScript::LowerToUpper(std::string s)
 	return 1;
 }
 
-int FFScript::ConvertCase(std::string s)
+int FFScript::ConvertCase(std::string *s)
 {
 	if ( s.size() < 1 ) 
 	{
