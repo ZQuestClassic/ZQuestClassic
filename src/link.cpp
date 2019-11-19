@@ -2176,11 +2176,11 @@ void LinkClass::masked_draw(BITMAP* dest)
 
 // separate case for sword/wand/hammer/slashed weapons only
 // the main weapon checking is in the global function check_collisions()
-void LinkClass::checkstab()
+bool LinkClass::checkstab()
 {
     if(action!=attacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire)
             || (attackclk<=4))
-        return;
+        return false;
         
     weapon *w=NULL;
     
@@ -2212,13 +2212,13 @@ void LinkClass::checkstab()
     }
     
     if(attack==wSword && attackclk>=14 && charging==0)
-        return;
+        return false;
         
     if(!found)
-        return;
+        return false;
     
 	if(attack == wFire)
-		return;
+		return false;
 	
 		if(attack==wHammer)
 		{
@@ -2272,7 +2272,7 @@ void LinkClass::checkstab()
 			*/
 				}
 				
-				return;
+				return false;
 			}
 			else if(attackclk==15)
 			{
@@ -2495,7 +2495,7 @@ void LinkClass::checkstab()
         }
     }
     
-	if(attack==wCByrna)return;
+	if(attack==wCByrna)return false;
 	
     if(attack==wSword)
     {
@@ -2652,8 +2652,12 @@ void LinkClass::checkstab()
             check_pound_block(wx+wxsz-8,y+8);
         }
     }
+    else
+    {
+	return false;
+    }
     
-    return;
+    return true;
 }
 
 void LinkClass::check_slash_block(int bx, int by)
@@ -2913,8 +2917,8 @@ void LinkClass::check_slash_block(weapon *w)
 	
 	
     int bx = 0, by = 0;
-	bx = (int)w->x;
-	by = (int)w->y;
+	bx = ((int)w->x) + (((int)w->hxsz)/2);
+	by = ((int)w->y) + (((int)w->hysz)/2);
 	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
@@ -5517,7 +5521,17 @@ bool LinkClass::animate(int)
         }
     }
     
-    checkstab();
+    if (!checkstab() )
+    {
+	    
+	    for(int q=0; q<176; q++)
+            {
+                set_bit(screengrid,q,0); 
+            }
+            
+            for(int q=0; q<32; q++)
+                set_bit(ffcgrid, q, 0);
+    }
     
     check_conveyor();
     PhantomsCleanup();

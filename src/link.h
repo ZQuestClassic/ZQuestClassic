@@ -309,7 +309,7 @@ private:
     void getTriforce(int id);
     int weaponattackpower();
     void positionSword(weapon* w,int itemid);
-    void checkstab();
+    bool checkstab();
     void fairycircle(int type);
     void StartRefill(int refillWhat);
     void Start250Refill(int refillWhat);
