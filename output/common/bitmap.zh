@@ -32,7 +32,7 @@ namespace bitmaps
 		if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
 		{
 			int ww = h;
-			int h = w;
+			h = w;
 			w = ww; 
 		}
 		//first look for a bitmap marked freed
@@ -133,7 +133,7 @@ namespace bitmaps
 		}
 	}
 	const float VERSION = 1.0002;	/**< The header version ID */
-	const int ALPHA = 3;		/**< The header Alpha ID */
+	const int ALPHA = 4;		/**< The header Alpha ID */
 	const int BETA = 0;		/**< The header Beta ID */
 	const int GAMMA = 0;		/**< The header Gamma ID */
 	const int RELEASE = 0;		/**< The header Release ID */
