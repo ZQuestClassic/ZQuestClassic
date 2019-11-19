@@ -733,16 +733,16 @@ const char script_types[11][16]=
 	
 int FFScript::UpperToLower(std::string *s)
 {
-	if ( s.size() < 1 ) 
+	if ( s->size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( int q = 0; q < s->size(); ++q )
 	{
-		if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		{
-			s.at(q) += 32;
+			s->at(q) += 32;
 		}
 	}
 	return 1;
@@ -750,16 +750,16 @@ int FFScript::UpperToLower(std::string *s)
 
 int FFScript::LowerToUpper(std::string *s)
 {
-	if ( s.size() < 1 ) 
+	if ( s->size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s.size());
+		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( int q = 0; q < s->size(); ++q )
 	{
-		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
-			s.at(q) -= 32;
+			s->at(q) -= 32;
 		}
 	}
 	return 1;
@@ -767,23 +767,23 @@ int FFScript::LowerToUpper(std::string *s)
 
 int FFScript::ConvertCase(std::string *s)
 {
-	if ( s.size() < 1 ) 
+	if ( s->size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( int q = 0; q < s->size(); ++q )
 	{
-		if ( s[q] >= 'a' || s[q] <= 'z' )
+		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
-			s[q] -= 32;
+			s->at(q) -= 32;
 		}
-		else if ( s[q] >= 'A' || s[q] <= 'Z' )
+		else if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		{
-			s[q] += 32;
+			s->at(q) += 32;
 		}
 	}
-	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s.c_str());
+	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s->c_str());
 	return 1;
 }
 
