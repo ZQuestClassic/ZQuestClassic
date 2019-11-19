@@ -2637,6 +2637,9 @@ bool weapon::animate(int index)
 	    Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
 					  //Non-script-generated eweapons should be safe.
+	    
+	    Link.check_wand_block(this);
+	    Link.check_pound_block(this);
     }
     // fall down
     switch(id)

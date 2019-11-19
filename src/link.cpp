@@ -3347,6 +3347,232 @@ void LinkClass::check_pound_block(int bx, int by)
     return;
 }
 
+
+void LinkClass::check_wand_block(weapon *w)
+{
+	
+    int par_item = w->parentitem;
+	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
+	int usewpn = -1;
+	if ( par_item > -1 )
+	{
+		usewpn = itemsbuf[par_item].useweapon;
+	}
+	else if ( par_item == -1 && w->ScriptGenerated ) 
+	{
+		usewpn = w->useweapon;
+	}
+	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
+    if(usewpn != wWand) return;
+	
+	
+    int bx = 0, by = 0;
+	bx = ((int)w->x) + (((int)w->hxsz)/2);
+	by = ((int)w->y) + (((int)w->hysz)/2);
+    //keep things inside the screen boundaries
+    bx=vbound(bx, 0, 255);
+    by=vbound(by, 0, 176);
+    int fx=vbound(bx, 0, 255);
+    int fy=vbound(by, 0, 176);
+    
+    //first things first
+    if(z>8) return;
+    
+    //find out which combo row/column the coordinates are in
+    bx &= 0xF0;
+    by &= 0xF0;
+    
+    int flag = MAPFLAG(bx,by);
+    int flag2 = MAPCOMBOFLAG(bx,by);
+    int flag3=0;
+    int flag31 = MAPFFCOMBOFLAG(fx,fy);
+    int flag32 = MAPFFCOMBOFLAG(fx,fy);
+    int flag33 = MAPFFCOMBOFLAG(fx,fy);
+    int flag34 = MAPFFCOMBOFLAG(fx,fy);
+    
+    if(flag31==mfWAND||flag32==mfWAND||flag33==mfWAND||flag34==mfWAND)
+        flag3=mfWAND;
+        
+    if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
+        flag3=mfSTRIKE;
+        
+    int i = (bx>>4) + by;
+    
+    if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
+        return;
+        
+    if(i > 175)
+        return;
+        
+    //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    
+    //findentrance(bx,by,mfWAND,true);
+    //findentrance(bx,by,mfSTRIKE,true);
+    if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
+    {
+        if(flag3==mfWAND||flag3==mfSTRIKE)
+        {
+            findentrance(fx,fy,mfWAND,true);
+            findentrance(fx,fy,mfSTRIKE,true);
+        }
+    }
+    
+    //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+}
+
+void LinkClass::check_pound_block(weapon *w)
+{
+	
+	int par_item = w->parentitem;
+	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
+	int usewpn = -1;
+	if ( par_item > -1 )
+	{
+		usewpn = itemsbuf[par_item].useweapon;
+	}
+	else if ( par_item == -1 && w->ScriptGenerated ) 
+	{
+		usewpn = w->useweapon;
+	}
+	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
+    if(usewpn != wHammer) return;
+	
+	
+    int bx = 0, by = 0;
+	bx = ((int)w->x) + (((int)w->hxsz)/2);
+	by = ((int)w->y) + (((int)w->hysz)/2);
+    //keep things inside the screen boundaries
+    bx=vbound(bx, 0, 255);
+    by=vbound(by, 0, 176);
+    int fx=vbound(bx, 0, 255);
+    int fy=vbound(by, 0, 176);
+    
+    //first things first
+    if(z>8) return;
+    
+    //find out which combo row/column the coordinates are in
+    bx &= 0xF0;
+    by &= 0xF0;
+    
+    int type = COMBOTYPE(bx,by);
+    int type2 = FFCOMBOTYPE(fx,fy);
+    int flag = MAPFLAG(bx,by);
+    int flag2 = MAPCOMBOFLAG(bx,by);
+    int flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int i = (bx>>4) + by;
+    
+    if(i > 175)
+        return;
+        
+    bool ignorescreen=false;
+    bool ignoreffc=false;
+    bool pound=false;
+    
+    if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
+        ignorescreen = true; // Affect only FFCs
+        
+    if(get_bit(screengrid, i) != 0)
+        ignorescreen = true;
+        
+    int current_ffcombo = getFFCAt(fx,fy);
+    
+    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+        ignoreffc = true;
+        
+    if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
+        ignoreffc = true;
+        
+    if(ignorescreen && ignoreffc)  // Nothing to do.
+        return;
+        
+    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    
+    if(!ignorescreen)
+    {
+        if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
+        {
+            findentrance(bx,by,mfHAMMER,true);
+            findentrance(bx,by,mfSTRIKE,true);
+        }
+        else if(flag2==mfHAMMER||flag2==mfSTRIKE)
+        {
+            findentrance(bx,by,mfHAMMER,true);
+            findentrance(bx,by,mfSTRIKE,true);
+        }
+        else if((flag >= 16)&&(flag <= 31))
+        {
+            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+        }
+        else if(flag == mfARMOS_SECRET)
+        {
+            s->data[i] = s->secretcombo[sSTAIRS];
+            s->cset[i] = s->secretcset[sSTAIRS];
+            s->sflag[i] = s->secretflag[sSTAIRS];
+            sfx(tmpscr->secretsfx);
+        }
+        else if((flag2 >= 16)&&(flag2 <= 31))
+        {
+            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+        }
+        else if(flag2 == mfARMOS_SECRET)
+        {
+            s->data[i] = s->secretcombo[sSTAIRS];
+            s->cset[i] = s->secretcset[sSTAIRS];
+            s->sflag[i] = s->secretflag[sSTAIRS];
+            sfx(tmpscr->secretsfx);
+        }
+        else pound = true;
+    }
+    
+    if(!ignoreffc)
+    {
+        if(flag3==mfHAMMER||flag3==mfSTRIKE)
+        {
+            findentrance(fx,fy,mfHAMMER,true);
+            findentrance(fx,fy,mfSTRIKE,true);
+        }
+        else
+        {
+            s->ffdata[current_ffcombo]+=1;
+        }
+    }
+    
+    if(!ignorescreen)
+    {
+        if(pound)
+            s->data[i]+=1;
+            
+        set_bit(screengrid,i,1);
+        
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        {
+            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            sfx(tmpscr->secretsfx);
+        }
+        
+        if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
+            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            
+        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+    }
+    
+    if(!ignoreffc)
+    {
+        set_bit(ffcgrid,current_ffcombo,1);
+        
+        if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
+            sfx(WAV_ZN1HAMMERPOST,int(bx));
+    }
+    
+    return;
+}
+
+
+
 int LinkClass::EwpnHit()
 {
     for(int i=0; i<Ewpns.Count(); i++)

@@ -242,6 +242,8 @@ public:
     bool bigHitbox;
     byte defence[wMax];
     void check_slash_block(weapon *w);
+    void check_pound_block(weapon *w);
+    void check_wand_block(weapon *w);
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
