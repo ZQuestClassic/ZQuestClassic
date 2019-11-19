@@ -5,8 +5,14 @@
 */
 namespace bitmaps
 {
-	bitmap allocated_bitmaps[255]; /**< This array holds pointers of allocated bitmaps,
-					and freed bitmaps (-1) */
+	const int NUM_BITMAPS = 256 - 6; //6 system bitmaps take up pointer space, and won't be used!
+	untyped allocated_bitmaps[NUM_BITMAPS * 2]; /**< This array holds pointers of bitmaps in odd indexes, with their state in the even index prior */
+	enum BitState
+	{
+		STATE_FREE,
+		STATE_INUSE,
+		STATE_FREEING
+	};
 	/**
 	*	Acquires a bitmap, trying to find freed bitmaps first.
 	*	Returns the pointer to the bitmap.
@@ -35,41 +41,26 @@ namespace bitmaps
 			h = w;
 			w = ww; 
 		}
-		//first look for a bitmap marked freed
-		for ( int q = 0; q < 256; ++q )
+		//Find an index not in use
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
 		{
-			if ( <int>allocated_bitmaps[q] < 0 )
+			unless ( allocated_bitmaps[q] )
 			{
-				if ( !allocated_bitmaps[q+256] ) //this will be 0 one frame after it is cleared
+				if((<bitmap>allocated_bitmaps[q+1])->isAllocated())
 				{
-					int t = <int>allocated_bitmaps[q];
-					t *= -1;
-					temp = <bitmap>t;
+					temp = allocated_bitmaps[q+1];
 					temp->Create(layer, w,h);
-					allocated_bitmaps[q] = temp;
-					return temp;
 				}
-			}
-		}
-		//Nothing was freed, so try just creating one. 
-		temp = Game->CreateBitmap(w,h);
-		if ( !temp )
-		{
-			//could not allocate, so try to find one that is marked as 0
-			for ( int q = 0; q < 256; ++q )
-			{
-				if ( allocated_bitmaps[q] ) continue;
 				else
 				{
-					temp->Create(layer, w,h);
-					allocated_bitmaps[q] = temp;
-					return temp;
+					temp = Game->CreateBitmap(w,h);
+					allocated_bitmaps[q+1] = temp;
 				}
+				allocated_bitmaps[q] = STATE_INUSE;
+				return temp;
 			}
 		}
-		
-		//reached end of ability to allocate
-		sprintf("Could not allocate a bitmap. All bitmaps are in use!\n");
+		printf("Could not allocate a bitmap. All bitmaps are in use!\n");
 		return NULL;
 	}
 	/*!
@@ -78,115 +69,7 @@ namespace bitmaps
 	*/
 	bool release(bitmap b)
 	{
-		int id = <int>b*10000;
-		b->Clear(0);
-		int t = <int>b; 
-		t*= -1;
-		allocated_bitmaps[id] = <bitmap>t;
-		allocated_bitmaps[id+256] = <int>-1;
-		
-		return true;
-	}
-	/*!
-	*	Marks a bitmap as being released, and clears it.
-	*	@param b a the id to release in the array
-	*/
-	bool release(int id)
-	{
-		if ( allocated_bitmaps[is] ) allocated_bitmaps[id]->Clear(0);
-		int t = <int>allocated_bitmaps[id]; 
-		t*= -1;
-		allocated_bitmaps[id] = <bitmap>t;
-		allocated_bitmaps[id+256] = <int>-1;
-		
-		return true;
-	}
-	/*!
-	*	Locks a bitmap so that it cannot be released at all, or recycled. 
-	*	@param b an bitmap pointer to match
-	*/
-	void lock(bitmap b)
-	{
-		for ( int q = 0; q < 256; ++q )
-		{
-			if ( b == allocated_bitmaps[q] )
-				allocated_bitmaps[q+256] = <int>-10000;
-		}
-	}
-	/*!
-	*	Unlocks a bitmap so that it can be reused.
-	*	@param b an bitmap pointer to match
-	*	@param soft determines if it is unlocked to a held (true) state, or a ready (false) state.
-	*/
-	void unlock(bitmap b, bool soft)
-	{
-		for ( int q = 0; q < 256; ++q )
-		{
-			if ( b == allocated_bitmaps[q] )
-				allocated_bitmaps[q+256] = ((soft) ? <int>-1 : <int> 0);
-		}
-	}
-	/*!
-	*	Locks a bitmap so that it cannot be released at all, or recycled. 
-	*	@param b an ineger datatype of the bitmap index to lock
-	*/
-	void lock(int b)
-	{
-		allocated_bitmaps[id+256] = <int>-10000;
-	}
-	/*!
-	*	Unlocks a bitmap so that it can be reused this frame
-	*	@param b an ineger datatype of the bitmap index to lock
-	*	@param soft determines if it is unlocked to a held (true) state, or a ready (false) state.
-	*/
-	void unlock(int b, bool soft)
-	{
-		allocated_bitmaps[id+256] =  ((soft) ? <int>-1 : <int> 0);
-	}
-	/*!
-	*	Marks a bitmap as being released, and clears it.
-	*	@param b a bitmap datatype of the bitmap pointer
-	*	@param layer an ineger datatype of the bitmap layer to clear
-	*/
-	/*!
-	*	Holds a bitmap so that it cannot be reused this frame
-	*	@param b an bitmap pointer to match
-	*/
-	void hold(bitmap b)
-	{
-		for ( int q = 0; q < 256; ++q )
-		{
-			if ( b == allocated_bitmaps[q] )
-				allocated_bitmaps[q+256] = <int>-1;
-		}
-	}
-	/*!
-	*	Unlocks a bitmap so that it can be reused this frame
-	*	@param b an bitmap pointer to match
-	*/
-	void unhold(bitmap b)
-	{
-		for ( int q = 0; q < 256; ++q )
-		{
-			if ( b == allocated_bitmaps[q] )
-				allocated_bitmaps[q+256] = <int>0;
-		}
-	}
-	/*!
-	*	Locks a bitmap so that it cannot be reused this frame
-	*	@param b an ineger datatype of the bitmap index to hold
-	*/
-	void hold(int b)
-	{
-		allocated_bitmaps[id+256] = <int>-1;
-	}
-	/*!
-	*	Holds a bitmap so that it can be reused this frame
-	*	@param b an ineger datatype of the bitmap index to hold
-	*/
-	void unhold(int b)
-	{
-		allocated_bitmaps[id+256] = <int>0;
+		return release(b, 0);
 	}
 	/*!
 	*	Marks a bitmap as being released, and clears it.
@@ -195,34 +78,15 @@ namespace bitmaps
 	*/
 	bool release(bitmap b, int layer)
 	{
-		int id = <int>b*10000;
-		b->Clear(layer);
-		int t = <int>b;
-		t*= -1;
-		allocated_bitmaps[id] = <bitmap>t;
-		allocated_bitmaps[id+256] = <int>-1;
-		return true;
-	}
-	bool locked(int b)
-	{
-		return ( <int>allocated_bitmaps[b+256] == -10000 );
-	}
-	bool locked(bitmap b)
-	{
-		for ( int q = 0; q < 256; ++q )
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
 		{
-			if ( b == allocated_bitmaps[q] )
-				return ( <int>allocated_bitmaps[b+256] == -10000 );
+			if ( allocated_bitmaps[q+1] == b )
+			{
+				allocated_bitmaps[q] = STATE_FREEING;
+				b->Clear(layer);
+				return true;
+			}
 		}
-		return false;
-	}
-	/*!
-	*	Returns if a bitmap allocated to <b> is in use. 
-	*	@param b an integer datatype of the allocation slot
-	*/
-	bool inuse(int b)
-	{
-		if ( <int>allocated_bitmaps[b] > 0 ) return true;
 		return false;
 	}
 	/*!
@@ -231,53 +95,69 @@ namespace bitmaps
 	*/
 	bool inuse(bitmap b)
 	{
-		for ( int q = 0; q < 256; ++q )
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
 		{
-			if ( allocated_bitmaps[q] == b ) return true;
+			if ( allocated_bitmaps[q+1] == b )
+			{
+				return allocated_bitmaps[q] != STATE_FREE;
+			}
 		}
 		return false;
 	}
 	/*!
 	*	Returns if a bitmap allocation slot <b> is free. 
-	*	@param b an integer datatype of the allocation slot
+	*	@param b a bitmap datatype of the bitmap pointer
 	*/
-	bool freed(int b)
+	bool freed(bitmap b)
 	{
-		return ( <int>allocated_bitmaps[b] == -1 );
-	}
-	/*!
-	*	Returns if a bitmap is freed, and unlocked for use. 
-	*	@param b an integer datatype of the allocation slot
-	*/
-	bool canuse(int b)
-	{
-		return ( <int>allocated_bitmaps[b] == <= 0 && !allocated_bitmaps[b] );
-
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
+		{
+			if ( allocated_bitmaps[q+1] == b )
+			{
+				return allocated_bitmaps[q] == STATE_FREE;
+			}
+		}
+		return false;
 	}
 	/*!
 	*	Call at the beginning of each frame in the global active
 	* 	to update / poll freed bitmaps so that draws do not overwrite them.
 	*/
-	bool updatefreed()
+	void updatefreed()
 	{
-		for ( int q = 0; q < 256; ++q )
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
 		{
-			if ( <int>allocated_bitmaps[q+256] == -1 )
+			if ( allocated_bitmaps[q] == STATE_FREEING )
 			{
-				allocated_bitmaps[q+256] = <int>0;
+				allocated_bitmaps[q] = STATE_FREE;
 			}
 		}
 	}
-	const float VERSION = 1.0010;	/**< The header version ID */
-	const int ALPHA = 5;		/**< The header Alpha ID */
+	/*!
+	*	Call in global onLaunch, or onSaveLoad
+	*	Refreshes the database of stale pointers
+	*/
+	void refresh_pointers()
+	{
+		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
+		{
+			unless( (<bitmap>allocated_bitmaps[q+1])->isAllocated())
+			{
+				allocated_bitmaps[q] = STATE_FREE;
+				allocated_bitmaps[q+1] = NULL;
+			}
+		}
+	}
+	const float VERSION = 1.1000;	/**< The header version ID */
+	const int ALPHA = 6;		/**< The header Alpha ID */
 	const int BETA = 0;		/**< The header Beta ID */
 	const int GAMMA = 0;		/**< The header Gamma ID */
 	const int RELEASE = 0;		/**< The header Release ID */
 	const int YEAR = 2019;		/**< The header Year of Update */
 	const int MONTH = 11;		/**< The header Month of Update */
 	const int DAY = 19;		/**< The header Day of Update */
-	const int HOUR = 8;		/**< The header Hour of Update */
-	const int MINUTE = 54;		/**< The header Minute of Update */
+	const int HOUR = 9;		/**< The header Hour of Update */
+	const int MINUTE = 53;		/**< The header Minute of Update */
 	/*!
 	*	Returns the datestamp of the header in the format of DDMM.YYYY
 	*/
@@ -312,8 +192,8 @@ namespace bitmaps
 		printf("Bitmap.zh version %f", VERSION);
 		if ( ALPHA ) printf(", Alpha %d\n", ALPHA);
 		else if ( BETA ) printf(", Beta %d\n", BETA);
-		else if ( GAMMA ) printf(", Beta %d\n", GAMMA);
-		else if ( RELEASE ) printf(", Beta %d\n", RELEASE);
+		else if ( GAMMA ) printf(", Gamma %d\n", GAMMA);
+		else if ( RELEASE ) printf(", Release %d\n", RELEASE);
 		else printf("\n");
 		PrintDate();
 	}
