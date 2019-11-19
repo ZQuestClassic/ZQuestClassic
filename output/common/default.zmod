@@ -9,15 +9,15 @@ info_4 = the GPLv2 license.
 
 version_first = 2
 version_second = 0
-version_third = 0
+version_third = 1
 version_fourth = 0
 version_build = 0
 version_beta = 0
 version_year = 2019
 version_month = 11
-version_day = 17
-version_hour = 5
-version_minute = 13
+version_day = 19
+version_hour = 6
+version_minute = 40
 
 [QUESTS]
 quest_flow = 0
@@ -1355,8 +1355,8 @@ lwBeam = Sword Beam
 lwBrang = Boomerang
 lwBomb = Bomb
 lwSBomb = Super Bomb
-lwLitBomb = Lit Bomb
-lwLitSBomb = Lit Super Bomb
+lwLitBomb = -Lit Bomb
+lwLitSBomb = -Lit Super Bomb
 lwArrow = Arrow
 lwFire = Fire
 lwWhistle = Whistle
