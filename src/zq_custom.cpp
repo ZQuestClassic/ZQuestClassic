@@ -581,6 +581,57 @@ const char *itemdata_weaponlist(int index, int *list_size)
 
 static ListData itemdata_weapon_list(itemdata_weaponlist, &pfont);
 
+list_data_struct biwt[wSwordLA+1];
+int biwt_cnt=-1;
+
+void build_biwt_list()
+{
+    int start=biwt_cnt=0;
+    
+    for(int i=start; i<41; i++)
+    {
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if(moduledata.player_weapon_names[i][0]!='-')
+	{
+		//load these from the module
+	   // biwt[biwt_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+	    //biwt[biwt_cnt].s = (char *)enetype_string[i];
+	    biwt[biwt_cnt].s = (char *)moduledata.player_weapon_names[i];
+	    biwt[biwt_cnt].i = i;
+	    ++biwt_cnt;
+	}
+		
+    }
+    
+    // No alphabetic sorting for this list
+    for(int j=start+1; j<biwt_cnt-1; j++)
+    {
+        if(!strcmp(biwt[j].s,"(None)"))
+        {
+            for(int i=j; i>0; i--)
+                zc_swap(biwt[i],biwt[i-1]);
+                
+            break;
+        }
+    }
+}
+
+const char *weapontypelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biwt_cnt;
+        return NULL;
+    }
+    
+    return biwt[index].s;
+    
+}
+
+static ListData lweapontype_list(weapontypelist, &font);
+
+
 static char itemdata_weapontypelist_str_buf[14];
 
 const char *itemdata_weapontypelist(int index, int *list_size)
@@ -588,7 +639,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,40);
-        
+        al_trace("Selected Weapon: %s\n",(char *)moduledata.player_weapon_names[index]);
 	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
 	else return (char *)moduledata.player_weapon_names[index];
 	/*
@@ -1408,7 +1459,7 @@ static DIALOG itemdata_dlg[] =
     { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
     //293 --weapon editor
     { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweapontype_list,						 NULL,   NULL 				   },
     //295
     { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
@@ -2370,7 +2421,10 @@ void edit_itemdata(int index)
         
     itemdata_dlg[197].dp = da[8];
     itemdata_dlg[198].dp = da[9];
-    
+    if(biwt_cnt==-1)
+    {
+        build_biwt_list();
+    }
     build_biitems_list();
     build_biitemsprites_list();
     int script = 0, pickupscript = 0, the_spritescript = 0;
@@ -2400,7 +2454,13 @@ void edit_itemdata(int index)
     itemdata_dlg[316].d1 = the_spritescript;
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
+     
+    for(int j=0; j<biwt_cnt; j++)
+    {
+        if(biwt[j].i == itemsbuf[index].useweapon)
+            itemdata_dlg[294].d1 = j;
+    }
+    //itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
     itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
     itemdata_dlg[298].d1 = itemsbuf[index].weap_pattern[0];
     
@@ -2523,7 +2583,10 @@ void edit_itemdata(int index)
 	test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
 	test.weaprange = vbound(atoi(wrange),0,214747);
 	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_dlg[294].d1;; //atoi(wweap);
+	//test.useweapon = itemdata_dlg[294].d1; //atoi(wweap);
+	
+	test.useweapon = itemdata_dlg[294].d1 != 0 ? biwt[itemdata_dlg[294].d1].i : wNone;
+	
 	test.weap_pattern[0] = itemdata_dlg[298].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);

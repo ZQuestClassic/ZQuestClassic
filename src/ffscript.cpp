@@ -24463,8 +24463,9 @@ void ZModule::init(bool d) //bool default
 		};
 		for ( int q = 0; q < wIce+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
 		{
