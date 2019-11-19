@@ -1,6 +1,51 @@
-	
+#include "Time.cfg"
+
+/**
+*	This namespace contains functions used for handling time
+*	access functions, similar to time.h in C, plus some utilities
+*	to print the full current time and date, as a string.
+*/
 namespace time
 {
+	/**
+	*	Returns the current system clock 'seconds' value.
+	*/
+	int tm_sec() { return GetSystemTime(RTC_SECOND); }
+	/**
+	*	Returns the current system clock 'minutes' value.
+	*/
+	int tm_min() { return GetSystemTime(RTC_MINUTE); }
+	/**
+	*	Returns the current system clock 'hour' value.
+	*/
+	int tm_hour() { return GetSystemTime(RTC_HOUR); }
+	/**
+	*	Returns the current system clock 'day of the month' value.
+	*/
+	int tm_mday() { return GetSystemTime(RTC_DAYOFMONTH); }
+	/**
+	*	Returns the current system clock 'month' value.
+	*/
+	int tm_mon() { return GetSystemTime(RTC_MONTH); }
+	/**
+	*	Returns the current system clock 'year' value.
+	*/
+	int tm_year() { return GetSystemTime(RTC_YEAR); }
+	/**
+	*	Returns the current system clock 'day of the year (n/365)' value.
+	*/
+	int tm_yday() { return GetSystemTime(RTC_DAYOFYEAR); }
+	/**
+	*	Returns the current system clock 'day of the week (n/7)' value.
+	*/
+	int tm_wday() { return GetSystemTime(RTC_DAYOFWEEK); }
+	/**
+	*	Returns the current system clock 'daylight time' value.
+	*/
+	int tm_isdst() { return GetSystemTime(RTC_DAYLIGHTTIME); }
+	/**
+	*	An enum of worldwide timezones
+	*/
 	enum { 
 		tzGMT, tzBST, tzIST, tzADT, tzEDT, tzCDT, tzMDT, tzPDT,
 		tzCET, tzWAT, tzEET, tzMSK, tzSMT, tzAZT, tzEAT, tzYDT,
@@ -12,6 +57,32 @@ namespace time
 		tzHAST, tzUSZ1, tzYEKT, tzOMSK, tzKRAT, tzIRKT, tzAWST, tzEAST,
 		tzVLAT, tzSAKT, tzIDLE, tzNZST, tzMAGT
 	};
+	/**
+	*	Puts time and date stamp as a formatted string into a buffer[] string
+	*	The output will be the user's current time at runtime.
+	*	@param buffer is the the dest string[]
+	*/
+	void GetSystemTime(char32 buffer[])
+	{
+		GetDate(tm_mday(), tm_mon(), tm_year(), tm_hour(), tm_min(), user_timezone(), buffer);
+	}
+	/**
+	*	Prints a time and date stamp as a formatted string 
+	*	The output will be the user's current time at runtime.
+	*/
+	void PrintSystemTime()
+	{
+		PrintDate(tm_mday(), tm_mon(), tm_year(), tm_hour(), tm_min(), user_timezone());
+	}
+	/**
+	*	Prints a time and date stamp as a formatted string 
+	*	@param d is the day of the month
+	*	@param m is the month of the year
+	*	@param y is the the year
+	*	@param h is the the hour
+	*	@param m is the the minute
+	*	@param zone is the the timezone
+	*/
 	void PrintDate(int d, int m, int y, int h, int m, int zone)
 	{
 		int day[5];
@@ -143,4 +214,205 @@ namespace time
 		}
 		printf("%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
 	}
-};
+	
+	/**
+	*	Puts a time and date stamp as a formatted string into string buffer[] 
+	*	@param d is the day of the month
+	*	@param m is the month of the year
+	*	@param y is the the year
+	*	@param h is the the hour
+	*	@param m is the the minute
+	*	@param zone is the the timezone
+	*	@param buffer is the the dest string[]
+	*/
+	void GetDate(int d, int m, int y, int h, int m, int zone, char32 buffer)
+	{
+		int day[5];
+		int month[10];
+		int timezone[5];
+		switch(d)
+		{
+			case 1:
+			case 21:
+			case 31:
+				sprintf(temp,"%d%s",dy,"st"); 
+				break;
+			//nd
+			case 2:
+			case 22:
+				sprintf(temp,"%d%s",dy,"nd"); 
+				break;
+			//rd
+			case 3:
+			case 23:
+				sprintf(temp,"%d%s",dy,"rd"); 
+				break;
+			//th
+			default:
+				sprintf(temp,"%d%s",dy,"th");
+				break;
+		}
+		
+		switch(m)
+		{
+			case 1:
+				strcpy(month, "January"); break;
+			case 2:
+				strcpy(month, "February"); break;
+			case 3:
+				strcpy(month, "March"); break;
+			case 4:
+				strcpy(month, "April"); break;
+			case 5:
+				strcpy(month, "May"); break;
+			case 6:
+				strcpy(month, "June"); break;
+			case 7:
+				strcpy(month, "July"); break;
+			case 8:
+				strcpy(month, "August"); break;
+			case 9:
+				strcpy(month, "September"); break;
+			case 10:
+				strcpy(month, "October"); break;
+			case 11:
+				strcpy(month, "November"); break;
+			case 12:
+				strcpy(month, "December"); break;
+			
+		}
+		switch(zone)
+		{
+			case tzGMT: strcpy(timezone, "GMT"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzIST: strcpy(timezone, "IST"); break;
+			case tzADT: strcpy(timezone, "ADT"); break;
+			case tzEDT: strcpy(timezone, "EDT"); break;
+			case tzCDT: strcpy(timezone, "CDT"); break;
+			case tzMDT: strcpy(timezone, "MDT"); break;
+			case tzPDT: strcpy(timezone, "PDT"); break;
+			case tzCET: strcpy(timezone, "CET"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzEET: strcpy(timezone, "EET"); break;
+			case tzMSK: strcpy(timezone, "MSK"); break;
+			case tzSMT: strcpy(timezone, "SMT"); break;
+			case tzAZT: strcpy(timezone, "AZT"); break;
+			case tzEAT: strcpy(timezone, "EAT"); break;
+			case tzYDT: strcpy(timezone, "YDT"); break;
+			case tzGET: strcpy(timezone, "GET"); break;
+			case tzMVT: strcpy(timezone, "MVT"); break;
+			case tzMUT: strcpy(timezone, "MUT"); break;
+			case tzNZT: strcpy(timezone, "NZT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzWST: strcpy(timezone, "WST"); break;
+			case tzBST: strcpy(timezone, "BST"); break;
+			case tzCAT: strcpy(timezone, "CAT"); break;
+			case tzJST: strcpy(timezone, "JST"); break;
+			case tzEST: strcpy(timezone, "EST"); break;
+			case tzPKT: strcpy(timezone, "PKT"); break;
+			case tzWAT: strcpy(timezone, "WAT"); break;
+			case tzART: strcpy(timezone, "ART"); break;
+			case tzAST: strcpy(timezone, "AST"); break;
+			case tzYST: strcpy(timezone, "YST"); break;
+			case tzHST: strcpy(timezone, "HST"); break;
+			case tzHDT: strcpy(timezone, "HDT"); break;
+			case tzAT: strcpy(timezone, "AT"); break;
+			case tzNT: strcpy(timezone, "NT"); break;
+			case tzCXT: strcpy(timezone, "CXT"); break;
+			case tzCST: strcpy(timezone, "CST"); break;
+			case tzMST: strcpy(timezone, "MST"); break;
+			case tzPST: strcpy(timezone, "PST"); break;
+			case tzWEDT: strcpy(timezone, "WEDT"); break;
+			case tzWEST: strcpy(timezone, "WEST"); break;
+			case tzCEDT: strcpy(timezone, "CEDT"); break;
+			case tzCEST: strcpy(timezone, "CEST"); break;
+			case tzMEDT: strcpy(timezone, "MEDT"); break;
+			case tzMEST: strcpy(timezone, "MEST"); break;
+			case tzMESZ: strcpy(timezone, "MESZ"); break;
+			case tzEEDT: strcpy(timezone, "EEDT"); break;
+			case tzNZDT: strcpy(timezone, "NZDT"); break;
+			case tzEEST: strcpy(timezone, "EEST"); break;
+			case tzEADT: strcpy(timezone, "EADT"); break;
+			case tzWADT: strcpy(timezone, "WADT"); break;
+			case tzHADT: strcpy(timezone, "HADT"); break;
+			case tzAKDT: strcpy(timezone, "AKDT"); break;
+			case tzIDLW: strcpy(timezone, "IDLW"); break;
+			case tzAHST: strcpy(timezone, "AHST"); break;
+			case tzAKST: strcpy(timezone, "AKST"); break;
+			case tzHAST: strcpy(timezone, "HAST"); break;
+			case tzUSZ1: strcpy(timezone, "USZ1"); break;
+			case tzYEKT: strcpy(timezone, "YEKT"); break;
+			case tzOMSK: strcpy(timezone, "OMSK"); break;
+			case tzKRAT: strcpy(timezone, "KRAT"); break;
+			case tzIRKT: strcpy(timezone, "IRKT"); break;
+			case tzAWST: strcpy(timezone, "AWST"); break;
+			case tzEAST: strcpy(timezone, "EAST"); break;
+			case tzVLAT: strcpy(timezone, "VLAT"); break;
+			case tzSAKT: strcpy(timezone, "SAKT"); break;
+			case tzIDLE: strcpy(timezone, "IDLE"); break;
+			case tzNZST: strcpy(timezone, "NZST"); break;
+			case tzMAGT: strcpy(timezone, "MAGT"); break;
+			
+		}
+		sprintf(buffer, "%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
+	}
+	
+	
+	namespace versioninfo
+	{
+		const float VERSION = 1.0001;		/**< The header version ID */
+		const int ALPHA = 0;			/**< The header Alpha ID */
+		const int BETA = 2;			/**< The header Beta ID */
+		const int GAMMA = 0;			/**< The header Gamma ID */
+		const int RELEASE = 0;			/**< The header Release ID */
+		const int YEAR = 2019;			/**< The header Year of Update */
+		const int MONTH = 11;			/**< The header Month of Update */
+		const int DAY = 19;			/**< The header Day of Update */
+		const int HOUR = 11;			/**< The header Hour of Update */
+		const int MINUTE = 41;			/**< The header Minute of Update */
+		const int TIMEZONE = time::tzGMT;	/**< The header Timezone of Update */
+		/*!
+		*	Returns the datestamp of the header in the format of DDMM.YYYY
+		*/
+		float Datestamp()
+		{
+			float dt = MONTH;
+			dt += DAY * 100;
+			dt += YEAR / 10000;
+			return dt;
+		}
+		/*!
+		*	Returns the timestamp of the header in the format of HH.MM
+		*/
+		float Timestamp()
+		{
+			float tm = HOUR;
+			tm += MINUTE / 10000;
+			return tm;
+		}
+		/*!
+		*	Returns the version ID as a wrapper. 
+		*/
+		float Get()
+		{
+			return VERSION;
+		}
+		/*!
+		*	Prints all header version metadata to the logfile and to the console. 
+		*/
+		void Print()
+		{
+			printf("Bitmap.zh version %f", VERSION);
+			if ( ALPHA ) printf(", Alpha %d\n", ALPHA);
+			else if ( BETA ) printf(", Beta %d\n", BETA);
+			else if ( GAMMA ) printf(", Gamma %d\n", GAMMA);
+			else if ( RELEASE ) printf(", Release %d\n", RELEASE);
+			else printf("\n");
+			PrintDate();
+		}
+		void PrintDate()
+		{
+			time::PrintDate(DAY, MONTH, YEAR, HOUR, MINUTE, TIMEZONE);
+		}
+	}
+}
