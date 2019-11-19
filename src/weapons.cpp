@@ -309,7 +309,7 @@ weapon::weapon(weapon const & other):
 	//	}
 		
 	//}
-	
+	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	for( int q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
@@ -529,6 +529,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
     isLit = false;
 	linkedItem = 0;
+	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
         
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
@@ -2634,12 +2635,62 @@ bool weapon::animate(int index)
     //Only lweapons, or wScript if the weapon is not script generated, or if it IS script-generated and is not an eweapon.
     if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && ( (ScriptGenerated && isLWeapon) || !ScriptGenerated) ) ) 
     {
-	    Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
+	    /*
+	    if ( useweapon == wSword )
+	    {
+		if(dir==up && ((int(x)&15)==0))
+		{
+		    Link.check_slash_block2((int)x,(int)y);
+		    Link.check_slash_block2((int)x,(int)y+8);
+		}
+		else if(dir==up && ((int(x)&15)==8||Link.diagonalMovement))
+		{
+		    Link.check_slash_block2((int)x,(int)y);
+		    Link.check_slash_block2((int)x,(int)y+8);
+		    Link.check_slash_block2((int)x+8,(int)y);
+		    Link.check_slash_block2((int)x+8,(int)y+8);
+		}
+		
+		if(dir==down && ((int(x)&15)==0))
+		{
+		    Link.check_slash_block2((int)x,(int)y+(int)hysz-8);
+		    Link.check_slash_block2((int)x,(int)y+(int)hysz);
+		}
+		else if(dir==down && ((int(x)&15)==8||Link.diagonalMovement))
+		{
+		    Link.check_slash_block2((int)x,(int)y+hysz-8);
+		    Link.check_slash_block2((int)x,(int)y+hysz);
+		    Link.check_slash_block2((int)x+8,(int)y+hysz-8);
+		    Link.check_slash_block2((int)x+8,(int)y+hysz);
+		}
+		
+		if(dir==left)
+		{
+		    Link.check_slash_block2((int)x,(int)y+8);
+		    Link.check_slash_block2((int)x+8,(int)y+8);
+		}
+		
+		if(dir==right)
+		{
+		    Link.check_slash_block2((int)x+hxsz,(int)y+8);
+		    Link.check_slash_block2((int)x+hxsz-8,(int)y+8);
+		}
+		
+	    }*/
+	    
+		for ( int q = 0; q < hysz; q+=8 )
+		{
+			for ( int w = 0; w < hxsz; w+=8 )
+				Link.check_slash_block2((int)x+q,(int)y+q, this);
+				Link.check_wand_block2((int)x+q,(int)y+q, this);
+				Link.check_pound_block2((int)x+q,(int)y+q, this);
+		}
+	    //Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
 					  //Non-script-generated eweapons should be safe.
 	    
-	    Link.check_wand_block(this);
-	    Link.check_pound_block(this);
+	    //Link.check_wand_block(this);
+	    //Link.check_pound_block(this);
     }
     // fall down
     switch(id)

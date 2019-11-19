@@ -320,10 +320,7 @@ private:
     void heroDeathAnimation();
     void ganon_intro();
     void saved_Zelda();
-    void check_slash_block(int bx, int by);
-    
-    void check_wand_block(int bx, int by);
-    void check_pound_block(int bx, int by);
+   
     void check_conveyor();
     bool sideviewhammerpound();
     bool agonyflag(int flag);
@@ -350,6 +347,13 @@ public:
     void linkstep();
     void stepforward(int steps, bool adjust);
     void draw_under(BITMAP* dest);
+    void check_slash_block(int bx, int by);
+    void check_slash_block2(int bx, int by, weapon *w);
+    void check_wand_block2(int bx, int by, weapon *w);
+    void check_pound_block2(int bx, int by, weapon *w);
+    
+    void check_wand_block(int bx, int by);
+    void check_pound_block(int bx, int by);
     
     // called by ALLOFF()
     void resetflags(bool all);
