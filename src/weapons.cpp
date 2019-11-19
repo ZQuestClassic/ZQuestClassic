@@ -2681,9 +2681,11 @@ bool weapon::animate(int index)
 		for ( int q = 0; q < hysz; q+=8 )
 		{
 			for ( int w = 0; w < hxsz; w+=8 )
+			{
 				Link.check_slash_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
 				Link.check_wand_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
 				Link.check_pound_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+q, this);
+			}
 		}
 	    //Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
