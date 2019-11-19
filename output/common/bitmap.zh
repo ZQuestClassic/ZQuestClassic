@@ -1,4 +1,4 @@
-#include "Time.zh"
+#include "time.zh"
 
 /**
 *	This namespace contains functions used for handling bitmap
