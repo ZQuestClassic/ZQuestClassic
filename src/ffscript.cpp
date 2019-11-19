@@ -752,7 +752,7 @@ int FFScript::LowerToUpper(std::string s)
 {
 	if ( s.size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s.size());
 		return 0;
 	}
 	for ( int q = 0; q < s.size(); ++q )
