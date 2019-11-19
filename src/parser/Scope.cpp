@@ -1302,7 +1302,15 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 	if(node->wasChecked()) return true;
 	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
+	string fname = node->getFilename();
+	for ( int q = 0; q < fname.size(); ++q )
+	{
+		if ( fname.at(q) >= 'A' || fname.at(q) <= 'Z' )
+		{
+			fname.at(q) += 32;
+		}
+	}
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(NULL))
 	{
 		node->disable(); //Disable node.
 		switch(headerGuard)
@@ -1328,7 +1336,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 				
 		}
 	}
-	importsByName_[node->getFilename()] = node;
+	importsByName_[fname] = node;
 	return true; //Allow import
 }
 
