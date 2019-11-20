@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 14
+Changed menu entry 'The Travels of Link' to 'Ambient Music'.
 Fixed ambient and boss sounds being killed when using potions.
 	The prior fix did not work. 
 Fix Memory Leak from Mirrors: This commit should remove a memory leak when 
