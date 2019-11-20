@@ -1,6 +1,27 @@
 ChangeLog for 2.53.1
 
 //Beta 14
+Fix Memory Leak from Mirrors: This commit should remove a memory leak when 
+	reflecting weapons off of mirrors caused by creating a new weapon, 
+	then not using it. 
+	Notably: 
+		weapon *w = new weapon(*this);
+		if ( a ) { Lwpns.add(w); } // Safe, because the sprite_list will destroy it.
+		else w = this; 
+		// Memory leak happens here, because the weapon we added to the heap above
+		// isn't added to sprite_list. It is a dangling piece on the heap.
+
+	Changed to: 
+		weapon *w = NULL; 
+		if ( a )
+		{
+			w = new weapon(*this);
+			Lwpns.add(w); 		// This should have the same effect as above, but
+					// the weapon is not being allocated to the heap,
+					// UNTIL it is NEEDED.
+		}
+		else w = this; // Now, we assign the NULL pointer to *this. 
+		// Thus, no heap allocation occurs. 
 Fix: Potion Kills Ambient SFX
 	This fix should pause sfx when refilling (potion, magic, hearts
 	or both, including from refill combos; then resume them when the potion 
