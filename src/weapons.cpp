@@ -6688,10 +6688,11 @@ mirrors:
         {
             if(hitcombo(checkx,checky,cMIRROR))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -6721,10 +6722,11 @@ mirrors:
             
             if(hitcombo(checkx,checky,cMIRRORSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -6768,10 +6770,11 @@ mirrors:
             
             if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
