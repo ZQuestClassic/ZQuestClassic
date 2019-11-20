@@ -2898,6 +2898,7 @@ void LinkClass::check_slash_block(int bx, int by)
 
 void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 {
+	/*
 	int par_item = w->parentitem;
 	al_trace("check_wpn_triggers(weapon *w): par_item is: %d\n", par_item);
 	int usewpn = -1;
@@ -2911,8 +2912,8 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 	}
 	al_trace("check_wpn_triggers(weapon *w): usewpn is: %d\n", usewpn);
 	
-	
-	switch(usewpn)
+	*/
+	switch(w->useweapon)
 	{
 		case wArrow:
 			findentrance(bx,by,mfARROW,true);
@@ -3019,6 +3020,7 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 
 void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 {
+	/*
 	int par_item = w->parentitem;
 	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
 	int usewpn = -1;
@@ -3031,7 +3033,8 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		usewpn = w->useweapon;
 	}
 	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
-    if(usewpn != wSword) return;
+	*/
+    if(w->useweapon != wSword) return;
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
@@ -3261,6 +3264,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 
 void LinkClass::check_wand_block2(int bx, int by, weapon *w)
 {
+	/*
 	int par_item = w->parentitem;
 	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
 	int usewpn = -1;
@@ -3273,8 +3277,8 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
 		usewpn = w->useweapon;
 	}
 	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
-	
-	if(usewpn != wWand) return;
+	*/
+	if(w->useweapon != wWand) return;
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
@@ -3328,6 +3332,7 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
 
 void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 {
+	/*
 	int par_item = w->parentitem;
 	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
 	int usewpn = -1;
@@ -3340,8 +3345,8 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 		usewpn = w->useweapon;
 	}
 	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
-	
-	if(usewpn != wHammer) return;
+	*/
+	if(w->useweapon != wHammer) return;
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
