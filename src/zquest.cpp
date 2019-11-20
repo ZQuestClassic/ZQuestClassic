@@ -1002,7 +1002,7 @@ static MENU etc_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+    { (char *)"Ambient Music",        NULL,                      tunes_menu,               0,            NULL   },
     { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
     { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
     { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
@@ -1018,7 +1018,7 @@ static MENU etc_menu[] =
 
 static MENU media_menu[] =
 {
-	{ (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"Ambient Music",        NULL,                      tunes_menu,               0,            NULL   },
     { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
     { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
     { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
@@ -30576,7 +30576,7 @@ command_pair commands[cmdMAX]=
     { "Strings",                            0, (intF) onStrings                                        },
     { "Subscreens",                         0, (intF) onEditSubscreens                                 },
     { "Take Snapshot",                      0, (intF) onSnapshot                                       },
-    { "The Travels of Link",                0, (intF) playTune1                                        },
+    { "Ambient Music",                0, (intF) playTune1                                        },
     { "NES Dungeon Template",               0, (intF) onTemplate                                       },
     { "Edit Templates",                     0, (intF) onTemplates                                      },
     { "Tile Warp",                          0, (intF) onTileWarp                                       },
