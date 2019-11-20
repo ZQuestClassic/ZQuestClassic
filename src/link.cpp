@@ -81,7 +81,6 @@ extern word link_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
 extern byte epilepsyFlashReduction;
-byte was_refilling_stats = 0;
 
 void playLevelMusic();
 
@@ -17589,15 +17588,8 @@ bool LinkClass::refill()
 {
     if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
     {
-	if ( was_refilling_stats ) 
-	{
-		was_refilling_stats = 0;
-		resume_all_sfx();
-	}
         return false;
     }
-        
-    was_refilling_stats = 1;
     
     ++refillclk;
     int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
@@ -17621,11 +17613,12 @@ bool LinkClass::refill()
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
-                //kill_sfx();
-		for(int i=0; i<WAV_COUNT; i++)
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for ( int q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( i != WAV_MSG )
-				pause_sfx(i);
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
 		}
 		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
@@ -17640,11 +17633,12 @@ bool LinkClass::refill()
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
-                //kill_sfx();
-		for(int i=0; i<WAV_COUNT; i++)
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for ( int q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( i != WAV_MSG )
-				pause_sfx(i);
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
 		}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
@@ -17661,11 +17655,12 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
-                //kill_sfx();
-		for(int i=0; i<WAV_COUNT; i++)
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for ( int q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( i != WAV_MSG )
-				pause_sfx(i);
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
 		}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
