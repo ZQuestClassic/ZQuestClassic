@@ -477,6 +477,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
+	useweapon = itemsbuf[Parentitem].useweapon;
+	usedefence = itemsbuf[Parentitem].usedefence;
 	//load initd
 	for ( int q = 0; q < 8; q++ )
 	{
