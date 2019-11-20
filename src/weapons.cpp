@@ -4344,7 +4344,7 @@ bool weapon::animate(int index)
                 }
                 else
                 {
-                    w=this;
+                    w=this; //Oh, look, a memory leak. The new instruction is making something on the heap, but this circumvents removing it. 
                 }
                 
                 w->dir = 3-w->dir;
