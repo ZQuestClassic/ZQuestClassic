@@ -63,6 +63,7 @@ int directItemB = -1;
 int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;
+byte was_refilling_stats = 0;
 
 void playLevelMusic();
 
@@ -15047,8 +15048,16 @@ void LinkClass::StartRefill(int refillWhat)
 bool LinkClass::refill()
 {
     if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
+    {
+	if ( was_refilling_stats ) 
+	{
+		was_refilling_stats = 0;
+		resume_all_sfx();
+	}
         return false;
-        
+    }
+
+    was_refilling_stats = 1;
     ++refillclk;
     int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
     int refill_heart_stop=game->get_maxlife();
@@ -15071,7 +15080,12 @@ bool LinkClass::refill()
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+		for(int i=0; i<WAV_COUNT; i++)
+		{
+			if ( i != WAV_MSG )
+				pause_sfx(i);
+		}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
@@ -15085,8 +15099,13 @@ bool LinkClass::refill()
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for(int i=0; i<WAV_COUNT; i++)
+		{
+			if ( i != WAV_MSG )
+				pause_sfx(i);
+		}
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
             }
@@ -15101,8 +15120,13 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for(int i=0; i<WAV_COUNT; i++)
+		{
+			if ( i != WAV_MSG )
+				pause_sfx(i);
+		}
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
             }

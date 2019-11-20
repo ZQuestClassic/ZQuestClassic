@@ -1,7 +1,17 @@
 ChangeLog for 2.53.1
 
 //Beta 14
+Fix: Potion Kills Ambient SFX
+	This fix should pause sfx when refilling (potion, magic, hearts
+	or both, including from refill combos; then resume them when the potion 
+	effect ends, matching the NES behaviour. 
+	( ZoriaRPG, 20th November, 2019 )
+	
+Added zc.cfg section [ZSCRIPT} with config int ZASM_Hangcount.
+	This is used in place of the hardcoded number of instructions to
+	wait, ere checking quit keys. It defaults to 1000.
 Check for hangs every 1000 ZScript instructions, instead of 100,000.
+	( ZoriaRPG, 19th November, 2019 )
 
 //Beta 13
 Added Strings Help to the Help submenu.
