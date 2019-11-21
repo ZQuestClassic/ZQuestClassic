@@ -2,6 +2,7 @@
 
 //Alpha 42
 
+Added death.zh to ./headers
 Changed menu entry 'The Travels of Link' to 'Ambient Music'.
 Fixed ambient and boss sounds being killed when using potions.
 	The prior fix did not work.
