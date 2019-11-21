@@ -2,6 +2,21 @@
 
 //Alpha 42
 
+Changed menu entry 'The Travels of Link' to 'Ambient Music'.
+Fixed ambient and boss sounds being killed when using potions.
+	The prior fix did not work.
+This fix should pause sfx when refilling (potion, magic, hearts
+	or both, including from refill combos; then resume them when the potion
+	effect ends, matching the NES behaviour.
+Found and removed additional mirror memory leaks.
+Now that weapons set useweapon and usedefence in their constructor
+	Link.cpp's functions that used to check itemsbuf[prnt].useweapon
+	now read w->usewepon, instyead of reading itemsbuf[parentitem[.useweapon.
+Copy useweapon and usedefence to lweapons in constructor from itemsbuf.
+Possibly fix memory leaks with mirror reflected weapons.
+Note where memory leaks occur with mirrors.
+	( ZoriaRPG, 20th November, 2019 )
+
 Fix inverted logical operator
 Fix: Header Guard case-sensitivity
 Overhaul bitmap.zh; removing unsafe pointer math, and setting it up
