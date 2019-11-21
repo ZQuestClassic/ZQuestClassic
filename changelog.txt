@@ -2,6 +2,7 @@
 
 //Alpha 42
 
+Fixed a typo in the Defaul Module [LWEAPONS] section.
 Added death.zh to ./headers
 Changed menu entry 'The Travels of Link' to 'Ambient Music'.
 Fixed ambient and boss sounds being killed when using potions.
