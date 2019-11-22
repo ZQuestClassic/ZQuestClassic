@@ -1710,7 +1710,7 @@ void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -1882,7 +1882,7 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x
@@ -5036,7 +5036,7 @@ void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -5219,7 +5219,7 @@ void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x

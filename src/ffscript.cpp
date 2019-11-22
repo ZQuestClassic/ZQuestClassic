@@ -11426,7 +11426,7 @@ void set_register(const long arg, const long value)
 				GuyH::getNPC()->wpn = weapon;
 			
 				//al_trace("Correct weapon sprite is: %d /n", FFCore.GetDefaultWeaponSprite(weapon));
-				if ( get_bit(extra_rules, er_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
+				if ( get_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
 				{
 					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
 				}

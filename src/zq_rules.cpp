@@ -621,7 +621,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, 28, 29, 30, -1
+	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -640,7 +640,8 @@ static int compatrules[] =
    qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6, qr_BROKEN_ASKIP_Y_FRAMES,
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
-   -1 
+   qr_SHORTDGNWALK,
+	-1 
 };
 
 static DIALOG compatrules_dlg[] =
@@ -686,6 +687,7 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Enemy Knockback Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Weapons Can Go Out of Bounds (Offscreen)", NULL, NULL },
 	{ jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Check Clip for Custom / Script Type Weapons on Screen Edge", NULL, NULL },
+	{ jwin_check_proc,      10, 13+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "1.92 Diagonal Walk Speed", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
