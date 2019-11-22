@@ -479,6 +479,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	weaponscript = itemsbuf[Parentitem].weaponscript;
 	useweapon = itemsbuf[Parentitem].useweapon;
 	usedefence = itemsbuf[Parentitem].usedefence;
+	if ( id != wPhantom && ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+	    //Note: eweapons use this for boss weapon block flags
 	//load initd
 	for ( int q = 0; q < 8; q++ )
 	{
