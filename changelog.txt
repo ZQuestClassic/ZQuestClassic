@@ -1,7 +1,32 @@
 //2.55 Changes
 
-//Alpha 42
+//Alpha 43
 
+V_LINKTILES is now 6.
+	Tiles are now written as int. I added a secondary function to
+	read Link's tiles if the version is >= 6. Old quests still use
+	the function that casts them to word.
+	This allows setting tiles with values > 32767 to any of Link's
+	animations.
+Added 'timezone' string to [METADATA], max [6] chars.
+	The string can fit UTC+10. It's internal size is [7] to fit NULL termination.
+FFScript::GetDefaultWeaponSprite now returns default values for
+	lweapon, and Script/Custom weapon IDs; and it will return sprite
+	IDs 246 though 255 if the appropriate rulebit is enabled.
+Added ZScript Rule: Instructions->npc->Weapon Uses Sprite 246-255 for EW_CUSTOM
+Added initial Weapons Rules dialogue, with tabs 'lweapons' and 'eweapons'.
+	( ZoriaRPG, 23rd November, 2019 )
+	
+Build is now 48.
+Alpha is now 43.
+Ported the remaining, legacy extra_rules, to quest_rules, adding:
+	Quest>>>Rules>>Compatibility>>>2>>>1.92 Diagonal Walk Speed
+	ZScript>>>Instructions>>>Writing npc->Weapon Sets its Weapon Sprite
+	ZScript>>>Insructions>>>Broken DrawInteger and DrawCharacter Scaling
+LWeapon->Level is now Set in the Constructor
+	( ZoriaRPG, 22nd November, 2019 )
+
+//Alpha 42
 Fixed a typo in the Defaul Module [LWEAPONS] section.
 Added death.zh to ./headers
 Changed menu entry 'The Travels of Link' to 'Ambient Music'.
