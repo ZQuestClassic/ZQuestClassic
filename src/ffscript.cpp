@@ -24863,6 +24863,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		}
 		//Draw
 		clear_bitmap(framebuf);
+		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
 		advanceframe(true,true,false);
