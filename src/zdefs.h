@@ -3734,6 +3734,7 @@ struct zcmodule
 	char moduleinfo2[255];
 	char moduleinfo3[255];
 	char moduleinfo4[255];
+	char moduletimezone[7]; //supports fiveb char abbreviations, and UTC+ or UTC- nn. 
 	//char module_base_nsf[255];
 	
         

@@ -6491,8 +6491,8 @@ void about_zcplayer_module(const char *prompt,int initialval)
 	
 	char module_date[255];
 	memset(module_date, 0, sizeof(module_date));
-	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	
 	
 	

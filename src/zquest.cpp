@@ -1608,8 +1608,8 @@ void about_module(const char *prompt,int initialval)
 	
 	char module_date[255];
 	memset(module_date, 0, sizeof(module_date));
-	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	
 	
 	
@@ -31794,6 +31794,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo2, 0, sizeof(moduledata.moduleinfo2));
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
+	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
 	moduledata.modver_1 = 0;
@@ -31830,6 +31831,7 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata.moduleinfo2,get_config_string("METADATA","info_2",""));
 		strcpy(moduledata.moduleinfo3,get_config_string("METADATA","info_3",""));
 		strcpy(moduledata.moduleinfo4,get_config_string("METADATA","info_4",""));
+		strcpy(moduledata.moduletimezone,get_config_string("METADATA","timezone","GMT"));
 		//strcpy(moduledata.module_base_nsf,get_config_string("METADATA","nsf",""));
 		moduledata.modver_1 = get_config_int("METADATA","version_first",0);
 		moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
@@ -32349,8 +32351,8 @@ void ZModule::init(bool d) //bool default
 		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
 		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
 		//al_trace("Build Year: %d\n",moduledata.modyear);
-		al_trace("Build Date: %s %s, %d at @ %d:%d\n", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute);
+		al_trace("Build Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	    
 	}
 	
