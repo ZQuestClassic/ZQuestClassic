@@ -24740,6 +24740,7 @@ void FFScript::runF6Engine()
 				}
 				//Draw
 				clear_bitmap(framebuf);
+				if( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 				doScriptMenuDraws();
 				//
 				advanceframe(true,true,false);
@@ -24789,6 +24790,7 @@ void FFScript::runOnDeathEngine()
 		}
 		//Draw
 		clear_bitmap(framebuf);
+		if( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
 		advanceframe(true,true,false);
@@ -24815,6 +24817,8 @@ void FFScript::runOnLaunchEngine()
 		}
 		//Draw
 		clear_bitmap(framebuf);
+		if( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
+		
 		doScriptMenuDraws();
 		//
 		advanceframe(true,true,false);
