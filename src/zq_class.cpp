@@ -10311,7 +10311,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         //finally...  section data
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)walkspr[i][spr_tile],f))
+            if(!p_iputl(walkspr[i][spr_tile],f))
             {
                 new_return(5);
             }
@@ -10329,7 +10329,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)stabspr[i][spr_tile],f))
+            if(!p_iputl(stabspr[i][spr_tile],f))
             {
                 new_return(6);
             }
@@ -10347,7 +10347,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)slashspr[i][spr_tile],f))
+            if(!p_iputl(slashspr[i][spr_tile],f))
             {
                 new_return(7);
             }
@@ -10365,7 +10365,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)floatspr[i][spr_tile],f))
+            if(!p_iputl(floatspr[i][spr_tile],f))
             {
                 new_return(8);
             }
@@ -10383,7 +10383,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)swimspr[i][spr_tile],f))
+            if(!p_iputl(swimspr[i][spr_tile],f))
             {
                 new_return(8);
             }
@@ -10401,7 +10401,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)divespr[i][spr_tile],f))
+            if(!p_iputl(divespr[i][spr_tile],f))
             {
                 new_return(9);
             }
@@ -10419,7 +10419,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)poundspr[i][spr_tile],f))
+            if(!p_iputl(poundspr[i][spr_tile],f))
             {
                 new_return(10);
             }
@@ -10435,7 +10435,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        if(!p_iputw((word)castingspr[spr_tile],f))
+        if(!p_iputl(castingspr[spr_tile],f))
         {
             new_return(11);
         }
@@ -10454,7 +10454,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         {
             for(int j=0; j<2; j++)
             {
-                if(!p_iputw((word)holdspr[i][j][spr_tile],f))
+                if(!p_iputl(holdspr[i][j][spr_tile],f))
                 {
                     new_return(12);
                 }
@@ -10473,7 +10473,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)jumpspr[i][spr_tile],f))
+            if(!p_iputl(jumpspr[i][spr_tile],f))
             {
                 new_return(13);
             }
@@ -10491,7 +10491,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw((word)chargespr[i][spr_tile],f))
+            if(!p_iputl(chargespr[i][spr_tile],f))
             {
                 new_return(13);
             }

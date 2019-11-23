@@ -7984,6 +7984,364 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     return 0;
 }
 
+//Used to read the player sprites as int, not word. 
+int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool keepdata)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    cv_linksprites=cv_linksprites;
+    
+    if(keepdata)
+    {
+        zinit.link_swim_speed=67; //default
+        setuplinktiles(zinit.linkanimationstyle);
+    }
+    
+    int tile, tile2;
+    byte flip, extend, dummy_byte;
+    
+    if(v_linksprites>=0)
+    {
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                walkspr[i][spr_tile]=(int)tile;
+                walkspr[i][spr_flip]=(int)flip;
+                walkspr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                stabspr[i][spr_tile]=(int)tile;
+                stabspr[i][spr_flip]=(int)flip;
+                stabspr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                slashspr[i][spr_tile]=(int)tile;
+                slashspr[i][spr_flip]=(int)flip;
+                slashspr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                floatspr[i][spr_tile]=(int)tile;
+                floatspr[i][spr_flip]=(int)flip;
+                floatspr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        if(v_linksprites>1)
+        {
+            for(int i=0; i<4; i++)
+            {
+                if(!p_igetl(&tile,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&flip,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&extend,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(keepdata)
+                {
+                    swimspr[i][spr_tile]=(int)tile;
+                    swimspr[i][spr_flip]=(int)flip;
+                    swimspr[i][spr_extend]=(int)extend;
+                }
+            }
+        }
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                divespr[i][spr_tile]=(int)tile;
+                divespr[i][spr_flip]=(int)flip;
+                divespr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        for(int i=0; i<4; i++)
+        {
+            if(!p_igetl(&tile,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_getc(&extend,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                poundspr[i][spr_tile]=(int)tile;
+                poundspr[i][spr_flip]=(int)flip;
+                poundspr[i][spr_extend]=(int)extend;
+            }
+        }
+        
+        if(!p_igetl(&tile,f,keepdata))
+        {
+            return qe_invalid;
+        }
+        
+        flip=0;
+        
+        if(v_linksprites>0)
+        {
+            if(!p_getc(&flip,f,keepdata))
+            {
+                return qe_invalid;
+            }
+        }
+        
+        if(!p_getc(&extend,f,keepdata))
+        {
+            return qe_invalid;
+        }
+        
+        if(keepdata)
+        {
+            castingspr[spr_tile]=(int)tile;
+            castingspr[spr_flip]=(int)flip;
+            castingspr[spr_extend]=(int)extend;
+        }
+        
+        if(v_linksprites>0)
+        {
+            for(int i=0; i<2; i++)
+            {
+                for(int j=0; j<2; j++)
+                {
+                    if(!p_igetl(&tile,f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                    
+                    if(!p_getc(&flip,f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                    
+                    if(!p_getc(&extend,f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                    
+                    if(keepdata)
+                    {
+                        holdspr[i][j][spr_tile]=(int)tile;
+                        holdspr[i][j][spr_flip]=(int)flip;
+                        holdspr[i][j][spr_extend]=(int)extend;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for(int i=0; i<2; i++)
+            {
+                if(!p_igetl(&tile,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_igetl(&tile2,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&extend,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(keepdata)
+                {
+                    holdspr[i][spr_hold1][spr_tile]=(int)tile;
+                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
+                    holdspr[i][spr_hold1][spr_extend]=(int)extend;
+                    holdspr[i][spr_hold2][spr_tile]=(int)tile2;
+                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
+                    holdspr[i][spr_hold2][spr_extend]=(int)extend;
+                }
+            }
+        }
+        
+        if(v_linksprites>2)
+        {
+            for(int i=0; i<4; i++)
+            {
+                if(!p_igetl(&tile,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&flip,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&extend,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(keepdata)
+                {
+                    jumpspr[i][spr_tile]=(int)tile;
+                    jumpspr[i][spr_flip]=(int)flip;
+                    jumpspr[i][spr_extend]=(int)extend;
+                }
+            }
+        }
+        
+        if(v_linksprites>3)
+        {
+            for(int i=0; i<4; i++)
+            {
+                if(!p_igetl(&tile,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&flip,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_getc(&extend,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(keepdata)
+                {
+                    chargespr[i][spr_tile]=(int)tile;
+                    chargespr[i][spr_flip]=(int)flip;
+                    chargespr[i][spr_extend]=(int)extend;
+                }
+            }
+        }
+        
+        if(v_linksprites>4)
+        {
+            if(!p_getc(&dummy_byte,f,keepdata))
+            {
+                return qe_invalid;
+            }
+            
+            if(keepdata)
+            {
+                zinit.link_swim_speed=(byte)dummy_byte;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
 int readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -8011,8 +8369,12 @@ int readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         return qe_invalid;
     }
-    
-    return readlinksprites2(f, s_version, dummy, keepdata);
+    if ( s_version >= 6 ) 
+    {
+	    //al_trace("Reading Link Sprites v6\n");
+	    return readlinksprites3(f, s_version, dummy, keepdata);
+    }
+    else return readlinksprites2(f, s_version, dummy, keepdata);
 }
 
 int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
