@@ -19588,10 +19588,7 @@ int run_script(const byte type, const word script, const long i)
 		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
 		{
-			case QUIT:
-				scommand = 0xFFFF;
-				break;
-				
+			//always first
 			case 0xFFFF:  //invalid command
 			{
 				switch(type)
@@ -19622,6 +19619,10 @@ int run_script(const byte type, const word script, const long i)
 				}
 				break;
 			}
+			case QUIT:
+				scommand = 0xFFFF;
+				break;
+				
 			case GOTO:
 				pc = sarg1;
 				increment = false;
