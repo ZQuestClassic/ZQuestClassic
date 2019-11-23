@@ -19592,6 +19592,36 @@ int run_script(const byte type, const word script, const long i)
 				scommand = 0xFFFF;
 				break;
 				
+			case 0xFFFF:  //invalid command
+			{
+				switch(type)
+				{
+					case SCRIPT_FFC:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].second.c_str()); break;
+					case SCRIPT_NPC:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], npcmap[i].second.c_str()); break;
+					case SCRIPT_LWPN:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], lwpnmap[i].second.c_str()); break;
+					case SCRIPT_EWPN:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ewpnmap[i].second.c_str()); break;
+					case SCRIPT_ITEMSPRITE:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemspritemap[i].second.c_str()); break;
+					case SCRIPT_ITEM:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].second.c_str()); break;
+					case SCRIPT_GLOBAL:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].second.c_str()); break;
+					case SCRIPT_LINK:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], linkmap[i].second.c_str()); break;
+					case SCRIPT_SCREEN:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], screenmap[i].second.c_str()); break;
+					case SCRIPT_DMAP:
+					case SCRIPT_ACTIVESUBSCREEN:
+					case SCRIPT_PASSIVESUBSCREEN:
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
+					default: break;					
+				}
+				break;
+			}
 			case GOTO:
 				pc = sarg1;
 				increment = false;
