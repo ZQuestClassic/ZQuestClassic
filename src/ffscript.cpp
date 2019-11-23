@@ -22610,49 +22610,50 @@ int FFScript::GetDefaultWeaponSprite(int wpn_id)
 		case wNone:
 			return 0; 
 		
-		case wSword:
-		case wBeam:
-		case wBrang:
-		case wBomb:
-		case wSBomb:
-		case wLitBomb:
-		case wLitSBomb:
-		case wArrow:
-		case wFire:
-		case wWhistle:
-		case wBait:
-		case wWand:
-		case wMagic:
-		case wCatching:
-		case wWind:
-		case wRefMagic:
-		case wRefFireball:
-		case wRefRock:
-		case wHammer:
-		case wHookshot:
-		case wHSHandle:
-		case wHSChain:
-		case wSSparkle:
-		case wFSparkle:
-		case wSmack:
-		case wPhantom:
-		case wCByrna:
-		case wRefBeam:
-		case wStomp:
-		case lwMax:
-		case wScript1:
-		case wScript2:
-		case wScript3:
-		case wScript4:
-		case wScript5:
-		case wScript6:
-		case wScript7:
-		case wScript8:
-		case wScript9:
-		case wScript10:
-		case wIce:
+		case wSword: return 0;
+		case wBeam: return 1;
+		case wBrang: return 4;
+		case wBomb: return 9;
+		case wSBomb: return 75;
+		case wLitBomb: return 7;
+		case wLitSBomb: return 8;
+		case wArrow: return 10;
+		case wFire: return 12;
+		case wWhistle: return 45; //blank, unused misc sprite
+		case wBait: return 14;
+		case wWand: return 15;
+		case wMagic: return 16;
+		case wCatching: return 45; //blank, unused misc sprite
+		case wWind: return 13;
+		case wRefMagic: return 16;
+		case wRefFireball: return 17;
+		case wRefRock: return 18;
+		case wHammer: return 25;
+		case wHookshot: return 26;
+		case wHSHandle: return 28;
+		case wHSChain: return 27;
+		case wSSparkle: return 29;
+		case wFSparkle: return 32;
+		case wSmack: return 33;
+		case wPhantom: return -1;
+		case wCByrna: return 87;
+		case wRefBeam: return 1;
+		case wStomp: return 45; //blank, unused misc sprite
+		case lwMax: return 45; //blank, unused misc sprite
+		case wScript1: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 246; else return 0; }
+		case wScript2: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 247; else return 0; }
+		case wScript3: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 248; else return 0; }
+		case wScript4: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 249; else return 0; }
+		case wScript5: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 250; else return 0; }
+		case wScript6: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 251; else return 0; }
+		case wScript7: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 252; else return 0; }
+		case wScript8: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 253; else return 0; }
+		case wScript9: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 254; else return 0; }
+		case wScript10: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 255; else return 0; }
+
+		case wIce: return 83;
 			//Cannot use any of these weapons yet. 
-			return -1;
+			//return -1;
 		
 		case wEnemyWeapons:
 		case ewFireball: return 17;

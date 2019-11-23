@@ -217,6 +217,100 @@ int onComboRules()
     return D_O_K;
 }
 
+static int weapon_eweapon_rules_tab[] =
+{
+    6,
+	-1
+};
+
+static int weapon_lweapon_rules_tab[] =
+{
+	//6, 
+    -1
+};
+
+static TABPANEL weaponrules_tabs[] =
+{
+  // (text)
+  { (char *)"LWeapons",     D_SELECTED, weapon_lweapon_rules_tab, 0, NULL },
+  { (char *)"EWeapons",     0,          weapon_eweapon_rules_tab, 0, NULL },
+  { NULL,              0,          NULL,             0, NULL }
+};
+
+static DIALOG weaponrules_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Weapons", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) weaponrules_tabs, NULL, (void *)weaponrules_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Unique Sprites for Custom EWeapons", NULL, NULL },
+    { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    //10
+    { d_dummy_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "", NULL, NULL },
+    { d_dummy_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    //15
+    { d_dummy_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    //20
+    { d_dummy_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    
+    // rules 2 //22
+    { d_dummy_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { d_dummy_proc,      10, 33+40, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+static int weaponrules[] =
+{
+   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES
+    -1
+};
+
+
+int onWeaponRules()
+{
+    if(is_large)
+        large_dialog(weaponrules_dlg);
+        
+    weaponrules_dlg[0].dp2=lfont;
+    
+    for(int i=0; comborules[i]!=-1; i++)
+    {
+        weaponrules_dlg[i+6].flags = get_bit(quest_rules,weaponrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(weaponrules_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; comborules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, weaponrules[i], weaponrules_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
 static int itemrules1_list[] =
 {
 	6, 8, 10, 11, 12, 17, 19, 20, 21, 27, 29, 31, 32, 33, -1
