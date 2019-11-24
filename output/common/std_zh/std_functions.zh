@@ -950,7 +950,8 @@ void DrawToLayer(item i, int layer, int opacity)
 
 
 //Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
-lweapon Duplicate(lweapon a) {
+lweapon Duplicate(lweapon a) 
+{
 	lweapon b = Screen->CreateLWeapon(a->ID);
 	b->X = a->X;
 	b->Y = a->Y;
@@ -996,12 +997,14 @@ lweapon Duplicate(lweapon a) {
 	b->Script = a->Script;
 	b->Weapon = a->Weapon;
 	b->Defense = a->Defense;
+	b->Level = a->Level;
 	for ( int q = 0; q < 8; ++q ) b->InitD[q] = a->InitD[q];
 	return b;
 }
 
 //Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
-eweapon Duplicate(eweapon a) {
+eweapon Duplicate(eweapon a) 
+{
 	eweapon b = Screen->CreateEWeapon(a->ID);
 	b->X = a->X;
 	b->Y = a->Y;
@@ -1045,6 +1048,7 @@ eweapon Duplicate(eweapon a) {
 	b->Parent = a->Parent;
 //	b->Level = a->Level;
 	b->Script = a->Script;
+	b->Level = a->Level;
 	//b->Weapon = a->Weapon;
 	//b->Defense = a->Defense;
 	for ( int q = 0; q < 8; ++q ) b->InitD[q] = a->InitD[q];
@@ -2062,6 +2066,16 @@ int longrand(int max)
 int MapToDMap(int screen, int dmap) 
 {
 	return screen-Game->DMapOffset[dmap];
+}
+
+void MakeBlockable(eweapon e)
+{
+	e->Level &= ~1;
+}
+
+void MakeUnblockable(eweapon e)
+{
+	e->Level |= 1;
 }
 
 //Add to a counter max without rollover.

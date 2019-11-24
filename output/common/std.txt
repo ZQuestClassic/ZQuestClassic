@@ -647,6 +647,12 @@ int WeaponTypeToID(int weapontype)
 *weapon Duplicate(*weapon a)
  * Creates and returns an exact copy of the passed weapon. Assumes that the passed pointer is valid.
 
+void MakeBlockable(eweapon a);
+ * Makes the eweapon a normal type, so that shields block it.
+
+void MakeUnblockable(eweapon a);
+ * Makes the eweapon a boss type, so that shields ignore it.
+
 npc CreateNPCAt(int id, int x, int y)
  * Create an NPC and set its X and Y position in one command
 

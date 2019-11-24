@@ -1,7 +1,9 @@
 //2.55 Changes
 
 //Alpha 43
-
+std.zh: Version 1.7010
+	Added MakeUnblockable(eweapon), MakeBlockable(eweapon)
+	*weapon Duplicate() now clones wpn->Level
 Added Math.zh, appended it to std.zh, and moved the functions
 	std::Floor and std::Ceiling to math::
 Added internal global functions:
