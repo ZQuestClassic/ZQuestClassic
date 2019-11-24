@@ -920,6 +920,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "TOWORD",           1,   0,   0,   0},
 	{ "TOSHORT",           1,   0,   0,   0},
 	{ "TOSIGNEDBYTE",           1,   0,   0,   0},
+	{ "TOINTEGER",           1,   0,   0,   0},
+	{ "FLOOR",           1,   0,   0,   0},
+	{ "CEILING",           1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

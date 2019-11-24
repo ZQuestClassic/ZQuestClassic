@@ -2114,6 +2114,15 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 //  Global  //
 //////////////
 
+int Floor(float n);
+ * Truncates n to the nearest integer, rounding downwards.
+
+int Ceiling(float n);
+ * Truncates n to the nearest integer, rounding upwards.
+
+int Integer(float n);
+ * Truncates n to an integer.
+
 untyped Byte(untyped n);
 untyped Int8(untyped n);
  * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.

@@ -1,14 +1,14 @@
 //General-Use Arrays with Getter/Setter functions
-///5th November, 2019
+///24th November, 2019
 
 //A generic array, pre-included with all quests. 
 
-const float STD_VERSION = 1.6005;
+const float STD_VERSION = 1.7000;
 const int STD_DATE_YEAR = 2019;
 const int STD_DATE_MONTH = 11;
-const int STD_DATE_DAY = 19;
-const int STD_DATE_HOUR = 11;
-const int STD_DATE_MINUTE = 45;
+const int STD_DATE_DAY = 24;
+const int STD_DATE_HOUR = 9;
+const int STD_DATE_MINUTE = 44;
 
 namespace std
 {

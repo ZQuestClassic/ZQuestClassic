@@ -4998,6 +4998,21 @@ string OByte::toString()
     return "TOBYTE " + getArgument()->toString();
 }
 
+string OToInteger::toString()
+{
+    return "TOINTEGER " + getArgument()->toString();
+}
+
+string OFloor::toString()
+{
+    return "FLOOR " + getArgument()->toString();
+}
+
+string OCeiling::toString()
+{
+    return "CEILING " + getArgument()->toString();
+}
+
 string OSByte::toString()
 {
     return "TOSIGNEDBYTE " + getArgument()->toString();

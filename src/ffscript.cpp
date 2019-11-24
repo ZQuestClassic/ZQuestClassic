@@ -18870,6 +18870,26 @@ void do_tosignedbyte()
 	set_register(sarg1, b2 * 10000);
 }
 
+void do_tointeger()
+{
+	int b1 = get_register(sarg1) / 10000;
+	set_register(sarg1, b1 * 10000);
+}
+
+void do_floor()
+{
+	double b1 = get_register(sarg1) / 10000.0;
+	int b2 = floor(b1);
+	set_register(sarg1, b2 * 10000);
+}
+
+void do_ceiling()
+{
+	double b1 = get_register(sarg1) / 10000.0;
+	int b2 = ceil(b1);
+	set_register(sarg1, b2 * 10000);
+}
+
 void do_toword()
 {
 	int b1 = get_register(sarg1) / 10000;
@@ -21870,7 +21890,9 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			case TOSHORT: do_toshort(); break;
 			case TOSIGNEDBYTE: do_tosignedbyte(); break;
-			
+			case TOINTEGER: do_tointeger(); break;
+			case CEILING: do_ceiling(); break;
+			case FLOOR: do_floor(); break;
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -28695,6 +28717,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TOWORD",           1,   0,   0,   0},
 	{ "TOSHORT",           1,   0,   0,   0},
 	{ "TOSIGNEDBYTE",           1,   0,   0,   0},
+	{ "TOINTEGER",           1,   0,   0,   0},
+	{ "FLOOR",           1,   0,   0,   0},
+	{ "CEILING",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

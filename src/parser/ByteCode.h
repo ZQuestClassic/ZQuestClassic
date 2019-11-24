@@ -8535,6 +8535,39 @@ namespace ZScript
 		}
 	};
 	
+	class OCeiling : public UnaryOpcode
+	{
+	public:
+		OCeiling(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCeiling(a->clone());
+		}
+	};
+	
+	class OFloor : public UnaryOpcode
+	{
+	public:
+		OFloor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFloor(a->clone());
+		}
+	};
+	
+	class OToInteger : public UnaryOpcode
+	{
+	public:
+		OToInteger(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OToInteger(a->clone());
+		}
+	};
+	
 	class OWord : public UnaryOpcode
 	{
 	public:

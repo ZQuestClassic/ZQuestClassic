@@ -1,6 +1,25 @@
 //std_functions.zh
 //5th November, 2019 for ZC 2.55.0 Alpha 31
 
+namespace std
+{
+	//Truncates x to an integer
+	int Floor(float x) 
+	{
+		return ( (x<0) ? ((x-.9999)<<0) : (x<<0) );
+	}
+
+	//Raises x to the nearest integer
+	int Ceiling(float x) 
+	{
+		if(x < 0)
+			return x<<0;
+		return (x+.9999)<<0;
+	}
+	
+}
+
+
 //A
 
 //Returns if Link is above an npc.
@@ -211,13 +230,6 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 	}
 }
 
-//Raises x to the nearest integer
-int Ceiling(float x) 
-{
-	if(x < 0)
-		return x<<0;
-	return (x+.9999)<<0;
-}
 
 // Get the X and Y coordinates at the center of a sprite
 int CenterLinkX() { return Link->X+8; }
@@ -1161,12 +1173,6 @@ int FirstComboOf(int t, int layer)
 		}
 	}
 	return -1;
-}
-
-//Truncates x to an integer
-int Floor(float x) 
-{
-	return ( (x<0) ? ((x-.9999)<<0) : (x<<0) );
 }
 
 //G
