@@ -1367,11 +1367,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
             
             if(newtilebuf[tile].format<=tf4Bit)
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si,*si);
             }
             else
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si,*si);
             }
         }
     }
