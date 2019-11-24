@@ -21848,10 +21848,10 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_checkdir(false);
 				break;
 			
-			case ARRAYSIZE:
+			case TOBYTE:
 				do_tobyte();
 				break;
-			case ARRAYSIZE:
+			case TOWORD:
 				do_toword();
 				break;
 			
