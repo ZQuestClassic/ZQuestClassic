@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 41
-Document Revision: 17th November, 2019
+Document for: 2.55, Alpha 43
+Document Revision: 24th November, 2019
 
 
  __           _   _                 
@@ -2113,6 +2113,13 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 //////////////
 //  Global  //
 //////////////
+
+untyped Byte(untyped n);
+ * Clamps and returns 'n' sized to byte, with appropriate oberflow.
+ 
+untyped Word(untyped n);
+untyped Int16(untyped n);
+ * Clamps and returns 'n' sized to a 16-bit integer, with appropriate overflow.
 
 void SaveSRAM("filename.zcsram", int flags);
 void LoadSRAM("filename.zcsram", int flags);

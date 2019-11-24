@@ -4993,6 +4993,15 @@ string OLoadEWeaponBySUIDRegister::toString()
     return "LOADWEAPONCBYSUID " + getArgument()->toString();
 }
 
+string OByte::toString()
+{
+    return "TOBYTE " + getArgument()->toString();
+}
+string OWord::toString()
+{
+    return "TOWORD " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";

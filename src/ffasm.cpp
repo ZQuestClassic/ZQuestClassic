@@ -916,6 +916,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
 	{ "ISSOLIDLAYER",             1,   0,   0,   0},
 	{ "BREAKPOINT",             1,   0,   0,   0},
+	{ "TOBYTE",           1,   0,   0,   0},
+	{ "TOWORD",           1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

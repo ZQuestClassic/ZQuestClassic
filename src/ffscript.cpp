@@ -18856,6 +18856,20 @@ void do_arraysize()
 	set_register(sarg1, ArrayH::getSize(arrayptr) * 10000);
 }
 
+void do_tobyte()
+{
+	int b1 = get_register(sarg1) / 10000;
+	byte b2 = b1;
+	set_register(sarg1, b2 * 10000);
+}
+
+void do_toword()
+{
+	int b1 = get_register(sarg1) / 10000;
+	word b2 = b1;
+	set_register(sarg1, b2 * 10000);
+}
+
 void do_getsavename()
 {
 	long arrayptr = get_register(sarg1) / 10000;
@@ -21832,6 +21846,13 @@ int run_script(const byte type, const word script, const long i)
 			
 			case FILEEXISTS:
 				FFCore.do_checkdir(false);
+				break;
+			
+			case ARRAYSIZE:
+				do_tobyte();
+				break;
+			case ARRAYSIZE:
+				do_toword();
 				break;
 			
 			case NOP: //No Operation. Do nothing. -V
@@ -28654,6 +28675,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
 	{ "ISSOLIDLAYER",             1,   0,   0,   0},
 	{ "BREAKPOINT",             1,   0,   0,   0},
+	{ "TOBYTE",           1,   0,   0,   0},
+	{ "TOWORD",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
