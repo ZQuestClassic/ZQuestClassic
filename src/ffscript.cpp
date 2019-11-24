@@ -4838,6 +4838,12 @@ long get_register(const long arg)
 				
 			break;
 			
+		case EWPNLEVEL:
+			if(0!=(s=checkEWpn(ri->ewpn, "Level")))
+				ret=((weapon*)(s))->type*10000;
+				
+			break;
+			
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
 				ret=((((weapon*)(s))->obeys_gravity) ? 10000 : 0);
@@ -10821,6 +10827,12 @@ void set_register(const long arg, const long value)
 		case EWPNDIR:
 			if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
 				((weapon*)s)->dir=(value/10000);
+				
+			break;
+			
+		case EWPNLEVEL:
+			if(0!=(s=checkEWpn(ri->ewpn,"Level")))
+				((weapon*)s)->type=(value/10000);
 				
 			break;
 		  
@@ -29536,6 +29548,7 @@ script_variable ZASMVars[]=
 	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
 	{"LWPNPARENT", LWPNPARENT, 0, 0 },
 	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
+	{"EWPNLEVEL", EWPNLEVEL, 0, 0 },
 	{"EWPNPARENT", EWPNPARENT, 0, 0 },
 	
 	

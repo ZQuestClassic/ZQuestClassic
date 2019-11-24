@@ -824,6 +824,9 @@ string ZScript::VarToString(long ID)
 		return "LWPNPARENT";
 	case LWPNLEVEL:
 		return "LWPNLEVEL";
+	
+	case EWPNLEVEL:
+		return "EWPNLEVEL";
 	case EWPNPARENT:
 		return "EWPNPARENT";
 		

@@ -3702,8 +3702,9 @@ enum ASM_DEFINE
 #define SPRITEMAXITEM 		0x1387
 #define SPRITEMAXPARTICLE 		0x1388
 #define SPRITEMAXDECO 		0x1389
+#define EWPNLEVEL             0x138A
 
-#define NUMVARIABLES         	0x138A
+#define NUMVARIABLES         	0x138B
 
 // Script types
 

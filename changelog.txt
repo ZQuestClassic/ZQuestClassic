@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 43
+Added eweapon->Level
 std.zh: Version 1.7010
 	Added MakeUnblockable(eweapon), MakeBlockable(eweapon)
 	*weapon Duplicate() now clones wpn->Level
