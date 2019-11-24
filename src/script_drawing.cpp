@@ -5919,7 +5919,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     
     int render_source = sdci[14]-10;
-    Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
+    //Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
     
     bool tex_is_bitmap = ( sdci[14] != 0 );
     
