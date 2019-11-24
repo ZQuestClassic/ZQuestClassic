@@ -2,6 +2,40 @@
 
 //Alpha 43
 
+Added Math.zh, appended it to std.zh, and moved the functions
+	std::Floor and std::Ceiling to math::
+Added internal global functions:
+	int Floor(float n);
+	int Ceiling(float n);
+	int Integer(float n);
+Std.zh: Moved old std Floor(), and Ceiling() into namespace std.
+	Version is now 1.7000.
+Disabled render src logging on bitmap->Triangle()
+Completed the following set of global functions:
+	untyped Byte(untyped n);
+	untyped Int8(untyped n);
+	 * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.
+
+	untyped Word(untyped n);
+	untyped Int16(untyped n);
+	 * Clamps and returns 'n' sized to an unsigned 16-bit integer, with appropriate overflow.
+
+	untyped Short(untyped n);
+	 * Clamps and returns 'n' sized to a signed 16-bit integer, with appropriate overflow.
+
+	untyped SignedByte(untyped n);
+	 * Clamps and returns 'n' sized to a signed byte, with appropriate overflow.
+Time.zh: Add routines to get time elapsed in a quest.
+Add missing types to script_types[]
+	( ZoriaRPG, 24th November, 2019 )
+	
+The Tile Editor now also displays colour values in hex format.
+	( Venrob, 24th November, 2019 )
+	
+Animate DrawCombo/FastCombo in F6 and onDeath Scripts
+Allow combo animaion during scripted active subscreen.
+Move case 0xFFFF to always-first.
+Added case 0xFFFF to switch(scommand)
 V_LINKTILES is now 6.
 	Tiles are now written as int. I added a secondary function to
 	read Link's tiles if the version is >= 6. Old quests still use
