@@ -7,6 +7,10 @@
 */
 namespace time
 {
+	const float TIME_FRAME = 0.0001;
+	const int FRAMES_PER_SECOND = 60;
+	const int SECONDS_PER_MINUTE = 60;
+	const int MINUTES_PER_HOUR = 60;
 	/**
 	*	Returns the current system clock 'seconds' value.
 	*/
@@ -268,6 +272,56 @@ namespace time
 		GetMonth(month,mn);
 		GetZone(timezone, zone);
 		sprintf(buffer, "%s %s %d, at %d:%d %s\n", day, month, y, h, m, timezone);
+	}
+	/**
+	*	Returns the current in-game clock hours value.
+	*/
+	int Hours()
+	{
+		unless(Game->TimeValid) return -1;
+		return ((Game->Time / (FRAMES_PER_SECOND*SECONDS_PER_MINUTE))	 / MINUTES_PER_HOUR) * 10000;
+	}
+	/**
+	*	Returns the current in-game clock minutes value.
+	*/
+	int Minutes()
+	{
+		unless(Game->TimeValid) return -1;
+		return ((Game->Time % (TIME_FRAME*FRAMES_PER_SECOND*SECONDS_PER_MINUTE*MINUTES_PER_HOUR)) / (FRAMES_PER_SECOND*SECONDS_PER_MINUTE)) *10000;
+	}
+	/**
+	*	Returns the current in-game clock seconds value.
+	*/
+	int Seconds()
+	{
+		unless(Game->TimeValid) return -1;
+		return ((Game->Time % (TIME_FRAME*FRAMES_PER_SECOND*SECONDS_PER_MINUTE)) / FRAMES_PER_SECOND) * 10000;
+	}
+	/**
+	*	Returns the number of frames needed to tick the next second.
+	*	@param percent If set true, it will return 0-99, as percentage of a second (i.e. milliseconds)
+	*/
+	int Frames(bool percent)
+	{
+		unless(Game->TimeValid) return -1;
+		int frame = (Game->Time % (TIME_FRAME*FRAMES_PER_SECOND)) * 10000;
+		return percent ? Floor((frame/60)*100): frame;
+	}
+	/**
+	*	Returns the total time, in minutes, that a player has been playing a quest.
+	*/
+	int TotalMinutes()
+	{
+		unless(Game->TimeValid) return -1;
+		return ((Game->Time) / (FRAMES_PER_SECOND*SECONDS_PER_MINUTE)) *10000;
+	}
+	/**
+	*	Returns the total time, in seconds, that a player has been playing a quest.
+	*/
+	int TotalSeconds()
+	{
+		unless(Game->TimeValid) return -1;
+		return ((Game->Time) / FRAMES_PER_SECOND) * 10000;
 	}
 	
 	
