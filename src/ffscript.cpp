@@ -18863,10 +18863,24 @@ void do_tobyte()
 	set_register(sarg1, b2 * 10000);
 }
 
+void do_tosignedbyte()
+{
+	int b1 = get_register(sarg1) / 10000;
+	signed char b2 = b1;
+	set_register(sarg1, b2 * 10000);
+}
+
 void do_toword()
 {
 	int b1 = get_register(sarg1) / 10000;
 	word b2 = b1;
+	set_register(sarg1, b2 * 10000);
+}
+
+void do_toshort()
+{
+	int b1 = get_register(sarg1) / 10000;
+	signed short b2 = b1;
 	set_register(sarg1, b2 * 10000);
 }
 
@@ -21854,6 +21868,8 @@ int run_script(const byte type, const word script, const long i)
 			case TOWORD:
 				do_toword();
 				break;
+			case TOSHORT: do_toshort(); break;
+			case TOSIGNEDBYTE: do_tosignedbyte(); break;
 			
 			case NOP: //No Operation. Do nothing. -V
 				break;
@@ -28677,6 +28693,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BREAKPOINT",             1,   0,   0,   0},
 	{ "TOBYTE",           1,   0,   0,   0},
 	{ "TOWORD",           1,   0,   0,   0},
+	{ "TOSHORT",           1,   0,   0,   0},
+	{ "TOSIGNEDBYTE",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

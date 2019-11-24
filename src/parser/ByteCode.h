@@ -8546,6 +8546,29 @@ namespace ZScript
 		}
 	};
 	
+	class OShort : public UnaryOpcode
+	{
+	public:
+		OShort(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OShort(a->clone());
+		}
+	};
+	
+	
+	class OSByte : public UnaryOpcode
+	{
+	public:
+		OSByte(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSByte(a->clone());
+		}
+	};
+	
 	class OReturn : public Opcode
 	{
 	public:

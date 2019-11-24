@@ -918,6 +918,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BREAKPOINT",             1,   0,   0,   0},
 	{ "TOBYTE",           1,   0,   0,   0},
 	{ "TOWORD",           1,   0,   0,   0},
+	{ "TOSHORT",           1,   0,   0,   0},
+	{ "TOSIGNEDBYTE",           1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

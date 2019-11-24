@@ -2115,11 +2115,18 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 //////////////
 
 untyped Byte(untyped n);
- * Clamps and returns 'n' sized to byte, with appropriate oberflow.
+untyped Int8(untyped n);
+ * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.
  
 untyped Word(untyped n);
 untyped Int16(untyped n);
- * Clamps and returns 'n' sized to a 16-bit integer, with appropriate overflow.
+ * Clamps and returns 'n' sized to an unsigned 16-bit integer, with appropriate overflow.
+
+untyped Short(untyped n);
+ * Clamps and returns 'n' sized to a signed 16-bit integer, with appropriate overflow.
+
+untyped SignedByte(untyped n);
+ * Clamps and returns 'n' sized to a signed byte, with appropriate overflow.
 
 void SaveSRAM("filename.zcsram", int flags);
 void LoadSRAM("filename.zcsram", int flags);

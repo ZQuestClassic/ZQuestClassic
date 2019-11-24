@@ -4997,9 +4997,18 @@ string OByte::toString()
 {
     return "TOBYTE " + getArgument()->toString();
 }
+
+string OSByte::toString()
+{
+    return "TOSIGNEDBYTE " + getArgument()->toString();
+}
 string OWord::toString()
 {
     return "TOWORD " + getArgument()->toString();
+}
+string OShort::toString()
+{
+    return "TOSHORT " + getArgument()->toString();
 }
 
 string OReturn::toString()
