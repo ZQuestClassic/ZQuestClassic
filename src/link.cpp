@@ -4765,8 +4765,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
                 advanceframe(true);
+		    //refill sfx kill and resume need to be here. -ZZ
             }
-            
+	
             //add a quest rule or an item option that lets you specify whether or not to pause music during refilling
             //music_resume();
             ret = false;
@@ -15047,8 +15048,10 @@ void LinkClass::StartRefill(int refillWhat)
 bool LinkClass::refill()
 {
     if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
+    {
         return false;
-        
+    }
+
     ++refillclk;
     int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
     int refill_heart_stop=game->get_maxlife();
@@ -15071,9 +15074,18 @@ bool LinkClass::refill()
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+		for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//Z_scripterrlog("Refill done.\n");	 
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             
@@ -15085,9 +15097,18 @@ bool LinkClass::refill()
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
+		//kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             
@@ -15101,9 +15122,18 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//Z_scripterrlog("Refill done.\n");
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             

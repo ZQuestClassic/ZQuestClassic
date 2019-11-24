@@ -1,9 +1,67 @@
 ChangeLog for 2.53.1
 
+//Beta 14
+Changed menu entry 'The Travels of Link' to 'Ambient Music'.
+Fixed ambient and boss sounds being killed when using potions.
+	The prior fix did not work. 
+Fix Memory Leak from Mirrors: This commit should remove a memory leak when 
+	reflecting weapons off of mirrors caused by creating a new weapon, 
+	then not using it. 
+	Notably: 
+		weapon *w = new weapon(*this);
+		if ( a ) { Lwpns.add(w); } // Safe, because the sprite_list will destroy it.
+		else w = this; 
+		// Memory leak happens here, because the weapon we added to the heap above
+		// isn't added to sprite_list. It is a dangling piece on the heap.
+
+	Changed to: 
+		weapon *w = NULL; 
+		if ( a )
+		{
+			w = new weapon(*this);
+			Lwpns.add(w); 		// This should have the same effect as above, but
+					// the weapon is not being allocated to the heap,
+					// UNTIL it is NEEDED.
+		}
+		else w = this; // Now, we assign the NULL pointer to *this. 
+		// Thus, no heap allocation occurs. 
+Fix: Potion Kills Ambient SFX
+	This fix should pause sfx when refilling (potion, magic, hearts
+	or both, including from refill combos; then resume them when the potion 
+	effect ends, matching the NES behaviour. 
+	( ZoriaRPG, 20th November, 2019 )
+	
+Added zc.cfg section [ZSCRIPT} with config int ZASM_Hangcount.
+	This is used in place of the hardcoded number of instructions to
+	wait, ere checking quit keys. It defaults to 1000.
+Check for hangs every 1000 ZScript instructions, instead of 100,000.
+	( ZoriaRPG, 19th November, 2019 )
+
 //Beta 13
+Added Strings Help to the Help submenu.
+Changed 'ZQuest Editor Help' to 'Editor Help'.
+Edited the item help info for shields to reference ZQ Shield Help
+	instead of the ZC.com Wiki.
+Changed 'Shield Block Flags' in the Help submenu to 'Shield Help'.
+Allow zstrings.txt to be in root or in ./docs
+Changed the menu entry for ZQuest>>>Help to a 'Help' submenu.
+	Added ZQuest Help, Shield Block Flag Help, and ZScript Help to
+	the new submenu. These require zquest.txt, shield_block_flags.txt,
+	and zscript.txt, respectively. 
+	( ZoriaRPG, 17th November, 2019 )
+
+Added 'skip_layer_warning' config int, under '[zquest]'
+	If non-zero, the warning message when trying to place flags
+	on layers they don't work on, is not displayed. This is helpful
+	for scripts which read flags off of layers.
+Changed the level palette editor, so that it starts with the
+	palette of the current screen selected, instead of
+	level palette 0.
+	( Venrob, 16th November, 2019 )
+	
 Fixed the error messages for Screen->LoadItem, LoadNPC, LoadLWeapom
 	and load EWeapon to return a 1-indexed value.
-
+	( ZoriaRPG, 15th November, 2019 )
 
 //Beta 12
 Because 'particle' and 'decoration' are potentially already common

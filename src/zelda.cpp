@@ -116,6 +116,7 @@ extern int directItem;
 extern int directItemA;
 extern int directItemB;
 extern byte emulation_patches[emuLAST];
+extern int hangcount;
 bool is_large=false;
 
 bool standalone_mode=false;
@@ -3833,6 +3834,8 @@ int main(int argc, char* argv[])
     // set up an initial game save slot (for the list_saves function)
     game = new gamedata;
     game->Clear();
+    
+    hangcount = get_config_int("ZSCRIPT","ZASM_Hangcount",1000);
     
 #ifdef _WIN32
     

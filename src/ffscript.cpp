@@ -38,6 +38,8 @@ extern std::map<int, pair<string,string> > ffcmap;
 extern std::map<int, pair<string,string> > globalmap;
 extern std::map<int, pair<string, string> > itemmap;
 
+int hangcount = 0; 
+
 #ifdef _FFDEBUG
 //#include "ffdebug.h"
 #endif
@@ -8706,7 +8708,7 @@ int run_script(const byte type, const word script, const byte i)
     while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
     {
         numInstructions++;
-        if(numInstructions==100000) // No need to check frequently
+        if(numInstructions==hangcount) // No need to check frequently
         {
             numInstructions=0;
             checkQuitKeys();
