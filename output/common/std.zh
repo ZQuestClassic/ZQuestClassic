@@ -18,6 +18,7 @@
 //Main Files
 #include "std_zh/std_constants.zh"
 #include "std_zh/std_functions.zh"
+#include "std_zh/math.zh"
 #include "std_zh/std_vars.zh"	//Basic array, and some generic handlers. Useful in preventing quest fixing/expansion issues. 
 
 //ZScript string handling functions, akin to those found in C

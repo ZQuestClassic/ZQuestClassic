@@ -307,10 +307,10 @@ _ERR_*
 float LogToBase(float x, float base)
  * Returns the logarithm of x to the given base
 
-int Floor(float x)
+int math::Floor(float x)
  * Truncates x to an integer
 
-int Ceiling(float x)
+int math::Ceiling(float x)
  * Raises x to the nearest integer
 
 int Round(float x)
