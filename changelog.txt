@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 15
+Display colour in tile editor as hex.
+	( Venrob, 24th November, 2019 )
+
 //Beta 14
 Changed menu entry 'The Travels of Link' to 'Ambient Music'.
 Fixed ambient and boss sounds being killed when using potions.
@@ -31,7 +35,7 @@ Fix: Potion Kills Ambient SFX
 	effect ends, matching the NES behaviour. 
 	( ZoriaRPG, 20th November, 2019 )
 	
-Added zc.cfg section [ZSCRIPT} with config int ZASM_Hangcount.
+Added zc.cfg section [ZSCRIPT] with config int ZASM_Hangcount.
 	This is used in place of the hardcoded number of instructions to
 	wait, ere checking quit keys. It defaults to 1000.
 Check for hangs every 1000 ZScript instructions, instead of 100,000.
