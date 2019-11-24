@@ -1372,7 +1372,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Floor2", 1);
+	    Function* function = getFunction("Floor", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1383,7 +1383,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Ceiling2", 1);
+	    Function* function = getFunction("Ceiling", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
