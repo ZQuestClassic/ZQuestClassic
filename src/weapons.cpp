@@ -53,6 +53,379 @@ static double DegreesToRadians(double d)
 	
 }
 
+static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
+{
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = MAPCOMBO(bx,by);
+	int flag = MAPFLAG(bx,by);
+	int flag2 = MAPCOMBOFLAG(bx,by);
+	int ft = 0;
+	switch(flag)
+	{
+		case mfSWORDBEAM:
+		case mfWSWORDBEAM:
+		case mfMSWORDBEAM:
+		case mfXSWORDBEAM:
+		case mfBCANDLE:
+		case mfRCANDLE:
+		case mfDINSFIRE:
+		case mfSTRIKE:
+		case mfARROW:
+		case mfSARROW:
+		case mfGARROW:
+		case mfBRANG:
+		case mfMBRANG:
+		case mfFBRANG:
+		case mfWANDMAGIC:
+		case mfREFMAGIC:
+		case mfREFFIREBALL:
+		{
+			ft = flag;
+			switch(wid)
+			{
+				case wSword:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBeam:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBrang:
+				if ( ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wLitBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wLitSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wArrow:
+				if ( ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wFire:
+				if ( ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWhistle:
+				if ( ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBait:
+				if ( ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWand:
+				if ( ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWind:
+				if ( ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefFireball:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefRock:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wHammer:
+				if ( ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				
+				    //ZScript liter support ends here. 
+				case wHookshot:
+				if ( ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wFSparkle:
+				case wSSparkle:
+				if ( ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wCByrna:
+				if ( ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefBeam:
+				if ( ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wStomp:
+				if ( ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				    
+				    //item trigger flags page 2
+				case wScript1:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript2:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript3:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript4:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript5:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript6:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript7:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript8:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript9:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript10:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				
+				default: break;
+			}
+		
+		}
+		case mfBOMB:
+		case mfSBOMB:
+		{
+			ft = flag2;
+			switch(wid)
+			{
+				case wSword:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBeam:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBrang:
+				if ( ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wLitBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wLitSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wArrow:
+				if ( ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wFire:
+				if ( ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWhistle:
+				if ( ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBait:
+				if ( ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWand:
+				if ( ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWind:
+				if ( ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefFireball:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefRock:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wHammer:
+				if ( ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				
+				    //ZScript liter support ends here. 
+				case wHookshot:
+				if ( ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wFSparkle:
+				case wSSparkle:
+				if ( ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wCByrna:
+				if ( ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefBeam:
+				if ( ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wStomp:
+				if ( ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				    
+				    //item trigger flags page 2
+				case wScript1:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript2:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript3:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript4:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript5:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript6:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript7:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript8:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript9:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript10:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				
+				default: break;
+			}
+			
+		}
+	}
+	switch(flag2)
+	{
+		case mfSWORDBEAM:
+		case mfWSWORDBEAM:
+		case mfMSWORDBEAM:
+		case mfXSWORDBEAM:
+		case mfBCANDLE:
+		case mfRCANDLE:
+		case mfDINSFIRE:
+		case mfSTRIKE:
+		case mfARROW:
+		case mfSARROW:
+		case mfGARROW:
+		case mfBRANG:
+		case mfMBRANG:
+		case mfFBRANG:
+		case mfWANDMAGIC:
+		case mfREFMAGIC:
+		case mfREFFIREBALL:
+		{
+			ft = flag;
+			switch(wid)
+			{
+				case wSword:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBeam:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBrang:
+				if ( ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wLitBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wLitSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wArrow:
+				if ( ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wFire:
+				if ( ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWhistle:
+				if ( ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wBait:
+				if ( ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWand:
+				if ( ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wWind:
+				if ( ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefFireball:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefRock:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wHammer:
+				if ( ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				
+				    //ZScript liter support ends here. 
+				case wHookshot:
+				if ( ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wFSparkle:
+				case wSSparkle:
+				if ( ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wCByrna:
+				if ( ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wRefBeam:
+				if ( ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wStomp:
+				if ( ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				    
+				    //item trigger flags page 2
+				case wScript1:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript2:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript3:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript4:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript5:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript6:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript7:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript8:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript9:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				case wScript10:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+				
+				default: break;
+			}
+		
+		}
+		case mfBOMB:
+		case mfSBOMB:
+		{
+			ft = flag;
+			switch(wid)
+			{
+				case wSword:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBeam:
+				if ( ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBrang:
+				if ( ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wLitBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wLitSBomb:
+				if ( ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wArrow:
+				if ( ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wFire:
+				if ( ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWhistle:
+				if ( ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wBait:
+				if ( ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWand:
+				if ( ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wWind:
+				if ( ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefMagic:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefFireball:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefRock:
+				if ( ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wHammer:
+				if ( ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				
+				    //ZScript liter support ends here. 
+				case wHookshot:
+				if ( ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wFSparkle:
+				case wSSparkle:
+				if ( ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wCByrna:
+				if ( ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wRefBeam:
+				if ( ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wStomp:
+				if ( ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				    
+				    //item trigger flags page 2
+				case wScript1:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript2:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript3:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript4:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript5:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript6:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript7:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript8:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript9:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				case wScript10:
+				if ( ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+				
+				default: break;
+			}
+			
+		}
+	}
+}
+
 static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 {
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
@@ -2806,7 +3179,7 @@ bool weapon::animate(int index)
 		Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
 		Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
 		Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
-	    
+	        findcombotriggers();
 		/* Don't check every single pixel.
 		for ( int w = 0; q < hysz; q++ )
 		{
@@ -8270,6 +8643,38 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
+}
+
+
+void weapon::findcombotriggers()
+{
+	for(int dx = 0; dx < hxsz; dx += 16)
+	{
+		for(int dy = 0; dy < hysz; dy += 16)
+		{
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+		}
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		
+	}
+	for(int dy = 0; dy < hysz; dy += 16)
+	{
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		
+	}
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
 }
 
 //Dummy weapon for visual effects.

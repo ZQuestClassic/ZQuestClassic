@@ -110,6 +110,7 @@ public:
     weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
     virtual ~weapon();
     void LOADGFX(int wpn);
+    void findcombotriggers();
     bool Dead();
     bool isScriptGenerated();
     bool clip();
