@@ -5961,6 +5961,7 @@ mirrors:
 			if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 			{
 				if(id==wSword) return true;
+				else if ( id==wBrang ) return dead==0;
 				weapon_dying_frame = true;
 				return false;
 			}
@@ -6269,12 +6270,15 @@ mirrors:
         --dead;
     }
     
+    //if ( linked_parent != wBrang || linked_parent != wArrow && id != wPhantom )
+    //{
 	if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 	{
 		if(id==wSword) return true;
 		weapon_dying_frame = true;
 		return false;
 	}
+    //}
     return dead==0;
 }
 
@@ -8768,6 +8772,7 @@ void weapon::update_weapon_frame(int change, int orig)
 
 void weapon::draw(BITMAP *dest)
 {
+    if(weapon_dying_frame) return;
     if(flash==1)
     {
         if(!BSZ)
