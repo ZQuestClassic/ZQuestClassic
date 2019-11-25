@@ -53,14 +53,30 @@ eweapon script addtwoangularshots
 				dirs[1] = DIR_DOWN;
 				break;
 			}
-			default: Quit();
+			default: 
+			{
+				printf("Invalid Dir\n");
+				Quit();
+			}
 		}
-		lweapon shots[2];
+		eweapon shots[2];
 		for ( int q = 0; q < 2; ++q )
 		{
 			shots[q] = Duplicate(this);
-			shots[q]->Script = 0; //Don't split infinitely. 
-			shots[q]->Dir = dirs[q];
+			shots[q]->Script = 0; //Don't split infinitely.
+			if ( this->Angular )
+			{
+				switch (q)
+				{
+					case 0:
+					shots[q]->Angle = WrapDegrees(this->Angle-45); break;
+					case 1:
+					shots[q]->Angle = WrapDegrees(this->Angle+45); break;
+				}
+				
+			}
+			
+			else shots[q]->Dir = dirs[q];
 			//unless ( blockable && (this->Level&1)) shots[q]->Level |= 1;
 			//unless ( blockable ) shots[q]->Level |= 1;
 			//else shots[q]->Level &= ~1;
