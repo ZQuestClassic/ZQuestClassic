@@ -1,5 +1,28 @@
 //2.55 Changes
 
+//Alpha 44
+
+Converted burn flags for candles and Din's Fire to use the new
+	linked_parent variable, and fixed ->Level so that it works with wFire.
+	This fixes wpn->Level not working properly with wFire lweapons.
+	All burn triggers appear to work as they always have in the past.
+wFire now loads gfx based on parentitem, not ->type.
+weapon::weapon(...) no longer sets ->type for wFire lweapons.
+	The issue here, is that wFire uses (type) to determine if it came from
+	a wand, a candle, or din's fire.
+	We need to get that info over onto linked_item instead.
+Add int degrees (D1) to eweapon script 'addtwoangularshots'
+std.zh: v1.7020; added weapon.zh and namespace weapon.
+eweapon script 'eweapon_add_angular_shots' now respects true
+	angular shots, not just directional shots.
+Added eweapon script addtwoangularshots to:
+	./demo_scripts/eweapon_scripts/eweapon_add_angular_shots.zh
+	This will duplicate a weapon created by an enemy, and add
+	two copies of it, flying off at 45 degree angles to the first.
+	It should respect 'boss fireball' and other boss weapon
+	status values.
+	( ZoriaRPG, 25th November, 2019 )
+
 //Alpha 43
 Added eweapon->Level
 std.zh: Version 1.7010
