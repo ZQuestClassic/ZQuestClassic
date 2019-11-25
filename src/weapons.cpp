@@ -3012,7 +3012,7 @@ bool weapon::animate(int index)
 			posx=checkx;
 			posy=checky;
 		}
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 id = wRefBeam;
                 dir ^= 1;
@@ -3028,7 +3028,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 id = wRefBeam;
 		if ( do_animation ) 
@@ -3064,7 +3064,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
                 dir ^= 2;
@@ -3103,7 +3103,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -3162,7 +3162,7 @@ bool weapon::animate(int index)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -4336,7 +4336,7 @@ bool weapon::animate(int index)
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 weapon *w=NULL;
                 
@@ -4370,7 +4370,7 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 weapon *w=NULL;
                 
@@ -4418,7 +4418,7 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 weapon *w = NULL;
                 
@@ -4469,7 +4469,7 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4529,7 +4529,7 @@ bool weapon::animate(int index)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4664,7 +4664,7 @@ mirrors:
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 weapon *w=NULL;
                 
@@ -4698,7 +4698,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 weapon *w=NULL;
                 
@@ -4746,7 +4746,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 weapon *w=NULL;
                 
@@ -4797,7 +4797,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4857,7 +4857,7 @@ mirrors:
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -5546,7 +5546,7 @@ bool weapon::animateandrunscript(int ii)
 			posx=checkx;
 			posy=checky;
 		}
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 id = wRefBeam;
                 dir ^= 1;
@@ -5562,7 +5562,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 id = wRefBeam;
 		if ( do_animation ) 
@@ -5598,7 +5598,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
                 dir ^= 2;
@@ -5637,7 +5637,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -5696,7 +5696,7 @@ bool weapon::animateandrunscript(int ii)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -6762,7 +6762,7 @@ mirrors:
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 weapon *w=NULL;
                 
@@ -6796,7 +6796,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 weapon *w=NULL;
                 
@@ -6844,7 +6844,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 weapon *w=NULL;
                 
@@ -6895,7 +6895,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -6955,7 +6955,7 @@ mirrors:
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
