@@ -66,6 +66,7 @@ public:
     //Weapon Editor -Z
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
+    word linked_parent;
     int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int weaprange; //default range -Z
     int weapduration; //default duration, 0 = infinite. 

@@ -6822,7 +6822,8 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff|=did_candle;
         
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
-                             (itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
+                             //(itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
+                             (itemsbuf[itemid].fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
         sfx(itemsbuf[itemid].usesound,pan(wx));
         attack=wFire;

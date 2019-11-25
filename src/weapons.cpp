@@ -257,6 +257,7 @@ weapon::weapon(weapon const & other):
     flags(other.flags),			//word		A misc flagset. 
     collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
     duplicates(other.duplicates),	//long		A flagset that determines of the weapon can collect an item.
+    linked_parent(other.linked_parent),	//long		A flagset that determines of the weapon can collect an item.
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
@@ -472,6 +473,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
+    linked_parent = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
     if ( Parentitem > -1 )
@@ -479,7 +481,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	weaponscript = itemsbuf[Parentitem].weaponscript;
 	useweapon = itemsbuf[Parentitem].useweapon;
 	usedefence = itemsbuf[Parentitem].usedefence;
-	if ( id != wPhantom && id != wFire && ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+	if ( id != wPhantom && /*id != wFire &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 	    //Note: eweapons use this for boss weapon block flags
 	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
 	//load initd
@@ -3301,12 +3303,12 @@ bool weapon::animate(int index)
             {
                 findentrance(x,y,mfBCANDLE,true);
                 
-                if(type>0)
+                if(type>1) //red candle 
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if(type>2)
+                if(linked_parent == itype_dinsfire)
                 {
                     findentrance(x,y,mfDINSFIRE,true);
                 }
@@ -5791,12 +5793,12 @@ bool weapon::animateandrunscript(int ii)
             {
                 findentrance(x,y,mfBCANDLE,true);
                 
-                if(type>0)
+                if(type>1) //red candle
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if(type>2)
+                if(linked_parent == itype_dinsfire)
                 {
                     findentrance(x,y,mfDINSFIRE,true);
                 }
