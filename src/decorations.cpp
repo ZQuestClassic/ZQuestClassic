@@ -25,7 +25,7 @@
 /*******  Decoration Base Class  *******/
 /***************************************/
 
-decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite()
+decoration::decoration(fix X,fix Y,int Id,int Clk, int wpnSpr) : sprite()
 {
 	x=X;
 	y=Y;
@@ -33,6 +33,7 @@ decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite()
 	clk=Clk;
 	misc = 0;
 	yofs = playing_field_offset - 2;
+	the_deco_sprite = vbound(wpnSpr,0,255);
 }
 
 decoration::~decoration() {}
@@ -46,12 +47,13 @@ int dFlowerClippings::ft[4][8][3];
 int dGrassClippings::ft[3][4][4];
 int dHammerSmack::ft[2][4][3];
 
-dBushLeaves::dBushLeaves(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dBushLeaves::dBushLeaves(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
 	id=Id;
 	clk=Clk;
+	the_deco_sprite = vbound(wpnSpr,0,255);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -172,9 +174,19 @@ void dBushLeaves::draw(BITMAP *dest)
 		clk=128;
 		return;
 	}
-	
-	int t=wpnsbuf[iwBushLeaves].newtile;
-	cs=wpnsbuf[iwBushLeaves].csets&15;
+	int t=0;
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		t=wpnsbuf[iwBushLeaves].newtile;
+		cs=wpnsbuf[iwBushLeaves].csets&15;
+		
+	}
 	
 	for(int i=0; i<4; ++i)
 	{
@@ -186,12 +198,13 @@ void dBushLeaves::draw(BITMAP *dest)
 	}
 }
 
-dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
 	id=Id;
 	clk=Clk;
+	the_deco_sprite = vbound(wpnSpr,0,255);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -313,8 +326,21 @@ void dFlowerClippings::draw(BITMAP *dest)
 		return;
 	}
 	
-	int t=wpnsbuf[iwFlowerClippings].newtile;
-	cs=wpnsbuf[iwFlowerClippings].csets&15;
+	int t=0;
+	
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		t=wpnsbuf[iwFlowerClippings].newtile;
+		cs=wpnsbuf[iwFlowerClippings].csets&15;
+		
+	}
+	
 	
 	for(int i=0; i<4; ++i)
 	{
@@ -326,13 +352,13 @@ void dFlowerClippings::draw(BITMAP *dest)
 	}
 }
 
-dGrassClippings::dGrassClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dGrassClippings::dGrassClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	
+	the_deco_sprite = vbound(wpnSpr,0,255);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -405,8 +431,20 @@ void dGrassClippings::draw(BITMAP *dest)
 		return;
 	}
 	
-	int t=wpnsbuf[iwGrassClippings].newtile;
-	cs=wpnsbuf[iwGrassClippings].csets&15;
+	int t=0;
+	
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		t=wpnsbuf[iwGrassClippings].newtile;
+		cs=wpnsbuf[iwGrassClippings].csets&15;
+		
+	}
 	
 	for(int i=0; i<3; ++i)
 	{
@@ -418,13 +456,13 @@ void dGrassClippings::draw(BITMAP *dest)
 	}
 }
 
-dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	
+	the_deco_sprite = vbound(wpnSpr,0,255);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -487,7 +525,7 @@ void dHammerSmack::draw(BITMAP *dest)
 	}
 }
 
-dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -504,8 +542,20 @@ void dTallGrass::draw(BITMAP *dest)
 	if(LinkGetDontDraw())
 		return;
 		
-	int t=wpnsbuf[iwTallGrass].newtile*4;
-	cs=wpnsbuf[iwTallGrass].csets&15;
+	int t=0;
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile*4;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		t=wpnsbuf[iwTallGrass].newtile*4;
+		cs=wpnsbuf[iwTallGrass].csets&15;
+		
+	}
+	
 	flip=0;
 	x=LinkX();
 	y=LinkY()+10;
@@ -526,7 +576,7 @@ void dTallGrass::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dRipples::dRipples(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -545,8 +595,21 @@ void dRipples::draw(BITMAP *dest)
 	if(LinkGetDontDraw())
 		return;
 	
-	int t=wpnsbuf[iwRipples].newtile*4;
-	cs=wpnsbuf[iwRipples].csets&15;
+	int t=0;
+	
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile*4;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		t=wpnsbuf[iwRipples].newtile*4;
+		cs=wpnsbuf[iwRipples].csets&15;
+		
+	}
+	
 	flip=0;
 	x=LinkX();
 	y=LinkY()+10;
@@ -557,7 +620,7 @@ void dRipples::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dHover::dHover(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;

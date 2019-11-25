@@ -22,7 +22,8 @@
 class decoration : public sprite
 {
 public:
-	decoration(fix X,fix Y,int Id,int Clk);
+	decoration(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	int the_deco_sprite; 
 	virtual ~decoration();
 };
 
@@ -35,7 +36,7 @@ class dBushLeaves : public decoration
 public:
 	static int ft[4][8][3]; //[leaf][frame][x/y/flip]
 	int ox, oy;
-	dBushLeaves(fix X,fix Y,int Id,int Clk);
+	dBushLeaves(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -45,7 +46,7 @@ class dFlowerClippings : public decoration
 public:
 	static int ft[4][8][3]; //[leaf][frame][x/y/flip]
 	int ox, oy;
-	dFlowerClippings(fix X,fix Y,int Id,int Clk);
+	dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -55,7 +56,7 @@ class dGrassClippings : public decoration
 public:
 	static int ft[3][4][4]; //[leaf][frame][x/y/flip/size(0=large, 1=small)]
 	int ox, oy;
-	dGrassClippings(fix X,fix Y,int Id,int Clk);
+	dGrassClippings(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -65,7 +66,7 @@ class dHammerSmack : public decoration
 public:
 	static int ft[2][4][3]; //[leaf][frame][x/y/icon(0=spark, 1=star)]
 	int ox, oy, wpnid;
-	dHammerSmack(fix X,fix Y,int Id,int Clk);
+	dHammerSmack(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -73,7 +74,7 @@ public:
 class dTallGrass : public decoration
 {
 public:
-	dTallGrass(fix X,fix Y,int Id,int Clk);
+	dTallGrass(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -81,7 +82,7 @@ public:
 class dRipples : public decoration
 {
 public:
-	dRipples(fix X,fix Y,int Id,int Clk);
+	dRipples(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -90,7 +91,7 @@ class dHover : public decoration
 {
 	int wpnid;
 public:
-	dHover(fix X,fix Y,int Id,int Clk);
+	dHover(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };

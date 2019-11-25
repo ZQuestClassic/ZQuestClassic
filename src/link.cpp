@@ -2896,7 +2896,7 @@ void LinkClass::check_slash_block(int bx, int by)
         }
         else if(isCuttableItemType(type))
         {
-            int it = select_dropitem(12, bx, by);
+            int it = select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
             
             if(it!=-1)
             {
@@ -2915,15 +2915,15 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(isBushType(type))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy,dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isFlowersType(type))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy,dFLOWERCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isGrassType(type))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
         }
     }
@@ -2935,16 +2935,25 @@ void LinkClass::check_slash_block(int bx, int by)
         if(isCuttableItemType(type2))
         {
             int it=-1;
-            int r=rand()%100;
+            if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&2 )
+		{
+			it = select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attributes[1]);
+			
+		}
+		
+		else
+		{
+			int r=rand()%100;
             
-            if(r<15)
-            {
-                it=iHeart;                                // 15%
-            }
-            else if(r<35)
-            {
-                it=iRupy;                                 // 20%
-            }
+			if(r<15)
+			{
+				it=iHeart;                                // 15%
+			}
+			else if(r<35)
+			{
+				it=iRupy;                                 // 20%
+			}
+		}
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -2961,15 +2970,15 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(isBushType(type2))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+		    decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isFlowersType(type2))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy,dFLOWERCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ?combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isGrassType(type2))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
         }
     }
@@ -3284,7 +3293,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-            int it = select_dropitem(12, bx, by);
+            int it = select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
             
             if(it!=-1)
             {
@@ -3303,15 +3312,15 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(isBushType(type))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isFlowersType(type))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy,dFLOWERCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0]: 0));
             }
             else if(isGrassType(type))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
         }
     }
@@ -3323,16 +3332,25 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int it=-1;
-            int r=rand()%100;
+            if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&2 )
+		{
+			it = select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attributes[1]);
+			
+		}
+		
+		else
+		{
+			int r=rand()%100;
             
-            if(r<15)
-            {
-                it=iHeart;                                // 15%
-            }
-            else if(r<35)
-            {
-                it=iRupy;                                 // 20%
-            }
+			if(r<15)
+			{
+				it=iHeart;                                // 15%
+			}
+			else if(r<35)
+			{
+				it=iRupy;                                 // 20%
+			}
+		}
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -3349,15 +3367,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(isBushType(type2))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+		
+		decorations.add(new dBushLeaves((fix)fx, (fix)fy,dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isFlowersType(type2))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isGrassType(type2))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
         }
     }
@@ -3781,7 +3800,7 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-            int it = select_dropitem(12, bx, by);
+            int it = select_dropitem((combobuf[MAPCOMBO(bx,by)-1].usrflags&2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
             
             if(it!=-1)
             {
@@ -3800,15 +3819,15 @@ void LinkClass::check_slash_block(weapon *w)
             
             if(isBushType(type))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0]: 0));
             }
             else if(isFlowersType(type))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isGrassType(type))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
         }
     }
@@ -3820,16 +3839,29 @@ void LinkClass::check_slash_block(weapon *w)
         if(isCuttableItemType(type2))
         {
             int it=-1;
-            int r=rand()%100;
+		
+		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&2 )
+		{
+			it = select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attributes[1]);
+			
+		}
+		
+		else
+		{
+			int r=rand()%100;
             
-            if(r<15)
-            {
-                it=iHeart;                                // 15%
-            }
-            else if(r<35)
-            {
-                it=iRupy;                                 // 20%
-            }
+			if(r<15)
+			{
+				it=iHeart;                                // 15%
+			}
+			else if(r<35)
+			{
+				it=iRupy;                                 // 20%
+			}
+		}
+		
+		
+            
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -3846,15 +3878,15 @@ void LinkClass::check_slash_block(weapon *w)
             
             if(isBushType(type2))
             {
-                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isFlowersType(type2))
             {
-                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0,combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] : 0));
             }
             else if(isGrassType(type2))
             {
-                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, combobuf[MAPCOMBO(bx,by)-1].usrflags&1 ? combobuf[MAPCOMBO(bx,by)-1].attributes[0] :0));
             }
         }
     }
@@ -4976,10 +5008,50 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
         
     int hp_mod[4];
     
-    hp_mod[0]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount;
-    hp_mod[1]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount;
-    hp_mod[2]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount;
-    hp_mod[3]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount;
+    
+	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].usrflags&1) 
+	{
+		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0]: %d\n",combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0]);
+		hp_mod[0] = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0] * -1;
+	}
+	else 
+	{
+		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount: %d\n",combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount);
+		hp_mod[0]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount;
+	}
+	
+	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].usrflags&1 ) 
+	{
+		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0]: %d\n", combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0]);
+		hp_mod[1] = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0] * -1;
+	}
+	else 
+	{
+		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount);
+		hp_mod[1]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount;
+	}
+	
+	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].usrflags&1) 
+	{
+		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0]: %d\n",combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0]);
+		hp_mod[2] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0] * -1;
+	}
+	else 
+	{
+		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount);
+		hp_mod[2]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount;
+	}
+	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].usrflags&1 ) 
+	{
+		//Z_scripterrlog("hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0]: %d\n", hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0]);
+		hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0] * -1;
+	}
+	else 
+	{
+		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount);
+		hp_mod[3]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount;
+	}
+    
     
     int hp_modtotal=0;
     
@@ -4996,10 +5068,19 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
             hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
     }
     
-    hp_mod[0]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy1)].type].modify_hp_amount;
-    hp_mod[1]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy2)].type].modify_hp_amount;
-    hp_mod[2]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy1)].type].modify_hp_amount;
-    hp_mod[3]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount;
+   
+	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy1)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx1,dy1)].usrflags&1 ) hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+	else hp_mod[0]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy1)].type].modify_hp_amount;
+	
+	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy2)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx1,dy2)].usrflags&1 ) hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy2)].attributes[0];
+	else hp_mod[1]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy2)].type].modify_hp_amount;
+	    
+	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy1)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx2,dy1)].usrflags&1 ) hp_mod[2] = combobuf[MAPFFCOMBO(dx2,dy1)].attributes[0];
+	else hp_mod[2]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy1)].type].modify_hp_amount;
+	    
+	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx2,dy2)].usrflags&1 ) hp_mod[4] = combobuf[MAPFFCOMBO(dx2,dy2)].attributes[0];
+	else hp_mod[3]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount;
+    
     int hp_modtotalffc = 0;
     
     for(int i=0; i<4; i++)
