@@ -1156,59 +1156,60 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			It is needed for the passive subscreen offset.
 			*/
 		}
-	}
-        switch(type)
-        {
-        case 3: // Din's Fire. This uses magicitem rather than itemid
-            if(magicitem >-1 && !isDummy)
-                defaultw = itemsbuf[magicitem].wpn5;
-            else defaultw = wFIRE;
-            
-            break;
-            
-        case 2: // Wand
-            if(itemid>-1 && !isDummy)
-                defaultw = itemsbuf[itemid].wpn2;
-            else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
-            
-            break;
-            
-        case 0:
-        case 1: // Candles
-		hxofs = hyofs=1;
-		hxsz = hysz = 14;    
 		
-		if ( parentitem > -1 )
+		switch(itemsbuf[parentitem].family)
 		{
-			//Port Item Editor Weapon Size Values
-			if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-				extend = 3; 
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-				/* yofs+playing_field_offset == yofs+56.
-				It is needed for the passive subscreen offset.
-				*/
+		case itype_dinsfire: // Din's Fire. This uses magicitem rather than itemid
+		    if(magicitem >-1 && !isDummy)
+			defaultw = itemsbuf[magicitem].wpn5;
+		    else defaultw = wFIRE;
+		    step = 0; 
+		    break;
+		    
+		case itype_wand: // Wand
+		    if(itemid>-1 && !isDummy)
+			defaultw = itemsbuf[itemid].wpn2;
+		    else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
+		    step = 0;
+		    break;
+		    
+		case itype_candle: // Candles
+			hxofs = hyofs=1;
+			hxsz = hysz = 14;    
+			step = 0.5;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
 			}
+		    if(itemid>-1 && !isDummy)
+		    {
+			defaultw = itemsbuf[itemid].wpn3;
+			break;
+		    }
+		
+		default:
+		    defaultw = wFIRE;
 		}
-            if(itemid>-1 && !isDummy)
-            {
-                defaultw = itemsbuf[itemid].wpn3;
-                break;
-            }
-        
-        default:
-            defaultw = wFIRE;
-        }
+	}
+        else { defaultw = wFIRE; step = 0; }
         
         LOADGFX(defaultw);
-        step = (type<2)?.5:0;
+        //step = (type<2)?.5:0;
         
         
         if(BSZ)
