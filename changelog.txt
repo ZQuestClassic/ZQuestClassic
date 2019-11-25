@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 16
+ZScript Dialogue: Import is now Load (hotkey 'L'), to match 2.55. 
+	( ZoriaRPG, 25th November, 2019 )
+
 //Beta 15
 Display colour in tile editor as hex.
 	( Venrob, 24th November, 2019 )
