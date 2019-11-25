@@ -12031,42 +12031,42 @@ bool edit_combo(int c,bool freshen,int cs)
     }
     */
     //item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-    combo_dlg[63].flags = curr_combo.triggerflags[0]&0x01 ? D_SELECTED : 0;
-    combo_dlg[64].flags = curr_combo.triggerflags[0]&0x02 ? D_SELECTED : 0;
-    combo_dlg[65].flags = curr_combo.triggerflags[0]&0x04 ? D_SELECTED : 0;
-    combo_dlg[66].flags = curr_combo.triggerflags[0]&0x08 ? D_SELECTED : 0;
-    combo_dlg[67].flags = curr_combo.triggerflags[0]&0x10 ? D_SELECTED : 0;
-    combo_dlg[68].flags = curr_combo.triggerflags[0]&0x20 ? D_SELECTED : 0;
-    combo_dlg[69].flags = curr_combo.triggerflags[0]&0x40 ? D_SELECTED : 0;
-    combo_dlg[70].flags = curr_combo.triggerflags[0]&0x80 ? D_SELECTED : 0;
-    combo_dlg[71].flags = curr_combo.triggerflags[0]&0x100 ? D_SELECTED : 0;
-    combo_dlg[72].flags = curr_combo.triggerflags[0]&0x200 ? D_SELECTED : 0;
-    combo_dlg[73].flags = curr_combo.triggerflags[0]&0x400 ? D_SELECTED : 0;
-    combo_dlg[74].flags = curr_combo.triggerflags[0]&0x800 ? D_SELECTED : 0;
-    combo_dlg[75].flags = curr_combo.triggerflags[0]&0x1000 ? D_SELECTED : 0;
-    combo_dlg[76].flags = curr_combo.triggerflags[0]&0x2000 ? D_SELECTED : 0;
-    combo_dlg[77].flags = curr_combo.triggerflags[0]&0x4000 ? D_SELECTED : 0;
-    combo_dlg[78].flags = curr_combo.triggerflags[0]&0x8000 ? D_SELECTED : 0;
-    combo_dlg[79].flags = curr_combo.triggerflags[0]&0x10000 ? D_SELECTED : 0;
-    combo_dlg[80].flags = curr_combo.triggerflags[0]&0x20000 ? D_SELECTED : 0;
+    combo_dlg[63].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
+    combo_dlg[64].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
+    combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
+    combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
+    combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
+    combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
+    combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
+    combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
+    combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
+    combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
+    combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
+    combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
+    combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
+    combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
+    combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
+    combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
+    combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
+    combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
     //ZScript liter support ends here. 
-    combo_dlg[81].flags = curr_combo.triggerflags[1]&0x01 ? D_SELECTED : 0;
-    combo_dlg[82].flags = curr_combo.triggerflags[1]&0x02 ? D_SELECTED : 0;
-    combo_dlg[83].flags = curr_combo.triggerflags[1]&0x04 ? D_SELECTED : 0;
-    combo_dlg[84].flags = curr_combo.triggerflags[1]&0x08 ? D_SELECTED : 0;
-    combo_dlg[85].flags = curr_combo.triggerflags[1]&0x010 ? D_SELECTED : 0;
+    combo_dlg[81].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
+    combo_dlg[82].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
+    combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
+    combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
+    combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
     
     //item trigger flags page 2
-    combo_dlg[90].flags = curr_combo.triggerflags[1]&0x020 ? D_SELECTED : 0;
-    combo_dlg[91].flags = curr_combo.triggerflags[1]&0x040 ? D_SELECTED : 0;
-    combo_dlg[92].flags = curr_combo.triggerflags[1]&0x080 ? D_SELECTED : 0;
-    combo_dlg[93].flags = curr_combo.triggerflags[1]&0x100 ? D_SELECTED : 0;
-    combo_dlg[94].flags = curr_combo.triggerflags[1]&0x200 ? D_SELECTED : 0;
-    combo_dlg[95].flags = curr_combo.triggerflags[1]&0x400 ? D_SELECTED : 0;
-    combo_dlg[96].flags = curr_combo.triggerflags[1]&0x800 ? D_SELECTED : 0;
-    combo_dlg[97].flags = curr_combo.triggerflags[1]&0x1000 ? D_SELECTED : 0;
-    combo_dlg[98].flags = curr_combo.triggerflags[1]&0x2000 ? D_SELECTED : 0;
-    combo_dlg[99].flags = curr_combo.triggerflags[1]&0x4000 ? D_SELECTED : 0;
+    combo_dlg[90].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
+    combo_dlg[91].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
+    combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
+    combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
+    combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
+    combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
+    combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
+    combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
+    combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
+    combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
     //three bits remain that are usable (zscript limits)
     
     //85

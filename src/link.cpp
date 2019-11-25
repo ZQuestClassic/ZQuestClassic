@@ -88,6 +88,90 @@ extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
+{
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	al_trace("MatchComboTrigger wid is: %d\n", wid);
+	switch(wid)
+	{
+		case wSword:
+		if ( ( c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wBeam:
+		if ( ( c[comboid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wBrang:
+		if ( ( c[comboid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wBomb:
+		if ( ( c[comboid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wSBomb:
+		if ( ( c[comboid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wLitBomb:
+		if ( ( c[comboid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wLitSBomb:
+		if ( ( c[comboid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wArrow:
+		if ( ( c[comboid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wFire:
+		if ( ( c[comboid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wWhistle:
+		if ( ( c[comboid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wBait:
+		if ( ( c[comboid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wWand:
+		if ( ( c[comboid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wMagic:
+		if ( ( c[comboid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wWind:
+		if ( ( c[comboid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wRefMagic:
+		if ( ( c[comboid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wRefFireball:
+		if ( ( c[comboid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wRefRock:
+		if ( ( c[comboid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wHammer:
+		if ( ( c[comboid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		    //ZScript liter support ends here. 
+		case wHookshot:
+		if ( ( c[comboid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wFSparkle:
+		case wSSparkle:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wCByrna:
+		if ( ( c[comboid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wRefBeam:
+		if ( ( c[comboid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wStomp:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		    
+		    //item trigger flags page 2
+		case wScript1:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript2:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript3:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript4:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript5:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript6:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript7:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript8:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript9:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		case wScript10:
+		if ( ( c[comboid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		default: return 0;	
+	}
+}
+
+
+
 #define CANFORCEFACEUP (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 
 static inline bool platform_fallthrough()
@@ -2667,7 +2751,6 @@ void LinkClass::check_slash_block(int bx, int by)
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
-    
     //first things first
     if(attack!=wSword)
         return;
@@ -2685,6 +2768,7 @@ void LinkClass::check_slash_block(int bx, int by)
     int flag = MAPFLAG(bx,by);
     int flag2 = MAPCOMBOFLAG(bx,by);
     int flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int cid = MAPCOMBO(bx,by);
     int i = (bx>>4) + by;
     
     if(i > 175)
@@ -2913,6 +2997,9 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 	al_trace("check_wpn_triggers(weapon *w): usewpn is: %d\n", usewpn);
 	
 	*/
+	bx=vbound(bx, 0, 255);
+	by=vbound(by, 0, 176);
+	int cid = MAPCOMBO(bx,by);
 	switch(w->useweapon)
 	{
 		case wArrow:
@@ -3034,12 +3121,14 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 	}
 	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
 	*/
-    if(w->useweapon != wSword) return;
+    
+	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
+    int cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
     bx &= 0xF0;
@@ -3050,6 +3139,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     int flag = MAPFLAG(bx,by);
     int flag2 = MAPCOMBOFLAG(bx,by);
     int flag3 = MAPFFCOMBOFLAG(fx,fy);
+    byte dontignore = 0;
+    
+    if (isCuttableType(type) && MatchComboTrigger(w, combobuf, cid))
+    {
+	al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
+	dontignore = 1;
+    }
+	if(w->useweapon != wSword && !dontignore) return;
+
+    
     int i = (bx>>4) + by;
     
     if(i > 175)
@@ -3086,7 +3185,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
-    if(!ignorescreen)
+    if(!ignorescreen || dontignore)
     {
         if((flag >= 16)&&(flag <= 31))
         {
@@ -3171,7 +3270,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         }
     }
     
-    if(!ignorescreen)
+    if(!ignorescreen || dontignore)
     {
         if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(w->wscreengrid,i,1);
         
@@ -3279,11 +3378,14 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
 	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
 	*/
 	if(w->useweapon != wWand) return;
+	
+
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
+    int cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8) return;
@@ -3347,12 +3449,13 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
 	*/
 	if(w->useweapon != wHammer) return;
+
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
-    
+    int cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8) return;
     
@@ -3509,7 +3612,7 @@ void LinkClass::check_slash_block(weapon *w)
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
     
-    
+    int cid = MAPCOMBO(bx,by);
         
     //if(z>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
     //        || (attackclk>SWORDTAPFRAME && tapping))
@@ -3751,6 +3854,7 @@ void LinkClass::check_wand_block(int bx, int by)
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
+    int cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8) return;
@@ -3804,6 +3908,7 @@ void LinkClass::check_pound_block(int bx, int by)
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
+    int cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8) return;
@@ -3951,12 +4056,13 @@ void LinkClass::check_wand_block(weapon *w)
     int bx = 0, by = 0;
 	bx = ((int)w->x) + (((int)w->hxsz)/2);
 	by = ((int)w->y) + (((int)w->hysz)/2);
+	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
-    
+    int cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8) return;
     
@@ -4028,7 +4134,7 @@ void LinkClass::check_pound_block(weapon *w)
     by=vbound(by, 0, 176);
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
-    
+    int cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8) return;
     

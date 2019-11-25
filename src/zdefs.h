@@ -1093,6 +1093,44 @@ enum
 #define NUM_HIT_TYPES_USED 16
 #define NUM_HIT_TYPES_USED_LINK 4
 
+//Page 1, triggerflags[0]
+
+#define combotriggerSWORD	0x01
+#define combotriggerSWORDBEAM	0x02
+#define combotriggerBRANG	0x04
+#define combotriggerBOMB	0x08
+#define combotriggerSBOMB	0x10
+#define combotriggerLITBOMB	0x20
+#define combotriggerLITSBOMB	0x40
+#define combotriggerARROW	0x80
+#define combotriggerFIRE	0x100
+#define combotriggerWHISTLE	0x200
+#define combotriggerBAIT	0x400
+#define combotriggerWAND	0x800
+#define combotriggerMAGIC	0x1000
+#define combotriggerWIND	0x2000
+#define combotriggerREFMAGIC	0x4000
+#define combotriggerREFFIREBALL	0x8000
+#define combotriggerREFROCK	0x10000
+#define combotriggerHAMMER	0x20000
+
+//Page 2, triggerflags[1]
+#define combotriggerHOOKSHOT	0x01
+#define combotriggerSPARKLE	0x02
+#define combotriggerBYRNA	0x04
+#define combotriggerREFBEAM	0x08
+#define combotriggerSTOMP	0x10
+#define combotriggerSCRIPT01	0x20
+#define combotriggerSCRIPT02	0x40
+#define combotriggerSCRIPT03	0x80
+#define combotriggerSCRIPT04	0x100
+#define combotriggerSCRIPT05	0x200
+#define combotriggerSCRIPT06	0x400
+#define combotriggerSCRIPT07	0x800
+#define combotriggerSCRIPT08	0x1000
+#define combotriggerSCRIPT09	0x2000
+#define combotriggerSCRIPT10	0x4000
+
 // weapon types in game engine
 enum
 {
