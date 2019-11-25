@@ -1,7 +1,38 @@
 //2.55 Changes
 
-//Alpha 44
+//Alpha 45
 
+Added The ability to set a specific damage amount on damage
+	combos in Combo Attributes[0].
+	Combo Flag 1 must be enabled to use the custom amount.
+Added the ability to set a specific sprite (>0) to use instead of the system
+	default sprite as Combo Attributes[0] for bush, grass, and flower
+	clippings.
+	Combo Flag 1 must be enabled to use the custom sprite.
+	This still uses the timing for the normal internal sprite.
+Added the ability to set a specific item dropset as Combo Attributes[1]
+	if Combo Flag 0x02 is enabled. This overrides the engine dropsets.
+Sparkle graphics are now pulled from wpn->linked_parent,
+	not from wpn->type.
+Store sparkle type in linked_parent in Link::addsparkle()
+Don't draw dying weapons. This fixes flitched sparkles. 
+Link wBrang and wArrow Sparkles to their Parent (later, redacted in the next commit).
+Vast rewrite of all Combo Editor 'Triggered By' code.
+	Triggers no longer cascade, they are now absolutely specific to the
+	weapon types that the user sets.
+Disabled a bugged QR (qr_WEAPONS_EXTRA_FRAME) and disabled the QR
+	qr_VERYFASTSCROLLING for Z3 style quests, as people didn't like it.
+The Combo Editor 'Triggered By' Tab flags now work for map flags (placed and inherent combo flags), and for slash combos, pound combos, and wand strike combos.
+	Combo Editor 'Triggered By' Now Works with Most Map Flags
+Feat: Wand Triggers and Hammer triggers now respect 'Triggered By'
+Started implementing 'Triggered By' for combos.
+	Slash combos now respect this flagset.
+	( ZoriaRPG, 25th November, 2019 )
+	
+Fix: xtoi bad parens in std.zh; version is now 1.7021
+	( Venrob, 25th November, 2019 )
+
+//Alpha 44
 Fix Weapon Rules Dlg
 Update New Quest Default Rulesets
 Fix Weapon Rules

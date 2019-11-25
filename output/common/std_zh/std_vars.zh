@@ -3,12 +3,12 @@
 
 //A generic array, pre-included with all quests. 
 
-const float STD_VERSION = 1.7020;
+const float STD_VERSION = 1.7021;
 const int STD_DATE_YEAR = 2019;
 const int STD_DATE_MONTH = 11;
-const int STD_DATE_DAY = 54;
-const int STD_DATE_HOUR = 1;
-const int STD_DATE_MINUTE = 47;
+const int STD_DATE_DAY = 25;
+const int STD_DATE_HOUR = 10;
+const int STD_DATE_MINUTE = 40;
 
 namespace std
 {
