@@ -11786,17 +11786,17 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
     { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
-    { jwin_text_proc,           8+22+16,    30+16+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    30-4+16+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //57
-    { jwin_text_proc,           8+22+16,    45+16+4+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    45-4+16+4+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //59
-    { jwin_text_proc,           8+22+16,    60+16+4+8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    60-4+16+4+8,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //61
-    { jwin_text_proc,           8+22+16,    75+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    75-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -11851,8 +11851,8 @@ static DIALOG combo_dlg[] =
    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
     //102
-    { jwin_text_proc,           8+22+16,    90+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    90-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
     //104
     { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },

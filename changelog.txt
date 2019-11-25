@@ -2,6 +2,7 @@
 
 //Alpha 45
 
+Minor cleanup of the Combo Editor Attributes fields. 
 Added eight additional flags to Combo Attributes (the new total is 16)
 	and renamed them from 'Misc Flah 0x00' format to 'Flag 1' to 'Flag 16'.
 Added eweapon script toggleBossFireball.
