@@ -1803,6 +1803,8 @@ bool weapon::animate(int)
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
+			
+			default: break;
                         }
                         
                         Lwpns.add(w);
@@ -1852,6 +1854,8 @@ bool weapon::animate(int)
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
+		    
+		    default: break;
                     }
                     
                     Lwpns.add(w);
@@ -2900,6 +2904,9 @@ mirrors:
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
+			
+			default: break;
+			
                         }
                         
                         Lwpns.add(w);
@@ -2950,6 +2957,7 @@ mirrors:
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
+		    default: break;
                     }
                     
                     Lwpns.add(w);
