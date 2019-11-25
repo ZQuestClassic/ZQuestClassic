@@ -3140,12 +3140,20 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     int flag2 = MAPCOMBOFLAG(bx,by);
     int flag3 = MAPFFCOMBOFLAG(fx,fy);
     byte dontignore = 0;
+    byte dontignoreffc = 0;
     
-    if (isCuttableType(type) && MatchComboTrigger(w, combobuf, cid))
-    {
-	al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
-	dontignore = 1;
-    }
+	    if (isCuttableType(type) && MatchComboTrigger(w, combobuf, cid))
+	    {
+		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
+		dontignore = 1;
+	    }
+    
+	    /*to-do, ffcs
+	    if (isCuttableType(type2) && MatchComboTrigger(w, combobuf, cid))
+	    {
+		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
+		dontignoreffc = 1;
+	    }*/
 	if(w->useweapon != wSword && !dontignore) return;
 
     
@@ -3377,8 +3385,13 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
 	}
 	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
 	*/
-	if(w->useweapon != wWand) return;
 	
+	byte dontignore = 0;
+	byte dontignoreffc = 0;
+    
+	
+	
+    
 
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
@@ -3386,6 +3399,10 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
     int cid = MAPCOMBO(bx,by);
+   
+    //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
+    if(w->useweapon != wWand && !MatchComboTrigger (w, combobuf, cid)) return;
+    if ( MatchComboTrigger (w, combobuf, cid) ) dontignore = 1;
     
     //first things first
     if(z>8) return;
@@ -3429,6 +3446,8 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
         }
     }
     
+    if(dontignore) { findentrance(bx,by,mfWAND,true); }
+    
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
@@ -3448,14 +3467,17 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 	}
 	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
 	*/
-	if(w->useweapon != wHammer) return;
+	//keep things inside the screen boundaries
+	bx=vbound(bx, 0, 255);
+	by=vbound(by, 0, 176);
+	int fx=vbound(bx, 0, 255);
+	int fy=vbound(by, 0, 176);
+	int cid = MAPCOMBO(bx,by);
+	byte dontignore = MatchComboTrigger (w, combobuf, cid);
+	if(w->useweapon != wHammer && !dontignore) return;
 
-    //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+	
+    
     //first things first
     if(z>8) return;
     
@@ -3496,7 +3518,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    if(!ignorescreen)
+    if(!ignorescreen && dontignore)
     {
         if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
         {
@@ -3550,7 +3572,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         }
     }
     
-    if(!ignorescreen)
+    if(!ignorescreen && dontignore)
     {
         if(pound)
             s->data[i]+=1;
