@@ -2,6 +2,12 @@
 
 //Alpha 44
 
+Fix Weapon Rules Dlg
+Update New Quest Default Rulesets
+Fix Weapon Rules
+Add QR 'Mirrors Use Weapon Centre for Collision'
+Add QR to Reflect Angular Weapons off Mirrors
+Break weapon->Dir switches if a nonstandard dir.
 Converted burn flags for candles and Din's Fire to use the new
 	linked_parent variable, and fixed ->Level so that it works with wFire.
 	This fixes wpn->Level not working properly with wFire lweapons.
