@@ -1,8 +1,12 @@
+//v0.3
+//25th November, 2019
+
 eweapon script addtwoangularshots
 {
-	void run(bool shieldcanblock)
+	void run(bool shieldcanblock, int degrees)
 	{
 		int dirs[2];
+		degrees = ( degrees ) ? degrees : 22;
 		switch(this->Dir)
 		{
 			case DIR_UP:
@@ -66,12 +70,19 @@ eweapon script addtwoangularshots
 			shots[q]->Script = 0; //Don't split infinitely.
 			if ( this->Angular )
 			{
+				//printf("this->Angle is: %f\n", this->Angle);
 				switch (q)
 				{
 					case 0:
-					shots[q]->Angle = WrapDegrees(this->Angle-45); break;
+					shots[q]->Angle -= DegtoRad(degrees); //break;
+					shots[q]->Angle = WrapAngle(shots[q]->Angle);
+					//printf("shots[0]->Angle is: %f\n", shots[q]->Angle);
+					break;
 					case 1:
-					shots[q]->Angle = WrapDegrees(this->Angle+45); break;
+					shots[q]->Angle += DegtoRad(degrees); //break;
+					shots[q]->Angle = WrapAngle(shots[q]->Angle);
+					//printf("shots[1]->Angle is: %f\n", shots[q]->Angle);
+					break;
 				}
 				
 			}
