@@ -568,7 +568,7 @@ int PickRuleset()
         set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1);
         set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
         set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
-        set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
+        /* currently bugged: wBrang Lv2 and above. //set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);*/
         set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
         set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
         set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
@@ -603,7 +603,7 @@ int PickRuleset()
             set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
             set_bit(quest_rules, qr_MSGFREEZE, 1);
             
-            set_bit(quest_rules, qr_VERYFASTSCROLLING, 1);
+            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
             set_bit(quest_rules, qr_ENABLEMAGIC, 1);
             set_bit(quest_rules, qr_NOWANDMELEE, 1);
             set_bit(quest_rules, qr_TRUEARROWS, 1);
