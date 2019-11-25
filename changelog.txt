@@ -2,6 +2,7 @@
 
 //Alpha 45
 
+Added eweapon script toggleBossFireball.
 Added The ability to set a specific damage amount on damage
 	combos in Combo Attributes[0].
 	Combo Flag 1 must be enabled to use the custom amount.
