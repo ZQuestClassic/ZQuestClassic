@@ -11680,7 +11680,9 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,102,103,-1
+     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,102,103,
+	104,105,106,107,108,109,110,111,
+	-1
 };
 
 static int combo_trigger_list[] =
@@ -11774,15 +11776,15 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
-    { jwin_check_proc,        144+22,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x01",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x02",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x04",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x08",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
     //52
-    { jwin_check_proc,        144+22,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x20",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x40",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x80",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
     { jwin_text_proc,           8+22+16,    30+16+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
     { jwin_edit_proc,         98,    30-4+16+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
@@ -11851,6 +11853,16 @@ static DIALOG combo_dlg[] =
     //102
     { jwin_text_proc,           8+22+16,    90+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
     { jwin_edit_proc,         98,    90-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    //104
+    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
+    //109
+    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -12024,6 +12036,14 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
     combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
     combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
+    combo_dlg[104].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
+    combo_dlg[105].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
+    combo_dlg[106].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
+    combo_dlg[107].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
+    combo_dlg[108].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
+    combo_dlg[109].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
+    combo_dlg[110].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
+    combo_dlg[111].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
     /*
     for(int i=0; i<8; i++)
     {
@@ -12262,6 +12282,70 @@ bool edit_combo(int c,bool freshen,int cs)
 	else
 	{
 		curr_combo.usrflags &= ~0x80;
+	}
+	if(combo_dlg[104].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x100;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x100;
+	}
+	if(combo_dlg[105].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x200;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x200;
+	}
+	if(combo_dlg[106].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x400;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x400;
+	}
+	if(combo_dlg[107].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x800;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x800;
+	}
+	if(combo_dlg[108].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x1000;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x1000;
+	}
+	if(combo_dlg[109].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x2000;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x2000;
+	}
+	if(combo_dlg[110].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x4000;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x4000;
+	}
+	if(combo_dlg[111].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x8000;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x8000;
 	}
 	
 	//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
