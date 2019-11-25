@@ -5265,6 +5265,8 @@ void LinkClass::addsparkle(int wpn)
         Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
                              (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true));
+	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	w->linked_parent = wBrang;
     }
 }
 
@@ -5294,6 +5296,8 @@ void LinkClass::addsparkle2(int type1, int type2)
     Lwpns.add(new weapon((fix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
                          (fix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
+	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	w->linked_parent = wArrow;
 }
 
 //cleans up decorations that exit the bounds of the screen for a long time, to prevebt them wrapping around.
