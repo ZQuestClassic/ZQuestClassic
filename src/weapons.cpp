@@ -39,6 +39,20 @@ extern ZModule zcm;
 extern enemy Enemy;
 extern byte epilepsyFlashReduction;
 
+static double WrapAngle( double radians ) 
+{
+	while (radians <= -PI) radians += (PI*2);
+	while (radians > PI) radians -= (PI*2);
+	return radians;
+}
+
+static double DegreesToRadians(double d)
+{
+	double dvs = PI/180.0;
+	return d*dvs;
+	
+}
+
 /**************************************/
 /***********  Weapon Class  ***********/
 /**************************************/
@@ -3101,6 +3115,11 @@ bool weapon::animate(int index)
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle + DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
@@ -3153,6 +3172,11 @@ bool weapon::animate(int index)
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle + DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
@@ -4456,6 +4480,11 @@ bool weapon::animate(int index)
                     if(dir!=(tdir^1))
                     {
                         weapon *w=new weapon(*this);
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle + DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->dir=tdir;
                         w->x=newx;
                         w->y=newy;
@@ -4509,6 +4538,11 @@ bool weapon::animate(int index)
                 for(int tdir=0; tdir<4; tdir++)
                 {
                     weapon *w=new weapon(*this);
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->dir=tdir;
                     w->x=newx;
                     w->y=newy;
@@ -4774,6 +4808,11 @@ mirrors:
                     if(dir!=(tdir^1))
                     {
                         weapon *w=new weapon(*this);
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->dir=tdir;
                         w->x=newx;
                         w->y=newy;
@@ -4828,6 +4867,11 @@ mirrors:
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
@@ -5605,6 +5649,11 @@ bool weapon::animateandrunscript(int ii)
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
@@ -5657,6 +5706,11 @@ bool weapon::animateandrunscript(int ii)
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
@@ -6853,6 +6907,11 @@ mirrors:
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
@@ -6906,6 +6965,11 @@ mirrors:
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;

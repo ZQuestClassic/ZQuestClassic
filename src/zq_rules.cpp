@@ -225,15 +225,23 @@ static int weapon_eweapon_rules_tab[] =
 
 static int weapon_lweapon_rules_tab[] =
 {
-	//6, 
+	//6
+    -1
+};
+
+static int weapon_global_rules_tab[] =
+{
+	7,
     -1
 };
 
 static TABPANEL weaponrules_tabs[] =
 {
   // (text)
-  { (char *)"LWeapons",     D_SELECTED, weapon_lweapon_rules_tab, 0, NULL },
+  { (char *)"All",     D_SELECTED,          weapon_global_rules_tab, 0, NULL },
+  { (char *)"LWeapons",     0, weapon_lweapon_rules_tab, 0, NULL },
   { (char *)"EWeapons",     0,          weapon_eweapon_rules_tab, 0, NULL },
+  
   { NULL,              0,          NULL,             0, NULL }
 };
 
@@ -250,7 +258,7 @@ static DIALOG weaponrules_dlg[] =
     
     // rules //6
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Unique Sprites for Custom EWeapons", NULL, NULL },
-    { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Angular Reflected Weapons", NULL, NULL },
     { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     //10
@@ -279,7 +287,7 @@ static DIALOG weaponrules_dlg[] =
 
 static int weaponrules[] =
 {
-   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES
+   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS,
     -1
 };
 
