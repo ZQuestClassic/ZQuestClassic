@@ -493,7 +493,7 @@ int xtoi(int string, int pos)
 {
 	int ret = 0;
 	for(int i = 0; isHex(string[pos + i]); ++i)
-		ret = ret*0x10 + Cond(isNumber(string[pos + i]), string[pos + i] - '0', LowerToUpper(string[pos + i]) - ('A' + 0xA));
+		ret = ret*0x10 + Cond(isNumber(string[pos + i]), string[pos + i] - '0', LowerToUpper(string[pos + i]) - 'A' + 0xA);
 	return ret;
 }
 int xtoi(int string)
