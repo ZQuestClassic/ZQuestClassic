@@ -549,6 +549,34 @@ int PickRuleset()
         //Script errors on by default
         set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
         set_bit(quest_rules, qr_LOG, 1);
+        set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
+        set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
+        set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+        set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1);
+        set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
+        set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
+        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+        set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
+        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+        set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
+        set_bit(quest_rules, qr_EPILEPSY, 1);
+        set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
+        set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
+        set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
+        set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
+        set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
+        set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1);
+        set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
+        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
+        set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
+        set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
+        set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+        set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+        set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+        set_bit(quest_rules, qr_ITEMSHADOWS, 1);
+        set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
+        set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
+        set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
         
         switch(ruleset)
         {
@@ -574,6 +602,8 @@ int PickRuleset()
             set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
             set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
             set_bit(quest_rules, qr_MSGFREEZE, 1);
+            
+            set_bit(quest_rules, qr_VERYFASTSCROLLING, 1);
             set_bit(quest_rules, qr_ENABLEMAGIC, 1);
             set_bit(quest_rules, qr_NOWANDMELEE, 1);
             set_bit(quest_rules, qr_TRUEARROWS, 1);
@@ -620,6 +650,8 @@ int PickRuleset()
             break;
             
         }
+	
+	if ( ruleset == 4 ) set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
     }
     
     return D_O_K;

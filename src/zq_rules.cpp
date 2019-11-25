@@ -231,7 +231,7 @@ static int weapon_lweapon_rules_tab[] =
 
 static int weapon_global_rules_tab[] =
 {
-	7,
+	7,8,
     -1
 };
 
