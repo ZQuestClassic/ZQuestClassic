@@ -427,6 +427,17 @@ static int do_OpenQuest()
     return onOpen();
 }
 
+static int do_NewQuest()
+{
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 0;
+	map_page[q].screen = 0;
+    }
+    return onNew();
+}
+
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
@@ -713,7 +724,7 @@ static MENU export_menu[] =
 
 static MENU file_menu[] =
 {
-    { (char *)"&New",                       onNew,                     NULL,                     0,            NULL   },
+    { (char *)"&New",                       do_NewQuest,                     NULL,                     0,            NULL   },
     { (char *)"&Open\tF3",                  do_OpenQuest,                    NULL,                     0,            NULL   },
     { (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
     { (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
@@ -30557,7 +30568,7 @@ command_pair commands[cmdMAX]=
     { "Message String",                     0, (intF) onString                                         },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
-    { "New",                                0, (intF) onNew                                            },
+    { "New",                                0, (intF) do_NewQuest                                            },
     { "Normal Mode",                        0, (intF) onDrawingModeNormal                              },
     { "Open",                               0, (intF) do_OpenQuest                                           },
     { "Options",                            0, (intF) onOptions                                        },
