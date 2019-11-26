@@ -3537,7 +3537,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    if(!ignorescreen && dontignore)
+    if(!ignorescreen || dontignore)
     {
         if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
         {
@@ -3591,7 +3591,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         }
     }
     
-    if(!ignorescreen && dontignore)
+    if(!ignorescreen || dontignore)
     {
         if(pound)
             s->data[i]+=1;
@@ -5295,6 +5295,7 @@ void LinkClass::hitlink(int hit2)
 
 void LinkClass::addsparkle(int wpn)
 {
+	return;
     weapon *w = (weapon*)Lwpns.spr(wpn);
     int itemid = w->parentitem;
     
