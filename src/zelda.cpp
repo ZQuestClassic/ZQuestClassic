@@ -1164,7 +1164,7 @@ void zprint(const char * const format,...)
 	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 		#endif
 	}
@@ -4923,6 +4923,7 @@ int main(int argc, char* argv[])
 			
 #endif
 			game_loop();
+			
 			//Perpetual item Script:
 			FFCore.newScriptEngine();
 			

@@ -3162,6 +3162,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 
     
     int i = (bx>>4) + by;
+	    if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
     
     if(i > 175)
         return;
@@ -3488,7 +3489,8 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 	int fy=vbound(by, 0, 176);
 	int cid = MAPCOMBO(bx,by);
 	byte dontignore = MatchComboTrigger (w, combobuf, cid);
-	if(w->useweapon != wHammer && !dontignore) return;
+	if(w->useweapon != wHammer && !dontignore ) return;
+	
 
 	
     
@@ -3505,6 +3507,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
     int flag2 = MAPCOMBOFLAG(bx,by);
     int flag3 = MAPFFCOMBOFLAG(fx,fy);
     int i = (bx>>4) + by;
+    if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
     
     if(i > 175)
         return;
