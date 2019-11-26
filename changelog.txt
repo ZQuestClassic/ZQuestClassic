@@ -5,6 +5,10 @@ Clear the panel recent screen buttons when creating a new quest.
 Clear the panel recent screen buttons to prevent crashes from invalid maps.
 	( ZoriaRPG, 26th November, 2019 )
 	
+ZQ now displays the decimal value of a screen number in parentheses
+	next to the hex value in ZQ.
+	( Venrob, 26th November, 2019 )
+	
 ZScript Dialogue: Import is now Load (hotkey 'L'), to match 2.55. 
 	( ZoriaRPG, 25th November, 2019 )
 
