@@ -1176,6 +1176,7 @@ void switch_out();
 void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
+void zprint(const char * const format,...);
 int get_currdmap();
 int current_item(int item_type);
 int current_item_power(int item_type);
