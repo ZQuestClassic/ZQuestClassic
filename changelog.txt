@@ -2,6 +2,10 @@
 
 //Alpha 45
 
+Clear the panel recent screen buttons when creating a new quest.
+Clear the panel recent screen buttons to prevent crashes from invalid maps.
+Some work on future <std> lib files.
+std.zh v1.7030: Added limits.zh.
 Fix reversed operator on hammer checks.
 Fix Combo Editor Saving Bugs
 Additional screengrid checks.
