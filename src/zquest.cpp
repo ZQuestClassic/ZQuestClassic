@@ -415,6 +415,18 @@ typedef struct command_pair
 extern command_pair commands[cmdMAX];
 
 map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+
+static int do_OpenQuest()
+{
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 0;
+	map_page[q].screen = 0;
+    }
+    return onOpen();
+}
+
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
@@ -702,7 +714,7 @@ static MENU export_menu[] =
 static MENU file_menu[] =
 {
     { (char *)"&New",                       onNew,                     NULL,                     0,            NULL   },
-    { (char *)"&Open\tF3",                  onOpen,                    NULL,                     0,            NULL   },
+    { (char *)"&Open\tF3",                  do_OpenQuest,                    NULL,                     0,            NULL   },
     { (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
     { (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
     { (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
@@ -1329,7 +1341,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0, (void *) onDecreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,         0, (void *) onHelp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,         0, (void *) onSave, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) onOpen, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) do_OpenQuest, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F4,         0, (void *) onScreenPalette, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F5,         0, (void *) onSecretCombo, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,         0, (void *) onDoors, NULL, NULL },
@@ -29053,13 +29065,6 @@ int main(int argc,char **argv)
         itemspritescripts[i][0].command = 0xFFFF;
     }
     
-    //clear the panel recent screen buttons to prevent crashes from invalid maps
-    for ( int q = 0; q < 9; q++ )
-    {
-	map_page[q].map = 1;
-	map_page[q].screen = 0;
-    }
-    
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
     
@@ -30554,7 +30559,7 @@ command_pair commands[cmdMAX]=
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
     { "New",                                0, (intF) onNew                                            },
     { "Normal Mode",                        0, (intF) onDrawingModeNormal                              },
-    { "Open",                               0, (intF) onOpen                                           },
+    { "Open",                               0, (intF) do_OpenQuest                                           },
     { "Options",                            0, (intF) onOptions                                        },
     { "Palette",                            0, (intF) onScreenPalette                                  },
     { "Default Palettes",                   0, (intF) onDefault_Pals                                   },
