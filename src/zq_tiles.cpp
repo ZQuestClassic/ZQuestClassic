@@ -14772,6 +14772,45 @@ bool edit_combo(int c,bool freshen,int cs)
     
     combo_dlg[103].dp = the_label;
     
+    //trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
+		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
+		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
+		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
+		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
+		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
+		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
+		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
+		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
+		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+		//breakas here
+		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
+		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
+		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
+		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
+		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
+		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
+		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
+		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+		//ZScript capable numbers end there. 
+		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
+		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
+		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
+		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
+		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+
+		//trigger flags page 2
+		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
+		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
+		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
+		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
+		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
+		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
+		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
+		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
+		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
+		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+    
     
     int index=0;
     
@@ -14841,6 +14880,9 @@ bool edit_combo(int c,bool freshen,int cs)
 	//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
 	//{
 		saved=false;
+	    //three bits left for the second index (for ZScript supported values)
+
+		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
 		curr_combo.csets = csets;
 		
@@ -14987,7 +15029,7 @@ bool edit_combo(int c,bool freshen,int cs)
 			curr_combo.usrflags &= ~0x8000;
 		}
 		
-		//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+		
 		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
 		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
 		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
@@ -15025,9 +15067,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
 		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
 		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-		//three bits left for the second index (for ZScript supported values)
-
-		ret=zc_popup_dialog(combo_dlg,4);
+		
+		
         
 		
 		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
@@ -15077,6 +15118,136 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.animflags = 0;
 		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
 		curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
+		
+		if(combo_dlg[47].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x01;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x01;
+		}
+		if(combo_dlg[48].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x02;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x02;
+		}
+		if(combo_dlg[49].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x04;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x04;
+		}
+		if(combo_dlg[50].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x08;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x08;
+		}
+		if(combo_dlg[51].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x10;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x10;
+		}
+		if(combo_dlg[52].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x20;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x20;
+		}
+		if(combo_dlg[53].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x40;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x40;
+		}
+		if(combo_dlg[54].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x80;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x80;
+		}
+		if(combo_dlg[104].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x100;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x100;
+		}
+		if(combo_dlg[105].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x200;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x200;
+		}
+		if(combo_dlg[106].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x400;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x400;
+		}
+		if(combo_dlg[107].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x800;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x800;
+		}
+		if(combo_dlg[108].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x1000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x1000;
+		}
+		if(combo_dlg[109].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x2000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x2000;
+		}
+		if(combo_dlg[110].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x4000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x4000;
+		}
+		if(combo_dlg[111].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x8000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x8000;
+		}
+		
 		strcpy(curr_combo.label, the_label);
 		
 		if(ret==25)
@@ -15094,11 +15265,12 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
     
 	    
-    } while ( ret != 0 && ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=100 );
-    if ( ret == 2 || ret == 45 ) //save it
+    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 );
+    if ( ret==2 || ret==45 || ret==86 || ret==100 ) //save it
     {
 	    combobuf[c] = curr_combo;
 	    saved = false;
+    }
 	    if(freshen)
 	    {
 		refresh(rALL);
@@ -15106,8 +15278,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	    
 	    setup_combo_animations();
 	    setup_combo_animations2();
-    }
-    return ret;
+    
+    return true;
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)
