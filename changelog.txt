@@ -2,6 +2,22 @@
 
 //Alpha 45
 
+Completely rewrote the combbo editor so that it refreshes in the same way as the 
+	Item Editor and the Enemy Editor.
+	Changing the combo type will not allow refreshing the Attributes
+	tabs--I added a std::map for this--and update the flagsetand other labels
+	based on the combo type.
+	Note that this uses the combo type from ther //list//, not ther cCOMBO constants. 
+	I added a case for list entry 122, for now.
+	I'll need to add a function to match these to combo
+	type constants and make it saner. 
+	Absolutely nothing uses those now--just the deprecated defdata
+	code.
+	Note: If you want a droplist to pass a value to 'ret', so
+	that you can refresh using changes it it, you must set the
+	proc flag D_EXIT ---NOT D_DIRTY--- !!
+	( ZoriaRPG, 26th November, 2019 )
+
 Minor cleanup of the Combo Editor Attributes fields. 
 Added eight additional flags to Combo Attributes (the new total is 16)
 	and renamed them from 'Misc Flah 0x00' format to 'Flag 1' to 'Flag 16'.

@@ -3564,7 +3564,7 @@ int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3
 /*****************************************/
 /***********  drop list proc  ************/
 /*****************************************/
-
+int last_droplist_sel = -1;
 static int d_dropcancel_proc(int msg,DIALOG *d,int c)
 {
     //these are here to bypass compiler warnings about unused arguments

@@ -84,6 +84,7 @@ extern int mix_value(int c1,int c2,int pos,int max);
 
 /* 1.5k lookup table for color matching */
 extern unsigned int col_diff[3*128];
+extern int last_droplist_sel;
 
 /* you should call this before using the other procedures */
 void jwin_set_colors(int *colors);
