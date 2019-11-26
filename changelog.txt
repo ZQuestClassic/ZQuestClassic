@@ -1,6 +1,9 @@
 ChangeLog for 2.53.1
 
 //Beta 16
+Clear the panel recent screen buttons to prevent crashes from invalid maps.
+	( ZoriaRPG, 26th November, 2019 )
+	
 ZScript Dialogue: Import is now Load (hotkey 'L'), to match 2.55. 
 	( ZoriaRPG, 25th November, 2019 )
 
