@@ -2,6 +2,10 @@
 
 //Alpha 45
 
+Fix reversed operator on hammer checks.
+Fix Combo Editor Saving Bugs
+Additional screengrid checks.
+Added zprint(...) for internal loging (in magenta).
 Completely rewrote the combbo editor so that it refreshes in the same way as the 
 	Item Editor and the Enemy Editor.
 	Changing the combo type will not allow refreshing the Attributes
@@ -17,6 +21,10 @@ Completely rewrote the combbo editor so that it refreshes in the same way as the
 	that you can refresh using changes it it, you must set the
 	proc flag D_EXIT ---NOT D_DIRTY--- !!
 	( ZoriaRPG, 26th November, 2019 )
+	
+ZQ now displays the decimal value of a screen number in parentheses
+	next to the hex value in ZQ.
+	( Venrob, 26th November, 2019 )
 
 Minor cleanup of the Combo Editor Attributes fields. 
 Added eight additional flags to Combo Attributes (the new total is 16)
