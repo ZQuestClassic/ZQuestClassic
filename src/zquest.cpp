@@ -29053,6 +29053,13 @@ int main(int argc,char **argv)
         itemspritescripts[i][0].command = 0xFFFF;
     }
     
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 1;
+	map_page[q].screen = 0;
+    }
+    
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
     
