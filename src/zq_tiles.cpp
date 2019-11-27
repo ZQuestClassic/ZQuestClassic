@@ -12380,8 +12380,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cBUSHNEXT,
-		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", NULL, NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSLASHTOUCHY,
