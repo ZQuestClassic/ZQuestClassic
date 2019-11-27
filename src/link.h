@@ -223,7 +223,7 @@ public:
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	link_is_stunned; //scripted stun from weapons; possibly for later eweapon effects in the future. 
+	link_is_stunned, stundir; //scripted stun from weapons; possibly for later eweapon effects in the future. 
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)

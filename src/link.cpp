@@ -198,6 +198,7 @@ int LinkClass::StunClock()
 void LinkClass::setStunClock(int v)
 {
     link_is_stunned=v;
+	stundir = dir;
 }
 
 LinkClass::LinkClass() : sprite()
@@ -5704,6 +5705,7 @@ bool LinkClass::animate(int)
     {
 	    // also cancel Link's attack
 		attackclk = 0;
+		dir = stundir;
 	    actiontype lastaction = action; //cache the last action so that we can compare against it
 	    
 	    if( lastaction != freeze )  //stun sets freeze, so we only want to store a tempaction that was not freeze
