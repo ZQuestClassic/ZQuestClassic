@@ -5702,6 +5702,8 @@ bool LinkClass::animate(int)
     
     if(link_is_stunned > 0)
     {
+	    // also cancel Link's attack
+		attackclk = 0;
 	    actiontype lastaction = action; //cache the last action so that we can compare against it
 	    
 	    if( lastaction != freeze )  //stun sets freeze, so we only want to store a tempaction that was not freeze
