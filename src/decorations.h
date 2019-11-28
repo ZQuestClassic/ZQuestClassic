@@ -31,6 +31,16 @@ public:
 /*******   Decorations   *******/
 /*******************************/
 
+class comboSprite : public decoration
+{
+public:
+    int timer;
+    bool initialized;
+    comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
+};
+
 class dBushLeaves : public decoration
 {
 public:

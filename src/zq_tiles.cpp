@@ -12534,6 +12534,10 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL}
 	},
 	{
+		cTRIGGERGENERIC,
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" }
+	},{
 		cMAX,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL}

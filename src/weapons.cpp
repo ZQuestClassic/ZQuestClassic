@@ -1022,6 +1022,97 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 		else return 0;
 }
 
+
+static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
+{
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = MAPCOMBO(bx,by);
+	int flag = MAPFLAG(bx,by);
+	int flag2 = MAPCOMBOFLAG(bx,by);
+	int ft = c[cid].attributes[3];
+	if (!ft) return;
+	int scombo=COMBOPOS(bx,by);
+	bool single16 = false;
+
+	if (c[cid].type == cTRIGGERGENERIC )
+	{
+		zprint("Weapon touched generic combo trigger. \n");
+		if ( wid == wSword && wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		    //ZScript liter support ends here. 
+		
+		else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		
+		else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		    
+		    //item trigger flags page 2
+		
+		else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+		else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+
+		else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+	}
+}
+
+
 /**************************************/
 /***********  Weapon Class  ***********/
 /**************************************/
@@ -9171,11 +9262,21 @@ void weapon::findcombotriggers()
 	{
 		for(int dy = 0; dy < hysz; dy += 16)
 		{
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			
 			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
 			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
 			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
 			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
 		}
+		MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		
 		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
 		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
 		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
@@ -9184,12 +9285,22 @@ void weapon::findcombotriggers()
 	}
 	for(int dy = 0; dy < hysz; dy += 16)
 	{
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		
 		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
 		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
 		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
 		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
 		
 	}
+	MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	
 	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
 	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
 	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);

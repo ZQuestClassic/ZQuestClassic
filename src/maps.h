@@ -49,6 +49,7 @@ bool iswater_type(int type);
 bool isGrassType(int type);
 bool isFlowersType(int type);
 bool isBushType(int type);
+bool isGenericType(int type);
 bool isSlashType(int type);
 bool isCuttableNextType(int type);
 bool isTouchyType(int type);

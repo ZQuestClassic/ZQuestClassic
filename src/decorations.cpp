@@ -198,6 +198,44 @@ void dBushLeaves::draw(BITMAP *dest)
 	}
 }
 
+
+comboSprite::comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+{
+	id=Id;
+	clk=Clk;
+	the_deco_sprite = vbound(wpnSpr,0,255);
+}
+
+bool comboSprite::animate(int index)
+{
+	index=index;  //this is here to bypass compiler warnings about unused arguments
+	return true;
+}
+
+void comboSprite::draw(BITMAP *dest)
+{
+	if(screenscrolling)
+	{
+		clk=128;
+		return;
+	}
+	int t=0;
+	if ( the_deco_sprite )
+	{
+		t=wpnsbuf[the_deco_sprite].newtile;
+		cs=wpnsbuf[the_deco_sprite].csets&15;
+		
+	}
+	else
+	{
+		return;
+	}
+	
+	sprite::draw(dest);
+}
+
+
+
 dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
