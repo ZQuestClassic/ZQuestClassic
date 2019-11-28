@@ -11168,7 +11168,11 @@ void LinkClass::checklockblock()
     int ctr_amount = combobuf[cid].attributes[2];
     if( requireditem && game->item[requireditem]) 
     {
-	    if ((combobuf[cid].usrflags&8)) takeitem(requireditem);
+	    if ((combobuf[cid].usrflags&0x10)) 
+	    {
+		    //zprint("Setting item %d false.\n", requireditem);
+		    takeitem(requireditem);
+	    }
 	    goto unlock;
     }
     else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
