@@ -1056,6 +1056,8 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 		{
 			//zprint("sword\n");
 			//zprint("sfx is: %d\n", c[cid].attributes[2]);
+			if ( get_bit(w->wscreengrid,(((bx>>4) + by))) && (c[cid].usrflags&0x10) ) return; //Not a continuous combo.
+			set_bit(w->wscreengrid,(((bx>>4) + by)),1);
 			if ( c[cid].usrflags&0x40 )
 			{
 				screen_combo_modify_preroutine(tmpscr,cid);
@@ -1066,12 +1068,40 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 				screen_combo_modify_postroutine(tmpscr,cid);
 				sfx(c[cid].attributes[2],int(bx));
 			}
+			if ( c[cid].usrflags&0x80 ) w->dead = 1;
 		}		
 		else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
 			//zprint("swordbeam\n");
 			//zprint("sfx is: %d\n", c[cid].attributes[2]);
 			//zprint("scombo is: %d\n", scombo);
+			if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&0x10) ) 
+			{
+				
+				//loop next combo
+				if((c[cid].usrflags&0x8))
+				{
+					do
+					{
+						screen_combo_modify_preroutine(tmpscr,cid);
+						++tmpscr->data[scombo];
+						screen_combo_modify_postroutine(tmpscr,cid);
+						if ( (c[cid].usrflags&0x10) ) cid = MAPCOMBO(bx,by);
+						if ( c[cid].usrflags&0x80 ) w->dead = 1;
+						//tmpscr->sflag[scombo] = c[cid].sflag;
+						//c[tmpscr->data[cid]].cset;
+						//c[tmpscr->data[cid]].cset;
+						
+						//tmpscr->cset[scombo] = c[cid].cset;
+						//tmpscr->sflag[scombo] = c[cid].sflag;
+						//zprint("++comboD\n");
+					} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC));
+					
+				}
+				
+				zprint("continuous\n");
+			}
+			set_bit(w->wscreengrid,(((bx>>4) + by)),1);
 			if ( c[cid].usrflags&0x40 )
 			{
 				screen_combo_modify_preroutine(tmpscr,cid);
@@ -1082,6 +1112,7 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 				screen_combo_modify_postroutine(tmpscr,cid);
 				sfx(c[cid].attributes[2],int(bx));
 			}
+			if ( c[cid].usrflags&0x80 ) w->dead = 1;
 		}
 		
 		else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )  
