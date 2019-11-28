@@ -1151,7 +1151,7 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 	bool single16 = false;
 	
 
-	if (c[cid].type == cTRIGGERGENERIC )
+	if ( c[cid].type >= cSCRIPT1 && c[cid].type <= cTRIGGERGENERIC )
 	{
 		//zprint("Weapon touched generic combo trigger. \n");
 		//zprint("wid is: %d\n", wid);
