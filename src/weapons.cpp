@@ -1059,11 +1059,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
 			decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
 		}
-		int it = select_dropitem( (c[cid].usrflags&0x2) ? c[cid].attributes[1] : -1);
+		int it = -1; 
+		int the_item = c[cid].attributes[1];
+		it = ( the_item < 0 ) ? (the_item*-1) : ( select_dropitem( (c[cid].usrflags&0x2) ? c[cid].attributes[1] : -1) ); 
 		//zprint("dropset: %d\n", c[cid].attributes[1]);
 		//zprint("drops enabled: %s\n", (c[cid].usrflags&0x2) ? "true":"false");
 		//zprint("it: %d\n", it);
-		if(it!=-1 && (c[cid].usrflags&0x2))
+		if( ((unsigned)it < 255) && (c[cid].usrflags&0x2))
 		{
 			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
