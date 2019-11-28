@@ -1060,7 +1060,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		if ((c[cid].usrflags&0x1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
-			if ( ((unsigned)c[cid].attributes[0]) < 256 )
+			if ( c[cid].attributes[0] == -1 )
+				decorations.add(new dBushLeaves((fix)ComboX(scombo), (fix)ComboY(scombo),dBUSHLEAVES, 0, 0));
+			else if ( c[cid].attributes[0] == -2 )
+				decorations.add(new dFlowerClippings((fix)ComboX(scombo), (fix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
+			else if ( c[cid].attributes[0] == -3 )
+				decorations.add(new dGrassClippings((fix)ComboX(scombo), (fix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+			else if ( ((unsigned)c[cid].attributes[0]) < 256 )
 				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
 		}
 		int it = -1; 
