@@ -1032,7 +1032,8 @@ static int COMBOAT(int x, int y)
 
 #define ComboX(pos) ((pos)%16*16)
 #define ComboY(pos) ((pos)&0xF0)
-
+#define minSECRET_TYPE 0
+#define maxSECRET_TYPE 43
 static void do_generic_combo(weapon *w, int bx, int by, newcombo *c, int wid, 
 	int cid, int flag, int flag2, int ft, int scombo, bool single16)
 
@@ -1049,6 +1050,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 */
 {
+	
+	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2]);
 	//zprint("scombo is: %d\n", scombo);
@@ -1057,7 +1060,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		if ((c[cid].usrflags&0x1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
-			decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
+			if ( ((unsigned)c[cid].attributes[0]) < 256 )
+				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
 		}
 		int it = -1; 
 		int the_item = c[cid].attributes[1];
@@ -1083,6 +1087,19 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				tmpscr->item,ipONETIME+ipBIGRANGE+((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
 		}
+		
+		if ( c[cid].usrflags&0x40 )
+		{
+			screen_combo_modify_preroutine(tmpscr,cid);
+			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
+			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
+			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
+			// newflag = s->secretflag[ft];
+			screen_combo_modify_postroutine(tmpscr,cid);
+			if ( ((unsigned)c[cid].attributes[2]) < 256 )
+				sfx(c[cid].attributes[2],int(bx));
+		}
+		
 		//loop next combo
 		if((c[cid].usrflags&0x8))
 		{
@@ -1100,8 +1117,9 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				//tmpscr->cset[scombo] = c[cid].cset;
 				//tmpscr->sflag[scombo] = c[cid].sflag;
 				//zprint("++comboD\n");
-			} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC));
-			sfx(c[cid].attributes[2],int(bx));
+			} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( ((unsigned)c[cid].attributes[2]) < 256 )
+				sfx(c[cid].attributes[2],int(bx));
 			
 			
 		}
@@ -1110,16 +1128,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		
 	}
 	set_bit(w->wscreengrid,(((bx>>4) + by)),1);
-	if ( c[cid].usrflags&0x40 )
-	{
-		screen_combo_modify_preroutine(tmpscr,cid);
-		tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-		tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-		tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-		// newflag = s->secretflag[ft];
-		screen_combo_modify_postroutine(tmpscr,cid);
-		sfx(c[cid].attributes[2],int(bx));
-	}
+	
 	if ( c[cid].usrflags&0x80 ) w->dead = 1;
 }
 
