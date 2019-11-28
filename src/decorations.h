@@ -36,9 +36,13 @@ class comboSprite : public decoration
 public:
     int timer;
     bool initialized;
+	int tframes, spd;
     comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    virtual void draw2(BITMAP *dest);
+	virtual void realdraw(BITMAP *dest, int draw_what);
+	
 };
 
 class dBushLeaves : public decoration

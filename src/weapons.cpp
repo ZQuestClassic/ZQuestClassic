@@ -30,6 +30,7 @@
 #include "link.h"
 #include "mem_debug.h"
 #include "ffscript.h"
+#include "decorations.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -1077,7 +1078,11 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 			//zprint("scombo is: %d\n", scombo);
 			if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&0x10) ) 
 			{
-				
+				if ((c[cid].usrflags&0x1)) 
+				{
+					zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
+					decorations.add(new comboSprite((fix)bx, (fix)by, 0, 0, c[cid].attributes[0]));
+				}
 				//loop next combo
 				if((c[cid].usrflags&0x8))
 				{
@@ -1096,6 +1101,8 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 						//tmpscr->sflag[scombo] = c[cid].sflag;
 						//zprint("++comboD\n");
 					} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC));
+					sfx(c[cid].attributes[2],int(bx));
+					
 					
 				}
 				
