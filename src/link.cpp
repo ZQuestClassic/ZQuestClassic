@@ -11036,6 +11036,29 @@ bool usekey()
     return true;
 }
 
+bool usekey(int num)
+{
+    int itemid = current_item_id(itype_magickey);
+    
+    if(itemid<0 ||
+            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+             : itemsbuf[itemid].power!=dlevel))
+    {
+        if(game->lvlkeys[dlevel]>=num)
+        {
+            game->lvlkeys[dlevel]-=num;
+            return true;
+        }
+        
+        if(game->get_keys()<num)
+            return false;
+            
+        game->change_keys(-num);
+    }
+    
+    return true;
+}
+
 bool islockeddoor(int x, int y, int lock)
 {
     int mc = (y&0xF0)+(x>>4);
@@ -11090,23 +11113,43 @@ void LinkClass::checklockblock()
     }
     
     bool found=false;
-    
+    int foundlayer = -1;
+    int cid = 0;
     // Layer 0 is overridden by Locked Doors
-    if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && !islockeddoor(bx,by,dLOCKED))||
-            (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK && !islockeddoor(bx2,by,dLOCKED)))
+    if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && !islockeddoor(bx,by,dLOCKED)))
+    {
+	found=true;
+	cid = MAPCOMBO(bx,by);
+	foundlayer = 0;
+    }
+    else if (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK && !islockeddoor(bx2,by,dLOCKED))
     {
         found=true;
+	cid = MAPCOMBO(bx2,by);
+	foundlayer = 0;
     }
     
+   
     // Layers
     if(!found)
     {
         for(int i=0; i<2; i++)
         {
-            if((combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK)||
-                    (combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK))
+            if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK)
+	    {
+                found=true;
+		foundlayer = i;
+		cid = MAPCOMBO2(i,bx,by);
+		zprint("Found layer: %d \n", i);
+                break;
+            }
+		    
+	    else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK)
             {
                 found=true;
+		foundlayer = i;
+		cid = MAPCOMBO2(i,bx,by);
+		zprint("Found layer: %d \n", i);
                 break;
             }
         }
@@ -11116,12 +11159,45 @@ void LinkClass::checklockblock()
     {
         return;
     }
+    zprint("foundlayer: %d\n", foundlayer);
+    zprint("cid: %d\n", cid);
+    //zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
+    int requireditem = combobuf[cid].usrflags&1 ? combobuf[cid].attributes[0] : 0;
+    int itemonly = combobuf[cid].usrflags&2;
+    int thecounter = combobuf[cid].attributes[1];
+    int ctr_amount = combobuf[cid].attributes[2];
+    if (getmapflag(mLOCKBLOCK) )
+    {
+	setmapflag(mLOCKBLOCK);
+	remove_lockblocks((currscr>=128)?1:0);
+	return;    
+    }
+    if( requireditem && game->item[requireditem]) goto unlock;
+    else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
+    else if ( (combobuf[cid].usrflags&8) )
+    {
+	if ( game->get_counter(thecounter) >= ctr_amount )
+	{
+		game->set_counter(thecounter, (game->get_counter(thecounter)-ctr_amount));
+		goto unlock;
+	}
+    }
+    else if(!ctr_amount && !requireditem && usekey() && !itemonly ) goto unlock;
+    else return;
+     
     
-    if(!usekey()) return;
+    unlock:
+    
     
     setmapflag(mLOCKBLOCK);
     remove_lockblocks((currscr>=128)?1:0);
-    sfx(WAV_DOOR);
+    if ( combobuf[cid].usrflags&4 )
+    {
+	if ( ((unsigned)combobuf[cid].attributes[2]) < 256 )
+		sfx(combobuf[cid].attributes[2]);
+    }
+	    
+    else sfx(WAV_DOOR);
 }
 
 void LinkClass::checkbosslockblock()

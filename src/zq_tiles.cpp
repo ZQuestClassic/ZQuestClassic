@@ -12020,8 +12020,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cLOCKBLOCK,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char*)"Item",(char*)"Counter",(char *)"Amount",(char *)"Sound"}
 	},
 	{ //60
 		cLOCKBLOCK2,
