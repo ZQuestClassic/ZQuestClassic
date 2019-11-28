@@ -1030,6 +1030,108 @@ static int COMBOAT(int x, int y)
 	return (y & 240)+(x>>4);
 }
 
+#define ComboX(pos) ((pos)%16*16)
+#define ComboY(pos) ((pos)&0xF0)
+#define minSECRET_TYPE 0
+#define maxSECRET_TYPE 43
+static void do_generic_combo(weapon *w, int bx, int by, newcombo *c, int wid, 
+	int cid, int flag, int flag2, int ft, int scombo, bool single16)
+
+/*
+int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = MAPCOMBO(bx,by);
+	int flag = MAPFLAG(bx,by);
+	int flag2 = MAPCOMBOFLAG(bx,by);
+	int ft = c[cid].attributes[3];
+	//if (!ft) return;
+	//zprint("ft: %d\n", ft);
+	int scombo=COMBOPOS(bx,by);
+	bool single16 = false;
+
+*/
+{
+	
+	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
+	//zprint("swordbeam\n");
+	//zprint("sfx is: %d\n", c[cid].attributes[2]);
+	//zprint("scombo is: %d\n", scombo);
+	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&0x10) ) 
+	{
+		if ((c[cid].usrflags&0x1)) 
+		{
+			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
+			if ( ((unsigned)c[cid].attributes[0]) < 256 )
+				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
+		}
+		int it = -1; 
+		int the_item = c[cid].attributes[1];
+		it = ( the_item < 0 ) ? (the_item*-1) : ( select_dropitem( (c[cid].usrflags&0x2) ? c[cid].attributes[1] : -1) ); 
+		//zprint("dropset: %d\n", c[cid].attributes[1]);
+		//zprint("drops enabled: %s\n", (c[cid].usrflags&0x2) ? "true":"false");
+		//zprint("it: %d\n", it);
+		if( ((unsigned)it < 255) && (c[cid].usrflags&0x2))
+		{
+			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
+		//special item
+		int it2 = (c[cid].usrflags&0x2) ? tmpscr->item : -1;
+		if ( (c[cid].usrflags&0x2) && tmpscr->hasitem && !getmapflag(mITEM))
+		{
+			if(tmpscr->hasitem==1)
+				sfx(WAV_CLEARED);
+			items.add(new item((fix)ComboX(scombo),
+				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (fix)-170 : (fix)tmpscr->itemy+1,
+				(fix)ComboY(scombo),
+				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (fix)170 : (fix)0,
+				(fix)0,
+				tmpscr->item,ipONETIME+ipBIGRANGE+((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+		}
+		
+		if ( c[cid].usrflags&0x40 )
+		{
+			screen_combo_modify_preroutine(tmpscr,cid);
+			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
+			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
+			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
+			// newflag = s->secretflag[ft];
+			screen_combo_modify_postroutine(tmpscr,cid);
+			if ( ((unsigned)c[cid].attributes[2]) < 256 )
+				sfx(c[cid].attributes[2],int(bx));
+		}
+		
+		//loop next combo
+		if((c[cid].usrflags&0x8))
+		{
+			do
+			{
+				screen_combo_modify_preroutine(tmpscr,cid);
+				++tmpscr->data[scombo];
+				screen_combo_modify_postroutine(tmpscr,cid);
+				if ( (c[cid].usrflags&0x10) ) cid = MAPCOMBO(bx,by);
+				if ( c[cid].usrflags&0x80 ) w->dead = 1;
+				//tmpscr->sflag[scombo] = c[cid].sflag;
+				//c[tmpscr->data[cid]].cset;
+				//c[tmpscr->data[cid]].cset;
+				
+				//tmpscr->cset[scombo] = c[cid].cset;
+				//tmpscr->sflag[scombo] = c[cid].sflag;
+				//zprint("++comboD\n");
+			} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( ((unsigned)c[cid].attributes[2]) < 256 )
+				sfx(c[cid].attributes[2],int(bx));
+			
+			
+		}
+		
+		//zprint("continuous\n");
+		
+	}
+	set_bit(w->wscreengrid,(((bx>>4) + by)),1);
+	
+	if ( c[cid].usrflags&0x80 ) w->dead = 1;
+}
+
 static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
 {
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
@@ -1055,524 +1157,145 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 		//zprint("matched is: %s\n", ( (c[cid].triggerflags[0]&combotriggerSWORD) ) ? "true" : "false");
 		if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			//zprint("sword\n");
-			//zprint("sfx is: %d\n", c[cid].attributes[2]);
-			if ( get_bit(w->wscreengrid,(((bx>>4) + by))) && (c[cid].usrflags&0x10) ) return; //Not a continuous combo.
-			set_bit(w->wscreengrid,(((bx>>4) + by)),1);
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
-			if ( c[cid].usrflags&0x80 ) w->dead = 1;
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}		
 		else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			//zprint("swordbeam\n");
-			//zprint("sfx is: %d\n", c[cid].attributes[2]);
-			//zprint("scombo is: %d\n", scombo);
-			if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&0x10) ) 
-			{
-				if ((c[cid].usrflags&0x1)) 
-				{
-					zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
-					decorations.add(new comboSprite((fix)bx, (fix)by, 0, 0, c[cid].attributes[0]));
-				}
-				//loop next combo
-				if((c[cid].usrflags&0x8))
-				{
-					do
-					{
-						screen_combo_modify_preroutine(tmpscr,cid);
-						++tmpscr->data[scombo];
-						screen_combo_modify_postroutine(tmpscr,cid);
-						if ( (c[cid].usrflags&0x10) ) cid = MAPCOMBO(bx,by);
-						if ( c[cid].usrflags&0x80 ) w->dead = 1;
-						//tmpscr->sflag[scombo] = c[cid].sflag;
-						//c[tmpscr->data[cid]].cset;
-						//c[tmpscr->data[cid]].cset;
-						
-						//tmpscr->cset[scombo] = c[cid].cset;
-						//tmpscr->sflag[scombo] = c[cid].sflag;
-						//zprint("++comboD\n");
-					} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC));
-					sfx(c[cid].attributes[2],int(bx));
-					
-					
-				}
-				
-				zprint("continuous\n");
-			}
-			set_bit(w->wscreengrid,(((bx>>4) + by)),1);
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
-			if ( c[cid].usrflags&0x80 ) w->dead = 1;
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) ) 
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) ) 
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
 		
 		    //ZScript liter support ends here. 
 		
 		else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) ) 
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
-		
 		else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
 		else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) ) 
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
 		    
 		    //item trigger flags page 2
 		
 		else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) ) 
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-		
 		else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
-
 		else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )  
 		{
-			
-			if ( c[cid].usrflags&0x40 )
-			{
-				screen_combo_modify_preroutine(tmpscr,cid);
-				tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-				tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-				tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
-				// newflag = s->secretflag[ft];
-				screen_combo_modify_postroutine(tmpscr,cid);
-				sfx(c[cid].attributes[2],int(bx));
-			}
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16);
 		}
 		
 	}
