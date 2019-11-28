@@ -11140,7 +11140,7 @@ void LinkClass::checklockblock()
                 found=true;
 		foundlayer = i;
 		cid = MAPCOMBO2(i,bx,by);
-		zprint("Found layer: %d \n", i);
+		//zprint("Found layer: %d \n", i);
                 break;
             }
 		    
@@ -11149,7 +11149,7 @@ void LinkClass::checklockblock()
                 found=true;
 		foundlayer = i;
 		cid = MAPCOMBO2(i,bx,by);
-		zprint("Found layer: %d \n", i);
+		//zprint("Found layer: %d \n", i);
                 break;
             }
         }
@@ -11159,27 +11159,21 @@ void LinkClass::checklockblock()
     {
         return;
     }
-    zprint("foundlayer: %d\n", foundlayer);
-    zprint("cid: %d\n", cid);
+    //zprint("foundlayer: %d\n", foundlayer);
+    //zprint("cid: %d\n", cid);
     //zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
     int requireditem = combobuf[cid].usrflags&1 ? combobuf[cid].attributes[0] : 0;
     int itemonly = combobuf[cid].usrflags&2;
     int thecounter = combobuf[cid].attributes[1];
     int ctr_amount = combobuf[cid].attributes[2];
-    if (getmapflag(mLOCKBLOCK) )
-    {
-	setmapflag(mLOCKBLOCK);
-	remove_lockblocks((currscr>=128)?1:0);
-	return;    
-    }
     if( requireditem && game->item[requireditem]) goto unlock;
     else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
     else if ( (combobuf[cid].usrflags&8) )
     {
 	if ( game->get_counter(thecounter) >= ctr_amount )
 	{
-		game->set_counter(thecounter, (game->get_counter(thecounter)-ctr_amount));
-		goto unlock;
+		game->change_counter(-(ctr_amount), thecounter);
+		goto unlock; 
 	}
     }
     else if(!ctr_amount && !requireditem && usekey() && !itemonly ) goto unlock;
@@ -11193,8 +11187,8 @@ void LinkClass::checklockblock()
     remove_lockblocks((currscr>=128)?1:0);
     if ( combobuf[cid].usrflags&4 )
     {
-	if ( ((unsigned)combobuf[cid].attributes[2]) < 256 )
-		sfx(combobuf[cid].attributes[2]);
+	if ( ((unsigned)combobuf[cid].attributes[3]) < 256 )
+		sfx(combobuf[cid].attributes[3]);
     }
 	    
     else sfx(WAV_DOOR);
