@@ -5118,6 +5118,17 @@ bool isFlowersType(int type)
     return false;
 }
 
+bool isGenericType(int type)
+{
+    switch(type)
+    {
+    case cTRIGGERGENERIC:
+        return true;
+    }
+    
+    return false;
+}
+
 bool isBushType(int type)
 {
     switch(type)
@@ -5126,6 +5137,7 @@ bool isBushType(int type)
     case cBUSHNEXT:
     case cBUSHTOUCHY:
     case cBUSHNEXTTOUCHY:
+
         return true;
     }
     

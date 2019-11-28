@@ -198,6 +198,80 @@ void dBushLeaves::draw(BITMAP *dest)
 	}
 }
 
+
+comboSprite::comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+{
+	id=Id;
+	clk=Clk;
+	
+	the_deco_sprite = vbound(wpnSpr,0,255);
+	tframes = wpnsbuf[the_deco_sprite].frames;
+	spd = wpnsbuf[the_deco_sprite].speed;
+}
+
+bool comboSprite::animate(int index)
+{
+	/*
+	clk++;
+	if ( (clk%spd) == 0 ) tile++;
+	al_trace("Animating combo sprite.z\n");
+	//if ( clk > tframes ) dead=1;
+	return clk()<=0;
+	*/
+	int dur = wpnsbuf[the_deco_sprite].frames * wpnsbuf[the_deco_sprite].speed;
+	//al_trace("dur: %d\n", dur);
+	//al_trace("clk: %d\n", clk);
+	return (clk++>=dur);
+}
+/*
+void comboSprite::draw(BITMAP *dest)
+{
+	if(screenscrolling)
+	{
+		clk=128;
+		return;
+	}
+	al_trace("Drawing combo sprite.z\n");
+	tile=wpnsbuf[the_deco_sprite].newtile;
+	cs=wpnsbuf[the_deco_sprite].csets&15;
+	sprite::draw(dest);
+}
+*/
+void comboSprite::realdraw(BITMAP *dest, int draw_what)
+{
+	if(misc!=draw_what)
+	{
+		return;
+	}
+	
+	int fb=the_deco_sprite;
+	int t=wpnsbuf[fb].newtile;
+	int fr=wpnsbuf[fb].frames;
+	int spd=wpnsbuf[fb].speed;
+	cs=wpnsbuf[fb].csets&15;
+	flip=0;
+	
+		tile=t;
+		
+		if(fr>0&&spd>0)
+		{
+			tile+=((clk/spd)%fr);
+		}
+		
+		decoration::draw(dest);
+		
+}
+
+void comboSprite::draw(BITMAP *dest)
+{
+	realdraw(dest,0);
+}
+
+void comboSprite::draw2(BITMAP *dest)
+{
+	realdraw(dest,1);
+}
+
 dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
