@@ -6314,6 +6314,8 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	    new_return(33);
 	}
 	
+	
+	
 	char tempsig[256];
 	memset(tempsig, 0, 256);
 	strcpy(tempsig, DEV_SIGNOFF);
@@ -6444,6 +6446,15 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	if(!pfwrite(&temptime,256,f))
         {
             new_return(46);
+        }
+	
+	
+	char temptimezone[6];
+	memset(temptimezone, 0, 6);
+	strcpy(temptimezone, __TIMEZONE__);
+	if(!pfwrite(&temptimezone,6,f))
+        {
+            new_return(47);
         }
 	
         if(writecycle==0)

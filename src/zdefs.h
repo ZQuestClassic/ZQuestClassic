@@ -183,7 +183,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 
 //Version number of the different section types
-#define V_HEADER           4
+#define V_HEADER           5
 #define V_RULES           15
 #define V_STRINGS          6
 #define V_MISC             11
@@ -2746,6 +2746,7 @@ struct zquestheader
     char made_in_module_name[1024];
     char build_datestamp[256];
     char build_timestamp[256];
+    char build_timezone[6];
     //made in module_name
     
     //602
