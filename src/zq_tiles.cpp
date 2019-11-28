@@ -12435,103 +12435,178 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cSCRIPT1,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ moduledata.combotypeCustomFlags[0][0],moduledata.combotypeCustomFlags[0][1],moduledata.combotypeCustomFlags[0][2],moduledata.combotypeCustomFlags[0][3],moduledata.combotypeCustomFlags[0][4],moduledata.combotypeCustomFlags[0][5],moduledata.combotypeCustomFlags[0][6],
+			moduledata.combotypeCustomFlags[0][7],moduledata.combotypeCustomFlags[0][8],moduledata.combotypeCustomFlags[0][9],moduledata.combotypeCustomFlags[0][10],
+			moduledata.combotypeCustomFlags[0][11],moduledata.combotypeCustomFlags[0][12],moduledata.combotypeCustomFlags[0][13],moduledata.combotypeCustomFlags[0][14],moduledata.combotypeCustomFlags[0][15]},
+		{ moduledata.combotypeCustomAttributes[0][0],moduledata.combotypeCustomAttributes[0][1],moduledata.combotypeCustomAttributes[0][2],moduledata.combotypeCustomAttributes[0][3]}
 	},
 	{
 		cSCRIPT2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ moduledata.combotypeCustomFlags[1][0],moduledata.combotypeCustomFlags[1][1],moduledata.combotypeCustomFlags[1][2],moduledata.combotypeCustomFlags[1][3],moduledata.combotypeCustomFlags[1][4],moduledata.combotypeCustomFlags[1][5],moduledata.combotypeCustomFlags[1][6],
+			moduledata.combotypeCustomFlags[1][7],moduledata.combotypeCustomFlags[1][8],moduledata.combotypeCustomFlags[1][9],moduledata.combotypeCustomFlags[1][10],
+			moduledata.combotypeCustomFlags[1][11],moduledata.combotypeCustomFlags[1][12],moduledata.combotypeCustomFlags[1][13],moduledata.combotypeCustomFlags[1][14],moduledata.combotypeCustomFlags[1][15]},
+		{ moduledata.combotypeCustomAttributes[1][0],moduledata.combotypeCustomAttributes[1][1],moduledata.combotypeCustomAttributes[1][2],moduledata.combotypeCustomAttributes[1][3]}
 	},
 	{
 		cSCRIPT3,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[2][0],moduledata.combotypeCustomFlags[2][1],moduledata.combotypeCustomFlags[2][2],moduledata.combotypeCustomFlags[2][3],moduledata.combotypeCustomFlags[2][4],moduledata.combotypeCustomFlags[2][5],moduledata.combotypeCustomFlags[2][6],
+			moduledata.combotypeCustomFlags[2][7],moduledata.combotypeCustomFlags[2][8],moduledata.combotypeCustomFlags[2][9],moduledata.combotypeCustomFlags[2][10],
+			moduledata.combotypeCustomFlags[2][11],moduledata.combotypeCustomFlags[2][12],moduledata.combotypeCustomFlags[2][13],moduledata.combotypeCustomFlags[2][14],moduledata.combotypeCustomFlags[2][15]},
+		{ moduledata.combotypeCustomAttributes[2][0],moduledata.combotypeCustomAttributes[2][1],moduledata.combotypeCustomAttributes[2][2],moduledata.combotypeCustomAttributes[2][3]}
+
 	},
 	{ //145
 		cSCRIPT4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ moduledata.combotypeCustomFlags[3][0],moduledata.combotypeCustomFlags[3][1],moduledata.combotypeCustomFlags[3][2],moduledata.combotypeCustomFlags[3][3],moduledata.combotypeCustomFlags[3][4],moduledata.combotypeCustomFlags[3][5],moduledata.combotypeCustomFlags[3][6],
+			moduledata.combotypeCustomFlags[3][7],moduledata.combotypeCustomFlags[3][8],moduledata.combotypeCustomFlags[3][9],moduledata.combotypeCustomFlags[3][10],
+			moduledata.combotypeCustomFlags[3][11],moduledata.combotypeCustomFlags[3][12],moduledata.combotypeCustomFlags[3][13],moduledata.combotypeCustomFlags[3][14],moduledata.combotypeCustomFlags[3][15]},
+		{ moduledata.combotypeCustomAttributes[3][0],moduledata.combotypeCustomAttributes[3][1],moduledata.combotypeCustomAttributes[3][2],moduledata.combotypeCustomAttributes[3][3]}
+
 	},
 	{
 		cSCRIPT5,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[4][0],moduledata.combotypeCustomFlags[4][1],moduledata.combotypeCustomFlags[4][2],moduledata.combotypeCustomFlags[4][3],moduledata.combotypeCustomFlags[4][4],moduledata.combotypeCustomFlags[4][5],moduledata.combotypeCustomFlags[4][6],
+			moduledata.combotypeCustomFlags[4][7],moduledata.combotypeCustomFlags[4][8],moduledata.combotypeCustomFlags[4][9],moduledata.combotypeCustomFlags[4][10],
+			moduledata.combotypeCustomFlags[4][11],moduledata.combotypeCustomFlags[4][12],moduledata.combotypeCustomFlags[4][13],moduledata.combotypeCustomFlags[4][14],moduledata.combotypeCustomFlags[4][15]},
+		{ moduledata.combotypeCustomAttributes[4][0],moduledata.combotypeCustomAttributes[4][1],moduledata.combotypeCustomAttributes[4][2],moduledata.combotypeCustomAttributes[4][3]}
+
 	},
 	{
 		cSCRIPT6,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[5][0],moduledata.combotypeCustomFlags[5][1],moduledata.combotypeCustomFlags[5][2],moduledata.combotypeCustomFlags[5][3],moduledata.combotypeCustomFlags[5][4],moduledata.combotypeCustomFlags[5][5],moduledata.combotypeCustomFlags[5][6],
+			moduledata.combotypeCustomFlags[5][7],moduledata.combotypeCustomFlags[5][8],moduledata.combotypeCustomFlags[5][9],moduledata.combotypeCustomFlags[5][10],
+			moduledata.combotypeCustomFlags[5][11],moduledata.combotypeCustomFlags[5][12],moduledata.combotypeCustomFlags[5][13],moduledata.combotypeCustomFlags[5][14],moduledata.combotypeCustomFlags[5][15]},
+		{ moduledata.combotypeCustomAttributes[5][0],moduledata.combotypeCustomAttributes[5][1],moduledata.combotypeCustomAttributes[5][2],moduledata.combotypeCustomAttributes[5][3]}
+
 	},
 	{
 		cSCRIPT7,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[6][0],moduledata.combotypeCustomFlags[6][1],moduledata.combotypeCustomFlags[6][2],moduledata.combotypeCustomFlags[6][3],moduledata.combotypeCustomFlags[6][4],moduledata.combotypeCustomFlags[6][5],moduledata.combotypeCustomFlags[6][6],
+			moduledata.combotypeCustomFlags[6][7],moduledata.combotypeCustomFlags[6][8],moduledata.combotypeCustomFlags[6][9],moduledata.combotypeCustomFlags[6][10],
+			moduledata.combotypeCustomFlags[6][11],moduledata.combotypeCustomFlags[6][12],moduledata.combotypeCustomFlags[6][13],moduledata.combotypeCustomFlags[6][14],moduledata.combotypeCustomFlags[6][15]},
+		{ moduledata.combotypeCustomAttributes[6][0],moduledata.combotypeCustomAttributes[6][1],moduledata.combotypeCustomAttributes[6][2],moduledata.combotypeCustomAttributes[6][3]}
+
 	},
 	{
 		cSCRIPT8,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[7][0],moduledata.combotypeCustomFlags[7][1],moduledata.combotypeCustomFlags[7][2],moduledata.combotypeCustomFlags[7][3],moduledata.combotypeCustomFlags[7][4],moduledata.combotypeCustomFlags[7][5],moduledata.combotypeCustomFlags[7][6],
+			moduledata.combotypeCustomFlags[7][7],moduledata.combotypeCustomFlags[7][8],moduledata.combotypeCustomFlags[7][9],moduledata.combotypeCustomFlags[7][10],
+			moduledata.combotypeCustomFlags[7][11],moduledata.combotypeCustomFlags[7][12],moduledata.combotypeCustomFlags[7][13],moduledata.combotypeCustomFlags[7][14],moduledata.combotypeCustomFlags[7][15]},
+		{ moduledata.combotypeCustomAttributes[7][0],moduledata.combotypeCustomAttributes[7][1],moduledata.combotypeCustomAttributes[7][2],moduledata.combotypeCustomAttributes[7][3]}
+
 	},
 	{ //150
 		cSCRIPT9,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[8][0],moduledata.combotypeCustomFlags[8][1],moduledata.combotypeCustomFlags[8][2],moduledata.combotypeCustomFlags[8][3],moduledata.combotypeCustomFlags[8][4],moduledata.combotypeCustomFlags[8][5],moduledata.combotypeCustomFlags[8][6],
+			moduledata.combotypeCustomFlags[8][7],moduledata.combotypeCustomFlags[8][8],moduledata.combotypeCustomFlags[8][9],moduledata.combotypeCustomFlags[8][10],
+			moduledata.combotypeCustomFlags[8][11],moduledata.combotypeCustomFlags[8][12],moduledata.combotypeCustomFlags[8][13],moduledata.combotypeCustomFlags[8][14],moduledata.combotypeCustomFlags[8][15]},
+		{ moduledata.combotypeCustomAttributes[8][0],moduledata.combotypeCustomAttributes[8][1],moduledata.combotypeCustomAttributes[8][2],moduledata.combotypeCustomAttributes[8][3]}
+
 	},
 	{
 		cSCRIPT10,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[9][0],moduledata.combotypeCustomFlags[9][1],moduledata.combotypeCustomFlags[9][2],moduledata.combotypeCustomFlags[9][3],moduledata.combotypeCustomFlags[9][4],moduledata.combotypeCustomFlags[9][5],moduledata.combotypeCustomFlags[9][6],
+			moduledata.combotypeCustomFlags[9][7],moduledata.combotypeCustomFlags[9][8],moduledata.combotypeCustomFlags[9][9],moduledata.combotypeCustomFlags[9][10],
+			moduledata.combotypeCustomFlags[9][11],moduledata.combotypeCustomFlags[9][12],moduledata.combotypeCustomFlags[9][13],moduledata.combotypeCustomFlags[9][14],moduledata.combotypeCustomFlags[9][15]},
+		{ moduledata.combotypeCustomAttributes[9][0],moduledata.combotypeCustomAttributes[9][1],moduledata.combotypeCustomAttributes[9][2],moduledata.combotypeCustomAttributes[9][3]}
+
 	},
 	{
 		cSCRIPT11,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[10][0],moduledata.combotypeCustomFlags[10][1],moduledata.combotypeCustomFlags[10][2],moduledata.combotypeCustomFlags[10][3],moduledata.combotypeCustomFlags[10][4],moduledata.combotypeCustomFlags[10][5],moduledata.combotypeCustomFlags[10][6],
+			moduledata.combotypeCustomFlags[10][7],moduledata.combotypeCustomFlags[10][8],moduledata.combotypeCustomFlags[10][9],moduledata.combotypeCustomFlags[10][10],
+			moduledata.combotypeCustomFlags[10][11],moduledata.combotypeCustomFlags[10][12],moduledata.combotypeCustomFlags[10][13],moduledata.combotypeCustomFlags[10][14],moduledata.combotypeCustomFlags[10][15]},
+		{ moduledata.combotypeCustomAttributes[10][0],moduledata.combotypeCustomAttributes[10][1],moduledata.combotypeCustomAttributes[10][2],moduledata.combotypeCustomAttributes[10][3]}
+
 	},
 	{
 		cSCRIPT12,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[11][0],moduledata.combotypeCustomFlags[11][1],moduledata.combotypeCustomFlags[11][2],moduledata.combotypeCustomFlags[11][3],moduledata.combotypeCustomFlags[11][4],moduledata.combotypeCustomFlags[11][5],moduledata.combotypeCustomFlags[11][6],
+			moduledata.combotypeCustomFlags[11][7],moduledata.combotypeCustomFlags[11][8],moduledata.combotypeCustomFlags[11][9],moduledata.combotypeCustomFlags[11][10],
+			moduledata.combotypeCustomFlags[11][11],moduledata.combotypeCustomFlags[11][12],moduledata.combotypeCustomFlags[11][13],moduledata.combotypeCustomFlags[11][14],moduledata.combotypeCustomFlags[11][15]},
+		{ moduledata.combotypeCustomAttributes[11][0],moduledata.combotypeCustomAttributes[11][1],moduledata.combotypeCustomAttributes[11][2],moduledata.combotypeCustomAttributes[11][3]}
+
 	},
 	{
 		cSCRIPT13,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[12][0],moduledata.combotypeCustomFlags[12][1],moduledata.combotypeCustomFlags[12][2],moduledata.combotypeCustomFlags[12][3],moduledata.combotypeCustomFlags[12][4],moduledata.combotypeCustomFlags[12][5],moduledata.combotypeCustomFlags[12][6],
+			moduledata.combotypeCustomFlags[12][7],moduledata.combotypeCustomFlags[12][8],moduledata.combotypeCustomFlags[12][9],moduledata.combotypeCustomFlags[12][10],
+			moduledata.combotypeCustomFlags[12][11],moduledata.combotypeCustomFlags[12][12],moduledata.combotypeCustomFlags[12][13],moduledata.combotypeCustomFlags[12][14],moduledata.combotypeCustomFlags[12][15]},
+		{ moduledata.combotypeCustomAttributes[12][0],moduledata.combotypeCustomAttributes[12][1],moduledata.combotypeCustomAttributes[12][2],moduledata.combotypeCustomAttributes[12][3]}
+
 	},
 	{ //155
 		cSCRIPT14,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[13][0],moduledata.combotypeCustomFlags[13][1],moduledata.combotypeCustomFlags[13][2],moduledata.combotypeCustomFlags[13][3],moduledata.combotypeCustomFlags[13][4],moduledata.combotypeCustomFlags[13][5],moduledata.combotypeCustomFlags[13][6],
+			moduledata.combotypeCustomFlags[13][7],moduledata.combotypeCustomFlags[13][8],moduledata.combotypeCustomFlags[13][9],moduledata.combotypeCustomFlags[13][10],
+			moduledata.combotypeCustomFlags[13][11],moduledata.combotypeCustomFlags[13][12],moduledata.combotypeCustomFlags[13][13],moduledata.combotypeCustomFlags[13][14],moduledata.combotypeCustomFlags[13][15]},
+		{ moduledata.combotypeCustomAttributes[13][0],moduledata.combotypeCustomAttributes[13][1],moduledata.combotypeCustomAttributes[13][2],moduledata.combotypeCustomAttributes[13][3]}
+
 	},
 	{
 		cSCRIPT15,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[14][0],moduledata.combotypeCustomFlags[14][1],moduledata.combotypeCustomFlags[14][2],moduledata.combotypeCustomFlags[14][3],moduledata.combotypeCustomFlags[14][4],moduledata.combotypeCustomFlags[14][5],moduledata.combotypeCustomFlags[14][6],
+			moduledata.combotypeCustomFlags[14][7],moduledata.combotypeCustomFlags[14][8],moduledata.combotypeCustomFlags[14][9],moduledata.combotypeCustomFlags[14][10],
+			moduledata.combotypeCustomFlags[14][11],moduledata.combotypeCustomFlags[14][12],moduledata.combotypeCustomFlags[14][13],moduledata.combotypeCustomFlags[14][14],moduledata.combotypeCustomFlags[14][15]},
+		{ moduledata.combotypeCustomAttributes[14][0],moduledata.combotypeCustomAttributes[14][1],moduledata.combotypeCustomAttributes[14][2],moduledata.combotypeCustomAttributes[14][3]}
+
 	},
 	{
 		cSCRIPT16,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[15][0],moduledata.combotypeCustomFlags[15][1],moduledata.combotypeCustomFlags[15][2],moduledata.combotypeCustomFlags[15][3],moduledata.combotypeCustomFlags[15][4],moduledata.combotypeCustomFlags[15][5],moduledata.combotypeCustomFlags[15][6],
+			moduledata.combotypeCustomFlags[15][7],moduledata.combotypeCustomFlags[15][8],moduledata.combotypeCustomFlags[15][9],moduledata.combotypeCustomFlags[15][10],
+			moduledata.combotypeCustomFlags[15][11],moduledata.combotypeCustomFlags[15][12],moduledata.combotypeCustomFlags[15][13],moduledata.combotypeCustomFlags[15][14],moduledata.combotypeCustomFlags[15][15]},
+		{ moduledata.combotypeCustomAttributes[15][0],moduledata.combotypeCustomAttributes[15][1],moduledata.combotypeCustomAttributes[15][2],moduledata.combotypeCustomAttributes[15][3]}
+
 	},
 	{
 		cSCRIPT17,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[16][0],moduledata.combotypeCustomFlags[16][1],moduledata.combotypeCustomFlags[16][2],moduledata.combotypeCustomFlags[16][3],moduledata.combotypeCustomFlags[16][4],moduledata.combotypeCustomFlags[16][5],moduledata.combotypeCustomFlags[16][6],
+			moduledata.combotypeCustomFlags[16][7],moduledata.combotypeCustomFlags[16][8],moduledata.combotypeCustomFlags[16][9],moduledata.combotypeCustomFlags[16][10],
+			moduledata.combotypeCustomFlags[16][11],moduledata.combotypeCustomFlags[16][12],moduledata.combotypeCustomFlags[16][13],moduledata.combotypeCustomFlags[16][14],moduledata.combotypeCustomFlags[16][15]},
+		{ moduledata.combotypeCustomAttributes[16][0],moduledata.combotypeCustomAttributes[16][1],moduledata.combotypeCustomAttributes[16][2],moduledata.combotypeCustomAttributes[16][3]}
+
 	},
 	{
 		cSCRIPT18,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[17][0],moduledata.combotypeCustomFlags[17][1],moduledata.combotypeCustomFlags[17][2],moduledata.combotypeCustomFlags[17][3],moduledata.combotypeCustomFlags[17][4],moduledata.combotypeCustomFlags[17][5],moduledata.combotypeCustomFlags[17][6],
+			moduledata.combotypeCustomFlags[17][7],moduledata.combotypeCustomFlags[17][8],moduledata.combotypeCustomFlags[17][9],moduledata.combotypeCustomFlags[17][10],
+			moduledata.combotypeCustomFlags[17][11],moduledata.combotypeCustomFlags[17][12],moduledata.combotypeCustomFlags[17][13],moduledata.combotypeCustomFlags[17][14],moduledata.combotypeCustomFlags[17][15]},
+		{ moduledata.combotypeCustomAttributes[17][0],moduledata.combotypeCustomAttributes[17][1],moduledata.combotypeCustomAttributes[17][2],moduledata.combotypeCustomAttributes[17][3]}
+
 	},
 	{ //160
 		cSCRIPT19,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[18][0],moduledata.combotypeCustomFlags[18][1],moduledata.combotypeCustomFlags[18][2],moduledata.combotypeCustomFlags[18][3],moduledata.combotypeCustomFlags[18][4],moduledata.combotypeCustomFlags[18][5],moduledata.combotypeCustomFlags[18][6],
+			moduledata.combotypeCustomFlags[18][7],moduledata.combotypeCustomFlags[18][8],moduledata.combotypeCustomFlags[18][9],moduledata.combotypeCustomFlags[18][10],
+			moduledata.combotypeCustomFlags[18][11],moduledata.combotypeCustomFlags[18][12],moduledata.combotypeCustomFlags[18][13],moduledata.combotypeCustomFlags[18][14],moduledata.combotypeCustomFlags[18][15]},
+		{ moduledata.combotypeCustomAttributes[18][0],moduledata.combotypeCustomAttributes[18][1],moduledata.combotypeCustomAttributes[18][2],moduledata.combotypeCustomAttributes[18][3]}
+
 	},
 	{
 		cSCRIPT20,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		
+		{ moduledata.combotypeCustomFlags[19][0],moduledata.combotypeCustomFlags[19][1],moduledata.combotypeCustomFlags[19][2],moduledata.combotypeCustomFlags[19][3],moduledata.combotypeCustomFlags[19][4],moduledata.combotypeCustomFlags[19][5],moduledata.combotypeCustomFlags[19][6],
+			moduledata.combotypeCustomFlags[19][7],moduledata.combotypeCustomFlags[19][8],moduledata.combotypeCustomFlags[19][9],moduledata.combotypeCustomFlags[19][10],
+			moduledata.combotypeCustomFlags[19][11],moduledata.combotypeCustomFlags[19][12],moduledata.combotypeCustomFlags[19][13],moduledata.combotypeCustomFlags[19][14],moduledata.combotypeCustomFlags[19][15]},
+		{ moduledata.combotypeCustomAttributes[19][0],moduledata.combotypeCustomAttributes[19][1],moduledata.combotypeCustomAttributes[19][2],moduledata.combotypeCustomAttributes[19][3]}
+
 	},
 	{
 		cTRIGGERGENERIC,

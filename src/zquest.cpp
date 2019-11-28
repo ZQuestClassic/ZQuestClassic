@@ -31863,113 +31863,113 @@ const char CustomComboAttributeFlags[20][16][16] =
 	},
 };
 
-const char defaultCustomComboFlags[20][16][16]=
+const char defaultCustomComboFlags[20][16][32]=
 {
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
 		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
-		"Flag 9", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	}
 
 };
 
 const char defaultCustomComboAttributes[20][4][17]=
 {
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
-	{ "Sprite", "Dropset", "Sound", "Label" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
 };
 
 void ZModule::init(bool d) //bool default
@@ -32535,6 +32535,18 @@ void ZModule::init(bool d) //bool default
 			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
 		};
 
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int w = 0; w < 4; w++ )
+				strcpy(moduledata.combotypeCustomAttributes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
+		}
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int e = 0; e < 16; e++ )
+				strcpy(moduledata.combotypeCustomFlags[q][e],get_config_string("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
+		
+		}
+		
 		const char counter_default_names[33][255]=
 		{
 			"None","Life","Rupees", "Bombs","Arrows","Magic",
