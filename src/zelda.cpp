@@ -4094,13 +4094,16 @@ int main(int argc, char* argv[])
     }
 #endif
     
+    
     //Set up MODULES: This must occur before trying to load the default quests, as the 
     //data for quest names and so forth is set by the MODULE file!
     //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
-    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name);
-    zcm.init(true);
+    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
+    if ( !(zcm.init(true)) ) 
+    {
+	exit(1);    
+    }
     zcm.load(false);
-    
     
     
 #ifdef _WIN32

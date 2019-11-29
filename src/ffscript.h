@@ -232,8 +232,8 @@ struct user_rgb
 class ZModule
 {
 	public:
-		void init(bool d); //bool default
-		void load(bool zquest);
+		bool init(bool d); //bool default
+		bool load(bool zquest);
 		void debug(); //Print struct data to allegro.log.
 		
 	private:

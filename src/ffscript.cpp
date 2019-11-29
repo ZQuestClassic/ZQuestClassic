@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
 //
 
 #include "ffasm.h"
@@ -45,6 +46,12 @@ zcmodule moduledata;
 script_bitmaps scb;
 
 FONT *get_zc_font(int index);
+
+static inline bool fileexists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
+}
 
 const char scripttypenames[11][40]=
 {
@@ -24216,7 +24223,7 @@ static std::string dayextension(int dy)
 } 
 
 
-void ZModule::init(bool d) //bool default
+bool ZModule::init(bool d) //bool default
 {
 	
 	
@@ -24259,6 +24266,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
+	memset(moduledata.combotypeCustomAttributes, 0, sizeof(moduledata.combotypeCustomAttributes));
+	memset(moduledata.combotypeCustomFlags, 0, sizeof(moduledata.combotypeCustomFlags));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
 	moduledata.modver_1 = 0;
@@ -24278,8 +24287,15 @@ void ZModule::init(bool d) //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-	al_trace("The Current ZQuest Player is: %s\n",moduledata.module_name); 
+	
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/default.zmod"));
+	al_trace("The Current ZQuest Player Module is: %s\n",moduledata.module_name); 
+	if(!fileexists((char*)moduledata.module_name))
+	{
+		al_trace("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
+		return false;
+	}	
+	
 	set_config_file(moduledata.module_name);
 	if ( d )
 	{
@@ -24621,7 +24637,7 @@ void ZModule::init(bool d) //bool default
 	
 	//int x = get_config_int("zeldadx","gui_colorset",0);
 	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
-	
+	return true;
 }
 
 //Prints out the current Module struct data to allegro.log
@@ -24655,7 +24671,7 @@ void ZModule::debug()
 	*/
 }
 
-void ZModule::load(bool zquest)
+bool ZModule::load(bool zquest)
 {
 	set_config_file(moduledata.module_name);
 	//load config settings
@@ -24671,7 +24687,7 @@ void ZModule::load(bool zquest)
 		//load ZC section data
 		set_config_file("zc.cfg"); //shift back when done
 	}
-	
+	return true;
 }
 
 

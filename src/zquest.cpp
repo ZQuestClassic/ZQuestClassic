@@ -81,6 +81,8 @@ void setZScriptVersion(int) { } //bleh...
 
 #include "ffasmexport.h"
 
+#include <fstream>
+
 //SDL_Surface *sdl_screen;
 
 #define IS_ZQUEST 1
@@ -360,6 +362,11 @@ zinitdata zinit;
 int onImport_ComboAlias();
 int onExport_ComboAlias();
 
+static inline bool fileexists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
+}
 
 static const char months[13][13] =
 { 
@@ -31774,8 +31781,205 @@ const char *itemclass_help_string_cats[itype_max*3]=
 
 //ZModule Functions
 
+const char CustomComboAttributeTypes[20][4][17] =
+{
+	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3" }, 
+	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3" }, 
+	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3" }, 
+	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3" }, 
+	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3" }, 
+	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3" }, 
+	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3" }, 
+	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3" }, 
+	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3" }, 
+	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3" },
+	
+	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3" }, 
+	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3" }, 
+	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3" }, 
+	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3" }, 
+	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3" }, 
+	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3" }, 
+	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3" }, 
+	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3" }, 
+	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3" }, 
+	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3" }
+};
 
-void ZModule::init(bool d) //bool default
+const char CustomComboAttributeFlags[20][16][16] =
+{
+	{ 	
+		"cCust1F0", "cCust1F1", "cCust1F2", "cCust1F3", "cCust1F4", "cCust1F5",  "cCust1F6", "cCust1F7", 
+		"cCust1F8", "cCust1F9", "cCust1F10", "cCust1F11", "cCust1F12", "cCust1F13", "cCust1F14", "cCust1F15", 
+	},
+	{ 	
+		"cCust2F0", "cCust2F1", "cCust2F2", "cCust2F3", "cCust2F4", "cCust2F5",  "cCust2F6", "cCust2F7", 
+		"cCust2F8", "cCust2F9", "cCust2F10", "cCust2F11", "cCust2F12", "cCust2F13", "cCust2F14", "cCust2F15", 
+	},
+	{ 	
+		"cCust3F0", "cCust3F1", "cCust3F2", "cCust3F3", "cCust3F4", "cCust3F5",  "cCust3F6", "cCust3F7", 
+		"cCust3F8", "cCust3F9", "cCust3F10", "cCust3F11", "cCust3F12", "cCust3F13", "cCust3F14", "cCust3F15", 
+	},
+	{ 	
+		"cCust4F0", "cCust4F1", "cCust4F2", "cCust4F3", "cCust4F4", "cCust4F5",  "cCust4F6", "cCust4F7", 
+		"cCust4F8", "cCust4F9", "cCust4F10", "cCust4F11", "cCust4F12", "cCust4F13", "cCust4F14", "cCust4F15", 
+	},
+	{ 	
+		"cCust5F0", "cCust5F1", "cCust5F2", "cCust5F3", "cCust5F4", "cCust5F5",  "cCust5F6", "cCust5F7", 
+		"cCust5F8", "cCust5F9", "cCust5F10", "cCust5F11", "cCust5F12", "cCust5F13", "cCust5F14", "cCust5F15", 
+	},
+	{ 	
+		"cCust6F0", "cCust6F1", "cCust6F2", "cCust6F3", "cCust6F4", "cCust6F5",  "cCust6F6", "cCust6F7", 
+		"cCust6F8", "cCust6F9", "cCust6F10", "cCust6F11", "cCust6F12", "cCust6F13", "cCust6F14", "cCust6F15", 
+	},
+	{ 	
+		"cCust7F0", "cCust7F1", "cCust7F2", "cCust7F3", "cCust7F4", "cCust7F5",  "cCust7F6", "cCust7F7", 
+		"cCust7F8", "cCust7F9", "cCust7F10", "cCust7F11", "cCust7F12", "cCust7F13", "cCust7F14", "cCust7F15", 
+	},
+	{ 	
+		"cCust8F0", "cCust8F1", "cCust8F2", "cCust8F3", "cCust8F4", "cCust8F5",  "cCust8F6", "cCust8F7", 
+		"cCust8F8", "cCust8F9", "cCust8F10", "cCust8F11", "cCust8F12", "cCust8F13", "cCust8F14", "cCust8F15", 
+	},
+	{ 	
+		"cCust9F0", "cCust9F1", "cCust9F2", "cCust9F3", "cCust9F4", "cCust9F5",  "cCust9F6", "cCust9F7", 
+		"cCust9F8", "cCust9F9", "cCust9F10", "cCust9F11", "cCust9F12", "cCust9F13", "cCust9F14", "cCust9F15", 
+	},
+	{ 	
+		"cCust10F0", "cCust10F1", "cCust10F2", "cCust10F3", "cCust10F4", "cCust10F5",  "cCust10F6", "cCust10F7", 
+		"cCust10F8", "cCust10F9", "cCust10F10", "cCust10F11", "cCust10F12", "cCust10F13", "cCust10F14", "cCust10F15", 
+	},
+	{ 	
+		"cCust11F0", "cCust11F1", "cCust11F2", "cCust11F3", "cCust11F4", "cCust11F5",  "cCust11F6", "cCust11F7", 
+		"cCust11F8", "cCust11F9", "cCust11F10", "cCust11F11", "cCust11F12", "cCust11F13", "cCust11F14", "cCust11F15", 
+	},
+	{ 	
+		"cCust12F0", "cCust12F1", "cCust12F2", "cCust12F3", "cCust12F4", "cCust12F5",  "cCust12F6", "cCust12F7", 
+		"cCust12F8", "cCust12F9", "cCust12F10", "cCust12F11", "cCust12F12", "cCust12F13", "cCust12F14", "cCust12F15", 
+	},
+	{ 	
+		"cCust13F0", "cCust13F1", "cCust13F2", "cCust13F3", "cCust13F4", "cCust13F5",  "cCust13F6", "cCust13F7", 
+		"cCust13F8", "cCust13F9", "cCust13F10", "cCust13F11", "cCust13F12", "cCust13F13", "cCust13F14", "cCust13F15", 
+	},
+	{ 	
+		"cCust14F0", "cCust14F1", "cCust14F2", "cCust14F3", "cCust14F4", "cCust14F5",  "cCust14F6", "cCust14F7", 
+		"cCust14F8", "cCust14F9", "cCust14F10", "cCust14F11", "cCust14F12", "cCust14F13", "cCust14F14", "cCust14F15", 
+	},
+	{ 	
+		"cCust15F0", "cCust15F1", "cCust15F2", "cCust15F3", "cCust15F4", "cCust15F5",  "cCust15F6", "cCust15F7", 
+		"cCust15F8", "cCust15F9", "cCust15F10", "cCust15F11", "cCust15F12", "cCust15F13", "cCust15F14", "cCust15F15", 
+	},
+};
+
+const char defaultCustomComboFlags[20][16][32]=
+{
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	},
+	{ 
+		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
+	}
+
+};
+
+const char defaultCustomComboAttributes[20][4][17]=
+{
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+};
+
+bool ZModule::init(bool d) //bool default
 {
 	
 	
@@ -31818,6 +32022,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
+	memset(moduledata.combotypeCustomAttributes, 0, sizeof(moduledata.combotypeCustomAttributes));
+	memset(moduledata.combotypeCustomFlags, 0, sizeof(moduledata.combotypeCustomFlags));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
 	moduledata.modver_1 = 0;
@@ -31836,9 +32042,17 @@ void ZModule::init(bool d) //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
 		
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/default.zmod"));
+	al_trace("The Current ZQuest Creatror Module is: %s\n",moduledata.module_name); 
+	if(!fileexists((char*)moduledata.module_name))
+	{
+		
+		al_trace("ZQuest Creator I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zquest");
+		exit(1);
+		return false;
+		
+	}
 	if ( d )
 	{
 		
@@ -32336,6 +32550,18 @@ void ZModule::init(bool d) //bool default
 			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
 		};
 
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int w = 0; w < 4; w++ )
+				strcpy(moduledata.combotypeCustomAttributes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
+		}
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int e = 0; e < 16; e++ )
+				strcpy(moduledata.combotypeCustomFlags[q][e],get_config_string("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
+		
+		}
+		
 		const char counter_default_names[33][255]=
 		{
 			"None","Life","Rupees", "Bombs","Arrows","Magic",
@@ -32387,7 +32613,7 @@ void ZModule::init(bool d) //bool default
 	
 	
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
-	
+	return true;
 }
 
 //Prints out the current Module struct data to allegro.log
@@ -32421,7 +32647,7 @@ void ZModule::debug()
 	*/
 }
 
-void ZModule::load(bool zquest)
+bool ZModule::load(bool zquest)
 {
 	set_config_file(moduledata.module_name);
 	//load config settings
@@ -32437,7 +32663,7 @@ void ZModule::load(bool zquest)
 		//load ZC section data
 		set_config_file("zc.cfg"); //shift back when done
 	}
-	
+	return true;
 }
 
 /* end */

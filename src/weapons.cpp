@@ -1050,7 +1050,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 */
 {
-	
+	if ( cid < cTRIGGERGENERIC && !(c[cid].usrflags&0x100)  ) return; //Script combos need an 'Engine' flag
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2]);
@@ -1151,7 +1151,7 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 	bool single16 = false;
 	
 
-	if (c[cid].type == cTRIGGERGENERIC )
+	if ( c[cid].type >= cSCRIPT1 && c[cid].type <= cTRIGGERGENERIC )
 	{
 		//zprint("Weapon touched generic combo trigger. \n");
 		//zprint("wid is: %d\n", wid);
