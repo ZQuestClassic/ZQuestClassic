@@ -370,6 +370,7 @@ void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
+void FFScript::ZScriptConsole(int attributes,const char *format,...);
 void TraceScriptIDs(bool zasm_console = false);
 void ZScriptConsolePrint(int colourformat, const char * const format,...);
 void ZASMPrint(bool open);
