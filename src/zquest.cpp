@@ -81,6 +81,8 @@ void setZScriptVersion(int) { } //bleh...
 
 #include "ffasmexport.h"
 
+#include <fstream>
+
 //SDL_Surface *sdl_screen;
 
 #define IS_ZQUEST 1
@@ -360,6 +362,11 @@ zinitdata zinit;
 int onImport_ComboAlias();
 int onExport_ComboAlias();
 
+static inline bool fileexists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
+}
 
 static const char months[13][13] =
 { 
@@ -31972,7 +31979,7 @@ const char defaultCustomComboAttributes[20][4][17]=
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
 };
 
-void ZModule::init(bool d) //bool default
+bool ZModule::init(bool d) //bool default
 {
 	
 	
@@ -32035,9 +32042,17 @@ void ZModule::init(bool d) //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
 		
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/default.zmod"));
+	al_trace("The Current ZQuest Creatror Module is: %s\n",moduledata.module_name); 
+	if(!fileexists((char*)moduledata.module_name))
+	{
+		
+		al_trace("ZQuest Creator I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zquest");
+		exit(1);
+		return false;
+		
+	}
 	if ( d )
 	{
 		
@@ -32598,7 +32613,7 @@ void ZModule::init(bool d) //bool default
 	
 	
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
-	
+	return true;
 }
 
 //Prints out the current Module struct data to allegro.log
@@ -32632,7 +32647,7 @@ void ZModule::debug()
 	*/
 }
 
-void ZModule::load(bool zquest)
+bool ZModule::load(bool zquest)
 {
 	set_config_file(moduledata.module_name);
 	//load config settings
@@ -32648,7 +32663,7 @@ void ZModule::load(bool zquest)
 		//load ZC section data
 		set_config_file("zc.cfg"); //shift back when done
 	}
-	
+	return true;
 }
 
 /* end */
