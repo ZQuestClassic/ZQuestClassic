@@ -644,11 +644,8 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 
 #endif
 
-
-#ifdef _WIN32
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-#endif
 
 using std::vector;
 
@@ -33567,3 +33564,23 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 	return;
 }
 
+
+void zprint(const char * const format,...)
+{
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+	#ifdef _WIN32
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	#endif
+	
+    }
+}

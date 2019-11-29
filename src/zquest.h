@@ -372,6 +372,7 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
+void zprint(const char * const format,...);
 
 int playTune1();
 int playTune2();
