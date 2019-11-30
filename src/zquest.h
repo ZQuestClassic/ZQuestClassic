@@ -253,6 +253,8 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern char   fontsdat_sig[52];
 
+extern byte console_is_open;
+
 // qst.cc helpers
 bool bad_version(int ver);
 fix LinkModifiedX();

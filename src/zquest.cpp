@@ -644,8 +644,10 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 
 #endif
 
+#ifdef _WIN32
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
+#endif
 
 using std::vector;
 
@@ -666,6 +668,8 @@ int original_playing_field_offset=0;
 int playing_field_offset=original_playing_field_offset;
 int passive_subscreen_height=56;
 int passive_subscreen_offset=0;
+
+byte console_is_open = 0;
 
 bool disable_saving=false, OverwriteProtection;
 int scale_arg;
@@ -33479,7 +33483,7 @@ void FFScript::ZScriptConsole(bool open)
 
 
 	#ifdef _WIN32
-	if ( open )
+	if ( console_is_open )
 	{
 		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
@@ -33500,7 +33504,7 @@ void FFScript::ZScriptConsole(bool open)
 void FFScript::ZScriptConsole(int attributes,const char *format,...)
 {
 	#ifdef _WIN32
-	
+		console_is_open = 1;
 		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
@@ -33578,6 +33582,7 @@ void zprint(const char * const format,...)
         al_trace("%s",buf);
         
 	#ifdef _WIN32
+	if ( console_is_open )
 	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 	#endif
