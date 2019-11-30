@@ -75,8 +75,6 @@ void setZScriptVersion(int) { } //bleh...
 #include "zq_custom.h" // custom items and guys
 #include "zq_strings.h"
 
-#include "zqscale.h"
-
 #include "questReport.h"
 
 #include "ffasmexport.h"
@@ -644,10 +642,14 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 
 #endif
 
+byte console_is_open = 0;
+
 #ifdef _WIN32
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
 #endif
+
+#include "zqscale.h"
 
 using std::vector;
 
@@ -668,8 +670,6 @@ int original_playing_field_offset=0;
 int playing_field_offset=original_playing_field_offset;
 int passive_subscreen_height=56;
 int passive_subscreen_offset=0;
-
-byte console_is_open = 0;
 
 bool disable_saving=false, OverwriteProtection;
 int scale_arg;
@@ -27830,6 +27830,7 @@ bool no_subscreen()
 
 int Awpn=0, Bwpn=0, Bpos=0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+long exittimer = 10000, exittimer2 = 100;
 
 int main(int argc,char **argv)
 {
@@ -29242,10 +29243,123 @@ int main(int argc,char **argv)
       zqwin_set_scale(scale_arg);
     }*/
     
-    if(set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0)!=0)
+    int videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
+    
+    if(videofail!=0)
     {
-        Z_error(allegro_error);
-        quit_game();
+	    allegro_init();
+	    three_finger_flag=false;
+	    register_bitmap_file_type("GIF",  load_gif, save_gif);
+	    jpgalleg_init();
+	    loadpng_init();
+	    
+	    //set_config_file("ag.cfg");
+	    set_config_file("zquest.cfg");
+	    if(install_timer() < 0)
+	    {
+
+		    /*
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
+		    "Failed to init allegro timers!"
+		);
+		    */
+
+		Z_error(allegro_error);
+		quit_game();
+	    }
+	    
+	    if(install_keyboard() < 0)
+	    {
+
+		    /*
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
+		    "Failed to install keyboard!"
+		);
+		    */
+
+		Z_error(allegro_error);
+		quit_game();
+	    }
+	    
+	    if(install_mouse() < 0)
+	    {
+
+		/*FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
+		    "Failed to install mouse!"
+		);
+		    */
+
+		Z_error(allegro_error);
+		quit_game();
+	    }
+	    
+	    enable_hardware_cursor();
+	    
+	    LOCK_VARIABLE(lastfps);
+	    
+	    LOCK_VARIABLE(framecnt);
+	    LOCK_FUNCTION(fps_callback);
+	    
+	    if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
+	    {
+
+		/*
+		    FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
+		    "Failed to allocate timer fps callback!"
+		);
+		    */
+
+		Z_error("couldn't allocate timer");
+		quit_game();
+	    }
+	    
+	    
+	    LOCK_VARIABLE(dclick_status);
+	    LOCK_VARIABLE(dclick_time);
+	    lock_dclick_function();
+	    install_int(dclick_check, 20);
+    
+		//while(!quit && (--exittimer > 0))
+		//{
+			
+			
+		//}
+		//Z_error("Vid");
+	    
+	        //The console requires the allegro process to exist, vefore it can lwaunch. 
+		//Let's hope that this doesn't create a magical memory leak, or thread issues.
+		CConsoleLoggerEx zq_scale_console;
+		zq_scale_console.Create("ZQuest Creator Logging Console", 600, 200);
+		zq_scale_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		zq_scale_console.gotoxy(0,0);
+		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+
+		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode.\n");
+
+
+		Z_error(allegro_error);
+	//quit_game here crashes if we call console code
+	//I think that there is no process by the time that the console tries to attach itself?
+    }
+    //extra block here is intentional
+    if(videofail!=0)
+    {
+	    quit_game();
+	    allegro_exit();
     }
     else
     {
@@ -30424,6 +30538,188 @@ void quit_game()
     
     cleanup_datafiles_on_exit();
     destroy_bitmaps_on_exit();
+    __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
+    
+}
+
+void quit_game2()
+{
+    deallocate_biic_list();
+    
+    
+    last_timed_save[0]=0;
+    save_config_file();
+    set_palette(black_palette);
+    stop_midi();
+    //if(scrtmp) {destroy_bitmap(screen); screen = hw_screen;}
+    
+    remove_locked_params_on_exit();
+    
+    al_trace("Cleaning aliases. \n");
+    
+    for(int i=0; i<MAXCOMBOALIASES; i++)
+    {
+        if(combo_aliases[i].combos != NULL)
+        {
+            delete[] combo_aliases[i].combos;
+        }
+        
+        if(combo_aliases[i].csets != NULL)
+        {
+            delete[] combo_aliases[i].csets;
+        }
+        
+        if(temp_aliases[i].combos != NULL)
+        {
+            delete[] temp_aliases[i].combos;
+        }
+        
+        if(temp_aliases[i].csets != NULL)
+        {
+            delete[] temp_aliases[i].csets;
+        }
+    }
+    
+    al_trace("Cleaning subscreens. \n");
+    
+    for(int i=0; i<4; i++)
+    {
+        for(int j=0; j<MAXSUBSCREENITEMS; j++)
+        {
+            switch(custom_subscreen[i].objects[j].type)
+            {
+            case ssoTEXT:
+            case ssoTEXTBOX:
+            case ssoCURRENTITEMTEXT:
+            case ssoCURRENTITEMCLASSTEXT:
+                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
+                
+                break;
+            }
+        }
+    }
+    
+    al_trace("Cleaning sfx. \n");
+    
+    for(int i=0; i<WAV_COUNT; i++)
+    {
+        if(customsfxdata[i].data!=NULL)
+        {
+//      delete [] customsfxdata[i].data;
+            zc_free(customsfxdata[i].data);
+        }
+        
+        delete [] sfx_string[i];
+    }
+    
+    for(int i=0; i<WPNCNT; i++)
+    {
+        delete [] weapon_string[i];
+    }
+    
+    for(int i=0; i<ITEMCNT; i++)
+    {
+        delete [] item_string[i];
+    }
+    
+    for(int i=0; i<eMAXGUYS; i++)
+    {
+        delete [] guy_string[i];
+    }
+    
+    al_trace("Cleaning script buffer. \n");
+    
+    for(int i=0; i<NUMSCRIPTFFC; i++)
+    {
+        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTITEM; i++)
+    {
+        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    {
+        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    {
+        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+    }
+    
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+    {
+        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTLINK; i++)
+    {
+        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+    }
+    
+    al_trace("Cleaning qst buffers. \n");
+    del_qst_buffers();
+    
+    
+    al_trace("Cleaning midis. \n");
+    
+    if(customtunes)
+    {
+        for(int i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
+            customtunes[i].reset();
+            
+        zc_free(customtunes);
+    }
+    
+    al_trace("Cleaning undotilebuf. \n");
+    
+    if(undocombobuf) zc_free(undocombobuf);
+    
+    if(newundotilebuf)
+    {
+        for(int i=0; i<NEWMAXTILES; i++)
+            if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+            
+        zc_free(newundotilebuf);
+    }
+    
+    if(filepath) zc_free(filepath);
+    
+    if(temppath) zc_free(temppath);
+    
+    if(datapath) zc_free(datapath);
+    
+    if(midipath) zc_free(midipath);
+    
+    if(imagepath) zc_free(imagepath);
+    
+    if(tmusicpath) zc_free(tmusicpath);
+    
+    if(last_timed_save) zc_free(last_timed_save);
+    
+    cleanup_datafiles_on_exit();
+    //destroy_bitmaps_on_exit();
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
     
 }
