@@ -3567,6 +3567,11 @@ untyped HitBy[10];
 
 int HealthBeep; 
  * The timer for the health beep sound, if it is not constant.
+ * Setting this to -2 suspends system control over stopping the sound,
+ * and setting this to -4 suspends system control over both stopping, 
+ * and starting it.
+ * The normal operating range used by the system is 70 to -1, where -1
+ * wraps around to zero internally. 
 
 int Stun;
  * Returns the number of frames for which Link will; remain stunned.

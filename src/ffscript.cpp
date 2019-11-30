@@ -8836,7 +8836,10 @@ void set_register(const long arg, const long value)
 			
 		case HEROHEALTHBEEP:
 		{
-			int beep = vbound((value/10000),-1, 255); 
+			int beep = vbound((value/10000),-4, 255); 
+			//-2 suspends system control of stopping the sound
+			//-3 suspends system control of stopping the sound AND suspends
+			// system control over starting or playing it.
 			heart_beep_timer = beep;
 			if ( heart_beep_timer > -1 )
 			{

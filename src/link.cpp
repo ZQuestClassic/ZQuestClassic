@@ -6550,7 +6550,7 @@ bool LinkClass::animate(int)
         pushing=false;
     }
     
-    if(game->get_life()<=(HP_PER_HEART) && !(game->get_maxlife()<=(HP_PER_HEART)))
+    if( game->get_life() <= (HP_PER_HEART) && !(game->get_maxlife() <= (HP_PER_HEART)) && (heart_beep_timer > -3))
     {
         if(heart_beep)
         {
@@ -6558,12 +6558,12 @@ bool LinkClass::animate(int)
         }
         else
         {
-            if(heart_beep_timer==-1)
+            if ( heart_beep_timer == -1 )
             {
-                heart_beep_timer=70;
+                heart_beep_timer = 70;
             }
             
-            if(heart_beep_timer>0)
+            if ( heart_beep_timer > 0 )
             {
                 --heart_beep_timer;
                 cont_sfx(WAV_ER);
@@ -6574,10 +6574,13 @@ bool LinkClass::animate(int)
             }
         }
     }
-    else
+    else 
     {
-        heart_beep_timer=-1;
-        stop_sfx(WAV_ER);
+	if ( heart_beep_timer > -2 )
+	{
+		heart_beep_timer = -1;
+		stop_sfx(WAV_ER);
+	}
     }
     
     if(rSbtn())
