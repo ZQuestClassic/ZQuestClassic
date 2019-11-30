@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 43
-Document Revision: 24th November, 2019
+Document for: 2.55, Alpha 45
+Document Revision: 30th November, 2019
 
 
  __           _   _                 
@@ -5244,11 +5244,14 @@ void Write(int layer, "filename", bool allow_overwrite);
  *       This WILL NOT write out a specific 'layer' of a bitmap.
  *        Layers in ZC are only an expression of drawing order/sequence!
 
-void Blit	( int layer, 
-			bitmap target, 
-			int source_x, int source_y, int source_w, int source_h, 
-			int dest_x, int dest_y, int dest_w, int dest_h, 
-			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+void Blit	
+	( 
+		int layer, 
+		bitmap target, 
+		int source_x, int source_y, int source_w, int source_h, 
+		int dest_x, int dest_y, int dest_w, int dest_h, 
+		float rotation, int cx, int cy, int mode, int lit,  bool mask
+	);
 			
  * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP. 
  * As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
@@ -5257,11 +5260,15 @@ void Blit	( int layer,
  *	as the argument to 'bitmap target'.
  * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
 
-void BlitTo ( int layer, 
-			bitmap source, 
-			int source_x, int source_y, int source_w, int source_h, 
-			int dest_x, int dest_y, int dest_w, int dest_h, 
-			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+void RevBlit 
+void BlitTo 
+	( 
+		int layer, 
+		bitmap source, 
+		int source_x, int source_y, int source_w, int source_h, 
+		int dest_x, int dest_y, int dest_w, int dest_h, 
+		float rotation, int cx, int cy, int mode, int lit,  bool mask
+	);
 			
  * BLITS ANOTHER BITMAP TO THE POINTER 'b'.
  * As DrawBitmapEx(), except that it draws TO an initialised bitmap pointer,
