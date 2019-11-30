@@ -253,6 +253,8 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern char   fontsdat_sig[52];
 
+extern byte console_is_open;
+
 // qst.cc helpers
 bool bad_version(int ver);
 fix LinkModifiedX();
@@ -372,6 +374,7 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
+void zprint(const char * const format,...);
 
 int playTune1();
 int playTune2();

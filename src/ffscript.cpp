@@ -29865,6 +29865,26 @@ script_variable ZASMVars[]=
 ///----------------------------------------------------------------------------------------------------//
 //Debugger and Logging Consoles
 
+void FFScript::ZScriptConsole(int attributes,const char *format,...)
+{
+	#ifdef _WIN32
+	if ( open )
+	{
+		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		zscript_coloured_console.gotoxy(0,0);
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+	
+		zscript_coloured_console.cprintf( attributes, format );
+	}
+	else
+	{
+		//close
+		zscript_coloured_console.Close();
+	}
+	#endif	
+}
 
 void FFScript::ZScriptConsole(bool open)
 {
