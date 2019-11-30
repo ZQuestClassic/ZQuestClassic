@@ -2043,6 +2043,7 @@ script_variable variable_list[]=
 	{ "SPRITEMAXITEM",		SPRITEMAXITEM,        0,             0 },
 	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
 	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
+	{ "HEROHEALTHBEEP",		HEROHEALTHBEEP,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -2536,6 +2536,17 @@ long get_register(const long arg)
 			//ret=(int)(Link.getAction())*10000;
 			break;
 		}
+		
+		case HEROHEALTHBEEP:
+		{
+			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
+			//int act = FFCore.getLinkAction() * 10000;
+			ret = heart_beep ? ( heart_beep_timer * 10000 ) : 0;
+			//Z_scripterrlog("The present 'action' return value is: %d\n", act);
+			//ret = act;
+			//ret=(int)(Link.getAction())*10000;
+			break;
+		}
 			
 		case LINKHELD:
 			ret = (int)(Link.getHeldItem())*10000;
@@ -8823,6 +8834,21 @@ void set_register(const long arg, const long value)
 			break;
 		}
 			
+		case HEROHEALTHBEEP:
+		{
+			int beep = vbound((value/10000),-1, 255); 
+			heart_beep_timer = beep;
+			if ( heart_beep_timer > -1 )
+			{
+				cont_sfx(WAV_ER);
+			}
+			else
+			{
+				stop_sfx(WAV_ER);
+			}
+			break;
+		}
+		
 		case LINKHELD:
 			Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
 			break;
