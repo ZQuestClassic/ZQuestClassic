@@ -28144,8 +28144,8 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to load fonts datafile!"
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
+	    "Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
         Z_error("failed");
@@ -28158,7 +28158,7 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
         Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
 	);
 
@@ -28176,7 +28176,7 @@ int main(int argc,char **argv)
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load ZQ Creator datafile!"
+	    "Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
         Z_error("failed");
@@ -28205,7 +28205,7 @@ int main(int argc,char **argv)
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load quest datafile!"
+	    "Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
         Z_error("failed");
@@ -28234,7 +28234,7 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);    
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);    
 	
         Z_error("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
 	);
@@ -28259,7 +28259,7 @@ int main(int argc,char **argv)
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load SFX datafile!"
+	    "Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
         Z_error("failed %s", allegro_error);
@@ -28272,7 +28272,7 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
         quit_game();
         Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
 	);
@@ -28399,8 +28399,8 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to allocate EWditor Help buffer!"
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+	    "Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
         Z_error("Error allocating help buffer.");
@@ -28420,7 +28420,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed to read zquest.txt!"
+			"Failed to read zquest.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error loading zquest.txt.");
@@ -28456,7 +28456,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"shield_block_flags.txt not found!"
+			"shield_block_flags.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error: shield_block_flags.txt not found.");
@@ -28472,8 +28472,8 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed allocating shieldblockhelp buffer!"
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
         Z_error("Error allocating shieldblockhelp buffer.");
@@ -28492,7 +28492,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed loading shield_block_flags.txt!"
+			"Failed loading shield_block_flags.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error loading shield_block_flags.txt.");
@@ -28528,7 +28528,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"zscript.txt not found!"
+			"zscript.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error: zscript.txt not found.");
@@ -28544,8 +28544,8 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed allocating ZScript Help buffer!"
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
         Z_error("Error allocating ZScript Help buffer.");
@@ -28564,7 +28564,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed loading zscript.txt!"
+	    "Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error loading zscript.txt.");
@@ -28600,7 +28600,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"zstrings.txt not found!"
+			"zstrings.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error: zstrings.txt not found.");
@@ -28616,8 +28616,8 @@ int main(int argc,char **argv)
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed allocating zstrings Help buffer!"
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+	    "Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
         Z_error("Error allocating zstrings Help buffer.");
@@ -28636,7 +28636,7 @@ int main(int argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed loading zstrings.txt!"
+			"Failed loading zstrings.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error loading zstrings.txt.");
@@ -33116,8 +33116,8 @@ bool ZModule::init(bool d) //bool default
 
 		FFCore.ZScriptConsole( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nNo module definitions found.\nPlease check your settings in %s.cfg.\n", "zquest");
-		al_trace("ZQuest Creator I/O Error:\nNo module definitions found.\nPlease check your settings in %s.cfg.\n", "zquest");
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n", "zquest");
+		al_trace("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n", "zquest");
 		exit(1);
 		return false;
 		
