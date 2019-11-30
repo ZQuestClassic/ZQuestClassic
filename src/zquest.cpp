@@ -29348,7 +29348,7 @@ int main(int argc,char **argv)
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
 
 		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode.\n");
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease .\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
 
 
 		Z_error(allegro_error);
