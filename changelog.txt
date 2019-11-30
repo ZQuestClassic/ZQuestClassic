@@ -2,6 +2,110 @@
 
 //Alpha 45
 
+Added two suspend values to Link->HealthBeat.
+ * The timer for the health beep sound, if it is not constant.
+ * Setting this to -2 suspends system control over stopping the sound,
+ * and setting this to -4 suspends system control over both stopping,
+ * and starting it.
+ * The normal operating range used by the system is 70 to -1, where -1
+ * wraps around to zero internally.
+Added int Hero->HealthBeep;
+	This is a clock for the duration of the health warning noise if
+	it is not set to be constant.
+Cleaned up ZQuest Creator I/O Error messages.	
+Added more information to ZQ_scale error window.
+Video mode failure now inits allegro, and displays a console
+	window that reports the issue.
+	This required adding an extra init process,  then creating the
+	console, as without this process the console has no parent process.
+	After constructing the console, we call allegro_exit(), which
+	should (hopefully) uninstall the timers and objects, and clean
+	up after itself with no leaks.
+Added bitmap->RevBlit(...) as an alternate toi bitmap->BlitTo(...).
+Minor fixes to the console routines.
+	( ZoriaRPG, 30th November, 2019 )
+	
+Add void zprint() to ZQuest (internally)
+Added ColorConsoleLogger:: to ZQuest.
+Abort running ZC Player, or ZQ Creator if the moduke path specified
+	in the .cfg file is invalid; and log an error to allegro.log,
+Validaate that module files are valid, before reading from them.
+Update default module path from root, to .//modules, specifing modules/default.zmod
+	for an empty config string.
+	( ZoriaRPG, 29th November, 2019 )	
+	
+Finish adding Combo Attribute/Flag Labels to .zmod
+Auto-set editor labels on Custom/Script combo types.
+Add Combo Attribute and Combo user Flag fields to Modules for all 20
+	Custom/Script combo types.
+If the user toggles combo user flag 0x100, on 'Custom' ('Script')
+	combo types, then they may use that combo type as an extra 'generic' type.
+Script/Custom Combos now work as 'Generic' types.
+	Begin adding the ability to set their labels in modules.
+Fix lockblock item removal flag value.
+Added flag 0x10 as 'Eat Item' to Lockblock combos.
+	Now, if this flag is enabled, and a specific item is needed to pass
+	the lock, that item will be removed from the player's inventory.
+	This should downgrade lvl based items such as potions.
+Lockblock combos now have the following attributes and flags:
+	Item: An item ID to require.
+	Require: The lockblock will not open unless Link has the required item.
+	Only: Require the item, but not keys.
+	Counter: (Flag: Enable); the lockblock drains this counter instead of keys.
+	Amount: The amount that 'counter' is reduced if 'Counter' flag
+		is enabled; otherwise the required number of keys.
+	Sound: A SFX ID: This sound plays if the 'SFX' flag is enabled,
+		instead of the engine unlock sfx.
+Initial rework of lockblocks for combo attributes.
+Fixed text for damage combos spiing out of bounds.
+You can now pass negative values to the 'Sprite' field for
+	Generic combo type combos, where:
+	-1: Bush Leaves
+	-2: Flower Clippings
+	-3: Grass Clippings
+Sanity bound and correct some logic in do_generic_combo()
+If you pass a negative value to 'Dropset' in the Combo Editor,
+	on the 'Attributes' tab, the combo will drop a *specific* item,
+	rather than using a dropset.
+	e.g. -28 will have the combo drop a heart container (item 28).
+Sanity bounded item IDs.
+The timezone in which ZQ was last compiled is now properly
+	saved and stored in the quest header, rather than using the local
+	__TIMEZONE__ macro.
+Added a new 'generic' combo type, that uses its flags and its
+	attributes to determine triggers and properties.
+
+	Flags:
+	Visuals: If enabled, the trigger will cause sprite set in attributes[0]
+		to appear onscreen at the combo location ('Sprite').
+	Itemdrop: if enabled, when triggered, the combo will drop an item
+		from the dropset of attributes[1] ('Dropset').
+	SFX: If enabled, when triggered, the combo will play the sound set
+		in attributes[2] ('Sound').
+	Next: if enabled, when triggered, the combo will advance by one, as
+		slash->next or step->next.
+	Continuous: If enabled, when triggered, the ->Next property will
+		advance until it reaches a non-next, non-continuous generic combo.
+	Room Item: If enabled, when triggered, the combo will spawn a room
+		secret item at its location.
+	Secrets: if enabled, when triggered, the combo will trigger the screen
+		secret ID set in attributes[3] ('Secret Type').
+	Kill Wpn: if enabled, when triggered, the weapon that triggered the combo
+		will be killed.
+Generic Combos now have animated effect sprites.
+Generic combos handle ->Next, and ->Continuous
+Implement screen secret triggers.
+Begin adding Generic Trigger Combo Type
+	( ZoriaRPG, 28th November, 2019 )	
+	
+Don't allow the player to change Link.dir when stunned.
+Cancel Link;'s attack if he is stunned.
+Fix labels for cBUSHNE
+Fix typos in ZDefs combo types.
+Fix combo editor field labels from setComboLabels.
+Cleanup combo types in ZDefs.
+	( ZoriaRPG, 27th November, 2019 --or so GH claims. I'm pretty sure these are later commits than the ones from the next day... )	
+
 Clear the panel recent screen buttons when creating a new quest.
 Clear the panel recent screen buttons to prevent crashes from invalid maps.
 Some work on future <std> lib files.
