@@ -13427,7 +13427,7 @@ void setComboLabels(int family)
     if(inf->attributes[2]!=NULL)
 	combo_dlg[59].dp = (char*)inf->attributes[2];
     else combo_dlg[59].dp = (char*)"Attributes[2]";
-    if(inf->attributes[2]!=NULL)
+    if(inf->attributes[3]!=NULL)
 	combo_dlg[61].dp = (char*)inf->attributes[3];
     else combo_dlg[61].dp = (char*)"Attributes[3]";
     
