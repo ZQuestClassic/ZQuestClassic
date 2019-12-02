@@ -13328,16 +13328,16 @@ static DIALOG combo_dlg[] =
     //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //112
     { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //114
     { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //116
     { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //118
     { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
     //120
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
