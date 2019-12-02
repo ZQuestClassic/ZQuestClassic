@@ -1050,7 +1050,12 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 */
 {
-	if ( cid < cTRIGGERGENERIC && !(c[cid].usrflags&cflag5)  ) return; //Script combos need an 'Engine' flag
+	if ( c[cid].type < cTRIGGERGENERIC && !(c[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
+	{ 
+		//zprint("cGeneric abort on c[cid].type %d\n", c[cid].type); 
+		return;
+	} 
+	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2]);
