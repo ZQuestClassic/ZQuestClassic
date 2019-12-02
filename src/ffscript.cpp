@@ -7932,6 +7932,7 @@ long get_register(const long arg)
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
 		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
 		case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -14511,6 +14512,7 @@ void set_register(const long arg, const long value)
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
 		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -24296,6 +24298,7 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
 	memset(moduledata.combotypeCustomAttributes, 0, sizeof(moduledata.combotypeCustomAttributes));
+	memset(moduledata.combotypeCustomAttribytes, 0, sizeof(moduledata.combotypeCustomAttribytes));
 	memset(moduledata.combotypeCustomFlags, 0, sizeof(moduledata.combotypeCustomFlags));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
@@ -29675,6 +29678,7 @@ script_variable ZASMVars[]=
 	{"COMBODANIMFLAGS", COMBODANIMFLAGS, 0, 0 },
 	{"COMBODEXPANSION", COMBODEXPANSION, 0, 0 },
 	{"COMBODATTRIBUTES", COMBODATTRIBUTES, 0, 0 },
+	{"COMBODATTRIBYTES", COMBODATTRIBYTES, 0, 0 },
 	{"COMBODUSRFLAGS", COMBODUSRFLAGS, 0, 0 },
 	{"COMBODTRIGGERFLAGS", COMBODTRIGGERFLAGS, 0, 0 },
 	{"COMBODTRIGGERLEVEL", COMBODTRIGGERLEVEL, 0, 0 },
@@ -29897,7 +29901,7 @@ script_variable ZASMVars[]=
 void FFScript::ZScriptConsole(int attributes,const char *format,...)
 {
 	#ifdef _WIN32
-	if ( open )
+	//if ( open )
 	{
 		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
@@ -29907,11 +29911,11 @@ void FFScript::ZScriptConsole(int attributes,const char *format,...)
 	
 		zscript_coloured_console.cprintf( attributes, format );
 	}
-	else
-	{
+	//else
+	//{
 		//close
-		zscript_coloured_console.Close();
-	}
+	//	zscript_coloured_console.Close();
+	//}
 	#endif	
 }
 

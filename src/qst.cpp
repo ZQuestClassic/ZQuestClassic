@@ -14079,6 +14079,27 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		    temp_combo.label[q] = 0;
 		}
 	}
+	al_trace("Read combo label\n");
+	if(section_version>=13) //attribytes[4]
+	{
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+		    if(!p_getc(&temp_combo.attribytes[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		
+	}
+	al_trace("Read combo attribytes\n");
+	if( section_version < 13 )
+	{ 
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+		    temp_combo.attribytes[q] = 0;
+		}
+		
+	}
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)

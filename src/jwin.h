@@ -109,8 +109,13 @@ int jwin_text_proc(int msg, DIALOG *d, int c);
 int jwin_ctext_proc(int msg, DIALOG *d, int c);
 int jwin_rtext_proc(int msg, DIALOG *d, int c);
 int jwin_edit_proc(int msg, DIALOG *d, int c);
-int jwin_hexedit_proc(int msg,DIALOG *d,int c);
-int jwin_numedit_proc(int msg,DIALOG *d,int c);
+int jwin_hexedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to hex. numbers */
+int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers,  bound to ZScript int (no decimals) */
+int jwin_numedit_byte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
+int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed byte (8b) */
+int jwin_numedit_short_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned short int (16b) */
+int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed short int (16b) */
+int jwin_numedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers */
 int jwin_list_proc(int msg, DIALOG *d, int c);
 int jwin_textbox_proc(int msg, DIALOG *d, int c);
 int jwin_slider_proc(int msg, DIALOG *d, int c);

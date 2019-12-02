@@ -9013,6 +9013,13 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(24);
 	        }
 	    }
+	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    {
+		if(!p_putc(combobuf[i].attribytes[q],f))
+		{
+			new_return(25);
+		}
+	    }
 		    
         }
         

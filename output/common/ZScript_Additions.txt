@@ -4510,8 +4510,14 @@ int Expansion[6];
  * Reserved for future use by the Combo Editor.
 	
 int Attributes[4]; 
- * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'
+ * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes 2'
  * 	tab in the Combo Editor.
+ * Min value FLOAT_MIN, max value FLOAT_MAX.
+ 
+ int Attribytes[4]; 
+ * Corresponds to Attribytes[0] through Attribytes[3] on the 'Attributes 1'
+ * 	tab in the Combo Editor.
+ * Min value BYTE_MIN, max value BYTE_MAX.
 
 int UserFlags;
  * Corresponds to the 'Misc Flags' on the Attributes tab of the Combo Editor.

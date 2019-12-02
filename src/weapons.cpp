@@ -1050,38 +1050,51 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 */
 {
-	if ( cid < cTRIGGERGENERIC && !(c[cid].usrflags&0x100)  ) return; //Script combos need an 'Engine' flag
+	if ( c[cid].type < cTRIGGERGENERIC && !(c[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
+	{ 
+		//zprint("cGeneric abort on c[cid].type %d\n", c[cid].type); 
+		return;
+	} 
+	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2]);
 	//zprint("scombo is: %d\n", scombo);
-	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&0x10) ) 
+	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	{
-		if ((c[cid].usrflags&0x1)) 
+		if ((c[cid].usrflags&cflag1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
-			if ( c[cid].attributes[0] == -1 )
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
 				decorations.add(new dBushLeaves((fix)ComboX(scombo), (fix)ComboY(scombo),dBUSHLEAVES, 0, 0));
-			else if ( c[cid].attributes[0] == -2 )
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
 				decorations.add(new dFlowerClippings((fix)ComboX(scombo), (fix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
-			else if ( c[cid].attributes[0] == -3 )
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 3 ) )
 				decorations.add(new dGrassClippings((fix)ComboX(scombo), (fix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
-			else if ( ((unsigned)c[cid].attributes[0]) < 256 )
-				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attributes[0]));
+			else if ( c[cid].attribytes[0] > 0 )
+				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		}
 		int it = -1; 
-		int the_item = c[cid].attributes[1];
-		it = ( the_item < 0 ) ? (the_item*-1) : ( select_dropitem( (c[cid].usrflags&0x2) ? c[cid].attributes[1] : -1) ); 
+		if ( (c[cid].usrflags&cflag2) )
+		{
+			
+			if ( c[cid].usrflags&cflag11 ) //specific item
+			{
+				it = c[cid].attribytes[1];
+			}
+			else it = select_dropitem(c[cid].attribytes[1]); 
+			
+		}
 		//zprint("dropset: %d\n", c[cid].attributes[1]);
-		//zprint("drops enabled: %s\n", (c[cid].usrflags&0x2) ? "true":"false");
+		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
 		//zprint("it: %d\n", it);
-		if( ((unsigned)it < 255) && (c[cid].usrflags&0x2))
+		if( it != -1 )
 		{
 			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
-		//special item
-		int it2 = (c[cid].usrflags&0x2) ? tmpscr->item : -1;
-		if ( (c[cid].usrflags&0x2) && tmpscr->hasitem && !getmapflag(mITEM))
+		//drop special room item
+
+		if ( (c[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
 		{
 			if(tmpscr->hasitem==1)
 				sfx(WAV_CLEARED);
@@ -1094,7 +1107,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
 		}
 		
-		if ( c[cid].usrflags&0x40 )
+		if ( c[cid].usrflags&cflag7 )
 		{
 			screen_combo_modify_preroutine(tmpscr,cid);
 			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
@@ -1102,20 +1115,20 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
 			// newflag = s->secretflag[ft];
 			screen_combo_modify_postroutine(tmpscr,cid);
-			if ( ((unsigned)c[cid].attributes[2]) < 256 )
-				sfx(c[cid].attributes[2],int(bx));
+			if ( c[cid].attribytes[2] > 0 )
+				sfx(c[cid].attribytes[2],int(bx));
 		}
 		
 		//loop next combo
-		if((c[cid].usrflags&0x8))
+		if((c[cid].usrflags&cflag4))
 		{
 			do
 			{
 				screen_combo_modify_preroutine(tmpscr,cid);
 				++tmpscr->data[scombo];
 				screen_combo_modify_postroutine(tmpscr,cid);
-				if ( (c[cid].usrflags&0x10) ) cid = MAPCOMBO(bx,by);
-				if ( c[cid].usrflags&0x80 ) w->dead = 1;
+				if ( (c[cid].usrflags&cflag5) ) cid = MAPCOMBO(bx,by);
+				if ( c[cid].usrflags&cflag8 ) w->dead = 1;
 				//tmpscr->sflag[scombo] = c[cid].sflag;
 				//c[tmpscr->data[cid]].cset;
 				//c[tmpscr->data[cid]].cset;
@@ -1123,9 +1136,9 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				//tmpscr->cset[scombo] = c[cid].cset;
 				//tmpscr->sflag[scombo] = c[cid].sflag;
 				//zprint("++comboD\n");
-			} while((c[cid].usrflags&0x10) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( ((unsigned)c[cid].attributes[2]) < 256 )
-				sfx(c[cid].attributes[2],int(bx));
+			} while((c[cid].usrflags&cflag5) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( (c[cid].attribytes[2]) > 0 )
+				sfx(c[cid].attribytes[2],int(bx));
 			
 			
 		}
@@ -1135,7 +1148,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	}
 	set_bit(w->wscreengrid,(((bx>>4) + by)),1);
 	
-	if ( c[cid].usrflags&0x80 ) w->dead = 1;
+	if ( c[cid].usrflags&cflag8 ) w->dead = 1;
 }
 
 static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
@@ -1144,7 +1157,7 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c/*, int com
 	int cid = MAPCOMBO(bx,by);
 	int flag = MAPFLAG(bx,by);
 	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = c[cid].attributes[3];
+	int ft = c[cid].attribytes[3];
 	//if (!ft) return;
 	//zprint("ft: %d\n", ft);
 	int scombo=COMBOPOS(bx,by);

@@ -15884,19 +15884,19 @@ void load_default_enemies()
         {
             int ctype = combobuf[MAPCOMBO(x,y)].type;
             int cflag = MAPFLAG(x, y);
-            int cflag2 = MAPCOMBOFLAG(x, y);
+            int cflag_i = MAPCOMBOFLAG(x, y);
             
-            if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag2==mfTRAP_H)
+            if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
             {
                 if(trapLOSHorizontalID>=0)
                     addenemy(x, y, trapLOSHorizontalID, -14);
             }
-            else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag2==mfTRAP_V)
+            else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
             {
                 if(trapLOSVerticalID>=0)
                     addenemy(x, y, trapLOSVerticalID, -14);
             }
-            else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag2==mfTRAP_4)
+            else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
             {
                 if(trapLOS4WayID>=0)
                 {
@@ -15905,12 +15905,12 @@ void load_default_enemies()
                 }
             }
             
-            else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag2==mfTRAP_LR)
+            else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
             {
                 if(trapConstantHorizontalID>=0)
                     addenemy(x, y, trapConstantHorizontalID, -14);
             }
-            else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag2==mfTRAP_UD)
+            else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
             {
                 if(trapConstantVerticalID>=0)
                     addenemy(x, y, trapConstantVerticalID, -14);
@@ -16390,9 +16390,9 @@ void loadenemies()
             for(int sx=0; sx<256; sx+=16)
             {
                 int cflag = MAPFLAG(sx, sy);
-                int cflag2 = MAPCOMBOFLAG(sx, sy);
+                int cflag_i = MAPCOMBOFLAG(sx, sy);
                 
-                if(((cflag==mfENEMY0+i)||(cflag2==mfENEMY0+i)) && (!placed))
+                if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
                 {
                     if(!ok2add(tmpscr->enemy[i]))
                         ++loadcnt;

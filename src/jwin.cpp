@@ -1050,6 +1050,12 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
     return jwin_button_proc(msg, d, c);
 }
 
+/*(int x = atoi(d->dp);
+if ( x > 256 )
+d->dp = (char*)"255";
+elseif (x < 0 ) d->dp = (char*)"0";
+*/
+
 /* jwin_edit_proc:
   *  An editable text object (the dp field points to the string). When it
   *  has the input focus (obtained by clicking on it with the mouse), text
@@ -1316,6 +1322,86 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
             return D_O_K;
             
     return jwin_edit_proc(msg,d,c);
+}
+
+int jwin_numedit_byte_proc(int msg,DIALOG *d,int c)
+{
+	if ( (atoi((char*)d->dp)) > 255 )
+	{
+		strcpy((char*)d->dp,"255\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+	else if ( (atoi((char*)d->dp)) < 0 ) 
+	{
+		strcpy((char*)d->dp,"0\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+            
+    return jwin_numedit_proc(msg,d,c);
+}
+
+int jwin_numedit_short_proc(int msg,DIALOG *d,int c)
+{
+	if ( (atoi((char*)d->dp)) > 65535 )
+	{
+		strcpy((char*)d->dp,"255\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+	else if ( (atoi((char*)d->dp)) < 0 ) 
+	{
+		strcpy((char*)d->dp,"0\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+            
+    return jwin_numedit_proc(msg,d,c);
+}
+
+int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c)
+{
+	if ( (atoi((char*)d->dp)) > 214748 )
+	{
+		strcpy((char*)d->dp,"214748\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+	else if ( (atoi((char*)d->dp)) < -214748 ) 
+	{
+		strcpy((char*)d->dp,"-214748\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+            
+    return jwin_numedit_proc(msg,d,c);
+}
+
+int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c)
+{
+	if ( (atoi((char*)d->dp)) > 32767 )
+	{
+		strcpy((char*)d->dp,"32767\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+	else if ( (atoi((char*)d->dp)) < -32768 ) 
+	{
+		strcpy((char*)d->dp,"-32768\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+            
+    return jwin_numedit_proc(msg,d,c);
+}
+
+int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
+{
+	if ( (atoi((char*)d->dp)) > 127 )
+	{
+		strcpy((char*)d->dp,"127\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+	else if ( (atoi((char*)d->dp)) < -128 ) 
+	{
+		strcpy((char*)d->dp,"-128\0");
+		return jwin_numedit_proc(msg,d,c);
+	}
+            
+    return jwin_numedit_proc(msg,d,c);
 }
 
 /*  _calc_scroll_bar:
