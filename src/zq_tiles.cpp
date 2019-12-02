@@ -11687,10 +11687,10 @@ static int combo_attributes_list[] =
 	-1
 };
 
-static int combo_attributes_list2[] =
+static int combo_attributes_list2[] = 
 {
 	//,
-	55,56,57,58,59,60,61,62,
+	55,56,57,58,59,60,61,62,120,121,
 	-1
 };
 
@@ -13249,16 +13249,16 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
     { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //57
     { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //59
     { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //61
     { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -13328,17 +13328,20 @@ static DIALOG combo_dlg[] =
     //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //112
     { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //114
     { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //116
     { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //118
     { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    
+    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
+    //120
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+   
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -13414,34 +13417,33 @@ void setComboLabels(int family)
     if(inf->flags[15]!=NULL)    
 	combo_dlg[111].dp = (char*)inf->flags[15];
     else combo_dlg[111].dp = (char*)"Flags 16";
-   
-    if(inf->attribytes[0]!=NULL)
-	combo_dlg[55].dp = (char*)inf->attribytes[0];
-    else combo_dlg[55].dp = (char*)"Attribytes[0]";
-    if(inf->attributes[1]!=NULL)
-	combo_dlg[57].dp = (char*)inf->attribytes[1];
-    else combo_dlg[57].dp = (char*)"Attribytes[1]";
-    if(inf->attributes[2]!=NULL)
-	combo_dlg[59].dp = (char*)inf->attribytes[2];
-    else combo_dlg[59].dp = (char*)"Attribytes[2]";
-    if(inf->attributes[2]!=NULL)
-	combo_dlg[61].dp = (char*)inf->attribytes[3];
-    else combo_dlg[61].dp = (char*)"Attribytes[3]";
-    
     
     if(inf->attributes[0]!=NULL)
-	combo_dlg[112].dp = (char*)inf->attributes[0];
-    else combo_dlg[112].dp = (char*)"Attributes[0]";
+	combo_dlg[55].dp = (char*)inf->attributes[0];
+    else combo_dlg[55].dp = (char*)"Attributes[0]";
     if(inf->attributes[1]!=NULL)
-	combo_dlg[114].dp = (char*)inf->attributes[1];
-    else combo_dlg[114].dp = (char*)"Attributes[1]";
+	combo_dlg[57].dp = (char*)inf->attributes[1];
+    else combo_dlg[57].dp = (char*)"Attributes[1]";
     if(inf->attributes[2]!=NULL)
-	combo_dlg[116].dp = (char*)inf->attributes[2];
-    else combo_dlg[116].dp = (char*)"Attributes[2]";
+	combo_dlg[59].dp = (char*)inf->attributes[2];
+    else combo_dlg[59].dp = (char*)"Attributes[2]";
     if(inf->attributes[2]!=NULL)
-	combo_dlg[118].dp = (char*)inf->attributes[3];
-    else combo_dlg[118].dp = (char*)"Attributes[3]";
+	combo_dlg[61].dp = (char*)inf->attributes[3];
+    else combo_dlg[61].dp = (char*)"Attributes[3]";
     
+    
+    if(inf->attribytes[0]!=NULL)
+	combo_dlg[112].dp = (char*)inf->attribytes[0];
+    else combo_dlg[112].dp = (char*)"Attribytes[0]";
+    if(inf->attribytes[1]!=NULL)
+	combo_dlg[114].dp = (char*)inf->attribytes[1];
+    else combo_dlg[114].dp = (char*)"Attribytes[1]";
+    if(inf->attribytes[2]!=NULL)
+	combo_dlg[116].dp = (char*)inf->attribytes[2];
+    else combo_dlg[116].dp = (char*)"Attribytes[2]";
+    if(inf->attribytes[2]!=NULL)
+	combo_dlg[118].dp = (char*)inf->attribytes[3];
+    else combo_dlg[118].dp = (char*)"Attribytes[3]";
   
 }
 
@@ -13725,11 +13727,24 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[60].dp = attrib2;
     combo_dlg[62].dp = attrib3;
     
+    byte attribyte_vals[4] = {0};
+    
     //Attribytes[]
-    combo_dlg[113].dp = attrib0;
-    combo_dlg[115].dp = attrib1;
-    combo_dlg[117].dp = attrib2;
-    combo_dlg[119].dp = attrib3;
+    attribyte_vals[0]=(byte)(atoi(attribyt0));
+    attribyte_vals[1]=(byte)(atoi(attribyt1));
+    attribyte_vals[2]=(byte)(atoi(attribyt2));
+    attribyte_vals[3]=(byte)(atoi(attribyt3));
+    
+    sprintf(attribyt0,"%d",attribyte_vals[0]);
+    sprintf(attribyt1,"%d",attribyte_vals[1]);
+    sprintf(attribyt2,"%d",attribyte_vals[2]);
+    sprintf(attribyt3,"%d",attribyte_vals[3]);
+    
+    combo_dlg[113].dp = attribyt0;
+    combo_dlg[115].dp = attribyt1;
+    combo_dlg[117].dp = attribyt2;
+    combo_dlg[119].dp = attribyt3;
+    
     
     //trigger level
     combo_dlg[88].dp = minlevel;
@@ -14033,7 +14048,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
 		
 		
-        
+		//if(combo_dlg[113].d1 > 255)
+		//{
+		//	al_trace("too big\n");
+		//}
 		
 		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
 		
@@ -14075,10 +14093,16 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
 		
 		//Attribytes[]
-		curr_combo.attribytes[0] = (byte)(atoi(attribyt0));
-		curr_combo.attribytes[1] = (byte)(atoi(attribyt1));
-		curr_combo.attribytes[2] = (byte)(atoi(attribyt2));
-		curr_combo.attribytes[3] = (byte)(atoi(attribyt3));
+		
+		attribyte_vals[0] = (byte)vbound(atoi(attribyt0),0,255);
+		attribyte_vals[1] = (byte)vbound(atoi(attribyt1),0,255);
+		attribyte_vals[2] = (byte)vbound(atoi(attribyt2),0,255);
+		attribyte_vals[3] = (byte)vbound(atoi(attribyt3),0,255);
+		
+		curr_combo.attribytes[0] = attribyte_vals[0];
+		curr_combo.attribytes[1] = attribyte_vals[1];
+		curr_combo.attribytes[2] = attribyte_vals[2];
+		curr_combo.attribytes[3] = attribyte_vals[3];
 		
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
@@ -14225,6 +14249,12 @@ bool edit_combo(int c,bool freshen,int cs)
 			setComboLabels(bict[combo_dlg[25].d1].i);
 		}
 		
+			/*ret == combo_dlg[113].dp = attribyt0;
+    combo_dlg[115].dp = attribyt1;
+    combo_dlg[117].dp = attribyt2;
+    combo_dlg[119].dp = attribyt3;
+		*/
+		
 		if(ret==43)
 		    ctype_help(bict[combo_dlg[25].d1].i);
 		else if(ret==44)
@@ -14232,11 +14262,12 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		
 		
+		
 	//}
     
 	    
-    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 );
-    if ( ret==2 || ret==45 || ret==86 || ret==100 ) //save it
+    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 );
+    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 ) //save it
     {
 	    combobuf[c] = curr_combo;
 	    saved = false;

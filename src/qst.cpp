@@ -14079,6 +14079,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		    temp_combo.label[q] = 0;
 		}
 	}
+	al_trace("Read combo label\n");
 	if(section_version>=13) //attribytes[4]
 	{
 		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
@@ -14090,9 +14091,10 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		
 	}
+	al_trace("Read combo attribytes\n");
 	if( section_version < 13 )
 	{ 
-		for ( int q = 0; q < 11; q++ )
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 		{
 		    temp_combo.attribytes[q] = 0;
 		}
