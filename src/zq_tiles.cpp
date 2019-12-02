@@ -13179,7 +13179,7 @@ std::map<int, ComboAttributesInfo *> *getComboInfoMap()
     return comboinfomap;
 }
 
-void get_tick_sel(){} 
+int get_tick_sel(){ return D_CLOSE; } 
 
 static DIALOG combo_dlg[] =
 {

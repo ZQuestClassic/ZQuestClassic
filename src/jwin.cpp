@@ -5519,10 +5519,10 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
 	if(d->dp3 != NULL)
         {
             //object_message(d, MSG_DRAW, 0);
-            typedef void (*funcType)(void);
+            typedef int (*funcType)(void);
             funcType func=reinterpret_cast<funcType>(d->dp3);
-            func();
-	    return D_EXIT;
+            
+	    return func();
         }
 	
         /* should we close the dialog? */
