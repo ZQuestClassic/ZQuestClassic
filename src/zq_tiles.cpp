@@ -11712,8 +11712,8 @@ static TABPANEL combo_tabs[] =
 {
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
-    { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
-    { (char *)"Attributes2",          0,             combo_attributes_list2,           0, NULL },
+    { (char *)"Attributes 1",          0,             combo_attributes_list,           0, NULL },
+    { (char *)"Attributes 2",          0,             combo_attributes_list2,           0, NULL },
     { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
     { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
 
