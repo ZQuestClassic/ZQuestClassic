@@ -7936,6 +7936,7 @@ long get_register(const long arg)
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
+		case COMBODATTRIBYTES: 		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"Attribytes[]", 4); break;
 		//COMBOCLASS STRUCT
 		//case COMBODNAME:		//CHAR[64], STRING
 		case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
@@ -14511,6 +14512,7 @@ void set_register(const long arg, const long value)
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
 		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 	SET_COMBOCLASS_BYTE_INDEX(attributes,	"Attribytes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -29676,6 +29678,7 @@ script_variable ZASMVars[]=
 	{"COMBODANIMFLAGS", COMBODANIMFLAGS, 0, 0 },
 	{"COMBODEXPANSION", COMBODEXPANSION, 0, 0 },
 	{"COMBODATTRIBUTES", COMBODATTRIBUTES, 0, 0 },
+	{"COMBODATTRIBYTES", COMBODATTRIBYTES, 0, 0 },
 	{"COMBODUSRFLAGS", COMBODUSRFLAGS, 0, 0 },
 	{"COMBODTRIGGERFLAGS", COMBODTRIGGERFLAGS, 0, 0 },
 	{"COMBODTRIGGERLEVEL", COMBODTRIGGERLEVEL, 0, 0 },
