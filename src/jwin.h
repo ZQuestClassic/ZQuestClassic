@@ -169,6 +169,7 @@ extern int  do_zqdialog(DIALOG *dialog, int focus_obj);
 
 int d_jslider_proc(int msg, DIALOG *d, int c);
 int d_jwinbutton_proc(int msg, DIALOG *d, int c);
+int d_jwinbutton_proc_r(int msg, DIALOG *d, int c);
 
 
 #ifdef __cplusplus

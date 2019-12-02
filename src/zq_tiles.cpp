@@ -13142,6 +13142,12 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
+	{ //256
+		257,
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
+			(char*)"Engine",(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
 	{
 		-1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
@@ -13171,6 +13177,8 @@ std::map<int, ComboAttributesInfo *> *getComboInfoMap()
     return comboinfomap;
 }
 
+//int boing(int a){zprint("boing %d\n",a); return a;}
+int boing(){ return 104; }
 
 static DIALOG combo_dlg[] =
 {
@@ -13238,15 +13246,15 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
-    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
     //52
-    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
     { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
     { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
@@ -13316,15 +13324,15 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
     { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
     //104
-    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 9",                      NULL,   (void*)boing/*(void*)boing(104)*/                  },
+    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
     //109
-    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 14",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       D_EXIT,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
     //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //112
     { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
@@ -14247,6 +14255,16 @@ bool edit_combo(int c,bool freshen,int cs)
 		if(ret==25)
 		{
 			setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		
+		if(ret == 104)// && (combo_dlg[104].flags & D_SELECTED))
+		{
+			al_trace("104");
+			if ( curr_combo.type >= cSCRIPT1 && curr_combo.usrflags <= cSCRIPT20 ) 
+			{
+				if ( combo_dlg[104].flags & D_SELECTED) setComboLabels(257);
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+			}
 		}
 		
 			/*ret == combo_dlg[113].dp = attribyt0;

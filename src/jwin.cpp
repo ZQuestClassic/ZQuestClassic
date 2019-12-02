@@ -3898,7 +3898,7 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
     int bx=0, tl=0;
     int tx=d->x;
     ASSERT(d);
-    
+    int ret = D_O_K;
     switch(msg)
     {
     case MSG_DRAW:
@@ -3962,7 +3962,16 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
             d->w+=tl+1;
         }
         
-        return D_O_K;
+	if(d->dp3 != NULL)
+        {
+            //object_message(d, MSG_DRAW, 0);
+            typedef int (*funcType)(void);
+            funcType func=reinterpret_cast<funcType>(d->dp3);
+            return func();
+        }
+	
+        //return D_O_K;
+	return ret;
         break;
     }
     
@@ -5528,6 +5537,75 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
     
     return D_O_K;
 }
+
+
+
+
+
+int d_jwinbutton_proc_r(int msg, DIALOG *d, int c)
+{
+    int down=0;
+    int selected=(d->flags&D_SELECTED)?1:0;
+    int last_draw; int ret = D_O_K;
+    
+    if(msg==MSG_CLICK || msg==MSG_KEY)
+    {
+        last_draw = 0;
+        
+        /* track the mouse until it is released */
+        while(gui_mouse_b())
+        {
+            down = mouse_in_rect(d->x, d->y, d->w, d->h);
+            
+            /* redraw? */
+            if(last_draw != down)
+            {
+                if(down != selected)
+                    d->flags |= D_SELECTED;
+                else
+                    d->flags &= ~D_SELECTED;
+                    
+                scare_mouse();
+                object_message(d, MSG_DRAW, 0);
+                unscare_mouse();
+                last_draw = down;
+            }
+            
+            /* let other objects continue to animate */
+            broadcast_dialog_message(MSG_IDLE, 0);
+            
+            if(is_zquest())
+            {
+                if(myvsync)
+                {
+                    if(zqwin_scale > 1)
+                    {
+                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                    }
+                    else
+                    {
+                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                    }
+                    
+                    myvsync=0;
+                }
+            }
+        }
+        
+        /* pop up and call the function */
+        if(d->dp3 != NULL)
+        {
+            typedef int (*funcType)(void);
+            funcType func=reinterpret_cast<funcType>(d->dp3);
+            ret = func();
+        }
+            
+        return ret;
+    }
+    
+    return jwin_button_proc(msg, d, c);
+}
+
 
 
 
