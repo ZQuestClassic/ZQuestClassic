@@ -12443,7 +12443,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cTALLGRASSNEXT,
-		{ (char *)"Visuals", (char *)"Itemdrop" NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
