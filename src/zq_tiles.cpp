@@ -13142,6 +13142,14 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
+	{ //256
+		257,
+		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
+			"Engine",(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
 	{
 		-1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
@@ -13171,6 +13179,7 @@ std::map<int, ComboAttributesInfo *> *getComboInfoMap()
     return comboinfomap;
 }
 
+void get_tick_sel(){} 
 
 static DIALOG combo_dlg[] =
 {
@@ -13316,7 +13325,7 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
     { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
     //104
-    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
     { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
@@ -13836,7 +13845,12 @@ bool edit_combo(int c,bool freshen,int cs)
         }
     }
     
-    setComboLabels(index);
+	if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+	{
+		if(combo_dlg[104].flags & D_SELECTED)
+			setComboLabels(257);
+		else setComboLabels(index);
+	}
     int ret = -1;
     
     
@@ -13860,7 +13874,13 @@ bool edit_combo(int c,bool freshen,int cs)
 	//{
 		saved=false;
 	    //three bits left for the second index (for ZScript supported values)
-		setComboLabels(bict[combo_dlg[25].d1].i);
+	        if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+		{
+			if(combo_dlg[104].flags & D_SELECTED)
+				setComboLabels(257);
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+	
 		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
 		curr_combo.csets = csets;
@@ -14247,6 +14267,16 @@ bool edit_combo(int c,bool freshen,int cs)
 		if(ret==25)
 		{
 			setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		if(ret==104)
+		{
+			if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+			{
+				if(combo_dlg[104].flags & D_SELECTED)
+					setComboLabels(257);
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+				ret=zc_popup_dialog(combo_dlg,4);
+			}
 		}
 		
 			/*ret == combo_dlg[113].dp = attribyt0;
