@@ -11860,7 +11860,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{ //25
 		cSLASHITEM,
-		{ NULL, (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
 	},
 	{ 
@@ -12010,17 +12010,17 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{ //55
 		cBUSH,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cFLOWERS,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cTALLGRASS,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
@@ -12380,19 +12380,19 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cSLASHNEXT,
-		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
 	},
 	{ //130
 		cSLASHNEXTITEM,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHNEXT,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
@@ -12402,38 +12402,38 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cSLASHITEMTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHTOUCHY,
-		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
 	},
 	{ //135
 		cFLOWERSTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cTALLGRASSTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSLASHNEXTTOUCHY,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ (char *)"Visuals",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite",NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXTITEMTOUCHY,
-		{ NULL, (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		
 		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHNEXTTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{ //140
@@ -12443,7 +12443,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cTALLGRASSNEXT,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Visuals", (char *)"Itemdrop" NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
