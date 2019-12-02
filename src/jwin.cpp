@@ -1050,6 +1050,12 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
     return jwin_button_proc(msg, d, c);
 }
 
+/*(int x = atoi(d->dp);
+if ( x > 256 )
+d->dp = (char*)"255";
+elseif (x < 0 ) d->dp = (char*)"0";
+*/
+
 /* jwin_edit_proc:
   *  An editable text object (the dp field points to the string). When it
   *  has the input focus (obtained by clicking on it with the mouse), text
@@ -1316,6 +1322,19 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
             return D_O_K;
             
     return jwin_edit_proc(msg,d,c);
+}
+
+int jwin_numedit_byte_proc(int msg,DIALOG *d,int c)
+{
+	
+	char *tmpstr = (char*)d->dp;
+	int x = atoi(tmpstr);
+	if ( x > 256 )
+		d->dp = (char*)"255";
+	else if (x < 0 ) 
+		d->dp = (char*)"0";
+            
+    return jwin_numedit_proc(msg,d,c);
 }
 
 /*  _calc_scroll_bar:

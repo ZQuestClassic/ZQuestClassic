@@ -110,6 +110,7 @@ int jwin_ctext_proc(int msg, DIALOG *d, int c);
 int jwin_rtext_proc(int msg, DIALOG *d, int c);
 int jwin_edit_proc(int msg, DIALOG *d, int c);
 int jwin_hexedit_proc(int msg,DIALOG *d,int c);
+int jwin_numedit_byte_proc(int msg,DIALOG *d,int c);
 int jwin_numedit_proc(int msg,DIALOG *d,int c);
 int jwin_list_proc(int msg, DIALOG *d, int c);
 int jwin_textbox_proc(int msg, DIALOG *d, int c);
