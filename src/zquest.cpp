@@ -32989,83 +32989,83 @@ const char CustomComboAttributeFlags[20][16][16] =
 const char defaultCustomComboFlags[20][16][32]=
 {
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	},
 	{ 
-		"Visuals", "Itemdrop", "SFX", "Next", "Continuous", "Room Item", "Secrets", "Kill Wpn", 
+		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
 		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
 	}
 
