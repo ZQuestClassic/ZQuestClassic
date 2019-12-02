@@ -1077,8 +1077,12 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		int it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
-		
-			it = (c[cid].usrflags&cflag7) ? c[cid].attribytes[1] : select_dropitem(c[cid].attribytes[1]); 
+			
+			if ( c[cid].usrflags&cflag11 ) //specific item
+			{
+				it = c[cid].attribytes[1];
+			}
+			else it = select_dropitem(c[cid].attribytes[1]); 
 			
 		}
 		//zprint("dropset: %d\n", c[cid].attributes[1]);
@@ -1088,9 +1092,9 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
-		//special item
-		int it2 = (c[cid].usrflags&cflag2) ? tmpscr->item : -1;
-		if ( (c[cid].usrflags&cflag2) && tmpscr->hasitem && !getmapflag(mITEM))
+		//drop special room item
+
+		if ( (c[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
 		{
 			if(tmpscr->hasitem==1)
 				sfx(WAV_CLEARED);
