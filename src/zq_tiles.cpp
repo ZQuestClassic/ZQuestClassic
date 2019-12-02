@@ -11681,8 +11681,16 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,102,103,
+     45,46,47,48,49,50,51,52,53,54,102,103,
 	104,105,106,107,108,109,110,111,
+	112,113,114,115,116,117,118,119,
+	-1
+};
+
+static int combo_attributes_list2[] =
+{
+	//,
+	55,56,57,58,59,60,61,62,
 	-1
 };
 
@@ -11705,6 +11713,7 @@ static TABPANEL combo_tabs[] =
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
     { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
+    { (char *)"Attributes2",          0,             combo_attributes_list2,           0, NULL },
     { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
     { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
 
@@ -11718,6 +11727,7 @@ struct ComboAttributesInfo
     int family;
 	char *flags[16];
 	char *attributes[4];
+	char *attribytes[4];
   
 };
 
@@ -11726,726 +11736,729 @@ static ComboAttributesInfo comboattrinfo[]=
 	{ //0
 		cNONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cSTAIR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cCAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cWATER,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ 
 		cARMOS,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //5
 		cGRAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDOCK,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cUNDEF,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cPUSH_WAIT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cPUSH_HEAVY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //10
 		cPUSH_HW,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cL_STATUE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cR_STATUE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cWALKSLOW,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cCVUP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //15
 		cCVDOWN,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cCVLEFT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cCVRIGHT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cSWIMWARP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDIVEWARP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //20
 		cLADDERHOOKSHOT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRIGNOFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRIGFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cZELDA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cSLASH,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //25
 		cSLASHITEM,
 		{ NULL, (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL, (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
 	},
 	{ 
 		cPUSH_HEAVY2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cPUSH_HW2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cPOUND,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cHSGRAB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //30
 		cHSBRIDGE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE1,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE2,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE3,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE4,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //35
 		cC_STATUE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRAP_H,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRAP_V,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRAP_4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cTRAP_LR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //40
 		cTRAP_UD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cPIT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOOKSHOTONLY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cOVERHEAD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOFLYZONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //45
 		cMIRROR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cMIRRORSLASH,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cMIRRORBACKSLASH,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cMAGICPRISM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cMAGICPRISM4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //50
 		cMAGICSPONGE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cEYEBALL_A,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cEYEBALL_B,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOJUMPZONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //55
 		cBUSH,
 		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cFLOWERS,
 		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cTALLGRASS,
 		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSHALLOWWATER,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKBLOCK,
 		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",(char *)"Eat Item",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char*)"Item",(char*)"Counter",(char *)"Amount",(char *)"Sound"}
+		{ (char *)"Amount",NULL,NULL,NULL},{ (char*)"Item",(char*)"Counter",NULL,(char *)"Sound"}
 	},
 	{ //60
 		cLOCKBLOCK2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSLOCKBLOCK,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSLOCKBLOCK2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLADDERONLY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBSGRAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //65
 		cCHEST,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCHEST2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKEDCHEST,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKEDCHEST2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSCHEST,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //70
 		cBOSSCHEST2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cRESET,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSAVE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVEB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //75
 		cCAVEC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVED,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //80
 		cPITB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2B,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2C,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //85
 		cCAVE2D,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIVEWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //90
 		cDIVEWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIVEWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //95
 		cAWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //100
 		cSWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTRIGNOFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //105
 		cSTRIGFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPSAME,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPCOPY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //110
 		cNOENEMY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKBRANG1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //115
 		cBLOCKBRANG2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKBRANG3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKSBEAM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKFIREBALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //120
 		cDAMAGE5,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE6,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE7,
 		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},{ "Amount",NULL,NULL, NULL}
 	},
 	{
 		cCHANGE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSPINTILE1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //125
 		cSPINTILE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSCREENFREEZE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSCREENFREEZEFF,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOGROUNDENEMY, 
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXT,
-		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", NULL, NULL, NULL }
+		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
 	},
 	{ //130
 		cSLASHNEXTITEM,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHNEXT,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSLASHTOUCHY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHITEMTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHTOUCHY,
 		{ (char *)"Enable", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", NULL, NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
 	},
 	{ //135
 		cFLOWERSTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cTALLGRASSTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSLASHNEXTTOUCHY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXTITEMTOUCHY,
-		{ NULL, (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL, (char *)"Dropset", NULL, NULL }
+		{ NULL, (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cBUSHNEXTTOUCHY,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{ //140
 		cEYEBALL_4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cTALLGRASSNEXT,
-		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
 	},
 	{
 		cSCRIPT1,
 		{ moduledata.combotypeCustomFlags[0][0],moduledata.combotypeCustomFlags[0][1],moduledata.combotypeCustomFlags[0][2],moduledata.combotypeCustomFlags[0][3],moduledata.combotypeCustomFlags[0][4],moduledata.combotypeCustomFlags[0][5],moduledata.combotypeCustomFlags[0][6],
 			moduledata.combotypeCustomFlags[0][7],moduledata.combotypeCustomFlags[0][8],moduledata.combotypeCustomFlags[0][9],moduledata.combotypeCustomFlags[0][10],
 			moduledata.combotypeCustomFlags[0][11],moduledata.combotypeCustomFlags[0][12],moduledata.combotypeCustomFlags[0][13],moduledata.combotypeCustomFlags[0][14],moduledata.combotypeCustomFlags[0][15]},
-		{ moduledata.combotypeCustomAttributes[0][0],moduledata.combotypeCustomAttributes[0][1],moduledata.combotypeCustomAttributes[0][2],moduledata.combotypeCustomAttributes[0][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[0][0],moduledata.combotypeCustomAttributes[0][1],moduledata.combotypeCustomAttributes[0][2],moduledata.combotypeCustomAttributes[0][3]}
 	},
 	{
 		cSCRIPT2,
 		{ moduledata.combotypeCustomFlags[1][0],moduledata.combotypeCustomFlags[1][1],moduledata.combotypeCustomFlags[1][2],moduledata.combotypeCustomFlags[1][3],moduledata.combotypeCustomFlags[1][4],moduledata.combotypeCustomFlags[1][5],moduledata.combotypeCustomFlags[1][6],
 			moduledata.combotypeCustomFlags[1][7],moduledata.combotypeCustomFlags[1][8],moduledata.combotypeCustomFlags[1][9],moduledata.combotypeCustomFlags[1][10],
 			moduledata.combotypeCustomFlags[1][11],moduledata.combotypeCustomFlags[1][12],moduledata.combotypeCustomFlags[1][13],moduledata.combotypeCustomFlags[1][14],moduledata.combotypeCustomFlags[1][15]},
-		{ moduledata.combotypeCustomAttributes[1][0],moduledata.combotypeCustomAttributes[1][1],moduledata.combotypeCustomAttributes[1][2],moduledata.combotypeCustomAttributes[1][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[1][0],moduledata.combotypeCustomAttributes[1][1],moduledata.combotypeCustomAttributes[1][2],moduledata.combotypeCustomAttributes[1][3]}
 	},
 	{
 		cSCRIPT3,
@@ -12453,7 +12466,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[2][0],moduledata.combotypeCustomFlags[2][1],moduledata.combotypeCustomFlags[2][2],moduledata.combotypeCustomFlags[2][3],moduledata.combotypeCustomFlags[2][4],moduledata.combotypeCustomFlags[2][5],moduledata.combotypeCustomFlags[2][6],
 			moduledata.combotypeCustomFlags[2][7],moduledata.combotypeCustomFlags[2][8],moduledata.combotypeCustomFlags[2][9],moduledata.combotypeCustomFlags[2][10],
 			moduledata.combotypeCustomFlags[2][11],moduledata.combotypeCustomFlags[2][12],moduledata.combotypeCustomFlags[2][13],moduledata.combotypeCustomFlags[2][14],moduledata.combotypeCustomFlags[2][15]},
-		{ moduledata.combotypeCustomAttributes[2][0],moduledata.combotypeCustomAttributes[2][1],moduledata.combotypeCustomAttributes[2][2],moduledata.combotypeCustomAttributes[2][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[2][0],moduledata.combotypeCustomAttributes[2][1],moduledata.combotypeCustomAttributes[2][2],moduledata.combotypeCustomAttributes[2][3]}
 
 	},
 	{ //145
@@ -12461,7 +12474,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[3][0],moduledata.combotypeCustomFlags[3][1],moduledata.combotypeCustomFlags[3][2],moduledata.combotypeCustomFlags[3][3],moduledata.combotypeCustomFlags[3][4],moduledata.combotypeCustomFlags[3][5],moduledata.combotypeCustomFlags[3][6],
 			moduledata.combotypeCustomFlags[3][7],moduledata.combotypeCustomFlags[3][8],moduledata.combotypeCustomFlags[3][9],moduledata.combotypeCustomFlags[3][10],
 			moduledata.combotypeCustomFlags[3][11],moduledata.combotypeCustomFlags[3][12],moduledata.combotypeCustomFlags[3][13],moduledata.combotypeCustomFlags[3][14],moduledata.combotypeCustomFlags[3][15]},
-		{ moduledata.combotypeCustomAttributes[3][0],moduledata.combotypeCustomAttributes[3][1],moduledata.combotypeCustomAttributes[3][2],moduledata.combotypeCustomAttributes[3][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[3][0],moduledata.combotypeCustomAttributes[3][1],moduledata.combotypeCustomAttributes[3][2],moduledata.combotypeCustomAttributes[3][3]}
 
 	},
 	{
@@ -12470,7 +12483,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[4][0],moduledata.combotypeCustomFlags[4][1],moduledata.combotypeCustomFlags[4][2],moduledata.combotypeCustomFlags[4][3],moduledata.combotypeCustomFlags[4][4],moduledata.combotypeCustomFlags[4][5],moduledata.combotypeCustomFlags[4][6],
 			moduledata.combotypeCustomFlags[4][7],moduledata.combotypeCustomFlags[4][8],moduledata.combotypeCustomFlags[4][9],moduledata.combotypeCustomFlags[4][10],
 			moduledata.combotypeCustomFlags[4][11],moduledata.combotypeCustomFlags[4][12],moduledata.combotypeCustomFlags[4][13],moduledata.combotypeCustomFlags[4][14],moduledata.combotypeCustomFlags[4][15]},
-		{ moduledata.combotypeCustomAttributes[4][0],moduledata.combotypeCustomAttributes[4][1],moduledata.combotypeCustomAttributes[4][2],moduledata.combotypeCustomAttributes[4][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[4][0],moduledata.combotypeCustomAttributes[4][1],moduledata.combotypeCustomAttributes[4][2],moduledata.combotypeCustomAttributes[4][3]}
 
 	},
 	{
@@ -12479,7 +12492,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[5][0],moduledata.combotypeCustomFlags[5][1],moduledata.combotypeCustomFlags[5][2],moduledata.combotypeCustomFlags[5][3],moduledata.combotypeCustomFlags[5][4],moduledata.combotypeCustomFlags[5][5],moduledata.combotypeCustomFlags[5][6],
 			moduledata.combotypeCustomFlags[5][7],moduledata.combotypeCustomFlags[5][8],moduledata.combotypeCustomFlags[5][9],moduledata.combotypeCustomFlags[5][10],
 			moduledata.combotypeCustomFlags[5][11],moduledata.combotypeCustomFlags[5][12],moduledata.combotypeCustomFlags[5][13],moduledata.combotypeCustomFlags[5][14],moduledata.combotypeCustomFlags[5][15]},
-		{ moduledata.combotypeCustomAttributes[5][0],moduledata.combotypeCustomAttributes[5][1],moduledata.combotypeCustomAttributes[5][2],moduledata.combotypeCustomAttributes[5][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[5][0],moduledata.combotypeCustomAttributes[5][1],moduledata.combotypeCustomAttributes[5][2],moduledata.combotypeCustomAttributes[5][3]}
 
 	},
 	{
@@ -12488,7 +12501,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[6][0],moduledata.combotypeCustomFlags[6][1],moduledata.combotypeCustomFlags[6][2],moduledata.combotypeCustomFlags[6][3],moduledata.combotypeCustomFlags[6][4],moduledata.combotypeCustomFlags[6][5],moduledata.combotypeCustomFlags[6][6],
 			moduledata.combotypeCustomFlags[6][7],moduledata.combotypeCustomFlags[6][8],moduledata.combotypeCustomFlags[6][9],moduledata.combotypeCustomFlags[6][10],
 			moduledata.combotypeCustomFlags[6][11],moduledata.combotypeCustomFlags[6][12],moduledata.combotypeCustomFlags[6][13],moduledata.combotypeCustomFlags[6][14],moduledata.combotypeCustomFlags[6][15]},
-		{ moduledata.combotypeCustomAttributes[6][0],moduledata.combotypeCustomAttributes[6][1],moduledata.combotypeCustomAttributes[6][2],moduledata.combotypeCustomAttributes[6][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[6][0],moduledata.combotypeCustomAttributes[6][1],moduledata.combotypeCustomAttributes[6][2],moduledata.combotypeCustomAttributes[6][3]}
 
 	},
 	{
@@ -12497,7 +12510,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[7][0],moduledata.combotypeCustomFlags[7][1],moduledata.combotypeCustomFlags[7][2],moduledata.combotypeCustomFlags[7][3],moduledata.combotypeCustomFlags[7][4],moduledata.combotypeCustomFlags[7][5],moduledata.combotypeCustomFlags[7][6],
 			moduledata.combotypeCustomFlags[7][7],moduledata.combotypeCustomFlags[7][8],moduledata.combotypeCustomFlags[7][9],moduledata.combotypeCustomFlags[7][10],
 			moduledata.combotypeCustomFlags[7][11],moduledata.combotypeCustomFlags[7][12],moduledata.combotypeCustomFlags[7][13],moduledata.combotypeCustomFlags[7][14],moduledata.combotypeCustomFlags[7][15]},
-		{ moduledata.combotypeCustomAttributes[7][0],moduledata.combotypeCustomAttributes[7][1],moduledata.combotypeCustomAttributes[7][2],moduledata.combotypeCustomAttributes[7][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[7][0],moduledata.combotypeCustomAttributes[7][1],moduledata.combotypeCustomAttributes[7][2],moduledata.combotypeCustomAttributes[7][3]}
 
 	},
 	{ //150
@@ -12506,7 +12519,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[8][0],moduledata.combotypeCustomFlags[8][1],moduledata.combotypeCustomFlags[8][2],moduledata.combotypeCustomFlags[8][3],moduledata.combotypeCustomFlags[8][4],moduledata.combotypeCustomFlags[8][5],moduledata.combotypeCustomFlags[8][6],
 			moduledata.combotypeCustomFlags[8][7],moduledata.combotypeCustomFlags[8][8],moduledata.combotypeCustomFlags[8][9],moduledata.combotypeCustomFlags[8][10],
 			moduledata.combotypeCustomFlags[8][11],moduledata.combotypeCustomFlags[8][12],moduledata.combotypeCustomFlags[8][13],moduledata.combotypeCustomFlags[8][14],moduledata.combotypeCustomFlags[8][15]},
-		{ moduledata.combotypeCustomAttributes[8][0],moduledata.combotypeCustomAttributes[8][1],moduledata.combotypeCustomAttributes[8][2],moduledata.combotypeCustomAttributes[8][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[8][0],moduledata.combotypeCustomAttributes[8][1],moduledata.combotypeCustomAttributes[8][2],moduledata.combotypeCustomAttributes[8][3]}
 
 	},
 	{
@@ -12515,7 +12528,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[9][0],moduledata.combotypeCustomFlags[9][1],moduledata.combotypeCustomFlags[9][2],moduledata.combotypeCustomFlags[9][3],moduledata.combotypeCustomFlags[9][4],moduledata.combotypeCustomFlags[9][5],moduledata.combotypeCustomFlags[9][6],
 			moduledata.combotypeCustomFlags[9][7],moduledata.combotypeCustomFlags[9][8],moduledata.combotypeCustomFlags[9][9],moduledata.combotypeCustomFlags[9][10],
 			moduledata.combotypeCustomFlags[9][11],moduledata.combotypeCustomFlags[9][12],moduledata.combotypeCustomFlags[9][13],moduledata.combotypeCustomFlags[9][14],moduledata.combotypeCustomFlags[9][15]},
-		{ moduledata.combotypeCustomAttributes[9][0],moduledata.combotypeCustomAttributes[9][1],moduledata.combotypeCustomAttributes[9][2],moduledata.combotypeCustomAttributes[9][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[9][0],moduledata.combotypeCustomAttributes[9][1],moduledata.combotypeCustomAttributes[9][2],moduledata.combotypeCustomAttributes[9][3]}
 
 	},
 	{
@@ -12524,7 +12537,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[10][0],moduledata.combotypeCustomFlags[10][1],moduledata.combotypeCustomFlags[10][2],moduledata.combotypeCustomFlags[10][3],moduledata.combotypeCustomFlags[10][4],moduledata.combotypeCustomFlags[10][5],moduledata.combotypeCustomFlags[10][6],
 			moduledata.combotypeCustomFlags[10][7],moduledata.combotypeCustomFlags[10][8],moduledata.combotypeCustomFlags[10][9],moduledata.combotypeCustomFlags[10][10],
 			moduledata.combotypeCustomFlags[10][11],moduledata.combotypeCustomFlags[10][12],moduledata.combotypeCustomFlags[10][13],moduledata.combotypeCustomFlags[10][14],moduledata.combotypeCustomFlags[10][15]},
-		{ moduledata.combotypeCustomAttributes[10][0],moduledata.combotypeCustomAttributes[10][1],moduledata.combotypeCustomAttributes[10][2],moduledata.combotypeCustomAttributes[10][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[10][0],moduledata.combotypeCustomAttributes[10][1],moduledata.combotypeCustomAttributes[10][2],moduledata.combotypeCustomAttributes[10][3]}
 
 	},
 	{
@@ -12533,7 +12546,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[11][0],moduledata.combotypeCustomFlags[11][1],moduledata.combotypeCustomFlags[11][2],moduledata.combotypeCustomFlags[11][3],moduledata.combotypeCustomFlags[11][4],moduledata.combotypeCustomFlags[11][5],moduledata.combotypeCustomFlags[11][6],
 			moduledata.combotypeCustomFlags[11][7],moduledata.combotypeCustomFlags[11][8],moduledata.combotypeCustomFlags[11][9],moduledata.combotypeCustomFlags[11][10],
 			moduledata.combotypeCustomFlags[11][11],moduledata.combotypeCustomFlags[11][12],moduledata.combotypeCustomFlags[11][13],moduledata.combotypeCustomFlags[11][14],moduledata.combotypeCustomFlags[11][15]},
-		{ moduledata.combotypeCustomAttributes[11][0],moduledata.combotypeCustomAttributes[11][1],moduledata.combotypeCustomAttributes[11][2],moduledata.combotypeCustomAttributes[11][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[11][0],moduledata.combotypeCustomAttributes[11][1],moduledata.combotypeCustomAttributes[11][2],moduledata.combotypeCustomAttributes[11][3]}
 
 	},
 	{
@@ -12542,7 +12555,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[12][0],moduledata.combotypeCustomFlags[12][1],moduledata.combotypeCustomFlags[12][2],moduledata.combotypeCustomFlags[12][3],moduledata.combotypeCustomFlags[12][4],moduledata.combotypeCustomFlags[12][5],moduledata.combotypeCustomFlags[12][6],
 			moduledata.combotypeCustomFlags[12][7],moduledata.combotypeCustomFlags[12][8],moduledata.combotypeCustomFlags[12][9],moduledata.combotypeCustomFlags[12][10],
 			moduledata.combotypeCustomFlags[12][11],moduledata.combotypeCustomFlags[12][12],moduledata.combotypeCustomFlags[12][13],moduledata.combotypeCustomFlags[12][14],moduledata.combotypeCustomFlags[12][15]},
-		{ moduledata.combotypeCustomAttributes[12][0],moduledata.combotypeCustomAttributes[12][1],moduledata.combotypeCustomAttributes[12][2],moduledata.combotypeCustomAttributes[12][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[12][0],moduledata.combotypeCustomAttributes[12][1],moduledata.combotypeCustomAttributes[12][2],moduledata.combotypeCustomAttributes[12][3]}
 
 	},
 	{ //155
@@ -12551,7 +12564,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[13][0],moduledata.combotypeCustomFlags[13][1],moduledata.combotypeCustomFlags[13][2],moduledata.combotypeCustomFlags[13][3],moduledata.combotypeCustomFlags[13][4],moduledata.combotypeCustomFlags[13][5],moduledata.combotypeCustomFlags[13][6],
 			moduledata.combotypeCustomFlags[13][7],moduledata.combotypeCustomFlags[13][8],moduledata.combotypeCustomFlags[13][9],moduledata.combotypeCustomFlags[13][10],
 			moduledata.combotypeCustomFlags[13][11],moduledata.combotypeCustomFlags[13][12],moduledata.combotypeCustomFlags[13][13],moduledata.combotypeCustomFlags[13][14],moduledata.combotypeCustomFlags[13][15]},
-		{ moduledata.combotypeCustomAttributes[13][0],moduledata.combotypeCustomAttributes[13][1],moduledata.combotypeCustomAttributes[13][2],moduledata.combotypeCustomAttributes[13][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[13][0],moduledata.combotypeCustomAttributes[13][1],moduledata.combotypeCustomAttributes[13][2],moduledata.combotypeCustomAttributes[13][3]}
 
 	},
 	{
@@ -12560,7 +12573,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[14][0],moduledata.combotypeCustomFlags[14][1],moduledata.combotypeCustomFlags[14][2],moduledata.combotypeCustomFlags[14][3],moduledata.combotypeCustomFlags[14][4],moduledata.combotypeCustomFlags[14][5],moduledata.combotypeCustomFlags[14][6],
 			moduledata.combotypeCustomFlags[14][7],moduledata.combotypeCustomFlags[14][8],moduledata.combotypeCustomFlags[14][9],moduledata.combotypeCustomFlags[14][10],
 			moduledata.combotypeCustomFlags[14][11],moduledata.combotypeCustomFlags[14][12],moduledata.combotypeCustomFlags[14][13],moduledata.combotypeCustomFlags[14][14],moduledata.combotypeCustomFlags[14][15]},
-		{ moduledata.combotypeCustomAttributes[14][0],moduledata.combotypeCustomAttributes[14][1],moduledata.combotypeCustomAttributes[14][2],moduledata.combotypeCustomAttributes[14][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[14][0],moduledata.combotypeCustomAttributes[14][1],moduledata.combotypeCustomAttributes[14][2],moduledata.combotypeCustomAttributes[14][3]}
 
 	},
 	{
@@ -12569,7 +12582,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[15][0],moduledata.combotypeCustomFlags[15][1],moduledata.combotypeCustomFlags[15][2],moduledata.combotypeCustomFlags[15][3],moduledata.combotypeCustomFlags[15][4],moduledata.combotypeCustomFlags[15][5],moduledata.combotypeCustomFlags[15][6],
 			moduledata.combotypeCustomFlags[15][7],moduledata.combotypeCustomFlags[15][8],moduledata.combotypeCustomFlags[15][9],moduledata.combotypeCustomFlags[15][10],
 			moduledata.combotypeCustomFlags[15][11],moduledata.combotypeCustomFlags[15][12],moduledata.combotypeCustomFlags[15][13],moduledata.combotypeCustomFlags[15][14],moduledata.combotypeCustomFlags[15][15]},
-		{ moduledata.combotypeCustomAttributes[15][0],moduledata.combotypeCustomAttributes[15][1],moduledata.combotypeCustomAttributes[15][2],moduledata.combotypeCustomAttributes[15][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[15][0],moduledata.combotypeCustomAttributes[15][1],moduledata.combotypeCustomAttributes[15][2],moduledata.combotypeCustomAttributes[15][3]}
 
 	},
 	{
@@ -12578,7 +12591,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[16][0],moduledata.combotypeCustomFlags[16][1],moduledata.combotypeCustomFlags[16][2],moduledata.combotypeCustomFlags[16][3],moduledata.combotypeCustomFlags[16][4],moduledata.combotypeCustomFlags[16][5],moduledata.combotypeCustomFlags[16][6],
 			moduledata.combotypeCustomFlags[16][7],moduledata.combotypeCustomFlags[16][8],moduledata.combotypeCustomFlags[16][9],moduledata.combotypeCustomFlags[16][10],
 			moduledata.combotypeCustomFlags[16][11],moduledata.combotypeCustomFlags[16][12],moduledata.combotypeCustomFlags[16][13],moduledata.combotypeCustomFlags[16][14],moduledata.combotypeCustomFlags[16][15]},
-		{ moduledata.combotypeCustomAttributes[16][0],moduledata.combotypeCustomAttributes[16][1],moduledata.combotypeCustomAttributes[16][2],moduledata.combotypeCustomAttributes[16][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[16][0],moduledata.combotypeCustomAttributes[16][1],moduledata.combotypeCustomAttributes[16][2],moduledata.combotypeCustomAttributes[16][3]}
 
 	},
 	{
@@ -12587,7 +12600,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[17][0],moduledata.combotypeCustomFlags[17][1],moduledata.combotypeCustomFlags[17][2],moduledata.combotypeCustomFlags[17][3],moduledata.combotypeCustomFlags[17][4],moduledata.combotypeCustomFlags[17][5],moduledata.combotypeCustomFlags[17][6],
 			moduledata.combotypeCustomFlags[17][7],moduledata.combotypeCustomFlags[17][8],moduledata.combotypeCustomFlags[17][9],moduledata.combotypeCustomFlags[17][10],
 			moduledata.combotypeCustomFlags[17][11],moduledata.combotypeCustomFlags[17][12],moduledata.combotypeCustomFlags[17][13],moduledata.combotypeCustomFlags[17][14],moduledata.combotypeCustomFlags[17][15]},
-		{ moduledata.combotypeCustomAttributes[17][0],moduledata.combotypeCustomAttributes[17][1],moduledata.combotypeCustomAttributes[17][2],moduledata.combotypeCustomAttributes[17][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[17][0],moduledata.combotypeCustomAttributes[17][1],moduledata.combotypeCustomAttributes[17][2],moduledata.combotypeCustomAttributes[17][3]}
 
 	},
 	{ //160
@@ -12596,7 +12609,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[18][0],moduledata.combotypeCustomFlags[18][1],moduledata.combotypeCustomFlags[18][2],moduledata.combotypeCustomFlags[18][3],moduledata.combotypeCustomFlags[18][4],moduledata.combotypeCustomFlags[18][5],moduledata.combotypeCustomFlags[18][6],
 			moduledata.combotypeCustomFlags[18][7],moduledata.combotypeCustomFlags[18][8],moduledata.combotypeCustomFlags[18][9],moduledata.combotypeCustomFlags[18][10],
 			moduledata.combotypeCustomFlags[18][11],moduledata.combotypeCustomFlags[18][12],moduledata.combotypeCustomFlags[18][13],moduledata.combotypeCustomFlags[18][14],moduledata.combotypeCustomFlags[18][15]},
-		{ moduledata.combotypeCustomAttributes[18][0],moduledata.combotypeCustomAttributes[18][1],moduledata.combotypeCustomAttributes[18][2],moduledata.combotypeCustomAttributes[18][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[18][0],moduledata.combotypeCustomAttributes[18][1],moduledata.combotypeCustomAttributes[18][2],moduledata.combotypeCustomAttributes[18][3]}
 
 	},
 	{
@@ -12605,493 +12618,497 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ moduledata.combotypeCustomFlags[19][0],moduledata.combotypeCustomFlags[19][1],moduledata.combotypeCustomFlags[19][2],moduledata.combotypeCustomFlags[19][3],moduledata.combotypeCustomFlags[19][4],moduledata.combotypeCustomFlags[19][5],moduledata.combotypeCustomFlags[19][6],
 			moduledata.combotypeCustomFlags[19][7],moduledata.combotypeCustomFlags[19][8],moduledata.combotypeCustomFlags[19][9],moduledata.combotypeCustomFlags[19][10],
 			moduledata.combotypeCustomFlags[19][11],moduledata.combotypeCustomFlags[19][12],moduledata.combotypeCustomFlags[19][13],moduledata.combotypeCustomFlags[19][14],moduledata.combotypeCustomFlags[19][15]},
-		{ moduledata.combotypeCustomAttributes[19][0],moduledata.combotypeCustomAttributes[19][1],moduledata.combotypeCustomAttributes[19][2],moduledata.combotypeCustomAttributes[19][3]}
+		{ NULL,NULL,NULL,NULL},{ moduledata.combotypeCustomAttributes[19][0],moduledata.combotypeCustomAttributes[19][1],moduledata.combotypeCustomAttributes[19][2],moduledata.combotypeCustomAttributes[19][3]}
 
 	},
 	{
 		cTRIGGERGENERIC,
-		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" }
+		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
+			NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+		
 	},{
 		cMAX,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cFIRELAVA1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cFIREFLAVA2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //165
 		cFIRELAVA3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cFIRELAVA4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOLEDROP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOLEDAMAGE1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOLEDAMAGE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //170
 		cHOLEDAMAGE3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOLEDAMAGE4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIGNEXT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIGITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //175
 		cLIFT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSPECITER,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTNEXT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTNEXTITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //180
 		cLIFTNEXTSPECITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSLASH,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSLAHITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSLASHSPECITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSLASHNEXT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //185
 		cLIFTSLASHNEXTITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cLIFTSLASHNEXTSPECITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cBREAKAWAYFLOOR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cFREEZEFFCONLY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	
 	{
 		 189,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 190,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 191,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 192,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 193,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 194,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 195,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 196,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 197,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 198,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 199,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 200,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 201,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 202,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 203,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 204,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 205,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 206,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 207,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 208,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 209,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 210,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 211,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 212,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 213,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 214,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 215,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 216,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 217,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 218,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 219,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 220,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 221,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 222,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 223,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 224,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 225,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 226,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 227,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 228,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 229,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 230,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 231,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 232,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 233,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 234,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 235,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 236,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 237,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 238,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 239,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 240,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 241,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 242,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 243,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 244,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 245,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 246,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 247,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 248,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 249,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 250,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 251,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 252,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 253,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		 254,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cEXPANDED,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{ //256
 		cMAX250,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		-1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	}
 };
 
@@ -13272,6 +13289,18 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
     //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
+    //112
+    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    //114
+    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    //116
+    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    //118
+    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -13349,18 +13378,32 @@ void setComboLabels(int family)
 	combo_dlg[111].dp = (char*)inf->flags[15];
     else combo_dlg[111].dp = (char*)"Flags 16";
    
-    if(inf->attributes[0]!=NULL)
-	combo_dlg[55].dp = (char*)inf->attributes[0];
-    else combo_dlg[55].dp = (char*)"Attributes[0]";
+    if(inf->attribytes[0]!=NULL)
+	combo_dlg[55].dp = (char*)inf->attribytes[0];
+    else combo_dlg[55].dp = (char*)"Attribytes[0]";
     if(inf->attributes[1]!=NULL)
-	combo_dlg[57].dp = (char*)inf->attributes[1];
-    else combo_dlg[57].dp = (char*)"Attributes[1]";
+	combo_dlg[57].dp = (char*)inf->attribytes[1];
+    else combo_dlg[57].dp = (char*)"Attribytes[1]";
     if(inf->attributes[2]!=NULL)
-	combo_dlg[59].dp = (char*)inf->attributes[2];
-    else combo_dlg[59].dp = (char*)"Attributes[2]";
+	combo_dlg[59].dp = (char*)inf->attribytes[2];
+    else combo_dlg[59].dp = (char*)"Attribytes[2]";
     if(inf->attributes[2]!=NULL)
-	combo_dlg[61].dp = (char*)inf->attributes[3];
-    else combo_dlg[61].dp = (char*)"Attributes[3]";
+	combo_dlg[61].dp = (char*)inf->attribytes[3];
+    else combo_dlg[61].dp = (char*)"Attribytes[3]";
+    
+    
+    if(inf->attributes[0]!=NULL)
+	combo_dlg[112].dp = (char*)inf->attributes[0];
+    else combo_dlg[112].dp = (char*)"Attributes[0]";
+    if(inf->attributes[1]!=NULL)
+	combo_dlg[114].dp = (char*)inf->attributes[1];
+    else combo_dlg[114].dp = (char*)"Attributes[1]";
+    if(inf->attributes[2]!=NULL)
+	combo_dlg[116].dp = (char*)inf->attributes[2];
+    else combo_dlg[116].dp = (char*)"Attributes[2]";
+    if(inf->attributes[2]!=NULL)
+	combo_dlg[118].dp = (char*)inf->attributes[3];
+    else combo_dlg[118].dp = (char*)"Attributes[3]";
     
   
 }
@@ -13486,6 +13529,11 @@ bool edit_combo(int c,bool freshen,int cs)
     char attrib1[8];
     char attrib2[8];
     char attrib3[8];
+    
+    char attribyt0[8];
+    char attribyt1[8];
+    char attribyt2[8];
+    char attribyt3[8];
     char minlevel[8];
     char the_label[11];
     
@@ -13515,6 +13563,12 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attrib1,"%d",curr_combo.attributes[1]);
     sprintf(attrib2,"%d",curr_combo.attributes[2]);
     sprintf(attrib3,"%d",curr_combo.attributes[3]);
+    
+    //Attribytes[]
+    sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
+    sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
+    sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
+    sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
     strcpy(the_label, curr_combo.label);
     
@@ -13633,6 +13687,14 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[58].dp = attrib1;
     combo_dlg[60].dp = attrib2;
     combo_dlg[62].dp = attrib3;
+    
+    //Attribytes[]
+    combo_dlg[113].dp = attrib0;
+    combo_dlg[115].dp = attrib1;
+    combo_dlg[117].dp = attrib2;
+    combo_dlg[119].dp = attrib3;
+    
+    //trigger level
     combo_dlg[88].dp = minlevel;
     
     combo_dlg[103].dp = the_label;
@@ -13974,6 +14036,12 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
 		curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
 		curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
+		
+		//Attribytes[]
+		curr_combo.attribytes[0] = (byte)(atoi(attribyt0));
+		curr_combo.attribytes[1] = (byte)(atoi(attribyt1));
+		curr_combo.attribytes[2] = (byte)(atoi(attribyt2));
+		curr_combo.attribytes[3] = (byte)(atoi(attribyt3));
 		
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
@@ -14969,6 +15037,17 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 					}
 				}
 			}
+			if  ( section_version >= 13 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				
+			}
 		}
 				
 		if ( skip )
@@ -15020,7 +15099,10 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 			{
 				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
 			}
-			
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if ( combobuf[index+(tilect)].attribytes[q] ) goto skip_combo_copy;
+			}
 			
 		}
 		else
@@ -15213,6 +15295,17 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 					}
 				}
 			}
+			if  ( section_version >= 13 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				
+			}
 		}
 		
 		if ( skip )
@@ -15254,6 +15347,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if ( combobuf[start+(tilect)-skip].attributes[q] ) goto skip_combo_copy2;
+					if ( combobuf[start+(tilect)-skip].attribytes[q] ) goto skip_combo_copy2;
 				}
 				if ( 	combobuf[start+(tilect)-skip].usrflags ) goto skip_combo_copy2;
 				for ( int q = 0; q < 3; q++ )
@@ -15425,6 +15519,13 @@ int writecombofile(PACKFILE *f, int index, int count)
 		for ( int q = 0; q < 11; q++ ) 
 		{
 			if(!p_putc(combobuf[index+(tilect)].label[q],f))
+			{
+				return 0;
+			}
+		}
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_putc(combobuf[index+(tilect)].attribytes[q],f))
 			{
 				return 0;
 			}

@@ -188,7 +188,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          6
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           12
+#define V_COMBOS           13
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            14
@@ -2629,6 +2629,24 @@ without needing the user to have bit precision. -Z
 #define ctrigUNUSED_3_17	0x10000
 #define ctrigUNUSED_3_18	0x20000
 
+///user flags
+#define cflag1 0x01
+#define cflag2 0x02
+#define cflag3 0x04
+#define cflag4 0x08
+#define cflag5 0x010
+#define cflag6 0x020
+#define cflag7 0x040
+#define cflag8 0x080
+#define cflag9 0x0100
+#define cflag10 0x0200
+#define cflag11 0x0400
+#define cflag12 0x0800
+#define cflag13 0x01000
+#define cflag14 0x02000
+#define cflag15 0x04000
+#define cflag16 0x08000
+
 struct newcombo
 {
     int tile; //16 bits
@@ -2657,6 +2675,11 @@ struct newcombo
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 
     //384 bits total per object
+    byte attribytes[4];
+    //word script;
+    //long initd[2];
+    //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
+    //byte initialised; //no, better to have 176 inits, each bit for a layter,  
 };
 
 #define AF_FRESH 1
@@ -3813,6 +3836,7 @@ struct zcmodule
 	//char module_base_nsf[255];
 	
         char combotypeCustomAttributes[20][4][32];
+        char combotypeCustomAttribytes[20][4][32];
         char combotypeCustomFlags[20][16][32];
 
 }; //zcmodule

@@ -32872,6 +32872,56 @@ const char CustomComboAttributeTypes[20][4][17] =
 	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3" }
 };
 
+const char CustomComboATTRuteTypes[20][4][17] =
+{
+	{ "cCUSTOM1ATTR0", "cCUSTOM1ATTR1", "cCUSTOM1ATTR2", "cCUSTOM1ATTR3" }, 
+	{ "cCUSTOM2ATTR0", "cCUSTOM2ATTR1", "cCUSTOM2ATTR2", "cCUSTOM2ATTR3" }, 
+	{ "cCUSTOM3ATTR0", "cCUSTOM3ATTR1", "cCUSTOM3ATTR2", "cCUSTOM3ATTR3" }, 
+	{ "cCUSTOM4ATTR0", "cCUSTOM4ATTR1", "cCUSTOM4ATTR2", "cCUSTOM4ATTR3" }, 
+	{ "cCUSTOM5ATTR0", "cCUSTOM5ATTR1", "cCUSTOM5ATTR2", "cCUSTOM5ATTR3" }, 
+	{ "cCUSTOM6ATTR0", "cCUSTOM6ATTR1", "cCUSTOM6ATTR2", "cCUSTOM6ATTR3" }, 
+	{ "cCUSTOM7ATTR0", "cCUSTOM7ATTR1", "cCUSTOM7ATTR2", "cCUSTOM7ATTR3" }, 
+	{ "cCUSTOM8ATTR0", "cCUSTOM8ATTR1", "cCUSTOM8ATTR2", "cCUSTOM8ATTR3" }, 
+	{ "cCUSTOM9ATTR0", "cCUSTOM9ATTR1", "cCUSTOM9ATTR2", "cCUSTOM9ATTR3" }, 
+	{ "cCUSTOM10ATTR0", "cCUSTOM10ATTR1", "cCUSTOM10ATTR2", "cCUSTOM10ATTR3" },
+	
+	{ "cCUSTOM11ATTR0", "cCUSTOM11ATTR1", "cCUSTOM11ATTR2", "cCUSTOM11ATTR3" }, 
+	{ "cCUSTOM12ATTR0", "cCUSTOM12ATTR1", "cCUSTOM12ATTR2", "cCUSTOM12ATTR3" }, 
+	{ "cCUSTOM13ATTR0", "cCUSTOM13ATTR1", "cCUSTOM13ATTR2", "cCUSTOM13ATTR3" }, 
+	{ "cCUSTOM14ATTR0", "cCUSTOM14ATTR1", "cCUSTOM14ATTR2", "cCUSTOM14ATTR3" }, 
+	{ "cCUSTOM15ATTR0", "cCUSTOM15ATTR1", "cCUSTOM15ATTR2", "cCUSTOM15ATTR3" }, 
+	{ "cCUSTOM16ATTR0", "cCUSTOM16ATTR1", "cCUSTOM16ATTR2", "cCUSTOM16ATTR3" }, 
+	{ "cCUSTOM17ATTR0", "cCUSTOM17ATTR1", "cCUSTOM17ATTR2", "cCUSTOM17ATTR3" }, 
+	{ "cCUSTOM18ATTR0", "cCUSTOM18ATTR1", "cCUSTOM18ATTR2", "cCUSTOM18ATTR3" }, 
+	{ "cCUSTOM19ATTR0", "cCUSTOM19ATTR1", "cCUSTOM19ATTR2", "cCUSTOM19ATTR3" }, 
+	{ "cCUSTOM20ATTR0", "cCUSTOM20ATTR1", "cCUSTOM20ATTR2", "cCUSTOM20ATTR3" }
+};
+
+const char CustomComboAttribyteTypes[20][4][17] =
+{
+	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3" }, 
+	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3" }, 
+	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3" }, 
+	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3" }, 
+	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3" }, 
+	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3" }, 
+	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3" }, 
+	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3" }, 
+	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3" }, 
+	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3" },
+	
+	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3" }, 
+	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3" }, 
+	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3" }, 
+	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3" }, 
+	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3" }, 
+	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3" }, 
+	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3" }, 
+	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3" }, 
+	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3" }, 
+	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3" }
+};
+
 const char CustomComboAttributeFlags[20][16][16] =
 {
 	{ 	
@@ -33021,7 +33071,7 @@ const char defaultCustomComboFlags[20][16][32]=
 
 };
 
-const char defaultCustomComboAttributes[20][4][17]=
+const char defaultCustomComboAttribytes[20][4][17]=
 {
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
@@ -33042,8 +33092,33 @@ const char defaultCustomComboAttributes[20][4][17]=
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
 	{ "Sprite", "Dropset", "Sound", "Secret Type" },
-	{ "Sprite", "Dropset", "Sound", "Secret Type" },
+	{ "Sprite", "Dropset", "Sound", "Secret Type" }
 };
+
+const char defaultCustomComboAttributes[20][4][17]=
+{
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" },
+	{ "User[0]", "User[1]", "User[2]", "User[3]" }
+};
+
 
 bool ZModule::init(bool d) //bool default
 {
@@ -33089,6 +33164,7 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
 	memset(moduledata.combotypeCustomAttributes, 0, sizeof(moduledata.combotypeCustomAttributes));
+	memset(moduledata.combotypeCustomAttribytes, 0, sizeof(moduledata.combotypeCustomAttribytes));
 	memset(moduledata.combotypeCustomFlags, 0, sizeof(moduledata.combotypeCustomFlags));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 		
@@ -33623,6 +33699,11 @@ bool ZModule::init(bool d) //bool default
 		{
 			for ( int w = 0; w < 4; w++ )
 				strcpy(moduledata.combotypeCustomAttributes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
+		}
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int w = 0; w < 4; w++ )
+				strcpy(moduledata.combotypeCustomAttribytes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
 		}
 		for ( int q = 0; q < 20; q++ )
 		{
