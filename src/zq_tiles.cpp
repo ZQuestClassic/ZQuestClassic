@@ -13845,12 +13845,13 @@ bool edit_combo(int c,bool freshen,int cs)
         }
     }
     
-	if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+	if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 	{
 		if(combo_dlg[104].flags & D_SELECTED)
 			setComboLabels(257);
 		else setComboLabels(index);
 	}
+	else setComboLabels(index);
     int ret = -1;
     
     
@@ -13874,12 +13875,13 @@ bool edit_combo(int c,bool freshen,int cs)
 	//{
 		saved=false;
 	    //three bits left for the second index (for ZScript supported values)
-	        if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+	        if ( (bict[combo_dlg[25].d1].i >= cSCRIPT1) && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 		{
 			if(combo_dlg[104].flags & D_SELECTED)
 				setComboLabels(257);
 			else setComboLabels(bict[combo_dlg[25].d1].i);
 		}
+		else setComboLabels(bict[combo_dlg[25].d1].i);
 	
 		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
@@ -14270,7 +14272,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 		if(ret==104)
 		{
-			if ( bict[combo_dlg[25].d1].i >= cSCRIPT1 && bict[combo_dlg[25].d1].i <= cSCRIPT20 )
+			if ( (bict[combo_dlg[25].d1].i >= cSCRIPT1) && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 			{
 				if(combo_dlg[104].flags & D_SELECTED)
 					setComboLabels(257);
