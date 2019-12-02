@@ -1050,7 +1050,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 */
 {
-	if ( cid < cTRIGGERGENERIC && !(c[cid].usrflags&cflag50)  ) return; //Script combos need an 'Engine' flag
+	if ( cid < cTRIGGERGENERIC && !(c[cid].usrflags&cflag5)  ) return; //Script combos need an 'Engine' flag
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2]);
@@ -1073,7 +1073,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		if ( (c[cid].usrflags&cflag2) )
 		{
 		
-			it = (c[cid].usrflags&cflag70) ? c[cid].attribytes[1] : select_dropitem(c[cid].attribytes[1]); 
+			it = (c[cid].usrflags&cflag7) ? c[cid].attribytes[1] : select_dropitem(c[cid].attribytes[1]); 
 			
 		}
 		//zprint("dropset: %d\n", c[cid].attributes[1]);

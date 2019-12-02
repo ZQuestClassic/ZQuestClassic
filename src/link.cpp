@@ -2903,7 +2903,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
             if(it!=-1)
@@ -2958,7 +2958,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
 		
@@ -3330,7 +3330,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
@@ -3386,7 +3386,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
            
@@ -3870,7 +3870,7 @@ void LinkClass::check_slash_block(weapon *w)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
 		
@@ -3927,7 +3927,7 @@ void LinkClass::check_slash_block(weapon *w)
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].userflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
 		
