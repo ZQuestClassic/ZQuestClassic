@@ -1632,6 +1632,7 @@ weapon::weapon(weapon const & other):
 		
 	//}
 	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	for( int q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
@@ -1857,6 +1858,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     isLit = false;
 	linkedItem = 0;
 	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+        memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
         
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
@@ -4011,11 +4013,19 @@ bool weapon::animate(int index)
 			for(int dy = 0; dy < hysz; dy += 16)
 			{
 				Link.check_slash_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				//Layers
+				//1
+				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,1);
+				//2
+				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,2);
+				
 				Link.check_wand_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
 				Link.check_pound_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
 				Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+dy+hyofs, this);
 			}
 			Link.check_slash_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,1);
+			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,2);
 			Link.check_wand_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
 			Link.check_pound_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
 			Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
@@ -4023,11 +4033,15 @@ bool weapon::animate(int index)
 		for(int dy = 0; dy < hysz; dy += 16)
 		{
 			Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,1);
+			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,2);
 			Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
 			Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
 			Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
 		}
 		Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,1);
+		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,2);
 		Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
 		Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
 		Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);

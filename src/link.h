@@ -242,6 +242,7 @@ public:
     bool bigHitbox;
     byte defence[wMax];
     void check_slash_block(weapon *w);
+    void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
     void check_pound_block(weapon *w);
     void check_wand_block(weapon *w);
     void check_slash_block_layer(int bx, int by, int layer);
