@@ -2,8 +2,8 @@
 /// FFRules[] --- Array Indices ///
 ///     and Details of Each     ///
 ///  -------------------------- ///
-///    Document Revision 1.0    ///
-///      04th August, 2019      ///
+///    Document Revision 1.1    ///
+///     08th December, 2019     ///
 ///////////////////////////////////
 
 enum ffruletype
@@ -223,6 +223,39 @@ qr_USE_EX1_EX2_INVENTORYSWAP, 		//	Misc (>>>) Ex3 and Ex4 Shift A-Button Items
 //175
 qr_NOFASTMODE, 				//	Misc (>>>) Disable Fast Mode (Uncap)
 qr_OLD_F6, 				//	Compatibility (>>>) Old (Instant) F6 Menu
+qr_BROKEN_ASKIP_Y_FRAMES,		//	Compatibility (>>>) Broken ASkipY Animation Frames
+qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,	//	Compatibility (>>>) Enemies Clip Through Top-Half Partial Solids
+qr_SIDEVIEWLADDER_FACEUP,		//	Combos (>>>) 2 (>>>) Always Face Up on Sideview Ladders
+
+//180
+qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,	//	Items (>>>) Items Ignore Sideview Platforms
+qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,//	Combos (>>>) 2 (>>>) Press 'Down' to Fall Through Sideview Platforms
+qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, 	//	Combos (>>>) 2 (>>>) Falling Through Sideview Platforms Respects 'Drunk' Inputs
+qr_DOWN_DOESNT_GRAB_LADDERS, 		//	Combos (>>>) 2 (>>>) Pressing Down Will Not Grab Sideview Ladders
+qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
+					//	Combos (>>>) 2 (>>>) Press 'Down+Jump' to Fall Through Sideview Platforms
+
+//186
+qr_OLD_SIDEVIEW_CEILING_COLLISON, 	//	Compatibility (>>>) Old Sideview Ceiling Collision
+qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, //	Compatibility (>>>) Items set to 0 AFrames ignore AFrame changes
+qr_OLD_ENEMY_KNOCKBACK_COLLISION,	//	Compatibility (>>>) Old Enemy Knockback Collision
+qr_FADEBLACKWIPE, 			//	Animation (>>>) Fade to/from Black Opening/Closing Wipes
+qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 
+					//	ZScript (>>>) Scripts (>>>) Passive Subscreen Script runs during Active Subscreen
+
+//190
+qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,//	ZScript (>>>) Scripts (>>>) DMap Active Script runs during Active Subscreen
+qr_ANIMATECUSTOMWEAPONS,
+qr_WEAPONSMOVEOFFSCREEN, 		//	Compatibility (>>>) Weapons Can Go Out of Bounds (Offscreen)
+qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, 	//	Compatibility (>>>) Check Clip for Custom / Script Type Weapons on Screen Edge
+qr_SHORTDGNWALK, 			//	Compatibility (>>>) 1.92 Diagonal Walk Speed
+
+//195
+qr_SCRIPT_WEAPONS_UNIQUE_SPRITES,	//	Weapons (>>>) npc->Weapon Uses Unique Sprites for Custom EWeapons
+qr_ANGULAR_REFLECTED_WEAPONS, 		//	Weapons (>>>) Angular Reflected Weapons
+qr_MIRRORS_USE_WEAPON_CENTRE, 		//	Weapons (>>>) Mirrors Use Weapon Centre for Collision
+qr_CUSTOMCOMBOSLAYERS1AND2,		//	Combos (>>>) 2 (>>>) Custom Combos Work on Layers 1 and 2
+qr_BUSHESONLAYERS1AND2,			//	Combos (>>>) 2 (>>>) Slash Combos Work on Layers 1 and 2
 	
 //640
 qr_PARSER_250DIVISION = 80*8, 		//	ZScript (>>>) 2.50 Division Truncation
@@ -251,5 +284,13 @@ qr_32BIT_BINARY,			//	Compilation (>>>) Binary Operations use true 32-bit Int
 //660
 qr_ALWAYS_DEALLOCATE_ARRAYS,		//	ZScript (>>>) Always Deallocate Arrays
 qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	//	ZScript (>>>) Hero OnDeath script runs AFTER engine death animation
+qr_DISALLOW_SETTING_RAFTING,		//	ZScript (>>>) Don't Allow Setting Action to Rafting
+
+qr_WEAPONS_EXTRA_FRAME			//	ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD
+qr_250WRITEEDEFSCRIPT			//	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences
+qr_SETENEMYWEAPONSPRITESONWPNCHANGE	//	ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite
+qr_BROKENCHARINTDRAWING			//	ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling
+qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES	//	ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*
+	
 qr_MAX
 };
