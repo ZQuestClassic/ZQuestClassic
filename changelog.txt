@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 17
+Fixed a possible crash when saving MIDI files from ZC Player.
+	( ZoriaRPG, 8th December, 2019 )
+
 //Beta 16
 Clear the panel recent screen buttons when creating a new quest.
 Clear the panel recent screen buttons to prevent crashes from invalid maps.
