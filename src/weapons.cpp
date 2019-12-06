@@ -1030,77 +1030,6 @@ static int COMBOAT(int x, int y)
 	return (y & 240)+(x>>4);
 }
 
-int MAPCOMBOL(int layer,int x,int y)
-{
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
-    
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].data[combo];                        // entire combo code
-}
-
-int MAPCSETL(int layer,int x,int y)
-{
-    
-    if(tmpscr2[layer-1].cset.empty()) return 0;
-    
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].cset[combo];                        // entire combo code
-}
-
-int MAPFLAGL(int layer,int x,int y)
-{
-    
-    if(tmpscr2[layer-1].sflag.empty()) return 0;
-    
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].sflag[combo];                       // flag
-}
-
-int COMBOTYPEL(int layer,int x,int y)
-{
-    
-    if(tmpscr2[layer-1].valid==0)
-    {
-        return 0;
-    }
-    
-    return combobuf[MAPCOMBO2(layer,x,y)].type;
-}
-
-int MAPCOMBOFLAGL(int layer,int x,int y)
-{
-    if(layer==-1) return MAPCOMBOFLAG(x,y);
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
-    
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return combobuf[tmpscr2[layer-1].data[combo]].flag;                        // entire combo code
-}
 
 #define ComboX(pos) ((pos)%16*16)
 #define ComboY(pos) ((pos)&0xF0)
@@ -1203,11 +1132,17 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					
 					screen_combo_modify_preroutine(tmpscr,cid);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],cid);
-					//screen_combo_modify_preroutine(tmpscr2+(layer-1),cid);
-					//++FFCore.tempScreens[layer]->data[scombo];
-					//tmpscr->data[scombo] = 0;
-					++FFCore.tempScreens[layer]->data[scombo];
-					//++tmpscr->data[scombo];
+					
+					//undercombo or next?
+					if((c[cid].usrflags&cflag12))
+					{
+						FFCore.tempScreens[layer]->data[scombo] = tmpscr->undercombo;
+						FFCore.tempScreens[layer]->cset[scombo] = tmpscr->undercset;
+						FFCore.tempScreens[layer]->sflag[scombo] = 0;	
+					}
+					else
+						++FFCore.tempScreens[layer]->data[scombo];
+					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
 					screen_combo_modify_postroutine(tmpscr,cid);
@@ -1215,7 +1150,15 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				else
 				{
 					screen_combo_modify_preroutine(tmpscr,cid);
-					++tmpscr->data[scombo];
+					//undercombo or next?
+					if((c[cid].usrflags&cflag12))
+					{
+						tmpscr->data[scombo] = tmpscr->undercombo;
+						tmpscr->cset[scombo] = tmpscr->undercset;
+						tmpscr->sflag[scombo] = 0;	
+					}
+					else
+						++tmpscr->data[scombo];
 					screen_combo_modify_postroutine(tmpscr,cid);
 				}
 				

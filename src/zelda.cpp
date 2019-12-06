@@ -312,8 +312,9 @@ word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 short    lensclk;
 int     lensid; // Lens's item id. -1 if lens is off.
 int    Bpos;
-byte screengrid[22];
-byte ffcgrid[4];
+byte screengrid[22]={0};
+byte screengrid_layer[2][22]={0};
+byte ffcgrid[4]={0};
 bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;

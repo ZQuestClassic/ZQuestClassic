@@ -32,6 +32,14 @@ int MAPCSET2(int layer,int x,int y);
 int MAPFLAG2(int layer,int x,int y);
 int MAPCOMBOFLAG2(int layer,int x,int y);
 int COMBOTYPE2(int layer,int x,int y);
+
+//specific layers 1 to 6 -Z
+int MAPCOMBOL(int layer,int x,int y);
+int MAPCSETL(int layer,int x,int y);
+int MAPFLAGL(int layer,int x,int y);
+int COMBOTYPEL(int layer,int x,int y);
+int MAPCOMBOFLAGL(int layer,int x,int y);
+
 int getFFCAt(int x, int y);
 void eventlog_mapflags();
 void setmapflag(int mi2, int flag);

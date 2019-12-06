@@ -176,6 +176,80 @@ int MAPCOMBO(int x,int y)
     return tmpscr->data[combo];                               // entire combo code
 }
 
+//specific layers 1 to 6
+int MAPCOMBOL(int layer,int x,int y)
+{
+    
+    if(tmpscr2[layer-1].data.empty()) return 0;
+    
+    if(tmpscr2[layer-1].valid==0) return 0;
+    
+    int combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return tmpscr2[layer-1].data[combo];                        // entire combo code
+}
+
+int MAPCSETL(int layer,int x,int y)
+{
+    
+    if(tmpscr2[layer-1].cset.empty()) return 0;
+    
+    if(tmpscr2[layer-1].valid==0) return 0;
+    
+    int combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return tmpscr2[layer-1].cset[combo];                        // entire combo code
+}
+
+int MAPFLAGL(int layer,int x,int y)
+{
+    
+    if(tmpscr2[layer-1].sflag.empty()) return 0;
+    
+    if(tmpscr2[layer-1].valid==0) return 0;
+    
+    int combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return tmpscr2[layer-1].sflag[combo];                       // flag
+}
+
+int COMBOTYPEL(int layer,int x,int y)
+{
+    
+    if(tmpscr2[layer-1].valid==0)
+    {
+        return 0;
+    }
+    
+    return combobuf[MAPCOMBO2(layer,x,y)].type;
+}
+
+int MAPCOMBOFLAGL(int layer,int x,int y)
+{
+    if(layer==-1) return MAPCOMBOFLAG(x,y);
+    
+    if(tmpscr2[layer-1].data.empty()) return 0;
+    
+    if(tmpscr2[layer-1].valid==0) return 0;
+    
+    int combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return combobuf[tmpscr2[layer-1].data[combo]].flag;                        // entire combo code
+}
+
+
 // True if the FFC covers x, y and is not ethereal or a changer.
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
 inline bool ffcIsAt(int index, int x, int y)

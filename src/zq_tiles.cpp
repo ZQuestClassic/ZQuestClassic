@@ -12663,7 +12663,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
 		
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
-			NULL,(char*)"Sysprite",(char*)"Specific",NULL,NULL,NULL,NULL,NULL},
+			NULL,(char*)"Sysprite",(char*)"Specific",(char*)"Undercombo",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 		
 	},{

@@ -2584,6 +2584,9 @@ bool LinkClass::checkstab()
             for(int q=0; q<176; q++)
             {
                 set_bit(screengrid,q,0);
+                set_bit(screengrid_layer[0],q,0);
+                set_bit(screengrid_layer[1],q,0);
+		    
             }
             
             for(int q=0; q<32; q++)
@@ -2594,6 +2597,20 @@ bool LinkClass::checkstab()
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
+		
+		//layers
+		check_slash_block_layer(wx,wy,1);
+		check_slash_block_layer(wx,wy+8,1);
+		check_slash_block_layer(wx,wy,1);
+		check_slash_block_layer(wx,wy+8,1);
+		//2
+		check_slash_block_layer(wx,wy,2);
+		check_slash_block_layer(wx,wy+8,2);
+		check_slash_block_layer(wx,wy,2);
+		check_slash_block_layer(wx,wy+8,2);
+	    
+		
+		
         }
         else if(dir==up && ((int(x)&15)==8||diagonalMovement))
         {
@@ -2601,12 +2618,29 @@ bool LinkClass::checkstab()
             check_slash_block(wx,wy+8);
             check_slash_block(wx+8,wy);
             check_slash_block(wx+8,wy+8);
+	    ///layer 1
+	    check_slash_block_layer(wx,wy,1);
+            check_slash_block_layer(wx,wy+8,1);
+            check_slash_block_layer(wx+8,wy,1);
+            check_slash_block_layer(wx+8,wy+8,1);
+	    ///layer 2
+	    check_slash_block_layer(wx,wy,2);
+            check_slash_block_layer(wx,wy+8,2);
+            check_slash_block_layer(wx+8,wy,2);
+            check_slash_block_layer(wx+8,wy+8,2);
         }
         
         if(dir==down && ((int(x)&15)==0))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
+		
+	    //layer 1
+	    check_slash_block_layer(wx,wy+wysz-8,1);
+            check_slash_block_layer(wx,wy+wysz,1);
+	    //layer 2
+	    check_slash_block_layer(wx,wy+wysz-8,2);
+            check_slash_block_layer(wx,wy+wysz,2);
         }
         else if(dir==down && ((int(x)&15)==8||diagonalMovement))
         {
@@ -2614,18 +2648,40 @@ bool LinkClass::checkstab()
             check_slash_block(wx,wy+wysz);
             check_slash_block(wx+8,wy+wysz-8);
             check_slash_block(wx+8,wy+wysz);
+		//layer 1
+		check_slash_block_layer(wx,wy+wysz-8,1);
+            check_slash_block_layer(wx,wy+wysz,1);
+            check_slash_block_layer(wx+8,wy+wysz-8,1);
+            check_slash_block_layer(wx+8,wy+wysz,1);
+		//layer 2
+		check_slash_block_layer(wx,wy+wysz-8,2);
+            check_slash_block_layer(wx,wy+wysz,2);
+            check_slash_block_layer(wx+8,wy+wysz-8,2);
+            check_slash_block_layer(wx+8,wy+wysz,2);
         }
         
         if(dir==left)
         {
             check_slash_block(wx,wy+8);
             check_slash_block(wx+8,wy+8);
+		//layer 1
+		check_slash_block_layer(wx,wy+8,1);
+            check_slash_block_layer(wx+8,wy+8,1);
+		//layer 2
+		check_slash_block_layer(wx,wy+8,2);
+            check_slash_block_layer(wx+8,wy+8,2);
         }
         
         if(dir==right)
         {
             check_slash_block(wx+wxsz,wy+8);
             check_slash_block(wx+wxsz-8,wy+8);
+		//layer 1
+		check_slash_block_layer(wx+wxsz,wy+8,1);
+            check_slash_block_layer(wx+wxsz-8,wy+8,1);
+		//layer 2
+		check_slash_block_layer(wx+wxsz,wy+8,2);
+            check_slash_block_layer(wx+wxsz-8,wy+8,2);
         }
     }
     else if(attack==wWand)
@@ -2635,6 +2691,8 @@ bool LinkClass::checkstab()
             for(int q=0; q<176; q++)
             {
                 set_bit(screengrid,q,0);
+                set_bit(screengrid_layer[0],q,0);
+                set_bit(screengrid_layer[1],q,0);
             }
             
             for(int q=0; q<32; q++)
@@ -2689,6 +2747,8 @@ bool LinkClass::checkstab()
         for(int q=0; q<176; q++)
         {
             set_bit(screengrid,q,0);
+                set_bit(screengrid_layer[0],q,0);
+                set_bit(screengrid_layer[1],q,0);
         }
         
         for(int q=0; q<32; q++)
@@ -2739,6 +2799,189 @@ bool LinkClass::checkstab()
     
     return true;
 }
+
+void LinkClass::check_slash_block_layer(int bx, int by, int layer)
+{
+	
+    if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
+    {
+	    //zprint("bit off\n");
+	    return;
+    }
+    //keep things inside the screen boundaries
+    bx=vbound(bx, 0, 255);
+    by=vbound(by, 0, 176);
+    int fx=vbound(bx, 0, 255);
+    int fy=vbound(by, 0, 176);
+    //first things first
+    if(attack!=wSword)
+        return;
+        
+    if(z>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
+            || (attackclk>SWORDTAPFRAME && tapping))
+        return;
+        
+    //find out which combo row/column the coordinates are in
+    bx &= 0xF0;
+    by &= 0xF0;
+    
+   
+    int flag = MAPFLAGL(layer,bx,by);
+    int flag2 = MAPCOMBOFLAGL(layer,bx,by);
+    int cid = MAPCOMBOL(layer,bx,by);
+    int type = combobuf[cid].type;
+    //zprint("cid is: %d\n", cid);
+     //zprint("type is: %d\n", type);
+    int i = (bx>>4) + by;
+    
+    if(i > 175)
+        return;
+        
+    bool ignorescreen=false;
+    
+    if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
+    {
+	return;
+        //ignorescreen = true;
+	//zprint("ignoring\n");
+    }
+    
+    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    if(!ignorescreen)
+    {
+	    if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid_layer[layer-1],i,1);
+            if(isCuttableNextType(type) || isCuttableNextType(type))
+            {
+                FFCore.tempScreens[layer]->data[i]++;
+            }
+            else
+            {
+                FFCore.tempScreens[layer]->data[i] = tmpscr->undercombo;
+                FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
+                FFCore.tempScreens[layer]->sflag[i] = 0;
+            }
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        {
+            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            sfx(tmpscr->secretsfx);
+        }
+        else if(isCuttableItemType(type))
+        {
+            int it = -1;
+		
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		if ( (combobuf[cid].usrflags&cflag2) )
+		{
+		
+			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			
+		}
+            if(it!=-1)
+            {
+                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+            }
+        }
+        
+        putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
+        
+        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
+        {
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+            {
+		if ( isGenericType(type) )
+		{
+			if (combobuf[cid].usrflags&cflag3)
+			{
+				sfx(combobuf[cid].attribytes[2],int(bx));
+			}
+		}
+		else
+			sfx(WAV_ZN1GRASSCUT,int(bx));
+            }
+            
+            if(isBushType(type))
+            {
+		if ( combobuf[cid].usrflags&cflag1 )
+		{
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			{
+				switch( combobuf[cid].attribytes[0] )
+				{
+					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+				}
+			}
+			else 
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+		}
+		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+            }
+            else if(isFlowersType(type))
+            {
+		if ( combobuf[cid].usrflags&cflag1 )
+		{
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			{
+				switch( combobuf[cid].attribytes[0] )
+				{
+					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+				}
+			}
+			else 
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+		}
+		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+            }
+            else if(isGrassType(type))
+            {
+		if ( combobuf[cid].usrflags&cflag1 )
+		{
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			{
+				switch( combobuf[cid].attribytes[0] )
+				{
+					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+				}
+			}
+			else 
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+		}
+                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+            }
+	    else if (isGenericType(type))
+	    {
+		if ( combobuf[cid].usrflags&cflag1 )
+		{
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			{
+				switch( combobuf[cid].attribytes[0] )
+				{
+					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				}
+			}
+			else 
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+		}
+            }
+        }
+            
+    }
+    
+}
+
+
+
 
 void LinkClass::check_slash_block(int bx, int by)
 {
