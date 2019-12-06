@@ -127,7 +127,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,-1
+    22,23,24,25,26,27,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -174,8 +174,10 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down' to Fall Through Sideview Platforms", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down+Jump' to Fall Through Sideview Platforms", NULL, NULL },
+    // 25
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Falling Through Sideview Platforms Respects 'Drunk' Inputs", NULL, NULL },
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
+    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
   
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -187,7 +189,9 @@ static int comborules[] =
     qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
     qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
-	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, -1
+	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
+	
+	-1
 };
 
 int onComboRules()
