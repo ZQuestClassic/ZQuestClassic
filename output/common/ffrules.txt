@@ -283,9 +283,10 @@ qr_32BIT_BINARY,			//	Compilation (>>>) Binary Operations use true 32-bit Int
 qr_ALWAYS_DEALLOCATE_ARRAYS,		//	ZScript (>>>) Always Deallocate Arrays
 qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	//	ZScript (>>>) Hero OnDeath script runs AFTER engine death animation
 qr_DISALLOW_SETTING_RAFTING,		//	ZScript (>>>) Don't Allow Setting Action to Rafting
-
 qr_WEAPONS_EXTRA_FRAME			//	ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD
 qr_250WRITEEDEFSCRIPT			//	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences
+
+//665
 qr_SETENEMYWEAPONSPRITESONWPNCHANGE	//	ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite
 qr_BROKENCHARINTDRAWING			//	ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling
 qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES	//	ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*
