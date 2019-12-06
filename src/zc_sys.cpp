@@ -6802,7 +6802,8 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         int  sel=0;
         //struct ffblk f;
         char title[40] = "Save MIDI: ";
-        static char fname[2048] = "";
+        char fname[2048];
+	memset(fname,0,2048);
         static EXT_LIST list[] =
         {
             { (char *)"MIDI files (*.mid)", (char *)"mid" },
@@ -6811,6 +6812,7 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         };
         
         strcpy(title+11, tunes[i].title);
+	title[39] = '\0';
         
         if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, lfont)==0)
             goto done;
