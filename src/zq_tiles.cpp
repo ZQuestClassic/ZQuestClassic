@@ -13142,12 +13142,27 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{ //256
-		257,
+	{ //arbitrary values ahead
+		257, //script combos with the 'engine' flag enabled
 		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
 			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{ 
+		258,
+		//if dropping an enemy from a script 1 to 20 combo
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
+			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{ 
+		259,
+		//if dropping an enemy from a generic trigger combo
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
+			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 	},
 	{
@@ -13331,7 +13346,7 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
     //109
-    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
     { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
     { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
     //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
@@ -13847,8 +13862,19 @@ bool edit_combo(int c,bool freshen,int cs)
     
 	if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 	{
-		if(combo_dlg[104].flags & D_SELECTED)
-			setComboLabels(257);
+		if(combo_dlg[104].flags & D_SELECTED) //change labels
+		{
+			if(combo_dlg[109].flags & D_SELECTED) //change labels
+				setComboLabels(258);
+			else setComboLabels(257);
+		}
+		else setComboLabels(index);
+	}
+	
+	else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+	{
+		if(combo_dlg[109].flags & D_SELECTED) //change labels
+			setComboLabels(259);
 		else setComboLabels(index);
 	}
 	else setComboLabels(index);
@@ -13875,13 +13901,27 @@ bool edit_combo(int c,bool freshen,int cs)
 	//{
 		saved=false;
 	    //three bits left for the second index (for ZScript supported values)
-	        if ( (bict[combo_dlg[25].d1].i >= cSCRIPT1) && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+	    
+	    
+	    
+		if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 		{
-			if(combo_dlg[104].flags & D_SELECTED)
-				setComboLabels(257);
+			if(combo_dlg[104].flags & D_SELECTED) //change labels
+			{
+				if(combo_dlg[109].flags & D_SELECTED) //change labels
+					setComboLabels(258);
+				else setComboLabels(257);
+			}
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+		{
+			if(combo_dlg[109].flags & D_SELECTED) //change labels
+				setComboLabels(259);
 			else setComboLabels(bict[combo_dlg[25].d1].i);
 		}
 		else setComboLabels(bict[combo_dlg[25].d1].i);
+	    
 	
 		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
@@ -14272,14 +14312,44 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 		if(ret==104)
 		{
-			if ( (bict[combo_dlg[25].d1].i >= cSCRIPT1) && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
 			{
-				if(combo_dlg[104].flags & D_SELECTED)
+				if(combo_dlg[104].flags & D_SELECTED) //change labels
+				{
 					setComboLabels(257);
+					if(combo_dlg[109].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+				}
 				else setComboLabels(bict[combo_dlg[25].d1].i);
 				ret=zc_popup_dialog(combo_dlg,4);
 			}
 		}
+		if(ret==109)
+		{
+			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+			{
+				if(combo_dlg[104].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[109].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+					else setComboLabels(257);
+				}
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+			}
+			else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+			{
+				if(combo_dlg[109].flags & D_SELECTED) //change labels
+					setComboLabels(259);
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+			}
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+			ret=zc_popup_dialog(combo_dlg,4);
+		}
+		
+		
+		
+		
+		
 		
 			/*ret == combo_dlg[113].dp = attribyt0;
     combo_dlg[115].dp = attribyt1;
