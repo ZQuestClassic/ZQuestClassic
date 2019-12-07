@@ -1179,7 +1179,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((c[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[1]),((c[cid].usrflags&cflag14) ? 0 : -15));
+			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[1]),((c[cid].usrflags&cflag6) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
