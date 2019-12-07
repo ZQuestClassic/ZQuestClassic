@@ -345,7 +345,7 @@ void read_mapscreens(PACKFILE *f, int vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
 
-
+int combo_script_engine(const bool preload);
 
 void do_strstr();
 void do_strcat();

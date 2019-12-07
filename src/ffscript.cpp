@@ -34302,3 +34302,35 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 }
 
+int FFScript::combo_script_engine(const bool preload)
+{
+	
+	///non-scripted effects
+	
+	for ( int q = 0; q < 7; ++q )
+	{
+		for ( int w = 0; w < 176; ++w )
+		{
+			int cid = FFCore.tempScreens[q]->data[w];
+			int type = combobuf[cid].type;
+			if ( type == cTRIGGERGENERIC )
+			{
+				//run local trigger effects
+				if ( combobuf[cid].usrflags&cflag13 ) //spawn an item on room entry
+				{
+					//need a way to set a bit as to not do this again, similar to screengrid
+				}
+				if ( combobuf[cid].usrflags&cflag14 ) //spawn an item on room entry
+				{
+					//need a way to set a bit as to not do this again, similar to screengrid
+				}
+			}
+			
+			//run its script
+			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
+		}
+	}
+
+	
+	return 1;
+}
