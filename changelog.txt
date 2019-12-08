@@ -2,6 +2,86 @@
 
 //Alpha 45
 
+You can now spawn large (2x2 or larger) enemies from armos combos,
+	and arrange the statue combos in a block equal to the size of the
+	enemy that they spawn. The enemy will remove all combos in that block.
+You may now specify enemies that span when touching an armos
+	combo, and if one specific enemy, or one of two random enemies spawn.
+Add Docs for ZScript Timing
+Added combos.txt
+	( ZoriaRPG, 8th December, 2019 )
+
+Corrected the flag used for No Spawn Poof in weapons.cpp
+The flag 'Room Item' becomes 'No Poof' if the 'Drop Enemy'
+	flag is enabled in the combo editor for script and generic combo
+	types.
+	Enabling this causes enamies to instantly appear, instead of spawning
+	in with a spawn poof animation.
+Added flags for custom/generic/script combo types to drop an
+	enemy instead of an item with flag 14, and to 'always drop' as a
+	planned 'constant event' that would occur on loading the screen.
+	Constant events  will require the combo_script_engine to run, and
+	will run prior to the script execution.
+	As such, I added a preliminary FFScript::combo_script_engine()
+	function template to ffscript.cpp.
+Renamed some combo editor flags, for clarity.
+	( ZoriaRPG, 7th December, 2019 )
+
+Fixed a possible crash when saving MIDI files from ZC Player.
+Std.zh, v1.7032
+The ffruletype enum is now in its own file, which serves double-duty
+	as the documentation for each index is inlined in Doxygen format.
+Added file: std_zh/ffrules.txt, now imported immediately after std_constants.zh.
+<ffrules.txt> v1.2, Allow to be inline in std_constants.zh
+Feat: UseWeapon works with slash combos on layers 1 and 2.
+Slash combos now work on layers 1 and 2 with an actual sword.
+	This requires enabling a QR.
+	To-do: Emulation of other weapons for them on higher layers.
+Custom/Script combo types now work on layers 1 and 2, if the
+	user enables the quest rule for this behaviour.
+	( ZoriaRPG, 6th December, 2019 )
+	
+cSCRIPT flags are now generic, expcept for flag9 ('Engine')
+The function pointer for jwin_button_proc (and for
+	jwin_check_proc) now returns int. The dialogue will return what that
+	function returns.
+	Example function returns D_CLOSE, allowing a callback that affects
+	the dialogue base don return type.
+If ->dp3 is passed to jwin_check_proc or jwin_button_proc,
+	then it will run the function and D_EXIT the dlg.
+Selecting the 'engine' flag on script combos will shift out the user labels
+	set in the .zmod for engine labels.
+Improved cuttable type sprites.
+Adjust some default combo attribute labels.
+[JWin]
+	Fixed jwin_numedit_byte_proc
+	Added:
+	int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c);
+		//bound to ZScript int, no decimals.
+	int jwin_numedit_byte_proc(int msg,DIALOG *d,int c);
+		bound to unsigned byte (8b)
+	int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c);
+		//bound to signed byte (8b)
+	int jwin_numedit_short_proc(int msg,DIALOG *d,int c);
+		//bound to unsigned short int 16b)
+	int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c);
+		//bound to signed short int (16b)
+Fix: cGENERIC room item flags
+Rename tabs to Attributes 1, Attributes 2
+Fix: Set labels for attrybytes[3] and attributes[3]
+Check by combo type, not ID
+<std> Remove extraneous file date from std_vars.
+Added unsigned byte combodata->Attribytes[4]
+<std> 1.7031 Fix typo in limits.zh
+Bound strings in combo editor with jwin_numedit_byte_proc.
+Added jwin_numedit_byte_proc
+Port attributes to attribytes
+	Add module data
+	Merge values
+	Add constants for combo usrflags
+	( ZoriaRPG, 2nd December, 2019 )	
+	
+File: Added Playing Card Rendering FFC Script
 Added two suspend values to Link->HealthBeat.
  * The timer for the health beep sound, if it is not constant.
  * Setting this to -2 suspends system control over stopping the sound,
