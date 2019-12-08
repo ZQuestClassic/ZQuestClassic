@@ -9516,7 +9516,57 @@ bool eStalfos::animate(int index)
             fading=0;
             
             if(flags2&cmbflag_armos && z==0)
-                removearmos(x,y);
+	    {
+		//if a custom size (not 16px by 16px)
+		    
+		//if a custom size (not 16px by 16px)
+		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+		{
+			//zprint("spawn big enemy from armos\n");
+			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
+			for(int dx = 0; dx < tysz; dx ++)
+			{
+				for(int dy = 0; dy < tysz; dy++)
+				{
+					removearmos((int)x+(dx*16),(int)y+(dy*16)+1);
+					did_armos = false;
+				}
+				removearmos((int)x+(dx*16), (int)y+((tysz-1)*16)+1);
+				did_armos = false;
+			}
+			for(int dy = 0; dy < tysz; dy ++)
+			{
+				removearmos((int)x+((txsz-1)*16), (int)y+(dy*16)+1);
+				did_armos = false;
+			}
+			removearmos((int)x+((txsz-1)*16), (int)y+((tysz-1)*16)+1);
+		}
+                else removearmos(x,y); 
+		/*
+		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+		{
+			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
+			for(int dx = 0; dx < hxsz; dx += 16)
+			{
+				for(int dy = 0; dy < hysz; dy += 16)
+				{
+					removearmos((int)x+dx+hxofs,(int)y+dy+hyofs+1);
+					did_armos = false;
+				}
+				removearmos((int)x+dx+hxofs, (int)y+hyofs+(hysz-1)-1);
+				did_armos = false;
+			}
+			for(int dy = 0; dy < hysz; dy += 16)
+			{
+				removearmos((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs-1);
+				did_armos = false;
+			}
+			removearmos((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1)-1);
+		}
+                else removearmos(x,y);
+		*/		
+	   
+	    }
                 
             clk2=0;
             

@@ -12721,6 +12721,21 @@ int touchcombo(int x,int y)
     return 0;
 }
 
+static int COMBOX(int pos) { return ((pos)%16*16); }
+static int COMBOY(int pos) { return ((pos)&0xF0); }
+
+static int GridX(int x) 
+{
+	return (x >> 4) << 4;
+}
+
+//Snaps 'y' to the combo grid
+//Equivalent to calling ComboY(ComboAt(foo,y));
+static int GridY(int y) 
+{
+	return (y >> 4) << 4;
+}
+
 void LinkClass::checktouchblk()
 {
     if(toogam) return;
@@ -12819,6 +12834,7 @@ void LinkClass::checktouchblk()
                 guygrid[di]=61; //Note: not 60.
                 int id2=0; 
                 int cid = MAPCOMBO(tx,ty);
+		int cpos = COMBOPOS(tx,ty);
                 switch(combobuf[MAPCOMBO(tx,ty)].type)
                 {
                 case cARMOS: //id2=eARMOS; break;
@@ -12831,7 +12847,126 @@ void LinkClass::checktouchblk()
 				//{
 				//	eclk=0;
 				//}
-				addenemy(tx,ty+1,id2,0);
+				
+				//! To-do Adjust for larger enemies, but we need it to be directional. 
+				int ypos = 0; int xpos = 0;
+				int chy = 0; int chx = 0;
+				//nmew idea = check while the upper-left corner combo is armos
+				///move up one and check if it is armos, check the next, and stop as soon as that is not armos
+				///then do the same going left
+				
+				int searching = 1;
+				
+					
+				
+				if ( ( guysbuf[id2].txsz > 1 ) || ( guysbuf[id2].tysz > 1 ) )
+				{
+					switch(dir)
+					{
+						case up: //touched armos from below
+						{
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( cpos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+								{
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							while(searching == 2) //find the left edge of an armos block
+							{
+								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+								++chx;
+								if ( cpos - chx < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+								{
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							
+							break;
+						}
+						case down: //touched armos from above
+						{
+							//zprint("touched armos from above\n");
+							//zprint("cpos: %d\n", cpos);
+							//int tx2 = (int)x; //COMBOX(COMBOPOS(tx,ty));
+							//int ty2 = (int)y+16; //COMBOY(COMBOPOS(tx,ty));
+							//tx2 = GridX(tx2);
+							//ty2 = GridY(ty2);
+							while(searching == 1) //find the left edge of an armos block
+							{
+								//zprint("searching\n");
+								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+								++chx;
+								
+								
+								//zprint("chx: %d\n", chx);
+								//zprint("tx2: %d\n", tx2);
+								//zprint("ty2: %d\n", ty2);
+								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
+								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
+								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+								{
+									//zprint("found match\n");
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							//zprint("xpos is: %d\n", xpos);
+						}
+						case left: //touched right edge of armos
+						{
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( cpos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+								{
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							while(searching == 2) //find the left edge of an armos block
+							{
+								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+								++chx;
+								if ( cpos - chx < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+								{
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							break;
+						}
+							
+						case right: //touched left edge of armos
+						{
+							//zprint("touched armos on left\n");
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( cpos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+								{
+									//zprint("found match\n");
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							break;
+						}
+					
+						
+					}
+				}
+				//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
+				//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
+				addenemy(tx+xpos,ty+1+ypos,id2,0);
 				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
 				((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
