@@ -1,9 +1,9 @@
-/************************************\
-*     Combo Editor - Attributes      |
-*         Flags and Triggers         |
-*           2.55 Alpha 45            |
-*     Rev.2 - 8th December, 2019     |
-\************************************/
+/*************************************
+*     Combo Editor - Attributes      *
+*         Flags and Triggers         *
+*           2.55 Alpha 45            *
+*     Rev.2 - 8th December, 2019     *
+*************************************/
 
 1. COMBO TYPES
 The following combo types are new:
@@ -453,7 +453,7 @@ Lockblock Combos
 /____/_/\__,_/____/_/ /_/   \____/\____/_/ /_/ /_/_.___/\____/____/  
                                                                      
 
-Cush, Flower, and Tall Grass Combos
+Bush, Flower, and Tall Grass Combos
 	You may now specify the visual effect, dropset, qand slash sound produced
 	by all Slash combo types, including bushes, tall grass, and flowers.
 	
