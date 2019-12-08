@@ -9527,6 +9527,7 @@ bool eStalfos::animate(int index)
     else if(flags2&cmbflag_armos && z==0 && clk==0)
         removearmos(x,y);
         
+    
     if(haslink)
     {
         Link.setX(x);

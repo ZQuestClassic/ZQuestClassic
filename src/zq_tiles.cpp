@@ -11755,8 +11755,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{ 
 		cARMOS,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ (char*)"Specify",(char*)"Random",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Enemy 1",(char*)"Enemy 2",NULL, NULL}
 	},
 	{ //5
 		cGRAVE,

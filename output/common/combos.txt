@@ -29,6 +29,10 @@ These additional combo types support extra features:
 		additional settings, including dropsets, custom sound effects,
 		special items, and custom visual effects.
 		
+	Armos/Statue
+		You can now specify the enemies that statue combos generate, 
+		along with determining if they randomise between two enemies.
+		
 
 2. TRIGGER WEAPONS
 	Combos now have a set of flags with which you can set weapons that trigger
@@ -520,3 +524,33 @@ Bush, Flower, and Tall Grass Combos
 			the value of the Dropset field.
 			This interacts with the following flags:
 				Itemdrop
+				
+
+   _____ __        __                ______                __              
+  / ___// /_____ _/ /___  _____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ __/ __ `/ __/ / / / _ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / /_/ /_/ / /_/ /_/ /  __/  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/\__/\__,_/\__/\__,_/\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                                                                           
+Armos/Statue Combos
+	You may now choose specific enemies spawned by statue combos, and set if
+	they spawn one specific enemy, or one of two specified enemies.
+	
+	Attributes 1
+		Enemy 1		: The ID of the first of up to two enemy types
+				: that this combo can spawn.
+				
+		Enemy 1		: The ID of the second of up to two enemy types
+				: that this combo can spawn.
+			
+	Flags
+		Specify
+			If enabled, the statue will spawn enemies specified in 
+			the Enemy 1 and Enemy 2 fields. The enemy set as Enemy 1
+			will alwqays spawn unless the Random flag is set. 
+			
+			If disabled, then the normal engine action of selecting
+			an enemy with the armos flag set on it will occur.
+		Random
+			If enabled, then ZC will randomly determine between the
+			two specified enemies. 

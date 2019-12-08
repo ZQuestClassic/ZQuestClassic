@@ -12817,11 +12817,58 @@ void LinkClass::checktouchblk()
             if((getAction() != hopping || isSideViewLink()))
             {
                 guygrid[di]=61; //Note: not 60.
-                int id2=0;
-                
+                int id2=0; 
+                int cid = MAPCOMBO(tx,ty);
                 switch(combobuf[MAPCOMBO(tx,ty)].type)
                 {
                 case cARMOS: //id2=eARMOS; break;
+			
+			if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
+			{
+				int r = (combobuf[cid].usrflags&cflag2) ? rand()%2 : 0;
+				id2 = combobuf[cid].attribytes[0+r];
+				//if(guysbuf[id2].family==eeWALK)
+				//{
+				//	eclk=0;
+				//}
+				addenemy(tx,ty+1,id2,0);
+				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
+				((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
+				//((enemy*)guys.spr(guys.Count()-1))->dir = down;
+				//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
+				//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
+				/*
+				int cd = (tx>>4)+ty;
+				int f = MAPFLAG(tx,ty);
+				int f2 = MAPCOMBOFLAG(tx,ty);
+				tmpscr->data[cd] = tmpscr->undercombo;
+				tmpscr->cset[cd] = tmpscr->undercset;
+				tmpscr->sflag[cd] = 0;
+				    
+				if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
+				{
+					tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
+					tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
+					tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
+					sfx(tmpscr->secretsfx);
+				}
+				    
+				if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
+				{
+					if(!getmapflag())
+					{
+					    additem(tx,ty,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+					    sfx(tmpscr->secretsfx);
+					}
+				}
+				    
+				putcombo(scrollbuf,tx,ty,tmpscr->data[cd],tmpscr->cset[cd]);
+				return;
+				*/
+				return;
+			}
+			
                     for(int i=0; i<eMAXGUYS; i++)
                     {
                         if(guysbuf[i].flags2&cmbflag_armos)
