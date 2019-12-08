@@ -2,6 +2,7 @@
 *     Combo Editor - Attributes      |
 *         Flags and Triggers         |
 *           2.55 Alpha 45            |
+*     Rev.1 - 8th December, 2019     |
 \************************************/
 
 1. COMBO TYPES
@@ -11,8 +12,48 @@ The following combo types are new:
 		a number of properties that are governed by the ZC engine.
 
 These additional combo types support extra features:
+	Script 1 to 20
+		These combos now support engine properties identicl to the
+		Generic type, if the Engine flag is enabled. 
+		
+	Damage Combos
+		You may now specify the damage amount. 
+		
+	Lockblock
+		You may now specify a required item, a counter to affect, 
+		the amount of keys or counter points consumed, and the
+		sound of unlocking the block. 
 
 2. TRIGGER WEAPONS
+	Combos now have a set of flags with which you can set weapons that trigger
+	their new properties. 
+
+3. ATTRIBUTES
+	Combos now have two sets of numeric attributes, on two tabs in the Combo Editor.
+	The values on Attributes Tab 1 are restricted to a range of 0 to 255, and the 
+	values on Attributes Tab 2 are restricted to a range of -214748.3648 to 214748.3647.
+	
+4. FLAGS
+	Combos now have flags that affect their function, and interact with the values set
+	on the Attributes tabs. Many new effects require enabling these flags, to function. 
+
+6. LABEL
+	This is a text field via which you can apply a label (e.g. custom name) to the combo.
+	Scripts can read this label, and use it to match combos to a scriptside string, or
+	look up a combo ID using its label using Game->GetCombo("name").
+	
+7. SCRIPT ACCESS
+	ZScript has access to all of the new Combo Editor values. Please see ZScript_Additions.txt
+	under 'combodata' for further information. 
+
+
+ _       __                                ______     _                           
+| |     / /__  ____ _____  ____  ____     /_  __/____(_)___ _____ ____  __________
+| | /| / / _ \/ __ `/ __ \/ __ \/ __ \     / / / ___/ / __ `/ __ `/ _ \/ ___/ ___/
+| |/ |/ /  __/ /_/ / /_/ / /_/ / / / /    / / / /  / / /_/ / /_/ /  __/ /  (__  ) 
+|__/|__/\___/\__,_/ .___/\____/_/ /_/    /_/ /_/  /_/\__, /\__, /\___/_/  /____/  
+                 /_/                                /____//____/                  
+
 
 On the (Triggered By) tabs in the Combo Editor, you will see a list of all
 of the weapon types that can trigger combos.
@@ -66,6 +107,14 @@ will produce EVENTS based on the attributes that you set.
 
 If a weapon is spoofing another type, such as an arrow set to Weapon Type
 Sword in the Item Editor, then the combo will react only to the spoofed type.
+
+
+   ______                     _         ______                __              
+  / ____/__  ____  ___  _____(_)____   / ____/___  ____ ___  / /_  ____  _____
+ / / __/ _ \/ __ \/ _ \/ ___/ / ___/  / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+/ /_/ /  __/ / / /  __/ /  / / /__   / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+\____/\___/_/ /_/\___/_/  /_/\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                                                                              
 
 Generic Triggers
 
@@ -251,21 +300,141 @@ Generic Triggers
 			If the No Poof flag is lso enabled, then the enemy will apper without its spawn
 			sprite animation first occurring. Otherwise, it spawns in fifteen frames after
 			the combo is triggered, following the spawn poof. 
-		
-		
-		
-	Triggers
+
+
+   ______           __                                     __   _____           _       __ 
+  / ____/_  _______/ /_____  ____ ___     ____ _____  ____/ /  / ___/__________(_)___  / /_
+ / /   / / / / ___/ __/ __ \/ __ `__ \   / __ `/ __ \/ __  /   \__ \/ ___/ ___/ / __ \/ __/
+/ /___/ /_/ (__  ) /_/ /_/ / / / / / /  / /_/ / / / / /_/ /   ___/ / /__/ /  / / /_/ / /_  
+\____/\__,_/____/\__/\____/_/ /_/ /_/   \__,_/_/ /_/\__,_/   /____/\___/_/  /_/ .___/\__/  
+                                                                             /_/           
+
 
 Custom (Script) 1 to 20
+	The 'Script' combo type now allows you to either set custom properties that are read by 
+	scripts, or to use the same engine properties as Generic combos. 
+	
+	To use the engine effects, enable the Engine flag on Attributes Tab 1. 
+	
+	Without this flag enabled, all of the values of Attributes and Flags are solely used
+	by ZScript. 
 
-Damage Combo
 
-3. ATTRIBYTES
+    ____                                      ______                __              
+   / __ \____ _____ ___  ____ _____ ____     / ____/___  ____ ___  / /_  ____  _____
+  / / / / __ `/ __ `__ \/ __ `/ __ `/ _ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ / /_/ / /_/ / / / / / / /_/ / /_/ /  __/  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/_____/\__,_/_/ /_/ /_/\__,_/\__, /\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                            /____/                                                  
 
-4. FLAGS
 
-5. ATTRIBUTES
+Damage Combos
+	You may now specify an exact damage amount for this combo type.
+	If you wish to set an amount, first enable the 'Custom' flag on Attributes Tab 1,
+	then specify an amount of HP in the Amount field on Attributes Tab 2.
 
-6. LABEL
 
-7. SCRIPT ACCESS
+    __               __   __    __           __      ______                __              
+   / /   ____  _____/ /__/ /_  / /___  _____/ /__   / ____/___  ____ ___  / /_  ____  _____
+  / /   / __ \/ ___/ //_/ __ \/ / __ \/ ___/ //_/  / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ / /___/ /_/ / /__/ ,< / /_/ / / /_/ / /__/ ,<    / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/_____/\____/\___/_/|_/_.___/_/\____/\___/_/|_|   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                                                                                           
+
+Lockblock Combos
+	You may now specify a number of events or requirements to unlock lockblock combos.
+	
+	Attributes Tab 1
+	
+		Item
+			This field is used to specify an item ID for an item required to
+			unlock the lockblock. It does nothing if the 'Require' flag is not
+			enabled. 
+		Counter
+			This field is used to specify a counter to affect (e.g., drain) in
+			order to open the lockblock. You may specify keys, if you wish, but
+			you are able to use any counter.
+			
+			The following are the legal values for the counter to affect:
+				
+				0 - Life
+				1 - Money
+				2 - Bombs
+				3 - Arrows
+				4 - Magic
+				5 - Keys
+				6 - Super Bombs
+				7 - Custom 1
+				8 - Custom 2
+				9 - Custom 3
+				10 - Custom 4
+				11 - Custom 5
+				12 - Custom 6
+				13 - Custom 7
+				14 - Custom 8
+				15 - Custom 9
+				16 - Custom 10
+				17 - Custom 11
+				18 - Custom 12
+				19 - Custom 13
+				20 - Custom 14
+				21 - Custom 15
+				22 - Custom 16
+				23 - Custom 17
+				24 - Custom 18
+				25 - Custom 19
+				26 - Custom 20
+				27 - Custom 21
+				28 - Custom 22
+				29 - Custom 23
+				30 - Custom 24
+				31 - Custom 25
+				
+			To affect a counter, you must enable the Counter flag, and set a value
+			to the Amount field on Attributes Tab 2. Otherwise, this does nothing.
+			
+		Sound
+			This field allows you to specify the sound effect of opening the lock,
+			overriding the normal system 'Unlock Door' sound effect.
+			To use this, you must enable the SFX flag, and set the Sound field
+			to the value of a sound effect ID. 
+			
+			You may enable the flag and set it to 0 for the lock to be silent.
+		
+	Attributes Tab 2
+	
+		Amount
+			This field is used to specify either an amount of keys required to
+			open the lockblock, or the amount by which to drain a counter.
+			
+			If the Counter flag is not enabled, and the value of the Amount field
+			is greater than zero, then the lockblock will require a number of keys
+			equal to the value specified in the Amount field. 
+			
+			The maximum value for any counter is 65563. 
+	Flags
+		
+		Require
+			If this flag is enabled, then the lockblock will require that the player
+			has a specific item in their inventory in order to unlock it. 
+			The required item ID is set in the Item field on Attributes Tab 1.
+			This interacts with the following flags:
+				Only, Eat Item
+		Only
+			If the Require flag is also enabled, then instead of needing keys or 
+			counter points, this lockblock requires only the item specified to unlock.
+			This interacts with the following flags:
+				Require, Eat Item
+		SFX
+			If enabled, the lockblock will play the sound specified in the Sound field
+			on Attributes Tab 1, instead of the normal system door unlocking sound effect.
+		Counter
+			If enabled, then instead of using the normal Keys counter, you may specify
+			a counter to affect using the Counter field on Attributes Tab 1.
+		Eat Item
+			If enabled, and the Require flag is also enabled, then when the player 
+			unlocks this block, the item required to unlock it will be removed from 
+			their inventory. 
+			This interacts with the following flags:
+				Require, Only
+		
