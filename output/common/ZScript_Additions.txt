@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 45
-Document Revision: 30th November, 2019
+Document Revision: 7th December, 2019
 
 
  __           _   _                 
