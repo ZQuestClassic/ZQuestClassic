@@ -37,12 +37,22 @@ int main(int argc, char *argv[])
 ScriptsData * compile(const char *filename)
 {
     ScriptParser::resetState();
+    headerguards.clear();
+
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 1: Parsing");
     box_eol();
 #endif
     
-    if(go(filename) != 0 || !resAST)
+    if(go(filename) == -99 )  
+	{
+		printErrorMsg(NULL,CANTOPENIMPORT);
+		
+		return NULL;
+		//header guard issues need a unique return and to skip
+		//this process
+	}
+    else if(go(filename) != 0 || !resAST)
     {
         printErrorMsg(NULL, CANTOPENSOURCE);
         return NULL;
@@ -263,6 +273,7 @@ string ScriptParser::trimQuotes(string quoteds)
 
 bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
 {
+    headerguards.clear();
     if(reclimit == 0)
     {
         printErrorMsg(NULL, IMPORTRECURSION);
@@ -333,8 +344,12 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
 #endif
         }
         
-        if(go(fn.c_str()) != 0 || !resAST)
+	
+        
+        if( ((go(fn.c_str()) != -99) && go(fn.c_str()) != 0) || !resAST ) 
+		
         {
+	    
             printErrorMsg(*it,CANTOPENIMPORT, fn);
             
             for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)

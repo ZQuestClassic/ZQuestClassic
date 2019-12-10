@@ -670,13 +670,16 @@ int go(const char *f)
 					std::string fileonly = pth_user.substr(found+1);
 					box_out(fileonly.c_str());box_eol();
 					
+					std::string tkn = "$";
+					tkn += fileonly;
+					
 					//tempname should now match the true filename
 					
 					
 					
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguards.find (fileonly,0) == string::npos )
+					if ( headerguards.find (tkn,0) == string::npos )
 					{
 						headerguards += "$";
 						headerguards += fileonly;
@@ -685,7 +688,7 @@ int go(const char *f)
 					else if ( strcmp(pth_user.c_str(), "tmp") )
 					{
 						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
-						return -1;
+						return -99;
 					}
 				}
 			}
@@ -698,11 +701,14 @@ int go(const char *f)
 				std::string fileonly = pth_headers.substr(found+1);
 				box_out(fileonly.c_str());box_eol();
 				
+				std::string tkn = "$";
+				tkn += fileonly;
+				
 				//tempname should now match the true filename
 				
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguards.find (fileonly,0) == string::npos )
+				if ( headerguards.find (tkn,0) == string::npos )
 				{
 					headerguards += "$";
 					headerguards += fileonly;
@@ -712,7 +718,7 @@ int go(const char *f)
 				{
 					box_out("File already included, ignoring duplicate include: "); 
 					box_eol();box_out(pth_headers.c_str());box_eol();
-					return -1;
+					return -99;
 				}
 			}
 		}
@@ -725,11 +731,14 @@ int go(const char *f)
 			std::string fileonly = pth_include.substr(found+1);
 			box_out(fileonly.c_str());box_eol();
 			
+			std::string tkn = "$";
+			tkn += fileonly;
+			
 			//tempname should now match the true filename
 			
 			//search header guard string substrings for it
 			//if no match, append it
-			if ( headerguards.find (fileonly,0) == string::npos )
+			if ( headerguards.find (tkn,0) == string::npos )
 			{
 				headerguards += "$";
 				headerguards += fileonly;
@@ -739,7 +748,7 @@ int go(const char *f)
 			{
 				box_out("File already included, ignoring duplicate include: "); box_eol();
 				box_out(pth_include.c_str());box_eol();
-				return -1;
+				return -99;
 			}
 		}
 	}
@@ -753,6 +762,9 @@ int go(const char *f)
 		std::string fileonly = f2.substr(found+1);
 		box_out(fileonly.c_str());box_eol();
 		
+		std::string tkn = "$";
+		tkn += fileonly;
+		
 		//tempname should now match the true filename
 		
 		//search header guard string substrings for it
@@ -760,7 +772,7 @@ int go(const char *f)
 		
 		
 		//if no match, append it
-		if ( headerguards.find (fileonly,0) == string::npos )
+		if ( headerguards.find (tkn,0) == string::npos )
 		{
 			headerguards += "$";
 			headerguards += fileonly;
@@ -770,7 +782,7 @@ int go(const char *f)
 		{
 			box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
 			box_eol();
-			return -1;
+			return -99;
 		}
 	}
 		
