@@ -676,16 +676,16 @@ int go(const char *f)
 					
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguards.find (fileonly,0) != string::npos )
+					if ( headerguards.find (fileonly,0) == string::npos )
 					{
 						headerguards += "$";
 						headerguards += fileonly;
 						box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
 					}
-					else
+					else if ( strcmp(pth_user.c_str(), "tmp") )
 					{
 						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
-						return NULL;
+						return -1;
 					}
 				}
 			}
@@ -702,16 +702,17 @@ int go(const char *f)
 				
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguards.find (fileonly,0) != string::npos )
+				if ( headerguards.find (fileonly,0) == string::npos )
 				{
 					headerguards += "$";
 					headerguards += fileonly;
 					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
 				}
-				else
+				else if ( strcmp(pth_headers.c_str(), "tmp") )
 				{
-					box_out("File already included, ignoring duplicate include: "); box_eol();box_out(pth_headers.c_str());box_eol();
-					return NULL;
+					box_out("File already included, ignoring duplicate include: "); 
+					box_eol();box_out(pth_headers.c_str());box_eol();
+					return -1;
 				}
 			}
 		}
@@ -728,16 +729,17 @@ int go(const char *f)
 			
 			//search header guard string substrings for it
 			//if no match, append it
-			if ( headerguards.find (fileonly,0) != string::npos )
+			if ( headerguards.find (fileonly,0) == string::npos )
 			{
 				headerguards += "$";
 				headerguards += fileonly;
 				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
 			}
-			else
+			else if ( strcmp(pth_include.c_str(), "tmp") )
 			{
-				box_out("File already included, ignoring duplicate include: "); box_eol();box_out(pth_include.c_str());box_eol();
-				return NULL;
+				box_out("File already included, ignoring duplicate include: "); box_eol();
+				box_out(pth_include.c_str());box_eol();
+				return -1;
 			}
 		}
 	}
@@ -758,16 +760,17 @@ int go(const char *f)
 		
 		
 		//if no match, append it
-		if ( headerguards.find (fileonly,0) != string::npos )
+		if ( headerguards.find (fileonly,0) == string::npos )
 		{
 			headerguards += "$";
 			headerguards += fileonly;
 			box_out("Appending file: "); box_out(f);box_eol();
 		}
-		else
+		else if ( strcmp(f, "tmp") )
 		{
-			box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);box_eol();
-			return NULL;
+			box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+			box_eol();
+			return -1;
 		}
 	}
 		
