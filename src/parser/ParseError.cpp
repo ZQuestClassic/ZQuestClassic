@@ -187,6 +187,10 @@ void printErrorMsg(AST *offender, int errorID, string param)
     case REFARR:
         oss << "Error A40: Pointer types (ffc, etc) cannot be declared as global arrays." ;
         break;
+    
+    case WARNHEADER:
+        oss << "Warning: The #included file was skipped." ;
+        break;
         
     case ARRAYTOOSMALL:
         oss << "Error A42: Array is too small." ;

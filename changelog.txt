@@ -1,5 +1,18 @@
 ChangeLog for 2.53.1
 
+//Beta 18
+Fix and clean up Compiler dialoge. 
+Added Menu: Tools->ZQuest Settings->Compiler, with option to set
+	header guard value. 
+Added zquest.cfg option HEADER_GUARD. At present, this matches
+	the full quoted string, but should we ever want to match the
+	filename only, I added a note in ffscript.ypp, line 680
+	on how to revert to oing that.
+	( ZoriaRPG, 10th December, 2019 )
+	
+Fixed illegal ternary token error on ':'
+	( ZoriaRPG, 8th December, 2019 )
+
 //Beta 17
 Fixed a possible crash when saving MIDI files from ZC Player.
 	( ZoriaRPG, 8th December, 2019 )
