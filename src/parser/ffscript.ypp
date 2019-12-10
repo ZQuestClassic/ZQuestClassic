@@ -666,15 +666,21 @@ int go(const char *f)
 					//put name in string
 					std::string tempname = "$";
 					size_t slash = pth_user.find_last_of ('/');
-					size_t bslash = pth_user.find_last_of ('\\');
-					size_t start = ( slash > bslash ) ? slash : bslash;
-					++start;
+					//size_t bslash = pth_user.find_last_of ('\\');
+					//size_t start = ( slash > bslash ) ? slash : bslash;
+					++slash;
 					size_t end = pth_user.length();
-					tempname.append(pth_user, start, end-start);
+					tempname.append(pth_user, slash, end-slash);
 					tempname += "\0";
+					
+					std::size_t found = pth_user.find_last_of("/");
+					std::string fileonly = pth_user.substr(found+1);
+					box_out(fileonly.c_str());box_eol();
 					
 					//tempname should now match the true filename
 					box_out(tempname.c_str());box_eol();
+					
+					
 					//search header guard string substrings for it
 					//if no match, append it
 					
@@ -684,14 +690,18 @@ int go(const char *f)
 			else
 			{
 				//put name in string
-				std::string tempname = "$";
-				size_t slash = pth_user.find_last_of ('/');
-				size_t bslash = pth_user.find_last_of ('\\');
-				size_t start = ( slash > bslash ) ? slash : bslash;
-				++start;
-				size_t end = pth_user.length();
-				tempname.append(pth_user, start, end-start);
-				tempname += "\0";
+					std::string tempname = "$";
+					size_t slash = pth_headers.find_last_of ('/');
+					//size_t bslash = pth_headers.find_last_of ('\\');
+					//size_t start = ( slash > bslash ) ? slash : bslash;
+					++slash;
+					size_t end = pth_headers.length();
+					tempname.append(pth_headers, slash, end-slash);
+					tempname += "\0";
+					
+					std::size_t found = pth_headers.find_last_of("/");
+					std::string fileonly = pth_headers.substr(found+1);
+					box_out(fileonly.c_str());box_eol();
 				
 				//tempname should now match the true filename
 				box_out(tempname.c_str());box_eol();
@@ -703,14 +713,19 @@ int go(const char *f)
 		else
 		{
 			//put name in string
-			std::string tempname = "$";
-			size_t slash = pth_user.find_last_of ('/');
-			size_t bslash = pth_user.find_last_of ('\\');
-			size_t start = ( slash > bslash ) ? slash : bslash;
-			++start;
-			size_t end = pth_user.length();
-			tempname.append(pth_user, start, end-start);
-			tempname += "\0";
+					std::string tempname = "$";
+					size_t slash = pth_include.find_last_of ('/');
+					//size_t bslash = pth_include.find_last_of ('\\');
+					//size_t start = ( slash > bslash ) ? slash : bslash;
+					++slash;
+					size_t end = pth_include.length();
+					tempname.append(pth_include, slash, end-slash);
+					tempname += "\0";
+					
+					
+					std::size_t found = pth_include.find_last_of("/");
+					std::string fileonly = pth_include.substr(found+1);
+					box_out(fileonly.c_str());box_eol();
 			
 			//tempname should now match the true filename
 			box_out(tempname.c_str());box_eol();
@@ -722,14 +737,19 @@ int go(const char *f)
 	else
 	{
 		//put name in string
-		std::string tempname = "$";
-		size_t slash = pth_user.find_last_of ('/');
-		size_t bslash = pth_user.find_last_of ('\\');
-		size_t start = ( slash > bslash ) ? slash : bslash;
-		++start;
-		size_t end = pth_user.length();
-		tempname.append(pth_user, start, end-start);
-		tempname += "\0";
+		std::string f2 = f;
+					std::string tempname = "$";
+					size_t slash = f2.find_last_of ('/');
+					//size_t bslash = f2.find_last_of ('\\');
+					//size_t start = ( slash > bslash ) ? slash : bslash;
+					++slash;
+					size_t end = f2.length();
+					tempname.append(f2, slash, end-slash);
+					tempname += "\0";
+					
+					std::size_t found = f2.find_last_of("/");
+					std::string fileonly = f2.substr(found+1);
+					box_out(fileonly.c_str());box_eol();
 		
 		//tempname should now match the true filename
 		box_out(tempname.c_str());box_eol();
