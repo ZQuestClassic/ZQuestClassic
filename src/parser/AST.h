@@ -31,6 +31,7 @@ extern string headerguards;
 extern string headerguardsPPC;
 int go(const char *f);
 int goPPC(const char *f);
+int go_noguard(const char *f);
 
 class ASTScript;
 class ASTImportDecl;

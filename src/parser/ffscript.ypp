@@ -877,8 +877,8 @@ int goPPC(const char *f)
 					if ( headerguardsPPC.find (tkn,0) == string::npos )
 					{
 						//headerguards += "$";
-						headerguards += tkn;
-						box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+						box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol();
+						headerguardsPPC += tkn;
 					}
 					else if ( strcmp(pth_user.c_str(), "tmp") )
 					{
@@ -906,8 +906,8 @@ int goPPC(const char *f)
 				if ( headerguardsPPC.find (tkn,0) == string::npos )
 				{
 					//headerguards += "$";
-					headerguards += tkn;
-					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+					headerguardsPPC += tkn;
+					box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol();
 				}
 				else if ( strcmp(pth_headers.c_str(), "tmp") )
 				{
@@ -936,8 +936,8 @@ int goPPC(const char *f)
 			if ( headerguardsPPC.find (tkn,0) == string::npos )
 			{
 				//headerguards += "$";
-				headerguards += tkn;
-				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+				headerguardsPPC += tkn;
+				box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol();
 			}
 			else if ( strcmp(pth_include.c_str(), "tmp") )
 			{
@@ -970,8 +970,8 @@ int goPPC(const char *f)
 		if ( headerguardsPPC.find (tkn,0) == string::npos )
 		{
 			//headerguards += "$";
-			headerguards += tkn;
-			box_out("Appending file: "); box_out(f);box_eol();
+			headerguardsPPC += tkn;
+			box_out("PPC Appending file: "); box_out(f);box_eol();
 		}
 		else if ( strcmp(f, "tmp") )
 		{
@@ -979,6 +979,94 @@ int goPPC(const char *f)
 			box_eol();
 			return -99;
 		}
+	}
+		
+	curfilename = string(f);
+	int result = yyparse();
+	fclose(yyin);
+	return result;
+}
+
+int go_noguard(const char *f)
+{
+	//include
+	//headers
+	//scripts
+	//root
+	
+	string pth_include = "include";// + char_to_string(f);
+	
+	string pth_headers = "headers";// + char_to_string(f);
+	
+	string pth_user = "scripts";// + char_to_string(f);
+	
+	string pth_root;
+	/*
+	#ifdef WIN32
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_WIN32)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_MSC_VER)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#else
+	*/
+		pth_include += "/";
+		pth_headers += "/";
+		pth_user += "/";
+	/*#endif*/
+	
+	pth_include += f;
+	pth_headers += f;
+	pth_user += f;
+	pth_root += f;
+        
+	
+
+
+	yyin = NULL;
+	resetLexer();
+	
+	
+	yyin = fopen(f, "r");
+	if(!yyin) 
+	{
+		yyin = fopen(pth_include.c_str(), "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_headers.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_user.c_str(), "r");
+				if(!yyin) 
+				{
+					box_out("Can't open input file: "); box_out(f);
+					box_eol();
+					return -1;
+				}
+				else
+				{
+					box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+				}
+			}
+			else
+			{
+				box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+			}
+		}
+		else
+		{
+			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+		}
+	}
+	else
+	{
+		box_out("Appending file: "); box_out(f);box_eol();
 	}
 		
 	curfilename = string(f);

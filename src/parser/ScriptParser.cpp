@@ -37,6 +37,204 @@ int main(int argc, char *argv[])
 ScriptsData * compile(const char *filename)
 {
     ScriptParser::resetState();
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 1: Parsing");
+    box_eol();
+#endif
+    
+    if(go_noguard(filename) != 0 || !resAST)
+    {
+        printErrorMsg(NULL, CANTOPENSOURCE);
+        return NULL;
+    }
+    
+    AST *theAST = resAST;
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 2: Preprocessing");
+    box_eol();
+#endif
+    map<string, long> *consts = new map<string,long>();
+    
+    if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT,consts))
+    {
+        delete theAST;
+        delete consts;
+        return NULL;
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 3: Building symbol tables");
+    box_eol();
+#endif
+    SymbolData *d = ScriptParser::buildSymbolTable(theAST,consts);
+    
+    if(d==NULL)
+    {
+        //delete theAST;
+        delete consts;
+        return NULL;
+    }
+    
+    //d->symbols->printDiagnostics();
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
+    box_eol();
+#endif
+    FunctionData *fd = ScriptParser::typeCheck(d);
+    
+    if(fd == NULL)
+    {
+        //delete theAST;
+        delete consts;
+        /*if(d->symbols) delete d->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete d;*/
+        return NULL;
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 5: Generating object code");
+    box_eol();
+#endif
+    
+    IntermediateData *id = ScriptParser::generateOCode(fd);
+    
+    if(id == NULL)
+    {
+        //delete theAST;
+        delete consts;
+        /*if(d->symbols) delete d->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete d;*/
+        /*if(fd->symbols) delete fd->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete fd;*/
+        return NULL;
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 6: Assembling");
+    box_eol();
+#endif
+    ScriptsData *final = ScriptParser::assemble(id);
+    box_out("Success!");
+    box_eol();
+    
+    //delete theAST;
+    delete consts;
+    /*if(d->symbols) delete d->symbols;
+    for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+    {
+    	delete *it2;
+    }
+    delete d;
+    if(fd->symbols) delete fd->symbols;
+    for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
+    {
+    	delete *it2;
+    }
+    delete fd;*/
+    /*for(map<int, vector<Opcode *> >::iterator it = id->funcs.begin(); it != id->funcs.end(); it++)
+    {
+    	for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+    	{
+    		delete *it2;
+    	}
+    }
+    for(vector<Opcode *>::iterator it = id->globalsInit.begin(); it != id->globalsInit.end(); it++)
+    {
+    	delete *it;
+    }
+    for(vector<Opcode *>::iterator it = id->globalasInit.begin(); it != id->globalasInit.end(); it++)
+    {
+    	delete *it;
+    }
+    delete id;*/
+    
+    return final;
+}
+
+ScriptsData * compile_headerguards(const char *filename)
+{
+    ScriptParser::resetState();
     headerguards.clear();
 
 #ifndef SCRIPTPARSER_COMPILE
@@ -244,6 +442,8 @@ ScriptsData * compile(const char *filename)
     return final;
 }
 
+
+
 int ScriptParser::vid = 0;
 int ScriptParser::fid = 0;
 int ScriptParser::gid = 1;
@@ -273,13 +473,13 @@ string ScriptParser::trimQuotes(string quoteds)
     return rval;
 }
 
-bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
+int ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
 {
     headerguards.clear();
     if(reclimit == 0)
     {
         printErrorMsg(NULL, IMPORTRECURSION);
-        return false;
+        return 0;
     }
     
     //Repeat parsing process for each of import files
@@ -351,6 +551,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
 	if (PPCresult == -99 )
 	{
 		printErrorMsg(*it,WARNHEADER, fn);
+		return 2;
 		
 	}
         else if( PPCresult != 0 || !resAST ) 
@@ -364,12 +565,17 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
                 delete *it2;
             }
             
-            return false;
+            return 0;
         }
         
         AST *recAST = resAST;
         
-        if(!preprocess(recAST, reclimit-1,constants))
+	int ppcresult = preprocess(recAST, reclimit-1,constants);
+	if (ppcresult == 2) //duplicate include
+	{
+		return 1;
+	}
+        if(ppcresult == 0)
         {
             for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
             {
@@ -377,7 +583,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
             }
             
             delete recAST;
-            return false;
+            return 0;
         }
         
         //Put the imported code into theAST
@@ -395,7 +601,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
     theAST->execute(c, NULL);
     
     if(!c.isOK())
-        return false;
+        return 0;
         
     //get the constants
     GetConsts gc;
@@ -430,10 +636,10 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
     
     if(failure)
     {
-        return false;
+        return 0;
     }
     
-    return true;
+    return 1;
 }
 
 SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *constants)

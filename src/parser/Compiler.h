@@ -65,6 +65,7 @@ struct ScriptsData
 };
 
 ScriptsData *compile(const char *filename);
+ScriptsData *compile_headerguards(const char *filename);
 
 
 struct SymbolData;
@@ -105,7 +106,7 @@ public:
     static const int TYPE_NPC = 10;
     static const int TYPE_LWPN = 11;
     static const int TYPE_EWPN = 12;
-    static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
+    static int preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
     static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
     static IntermediateData *generateOCode(FunctionData *fdata);

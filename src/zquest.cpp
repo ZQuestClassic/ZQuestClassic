@@ -21437,6 +21437,8 @@ int onCompileScript()
 {
     compile_dlg[0].dp2 = lfont;
     
+    int headerguard = get_config_int("Compiler","header_guards",1);	
+	
     if(is_large)
         large_dialog(compile_dlg);
         
@@ -21535,7 +21537,9 @@ int onCompileScript()
             fclose(tempfile);
             box_start(1, "Compile Progress", lfont, sfont,true);
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-            ScriptsData *result = compile("tmp");
+            
+	    if ( headerguard ) ScriptsData *result = compile_headerguards("tmp");
+	    else ScriptsData *result = compile("tmp");
             unlink("tmp");
 	    
 	    if ( result )
