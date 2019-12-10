@@ -677,6 +677,8 @@ int go(const char *f)
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
 					
+					//use fileonly instead of tkn to match the filename, not the quoted string. -Z
+					
 					box_out("token: "); box_out(tkn.c_str());box_eol();
 					
 					//search header guard string substrings for it
