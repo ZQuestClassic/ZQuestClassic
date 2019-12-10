@@ -266,7 +266,7 @@ ScriptsData * compile_headerguards(const char *filename)
 #endif
     map<string, long> *consts = new map<string,long>();
     
-    if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT,consts))
+    if(!ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts))
     {
         delete theAST;
         delete consts;
@@ -473,7 +473,7 @@ string ScriptParser::trimQuotes(string quoteds)
     return rval;
 }
 
-int ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
+int ScriptParser::preprocess_headerguard(AST *theAST, int reclimit, map<string,long> *constants)
 {
     headerguards.clear();
     if(reclimit == 0)
@@ -570,7 +570,7 @@ int ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *consta
         
         AST *recAST = resAST;
         
-	int ppcresult = preprocess(recAST, reclimit-1,constants);
+	int ppcresult = preprocess_headerguard(recAST, reclimit-1,constants);
 	if (ppcresult == 2) //duplicate include
 	{
 		return 1;
@@ -641,6 +641,161 @@ int ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *consta
     
     return 1;
 }
+
+
+bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
+{
+    if(reclimit == 0)
+    {
+        printErrorMsg(NULL, IMPORTRECURSION);
+        return false;
+    }
+    
+    //Repeat parsing process for each of import files
+    GetImports gi;
+    theAST->execute(gi, NULL);
+    vector<ASTImportDecl *> imports = gi.getResult();
+    
+    for(vector<ASTImportDecl *>::iterator it = imports.begin(); it != imports.end(); it++)
+    {
+	    //the filename
+	    //Plan:
+	    /*
+		Add an iterator for number of imports
+		If iterator < 1:
+			Store it in a vector of strings
+			Incr iterator
+		else
+		scan vector for a match
+		if it matches, issue a warning in box_out
+			AND skip it
+			else incr iterator and try to import the file
+
+		if importing, scan include paths
+		this needs to be done in go()?
+	    
+		No
+		before callong go(fn)
+		std::str tmpfn = "@@" +fn;
+		//if registerednames has no substring matching tempfn
+		    registerednames += tempfn;
+		//else, warn and skip
+		
+		We need a string that is global to the parser
+		As the parser INVOKES, clear it, and start tacking on delim+filename
+		string.find("substr")
+			if that returns string::npos, then we add it
+			if it returns anything else, then we warn and skip
+			    
+				if(string::npos == foundImports.find(name))
+				{
+				    foundImports += "@@" + name;
+				    //GO
+				}
+				else
+				{
+				    //WARN
+				}
+	    
+	    */
+        string fn = trimQuotes((*it)->getFilename());
+        //this handles correcting the path for the host OS
+        for(int i=0; fn[i]; i++)
+        {
+#ifdef _ALLEGRO_WINDOWS
+        
+            if(fn[i]=='/')
+                fn[i]='\\';
+                
+#else
+                
+            if(fn[i]=='\\')
+                fn[i]='/';
+                
+#endif
+        }
+        
+        if(go_noguard(fn.c_str()) != 0 || !resAST)
+        {
+            printErrorMsg(*it,CANTOPENIMPORT, fn);
+            
+            for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+            {
+                delete *it2;
+            }
+            
+            return false;
+        }
+        
+        AST *recAST = resAST;
+        
+        if(!preprocess(recAST, reclimit-1,constants))
+        {
+            for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+            {
+                delete *it2;
+            }
+            
+            delete recAST;
+            return false;
+        }
+        
+        //Put the imported code into theAST
+        MergeASTs temp;
+        theAST->execute(temp, recAST);
+    }
+    
+    for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+    {
+        delete *it2;
+    }
+    
+    //check that there are no more stupidly placed imports in the file
+    CheckForExtraneousImports c;
+    theAST->execute(c, NULL);
+    
+    if(!c.isOK())
+        return false;
+        
+    //get the constants
+    GetConsts gc;
+    theAST->execute(gc,NULL);
+    vector<ASTConstDecl *> consts = gc.getResult();
+    bool failure = false;
+    
+    for(vector<ASTConstDecl *>::iterator it = consts.begin(); it != consts.end(); it++)
+    {
+        map<string, long>::iterator find = constants->find((*it)->getName());
+        
+        if(find != constants->end())
+        {
+            printErrorMsg(*it, CONSTREDEF, (*it)->getName());
+            failure=true;
+        }
+        else
+        {
+            pair<string,string> parts = (*it)->getValue()->parseValue();
+            pair<long,bool> val = ScriptParser::parseLong(parts);
+            
+            if(!val.second)
+            {
+                printErrorMsg(*it, CONSTTRUNC, (*it)->getValue()->getValue());
+            }
+            
+            (*constants)[(*it)->getName()] = val.first;
+        }
+        
+        delete *it;
+    }
+    
+    if(failure)
+    {
+        return false;
+    }
+    
+    return true;
+}
+
 
 SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *constants)
 {
