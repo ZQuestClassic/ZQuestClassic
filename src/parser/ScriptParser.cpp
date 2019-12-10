@@ -44,15 +44,16 @@ ScriptsData * compile(const char *filename)
     box_eol();
 #endif
     
-    if(go(filename) == -99 )  
+    int resultGo = go(filename);	
+    if( resultGo == -99 )  
 	{
-		printErrorMsg(NULL,CANTOPENIMPORT);
+		printErrorMsg(NULL,WARNHEADER);
 		
 		return NULL;
 		//header guard issues need a unique return and to skip
 		//this process
 	}
-    else if(go(filename) != 0 || !resAST)
+    else if(resultGo != 0 || !resAST)
     {
         printErrorMsg(NULL, CANTOPENSOURCE);
         return NULL;
@@ -63,6 +64,7 @@ ScriptsData * compile(const char *filename)
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 2: Preprocessing");
     box_eol();
+    headerguardsPPC.clear();
 #endif
     map<string, long> *consts = new map<string,long>();
     
@@ -345,8 +347,13 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
         }
         
 	
-        
-        if( ((go(fn.c_str()) != -99) && go(fn.c_str()) != 0) || !resAST ) 
+        int PPCresult = goPPC(fn.c_str());
+	if (PPCresult == -99 )
+	{
+		printErrorMsg(*it,WARNHEADER, fn);
+		
+	}
+        else if( PPCresult != 0 || !resAST ) 
 		
         {
 	    

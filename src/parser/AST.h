@@ -28,7 +28,9 @@ using std::list;
 
 extern string curfilename;
 extern string headerguards;
+extern string headerguardsPPC;
 int go(const char *f);
+int goPPC(const char *f);
 
 class ASTScript;
 class ASTImportDecl;
