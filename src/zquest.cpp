@@ -30,6 +30,8 @@
 #include "mem_debug.h"
 void setZScriptVersion(int) { } //bleh...
 
+byte headerguard = 0;
+
 #include <png.h>
 #include <pngconf.h>
 
@@ -885,6 +887,74 @@ static MENU quest_reports_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+const char *zcompiler_guardlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,3);
+        
+	switch(index)
+        {
+        case 0:
+            return "Disable";
+            
+        case 1:
+            return "Enable";
+        }
+	
+    }
+    
+    *list_size = 2;
+    return NULL;
+}
+
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+static DIALOG zscript_parser_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    // { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    // 2
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    { jwin_text_proc,           86,     28,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Header Guard",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     22,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+int onZScriptCompilerSettings()
+{
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    zscript_parser_dlg[6].d1 = get_config_int("Compiler", "HEADER_GUARD", 1);;
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==3)
+    {
+        headerguard = zscript_parser_dlg[6].d1;
+	//set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[6].d1);
+	set_config_int("Compiler", "HEADER_GUARD", headerguard);
+	save_config_file();
+    }
+    
+    return D_O_K;
+}
+
+static MENU zscript_menu[] =
+{
+	{ (char *)"&Compiler",                      onZScriptCompilerSettings,                    NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU tool_menu[] =
 {
     { (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
@@ -897,6 +967,7 @@ static MENU tool_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
     { (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
+    { (char *)"&ZScript Settings\t ",          NULL,                      zscript_menu,       0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -987,6 +1058,10 @@ static MENU etc_menu[] =
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
+
+
+
+
 
 static MENU the_menu[] =
 {
@@ -21436,8 +21511,6 @@ static DIALOG gscript_sel_dlg[] =
 int onCompileScript()
 {
     compile_dlg[0].dp2 = lfont;
-    
-    int headerguard = get_config_int("Compiler","HEADER_GUARD",1);	
 	
     if(is_large)
         large_dialog(compile_dlg);
@@ -24433,6 +24506,7 @@ int main(int argc,char **argv)
     chop_path(imagepath);
     chop_path(tmusicpath);
     
+    headerguard = get_config_int("Compiler","HEADER_GUARD",1);	
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
     skipLayerWarning               = get_config_int("zquest","skip_layer_warning",0);
@@ -26748,6 +26822,7 @@ int save_config_file()
     set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
     set_config_int("zquest","showffscripts",ShowFFScripts);
     set_config_int("zquest","showsquares",ShowSquares);
+    set_config_int("Compiler","HEADER_GUARD",headerguard);
     
     set_config_int("zquest","animation_on",AnimationOn);
     set_config_int("zquest","auto_backup_retention",AutoBackupRetention);
