@@ -27,6 +27,7 @@ using std::list;
 #define RECURSIONLIMIT 30
 
 extern string curfilename;
+extern string headerguards;
 int go(const char *f);
 
 class ASTScript;

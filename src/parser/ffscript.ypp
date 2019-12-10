@@ -25,6 +25,7 @@ extern AST *resAST;
 extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
+string headerguards;
 extern YYLTYPE noloc;
 
 #define SHORTCUT(x,d1,d3,dd,l1,l2) ASTExpr *lval = (ASTExpr *)d1; \
@@ -662,21 +663,78 @@ int go(const char *f)
 				}
 				else
 				{
+					//put name in string
+					std::string tempname = "$";
+					size_t slash = pth_user.find_last_of ('/');
+					size_t bslash = pth_user.find_last_of ('\\');
+					size_t start = ( slash > bslash ) ? slash : bslash;
+					++start;
+					size_t end = pth_user.length();
+					tempname.append(pth_user, start, end-start);
+					tempname += "\0";
+					
+					//tempname should now match the true filename
+					box_out(tempname.c_str());box_eol();
+					//search header guard string substrings for it
+					//if no match, append it
+					
 					box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
 				}
 			}
 			else
 			{
+				//put name in string
+				std::string tempname = "$";
+				size_t slash = pth_user.find_last_of ('/');
+				size_t bslash = pth_user.find_last_of ('\\');
+				size_t start = ( slash > bslash ) ? slash : bslash;
+				++start;
+				size_t end = pth_user.length();
+				tempname.append(pth_user, start, end-start);
+				tempname += "\0";
+				
+				//tempname should now match the true filename
+				box_out(tempname.c_str());box_eol();
+				//search header guard string substrings for it
+				//if no match, append it
 				box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
 			}
 		}
 		else
 		{
+			//put name in string
+			std::string tempname = "$";
+			size_t slash = pth_user.find_last_of ('/');
+			size_t bslash = pth_user.find_last_of ('\\');
+			size_t start = ( slash > bslash ) ? slash : bslash;
+			++start;
+			size_t end = pth_user.length();
+			tempname.append(pth_user, start, end-start);
+			tempname += "\0";
+			
+			//tempname should now match the true filename
+			box_out(tempname.c_str());box_eol();
+			//search header guard string substrings for it
+			//if no match, append it
 			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
 		}
 	}
 	else
 	{
+		//put name in string
+		std::string tempname = "$";
+		size_t slash = pth_user.find_last_of ('/');
+		size_t bslash = pth_user.find_last_of ('\\');
+		size_t start = ( slash > bslash ) ? slash : bslash;
+		++start;
+		size_t end = pth_user.length();
+		tempname.append(pth_user, start, end-start);
+		tempname += "\0";
+		
+		//tempname should now match the true filename
+		box_out(tempname.c_str());box_eol();
+		//search header guard string substrings for it
+		//if no match, append it
 		box_out("Appending file: "); box_out(f);box_eol();
 	}
 		
