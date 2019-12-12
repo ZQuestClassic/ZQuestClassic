@@ -1032,6 +1032,7 @@ void LinkClass::init()
     ilswim=true;
     walkable=false;
     obeys_gravity = 1;
+    warp_sound = 0;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -13303,6 +13304,7 @@ void LinkClass::checkspecial2(int *ls)
         for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
         {
             int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
+		int warpsound = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].attribytes[0];
             
             if(stype==cSWARPA)
             {
@@ -13314,7 +13316,7 @@ void LinkClass::checkspecial2(int *ls)
                 }
                 
                 sdir=dir;
-                dowarp(0,0);
+                dowarp(0,0,warpsound);
                 return;
             }
             
@@ -13328,7 +13330,7 @@ void LinkClass::checkspecial2(int *ls)
                 }
                 
                 sdir=dir;
-                dowarp(0,1);
+                dowarp(0,1,warpsound);
                 return;
             }
             
@@ -13342,7 +13344,7 @@ void LinkClass::checkspecial2(int *ls)
                 }
                 
                 sdir=dir;
-                dowarp(0,2);
+                dowarp(0,2,warpsound);
                 return;
             }
             
@@ -13356,7 +13358,7 @@ void LinkClass::checkspecial2(int *ls)
                 }
                 
                 sdir=dir;
-                dowarp(0,3);
+                dowarp(0,3,warpsound);
                 return;
             }
             
@@ -13370,7 +13372,7 @@ void LinkClass::checkspecial2(int *ls)
                 }
                 
                 sdir=dir;
-                dowarp(0,rand()%4);
+                dowarp(0,(rand()%4),warpsound);
                 return;
             }
             
@@ -13386,7 +13388,7 @@ void LinkClass::checkspecial2(int *ls)
                         {
                             setmapflag(mSECRET);
                         }
-                        
+                        sfx(warpsound,pan((int)x));
                         hidden_entrance(0,true,false);
                         didstrig = true;
                     }
@@ -13398,6 +13400,8 @@ void LinkClass::checkspecial2(int *ls)
                         stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
                         hidden_entrance(0,true,true);
                         didstrig = true;
+			//play trigger sound
+			sfx(warpsound,pan((int)x));
                     }
                 }
             }
@@ -13442,7 +13446,10 @@ void LinkClass::checkspecial2(int *ls)
     
     int types[4];
     types[0]=types[1]=types[2]=types[3]=-1;
-    
+    int cids[4];
+    int ffcids[4];
+    cids[0]=cids[1]=cids[2]=cids[3]=-1;
+    ffcids[0]=ffcids[1]=ffcids[2]=ffcids[3]=-1;
     //
     // First, let's find flag1 (combo flag), flag2 (inherent flag) and flag3 (FFC flag)...
     //
@@ -13450,6 +13457,10 @@ void LinkClass::checkspecial2(int *ls)
     types[1] = MAPFLAG(x1,y2);
     types[2] = MAPFLAG(x2,y1);
     types[3] = MAPFLAG(x2,y2);
+    
+    
+    //MAPFFCOMBO
+    
     
     if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
         flag = types[0];
@@ -13472,159 +13483,216 @@ void LinkClass::checkspecial2(int *ls)
     types[2] = MAPFFCOMBOFLAG(x2,y1);
     types[3] = MAPFFCOMBOFLAG(x2,y2);
     
+    
+    //
+    
     if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
         flag3 = types[0];
         
     //
     // Now, let's check for warp combos...
     //
+    
+    //
+    
+    cids[0] = MAPCOMBO(x1,y1);
+    cids[1] = MAPCOMBO(x1,y2);
+    cids[2] = MAPCOMBO(x2,y1);
+    cids[3] = MAPCOMBO(x2,y2);
+    
     types[0] = COMBOTYPE(x1,y1);
     
     if(MAPFFCOMBO(x1,y1))
+    {
         types[0] = FFCOMBOTYPE(x1,y1);
+	cids[0] = MAPFFCOMBO(x1,y1);
+    }
         
     types[1] = COMBOTYPE(x1,y2);
     
     if(MAPFFCOMBO(x1,y2))
+    {
         types[1] = FFCOMBOTYPE(x1,y2);
+	cids[1] = MAPFFCOMBO(x1,y2);
+    }
         
     types[2] = COMBOTYPE(x2,y1);
     
     if(MAPFFCOMBO(x2,y1))
+    {
         types[2] = FFCOMBOTYPE(x2,y1);
-        
+        cids[2] = MAPFFCOMBO(x2,y1);
+    }
     types[3] = COMBOTYPE(x2,y2);
     
     if(MAPFFCOMBO(x2,y2))
+    {
         types[3] = FFCOMBOTYPE(x2,y2);
-        
+	cids[3] = MAPFFCOMBO(x2,y2);
+    }
+    int warpsfx2 = 0;
     // Change B, C and D warps into A, for the comparison below...
     for(int i=0; i<4; i++)
     {
         if(types[i]==cCAVE)
         {
             index=0;
+	    warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cCAVEB)
         {
             types[i]=cCAVE;
             index=1;
+	    warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cCAVEC)
         {
             types[i]=cCAVE;
             index=2;
+	    warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cCAVED)
         {
             types[i]=cCAVE;
             index=3;
+	    warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         
-        if(types[i]==cPIT) index=0;
+        if(types[i]==cPIT) 
+	{
+		index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+	}
         else if(types[i]==cPITB)
         {
             types[i]=cPIT;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=1;
         }
         else if(types[i]==cPITC)
         {
             types[i]=cPIT;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=2;
         }
         else if(types[i]==cPITD)
         {
             types[i]=cPIT;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=3;
         }
         else if(types[i]==cPITR)
         {
             types[i]=cPIT;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=rand()%4;
         }
         
         if(types[i]==cSTAIR)
         {
             index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cSTAIRB)
         {
             types[i]=cSTAIR;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=1;
         }
         else if(types[i]==cSTAIRC)
         {
             types[i]=cSTAIR;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=2;
         }
         else if(types[i]==cSTAIRD)
         {
             types[i]=cSTAIR;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=3;
         }
         else if(types[i]==cSTAIRR)
         {
             types[i]=cSTAIR;
             index=rand()%4;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         
         if(types[i]==cCAVE2)
         {
             index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cCAVE2B)
         {
             types[i]=cCAVE2;
             index=1;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cCAVE2C)
         {
             types[i]=cCAVE2;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=2;
         }
         else if(types[i]==cCAVE2D)
         {
             types[i]=cCAVE2;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=3;
         }
         
-        if(types[i]==cSWIMWARP) index=0;
+        if(types[i]==cSWIMWARP) 
+	{
+		index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+	}
         else if(types[i]==cSWIMWARPB)
         {
             types[i]=cSWIMWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=1;
         }
         else if(types[i]==cSWIMWARPC)
         {
             types[i]=cSWIMWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=2;
         }
         else if(types[i]==cSWIMWARPD)
         {
             types[i]=cSWIMWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=3;
         }
         
-        if(types[i]==cDIVEWARP) index=0;
+        if(types[i]==cDIVEWARP) 
+	{
+		index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+	}
         else if(types[i]==cDIVEWARPB)
         {
             types[i]=cDIVEWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=1;
         }
         else if(types[i]==cDIVEWARPC)
         {
             types[i]=cDIVEWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=2;
         }
         else if(types[i]==cDIVEWARPD)
         {
             types[i]=cDIVEWARP;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
             index=3;
         }
         
-        if(types[i]==cSTEP) ;
-        else if(types[i]==cSTEPSAME) types[i]=cSTEP;
-        else if(types[i]==cSTEPALL) types[i]=cSTEP;
+        if(types[i]==cSTEP) warpsfx2 = combobuf[cids[i]].attribytes[0];
+        else if(types[i]==cSTEPSAME) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0];}
+        else if(types[i]==cSTEPALL) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0]; }
     }
     
     // Special case for step combos; otherwise, they act oddly in some cases
@@ -13717,42 +13785,64 @@ void LinkClass::checkspecial2(int *ls)
     y2 = ty+8+(bigHitbox?0:4);
     
     types[0] = COMBOTYPE(x1,y1);
+    cids[0] = MAPCOMBO(x1,y1);
     
     if(MAPFFCOMBO(x1,y1))
+    {
         types[0] = FFCOMBOTYPE(x1,y1);
+	cids[0] = MAPFFCOMBO(x1,y1);
+    }
         
     types[1] = COMBOTYPE(x1,y2);
+    cids[1] = MAPCOMBO(x1,y2);
     
     if(MAPFFCOMBO(x1,y2))
+    {
         types[1] = FFCOMBOTYPE(x1,y2);
-        
+        cids[1] = MAPFFCOMBO(x1,y2);
+    }
     types[2] = COMBOTYPE(x2,y1);
+    cids[2] = MAPCOMBO(x2,y1);
     
     if(MAPFFCOMBO(x2,y1))
+    {
         types[2] = FFCOMBOTYPE(x2,y1);
+	cids[2] = MAPFFCOMBO(x2,y1);
+    }
         
     types[3] = COMBOTYPE(x2,y2);
+    cids[3] = MAPCOMBO(x2,y2);
     
     if(MAPFFCOMBO(x2,y2))
+    {
         types[3] = FFCOMBOTYPE(x2,y2);
+	cids[3] = MAPFFCOMBO(x2,y2);
+    }
         
     for(int i=0; i<4; i++)
     {
-        if(types[i]==cPIT) index=0;
+        if(types[i]==cPIT) 
+	{
+		index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+	}
         else if(types[i]==cPITB)
         {
             types[i]=cPIT;
             index=1;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cPITC)
         {
             types[i]=cPIT;
             index=2;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
         else if(types[i]==cPITD)
         {
             types[i]=cPIT;
             index=3;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
         }
     }
     
@@ -13864,12 +13954,13 @@ void LinkClass::checkspecial2(int *ls)
             if(COMBOTYPE(tx+8,ty+8)==cSTEP)
             {
                 tmpscr->data[stepnext]++;
+		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
             }
             
             if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME)
             {
                 int stepc = tmpscr->data[stepnext];
-                
+                sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
                 for(int k=0; k<176; k++)
                 {
                     if(tmpscr->data[k]==stepc)
@@ -13881,6 +13972,7 @@ void LinkClass::checkspecial2(int *ls)
             
             if(COMBOTYPE(tx+8,ty+8)==cSTEPALL)
             {
+		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
                 for(int k=0; k<176; k++)
                 {
                     if(
@@ -14062,6 +14154,7 @@ void LinkClass::checkspecial2(int *ls)
         didpit=true;
         pitx=x;
         pity=y;
+	warp_sound = warpsfx2;
     }
     
     if(DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
@@ -14135,7 +14228,7 @@ void LinkClass::checkspecial2(int *ls)
         pitx=x;
         pity=y;
         sdir=dir;
-        dowarp(4,0);
+        dowarp(4,0, warpsfx2);
     }
     else
     {
@@ -14146,7 +14239,7 @@ void LinkClass::checkspecial2(int *ls)
         }
         
         sdir = dir;
-        dowarp(0,index);
+        dowarp(0,index, warpsfx2);
     }
 }
 
@@ -14204,11 +14297,11 @@ const char *roomtype_string[rMAX] =
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
 
-bool LinkClass::dowarp(int type, int index)
+bool LinkClass::dowarp(int type, int index, int warpsfx)
 {
     if(index<0)
         return false;
-        
+    if ( warp_sound > 0 ) warpsfx = warp_sound;
     word wdmap=0;
     byte wscr=0,wtype=0,t=0;
     bool overlay=false;
@@ -14389,6 +14482,8 @@ bool LinkClass::dowarp(int type, int index)
         map_bkgsfx(false);
         kill_enemy_sfx();
         ALLOFF();
+	//play sound
+	if(warpsfx > 0) sfx(warpsfx,pan(int(x)));
         homescr=currscr;
         currscr=0x81;
         specialcave = PASSAGEWAY;
@@ -14743,6 +14838,7 @@ bool LinkClass::dowarp(int type, int index)
 			al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Wave Warp.\n %s\n", "Trying to redirect it into a Cancel Effect");
 			didpit=false;
 			update_subscreens();
+			warp_sound = 0;
 			return false;
 		}
 	}
@@ -14769,7 +14865,8 @@ bool LinkClass::dowarp(int type, int index)
             
             kill_sfx();
         }
-        
+        //play sound
+	if(warpsfx > 0) sfx(warpsfx,pan(int(x)));
         if(wtype==wtIWARPZAP)
         {
             zapout();
@@ -14914,7 +15011,8 @@ bool LinkClass::dowarp(int type, int index)
 		    
 		    kill_sfx();
 		}
-			
+		//play sound
+		if(warpsfx > 0) sfx(warpsfx,pan(int(x)));	
 		if(wtype==wtIWARPZAP)
 		{
 		    zapout();
@@ -15029,6 +15127,7 @@ bool LinkClass::dowarp(int type, int index)
 	{
 		didpit=false;
 		update_subscreens();
+		warp_sound = 0;
 		return false;
 	}
 	
@@ -15036,8 +15135,11 @@ bool LinkClass::dowarp(int type, int index)
     default:
         didpit=false;
         update_subscreens();
+        warp_sound = 0;
         return false;
     }
+    
+    
     
     // Stop Link from drowning!
     if(action==drowning)

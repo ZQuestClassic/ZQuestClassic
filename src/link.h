@@ -238,6 +238,7 @@ public:
     fix entry_x, entry_y; // When drowning, re-create Link here
     fix falling_oldy; // Used by the Stomp Boots in sideview
     byte dontdraw;
+    byte warp_sound;
     bool diagonalMovement;
     bool bigHitbox;
     byte defence[wMax];
@@ -344,7 +345,7 @@ public:
     virtual void drawshadow(BITMAP* dest, bool translucent);
     virtual void draw(BITMAP* dest);
     virtual bool animate(int index);
-    bool dowarp(int type, int index);
+    bool dowarp(int type, int index, int warpsfx=0);
     
     void linkstep();
     void stepforward(int steps, bool adjust);
