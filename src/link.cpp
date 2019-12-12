@@ -13953,8 +13953,9 @@ void LinkClass::checkspecial2(int *ls)
             
             if(COMBOTYPE(tx+8,ty+8)==cSTEP)
             {
+		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int)x));
                 tmpscr->data[stepnext]++;
-		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
+		
             }
             
             if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME)
