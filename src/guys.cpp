@@ -5749,6 +5749,7 @@ void enemy::update_enemy_frame()
     
     switch(anim)
     {
+    case aNONE: return; //Anim == none, don't animate. -Z
     case aDONGO:
     {
         int fr = stunclk>0 ? 16 : 8;
