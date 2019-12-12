@@ -13951,14 +13951,16 @@ void LinkClass::checkspecial2(int *ls)
         {
             stepnext=((ty+8)&0xF0)+((tx+8)>>4);
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEP)
+            if(COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
+		    (!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) ))
             {
 		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int)x));
                 tmpscr->data[stepnext]++;
 		
             }
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME)
+            if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
+		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) ))
             {
                 int stepc = tmpscr->data[stepnext];
                 sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
@@ -13971,7 +13973,8 @@ void LinkClass::checkspecial2(int *ls)
                 }
             }
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEPALL)
+            if(COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
+		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) ))
             {
 		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
                 for(int k=0; k<176; k++)

@@ -12266,17 +12266,17 @@ static ComboAttributesInfo comboattrinfo[]=
 	{
 		cSTEP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
 	},
 	{
 		cSTEPSAME,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
 	},
 	{
 		cSTEPALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
 	},
 	{
 		cSTEPCOPY,
