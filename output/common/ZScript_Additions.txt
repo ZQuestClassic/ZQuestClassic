@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 45
-Document Revision: 7th December, 2019
+Document Revision: 12th December, 2019
 
 
  __           _   _                 
@@ -2253,19 +2253,13 @@ bool IsValidArray(untyped[]);
 
 /************************************************************************************************************/
 
-//////////////////
-//  FileSystem  //
-//////////////////
 
-bool DirExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' is a valid directory path,
- * relative to the current ZC path.
-
-bool FileExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' is a valid file path,
- * relative to the current ZC path.
-
-/************************************************************************************************************/
+__________      .__        __                    _____                ___.                        
+\______   \____ |__| _____/  |_  ___________    /     \   ____   _____\_ |__   ___________  ______
+ |     ___/  _ \|  |/    \   __\/ __ \_  __ \  /  \ /  \_/ __ \ /     \| __ \_/ __ \_  __ \/  ___/
+ |    |  (  <_> )  |   |  \  | \  ___/|  | \/ /    Y    \  ___/|  Y Y  \ \_\ \  ___/|  | \/\___ \ 
+ |____|   \____/|__|___|  /__|  \___  >__|    \____|__  /\___  >__|_|  /___  /\___  >__|  /____  >
+                        \/          \/                \/     \/      \/    \/     \/           \/ 
 
 ////////////
 //  Game  //
@@ -2560,6 +2554,137 @@ int GetPointer(bool *ptr[]);
 	* Resumes the present, playing MIDI or Enhanced Music file. 
 
 */
+
+/************************************************************************************************************/
+
+/////////////////
+///  Input->  ///
+/////////////////
+
+int ModifierKeys;
+ * Returns the Allegro Keyboard Modifier Flags:
+ *	KB_SHIFT_FLAG = 0x0001;
+ *	KB_CTRL_FLAG = 0x0002;
+ *	KB_ALT_FLAG = 0x0004;
+ *	KB_LWIN_FLAG = 0x0008;
+ *	KB_RWIN_FLAG = 0x0010;
+ *	KB_MENU_FLAG  = 0x0020;
+ *	KB_COMMAND_FLAG  = 0x0040;
+ *	KB_SCROLOCK_FLAG  = 0x0100;
+ *	KB_NUMLOCK_FLAG = 0x0200;
+ *	KB_CAPSLOCK_FLAG = 0x0400;
+ *	KB_INALTSEQ_FLAG = 0x0800;
+ *	KB_ACCENT1_FLAG = 0x1000; 
+ *	KB_ACCENT2_FLAG = 0x2000; 
+ *	KB_ACCENT3_FLAG = 0x4000; 
+ *	KB_ACCENT4_FLAG = 0x8000; 
+ * I am unsure what 0x80 is, if anything. It is not listed in Allegro keyboard.h. -Z
+ * Might have been reserved for the Apple Right Command key, but never used. 
+ 
+int KeyBindings[14];
+ * Returns the key bound to the 14 possible system keys.
+ * Use the CB_* constants to access the array, and the KEY_*
+ * constants for values. 
+ 
+bool SimulateKeypress[127];
+ * Simulates pressing a key on the keyboard, where the key_id
+ * is the index of the array. 
+ * Input->SimulateKeypress[KEY_A] = true; will attempt to simulate 
+ * the user pressing the A key on their keyboard.
+ * Writing this false has no effect. 
+
+bool Press[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was pressed this frame.
+ *	Replaces Link->Press*.
+ * Use the CB_* constants to access this array. 
+
+bool Button[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ *	Replaces Link->Input*.
+ * Use the CB_* constants to access this array. 
+ 
+bool Hold[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ * May be identical to Input->Press[] in some regards.
+ * Use the CB_* constants to access this array. 
+ 
+bool DisableButton[18];
+ * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
+ * Scripts will still read the button normally, ignoring this
+ * This allows disabling the engine's button, while not disabling the button for scripts.
+ * Use the CB_* constants to access this array. 
+ 
+bool KeyRaw[127];
+ * Read-Only: An array of boolean values that read as 'true'
+ * 	if the corresponding keyboard key was pressed this frame.
+ * You can write a key false, but not true. 
+ * Use the KEY_* constants to access this array. 
+ * Note: This writes directly to allegro's key[] values.
+	
+bool ReadKey[127] ( should become a function ReadKey()? )
+ * As 'KeyRaw[]', except that reading a key with ReadKey[] will ignore further input from that key, 
+   until it is released. 
+ * Read-only.
+ * Use the KEY_* constants to access this array. 
+ 
+bool Key[127];
+ * Returns true if a key was down this frame.
+ * Functions similarly to 'Input->Button[]', but for keys.
+ * Read/Write; this will affect most engine functions as well, though
+ *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
+ *     bypass this, though can be affected via 'KeyRaw[]'
+ 
+bool KeyPressed[127];
+ * Returns true if a key was pressed this frame.
+ * Functions similarly to 'Input->Press[]', but for keys.
+ * Read/Write; this will affect most engine functions as well, though
+ *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
+ *     bypass this, though can be affected via 'KeyRaw[]'
+ *     Writing this true for 'F3', 'F4', or 'F6' will trigger the button;
+ *     though writing false must occur to 'KeyRaw[]'.
+ 
+bool DisableKey[127];
+ * Setting an index of this array to 'true' will disable that key for engine input
+ * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
+ * Script key reading, such as 'Input->Key[]', are unaffected.
+ * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
+ * Use the KEY_* constants to access this array. 
+ 
+bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
+ * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
+ * Use the CB_* constants to access this array. 
+ 
+float Mouse[6];
+ * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
+   plus the x/y components of the mouse.
+ *	Replaces mouse variables under Link->.
+ * indices: 
+ * 	float Mouse[0] Mouse X Position
+ * 	float Mouse[1] Mouse Y Position
+ * 	float Mouse[2] Mouse Z Position
+ * 	bool Mouse[3] Left Button
+ * 	bool Mouse[4] Right Button
+ * 	bool Mouse[5] Middle Button
+
+
+//int Type //this is a dummy function in the table.
+
+/************************************************************************************************************/
+
+//////////////////
+//  FileSystem  //
+//////////////////
+
+bool DirExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid directory path,
+ * relative to the current ZC path.
+
+bool FileExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid file path,
+ * relative to the current ZC path.
 
 /************************************************************************************************************/
 
@@ -2991,10 +3116,23 @@ bool Flags[14];
 
 /************************************************************************************************************/
 
+
+  _________            .__  __           ________ ___.        __               __          
+ /   _____/____________|__|/  |_  ____   \_____  \\_ |__     |__| ____   _____/  |_  ______
+ \_____  \\____ \_  __ \  \   __\/ __ \   /   |   \| __ \    |  |/ __ \_/ ___\   __\/  ___/
+ /        \  |_> >  | \/  ||  | \  ___/  /    |    \ \_\ \   |  \  ___/\  \___|  |  \___ \ 
+/_______  /   __/|__|  |__||__|  \___  > \_______  /___  /\__|  |\___  >\___  >__| /____  >
+        \/|__|                       \/          \/    \/\______|    \/     \/          \/ 
+The following are the members for sprite objects (Hero, npc, lweapon, eweapon, and itemsprite).
+
 ////////////////////
 ///  Itemsprite  ///
 ////////////////////
 
+bool Animation;
+ * Normally 'true'. If enabled, the item is animated by the ZC engine.
+ * Set this false to disable engine animation.
+ 
 int Max();
  * Returns the maximum number of itemsprite sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
@@ -3083,6 +3221,10 @@ int ScriptFlip;
 /////////////////
 ///  *weapon  ///
 /////////////////
+
+bool Animation;
+ * Normally 'true'. If enabled, the weapon is animated by the ZC engine.
+ * Set this false to disable engine animation.
 
 int Max();
  * Returns the maximum number of weapon sprites (eweapon and lweapon are
@@ -3194,6 +3336,10 @@ int AClock
 ///  NPC  ///
 /////////////
 
+bool Animation;
+ * Normally 'true'. If enabled, the npc is animated by the ZC engine.
+ * Set this false to disable engine animation.
+
 int Max();
  * Returns the maximum number of npc sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
@@ -3206,7 +3352,6 @@ void Max(int newmax);
  * The current legal range is 
  * 1 to 1024.
  
-
 bool isSubmerged();
  * Returns if the npc is submerged (in the ground, in the water, or in a wall).
  * Returns true if the npc is FULLY submerged.
@@ -3494,6 +3639,10 @@ int FireSound;
 ///  Hero  ///
 //////////////
 
+bool Animation;
+ * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.
+ * Set this false to disable engine animation.
+
 bool NoStepForward;
  * If set true, the player will not take two steps into NES dungeon rooms.
  * This value is reset to false, every time that the hero sprite is initialised,
@@ -3727,6 +3876,14 @@ void WarpEx(int ptr[])
 
 
 /************************************************************************************************************/
+
+________          __             _________ __                        __          
+\______ \ _____ _/  |______     /   _____//  |________ __ __   _____/  |_  ______
+ |    |  \\__  \\   __\__  \    \_____  \\   __\_  __ \  |  \_/ ___\   __\/  ___/
+ |    `   \/ __ \|  |  / __ \_  /        \|  |  |  | \/  |  /\  \___|  |  \___ \ 
+/_______  (____  /__| (____  / /_______  /|__|  |__|  |____/  \___  >__| /____  >
+        \/     \/          \/          \/                         \/          \/ 
+The following are the members of data struct pointers (combo, sprite, item, npc, message, game, cheat, warpring, shop, map, and dmap data).
 
 //////////////////
 ///  itemdata  ///
@@ -4445,8 +4602,6 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
  * 	With 2D arrays, this would simply be FFCInitA[32][2].
 
 
-
-
 ///////////////////
 ///  combodata  ///
 ///////////////////
@@ -4613,292 +4768,6 @@ int BlockWeaponLevel;
 	combodata->Flags and Screen->ComboFlags[pos] -- Maybe ComboMisc[pos] to avoid confusion?
 	Combo QR rules will become ComboMisc[] ! 
 
-////////////////////
-///  Graphics->  ///
-////////////////////
-
-int GetPixel(bitmap b, int x, int y);
- * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
- * The value is expressed as float at this time. 
-
-int NumDraws();
- * Returns the number of script draws that have been executed during the current frame.
- 
-int MaxDraws();
- * Returns the maximum number of script draws per frame that you can execute in the current build.
- 
-void Monochrome(int mode);
- * Sets the entire display to monochrome output, using a hue mode that you may select, and either distributed,
- * or uniform colour distribution.
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void MonoHue(int red, int green, int blue, bool distributed);
- * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
- * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
- * as `red`, `green`, and `blue`. 
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void Tint(int red, int green, blue);
- * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void ClearTint();
- * Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
-   the given DMap palette. 
-
-void Wavy(bool wavyin); 
- * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
- * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using parameter 1. 
-
-void Zap(bool zapin);
- * Creates a wavy visual effect, identical to 'Zap' Warp effects.
- * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using parameter 1. 
-
-void Greyscale(bool enable);
- * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
- * This is useful for simulating 'Gameboy' style displays.
-	
-
-/////////////////
-///  Audio->  ///
-/////////////////
-
-void PlayOgg(int filename[]);
- * Similar to PlayEnhancedMusic(), but only for OGG files.
- * Supports seeking, and other special instructions.
-
-int GetOggPos();
- * Returns the current seek position of an OGG started with PlayOgg, in ms.
-
-void SetOggPos(int new_pos);
- * Sets the play position for an OGG started with PlayOgg(), in ms.
- 
-void SetOggSpeed(int newspeed);
- * Sets the playback speed of an OGG started with PlayOgg();
- 
-
-void PlaySound(int soundid);	ZASM Instruction: 
-					PLAYSOUNDR
-					PLAYSOUNDV
-	/**
-	* Plays one of the quest's sound effects. Use the SFX_ constants in
-	* std.zh as values of soundid.
-	*/ Example Use: !#!
-	
-void EndSound(int soundid);
- * If sfx_id is playing, calling this immediately stops that sound.
-
-void PauseSound(int soundid);
- * If sfx_id is playing, calling this pauses it, halting it from playing, in
- * a manner that you may later resume it from the point at which it was paused.
- * See also: Audio->ResumeSound(int sfx_id) and Audio->ContinueSound(int sfx_id).
-
-void ResumeSound(int soundid); 
- * Resumes a sound effect with an ID of sfx_id, that has been paused.
-
-void ContinueSound(int soundid);
- * Resumes a sound effect with an ID of sfx_id, that has been paused.
-
-void AdjustMusicVolume(int percent); 
- * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
- * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
-
-void AdjustSFXVolume(int percent);
- * Adjusts the volume of all Soune Effects (WAV).
- * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
-
-void AdjustSound(int, int, bool)
-
-void PauseCurMIDI();
- * Pauses the current MIDI in a manner that permits resuming it.
- * Note: This does not affect Enhanced Music playback.
- * See also: Audio->ResumeCurMIDI().
-
-void ResumeCurMIDI();
- * Resumes MIDI playback, if it has been paused.
- * Note: This does not affect Enhanced Music playback.
- * See also: Audio->PauseCurMIDI().
-
-void PlayMIDI(int MIDIid);	ZASM Instruction: 
-					PLAYMIDIR
-					PLAYMIDIV
-	/**
-	* Changes the current screen MIDI to MIDIid.
-	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
-	*/ Example Use: !#!
-
-bool PlayEnhancedMusic(int filename[], int track);
-		
-					ZASM Instruction: 
-					PLAYENHMUSIC
-	/**
-	* Play the specified enhanced music if it's available. If the music
-	* cannot be played, the current music will continue. The music will
-	* revert to normal upon leaving the screen.
-	* Returns true if the music file was loaded successfully.
-	* The filename cannot be more than 255 characters. If the music format
-	* does not support multiple tracks, the track argument will be ignored.
-	*/ Example Use: 
-	
-		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
-		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
-		
-		// Plays the enhanced music file 'myfle.mp3', track 1. 
-		// If the file is mssing, the game will instead play 
-		// the midi specified as midi_id.
-
-int PanStyle;
- * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
-
-//int Volume[4]
- * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
-
-////////////////
-///  Text->  ///
-////////////////
-
-int FontHeight(int font);
-int StringHeight(char32 ptr, int font);
-int CharHeight(char32 chr, int font);
- * Returns the height, in pixels, of the given font.
-
-int StringWidth(char32 ptr, int font);
- * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
-
-int CharWidth(char32 chr, int font);
- * Returns the width, in pixels, of the character 'chr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
-
-int MessageWidth(int msg);
- * Returns the width, in pixels, of the internal string at index 'msg'.
- * This uses the font and text as set in the 'Strings' editor,
- * 	and ignores both trailing spaces and line breaks.
-
-int MessageHeight(int msg);
- * Returns the height, in pixels, of the internal string at index 'msg'.
- * This uses the font as set in the 'Strings' editor, and ignores line breaks.
-
-/////////////////
-///  Input->  ///
-/////////////////
-
-int ModifierKeys;
- * Returns the Allegro Keyboard Modifier Flags:
- *	KB_SHIFT_FLAG = 0x0001;
- *	KB_CTRL_FLAG = 0x0002;
- *	KB_ALT_FLAG = 0x0004;
- *	KB_LWIN_FLAG = 0x0008;
- *	KB_RWIN_FLAG = 0x0010;
- *	KB_MENU_FLAG  = 0x0020;
- *	KB_COMMAND_FLAG  = 0x0040;
- *	KB_SCROLOCK_FLAG  = 0x0100;
- *	KB_NUMLOCK_FLAG = 0x0200;
- *	KB_CAPSLOCK_FLAG = 0x0400;
- *	KB_INALTSEQ_FLAG = 0x0800;
- *	KB_ACCENT1_FLAG = 0x1000; 
- *	KB_ACCENT2_FLAG = 0x2000; 
- *	KB_ACCENT3_FLAG = 0x4000; 
- *	KB_ACCENT4_FLAG = 0x8000; 
- * I am unsure what 0x80 is, if anything. It is not listed in Allegro keyboard.h. -Z
- * Might have been reserved for the Apple Right Command key, but never used. 
- 
-int KeyBindings[14];
- * Returns the key bound to the 14 possible system keys.
- * Use the CB_* constants to access the array, and the KEY_*
- * constants for values. 
- 
-bool SimulateKeypress[127];
- * Simulates pressing a key on the keyboard, where the key_id
- * is the index of the array. 
- * Input->SimulateKeypress[KEY_A] = true; will attempt to simulate 
- * the user pressing the A key on their keyboard.
- * Writing this false has no effect. 
-
-bool Press[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was pressed this frame.
- *	Replaces Link->Press*.
- * Use the CB_* constants to access this array. 
-
-bool Button[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- *	Replaces Link->Input*.
- * Use the CB_* constants to access this array. 
- 
-bool Hold[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- * May be identical to Input->Press[] in some regards.
- * Use the CB_* constants to access this array. 
- 
-bool DisableButton[18];
- * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
- * Scripts will still read the button normally, ignoring this
- * This allows disabling the engine's button, while not disabling the button for scripts.
- * Use the CB_* constants to access this array. 
- 
-bool KeyRaw[127];
- * Read-Only: An array of boolean values that read as 'true'
- * 	if the corresponding keyboard key was pressed this frame.
- * You can write a key false, but not true. 
- * Use the KEY_* constants to access this array. 
- * Note: This writes directly to allegro's key[] values.
-	
-bool ReadKey[127] ( should become a function ReadKey()? )
- * As 'KeyRaw[]', except that reading a key with ReadKey[] will ignore further input from that key, 
-   until it is released. 
- * Read-only.
- * Use the KEY_* constants to access this array. 
- 
-bool Key[127];
- * Returns true if a key was down this frame.
- * Functions similarly to 'Input->Button[]', but for keys.
- * Read/Write; this will affect most engine functions as well, though
- *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
- *     bypass this, though can be affected via 'KeyRaw[]'
- 
-bool KeyPressed[127];
- * Returns true if a key was pressed this frame.
- * Functions similarly to 'Input->Press[]', but for keys.
- * Read/Write; this will affect most engine functions as well, though
- *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
- *     bypass this, though can be affected via 'KeyRaw[]'
- *     Writing this true for 'F3', 'F4', or 'F6' will trigger the button;
- *     though writing false must occur to 'KeyRaw[]'.
- 
-bool DisableKey[127];
- * Setting an index of this array to 'true' will disable that key for engine input
- * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
- * Script key reading, such as 'Input->Key[]', are unaffected.
- * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
- * Use the KEY_* constants to access this array. 
- 
-bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
- * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
- * Use the CB_* constants to access this array. 
- 
-float Mouse[6];
- * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
-   plus the x/y components of the mouse.
- *	Replaces mouse variables under Link->.
- * indices: 
- * 	float Mouse[0] Mouse X Position
- * 	float Mouse[1] Mouse Y Position
- * 	float Mouse[2] Mouse Z Position
- * 	bool Mouse[3] Left Button
- * 	bool Mouse[4] Right Button
- * 	bool Mouse[5] Middle Button
-
-
-//int Type //this is a dummy function in the table.
 	
 /////////////////
 ///  npcdata  ///
@@ -5184,6 +5053,249 @@ int NothingChance;
 	void SetName(char[] buf);
 	 * Sets the name of the dropset from the buffer
 */
+
+t/b/a
+
+//////////////////
+///  ponddata  ///
+//////////////////
+
+t/b/a
+
+//////////////////
+///  warpring  ///
+//////////////////
+
+t/b/a
+
+/////////////////
+///  doorset  ///
+/////////////////
+
+t/b/a
+
+////////////////////
+///  misccolors  ///
+////////////////////
+
+t/b/a
+
+/////////////////
+///  rgbdata  ///
+/////////////////
+
+t/b/a
+
+/////////////////
+///  palette  ///
+/////////////////
+
+t/b/a
+
+////////////////
+///  zcmidi  ///
+////////////////
+
+t/b/a
+
+//////////////////
+///  palcycle  ///
+//////////////////
+
+t/b/a
+
+//////////////////
+///  gamedata  ///
+//////////////////
+
+t/b/a
+
+////////////////
+///  cheats  ///
+////////////////
+
+t/b/a
+
+  ________                    .__    .__                  ____      _________                        .___
+ /  _____/___________  ______ |  |__ |__| ____   ______  /  _ \    /   _____/ ____  __ __  ____    __| _/
+/   \  __\_  __ \__  \ \____ \|  |  \|  |/ ___\ /  ___/  >  _ </\  \_____  \ /  _ \|  |  \/    \  / __ | 
+\    \_\  \  | \// __ \|  |_> >   Y  \  \  \___ \___ \  /  <_\ \/  /        (  <_> )  |  /   |  \/ /_/ | 
+ \______  /__|  (____  /   __/|___|  /__|\___  >____  > \_____\ \ /_______  /\____/|____/|___|  /\____ | 
+        \/           \/|__|        \/        \/     \/         \/         \/                  \/      \/ 
+Commands for graphics, sound, text, and bitmap objects.
+
+////////////////////
+///  Graphics->  ///
+////////////////////
+
+int GetPixel(bitmap b, int x, int y);
+ * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
+ * The value is expressed as float at this time. 
+
+int NumDraws();
+ * Returns the number of script draws that have been executed during the current frame.
+ 
+int MaxDraws();
+ * Returns the maximum number of script draws per frame that you can execute in the current build.
+ 
+void Monochrome(int mode);
+ * Sets the entire display to monochrome output, using a hue mode that you may select, and either distributed,
+ * or uniform colour distribution.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void MonoHue(int red, int green, int blue, bool distributed);
+ * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
+ * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
+ * as `red`, `green`, and `blue`. 
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void Tint(int red, int green, blue);
+ * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void ClearTint();
+ * Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
+   the given DMap palette. 
+
+void Wavy(bool wavyin); 
+ * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
+ * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using parameter 1. 
+
+void Zap(bool zapin);
+ * Creates a wavy visual effect, identical to 'Zap' Warp effects.
+ * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using parameter 1. 
+
+void Greyscale(bool enable);
+ * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
+ * This is useful for simulating 'Gameboy' style displays.
+	
+
+/////////////////
+///  Audio->  ///
+/////////////////
+
+void PlayOgg(int filename[]);
+ * Similar to PlayEnhancedMusic(), but only for OGG files.
+ * Supports seeking, and other special instructions.
+
+int GetOggPos();
+ * Returns the current seek position of an OGG started with PlayOgg, in ms.
+
+void SetOggPos(int new_pos);
+ * Sets the play position for an OGG started with PlayOgg(), in ms.
+ 
+void SetOggSpeed(int newspeed);
+ * Sets the playback speed of an OGG started with PlayOgg();
+ 
+
+void PlaySound(int soundid);	ZASM Instruction: 
+					PLAYSOUNDR
+					PLAYSOUNDV
+	/**
+	* Plays one of the quest's sound effects. Use the SFX_ constants in
+	* std.zh as values of soundid.
+	*/ Example Use: !#!
+	
+void EndSound(int soundid);
+ * If sfx_id is playing, calling this immediately stops that sound.
+
+void PauseSound(int soundid);
+ * If sfx_id is playing, calling this pauses it, halting it from playing, in
+ * a manner that you may later resume it from the point at which it was paused.
+ * See also: Audio->ResumeSound(int sfx_id) and Audio->ContinueSound(int sfx_id).
+
+void ResumeSound(int soundid); 
+ * Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void ContinueSound(int soundid);
+ * Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void AdjustMusicVolume(int percent); 
+ * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
+ * The parameter 'int percent' is the percentage of its present volume.
+ * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+ *	would pass '50' to parameter 1.
+
+void AdjustSFXVolume(int percent);
+ * Adjusts the volume of all Soune Effects (WAV).
+ * The parameter 'int percent' is the percentage of its present volume.
+ * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+ *	would pass '50' to parameter 1.
+
+void AdjustSound(int, int, bool)
+
+void PauseCurMIDI();
+ * Pauses the current MIDI in a manner that permits resuming it.
+ * Note: This does not affect Enhanced Music playback.
+ * See also: Audio->ResumeCurMIDI().
+
+void ResumeCurMIDI();
+ * Resumes MIDI playback, if it has been paused.
+ * Note: This does not affect Enhanced Music playback.
+ * See also: Audio->PauseCurMIDI().
+
+void PlayMIDI(int MIDIid);	ZASM Instruction: 
+					PLAYMIDIR
+					PLAYMIDIV
+	/**
+	* Changes the current screen MIDI to MIDIid.
+	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
+	*/ Example Use: !#!
+
+bool PlayEnhancedMusic(int filename[], int track);
+		
+					ZASM Instruction: 
+					PLAYENHMUSIC
+	/**
+	* Play the specified enhanced music if it's available. If the music
+	* cannot be played, the current music will continue. The music will
+	* revert to normal upon leaving the screen.
+	* Returns true if the music file was loaded successfully.
+	* The filename cannot be more than 255 characters. If the music format
+	* does not support multiple tracks, the track argument will be ignored.
+	*/ Example Use: 
+	
+		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
+		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
+		
+		// Plays the enhanced music file 'myfle.mp3', track 1. 
+		// If the file is mssing, the game will instead play 
+		// the midi specified as midi_id.
+
+int PanStyle;
+ * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
+
+//int Volume[4]
+ * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
+
+////////////////
+///  Text->  ///
+////////////////
+
+int FontHeight(int font);
+int StringHeight(char32 ptr, int font);
+int CharHeight(char32 chr, int font);
+ * Returns the height, in pixels, of the given font.
+
+int StringWidth(char32 ptr, int font);
+ * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int CharWidth(char32 chr, int font);
+ * Returns the width, in pixels, of the character 'chr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int MessageWidth(int msg);
+ * Returns the width, in pixels, of the internal string at index 'msg'.
+ * This uses the font and text as set in the 'Strings' editor,
+ * 	and ignores both trailing spaces and line breaks.
+
+int MessageHeight(int msg);
+ * Returns the height, in pixels, of the internal string at index 'msg'.
+ * This uses the font as set in the 'Strings' editor, and ignores line breaks.
+
 
 ////////////////
 ///  bitmap  ///
@@ -5524,67 +5636,14 @@ void DrawScreenComboIFlags	(int layer,
 // RenderFrom(target, mode, args[])
 
 
-t/b/a
 
-//////////////////
-///  ponddata  ///
-//////////////////
-
-t/b/a
-
-//////////////////
-///  warpring  ///
-//////////////////
-
-t/b/a
-
-/////////////////
-///  doorset  ///
-/////////////////
-
-t/b/a
-
-////////////////////
-///  misccolors  ///
-////////////////////
-
-t/b/a
-
-/////////////////
-///  rgbdata  ///
-/////////////////
-
-t/b/a
-
-/////////////////
-///  palette  ///
-/////////////////
-
-t/b/a
-
-////////////////
-///  zcmidi  ///
-////////////////
-
-t/b/a
-
-//////////////////
-///  palcycle  ///
-//////////////////
-
-t/b/a
-
-//////////////////
-///  gamedata  ///
-//////////////////
-
-t/b/a
-
-////////////////
-///  cheats  ///
-////////////////
-
-t/b/a
+________        ___.                       .__                
+\______ \   ____\_ |__  __ __  ____   ____ |__| ____    ____  
+ |    |  \_/ __ \| __ \|  |  \/ ___\ / ___\|  |/    \  / ___\ 
+ |    `   \  ___/| \_\ \  |  / /_/  > /_/  >  |   |  \/ /_/  >
+/_______  /\___  >___  /____/\___  /\___  /|__|___|  /\___  / 
+        \/     \/    \/     /_____//_____/         \//_____/  
+Functions for debugging, and raw access to the internal ZASM stack and mechanics. 
 
 /////////////////
 ///  Debug->  ///
