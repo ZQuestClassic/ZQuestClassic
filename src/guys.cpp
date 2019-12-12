@@ -3666,9 +3666,9 @@ void enemy::drawzcboss(BITMAP *dest)
         flip = 0;
         tile = wpnsbuf[iwDeath].tile;
         
-        if(BSZ)
+        if(BSZ && do_animation)
             tile += zc_min((15-clk2)/3,4);
-        else if(clk2>6 && clk2<=12)
+        else if(clk2>6 && clk2<=12 && do_animation)
             ++tile;
             
         /* trying to get more death frames here
