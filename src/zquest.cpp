@@ -20197,6 +20197,8 @@ int efrontfacingtile(int id)
     
     switch(anim)
     {
+	    
+    case aNONE: break;
     case aAQUA:
         if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].misc1))
             break;
