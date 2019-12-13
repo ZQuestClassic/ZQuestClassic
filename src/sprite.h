@@ -156,6 +156,14 @@ public:
 	virtual bool runKnockback();
     void explode(int mode);
     //void explode(int type);
+	
+	virtual int run_script(int mode);
+};
+
+enum //run_script modes
+{
+	MODE_NORMAL,
+	MODE_WAITDRAW
 };
 
 /***************************************************************************/
@@ -200,6 +208,7 @@ public:
     void drawcloaked2(BITMAP* dest,bool lowfirst);
     void animate();
     void check_conveyor();
+	void run_script(int mode);
     int Count();
 	bool has_space(int space = 1);
     int hit(sprite *s);

@@ -6766,6 +6766,26 @@ int wpnsfx(int wpn)
     return -1;
 }
 
+int enemy::run_script(int mode)
+{
+	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+		return RUNSCRIPT_OK;
+	int ret = RUNSCRIPT_OK;
+	switch(mode)
+	{
+		case MODE_NORMAL:
+			return ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+		case MODE_WAITDRAW:
+			if(waitdraw)
+			{
+				ret = ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+				waitdraw = false;
+			}
+			break;
+	}
+    return ret;
+}
+
 /********************************/
 /*********  Guy Class  **********/
 /********************************/

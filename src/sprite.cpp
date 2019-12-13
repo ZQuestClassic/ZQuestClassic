@@ -2168,6 +2168,10 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
     }
 }
 
+int sprite::run_script(int mode)
+{
+	return RUNSCRIPT_OK; //Default implementation; override in subclasses
+}
 /***************************************************************************/
 
 /**********************************/
@@ -2404,20 +2408,36 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 
 void sprite_list::animate()
 {
-    active_iterator = 0;
-    
-    while(active_iterator<count)
-    {
-        if(!(freeze_guys && sprites[active_iterator]->canfreeze))
-        {
-            if(sprites[active_iterator]->animate(active_iterator))
-            {
-                del(active_iterator);
-            }
-        }
-        
-        ++active_iterator;
-    }
+	active_iterator = 0;
+	
+	while(active_iterator<count)
+	{
+		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		{
+			if(sprites[active_iterator]->animate(active_iterator))
+			{
+				del(active_iterator);
+			}
+		}
+		
+		++active_iterator;
+	}
+	active_iterator = -1;
+}
+
+void sprite_list::run_script(int mode)
+{
+	active_iterator = 0;
+	
+	while(active_iterator<count)
+	{
+		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		{
+			sprites[active_iterator]->run_script(mode);
+		}
+		
+		++active_iterator;
+	}
 	active_iterator = -1;
 }
 
