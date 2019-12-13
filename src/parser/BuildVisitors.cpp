@@ -742,7 +742,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 				it != host.parameters.end(); ++it)
 			{
-				literalVisit(*it, param);
+				visit(*it, param);
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 			
@@ -824,7 +824,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
 		{
-			literalVisit(*it, param);
+			visit(*it, param);
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		//goto
