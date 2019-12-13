@@ -6163,7 +6163,7 @@ void LinkClass::hitlink(int hit2)
 
 void LinkClass::addsparkle(int wpn)
 {
-	return;
+	//return;
     weapon *w = (weapon*)Lwpns.spr(wpn);
     int itemid = w->parentitem;
     
@@ -8315,9 +8315,17 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
 	last_cane_of_byrna_item_id = itemid; 
-        
+        zprint("itemsbuf[itemid].misc3: %d\n", itemsbuf[itemid].misc3);
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
-            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+	{
+		//byrna weapons are added here
+		//space them apart
+		zprint("Added byrna weapon %d.\n", i);
+		Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+            //Lwpns.add(new weapon((fix)wx+cos(2 * PI / (i+1)),(fix)wy+sin(2 * PI / (i+1)),(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
+		//wy += sin(2 * PI / (itemsbuf[itemid].misc3-i));
+	}
 	if(!(Lwpns.idCount(wCByrna))) stop_sfx(itemsbuf[itemid].usesound); //If we can't create the beams, kill the sound. 
 	
     }
