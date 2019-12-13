@@ -26673,7 +26673,7 @@ void FFScript::do_npc_constwalk()
 {
 	long arrayptr = get_register(sarg2) / 10000;
 	int sz = FFCore.getSize(arrayptr);
-	Z_scripterrlog("Array size passed to do_npc_constwalk: %d\n", sz);
+	//Z_scripterrlog("Array size passed to do_npc_constwalk: %d\n", sz);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
