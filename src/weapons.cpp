@@ -2182,7 +2182,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
         int qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
-	zprint("byrna quantity_iterator: %d\n", quantity_iterator);
+	//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
         clk = (int)((((2*quantity_iterator*PI)/qty)
                      // Appear on top of the cane's hook
                      + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);

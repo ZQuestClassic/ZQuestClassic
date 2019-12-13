@@ -8315,12 +8315,12 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
 	last_cane_of_byrna_item_id = itemid; 
-        zprint("itemsbuf[itemid].misc3: %d\n", itemsbuf[itemid].misc3);
+        //zprint("itemsbuf[itemid].misc3: %d\n", itemsbuf[itemid].misc3);
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
 	{
 		//byrna weapons are added here
 		//space them apart
-		zprint("Added byrna weapon %d.\n", i);
+		//zprint("Added byrna weapon %d.\n", i);
 		Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
             //Lwpns.add(new weapon((fix)wx+cos(2 * PI / (i+1)),(fix)wy+sin(2 * PI / (i+1)),(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
