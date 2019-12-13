@@ -1,7 +1,42 @@
 //2.55 Changes
 
-//Alpha 45
+//Alpha 46
 
+Added npc script wolfie.zs (1x2/2x1 enemy) to test_scripts.
+Added Waitdraw to npc and lweapon scripts.
+Added npc->Random to ZScript
+Disable array size logging on npc->ConstantWalk
+Added comment about wCByrna spacing to link.cpp
+Byrna beam orbit spacing was affected by changes that use w.type
+	properly (as w->Level). I added w->quantity_iterator that is now
+	used by wCByrna to determine the iteration index for spacing to
+	correct this issue.
+	( ZoriaRPG, 8th December, 2019 )
+	
+Fixed an array literal crash from misplaced ZASM when using dereferenced
+	member functions in array literals.
+	( Venrob, 13th December, 2019 )
+	
+Step trigger combos now use attribytes[1] to require an item
+	(e.g. iron boots) to trigger them.
+Fix logical order bug preventing Step->Next sfx
+Pit, Stairs, Dive/Water and Step combos now all have a 'Sound'
+	attribyte as Attribytes[0].
+	Warps play sfx during instawarps, but not cave/passageway transitions.
+	Step triggers should play their sound once, when triggered, such
+	as Z3 pressure plates clicking.
+Fix timing for aNONE
+aNONE ZQuest frontfacingtile should be the first enemy tile by default.
+ZC Bosses and Old Draws should respect do_animation.
+	( ZoriaRPG, 12th December, 2019 )
+	
+Applied ArmageddonGames/2.55-fixheaderguard
+	( Venrob, 12th December, 2019 )
+
+Fix: Header Guard not precise enough
+	( Venrob, 10th December, 2019 )
+
+//Alpha 45
 You can now spawn large (2x2 or larger) enemies from armos combos,
 	and arrange the statue combos in a block equal to the size of the
 	enemy that they spawn. The enemy will remove all combos in that block.
