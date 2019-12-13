@@ -338,6 +338,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
     script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
+    waitdraw = 0;
     weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
     
     for ( int q = 0; q < 8; q++ ) 

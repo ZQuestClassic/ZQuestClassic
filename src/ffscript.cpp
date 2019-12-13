@@ -22054,9 +22054,10 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			}
 			
-			/* Not just yet.
 			case SCRIPT_NPC:
 			{
+				//enemy *wp = (enemy*)guys.spr(i);
+				//wp->waitdraw = 1;
 				guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
 				break;
 			}
@@ -22065,7 +22066,7 @@ int run_script(const byte type, const word script, const long i)
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
 				break;
 			}
-			*/
+			
 			case SCRIPT_EWPN:
 			{
 			
@@ -25494,6 +25495,26 @@ bool FFScript::itemScriptEngine()
 	return false;
 }
 
+void FFScript::npcScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptNPCSCRIPTS] ) return;
+	for ( int q = 0; q < guys.Count(); q++ )
+	{
+		
+		enemy *wp = (enemy*)guys.spr(q);
+		//zprint("waitdraw is: %d\n", (wp->waitdraw));
+		//zprint("wp->doscript is: %d\n", wp->waitdraw);
+		//Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
+		if ( wp->doscript && wp->waitdraw ) 
+		{
+			//zprint("Running npc script on waitdraw.\n");
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(q)->script, wp->getUID());		
+			wp->waitdraw = 0;
+		}
+		
+	}
+}
+
 bool FFScript::itemScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
@@ -26001,6 +26022,28 @@ void FFScript::eweaponScriptEngine()
 			default: break;
 		}
 		*/
+	}
+}
+
+void FFScript::lweaponScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
+	for ( int q = 0; q < Lwpns.Count(); q++ )
+	{
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		weapon *wp = (weapon*)Lwpns.spr(q);
+		if ( !wp->isLWeapon ) continue;
+		//if ( wp->Dead() ) continue;
+		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
+		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->doscript && wp->waitdraw ) 
+		{
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, wp->getUID());		
+			wp->waitdraw = 0;
+		}
+		
 	}
 }
 

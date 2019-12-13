@@ -266,7 +266,9 @@ void do_graphics_getpixel();
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
+void npcScriptEngineOnWaitdraw();
 bool itemScriptEngineOnWaitdraw();
+void lweaponScriptEngineOnWaitdraw();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
 void eweaponScriptEngineOnWaitdraw();
