@@ -3,7 +3,9 @@ ChangeLog for 2.53.1
 //Beta 18
 Fix and clean up Compiler dialoge. 
 Added Menu: Tools->ZQuest Settings->Compiler, with option to set
-	header guard value. 
+	header guard value.
+Note how to cause header guards to match the filename instead of quotedstrings.	
+Make header guard tokens case-insensitive.
 Added zquest.cfg option HEADER_GUARD. At present, this matches
 	the full quoted string, but should we ever want to match the
 	filename only, I added a note in ffscript.ypp, line 680
