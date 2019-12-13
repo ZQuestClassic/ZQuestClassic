@@ -3706,8 +3706,9 @@ enum ASM_DEFINE
 #define EWPNLEVEL             0x138A
 #define HEROHEALTHBEEP             0x138B
 #define COMBODATTRIBYTES             0x138C
+#define NPCRANDOM             0x138D
 
-#define NUMVARIABLES         	0x138D
+#define NUMVARIABLES         	0x138E
 
 // Script types
 

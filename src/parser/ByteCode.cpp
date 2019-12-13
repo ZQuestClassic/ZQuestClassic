@@ -1798,6 +1798,7 @@ string ZScript::VarToString(long ID)
 	case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
 	case SPRITEMAXDECO: return "SPRITEMAXDECO";
 	case HEROHEALTHBEEP: return "HEROHEALTHBEEP";
+	case NPCRANDOM: return "NPCRANDOM";
 	
 	
 	default:

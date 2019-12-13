@@ -3860,6 +3860,9 @@ long get_register(const long arg)
 			
 		case NPCHALTRATE:
 			GET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
+		
+		case NPCRANDOM:
+			GET_NPC_VAR_INT(rate, "npc->Random") break;
 			
 		case NPCDRAWTYPE:
 			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
@@ -11333,6 +11336,9 @@ void set_register(const long arg, const long value)
 			
 		case NPCHALTRATE:
 			SET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
+		
+		case NPCRANDOM:
+			SET_NPC_VAR_INT(rate, "npc->Random") break;
 			
 		case NPCDRAWTYPE:
 			SET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;

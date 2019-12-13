@@ -3336,6 +3336,9 @@ int AClock
 ///  NPC  ///
 /////////////
 
+int Random;
+ * Corresponds to the Enemy Editor Random Rate value.
+
 bool Animation;
  * Normally 'true'. If enabled, the npc is animated by the ZC engine.
  * Set this false to disable engine animation.
