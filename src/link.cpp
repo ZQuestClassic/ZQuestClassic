@@ -8321,6 +8321,8 @@ bool LinkClass::startwpn(int itemid)
 		//byrna weapons are added here
 		//space them apart
 		//zprint("Added byrna weapon %d.\n", i);
+		//the iterator isn passed to 'type'. weapons.cpp converts thisd to
+		//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
 		Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
             //Lwpns.add(new weapon((fix)wx+cos(2 * PI / (i+1)),(fix)wy+sin(2 * PI / (i+1)),(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
