@@ -1130,8 +1130,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,cid);
-					screen_combo_modify_preroutine(FFCore.tempScreens[layer],cid);
+					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
 					if((c[cid].usrflags&cflag12))
@@ -1143,13 +1143,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					else
 						++FFCore.tempScreens[layer]->data[scombo];
 					
-					screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
+					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,cid);
+					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(tmpscr,cid);
+					screen_combo_modify_preroutine(tmpscr,scombo);
 					//undercombo or next?
 					if((c[cid].usrflags&cflag12))
 					{
@@ -1158,8 +1158,11 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 						tmpscr->sflag[scombo] = 0;	
 					}
 					else
-						++tmpscr->data[scombo];
-					screen_combo_modify_postroutine(tmpscr,cid);
+					{
+						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
+						//++tmpscr->data[scombo];
+					}
+					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
 				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
