@@ -1110,12 +1110,12 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		//screen secrets
 		if ( c[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(tmpscr,cid);
+			screen_combo_modify_preroutine(tmpscr,scombo);
 			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
 			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
 			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
 			// newflag = s->secretflag[ft];
-			screen_combo_modify_postroutine(tmpscr,cid);
+			screen_combo_modify_postroutine(tmpscr,scombo);
 			if ( c[cid].attribytes[2] > 0 )
 				sfx(c[cid].attribytes[2],int(bx));
 		}
