@@ -11,6 +11,7 @@ Byrna beam orbit spacing was affected by changes that use w.type
 	properly (as w->Level). I added w->quantity_iterator that is now
 	used by wCByrna to determine the iteration index for spacing to
 	correct this issue.
+Fixed sparkles not rendering.
 	( ZoriaRPG, 8th December, 2019 )
 	
 Fixed an array literal crash from misplaced ZASM when using dereferenced
