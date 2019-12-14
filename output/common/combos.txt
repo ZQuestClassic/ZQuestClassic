@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 45            *
-*     Rev.2 - 8th December, 2019     *
+*     Rev.3, 14th December, 2019     *
 *************************************/
 
 1. COMBO TYPES
@@ -33,6 +33,14 @@ These additional combo types support extra features:
 		You can now specify the enemies that statue combos generate, 
 		along with determining if they randomise between two enemies.
 		
+	Warp Types
+		Stairs, Sensitive Warp, Swim Warp, and Dive Warp combos now all
+		permit setting a sound effect to play during the warp.
+		These also work as FFCs.
+
+	Step Types
+		Step->Next, and Step->Secret combo types now allow setting a sound
+		effect to play when the Hero steps on them.
 
 2. TRIGGER WEAPONS
 	Combos now have a set of flags with which you can set weapons that trigger
@@ -554,3 +562,39 @@ Armos/Statue Combos
 		Random
 			If enabled, then ZC will randomly determine between the
 			two specified enemies. 
+	
+
+ _       __                    ______                __              
+| |     / /___ __________     / ____/___  ____ ___  / /_  ____  _____
+| | /| / / __ `/ ___/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+| |/ |/ / /_/ / /  / /_/ /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+|__/|__/\__,_/_/  / .___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                 /_/                                                 
+Warp Combos
+	You may set a sound effect to play during all instantaneous-type warp transitions
+	when the Hero touches a Warp combo, either on the map, or as an ffc.
+	This supports the following combo types:
+		Stairs, Sensitive Warp, Swim Warp, and Dive Warp.
+		
+	Attributes Tab 1
+		Sound
+			The ID of the sound effect to play. Set to '0' for 'none'.
+
+	
+
+
+   _____ __                ______                __              
+  / ___// /____  ____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ __/ _ \/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / /_/  __/ /_/ /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/\__/\___/ .___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+             /_/                                                 
+Step Combos
+	You may set a sound effect to play when the Hero triggers a Step->Next, or a
+	Step->Secrets combo.
+
+	Attributes Tab 1
+		Sound
+			The ID of the sound effect to play. Set to '0' for 'none'.
+			
+To-do: Chests
