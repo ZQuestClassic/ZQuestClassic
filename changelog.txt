@@ -1,7 +1,9 @@
 //2.55 Changes
 
-//Alpha 46
+//Alpha 47
+Fixed a crash when using Generic Trigger combos with IDs > 255. 
 
+//Alpha 46
 Added npc script wolfie.zs (1x2/2x1 enemy) to test_scripts.
 Added Waitdraw to npc and lweapon scripts.
 Added npc->Random to ZScript
