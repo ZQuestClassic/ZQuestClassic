@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 45
-Document Revision: 12th December, 2019
+Document for: 2.55, Alpha 47
+Document Revision: 16th December, 2019
 
 
  __           _   _                 
@@ -3275,7 +3275,10 @@ npc Parent;
  * Weapons created by script have a default Parent of -1 (lweapon) and <npc>-0.0001 (eweapon). 
 	
 int Level;
- * The Level value associated with the weapon. 
+ * LWeapons: The Level value associated with the weapon. 
+ * EWeapons: The first bit (Level&1) is used to set a 'boss/unblockable'
+ * state. If this bit is 1, then the weapon is a boss weapon.
+ * Otherwise it is a normal weapon, blocked by standard shield flags.
 
 float UID;
  * Each weapon created by ZC in in a given session is assigned a unique ID (UID).
