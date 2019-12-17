@@ -68,6 +68,25 @@ void playLevelMusic();
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+static int isNextType(int type)
+{
+	//return true here, if an emulation bit says to use buggy code
+	if (emulation_patches[emuBUGGYNEXTCOMBOS]) return false; 
+	switch(type)
+	{
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
 
 static inline bool isSideview()
 {
@@ -2349,8 +2368,12 @@ void LinkClass::check_slash_block(int bx, int by)
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
-    
-    if(!ignorescreen)
+    byte skipsecrets = 0;
+    if (isNextType(type))
+    {
+	    skipsecrets = 1;
+    }
+    if(!ignorescreen && !skipsecrets)
     {
         if((flag >= 16)&&(flag <= 31))
         {
@@ -2411,6 +2434,20 @@ void LinkClass::check_slash_block(int bx, int by)
             
             //pausenow=true;
         }
+    }
+    
+    else if(!ignorescreen && skipsecrets)
+    {
+	    if(isCuttableNextType(type))
+            {
+                s->data[i]++;
+            }
+            else
+            {
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
+                s->sflag[i] = 0;
+            }
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)

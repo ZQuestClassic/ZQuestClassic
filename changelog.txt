@@ -1,5 +1,13 @@
 ChangeLog for 2.53.1
 
+//Beta 19
+Added an emulation flag for buggy ->Next combo behaviour.
+Fixed the issue reported by Matthew, where a Slash->Next combo
+	that transformed into a Step->Secrets combo would immediately transform
+	into the secret combo of the step combo, without being stepped upon,
+	immediately after being slashed.
+	( ZoriaRPG, 17th December, 2019 )
+
 //Beta 18
 Fix and clean up Compiler dialoge. 
 Added Menu: Tools->ZQuest Settings->Compiler, with option to set
@@ -9,7 +17,7 @@ Make header guard tokens case-insensitive.
 Added zquest.cfg option HEADER_GUARD. At present, this matches
 	the full quoted string, but should we ever want to match the
 	filename only, I added a note in ffscript.ypp, line 680
-	on how to revert to oing that.
+	on how to revert to doing that.
 	( ZoriaRPG, 10th December, 2019 )
 	
 Fixed illegal ternary token error on ':'
