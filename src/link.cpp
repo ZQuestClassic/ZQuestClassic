@@ -88,6 +88,33 @@ extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+static int isNextType(int type)
+{
+	//return true here, if an emulation bit says to use buggy code
+	if (FFCore.emulation[emuBUGGYNEXTCOMBOS]) return false; 
+	switch(type)
+	{
+		case cLIFTSLASHNEXT:
+		case cLIFTSLASHNEXTSPECITEM:
+		case cLIFTSLASHNEXTITEM:
+		case cDIGNEXT:
+		case cLIFTNEXT:
+		case cLIFTNEXTITEM:
+		case cLIFTNEXTSPECITEM:
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
+
 static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 {
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
@@ -3044,11 +3071,19 @@ void LinkClass::check_slash_block(int bx, int by)
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    byte skipsecrets = 0;
     
-    if(!ignorescreen)
+    if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
+		skipsecrets = 1; ;
+    }
+    
+    if(!ignorescreen && !skipsecrets)
+    {
+	
+	
         if((flag >= 16)&&(flag <= 31))
-        {
+        {  
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
             s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
             s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
@@ -3070,7 +3105,7 @@ void LinkClass::check_slash_block(int bx, int by)
             findentrance(bx,by,mfSTRIKE,true);
         }
         else if(((flag2 >= 16)&&(flag2 <= 31)))
-        {
+        { 
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
             s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
             s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
@@ -3106,6 +3141,20 @@ void LinkClass::check_slash_block(int bx, int by)
             
             //pausenow=true;
         }
+    }
+    else if(!ignorescreen && skipsecrets)
+    {
+	if(isCuttableNextType(type))
+            {
+                s->data[i]++;
+            }
+            else
+            {
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
+                s->sflag[i] = 0;
+            }
+	    
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -3768,11 +3817,15 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
-    
-    if(!ignorescreen || dontignore)
+    byte skipsecrets = 0;
+    if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
+    {
+		skipsecrets = 1; 
+    }
+    if(!skipsecrets && (!ignorescreen || dontignore))
     {
         if((flag >= 16)&&(flag <= 31))
-        {
+        { 
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
             s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
             s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
@@ -3830,6 +3883,19 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             //pausenow=true;
         }
+    }
+    else if(skipsecrets && (!ignorescreen || dontignore))
+    {
+	    if(isCuttableNextType(type))
+            {
+                s->data[i]++;
+            }
+            else
+            {
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
+                s->sflag[i] = 0;
+            }
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -13241,7 +13307,7 @@ void LinkClass::checkspecial()
         
         // clear enemies and open secret
         if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
-        {
+        { 
             hidden_entrance(0,true,true,-2);
             
             if(tmpscr->flags4&fENEMYSCRTPERM && !isdungeon())
@@ -13389,7 +13455,7 @@ void LinkClass::checkspecial2(int *ls)
             if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
             {
                 if(stype==cSTRIGFLAG && !isdungeon())
-                {
+                { 
                     if(!didstrig)
                     {
                         stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
@@ -13399,16 +13465,16 @@ void LinkClass::checkspecial2(int *ls)
                             setmapflag(mSECRET);
                         }
                         sfx(warpsound,pan((int)x));
-                        hidden_entrance(0,true,false);
+                        hidden_entrance(0,true,false); 
                         didstrig = true;
                     }
                 }
                 else
-                {
+                { 
                     if(!didstrig)
                     {
                         stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
-                        hidden_entrance(0,true,true);
+                        hidden_entrance(0,true,true); 
                         didstrig = true;
 			//play trigger sound
 			sfx(warpsound,pan((int)x));
@@ -13909,24 +13975,24 @@ void LinkClass::checkspecial2(int *ls)
         return;
         
     if((type==cTRIGNOFLAG || type==cTRIGFLAG))
-    {
+    { 
         if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
         {
-            stepsecret = (((ty+8)&0xF0)+((tx+8)>>4));
+            stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
             
             if(type==cTRIGFLAG && !isdungeon())
-            {
+            { 
                 if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
                 
                 hidden_entrance(0,true,false);
             }
-            else
-                hidden_entrance(0,true,true);
+            else 
+	    {  hidden_entrance(0,true,true);  }
         }
     }
     else if(!didstrig)
     {
-        stepsecret = -1;
+        stepsecret = -1; 
     }
     
     // Drown if:
@@ -13956,7 +14022,7 @@ void LinkClass::checkspecial2(int *ls)
     }
     
     if(type==cSTEP)
-    {
+    { 
         if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
         {
             stepnext=((ty+8)&0xF0)+((tx+8)>>4);

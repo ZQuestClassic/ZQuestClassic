@@ -7964,7 +7964,27 @@ int v250_dmap_intro_repeat()
 }
 
 
-
+int buggy_mext_combo_secrets_emulation()
+{
+	if(jwin_alert3(
+			"EMULATION: Buggy ->Next Combos", 
+			"This action will change if ->Next Combos Trigger Secrets.",
+			"If enabled, some ->Next combos will immediately trigger secrets.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuBUGGYNEXTCOMBOS] ) FFCore.emulation[emuBUGGYNEXTCOMBOS] = 0;
+	    else FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
+	}
+    return D_O_K;
+	
+}
 
 int v210_segment_drops()
 {
@@ -8249,6 +8269,7 @@ static MENU compat_patch_menu[] =
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
+    { (char *)"Buggy ->&Next Combos",                     buggy_mext_combo_secrets_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -9466,6 +9487,7 @@ void System()
 	compat_patch_menu[9].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 32 )  ) ? D_DISABLED : ((FFCore.emulation[emu8WAYSHOTSFX])?D_SELECTED:0);
 	//Bombchus use superbomb when contacting link.
 	compat_patch_menu[10].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 29 )  ) ? D_DISABLED : ((FFCore.emulation[emu210BOMBCHU])?D_SELECTED:0);
+	compat_patch_menu[11].flags = ((FFCore.emulation[emuBUGGYNEXTCOMBOS])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
