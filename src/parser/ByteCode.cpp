@@ -1174,7 +1174,7 @@ string LabelArgument::toStringSetV()
     else
     {
         char temp[40];
-        sprintf(temp, "%.4f", lineno * 0.0001f);
+        sprintf(temp, "%d", lineno);
         return string(temp);
     }
 }
