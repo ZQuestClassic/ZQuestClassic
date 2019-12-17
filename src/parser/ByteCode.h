@@ -462,6 +462,7 @@ class LabelArgument : public Argument
 public:
     LabelArgument(int id) : ID(id), haslineno(false) {}
     string toString();
+    string toStringSetV();
     void execute(ArgumentVisitor &host, void *param)
     {
         host.caseLabel(*this,param);
@@ -793,6 +794,17 @@ public:
         return new OPushRegister(a->clone());
     }
 };
+
+class OPushImmediate : public UnaryOpcode
+	{
+	public:
+		OPushImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPushImmediate(a->clone());
+		}
+	};
 
 class OPopRegister : public UnaryOpcode
 {

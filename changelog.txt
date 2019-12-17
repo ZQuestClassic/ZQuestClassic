@@ -1,6 +1,11 @@
 ChangeLog for 2.53.1
 
 //Beta 19
+Fixed animation type on Daira enemy in qst.dat.
+Fix line numbers being literal, not *10000. They need to be *10000
+	in 2.53.1.
+Optimised ZScript compiler function calls to use PUSHV, instead of SETV, then PUSHR.
+Added OPushImmediate opcode to the parser.
 Added an emulation flag for buggy ->Next combo behaviour.
 Fixed the issue reported by Matthew, where a Slash->Next combo
 	that transformed into a Step->Secrets combo would immediately transform
