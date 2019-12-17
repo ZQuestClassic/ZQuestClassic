@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 19
+Added OPushImmediate opcode to the parser.
 Added an emulation flag for buggy ->Next combo behaviour.
 Fixed the issue reported by Matthew, where a Slash->Next combo
 	that transformed into a Step->Secrets combo would immediately transform

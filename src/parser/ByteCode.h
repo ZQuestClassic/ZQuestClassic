@@ -794,6 +794,17 @@ public:
     }
 };
 
+class OPushImmediate : public UnaryOpcode
+	{
+	public:
+		OPushImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPushImmediate(a->clone());
+		}
+	};
+
 class OPopRegister : public UnaryOpcode
 {
 public:
