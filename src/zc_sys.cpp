@@ -7964,7 +7964,7 @@ int v250_dmap_intro_repeat()
 }
 
 
-int buggy_mext_combo_secrets_emulation()
+int buggy_next_combo_secrets_emulation()
 {
 	if(jwin_alert3(
 			"EMULATION: Buggy ->Next Combos", 
@@ -8269,7 +8269,7 @@ static MENU compat_patch_menu[] =
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
-    { (char *)"Buggy ->&Next Combos",                     buggy_mext_combo_secrets_emulation,                 NULL,                      0, NULL },
+    { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
