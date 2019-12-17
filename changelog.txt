@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 19
+Optimised ZScript compiler function calls to use PUSHV, instead of SETV, then PUSHR.
 Added OPushImmediate opcode to the parser.
 Added an emulation flag for buggy ->Next combo behaviour.
 Fixed the issue reported by Matthew, where a Slash->Next combo

@@ -462,6 +462,7 @@ class LabelArgument : public Argument
 public:
     LabelArgument(int id) : ID(id), haslineno(false) {}
     string toString();
+    string toStringSetV();
     void execute(ArgumentVisitor &host, void *param)
     {
         host.caseLabel(*this,param);

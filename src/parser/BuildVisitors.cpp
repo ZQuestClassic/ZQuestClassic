@@ -691,8 +691,9 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
     result.push_back(new OPushRegister(new VarArgument(SFRAME)));
     //push the return address
     int returnaddr = ScriptParser::getUniqueLabelID();
-    result.push_back(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
-    result.push_back(new OPushRegister(new VarArgument(EXP1)));
+    //result.push_back(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
+    //result.push_back(new OPushRegister(new VarArgument(EXP1)));
+    result.push_back(new OPushImmediate(new LabelArgument(returnaddr)));
     //if the function is a pointer function (->func()) we need to push the left-hand-side
     bool isdotexpr;
     IsDotExpr temp;

@@ -8,6 +8,10 @@
 #include <assert.h>
 #include <iostream>
 #include <cstdlib>
+#include <sstream>
+using std::ostringstream;
+using namespace std;
+
 
 string LiteralArgument::toString()
 {
@@ -1159,9 +1163,25 @@ string OPushRegister::toString()
     return "PUSHR " + getArgument()->toString();
 }
 
+string LabelArgument::toStringSetV()
+{
+    if(!haslineno)
+    {
+        char temp[40];
+        sprintf(temp, "l%d", ID);
+        return string(temp);
+    }
+    else
+    {
+        char temp[40];
+        sprintf(temp, "%.4f", lineno * 0.0001f);
+        return string(temp);
+    }
+}
+
 string OPushImmediate::toString()
 {
-	ostringstream oss;
+	std::ostringstream oss;
 	oss << "PUSHV ";
 	Argument* arg = getArgument();
 	if (LabelArgument* label = dynamic_cast<LabelArgument*>(arg))
