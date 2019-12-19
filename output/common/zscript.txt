@@ -1,5 +1,5 @@
 //Docs for 2.53.1, 2.55.0
-//Rev. 0.7.6; 27th October, 2019
+//Rev. 0.7.7; 19th December, 2019
 
 Search for !#! to find areas that require completion. 
 
@@ -2747,10 +2747,12 @@ void DrawString( 	int layer, int x, int y,
 					ZASM Instruction: 
 					TRIANGLE3DR
 	/**
-	* Draws a 3d triangle on the specified layer with the corners x1,y1 through x4,y4.
+	* Draws a 3d triangle on the specified layer with the corners x1,y1 through x3,y3.
 	* Corners are drawn in a counterclockwise order starting from x1,y1.
 	* From there a single or block of tiles or combos is then texture mapped
 	* onto the triangle using the arguments w, h, cset, flip, and render_mode.
+	*
+	* The h and w args are used to set the tile block size for the texture.
 	*
 	* A positive value in texture will draw the image from the tilesheet pages,
 	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
