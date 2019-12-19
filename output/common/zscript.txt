@@ -1,5 +1,5 @@
 //Docs for 2.53.1, 2.55.0
-//Rev. 0.7.6; 27th October, 2019
+//Rev. 0.7.7; 19th December, 2019
 
 Search for !#! to find areas that require completion. 
 
