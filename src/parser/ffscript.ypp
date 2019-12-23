@@ -852,16 +852,6 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
-		box_eol(); box_out("Include Paths Scanned First"); box_eol();
-	}
-	else
-	{
-		box_eol(); box_out("Standard Import Order"); box_eol();
-	}
-	
-	yyin = fopen(f, "r");
-	if(!yyin) 
-	{
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -871,9 +861,48 @@ int goPPC(const char *f)
 				yyin = fopen(pth_user.c_str(), "r");
 				if(!yyin) 
 				{
-					box_out("Can't open input file: "); box_out(f);
-					box_eol();
-					return -1;
+					yyin = fopen(f, "r");
+					
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						std::string f2 = f;
+									
+									
+						std::size_t found = f2.find_last_of("/");
+						std::string fileonly = f2.substr(found+1);
+						box_out(fileonly.c_str());box_eol();
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						
+						//tempname should now match the true filename
+						
+						//search header guard string substrings for it
+						
+						box_out("token: "); box_out(tkn.c_str());box_eol();
+						
+						//if no match, append it
+						if ( headerguardsPPC.find (tkn,0) == string::npos )
+						{
+							//headerguards += "$";
+							headerguardsPPC += tkn;
+							box_out("PPC Appending file: "); box_out(f);box_eol();
+						}
+						else if ( strcmp(f, "tmp") )
+						{
+							box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+							box_eol();
+							return -99;
+						}
+					}
 				}
 				else
 				{
@@ -965,46 +994,164 @@ int goPPC(const char *f)
 				return -99;
 			}
 		}
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		box_eol(); box_out("Include Paths Scanned First"); box_eol();
 	}
 	else
 	{
-		//put name in string
-		std::string f2 = f;
-					
-					
-		std::size_t found = f2.find_last_of("/");
-		std::string fileonly = f2.substr(found+1);
-		box_out(fileonly.c_str());box_eol();
-		
-		std::string tkn = "$";
-		tkn += f;
-		std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
-		
-		//tempname should now match the true filename
-		
-		//search header guard string substrings for it
-		
-		box_out("token: "); box_out(tkn.c_str());box_eol();
-		
-		//if no match, append it
-		if ( headerguardsPPC.find (tkn,0) == string::npos )
+		yyin = fopen(f, "r");
+		if(!yyin) 
 		{
-			//headerguards += "$";
-			headerguardsPPC += tkn;
-			box_out("PPC Appending file: "); box_out(f);box_eol();
+			yyin = fopen(pth_include.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_headers.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(pth_user.c_str(), "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						
+						
+						std::size_t found = pth_user.find_last_of("/");
+						std::string fileonly = pth_user.substr(found+1);
+						box_out(fileonly.c_str());box_eol();
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						//tempname should now match the true filename
+						box_out("token: "); box_out(tkn.c_str());box_eol();
+						
+						
+						//search header guard string substrings for it
+						//if no match, append it
+						if ( headerguardsPPC.find (tkn,0) == string::npos )
+						{
+							//headerguards += "$";
+							box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol();
+							headerguardsPPC += tkn;
+						}
+						else if ( strcmp(pth_user.c_str(), "tmp") )
+						{
+							box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
+							return -99;
+						}
+					}
+				}
+				else
+				{
+					//put name in string
+
+						
+					std::size_t found = pth_headers.find_last_of("/");
+					std::string fileonly = pth_headers.substr(found+1);
+					box_out(fileonly.c_str());box_eol();
+					
+					std::string tkn = "$";
+					tkn += f;
+					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+					//tempname should now match the true filename
+					box_out("token: "); box_out(tkn.c_str());box_eol();
+					//search header guard string substrings for it
+					//if no match, append it
+					if ( headerguardsPPC.find (tkn,0) == string::npos )
+					{
+						//headerguards += "$";
+						headerguardsPPC += tkn;
+						box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol();
+					}
+					else if ( strcmp(pth_headers.c_str(), "tmp") )
+					{
+						box_out("File already included, ignoring duplicate include: "); 
+						box_eol();box_out(pth_headers.c_str());box_eol();
+						return -99;
+					}
+				}
+			}
+			else
+			{
+				//put name in string
+						
+						
+				std::size_t found = pth_include.find_last_of("/");
+				std::string fileonly = pth_include.substr(found+1);
+				box_out(fileonly.c_str());box_eol();
+				
+				std::string tkn = "$";
+				tkn += f;
+				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+				//tempname should now match the true filename
+				box_out("token: "); box_out(tkn.c_str());box_eol();
+				//search header guard string substrings for it
+				//if no match, append it
+				if ( headerguardsPPC.find (tkn,0) == string::npos )
+				{
+					//headerguards += "$";
+					headerguardsPPC += tkn;
+					box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol();
+				}
+				else if ( strcmp(pth_include.c_str(), "tmp") )
+				{
+					box_out("File already included, ignoring duplicate include: "); box_eol();
+					box_out(pth_include.c_str());box_eol();
+					return -99;
+				}
+			}
 		}
-		else if ( strcmp(f, "tmp") )
+		else
 		{
-			box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
-			box_eol();
-			return -99;
+			//put name in string
+			std::string f2 = f;
+						
+						
+			std::size_t found = f2.find_last_of("/");
+			std::string fileonly = f2.substr(found+1);
+			box_out(fileonly.c_str());box_eol();
+			
+			std::string tkn = "$";
+			tkn += f;
+			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+			
+			//tempname should now match the true filename
+			
+			//search header guard string substrings for it
+			
+			box_out("token: "); box_out(tkn.c_str());box_eol();
+			
+			//if no match, append it
+			if ( headerguardsPPC.find (tkn,0) == string::npos )
+			{
+				//headerguards += "$";
+				headerguardsPPC += tkn;
+				box_out("PPC Appending file: "); box_out(f);box_eol();
+			}
+			else if ( strcmp(f, "tmp") )
+			{
+				box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+				box_eol();
+				return -99;
+			}
 		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		box_eol(); box_out("Standard Import Order"); box_eol();
 	}
-		
-	curfilename = string(f);
-	int result = yyparse();
-	fclose(yyin);
-	return result;
+	
+	
 }
 
 int go_noguard(const char *f)
@@ -1055,16 +1202,8 @@ int go_noguard(const char *f)
 	if(includesfirst)
 	{
 		box_eol(); box_out("Include Paths Scanned First"); box_eol();
-	}
-	else
-	{
-		box_eol(); box_out("Standard Import Order"); box_eol();
-	}
-	
-	yyin = fopen(f, "r");
-	if(!yyin) 
-	{
 		yyin = fopen(pth_include.c_str(), "r");
+
 		if(!yyin) 
 		{
 			yyin = fopen(pth_headers.c_str(), "r");
@@ -1073,9 +1212,17 @@ int go_noguard(const char *f)
 				yyin = fopen(pth_user.c_str(), "r");
 				if(!yyin) 
 				{
-					box_out("Can't open input file: "); box_out(f);
-					box_eol();
-					return -1;
+					yyin = fopen(f, "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						box_out("Appending file: "); box_out(f);box_eol();
+					}
 				}
 				else
 				{
@@ -1091,14 +1238,56 @@ int go_noguard(const char *f)
 		{
 			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
 		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
 	}
 	else
 	{
-		box_out("Appending file: "); box_out(f);box_eol();
+		box_eol(); box_out("Standard Import Order"); box_eol();
+		yyin = fopen(f, "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_include.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_headers.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(pth_user.c_str(), "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+					}
+				}
+				else
+				{
+					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+				}
+			}
+			else
+			{
+				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+			}
+		}
+		else
+		{
+			box_out("Appending file: "); box_out(f);box_eol();
+		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
 	}
-		
-	curfilename = string(f);
-	int result = yyparse();
-	fclose(yyin);
-	return result;
+	
+	
 }
