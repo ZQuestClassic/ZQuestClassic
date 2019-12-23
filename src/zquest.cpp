@@ -21598,6 +21598,10 @@ int onCompileScript()
         
         case 5:
             //Compile!
+		
+	    
+	
+	
             FILE *tempfile = fopen("tmp","w");
             
             if(!tempfile)

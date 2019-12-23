@@ -646,6 +646,14 @@ int go(const char *f)
 	yyin = NULL;
 	resetLexer();
 	
+	if(includesfirst)
+	{
+		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+	}
+	else
+	{
+		box_eol(); box_out("Standard Import Order"); box_eol();
+	}
 	
 	yyin = fopen(f, "r");
 	if(!yyin) 
@@ -842,6 +850,14 @@ int goPPC(const char *f)
 	yyin = NULL;
 	resetLexer();
 	
+	if(includesfirst)
+	{
+		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+	}
+	else
+	{
+		box_eol(); box_out("Standard Import Order"); box_eol();
+	}
 	
 	yyin = fopen(f, "r");
 	if(!yyin) 
@@ -1036,6 +1052,14 @@ int go_noguard(const char *f)
 	yyin = NULL;
 	resetLexer();
 	
+	if(includesfirst)
+	{
+		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+	}
+	else
+	{
+		box_eol(); box_out("Standard Import Order"); box_eol();
+	}
 	
 	yyin = fopen(f, "r");
 	if(!yyin) 
