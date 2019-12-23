@@ -648,6 +648,8 @@ int go(const char *f)
 	
 	if(includesfirst)
 	{
+		box_eol(); box_out("Scanning Include Paths First");  box_eol();
+						
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -800,6 +802,7 @@ int go(const char *f)
 	}
 	else
 	{
+		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1001,6 +1004,7 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
+		box_eol(); box_out("Scanning Include Paths First");  box_eol();
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -1151,6 +1155,7 @@ int goPPC(const char *f)
 	}
 	else
 	{
+		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1350,7 +1355,7 @@ int go_noguard(const char *f)
 	
 	if(includesfirst)
 	{
-		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+		box_eol(); box_out("Scanning Include Paths First");  box_eol();
 		yyin = fopen(pth_include.c_str(), "r");
 
 		if(!yyin) 
@@ -1395,7 +1400,7 @@ int go_noguard(const char *f)
 	}
 	else
 	{
-		box_eol(); box_out("Standard Import Order"); box_eol();
+		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
