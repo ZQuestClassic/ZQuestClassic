@@ -10,6 +10,7 @@ WS	[ \t\n\r]
 %x COMMENT
 %x STRING
 %x IMPORTING
+%x IMPORTING2
 %x IMPORTSTR
 
 %{
@@ -38,7 +39,7 @@ if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
 return			  { doLines();return RETURN; }
 import			  { doLines(); BEGIN( IMPORTING ); return IMPORT; }
-"#include"			  { doLines(); BEGIN( IMPORTING ); return IMPORT; }
+"#include"			  { doLines(); BEGIN( IMPORTING2 ); return IMPORT; }
 true				  { doLines();return ZTRUE; }
 false				  { doLines();return ZFALSE; }
 while				{doLines(); return WHILE;}
@@ -721,6 +722,32 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 		return 0;
 	} 
 	\" {
+		includesfirst = false;
+		BEGIN( IMPORTSTR );
+		qstr.str(""); /* Clear qstr */
+		qstr << yytext;
+	}
+}
+
+<IMPORTING2>{
+	<<EOF>>		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	}
+	[^\"\n]*\n		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	} 
+	\" {
+		includesfirst = true;
 		BEGIN( IMPORTSTR );
 		qstr.str(""); /* Clear qstr */
 		qstr << yytext;

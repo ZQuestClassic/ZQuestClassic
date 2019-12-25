@@ -1,5 +1,10 @@
 ChangeLog for 2.53.1
 
+//Beta 20
+The #include directive now scans all include paths first, root last,
+	while the import directive scans root first; to match 2.55.
+	( ZoriaRPG, 23rd December, 2019 )
+
 //Beta 19
 Fixed animation type on Daira enemy in qst.dat.
 Fix line numbers being literal, not *10000. They need to be *10000
