@@ -7929,34 +7929,7 @@ long get_register(const long arg)
 			} \
 		} \
 		
-		case COMBOXR:
-		{
-			if ( type == SCRIPT_COMBO )
-			{
-				ret = (( ((i)%16*16) ) * 10000); //comboscriptstack[i]
-				//i is the current script number
-			}
-			else
-			{
-				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
-				ret = -10000;
-			}
-			break;
-		}
-
-		case COMBOYR:
-		{
-			if ( type == SCRIPT_COMBO )
-			{
-				ret = (( ((i)&0xF0) ) * 10000); //comboscriptstack[i]
-			}
-			else
-			{
-				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
-				ret = -10000;
-			}
-			break;
-		}
+		
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -19630,6 +19603,7 @@ int run_script(const byte type, const word script, const long i)
 		}
 		break;
 		
+		
 		case SCRIPT_COMBO:
 		{
 			ri = &(comboScriptData[i]);
@@ -22012,6 +21986,38 @@ int run_script(const byte type, const word script, const long i)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			
+			case COMBOXR:
+			{
+				if ( type == SCRIPT_COMBO )
+				{
+					set_register(sarg1, (( ((i)%16*16) ) * 10000));
+					//ret = (( ((i)%16*16) ) * 10000); //comboscriptstack[i]
+					//i is the current script number
+				}
+				else
+				{
+					Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+					//ret = -10000;
+				}
+				break;
+			}
+
+			case COMBOYR:
+			{
+				if ( type == SCRIPT_COMBO )
+				{
+					set_register(sarg1,(( ((i)&0xF0) ) * 10000));
+					//ret = (( ((i)&0xF0) ) * 10000); //comboscriptstack[i]
+				}
+				else
+				{
+					Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+					//ret = -10000;
+				}
+				break;
+			}
+			
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
