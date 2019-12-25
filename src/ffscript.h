@@ -501,6 +501,15 @@ void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
 
+//Combo Scripts
+void init_combo_doscript();
+void clear_combo_refinfo()
+void clear_combo_stacks();
+void clear_combo_refinfo(int pos);
+void clear_combo_stack(int q);
+void clear_combo_initialised();
+void ClearComboScripts();
+
 int GetScriptObjectUID(int type);
     
 byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
@@ -3728,6 +3737,7 @@ enum ASM_DEFINE
 #define SCRIPT_ITEMSPRITE                10
 #define SCRIPT_ACTIVESUBSCREEN           11
 #define SCRIPT_PASSIVESUBSCREEN          12
+#define SCRIPT_COMBO          		 13
 
 
 

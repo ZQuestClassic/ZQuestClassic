@@ -188,7 +188,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          6
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           13
+#define V_COMBOS           14
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            14
@@ -949,6 +949,9 @@ enum
 	qr_32BIT_BINARY, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
 	//83
 	qr_WEAPONS_EXTRA_FRAME, qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
+	
+	qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2, qr_combos_run_scripts_layer_3,
+	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6,
 	
     qr_MAX
 };
@@ -2026,7 +2029,7 @@ public:
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref;
-	int combosref;
+	int combosref, comboposref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -2042,6 +2045,7 @@ public:
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
 		comboidref = 0;
+		comboposref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
@@ -2677,8 +2681,8 @@ struct newcombo
 		//Thus, a weapon level affects all triggers for that combo type. 
     //384 bits total per object
     byte attribytes[4];
-    //word script;
-    //long initd[2];
+    word script;
+    long initd[2];
     //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
     //byte initialised; //no, better to have 176 inits, each bit for a layter,  
 };

@@ -9020,6 +9020,18 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(25);
 		}
 	    }
+	    if(!p_iputw(combobuf[i].script,f))
+		{
+			new_return(26);
+		}
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_putc(combobuf[i].initd[q],f))
+		{
+			new_return(27);
+		}
+	    }
+	    
 		    
         }
         

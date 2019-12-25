@@ -1022,6 +1022,18 @@ refInfo itemactiveScriptData[256];
 
 //char runningItemScripts[256] = {0};
 
+//Combo Scripts
+refInfo comboScriptData[176*7];
+word combo_doscript[176] = {0}; //one bit per layer
+byte combo_waitdraw[176] = {0}; //one bit per layer
+byte combo_initialised[176] = {0}; //one bit per layer
+int comboscript_combo_ids[176*7] = {0};
+long combo_stack[176*7][MAX_SCRIPT_REGISTERS];
+
+#define COMBOSCRIPT_RUNTYPE_DISABLED 0
+#define COMBOSCRIPT_RUNTYPE_RUNNING 1
+#define COMBOSCRIPT_RUNTYPE_CLEARING 2
+
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
@@ -19589,6 +19601,26 @@ int run_script(const byte type, const word script, const long i)
 		}
 		break;
 		
+		case SCRIPT_COMBO:
+		{
+			ri = &(comboScriptData[i]);
+
+			//curscript = comboscripts[script];
+			stack = &(combo_stack[i]);
+			int pos = ((i%176));
+			int id = comboscript_combo_ids[i]; 
+
+			if(!(combo_initialised[pos]&l))
+			{
+				memset(ri->d, 0, 8 * sizeof(long));
+				//for ( int q = 0; q < COMBOINITDMAX; q++ )
+				//	ri->d[q] = combosbuf[m->data[id]].initD[q];
+			}
+
+			ri->combosref = id; //'this' pointer
+			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
+			break;
+		}
 		
 		default:
 		{
@@ -19719,6 +19751,8 @@ int run_script(const byte type, const word script, const long i)
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
 						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
+					//case SCRIPT_COMBO: 
+					
 					default: break;					
 				}
 				break;
@@ -22048,6 +22082,7 @@ int run_script(const byte type, const word script, const long i)
 				tmpscr->screen_waitdraw = 1;
 				break;
 			
+			
 			case SCRIPT_ITEM:
 			{
 				if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
@@ -22091,6 +22126,22 @@ int run_script(const byte type, const word script, const long i)
 				{
 					Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
 				}
+				break;
+			}
+			
+			case SCRIPT_COMBO: 
+			{
+				int l = 0; //get the layer
+				for int q = 176; q < 1232; q+= 176 )
+				{
+					if ( i < q )
+					{
+						break;
+					}
+					++l;
+				}
+				int pos = ((i%176));
+				combo_waitdraw[pos] |= (1<<l);
 				break;
 			}
 		
@@ -22210,6 +22261,26 @@ int run_script(const byte type, const word script, const long i)
 			FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
 			break;
 		} 
+		
+		case SCRIPT_COMBO:
+		{	
+			int l = 0; //get the layer
+			for int q = 176; q < 1232; q+= 176 )
+			{
+				if ( i < q )
+				{
+					break;
+				}
+				++l;
+			}
+			int pos = ((i%176));
+			combo_doscript[pos] &=  ~(1<<l);
+			combo_initialised[pos] &=  ~(1<<l);
+			
+			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
+			break;
+		}
+		
 		}
 	}
 	else
@@ -34351,6 +34422,61 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 }
 
+//Combo Scripts
+
+void FFScript::init_combo_doscript()
+{
+	for ( int q = 0; q < 1232; q++ ) combo_doscript[q] = 1;
+}
+void FFScript::clear_combo_refinfo()
+{
+	for ( int q = 0; q < 1232; q++ )
+		comboScriptData[q].Clear();
+}
+
+void FFScript::clear_combo_refinfo(int pos)
+{
+	comboScriptData[pos].Clear();
+}
+
+void FFScript::clear_combo_stacks()
+{
+	for ( int q = 0; q < 1232; q++ )
+		memset(combo_stack[q], 0, sizeof(combo_stack[q]));
+}
+void FFScript::clear_combo_stack(int q)
+{
+	memset(combo_stack[q], 0, sizeof(combo_stack[q]));
+}
+
+void FFScript::clear_combo_initialised()
+{
+	memset(combo_initialised, 0, sizeof(combo_initialised));
+}
+
+//Clear stacks and refinfo in LOADSCR
+void FFScript:: ClearComboScripts()
+{
+	for ( int c = 0; c < 176; c++ )
+	{
+		combo_doscript[c] = 0;
+		combo_waitdraw[c] = 0;
+		combo_initialised[c] = 0;
+		for ( int l = 0; l < 7; l++)
+		{
+			if ( get_bit(quest_rules, qr_combos_run_scripts_layer_0+l) )
+			{
+				comboscript_combo_ids[c+(176*l)] = 0;
+				comboScriptData[c+(176*l)].Clear();
+				for ( int r = 0; q < MAX_SCRIPT_REGISTERS; ++r )
+				{
+					combo_stack[c+(176*l)][r] = 0; //clear the stacks
+				}
+			}
+		}
+	}
+}
+
 int FFScript::combo_script_engine(const bool preload)
 {
 	
@@ -34358,9 +34484,9 @@ int FFScript::combo_script_engine(const bool preload)
 	
 	for ( int q = 0; q < 7; ++q )
 	{
-		for ( int w = 0; w < 176; ++w )
+		for ( int c = 0; c < 176; ++c )
 		{
-			int cid = FFCore.tempScreens[q]->data[w];
+			int cid = FFCore.tempScreens[q]->data[c];
 			int type = combobuf[cid].type;
 			if ( type == cTRIGGERGENERIC )
 			{
@@ -34376,7 +34502,44 @@ int FFScript::combo_script_engine(const bool preload)
 			}
 			
 			//run its script
+			if (!get_bit(quest_rules, qrCOMBO_SCRIPTS_RUN_ON_LAYER_0+q)) continue;
 			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
+			if ( !q )
+			{
+				//layer 0
+				//not initialised, set it up to run
+				//if ( !(combo_initialised[c] & 1 ))
+				//{
+				//	combo_doscript[c] |= 1;
+				//	combo_initialised[c] |= 1;
+				//}
+				
+				//.script t/b/a
+				if ( combosbuf[tmpscr->data[c]].script )
+				{
+					if ( combo_doscript[c] & 1 )
+					{
+						//combo_doscript[c] |= 1;
+						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combosbuf[tmpscr->data[c].script, c+(176*q));
+					}
+				}
+			}
+			else //higher layers
+			{
+				int ls = tmpscr->layerscreen[q];
+				int lm = tmpscr->layermap[q];
+				mapscr *m = &TheMaps[(zc_max((lm)-1,0) * MAPSCRS + ls)];
+				if ( combosbuf[m->data[c]].script )
+				{
+					if ( combo_doscript[c] & (1<<q) )
+					{
+						combo_doscript[c] |= (1<<q);
+						comboscript_combo_ids[c+(176*q)] = m->data[c];
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combosbuf[m->data[c]].script, c=176*q);
+					}
+				}
+			}
 		}
 	}
 
