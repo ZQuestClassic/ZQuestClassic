@@ -2470,6 +2470,7 @@ struct script_variable
 #define SCRIPT_ITEMSPRITE                10
 #define SCRIPT_ACTIVESUBSCREEN           11
 #define SCRIPT_PASSIVESUBSCREEN          12
+#define SCRIPT_COMBO          		 13
 
 //Sprite boundary array indices
 enum
@@ -4412,6 +4413,7 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTSCREEN		256
 #define NUMSCRIPTSDMAP		256
 #define NUMSCRIPTSITEMSPRITE		256
+#define NUMSCRIPTSCOMBODATA		256
 
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1
