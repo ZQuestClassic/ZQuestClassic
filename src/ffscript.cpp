@@ -7931,9 +7931,12 @@ long get_register(const long arg)
 		
 		case COMBOXR:
 		{
+			//ri->combosref = id; //'this' pointer
+			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((curScriptNum)%16*16) ) * 10000); //comboscriptstack[i]
+				ret = (( ((ri->comboposref)%16*16) ) * 10000); //comboscriptstack[i]
+				//this may be wrong...may need a special new var for this, storing the exact combopos
 				//i is the current script number
 			}
 			else
@@ -7948,7 +7951,7 @@ long get_register(const long arg)
 		{
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((curScriptNum)&0xF0) ) * 10000); //comboscriptstack[i]
+				ret = (( ((ri->comboposref)&0xF0) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
