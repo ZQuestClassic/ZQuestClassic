@@ -7929,6 +7929,35 @@ long get_register(const long arg)
 			} \
 		} \
 		
+		case COMBOXR:
+		{
+			if ( type == SCRIPT_COMBO )
+			{
+				ret = (( ((i)%16*16) ) * 10000); //comboscriptstack[i]
+				//i is the current script number
+			}
+			else
+			{
+				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
+
+		case COMBOYR:
+		{
+			if ( type == SCRIPT_COMBO )
+			{
+				ret = (( ((i)&0xF0) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
+		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
@@ -30010,6 +30039,10 @@ script_variable ZASMVars[]=
 	{ "SPRITEMAXITEM",		SPRITEMAXITEM,        0,             0 },
 	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
 	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
+	{ "HEROHEALTHBEEP",		HEROHEALTHBEEP,        0,             0 },
+	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
+	{ "COMBOXR",		COMBOXR,        0,             0 },
+	{ "COMBOYR",		COMBOYR,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -34454,8 +34487,67 @@ void FFScript::clear_combo_initialised()
 	memset(combo_initialised, 0, sizeof(combo_initialised));
 }
 
+int FFScript::getComboDataLayer(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrorlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int l = 0;
+		for int q = 176; q < 1232; q+= 176 )
+		{
+			if ( c < q )
+			{
+				return l;
+			}
+			++l;
+		}
+	}
+}
+
+int FFScript::getCombodataPos(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrorlog("combodata->YPos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else return ((c%176));
+}
+
+int FFScript::getCombodataX(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrorlog("combodata->X() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int pos = getCombodataPos(c);
+		return COMBOX(pos);
+	}
+}
+
+int FFScript::getCombodataY(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrorlog("combodata->Y() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int pos = getCombodataPos(c);
+		return COMBOY(pos);
+	}
+}
+
 //Clear stacks and refinfo in LOADSCR
-void FFScript:: ClearComboScripts()
+void FFScript::ClearComboScripts()
 {
 	for ( int c = 0; c < 176; c++ )
 	{
