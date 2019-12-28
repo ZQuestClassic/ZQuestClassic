@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 21
+Report script exiting on command 0xFFFF.
+	( ZoriaRPG, 28th December, 2019 )
+
 //Beta 20
 The #include directive now scans all include paths first, root last,
 	while the import directive scans root first; to match 2.55.

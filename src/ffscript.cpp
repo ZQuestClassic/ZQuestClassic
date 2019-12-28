@@ -8727,6 +8727,20 @@ int run_script(const byte type, const word script, const byte i)
         
         switch(scommand)
         {
+	case 0xFFFF:  //invalid command
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].second.c_str()); break;
+			default: break;					
+		}
+		break;
+	}
         case QUIT:
             scommand = 0xFFFF;
             break;
