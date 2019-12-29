@@ -34472,7 +34472,10 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 void FFScript::init_combo_doscript()
 {
-	for ( int q = 0; q < 1232; q++ ) combo_doscript[q] = 1;
+	for(int q = 0; q < 7; ++q )
+	{
+		for ( int w = 0; w < 176; ++w ) combo_doscript[q] |= (1<<q);
+	}
 }
 void FFScript::clear_combo_refinfo()
 {
