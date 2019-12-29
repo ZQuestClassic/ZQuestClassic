@@ -34478,6 +34478,7 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 void FFScript::init_combo_doscript()
 {
+	clear_combo_refinfo();
 	for(int q = 0; q < 7*176; ++q )
 	{
 		combo_doscript[q] = 1;
@@ -34632,12 +34633,12 @@ int FFScript::combo_script_engine(const bool preload)
 				//.script t/b/a
 				if ( combobuf[tmpscr->data[c]].script )
 				{
-					zprint("combo_doscript[%d] is: %d\n", c, combo_doscript[c]);
+					//zprint("combo_doscript[%d] is: %d\n", c, combo_doscript[c]);
 					if ( (combo_doscript[c]) )
 					{
 						//combo_doscript[c] |= 1;
 						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
-						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c+(176*q));
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c);
 					}
 					//else zprint("no cdoscript\n");
 				}
