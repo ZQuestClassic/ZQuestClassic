@@ -1025,9 +1025,9 @@ refInfo itemactiveScriptData[256];
 
 //Combo Scripts
 refInfo comboScriptData[176*7];
-word combo_doscript[176] = {0}; //one bit per layer
+word combo_doscript[176*7] = {0}; //one bit per layer
 byte combo_waitdraw[176] = {0}; //one bit per layer
-byte combo_initialised[176] = {0}; //one bit per layer
+byte combo_initialised[176*7] = {0}; //one bit per layer
 int comboscript_combo_ids[176*7] = {0};
 long combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 
@@ -22299,7 +22299,7 @@ int run_script(const byte type, const word script, const long i)
 		
 		case SCRIPT_COMBO:
 		{	
-			int l = 0; //get the layer
+			/*int l = 0; //get the layer
 			for (int q = 176; q < 1232; q+= 176 )
 			{
 				if ( i < q )
@@ -22309,8 +22309,11 @@ int run_script(const byte type, const word script, const long i)
 				++l;
 			}
 			int pos = ((i%176));
-			combo_doscript[pos] &=  ~(1<<l);
-			combo_initialised[pos] &=  ~(1<<l);
+			combo_doscript[i] &=  ~(1<<l);
+			combo_initialised[pos] &=  ~(1<<l);*/
+			
+			combo_doscript[i] = 0;
+			combo_initialised[i] = 0;
 			
 			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
 			break;
@@ -34475,9 +34478,9 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 void FFScript::init_combo_doscript()
 {
-	for(int q = 0; q < 7; ++q )
+	for(int q = 0; q < 7*176; ++q )
 	{
-		for ( int w = 0; w < 176; ++w ) combo_doscript[q] |= (1<<q);
+		combo_doscript[q] = 1;
 	}
 }
 void FFScript::clear_combo_refinfo()
@@ -34629,12 +34632,14 @@ int FFScript::combo_script_engine(const bool preload)
 				//.script t/b/a
 				if ( combobuf[tmpscr->data[c]].script )
 				{
-					if ( combo_doscript[c] & 1 )
+					zprint("combo_doscript[%d] is: %d\n", c, combo_doscript[c]);
+					if ( (combo_doscript[c]) )
 					{
 						//combo_doscript[c] |= 1;
 						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
 						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c+(176*q));
 					}
+					//else zprint("no cdoscript\n");
 				}
 			}
 			else //higher layers
@@ -34644,9 +34649,9 @@ int FFScript::combo_script_engine(const bool preload)
 				mapscr *m = &TheMaps[(zc_max((lm)-1,0) * MAPSCRS + ls)];
 				if ( combobuf[m->data[c]].script )
 				{
-					if ( combo_doscript[c] & (1<<q) )
+					if ( combo_doscript[c*q] )
 					{
-						combo_doscript[c] |= (1<<q);
+						//combo_doscript[c] |= (1<<q);
 						comboscript_combo_ids[c+(176*q)] = m->data[c];
 						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c=176*q);
 					}

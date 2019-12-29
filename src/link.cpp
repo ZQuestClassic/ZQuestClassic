@@ -15367,11 +15367,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
                         "Insta-Warp");
                         
     eventlog_mapflags();
-    memset(combo_doscript, 0, sizeof(combo_doscript));
-    for (int q = 0; q < 176; ++q)
-    {
-	for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
-    }
+    FFCore.init_combo_doscript();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
     return true;
@@ -16786,11 +16782,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     kill_enemy_sfx();
     stop_sfx(WAV_ER);
     screenscrolling = true;
-    memset(combo_doscript, 0, sizeof(combo_doscript));
-    for (int q = 0; q < 176; ++q)
-    {
-	    for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
-    }
+    FFCore.init_combo_doscript();
     tmpscr[1] = tmpscr[0];
     
     const int _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
@@ -16951,6 +16943,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
             sy+=3;
             
         cx=176/step;
+	FFCore.init_combo_doscript();
     }
     break;
     
@@ -16970,6 +16963,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
             sy+=3;
             
         cx = 176 / step;
+	FFCore.init_combo_doscript();
     }
     break;
     
@@ -16986,6 +16980,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         putscrdoors(scrollbuf,0,0,newscr);
         sx = 256;
         cx = 256 / step;
+	FFCore.init_combo_doscript();
     }
     break;
     
@@ -17001,6 +16996,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         putscrdoors(scrollbuf,256,0,tmpscr);
         sx = 0;
         cx = 256 / step;
+	FFCore.init_combo_doscript();
     }
     break;
     }
@@ -17482,11 +17478,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     newscr_clk = frame;
     activated_timed_warp=false;
     loadside = scrolldir^1;
-    memset(combo_doscript, 0, sizeof(combo_doscript));
-    for (int q = 0; q < 176; ++q)
-    {
-	for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
-    }
+    FFCore.init_combo_doscript();
     eventlog_mapflags();
     decorations.animate(); //continue to animate tall grass during scrolling
     if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))

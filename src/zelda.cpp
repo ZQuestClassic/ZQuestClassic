@@ -3923,6 +3923,7 @@ int main(int argc, char* argv[])
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
+	FFCore.init_combo_doscript();
 
     memset(zc_builddate,0,80);
     memset(zc_aboutstr,0,80);
