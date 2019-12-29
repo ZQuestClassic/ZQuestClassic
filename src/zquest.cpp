@@ -848,6 +848,7 @@ ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];

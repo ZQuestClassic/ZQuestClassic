@@ -9410,7 +9410,7 @@ extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
-extern ffscript *combocripts[NUMSCRIPTSITEMSPRITE];
+extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 //ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 

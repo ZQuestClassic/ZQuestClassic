@@ -549,6 +549,7 @@ extern weapon_struct biw[wMAX];
 
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
+void build_bidcomboscripts_list();
 extern script_struct biitems[NUMSCRIPTFFC]; //item script
 extern int biitems_cnt;
 
