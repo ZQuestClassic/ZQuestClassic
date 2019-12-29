@@ -1585,6 +1585,7 @@ static MENU zscript_menu[] =
 	{ (char *)"Import ASM &DMap Script",        onImportDMapScript,        NULL,                     0,            NULL   },
 	{ (char *)"Import ASM &Screen Script",      onImportSCREENScript,      NULL,                     0,            NULL   },
 	{ (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,  NULL,                     0,            NULL   },
+	{ (char *)"Import ASM &Combo Script",  onImportComboScript,  NULL,                     0,            NULL   },
 //	{ (char *)"Set Include Path",               onZScriptSetIncludePath,   NULL,                     0,            NULL   },
 
 	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
