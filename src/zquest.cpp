@@ -23363,6 +23363,7 @@ static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
 static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
+static int as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -23377,6 +23378,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
+    { (char *)"Combo",		 0,         as_comboscript_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
