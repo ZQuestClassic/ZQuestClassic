@@ -3195,6 +3195,11 @@ void game_loop()
 	tmpscr->screen_waitdraw = 0;	    
     }
     
+    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	FFCore.combo_script_engine(false);    
+    }
+    
     for ( int q = 0; q < 32; ++q )
     {
 	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);

@@ -577,6 +577,7 @@ int PickRuleset()
         set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
         set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
         set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
+        set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
         
         switch(ruleset)
         {
