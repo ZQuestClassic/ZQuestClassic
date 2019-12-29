@@ -2046,6 +2046,8 @@ script_variable variable_list[]=
 	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
 	{ "HEROHEALTHBEEP",		HEROHEALTHBEEP,        0,             0 },
 	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
+	{ "COMBOXR",		COMBOXR,        0,             0 },
+	{ "COMBOYR",		COMBOYR,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

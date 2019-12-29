@@ -577,12 +577,14 @@ int PickRuleset()
         set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
         set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
         set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
+        set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
         
         switch(ruleset)
         {
         case 1: // Original NES
             set_bit(quest_rules, qr_OLDPICKUP, 1);
             set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
+            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
             break;
             
         case 4: // Zelda 3-esque
@@ -612,6 +614,7 @@ int PickRuleset()
             set_bit(quest_rules, qr_SHADOWS, 1);
             set_bit(quest_rules, qr_LTTPWALK, 1);
             set_bit(quest_rules, qr_MORESOUNDS, 1);
+            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
             
             // Fallthrough
         case 3: // BS Zelda
@@ -628,6 +631,7 @@ int PickRuleset()
             set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
             set_bit(quest_rules, qr_EXPANDEDLTM, 1);
             set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
             
             // Fallthrough
         case 2: // Fixed NES

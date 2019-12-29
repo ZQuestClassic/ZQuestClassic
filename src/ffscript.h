@@ -103,7 +103,7 @@ enum {
 	//16->26 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, //26
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //26
 	
 	//27->29 : Moving items
 	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
@@ -500,6 +500,22 @@ void initZScriptDMapScripts();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
+
+//Combo Scripts
+void init_combo_doscript();
+void clear_combo_refinfo();
+void clear_combo_stacks();
+void clear_combo_refinfo(int pos);
+void clear_combo_stack(int q);
+void clear_combo_initialised();
+void ClearComboScripts();
+int getComboDataLayer(int c, int scripttype);
+int getCombodataPos(int c, int scripttype);
+int getCombodataY(int c, int scripttype);
+int getCombodataX(int c, int scripttype);
+
+//tba
+//void deallocateComboArrays();
 
 int GetScriptObjectUID(int type);
     
@@ -3709,8 +3725,10 @@ enum ASM_DEFINE
 #define HEROHEALTHBEEP             0x138B
 #define COMBODATTRIBYTES             0x138C
 #define NPCRANDOM             0x138D
+#define COMBOXR             0x138E
+#define COMBOYR             0x138F
 
-#define NUMVARIABLES         	0x138E
+#define NUMVARIABLES         	0x1390
 
 // Script types
 
@@ -3728,6 +3746,7 @@ enum ASM_DEFINE
 #define SCRIPT_ITEMSPRITE                10
 #define SCRIPT_ACTIVESUBSCREEN           11
 #define SCRIPT_PASSIVESUBSCREEN          12
+#define SCRIPT_COMBO          		 13
 
 
 

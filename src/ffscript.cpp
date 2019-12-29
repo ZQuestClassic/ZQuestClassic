@@ -730,10 +730,10 @@ CConsoleLoggerEx zscript_coloured_console;
 #endif
 
 
-const char script_types[13][16]=
+const char script_types[14][16]=
 {
 	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)"
+	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata"
 };
 	
 	
@@ -956,6 +956,7 @@ extern std::map<int, std::pair<string, string> > linkmap;
 extern std::map<int, std::pair<string, string> > dmapmap;
 extern std::map<int, std::pair<string, string> > screenmap;
 extern std::map<int, std::pair<string, string> > itemspritemap;
+extern std::map<int, std::pair<string, string> > comboscriptmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -1021,6 +1022,18 @@ refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate s
 refInfo itemactiveScriptData[256];
 
 //char runningItemScripts[256] = {0};
+
+//Combo Scripts
+refInfo comboScriptData[176*7];
+word combo_doscript[176*7] = {0}; //one bit per layer
+byte combo_waitdraw[176] = {0}; //one bit per layer
+byte combo_initialised[176*7] = {0}; //one bit per layer
+int comboscript_combo_ids[176*7] = {0};
+long combo_stack[176*7][MAX_SCRIPT_REGISTERS];
+
+#define COMBOSCRIPT_RUNTYPE_DISABLED 0
+#define COMBOSCRIPT_RUNTYPE_RUNNING 1
+#define COMBOSCRIPT_RUNTYPE_CLEARING 2
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -7916,6 +7929,38 @@ long get_register(const long arg)
 				ret = (combo_class_buf[combobuf[ri->combosref].type].member&flag) ? 10000 : 0); \
 			} \
 		} \
+		
+		case COMBOXR:
+		{
+			//ri->combosref = id; //'this' pointer
+			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)%16*16) ) * 10000); //comboscriptstack[i]
+				//this may be wrong...may need a special new var for this, storing the exact combopos
+				//i is the current script number
+			}
+			else
+			{
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
+
+		case COMBOYR:
+		{
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)&0xF0) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -19589,6 +19634,28 @@ int run_script(const byte type, const word script, const long i)
 		}
 		break;
 		
+		case SCRIPT_COMBO:
+		{
+			ri = &(comboScriptData[i]);
+
+			curscript = comboscripts[script];
+			stack = &(combo_stack[i]);
+			int pos = ((i%176));
+			int id = comboscript_combo_ids[i]; 
+
+			//if(!(combo_initialised[pos]&l))
+			if(!(combo_initialised[pos]))
+			{
+				memset(ri->d, 0, 8 * sizeof(long));
+				for ( int q = 0; q < 2; q++ )
+					//ri->d[q] = combobuf[m->data[id]].initD[q];
+					ri->d[q] = combobuf[id].initd[q];
+			}
+
+			ri->combosref = id; //'this' pointer
+			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
+			break;
+		}
 		
 		default:
 		{
@@ -19719,6 +19786,8 @@ int run_script(const byte type, const word script, const long i)
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
 						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
+					//case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
+					
 					default: break;					
 				}
 				break;
@@ -22048,6 +22117,7 @@ int run_script(const byte type, const word script, const long i)
 				tmpscr->screen_waitdraw = 1;
 				break;
 			
+			
 			case SCRIPT_ITEM:
 			{
 				if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
@@ -22091,6 +22161,22 @@ int run_script(const byte type, const word script, const long i)
 				{
 					Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
 				}
+				break;
+			}
+			
+			case SCRIPT_COMBO: 
+			{
+				int l = 0; //get the layer
+				for (int q = 176; q < 1232; q+= 176 )
+				{
+					if ( i < q )
+					{
+						break;
+					}
+					++l;
+				}
+				int pos = ((i%176));
+				combo_waitdraw[pos] |= (1<<l);
 				break;
 			}
 		
@@ -22210,6 +22296,29 @@ int run_script(const byte type, const word script, const long i)
 			FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
 			break;
 		} 
+		
+		case SCRIPT_COMBO:
+		{	
+			/*int l = 0; //get the layer
+			for (int q = 176; q < 1232; q+= 176 )
+			{
+				if ( i < q )
+				{
+					break;
+				}
+				++l;
+			}
+			int pos = ((i%176));
+			combo_doscript[i] &=  ~(1<<l);
+			combo_initialised[pos] &=  ~(1<<l);*/
+			
+			combo_doscript[i] = 0;
+			combo_initialised[i] = 0;
+			
+			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
+			break;
+		}
+		
 		}
 	}
 	else
@@ -23763,7 +23872,7 @@ void FFScript::setComboData_whistle(){ SET_COMBODATA_TYPE_INT(whistle,ZS_BYTE); 
 void FFScript::setComboData_win_game(){ SET_COMBODATA_TYPE_INT(win_game,ZS_BYTE); } //byte bi
 void FFScript::setComboData_block_weapon_lvl(){ SET_COMBODATA_TYPE_INT(block_weapon_lvl,ZS_BYTE); } //byte bj - max level of weapon to block
 
-//combosbuf
+//combobuf
 void FFScript::setComboData_tile(){ SET_COMBODATA_VAR_INT(tile,ZS_WORD); } //newcombo, word
 void FFScript::setComboData_flip(){ SET_COMBODATA_VAR_INT(flip,ZS_BYTE); } //newcombo byte
 
@@ -29939,6 +30048,10 @@ script_variable ZASMVars[]=
 	{ "SPRITEMAXITEM",		SPRITEMAXITEM,        0,             0 },
 	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
 	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
+	{ "HEROHEALTHBEEP",		HEROHEALTHBEEP,        0,             0 },
+	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
+	{ "COMBOXR",		COMBOXR,        0,             0 },
+	{ "COMBOYR",		COMBOYR,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -30315,6 +30428,8 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif
 			break;
 			
+			case SCRIPT_ACTIVESUBSCREEN:
+			case SCRIPT_PASSIVESUBSCREEN:
 			case SCRIPT_DMAP:
 				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
 				
@@ -30340,11 +30455,19 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif
 			break;
 			
-			case SCRIPT_SUBSCREEN:
-				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			//case SCRIPT_SUBSCREEN:
+			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			//	#ifdef _WIN32
+			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+			//	#endif
+			//break;
+			
+			case SCRIPT_COMBO:
+				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
 		}
@@ -34351,6 +34474,125 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 }
 
+//Combo Scripts
+
+void FFScript::init_combo_doscript()
+{
+	clear_combo_refinfo();
+	for(int q = 0; q < 7*176; ++q )
+	{
+		combo_doscript[q] = 1;
+	}
+}
+void FFScript::clear_combo_refinfo()
+{
+	for ( int q = 0; q < 1232; q++ )
+		comboScriptData[q].Clear();
+}
+
+void FFScript::clear_combo_refinfo(int pos)
+{
+	comboScriptData[pos].Clear();
+}
+
+void FFScript::clear_combo_stacks()
+{
+	for ( int q = 0; q < 1232; q++ )
+		memset(combo_stack[q], 0, sizeof(combo_stack[q]));
+}
+void FFScript::clear_combo_stack(int q)
+{
+	memset(combo_stack[q], 0, sizeof(combo_stack[q]));
+}
+
+void FFScript::clear_combo_initialised()
+{
+	memset(combo_initialised, 0, sizeof(combo_initialised));
+}
+
+int FFScript::getComboDataLayer(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int l = 0;
+		for (int q = 176; q < 1232; q+= 176 )
+		{
+			if ( c < q )
+			{
+				return l;
+			}
+			++l;
+		}
+		return -1;
+	}
+}
+
+int FFScript::getCombodataPos(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrlog("combodata->YPos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else return ((c%176));
+}
+
+int FFScript::getCombodataX(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrlog("combodata->X() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int pos = getCombodataPos(c, scripttype);
+		return COMBOX(pos);
+	}
+}
+
+int FFScript::getCombodataY(int c, int scripttype)
+{
+	if ( scripttype != SCRIPT_COMBO )
+	{
+		Z_scripterrlog("combodata->Y() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		return -1;
+	}
+	else
+	{
+		int pos = getCombodataPos(c, scripttype);
+		return COMBOY(pos);
+	}
+}
+
+//Clear stacks and refinfo in LOADSCR
+void FFScript::ClearComboScripts()
+{
+	for ( int c = 0; c < 176; c++ )
+	{
+		combo_doscript[c] = 0;
+		combo_waitdraw[c] = 0;
+		combo_initialised[c] = 0;
+		for ( int l = 0; l < 7; l++)
+		{
+			if ( get_bit(quest_rules, qr_combos_run_scripts_layer_0+l) )
+			{
+				comboscript_combo_ids[c+(176*l)] = 0;
+				comboScriptData[c+(176*l)].Clear();
+				for ( int r = 0; r < MAX_SCRIPT_REGISTERS; ++r )
+				{
+					combo_stack[c+(176*l)][r] = 0; //clear the stacks
+				}
+			}
+		}
+	}
+}
+
 int FFScript::combo_script_engine(const bool preload)
 {
 	
@@ -34358,9 +34600,9 @@ int FFScript::combo_script_engine(const bool preload)
 	
 	for ( int q = 0; q < 7; ++q )
 	{
-		for ( int w = 0; w < 176; ++w )
+		for ( int c = 0; c < 176; ++c )
 		{
-			int cid = FFCore.tempScreens[q]->data[w];
+			int cid = FFCore.tempScreens[q]->data[c];
 			int type = combobuf[cid].type;
 			if ( type == cTRIGGERGENERIC )
 			{
@@ -34376,7 +34618,46 @@ int FFScript::combo_script_engine(const bool preload)
 			}
 			
 			//run its script
+			if (!get_bit(quest_rules, qr_combos_run_scripts_layer_0+q)) { continue;}
 			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
+			if ( !q )
+			{
+				//layer 0
+				//not initialised, set it up to run
+				//if ( !(combo_initialised[c] & 1 ))
+				//{
+				//	combo_doscript[c] |= 1;
+				//	combo_initialised[c] |= 1;
+				//}
+				
+				//.script t/b/a
+				if ( combobuf[tmpscr->data[c]].script )
+				{
+					//zprint("combo_doscript[%d] is: %d\n", c, combo_doscript[c]);
+					if ( (combo_doscript[c]) )
+					{
+						//combo_doscript[c] |= 1;
+						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c);
+					}
+					//else zprint("no cdoscript\n");
+				}
+			}
+			else //higher layers
+			{
+				int ls = tmpscr->layerscreen[q];
+				int lm = tmpscr->layermap[q];
+				mapscr *m = &TheMaps[(zc_max((lm)-1,0) * MAPSCRS + ls)];
+				if ( combobuf[m->data[c]].script )
+				{
+					if ( combo_doscript[c*q] )
+					{
+						//combo_doscript[c] |= (1<<q);
+						comboscript_combo_ids[c+(176*q)] = m->data[c];
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c=176*q);
+					}
+				}
+			}
 		}
 	}
 

@@ -72,6 +72,7 @@ extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
 extern std::map<int, pair<string, string> > itemspritemap;
+extern std::map<int, pair<string, string> > comboscriptmap;
 
 zmap Map;
 int prv_mode=0;
@@ -9020,6 +9021,18 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(25);
 		}
 	    }
+	    if(!p_iputw(combobuf[i].script,f))
+		{
+			new_return(26);
+		}
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(combobuf[i].initd[q],f))
+		{
+			new_return(27);
+		}
+	    }
+	    
 		    
         }
         
@@ -10826,6 +10839,7 @@ extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -10978,6 +10992,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+	al_trace("About to write combo script pt 1.\n");
+	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11364,6 +11389,44 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
                 {
                     new_return(2042);
+                }
+            }
+        }
+	
+	//combo scripts
+	al_trace("About to write combo script pt 2.\n");
+	word numcombobindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numcombobindings++;
+            }
+        }
+	al_trace("About to write combo script pt 3.\n");
+	if(!p_iputw(numcombobindings, f))
+        {
+            new_return(2043);
+        }
+        al_trace("About to write combo script pt 4.\n");
+        for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2044);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2045);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2046);
                 }
             }
         }

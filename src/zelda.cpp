@@ -125,6 +125,7 @@ extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
 extern std::map<int, pair<string, string> > itemspritemap;
+extern std::map<int, pair<string, string> > comboscriptmap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -414,6 +415,7 @@ ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;
@@ -999,6 +1001,7 @@ extern std::map<int, std::pair<std::string, std::string> > linkmap;
 extern std::map<int, std::pair<std::string, std::string> > dmapmap;
 extern std::map<int, std::pair<std::string, std::string> > screenmap;
 extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
+extern std::map<int, std::pair<std::string, std::string> > comboscriptmap;
 
 extern CConsoleLoggerEx zscript_coloured_console;
 
@@ -1115,6 +1118,14 @@ void Z_scripterrlog(const char * const format,...)
 	
 	case SCRIPT_SUBSCREEN:
             al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+	
+	case SCRIPT_COMBO:
+            al_trace("Subscreen script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
@@ -3184,6 +3195,11 @@ void game_loop()
 	tmpscr->screen_waitdraw = 0;	    
     }
     
+    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	FFCore.combo_script_engine(false);    
+    }
+    
     for ( int q = 0; q < 32; ++q )
     {
 	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
@@ -3907,6 +3923,7 @@ int main(int argc, char* argv[])
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
+	FFCore.init_combo_doscript();
 
     memset(zc_builddate,0,80);
     memset(zc_aboutstr,0,80);
@@ -4651,6 +4668,11 @@ int main(int argc, char* argv[])
         itemspritescripts[i] = new ffscript[1];
         itemspritescripts[i][0].command = 0xFFFF;
     }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new ffscript[1];
+        comboscripts[i][0].command = 0xFFFF;
+    }
     
     
     
@@ -5259,6 +5281,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

@@ -33,6 +33,7 @@
 #include "zc_custom.h"
 #include "questReport.h"
 #include "mem_debug.h"
+#include "ffasm.h"
 
 extern zcmodule moduledata;
 
@@ -67,6 +68,8 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
+extern int bidcomboscripts_cnt;
+extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
 
 BITMAP *intersection_pattern;
 
@@ -11708,6 +11711,13 @@ static int combo_trigger_list2[] =
      -1
 };
 
+static int combo_script_list[] =
+{
+    // dialog control number
+	122,123,124,125,126,127,128,129,
+     -1
+};
+
 static TABPANEL combo_tabs[] =
 {
     // (text)
@@ -11716,6 +11726,7 @@ static TABPANEL combo_tabs[] =
     { (char *)"Attributes 2",          0,             combo_attributes_list2,           0, NULL },
     { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
     { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
+    { (char *)"Script",          0,             combo_script_list,           0, NULL },
 
     { NULL,                   0,             NULL,                        0, NULL }
 };
@@ -13196,6 +13207,18 @@ std::map<int, ComboAttributesInfo *> *getComboInfoMap()
 
 int get_tick_sel(){ return D_CLOSE; } 
 
+const char *comboscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bidcomboscripts_cnt;
+        return NULL;
+    }
+    
+    return bidcomboscripts[index].first.c_str();
+}
+static ListData comboscript_list(comboscriptdroplist, &font);
+
 static DIALOG combo_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -13366,8 +13389,22 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
    
+    //combo script
+    ///122
+    { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    84,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
+     { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
+   //128 cancel, 129 OK
+     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+   
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
+
+
 
 void setComboLabels(int family)
 {
@@ -13600,6 +13637,11 @@ bool edit_combo(int c,bool freshen,int cs)
     char minlevel[8];
     char the_label[11];
     
+    char initiald0[16];
+    char initiald1[16];
+    
+    int thescript = 0;
+    
     char combonumstr[25];
     
     combo_dlg[11].d1 = -1;
@@ -13634,6 +13676,27 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
     strcpy(the_label, curr_combo.label);
+    
+    sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
+    sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
+		
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
+    
+    build_bidcomboscripts_list();
+    
+    int script = 0;
+    
+    for(int j = 0; j < bidcomboscripts_cnt; j++)
+    {
+        if(bidcomboscripts[j].second == curr_combo.script - 1)
+            script = j;
+            
+       
+    }
+   
+    
+    combo_dlg[127].d1 = script;
     
     combo_dlg[13].dp = cset_str;
     
@@ -13764,10 +13827,16 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attribyt2,"%d",attribyte_vals[2]);
     sprintf(attribyt3,"%d",attribyte_vals[3]);
     
+    //122, 124 initD
+    
     combo_dlg[113].dp = attribyt0;
     combo_dlg[115].dp = attribyt1;
     combo_dlg[117].dp = attribyt2;
     combo_dlg[119].dp = attribyt3;
+    
+    //initd
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
     
     
     //trigger level
@@ -14169,7 +14238,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
-		
+		//initd and combo script
+		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
+		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
+		curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
 		
 		curr_combo.animflags = 0;
 		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
@@ -14304,6 +14376,10 @@ bool edit_combo(int c,bool freshen,int cs)
 			curr_combo.usrflags &= ~0x8000;
 		}
 		
+		
+		
+		
+		//combo label
 		strcpy(curr_combo.label, the_label);
 		
 		if(ret==25)
@@ -14368,9 +14444,10 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
     
 	    
-    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 );
-    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 ) //save it
+    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
+    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
     {
+	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
 	    combobuf[c] = curr_combo;
 	    saved = false;
     }

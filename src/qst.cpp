@@ -94,6 +94,7 @@ std::map<int, pair<string, string> > linkmap;
 std::map<int, pair<string, string> > dmapmap;
 std::map<int, pair<string, string> > screenmap;
 std::map<int, pair<string, string> > itemspritemap;
+std::map<int, pair<string, string> > comboscriptmap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
@@ -9409,6 +9410,7 @@ extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 //ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 
@@ -9618,6 +9620,17 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 	}
+	if(s_version >=15)
+	{
+		for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i]);
+                
+			if(ret != 0) return qe_invalid;
+		}
+		
+	}
+	
         /*
         else //Is this trip really necessary?
         {
@@ -9876,6 +9889,27 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 delete[] buf;
             }
         }
+	if(s_version >= 15)
+        {
+            word numcombobindings;
+            p_igetw(&numcombobindings, f, true);
+            
+            for(int i=0; i<numcombobindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
+                    comboscriptmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
     }
     
     return 0;
@@ -9943,6 +9977,11 @@ void reset_scripts()
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+    }
+    
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
@@ -10005,6 +10044,11 @@ void reset_scripts()
     {
         itemspritescripts[i] = new ffscript[1];
         itemspritescripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new ffscript[1];
+        comboscripts[i][0].command = 0xFFFF;
     }
 }
 
@@ -14100,6 +14144,28 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		
 	}
+	//combo scripts
+	if(section_version>=14) 
+	{
+		if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
+		for ( int q = 0; q < 2; q++ )
+		{
+		    if(!p_igetl(&temp_combo.initd[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		
+	}
+	if(section_version<14)
+	{ 
+		temp_combo.script = 0;
+		for ( int q = 0; q < 2; q++ )
+		{
+		    temp_combo.initd[q] = 0;
+		}
+	}
+	al_trace("Read combo script data\n");
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)
