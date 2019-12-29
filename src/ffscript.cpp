@@ -19638,7 +19638,7 @@ int run_script(const byte type, const word script, const long i)
 		{
 			ri = &(comboScriptData[i]);
 
-			//curscript = comboscripts[script];
+			curscript = comboscripts[script];
 			stack = &(combo_stack[i]);
 			int pos = ((i%176));
 			int id = comboscript_combo_ids[i]; 
