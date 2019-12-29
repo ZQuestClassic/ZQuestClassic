@@ -30207,6 +30207,11 @@ int main(int argc,char **argv)
         itemspritescripts[i] = new ffscript[1];
         itemspritescripts[i][0].command = 0xFFFF;
     }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new ffscript[1];
+        comboscripts[i][0].command = 0xFFFF;
+    }
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
@@ -30742,6 +30747,10 @@ void quit_game()
     {
         if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+    }
     
     al_trace("Cleaning qst buffers. \n");
     del_qst_buffers();
@@ -30923,6 +30932,10 @@ void quit_game2()
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");

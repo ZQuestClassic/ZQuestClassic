@@ -9027,7 +9027,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 		}
 	    for ( int q = 0; q < 2; q++ )
 	    {
-		if(!p_putc(combobuf[i].initd[q],f))
+		if(!p_iputl(combobuf[i].initd[q],f))
 		{
 			new_return(27);
 		}
@@ -10999,7 +10999,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
-	
+	al_trace("About to write combo script pt 1.\n");
 	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
@@ -11394,7 +11394,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         }
 	
 	//combo scripts
-	
+	al_trace("About to write combo script pt 2.\n");
 	word numcombobindings=0;
         
         for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
@@ -11404,12 +11404,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numcombobindings++;
             }
         }
-	
+	al_trace("About to write combo script pt 3.\n");
 	if(!p_iputw(numcombobindings, f))
         {
             new_return(2043);
         }
-        
+        al_trace("About to write combo script pt 4.\n");
         for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
         {
             if(it->second.second != "")

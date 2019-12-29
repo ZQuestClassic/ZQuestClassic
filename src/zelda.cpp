@@ -4662,6 +4662,11 @@ int main(int argc, char* argv[])
         itemspritescripts[i] = new ffscript[1];
         itemspritescripts[i][0].command = 0xFFFF;
     }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new ffscript[1];
+        comboscripts[i][0].command = 0xFFFF;
+    }
     
     
     
@@ -5270,6 +5275,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

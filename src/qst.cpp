@@ -9977,6 +9977,11 @@ void reset_scripts()
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+    }
+    
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
@@ -10039,6 +10044,11 @@ void reset_scripts()
     {
         itemspritescripts[i] = new ffscript[1];
         itemspritescripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new ffscript[1];
+        comboscripts[i][0].command = 0xFFFF;
     }
 }
 
@@ -14135,7 +14145,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		
 	}
 	//combo scripts
-	if(section_version>=14) //attribytes[4]
+	if(section_version>=14) 
 	{
 		if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
 		for ( int q = 0; q < 2; q++ )
@@ -14147,7 +14157,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		
 	}
-	else
+	if(section_version<14)
 	{ 
 		temp_combo.script = 0;
 		for ( int q = 0; q < 2; q++ )
