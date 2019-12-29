@@ -503,7 +503,7 @@ void initZScriptItemScripts();
 
 //Combo Scripts
 void init_combo_doscript();
-void clear_combo_refinfo()
+void clear_combo_refinfo();
 void clear_combo_stacks();
 void clear_combo_refinfo(int pos);
 void clear_combo_stack(int q);

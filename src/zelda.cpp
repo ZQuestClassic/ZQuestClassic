@@ -1001,6 +1001,7 @@ extern std::map<int, std::pair<std::string, std::string> > linkmap;
 extern std::map<int, std::pair<std::string, std::string> > dmapmap;
 extern std::map<int, std::pair<std::string, std::string> > screenmap;
 extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
+extern std::map<int, std::pair<std::string, std::string> > comboscriptmap;
 
 extern CConsoleLoggerEx zscript_coloured_console;
 
@@ -1117,6 +1118,14 @@ void Z_scripterrlog(const char * const format,...)
 	
 	case SCRIPT_SUBSCREEN:
             al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+	
+	case SCRIPT_COMBO:
+            al_trace("Subscreen script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}

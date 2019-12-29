@@ -72,6 +72,7 @@ extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
 extern std::map<int, pair<string, string> > itemspritemap;
+extern std::map<int, pair<string, string> > comboscriptmap;
 
 zmap Map;
 int prv_mode=0;

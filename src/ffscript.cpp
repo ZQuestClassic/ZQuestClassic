@@ -7942,7 +7942,7 @@ long get_register(const long arg)
 			}
 			else
 			{
-				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -7956,7 +7956,7 @@ long get_register(const long arg)
 			}
 			else
 			{
-				Z_scripterrorlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -19643,11 +19643,13 @@ int run_script(const byte type, const word script, const long i)
 			int pos = ((i%176));
 			int id = comboscript_combo_ids[i]; 
 
-			if(!(combo_initialised[pos]&l))
+			//if(!(combo_initialised[pos]&l))
+			if(!(combo_initialised[pos]))
 			{
 				memset(ri->d, 0, 8 * sizeof(long));
-				//for ( int q = 0; q < COMBOINITDMAX; q++ )
-				//	ri->d[q] = combosbuf[m->data[id]].initD[q];
+				for ( int q = 0; q < 2; q++ )
+					//ri->d[q] = combobuf[m->data[id]].initD[q];
+					ri->d[q] = combobuf[id].initd[q];
 			}
 
 			ri->combosref = id; //'this' pointer
@@ -22165,7 +22167,7 @@ int run_script(const byte type, const word script, const long i)
 			case SCRIPT_COMBO: 
 			{
 				int l = 0; //get the layer
-				for int q = 176; q < 1232; q+= 176 )
+				for (int q = 176; q < 1232; q+= 176 )
 				{
 					if ( i < q )
 					{
@@ -22298,7 +22300,7 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_COMBO:
 		{	
 			int l = 0; //get the layer
-			for int q = 176; q < 1232; q+= 176 )
+			for (int q = 176; q < 1232; q+= 176 )
 			{
 				if ( i < q )
 				{
@@ -23867,7 +23869,7 @@ void FFScript::setComboData_whistle(){ SET_COMBODATA_TYPE_INT(whistle,ZS_BYTE); 
 void FFScript::setComboData_win_game(){ SET_COMBODATA_TYPE_INT(win_game,ZS_BYTE); } //byte bi
 void FFScript::setComboData_block_weapon_lvl(){ SET_COMBODATA_TYPE_INT(block_weapon_lvl,ZS_BYTE); } //byte bj - max level of weapon to block
 
-//combosbuf
+//combobuf
 void FFScript::setComboData_tile(){ SET_COMBODATA_VAR_INT(tile,ZS_WORD); } //newcombo, word
 void FFScript::setComboData_flip(){ SET_COMBODATA_VAR_INT(flip,ZS_BYTE); } //newcombo byte
 
@@ -34502,13 +34504,13 @@ int FFScript::getComboDataLayer(int c, int scripttype)
 {
 	if ( scripttype != SCRIPT_COMBO )
 	{
-		Z_scripterrorlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
 		return -1;
 	}
 	else
 	{
 		int l = 0;
-		for int q = 176; q < 1232; q+= 176 )
+		for (int q = 176; q < 1232; q+= 176 )
 		{
 			if ( c < q )
 			{
@@ -34516,6 +34518,7 @@ int FFScript::getComboDataLayer(int c, int scripttype)
 			}
 			++l;
 		}
+		return -1;
 	}
 }
 
@@ -34523,7 +34526,7 @@ int FFScript::getCombodataPos(int c, int scripttype)
 {
 	if ( scripttype != SCRIPT_COMBO )
 	{
-		Z_scripterrorlog("combodata->YPos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->YPos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
 		return -1;
 	}
 	else return ((c%176));
@@ -34533,12 +34536,12 @@ int FFScript::getCombodataX(int c, int scripttype)
 {
 	if ( scripttype != SCRIPT_COMBO )
 	{
-		Z_scripterrorlog("combodata->X() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->X() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
 		return -1;
 	}
 	else
 	{
-		int pos = getCombodataPos(c);
+		int pos = getCombodataPos(c, scripttype);
 		return COMBOX(pos);
 	}
 }
@@ -34547,12 +34550,12 @@ int FFScript::getCombodataY(int c, int scripttype)
 {
 	if ( scripttype != SCRIPT_COMBO )
 	{
-		Z_scripterrorlog("combodata->Y() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Y() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
 		return -1;
 	}
 	else
 	{
-		int pos = getCombodataPos(c);
+		int pos = getCombodataPos(c, scripttype);
 		return COMBOY(pos);
 	}
 }
@@ -34571,7 +34574,7 @@ void FFScript::ClearComboScripts()
 			{
 				comboscript_combo_ids[c+(176*l)] = 0;
 				comboScriptData[c+(176*l)].Clear();
-				for ( int r = 0; q < MAX_SCRIPT_REGISTERS; ++r )
+				for ( int r = 0; r < MAX_SCRIPT_REGISTERS; ++r )
 				{
 					combo_stack[c+(176*l)][r] = 0; //clear the stacks
 				}
@@ -34605,7 +34608,7 @@ int FFScript::combo_script_engine(const bool preload)
 			}
 			
 			//run its script
-			if (!get_bit(quest_rules, qrCOMBO_SCRIPTS_RUN_ON_LAYER_0+q)) continue;
+			if (!get_bit(quest_rules, qr_combos_run_scripts_layer_0+q)) continue;
 			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
 			if ( !q )
 			{
@@ -34618,13 +34621,13 @@ int FFScript::combo_script_engine(const bool preload)
 				//}
 				
 				//.script t/b/a
-				if ( combosbuf[tmpscr->data[c]].script )
+				if ( combobuf[tmpscr->data[c]].script )
 				{
 					if ( combo_doscript[c] & 1 )
 					{
 						//combo_doscript[c] |= 1;
 						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
-						ZScriptVersion::RunScript(SCRIPT_COMBO, combosbuf[tmpscr->data[c].script, c+(176*q));
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c+(176*q));
 					}
 				}
 			}
@@ -34633,13 +34636,13 @@ int FFScript::combo_script_engine(const bool preload)
 				int ls = tmpscr->layerscreen[q];
 				int lm = tmpscr->layermap[q];
 				mapscr *m = &TheMaps[(zc_max((lm)-1,0) * MAPSCRS + ls)];
-				if ( combosbuf[m->data[c]].script )
+				if ( combobuf[m->data[c]].script )
 				{
 					if ( combo_doscript[c] & (1<<q) )
 					{
 						combo_doscript[c] |= (1<<q);
 						comboscript_combo_ids[c+(176*q)] = m->data[c];
-						ZScriptVersion::RunScript(SCRIPT_COMBO, combosbuf[m->data[c]].script, c=176*q);
+						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c=176*q);
 					}
 				}
 			}

@@ -23135,11 +23135,11 @@ void build_bidcomboscripts_list()
     
     for(int i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
     {
-        if(comboscriptsmap[i].second.length()==0)
+        if(comboscriptmap[i].second.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << comboscriptsmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << comboscriptmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
         bidcomboscripts[bidcomboscripts_cnt].second = i;
         bidcomboscripts_cnt++;
@@ -23402,6 +23402,17 @@ const char *assigngloballist(int index, int *list_size)
     }
     
     return globalmap[index].first.c_str();
+}
+
+const char *assigncombolist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)comboscriptmap.size();
+        return NULL;
+    }
+    
+    return comboscriptmap[index].first.c_str();
 }
 
 const char *assignitemlist(int index, int *list_size)
@@ -24160,7 +24171,7 @@ static DIALOG comboscript_sel_dlg[] =
     { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &script_sel_dlg_list, NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &comboscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -24963,7 +24974,7 @@ int onSlotAssign()
 		{
 			if(comboscripts[i+1][0].command!=0xFFFF)
 			{
-				scripts[comboscriptmap[i].second] = disassemble_script(comboscriptmap[i+1]);
+				scripts[comboscriptmap[i].second] = disassemble_script(comboscripts[i+1]);
 				ascomboscripts.push_back(comboscriptmap[i].second);
 			}
 		}
