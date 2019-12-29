@@ -30425,6 +30425,8 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif
 			break;
 			
+			case SCRIPT_ACTIVESUBSCREEN:
+			case SCRIPT_PASSIVESUBSCREEN:
 			case SCRIPT_DMAP:
 				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
 				
@@ -30450,18 +30452,19 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif
 			break;
 			
-			case SCRIPT_SUBSCREEN:
-				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
-				#ifdef _WIN32
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
-				#endif
+			//case SCRIPT_SUBSCREEN:
+			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			//	#ifdef _WIN32
+			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+			//	#endif
+			//break;
 			
 			case SCRIPT_COMBO:
 				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());}
 				#endif
 			break;
 		}
@@ -34611,7 +34614,7 @@ int FFScript::combo_script_engine(const bool preload)
 			}
 			
 			//run its script
-			if (!get_bit(quest_rules, qr_combos_run_scripts_layer_0+q)) continue;
+			if (!get_bit(quest_rules, qr_combos_run_scripts_layer_0+q)) { continue;}
 			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
 			if ( !q )
 			{

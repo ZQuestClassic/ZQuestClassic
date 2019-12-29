@@ -13687,7 +13687,7 @@ bool edit_combo(int c,bool freshen,int cs)
     
     int script = 0;
     
-    for(int j = 0; j < biitems_cnt; j++)
+    for(int j = 0; j < bidcomboscripts_cnt; j++)
     {
         if(bidcomboscripts[j].second == curr_combo.script - 1)
             script = j;
@@ -14241,7 +14241,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//initd and combo script
 		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
 		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
-		curr_combo.script = bidcomboscripts[combo_dlg[126].d1].second + 1; 
+		curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
 		
 		curr_combo.animflags = 0;
 		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
@@ -14445,8 +14445,9 @@ bool edit_combo(int c,bool freshen,int cs)
     
 	    
     } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
-    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 129 ) //save it
+    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
     {
+	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
 	    combobuf[c] = curr_combo;
 	    saved = false;
     }

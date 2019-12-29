@@ -33,6 +33,7 @@
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
@@ -3932,6 +3933,13 @@ void openshutters()
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
+	
+    //reset combo script doscripts
+    memset(combo_doscript, 0, sizeof(combo_doscript));
+    for (int q = 0; q < 176; ++q)
+    {
+	for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
+    }
     //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
     for(word x=0; x<animated_combos; x++)
     {

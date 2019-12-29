@@ -32,6 +32,7 @@
 #include "title.h"
 #include "ffscript.h"
 extern FFScript FFCore;
+extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
 extern LinkClass Link;
 extern ZModule zcm;
@@ -15366,6 +15367,11 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
                         "Insta-Warp");
                         
     eventlog_mapflags();
+    memset(combo_doscript, 0, sizeof(combo_doscript));
+    for (int q = 0; q < 176; ++q)
+    {
+	for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
+    }
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
     return true;
@@ -16780,7 +16786,11 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     kill_enemy_sfx();
     stop_sfx(WAV_ER);
     screenscrolling = true;
-    
+    memset(combo_doscript, 0, sizeof(combo_doscript));
+    for (int q = 0; q < 176; ++q)
+    {
+	    for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
+    }
     tmpscr[1] = tmpscr[0];
     
     const int _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
@@ -17472,6 +17482,11 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     newscr_clk = frame;
     activated_timed_warp=false;
     loadside = scrolldir^1;
+    memset(combo_doscript, 0, sizeof(combo_doscript));
+    for (int q = 0; q < 176; ++q)
+    {
+	for ( int w = 0; w < 7; ++w ) combo_doscript[q] |= (1<<w); 
+    }
     eventlog_mapflags();
     decorations.animate(); //continue to animate tall grass during scrolling
     if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
