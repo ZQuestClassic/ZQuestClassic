@@ -426,6 +426,7 @@ namespace ZScript
 	// Script Types
 
 	// Basically an enum.
+	//the 'this' 'this->' stuff. -Z
 	class ScriptType
 	{
 		friend bool operator==(ScriptType const& lhs, ScriptType const& rhs);

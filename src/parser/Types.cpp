@@ -612,7 +612,7 @@ namespace // file local
 		string name;
 		DataTypeId thisTypeId;
 	};
-
+	//the 'this' 'this->' stuff. -Z
 	ScriptTypeData scriptTypes[ScriptType::idEnd] = {
 		{"invalid", ZVARTYPEID_VOID},
 		{"global", ZVARTYPEID_VOID},
