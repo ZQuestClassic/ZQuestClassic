@@ -13395,7 +13395,7 @@ static DIALOG combo_dlg[] =
     { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
     { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           40,    80,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
+    { jwin_text_proc,           40,    84,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
      { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
    //128 cancel, 129 OK
      { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
