@@ -125,6 +125,7 @@ extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
 extern std::map<int, pair<string, string> > itemspritemap;
+extern std::map<int, pair<string, string> > comboscriptmap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
