@@ -447,8 +447,8 @@ namespace ZScript
 			idDMap,
 			idItemSprite,
 			idUntyped,
-			idSubscreenData,
 			idComboData,
+			idSubscreenData,
 			
 			idEnd
 		};

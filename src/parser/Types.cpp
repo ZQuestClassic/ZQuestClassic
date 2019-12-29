@@ -626,6 +626,7 @@ namespace // file local
 		{"dmapdata", ZVARTYPEID_DMAPDATA},
 		{"itemsprite", ZVARTYPEID_ITEM},
 		{"untyped", ZVARTYPEID_VOID},
+		{"combodata", ZVARTYPEID_COMBOS},
 	};
 }
 
