@@ -11714,7 +11714,7 @@ static int combo_trigger_list2[] =
 static int combo_script_list[] =
 {
     // dialog control number
-	121,122,123,124,125,126,127,128, 
+	122,123,124,125,126,127,128,129,
      -1
 };
 
@@ -13390,14 +13390,15 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
    
     //combo script
-    ///121
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-     { jwin_droplist_proc,      8+22+16+10,  45+16+4+5,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
-   { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    ///122
+    { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    80,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
+     { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
+   //128 cancel, 129 OK
+     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -13636,7 +13637,8 @@ bool edit_combo(int c,bool freshen,int cs)
     char minlevel[8];
     char the_label[11];
     
-    char initiald[2][16];
+    char initiald0[16];
+    char initiald1[16];
     
     int thescript = 0;
     
@@ -13675,11 +13677,12 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
     strcpy(the_label, curr_combo.label);
     
+    sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
+    sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
+		
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
     
-    for(int j=0; j<2; j++)
-                sprintf(initiald[j],"%.4f",curr_combo.initd[j]/10000.0);
-		
-		
     build_bidcomboscripts_list();
     
     int script = 0;
@@ -13693,7 +13696,7 @@ bool edit_combo(int c,bool freshen,int cs)
     }
    
     
-    combo_dlg[126].d1 = script;
+    combo_dlg[127].d1 = script;
     
     combo_dlg[13].dp = cset_str;
     
@@ -13832,8 +13835,8 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[119].dp = attribyt3;
     
     //initd
-    combo_dlg[122].dp = initiald[0];
-    combo_dlg[124].dp = initiald[1];
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
     
     
     //trigger level
@@ -14235,7 +14238,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
-		
+		//initd and combo script
+		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
+		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
+		curr_combo.script = bidcomboscripts[combo_dlg[126].d1].second + 1; 
 		
 		curr_combo.animflags = 0;
 		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
@@ -14371,10 +14377,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 		
 		
-		//initd and combo script
-		curr_combo.initd[0] = vbound(ffparse(initiald[0]),-2147483647, 2147483647);
-		curr_combo.initd[1] = vbound(ffparse(initiald[1]),-2147483647, 2147483647);
-		curr_combo.script = bidcomboscripts[combo_dlg[126].d1].second + 1; 
+		
 		
 		//combo label
 		strcpy(curr_combo.label, the_label);
@@ -14441,8 +14444,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
     
 	    
-    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 );
-    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 ) //save it
+    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
+    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 129 ) //save it
     {
 	    combobuf[c] = curr_combo;
 	    saved = false;

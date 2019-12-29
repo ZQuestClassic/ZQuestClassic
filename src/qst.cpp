@@ -14147,16 +14147,15 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		
 	}
-	al_trace("Read combo script data\n");
-	if( section_version < 14 )
+	else
 	{ 
 		temp_combo.script = 0;
 		for ( int q = 0; q < 2; q++ )
 		{
 		    temp_combo.initd[q] = 0;
 		}
-		
 	}
+	al_trace("Read combo script data\n");
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)
