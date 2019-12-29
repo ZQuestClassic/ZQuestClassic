@@ -956,6 +956,7 @@ extern std::map<int, std::pair<string, string> > linkmap;
 extern std::map<int, std::pair<string, string> > dmapmap;
 extern std::map<int, std::pair<string, string> > screenmap;
 extern std::map<int, std::pair<string, string> > itemspritemap;
+extern std::map<int, std::pair<string, string> > comboscriptmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -30449,6 +30450,13 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 			
 			case SCRIPT_SUBSCREEN:
 				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			
+			case SCRIPT_COMBO:
+				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}

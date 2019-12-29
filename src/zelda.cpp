@@ -414,6 +414,7 @@ ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;

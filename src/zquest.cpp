@@ -709,6 +709,9 @@ std::vector<string> asscreenscripts;
 extern std::map<int, pair<string, string> > itemspritemap;
 std::vector<string> asitemspritescripts;
 
+extern std::map<int, pair<string, string> > comboscriptmap;
+std::vector<string> ascomboscripts;
+
 char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 
 int CSET_SIZE = 16;
@@ -22740,6 +22743,9 @@ int bidmaps_cnt = -1;
 
 script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
 int biitemsprites_cnt = -1;
+
+script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
+int bidcomboscripts_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -23119,6 +23125,51 @@ void build_biitems_list()
             biitems_cnt = i+1;
 }
 
+
+//dmap scripts
+void build_bidcomboscripts_list()
+{
+    bidcomboscripts[0].first = "(None)";
+    bidcomboscripts[0].second = -1;
+    bidcomboscripts_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
+    {
+        if(comboscriptsmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << comboscriptsmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
+        bidcomboscripts[bidcomboscripts_cnt].second = i;
+        bidcomboscripts_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bidcomboscripts_cnt; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        bidcomboscripts[i].first="";
+        bidcomboscripts[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bidcomboscripts_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bidcomboscripts_cnt; j++)
+        {
+            if(stricmp(bidcomboscripts[i].first.c_str(),bidcomboscripts[j].first.c_str()) > 0 && strcmp(bidcomboscripts[j].first.c_str(),""))
+                zc_swap(bidcomboscripts[i],bidcomboscripts[j]);
+        }
+    }
+    
+    bidcomboscripts_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+        if(bidcomboscripts[i].first.length() > 0)
+            bidcomboscripts_cnt = i+1;
+}
+
+
 const char *ffscriptlist(int index, int *list_size)
 {
     if(index < 0)
@@ -23211,6 +23262,31 @@ const char *itemscriptlist2(int index, int *list_size)
         
         sprintf(itemscript_str_buf2,"%d: %s",index+1, buf);
         return itemscript_str_buf2;
+    }
+    
+    *list_size=255;
+    return NULL;
+}
+
+
+static char comboscript_str_buf2[32];
+const char *comboscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(comboscriptmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, comboscriptmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(comboscript_str_buf2,"%d: %s",index+1, buf);
+        return comboscript_str_buf2;
     }
     
     *list_size=255;
@@ -23523,6 +23599,17 @@ const char *assignitemspritescriptlist(int index, int *list_size)
     return asitemspritescripts[index].c_str();
 }
 
+const char *assigncomboscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)ascomboscripts.size();
+        return NULL;
+    }
+    
+    return ascomboscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -23547,6 +23634,9 @@ static ListData assignscreenscript_list(assignscreenscriptlist, &font);
 
 static ListData assignitemsprite_list(assignitemspritelist, &font);
 static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
+
+static ListData assigncombo_list(assigncombolist, &font);
+static ListData assigncomboscript_list(assigncomboscriptlist, &font);
 	
 static DIALOG assignscript_dlg[] =
 {
@@ -23608,6 +23698,12 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemsprite_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemspritescript_list, NULL, NULL },
     //38
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
+    //39
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncombo_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncomboscript_list, NULL, NULL },
+    //41
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
@@ -24049,6 +24145,20 @@ static DIALOG itemscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &itemscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
+
+static DIALOG comboscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &script_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -24608,6 +24718,9 @@ int onCompileScript()
 			asitemspritescripts.clear();
 			asitemspritescripts.push_back("<none>");
 			
+			ascomboscripts.clear();
+			ascomboscripts.push_back("<none>");
+			
 			for (std::map<string, ZScript::ScriptType>::iterator it =
 					 stypes.begin(); it != stypes.end(); ++it)
 			{
@@ -24631,6 +24744,8 @@ int onCompileScript()
 					{		asscreenscripts.push_back(name); }
 					else if ( type == ZScript::ScriptType::itemsprite )
 					{		asitemspritescripts.push_back(name); }
+					else if ( type == ZScript::ScriptType::combodata )
+					{		ascomboscripts.push_back(name); }
 					else if ( type == ZScript::ScriptType::global )
 					{
 						if (name != "~Init")
@@ -24717,6 +24832,9 @@ int onSlotAssign()
 	asscreenscripts.push_back("<none>");
 	asitemspritescripts.clear();
 	asitemspritescripts.push_back("<none>");
+	
+	ascomboscripts.clear();
+	ascomboscripts.push_back("<none>");
 	//Declare new script vector
 	std::map<string, vector<ZScript::Opcode *> > scripts;
 	
@@ -24834,6 +24952,17 @@ int onSlotAssign()
 			{
 				scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
 				asitemspritescripts.push_back(itemspritemap[i].second);
+			}
+		}
+	}
+	for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
+	{
+		if(comboscriptmap[i].second != "")
+		{
+			if(comboscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[comboscriptmap[i].second] = disassemble_script(comboscriptmap[i+1]);
+				ascomboscripts.push_back(comboscriptmap[i].second);
 			}
 		}
 	}
@@ -24989,6 +25118,16 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else // Previously loaded script not found
 				sprintf(temp, "Slot %d: --%s", i+1, itemspritemap[i].second.c_str());
 			itemspritemap[i].first = temp;
+		}
+		for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
+		{
+			if(comboscriptmap[i].second == "")
+				sprintf(temp, "Slot %d: <none>", i+1);
+			else if(scripts.find(comboscriptmap[i].second) != scripts.end())
+				sprintf(temp, "Slot %d: %s", i+1, comboscriptmap[i].second.c_str());
+			else // Previously loaded script not found
+				sprintf(temp, "Slot %d: --%s", i+1, comboscriptmap[i].second.c_str());
+			comboscriptmap[i].first = temp;
 		}
 		//}
 		if(is_large)
@@ -25406,6 +25545,49 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						itemspritescripts[it->first+1][0].command = 0xFFFF;
 					}
 				}
+				
+				for(std::map<int, pair<string,string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+				{
+					if(it->second.second != "")
+					{
+						tempfile = fopen("tmp","w");
+						
+						if(!tempfile)
+						{
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							return false;
+						}
+						
+						if(output)
+						{
+							al_trace("\n");
+							al_trace("%s",it->second.second.c_str());
+							al_trace("\n");
+						}
+						
+						
+						
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						{
+							string theline = (*line)->printLine();
+							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+							
+							if(output)
+							{
+								al_trace("%s",theline.c_str());
+							}
+						}
+						
+						fclose(tempfile);
+						parse_script_file(&comboscripts[it->first+1],"tmp",false);
+					}
+					else if(comboscripts[it->first+1])
+					{
+						delete[] comboscripts[it->first+1];
+						comboscripts[it->first+1] = new ffscript[1];
+						comboscripts[it->first+1][0].command = 0xFFFF;
+					}
+				}
 				unlink("tmp");
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
@@ -25648,6 +25830,26 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				break;
 			}
+			case 41:
+				//<<, itemsprite
+			{
+				int lind = assignscript_dlg[39].d1;
+				int rind = assignscript_dlg[40].d1;
+				
+				if(lind < 0 || rind < 0)
+					break;
+					
+				if(ascomboscripts[rind] == "<none>")
+				{
+					comboscriptmap[lind].second = "";
+				}
+				else
+				{
+					comboscriptmap[lind].second = ascomboscripts[rind];
+				}
+				
+				break;
+			}
 		}
 	}
 }
@@ -25852,6 +26054,35 @@ int onImportDMapScript()
                 dmapmap[dmapscript_sel_dlg[5].d1].second="ASM script";
                 
             build_bidmaps_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportComboScript()
+{
+    char name[20]="";
+    
+    comboscript_sel_dlg[0].dp2 = lfont;
+    comboscript_sel_dlg[2].dp = name;
+    comboscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(comboscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(comboscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&comboscripts[comboscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)comboscript_sel_dlg[2].dp)>0)
+                comboscriptmap[comboscript_sel_dlg[5].d1].second=(char *)comboscript_sel_dlg[2].dp;
+            else
+                comboscriptmap[comboscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bidcomboscripts_list();
         }
     }
     

@@ -10838,6 +10838,7 @@ extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -10990,6 +10991,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+	
+	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11376,6 +11388,44 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
                 {
                     new_return(2042);
+                }
+            }
+        }
+	
+	//combo scripts
+	
+	word numcombobindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numcombobindings++;
+            }
+        }
+	
+	if(!p_iputw(numcombobindings, f))
+        {
+            new_return(2043);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2044);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2045);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2046);
                 }
             }
         }

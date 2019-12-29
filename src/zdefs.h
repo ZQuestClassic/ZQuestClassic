@@ -207,7 +207,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         14
+#define V_FFSCRIPT         15
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -4413,7 +4413,7 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTSCREEN		256
 #define NUMSCRIPTSDMAP		256
 #define NUMSCRIPTSITEMSPRITE		256
-#define NUMSCRIPTSCOMBODATA		256
+#define NUMSCRIPTSCOMBODATA		512
 
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1
