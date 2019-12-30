@@ -5740,7 +5740,7 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
-    if ( !do_animation || anim== aNONE) return; //Anim == none, don't animate. -Z
+    if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) return; //Anim == none, don't animate. -Z
     int newfrate = zc_max(frate,4);
     int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
     int f2=clk/(newfrate/2); // casts clk to [0,1]
