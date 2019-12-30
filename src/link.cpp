@@ -12114,13 +12114,14 @@ void LinkClass::checklockblock()
     {
 	if ( game->get_counter(thecounter) >= ctr_amount )
 	{
-		game->change_counter(-(ctr_amount), thecounter);
+		//flag 6 only checks the required count; it doesn't drain it
+		if (!(combobuf[cid].usrflags&cflag6)) game->change_counter(-(ctr_amount), thecounter);
 		goto unlock; 
 	}
 	else if ( game->get_counter(thecounter) < ctr_amount && (combobuf[cid].usrflags&cflag5) ) //eat counter even if insufficient, but don't unlock
 	{
 		//shadowtiger requested this on 29th Dec, 2019 -Z
-		game->change_counter(-(game->get_counter(thecounter)), thecounter);
+		if (!(combobuf[cid].usrflags&cflag6)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
 		return;
 	}
     }
