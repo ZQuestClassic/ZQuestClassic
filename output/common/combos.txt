@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 45            *
-*     Rev.3, 14th December, 2019     *
+*     Rev.4, 30th December, 2019     *
 *************************************/
 
 1. COMBO TYPES
@@ -23,6 +23,10 @@ These additional combo types support extra features:
 		You may now specify a required item, a counter to affect, 
 		the amount of keys or counter points consumed, and the
 		sound of unlocking the block. 
+		
+		You may specify to unlock without draining a counter, checking
+		only for a minimum counter value; or to always drain the counter,
+		even if the ninimum amount is not met (but don't unlock for this).
 		
 	Cuttable Types
 		Bush, flower, and tall grass commbo types now support some
@@ -438,11 +442,15 @@ Lockblock Combos
 			The required item ID is set in the Item field on Attributes Tab 1.
 			This interacts with the following flags:
 				Only, Eat Item
+			This interacts with the following attributes:
+				Item
 		Only
 			If the Require flag is also enabled, then instead of needing keys or 
 			counter points, this lockblock requires only the item specified to unlock.
 			This interacts with the following flags:
 				Require, Eat Item
+			This interacts with the following attributes:
+				Item
 		SFX
 			If enabled, the lockblock will play the sound specified in the Sound field
 			on Attributes Tab 1, instead of the normal system door unlocking sound effect.
@@ -455,6 +463,22 @@ Lockblock Combos
 			their inventory. 
 			This interacts with the following flags:
 				Require, Only
+		Thief
+			If enabled, should the player try to open the lockblock, but fail to meet the
+			required counter value, then his counter will be drained to 0, and the lock will
+			remain locked.
+			This interacts with the following flags:
+				Counter
+			This interacts with the following attributes:
+				Counter, Amount
+		No Drain
+			If enabled, as long as the player has a counter value greater than or equal to the
+			amount specified, then the lockblock wil open, but his counter will not be drained
+			in the process.
+			This interacts with the following flags:
+				Counter
+			This interacts with the following attributes:
+				Counter, Amount
 		
 
 
