@@ -3191,19 +3191,37 @@ void LinkClass::check_slash_block(int bx, int by)
         }
         else if(isCuttableItemType(type))
         {
-            int it = -1;
-		
+		int it = -1;
+		//zprint("reached iscuttableitem, with cid: %d\n", cid);
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
+		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
-		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
+			if ( combobuf[cid].usrflags&cflag11 ) 
+			{
+				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
+				it = combobuf[cid].attribytes[1];
+			}
+			else
+			{
+				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
+				it = select_dropitem(combobuf[cid].attribytes[1]); 
+				
+				
+			}
+			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
-            if(it!=-1)
-            {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+		//old style slash item and tall grass
+		else if ( !(combobuf[cid].usrflags&cflag2) )
+		{
+			//zprint("Standard tall grass drop.\n");
+			it = select_dropitem(12, bx, by);
+		}
+		if(it!=-1)
+		{
+			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
