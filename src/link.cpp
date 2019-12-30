@@ -3232,9 +3232,9 @@ void LinkClass::check_slash_block(int bx, int by)
             {
 		if ( isGenericType(type) )
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int(bx));
 			}
 		}
 		else
@@ -3243,11 +3243,11 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(isBushType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3256,17 +3256,17 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3275,17 +3275,17 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3294,26 +3294,26 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
                 else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
 					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3326,10 +3326,10 @@ void LinkClass::check_slash_block(int bx, int by)
         if(isCuttableItemType(type2))
         {
             int it=-1;
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
+		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			
 		}
 		
@@ -3359,9 +3359,9 @@ void LinkClass::check_slash_block(int bx, int by)
             {
 		if ( isGenericType(type) )
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int(bx));
 			}
 		}
                 else sfx(WAV_ZN1GRASSCUT,int(bx));
@@ -3369,11 +3369,11 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(isBushType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3382,17 +3382,17 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3401,17 +3401,17 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3420,26 +3420,26 @@ void LinkClass::check_slash_block(int bx, int by)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
                 else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
 					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3948,22 +3948,41 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
-        else if(isCuttableItemType(type))
+	else if(isCuttableItemType(type))
         {
-            int it = -1;
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
+		int it = -1;
+		//zprint("reached iscuttableitem, with cid: %d\n", cid);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
-		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
+			if ( combobuf[cid].usrflags&cflag11 ) 
+			{
+				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
+				it = combobuf[cid].attribytes[1];
+			}
+			else
+			{
+				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
+				it = select_dropitem(combobuf[cid].attribytes[1]); 
+				
+				
+			}
+			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
-            
-            if(it!=-1)
-            {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+		//old style slash item and tall grass
+		else if ( !(combobuf[cid].usrflags&cflag2) )
+		{
+			//zprint("Standard tall grass drop.\n");
+			it = select_dropitem(12, bx, by);
+		}
+		if(it!=-1)
+		{
+			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
         }
+        
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
@@ -3973,9 +3992,9 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             {
 		if ( isGenericType(type) )
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int(bx));
 			}
 		}
                 else sfx(WAV_ZN1GRASSCUT,int(bx));
@@ -3983,11 +4002,11 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(isBushType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -3996,17 +4015,17 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -4015,17 +4034,17 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -4034,26 +4053,26 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
                 else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
 					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4066,10 +4085,10 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int it=-1;
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
+		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			
 		}
            
@@ -4100,9 +4119,9 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             {
 		if ( isGenericType(type) )
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int(bx));
 			}
 		}
                 else sfx(WAV_ZN1GRASSCUT,int(bx));
@@ -4110,11 +4129,11 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(isBushType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -4123,17 +4142,17 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -4142,17 +4161,17 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
@@ -4161,26 +4180,26 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
                 else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		if ( combobuf[cid].usrflags&cflag1 )
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				switch( combobuf[cid].attribytes[0] )
 				{
 					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
 					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
 					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4607,20 +4626,37 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-            int it = -1;
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
+		int it = -1;
+		//zprint("reached iscuttableitem, with cid: %d\n", cid);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
-		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
+			if ( combobuf[cid].usrflags&cflag11 ) 
+			{
+				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
+				it = combobuf[cid].attribytes[1];
+			}
+			else
+			{
+				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
+				it = select_dropitem(combobuf[cid].attribytes[1]); 
+				
+				
+			}
+			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			
 		}
-		
-		//select_dropitem((combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
-            
-            if(it!=-1)
-            {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+		//old style slash item and tall grass
+		else if ( !(combobuf[cid].usrflags&cflag2) )
+		{
+			//zprint("Standard tall grass drop.\n");
+			it = select_dropitem(12, bx, by);
+		}
+		if(it!=-1)
+		{
+			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
