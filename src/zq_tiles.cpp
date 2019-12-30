@@ -12041,7 +12041,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cLOCKBLOCK,
-		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",(char *)"Eat Item",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",(char *)"Eat Item",(char *)"Thief",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ (char *)"Amount",NULL,NULL,NULL},{ (char*)"Item",(char*)"Counter",NULL,(char *)"Sound"}
 	},
 	{ //60

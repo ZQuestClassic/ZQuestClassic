@@ -12117,6 +12117,12 @@ void LinkClass::checklockblock()
 		game->change_counter(-(ctr_amount), thecounter);
 		goto unlock; 
 	}
+	else if ( game->get_counter(thecounter) < ctr_amount && (combobuf[cid].usrflags&cflag5) ) //eat counter even if insufficient, but don't unlock
+	{
+		//shadowtiger requested this on 29th Dec, 2019 -Z
+		game->change_counter(-(game->get_counter(thecounter)), thecounter);
+		return;
+	}
     }
     else if(!ctr_amount && !requireditem && usekey() && !itemonly ) goto unlock;
     else return;
