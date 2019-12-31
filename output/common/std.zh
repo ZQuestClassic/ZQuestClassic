@@ -1,15 +1,9 @@
 // std.zh
-// 8th December, 2019 for ZC 2.55 Alpha 45
+// 31st December, 2019 for ZC 2.55 Alpha 48
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
 // and #include it separately.
-
-//Options
-#option BINARY_32BIT off
-	//Would break a number of things if set on
-#option SHORT_CIRCUIT on
-	//Should work for everything in std_zh, and just speed it up
 
 //User Configuration Files
 #include "std_zh/std_user_defs.zh" //Typedefs: Always first.
