@@ -1,5 +1,5 @@
 //std_functions.zh
-//5th November, 2019 for ZC 2.55.0 Alpha 31
+//31st December, 2019 for ZC 2.55.0 Alpha 48
 
 //A
 
@@ -566,6 +566,14 @@ bool Collision(ffc f)
 	int ax = Link->X + Link->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
+//Only legal from combodata scripts as this->Collision
+bool Collision(combodata f) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	return RectCollision(f->PosX(), f->PosY(), f->PosX()+16, f->PosY()+16, ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
 }
 
 //Finds the location of a combo, given its (x,y) coordinates on the screen
