@@ -3727,8 +3727,12 @@ enum ASM_DEFINE
 #define NPCRANDOM             0x138D
 #define COMBOXR             0x138E
 #define COMBOYR             0x138F
+#define COMBOPOSR             0x1390
+#define COMBODATASCRIPT             0x1391
+#define COMBODATAINITD             0x1392
 
-#define NUMVARIABLES         	0x1390
+
+#define NUMVARIABLES         	0x1393
 
 // Script types
 

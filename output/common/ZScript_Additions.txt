@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 48
-Document Revision: 19th December, 2019
+Document Revision: 30th December, 2019
 
 
  __           _   _                 
@@ -1842,6 +1842,28 @@ It is now possible to permit itemdata scripts to run for more than one frame.
 NOTE: In previous versions, this type was simply called "item script".
 
 
+/////////////////////
+/// Combo Scripts ///
+/////////////////////
+
+TOKEN(s):		combodata script
+POINTER: 		combodata
+InitD:			Yes, [2]
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	t/b/a
+
+
+* Each combo position, on every layer, is capable of running a script. You can set the permitted layers in the
+* menu: ZScript >>> Quest Specific Settings >>> Scripts.
+* combodata Scripts have two InitD[] args, in the COMBO EDITOR for this script type.
+* 	You may also read or write to them by script with combodata->InitD[] (or this->InitD[])
+* Each combo in the Combo Editor may have one script, and twi InitD values, set on the 'Script' tab.
+* Combo scripts, and only combo scripts, may call <combodata>this-> Pos(), PosX(), and PosY() to obtain
+* coordinates for a combo running a script.
+
+
 /////////////////////////
 /// Subscreen Scripts ///
 /////////////////////////
@@ -1857,23 +1879,6 @@ Multiple Frames:	Yes
 Waitdraw Support:	Undecided
 
 To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
-
-
-/////////////////////
-/// Combo Scripts ///
-/////////////////////
-
-NOT IMPLEMENTED!
-
-TOKEN(s):		combodata script
-POINTER: 		combodata
-InitD:			Yes, [t/b/d]
-InitD Labels:		No
-InitA:			No
-Multiple Frames:	Yes
-Waitdraw Support:	Undecided
-
-To be added in a future spec. Will run on combos, set by in the Combo Editor.
 
 
 
@@ -4612,6 +4617,31 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
 ///////////////////
 ///  combodata  ///
 ///////////////////
+
+int Pos();
+ * Returns the combo screen index of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->Pos()'.
+ * Using this from any other combodata variable is illegal and undefined.
+
+int PosX();
+int X;
+ * Returns the X-coordinate of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->PosX()'.
+ * Using this from any other combodata variable is illegal and undefined.
+ * If used as 'this->X', it is read-only.
+
+int PosY();
+int Y;
+ * Returns the Y-coordinate of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->PosY()'.
+ * Using this from any other combodata variable is illegal and undefined.
+ * If used as 'this->Y', it is read-only.
+
+int Script;
+ * The combodata script used by this combo.
+
+untyped InitD[2];
+ * The two InitD args used by the combodata script for this combo.
 
 int ID;
  * Returns the combo ID associated with the current combodata pointer.

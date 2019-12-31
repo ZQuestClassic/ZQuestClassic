@@ -2048,6 +2048,9 @@ script_variable variable_list[]=
 	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
 	{ "COMBOXR",		COMBOXR,        0,             0 },
 	{ "COMBOYR",		COMBOYR,        0,             0 },
+	{ "COMBOPOSR",		COMBOPOSR,        0,             0 },
+	{ "COMBODATASCRIPT",		COMBODATASCRIPT,        0,             0 },
+	{ "COMBODATAINITD",		COMBODATAINITD,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

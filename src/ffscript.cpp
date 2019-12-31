@@ -7961,6 +7961,19 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case COMBOPOSR:
+		{
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)%176) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -7970,6 +7983,7 @@ long get_register(const long arg)
 		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
 		case COMBODCSET:		GET_COMBO_VAR_BYTE(csets, "CSet"); break;					//C
 		case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
+		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
 		case COMBODNEXTD:		GET_COMBO_VAR_DWORD(speed, "NextData"); break;					//W
 		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;				//C
@@ -7980,6 +7994,7 @@ long get_register(const long arg)
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
 		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
 		case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
@@ -14547,6 +14562,7 @@ void set_register(const long arg, const long value)
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
+		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
 		case COMBODWALK:	SET_COMBO_VAR_BYTE(walk, "Walk"); break;						//char
@@ -14563,6 +14579,7 @@ void set_register(const long arg, const long value)
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
 		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
@@ -30052,6 +30069,9 @@ script_variable ZASMVars[]=
 	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
 	{ "COMBOXR",		COMBOXR,        0,             0 },
 	{ "COMBOYR",		COMBOYR,        0,             0 },
+	{ "COMBOPOSR",		COMBOPOSR,        0,             0 },
+	{ "COMBODATASCRIPT",		COMBODATASCRIPT,        0,             0 },
+	{ "COMBODATAINITD",		COMBODATAINITD,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
