@@ -1,11 +1,5 @@
 //User definitions
 
-//Options
-#option BINARY_32BIT off
-	//Would break a number of things if set on
-#option SHORT_CIRCUIT on
-	//Should work for everything in std_zh, and just speed it up
-
 typedef const int define;
 typedef itemsprite item;
 script typedef itemdata item;

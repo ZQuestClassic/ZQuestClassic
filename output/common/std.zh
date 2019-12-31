@@ -5,6 +5,12 @@
 // quests' scripts,  add constants and procedures to that file,
 // and #include it separately.
 
+//Options
+#option BINARY_32BIT off
+	//Would break a number of things if set on
+#option SHORT_CIRCUIT on
+	//Should work for everything in std_zh, and just speed it up
+
 //User Configuration Files
 #include "std_zh/std_user_defs.zh" //Typedefs: Always first.
 #include "std_zh/std.cfg"
