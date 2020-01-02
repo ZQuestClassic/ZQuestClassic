@@ -1,5 +1,5 @@
 //Extended functions for 2.55.0, Alpha 19 and later.
-//1st July, 2019
+//2nd January, 2020
 
 //A
 
@@ -763,7 +763,7 @@ float Distance(int x1, int y1, int x2, int y2, int scale)
 	float x = (x1-x2) / scale;
 	float y = (y1-y2) / scale;
 	float factor = (x*x)+(y*y);
-	if ( factor < 0 ) return -1;
+	if ( factor <= 0 ) return -1;
 	else return Sqrt(factor) * scale;
 }
 
