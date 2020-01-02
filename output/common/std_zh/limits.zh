@@ -31,8 +31,8 @@ const int SSHOR_MAX 	= 32767;	/**< Maximum value of a signed short. */
 const int SSHRT_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
 
 //Longer Values
-const int INT_MIN 	= -214748;	/**< Minimum value of an int. */ 
-const int INT_MAX 	= 214748;	/**< Maximum value of an int. */ 
-const int LONG_MIN 	= -214748;	/**< Minimum value of an int. */ 
-const int FLOAT_MIN 	= -214748.3648;	/**< Minimum value of an int. */ 
-const int FLOAT_MAX 	= 214748.3647;	/**< Maximum value of an int. */ 
+const int INT_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
+const int INT_MAX 	= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of an int. */ 
+const int LONG_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
+const int FLOAT_MIN 	= -214747.3648 -(OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
+const int FLOAT_MAX 	= 214747.3647 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of an int. */ 
