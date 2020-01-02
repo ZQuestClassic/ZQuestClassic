@@ -34,5 +34,5 @@ const int SSHRT_MAX 	= 32767;	/**< Maximum value of a signed short. */
 const int INT_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
 const int INT_MAX 	= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of an int. */ 
 const int LONG_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
-const int FLOAT_MIN 	= -214747.3648 -(OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
-const int FLOAT_MAX 	= 214747.3647 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of an int. */ 
+const int FLOAT_MIN 	= -214747.3648 -(OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of a ZScript 'float' (int with fixed four-decimal places). */ 
+const int FLOAT_MAX 	= 214747.3647 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of a ZScript 'float' (int with fixed four-decimal places). */ 
