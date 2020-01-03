@@ -154,6 +154,7 @@ namespace ZScript
 		virtual bool isClass() const {return false;}
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return false;}
+		virtual bool isVoid() const {return false;}
 		virtual bool isCustom() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
@@ -303,6 +304,7 @@ namespace ZScript
 		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZVARTYPEID_UNTYPED;}
+		virtual bool isVoid() const {return simpleId == ZVARTYPEID_VOID;}
 
 		int getId() const {return simpleId;}
 

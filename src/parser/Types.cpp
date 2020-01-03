@@ -443,8 +443,8 @@ int DataTypeSimple::selfCompare(DataType const& rhs) const
 
 bool DataTypeSimple::canCastTo(DataType const& target) const
 {
-	if (isUntyped()) return true;
-	if (target.isUntyped()) return true;
+	if (isVoid() || target.isVoid()) return false;
+	if (isUntyped() || target.isUntyped()) return true;
 	if (simpleId == ZVARTYPEID_CHAR) return FLOAT.canCastTo(target); //Char casts the same as float.
 
 	if (DataTypeArray const* t =
@@ -511,6 +511,7 @@ string DataTypeClass::getName() const
 
 bool DataTypeClass::canCastTo(DataType const& target) const
 {
+	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
 	
 	if (DataTypeArray const* t =
@@ -542,6 +543,7 @@ DataTypeClassConst::DataTypeClassConst(int classId, string const& name)
 
 bool DataTypeArray::canCastTo(DataType const& target) const
 {
+	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
 	
 	if (DataTypeArray const* t =
@@ -570,6 +572,7 @@ DataType const& ZScript::getBaseType(DataType const& type)
 
 bool DataTypeCustom::canCastTo(DataType const& target) const
 {
+	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
 
 	if (DataTypeArray const* t =
