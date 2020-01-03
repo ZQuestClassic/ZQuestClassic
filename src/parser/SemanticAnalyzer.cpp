@@ -1048,12 +1048,17 @@ void SemanticAnalyzer::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::BOOL, DataType::BOOL);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
 }
 
 void SemanticAnalyzer::caseExprOr(ASTExprOr& host, void*)
 {
-	analyzeBinaryExpr(host, DataType::BOOL, DataType::BOOL);
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
+}
+
+void SemanticAnalyzer::caseExprXOR(ASTExprXOR& host, void*)
+{
+	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
 }
 
 void SemanticAnalyzer::caseExprGT(ASTExprGT& host, void*)

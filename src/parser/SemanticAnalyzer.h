@@ -56,6 +56,7 @@ namespace ZScript
 		void caseExprPreDecrement(ASTExprPreDecrement& host, void* = NULL);
 		void caseExprAnd(ASTExprAnd& host, void* = NULL);
 		void caseExprOr(ASTExprOr& host, void* = NULL);
+		void caseExprXOR(ASTExprXOR& host, void* = NULL);
 		void caseExprGT(ASTExprGT& host, void* = NULL);
 		void caseExprGE(ASTExprGE& host, void* = NULL);
 		void caseExprLT(ASTExprLT& host, void* = NULL);
