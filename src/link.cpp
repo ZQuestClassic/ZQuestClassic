@@ -82,6 +82,7 @@ extern word link_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
 extern byte epilepsyFlashReduction;
+extern int script_link_cset;
 
 void playLevelMusic();
 
@@ -1542,7 +1543,8 @@ void LinkClass::draw(BITMAP* dest)
     {
         if(!invisible)
         {
-            sprite::draw(dest);
+		if ( script_link_cset > -1 ) cs = script_link_cset;
+		sprite::draw(dest);
         }
         
         return;
@@ -1586,7 +1588,7 @@ void LinkClass::draw(BITMAP* dest)
     }
     
     cs = 6;
-    
+    if ( script_link_cset > -1 ) cs = script_link_cset;
      if(!get_bit(quest_rules,qr_LINKFLICKER))
     {
         if(superman && getCanLinkFlicker())

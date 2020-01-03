@@ -157,6 +157,7 @@ int draw_screen_clip_rect_y1=0;
 int draw_screen_clip_rect_y2=223;
 
 extern int script_link_sprite; 
+extern int script_link_cset; 
 extern int script_link_flip; 
 
 volatile int logic_counter=0;
@@ -1957,6 +1958,7 @@ int init_game()
     //CLear the scripted Link sprites. 
     script_link_sprite = 0; 
     script_link_flip = -1; 
+    script_link_cset = -1; 
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();

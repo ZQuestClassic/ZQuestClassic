@@ -2051,6 +2051,7 @@ script_variable variable_list[]=
 	{ "COMBOPOSR",		COMBOPOSR,        0,             0 },
 	{ "COMBODATASCRIPT",		COMBODATASCRIPT,        0,             0 },
 	{ "COMBODATAINITD",		COMBODATAINITD,        0,             0 },
+	{ "HEROSCRIPTCSET",		HEROSCRIPTCSET,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

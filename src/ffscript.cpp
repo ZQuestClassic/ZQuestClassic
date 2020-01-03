@@ -2752,6 +2752,10 @@ long get_register(const long arg)
 		case LINKSCRIPTTILE:
 			ret=script_link_sprite*10000;
 			break;
+		
+		case HEROSCRIPTCSET:
+			ret=script_link_cset*10000;
+			break;
 		case LINKSCRIPFLIP:
 			ret=script_link_flip*10000;
 			break;
@@ -9292,6 +9296,10 @@ void set_register(const long arg, const long value)
 			break;
 		case LINKSCRIPTTILE:
 			script_link_sprite=vbound((value/10000), -1, NEWMAXTILES-1);
+			break;
+		
+		case HEROSCRIPTCSET:
+			script_link_cset=vbound((value/10000), 0, 0xF);
 			break;
 		case LINKSCRIPFLIP:
 			script_link_flip=vbound((value/10000),-1,256);

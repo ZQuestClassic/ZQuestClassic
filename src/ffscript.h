@@ -3703,11 +3703,11 @@ enum ASM_DEFINE
 #define DMAPDATAID		0x1379
 #define NPCSUBMERGED		0x137A
 #define EWPNPARENTUID		0x137B
-#define GAMEGRAVITY			0x137C
+#define GAMEGRAVITY		0x137C
 #define COMBODASPEED		0x137D
 #define DROPSETITEMS		0x137E
 #define DROPSETCHANCES		0x137F
-#define DROPSETNULLCHANCE		0x1380
+#define DROPSETNULLCHANCE	0x1380
 #define DROPSETCHOOSE		0x1381
 #define KEYPRESS		0x1382
 #define KEYINPUT		0x1383
@@ -3719,20 +3719,21 @@ enum ASM_DEFINE
 #define SPRITEMAXLWPN 		0x1385
 #define SPRITEMAXEWPN 		0x1386
 #define SPRITEMAXITEM 		0x1387
-#define SPRITEMAXPARTICLE 		0x1388
+#define SPRITEMAXPARTICLE 	0x1388
 #define SPRITEMAXDECO 		0x1389
-#define EWPNLEVEL             0x138A
-#define HEROHEALTHBEEP             0x138B
-#define COMBODATTRIBYTES             0x138C
-#define NPCRANDOM             0x138D
-#define COMBOXR             0x138E
-#define COMBOYR             0x138F
-#define COMBOPOSR             0x1390
-#define COMBODATASCRIPT             0x1391
-#define COMBODATAINITD             0x1392
+#define EWPNLEVEL             	0x138A
+#define HEROHEALTHBEEP          0x138B
+#define COMBODATTRIBYTES        0x138C
+#define NPCRANDOM             	0x138D
+#define COMBOXR             	0x138E
+#define COMBOYR             	0x138F
+#define COMBOPOSR             	0x1390
+#define COMBODATASCRIPT         0x1391
+#define COMBODATAINITD          0x1392
+#define HEROSCRIPTCSET          0x1393
 
 
-#define NUMVARIABLES         	0x1393
+#define NUMVARIABLES         	0x1394
 
 // Script types
 
