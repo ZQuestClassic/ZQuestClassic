@@ -1088,35 +1088,35 @@ RootScope::RootScope(TypeStore& typeStore)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::LINK, "Link", 0);
-	BuiltinConstant::create(*this, DataType::LINK, "Hero", 0);
-	BuiltinConstant::create(*this, DataType::LINK, "Player", 0);
-	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
-	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
-	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
-	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 0);
-	BuiltinConstant::create(*this, DataType::TEXT, "Text", 0);
-	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 0);
-	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 0);
-	BuiltinConstant::create(*this, DataType::INPUT, "Input", 0);
-	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 0);
-	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 0);
-	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 0);
-	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 0);
-	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 0);
-	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 0);
-	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 0);
-	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 0);
-	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 0);
-	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 0);
-	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 0);
-	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 0);
-	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 0);
-	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 0);
-	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 0);
-	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 0);
-	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 0);
+	BuiltinConstant::create(*this, DataType::LINK, "Link", 1);
+	BuiltinConstant::create(*this, DataType::LINK, "Hero", 1);
+	BuiltinConstant::create(*this, DataType::LINK, "Player", 1);
+	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 1);
+	BuiltinConstant::create(*this, DataType::GAME, "Game", 1);
+	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 1);
+	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 1);
+	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 1);
+	BuiltinConstant::create(*this, DataType::TEXT, "Text", 1);
+	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 1);
+	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 1);
+	BuiltinConstant::create(*this, DataType::INPUT, "Input", 1);
+	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 1);
+	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 1);
+	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 1);
+	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 1);
+	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 1);
+	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 1);
+	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 1);
+	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
+	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
+	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
+	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
+	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
+	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
+	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
+	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);
+	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 1);
+	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 1);
 }
 
 optional<int> RootScope::getRootStackSize() const
