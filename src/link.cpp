@@ -13343,7 +13343,7 @@ void LinkClass::checkspecial()
         for(int i=0; i<eMAXGUYS; i++)
         {
             if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-                if(guys.idCount(i))
+                if(guys.idCount(i) && !getmapflag(mTMPNORET))
                     setmapflag(mTMPNORET);
         }
         
