@@ -18383,26 +18383,33 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			Link.x = (fix)wx;
 			Link.y = (fix)wy;
 			
-			if ( linkFacesDir != -1 )
+			switch(linkFacesDir)
 			{
-				if((int)Link.x==(fix)0)  
-				{
-					Link.dir=right;
-				}
-				if((int)Link.x==(fix)240) 
-				{
-					Link.dir=left;
-				}
-				
-				if((int)Link.y==(fix)0)   
-				{
-					Link.dir=down;
-				}
-				
-				if((int)Link.y==(fix)160) 
-				{
-					Link.dir=up;
-				}
+				case up:
+				case down:
+				case left:
+				case right:
+					Link.dir = linkFacesDir;
+					break;
+				default:
+					if((int)Link.x==(fix)0)  
+					{
+						Link.dir=right;
+					}
+					if((int)Link.x==(fix)240) 
+					{
+						Link.dir=left;
+					}
+					
+					if((int)Link.y==(fix)0)   
+					{
+						Link.dir=down;
+					}
+					
+					if((int)Link.y==(fix)160) 
+					{
+						Link.dir=up;
+					}
 			}
 			
 			markBmap(Link.dir^1);
@@ -18490,35 +18497,40 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			{
 				darkroom=naturaldark=false;
 			}
-			
+				
 			
 			//Move Link's coordinates
 			Link.x = (fix)wx;
 			Link.y = (fix)wy;
 			//set his dir
-			if ( linkFacesDir != -1 ) 
+			switch(linkFacesDir)
 			{
-				Link.dir=down; //could be = linkFacesDir
-			
-				if((int)Link.x==(fix)0)  
-				{			
-					Link.dir = right;
-				} 
-				
-				if((int)Link.x==(fix)240) 
-				{
-					Link.dir = left;
-				}
-				
-				if((int)Link.y==(fix)0)   
-				{
-					Link.dir = down;
-				}
-				
-				if((int)Link.y==(fix)160)
-				{	
-					Link.dir = up;
-				}
+				case up:
+				case down:
+				case left:
+				case right:
+					Link.dir = linkFacesDir;
+					break;
+				default:
+					Link.dir=down;
+					if((int)Link.x==(fix)0)  
+					{
+						Link.dir=right;
+					}
+					if((int)Link.x==(fix)240) 
+					{
+						Link.dir=left;
+					}
+					
+					if((int)Link.y==(fix)0)   
+					{
+						Link.dir=down;
+					}
+					
+					if((int)Link.y==(fix)160) 
+					{
+						Link.dir=up;
+					}
 			}
 			
 			if(dlevel)
