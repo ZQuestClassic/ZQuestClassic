@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 48
-Document Revision: 30th December, 2019
+Document for: 2.55, Alpha 49
+Document Revision: 8th January, 2020
 
 
  __           _   _                 
@@ -3228,6 +3228,10 @@ int ScriptFlip;
 ///  *weapon  ///
 /////////////////
 
+int Power; 
+ * The damage/power value of te weapo.
+ * Identical to *weapon->Damage, but added for uniformity with itemdata.
+
 bool Animation;
  * Normally 'true'. If enabled, the weapon is animated by the ZC engine.
  * Set this false to disable engine animation.
@@ -3907,6 +3911,10 @@ int ID;
 bool EquipmentItem;
  * Identical to bool Keep, but with more logical naming.
 
+int Damage;
+ * The damage produced by weapons generated from tis item.
+ * Identical to itemdata->Power, provided for uniformity it weapons.
+
 void RunScript(int mode);
  * Runs the script assigned to this item at any arbitrary time.
  * Mode Settings:
@@ -4193,11 +4201,35 @@ void GetMusic();
 ///  shopdata  ///
 //////////////////
 
-	shop->Price[3]
-	infoshop->Price[3]
-	infoshop->String[3]
-	shop->Item[3]
-	shop->HasItem[3]
+int Type;
+ * Returns the shop type for the current shopdata pointer where:
+ * 0: Invalid
+ * 1: Item Shhop
+ * 2: Info Shop
+ * This is read-only and solely based on the internal value of the pointer.
+ 
+int Price[3];
+ * Valid for both item and innformation shop types.
+ * The trhree prices for items or information in the shop. 
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+int String[3];
+ * Valid for both item and innformation shop types.
+ * For info shops, these are the IDs of the three hint strings that you can buy.
+ * For item shops, these are the IDs of the three strings displayed when you buy an item.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+
+int Item[3];
+ * Valid ONLY for item shop types.
+ * The IDs of the items sold by the shop.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+bool HasItem[3];
+ * Valid ONLY for item shop types.
+ * Enables the sale of items in each of the three positions.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+Note: The message displayed when entering a shop is Screen->String, or mapdata->String.
 
 /////////////////
 ///  mapdata  ///

@@ -7311,6 +7311,13 @@ long get_register(const long arg)
 		///----------------------------------------------------------------------------------------------------//
 		//shopdata sd-> variables
 	
+		case SHOPDATATYPE:
+		{
+			int ref = ri->shopsref; 
+			if ( ref > NUMINFOSHOPS || ref < 0 ) ret = 0;
+			else ret = ( ( ref <= NUMSHOPS ) ? 10000 : 20000 ); 
+			break;
+		}
 		case SHOPDATAITEM:
 		{ 
 			
@@ -7397,9 +7404,9 @@ long get_register(const long arg)
 		//Pay for info
 		case SHOPDATASTRING:
 		{
-			if ( ri->shopsref < NUMSHOPS || ri->shopsref > NUMINFOSHOPS )
+			if (((unsigned)ri->shopsref) > NUMINFOSHOPS)
 			{
-				Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ri->shopsref); 
+				Z_scripterrlog("Invalid shop pointer passed to shopdata->String[]: %d\n", ri->shopsref); 
 				ret = -10000;
 			}
 			else 
@@ -7409,7 +7416,7 @@ long get_register(const long arg)
 				int indx = ri->d[0] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
-					Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+					Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "String"); 
 				} 
 				else 
 				{ 

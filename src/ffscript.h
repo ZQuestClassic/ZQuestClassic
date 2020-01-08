@@ -3731,9 +3731,10 @@ enum ASM_DEFINE
 #define COMBODATASCRIPT         0x1391
 #define COMBODATAINITD          0x1392
 #define HEROSCRIPTCSET          0x1393
+#define SHOPDATATYPE    	0x1394
 
 
-#define NUMVARIABLES         	0x1394
+#define NUMVARIABLES         	0x1395
 
 // Script types
 

@@ -1805,6 +1805,7 @@ string ZScript::VarToString(long ID)
 	case COMBODATASCRIPT: return "COMBODATASCRIPT";
 	case COMBODATAINITD: return "COMBODATAINITD";
 	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
+	case SHOPDATATYPE: return "SHOPDATATYPE";
 	
 	
 	default:
