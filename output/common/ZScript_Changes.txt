@@ -1,5 +1,5 @@
 2.53.1 ZScript Changes
-223rd December, 2019
+10th January, 2020
 
 The following ZScript instructons have been changed, or added
 to ZC v2.53.1.
@@ -12,6 +12,18 @@ of using them in older ZC Player versions.
 
 You may use Version.zh to check for ZC version 2.5301 to validate that
 the player is using ZC Player 2.53.1, or higher.
+
+/////////////
+/// Global //
+/////////////
+
+bool IsValidArray(int ptr);		ZASM Instruction: 
+					ISVALIDARRAY
+/**
+* Returns true if the int passed to 'ptr; is a valid array.
+* Otherise, returns false.
+* Works only it int/float array types.
+*/
 
 /////////////
 /// Game-> //

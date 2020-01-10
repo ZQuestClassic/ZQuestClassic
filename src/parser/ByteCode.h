@@ -2295,5 +2295,16 @@ public:
     }
 };
 
+class OIsValidArray : public UnaryOpcode
+{
+public:
+	OIsValidArray(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone()
+	{
+		return new OIsValidArray(a->clone());
+	}
+};
+
 #endif
 

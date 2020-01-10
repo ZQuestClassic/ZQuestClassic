@@ -1889,6 +1889,11 @@ string OGetFFCScript::toString()
     return "GETFFCSCRIPT " + getArgument()->toString();
 }
 
+string OIsValidArray::toString()
+{
+    return "ISVALIDARRAY " + getArgument()->toString();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 int LinkTable::functionToLabel(int fid)
