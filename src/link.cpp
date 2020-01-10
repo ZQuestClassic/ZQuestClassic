@@ -88,7 +88,7 @@ void playLevelMusic();
 
 extern sprite_list particles;
 
-const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
+byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 static int isNextType(int type)
 {

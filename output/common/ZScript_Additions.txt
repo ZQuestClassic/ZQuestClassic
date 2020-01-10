@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 49
-Document Revision: 8th January, 2020
+Document Revision: 10th January, 2020
 
 
  __           _   _                 
@@ -3654,6 +3654,12 @@ int FireSound;
 //////////////
 ///  Hero  ///
 //////////////
+
+int Steps[8];
+ * The number of pixels that the player moves in a frame, based on
+ * his present animation frame.
+ * The default values are: { 1, 1, 2, 1, 1, 2, 1, 1 };
+ * You can double his speed by doubling these values, or adjust it slightly as needed.
 
 bool Animation;
  * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.

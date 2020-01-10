@@ -36,7 +36,7 @@
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
-extern const byte lsteps[8];
+extern byte lsteps[8];
 
 enum { did_fairy=1, did_candle=2, did_whistle=4, did_magic=8, did_glove=16, did_all=32 };
 

@@ -2568,6 +2568,10 @@ long get_register(const long arg)
 		case LINKITEMD:
 			ret = game->item[vbound(ri->d[0]/10000, 0, MAXITEMS-1)] ? 10000 : 0;
 			break;
+		
+		case HEROSTEPS:
+			ret = lsteps[vbound(ri->d[0]/10000, 0, 7)] * 10000;
+			break;
 			
 		case LINKEQUIP:
 			ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
@@ -8930,7 +8934,13 @@ void set_register(const long arg, const long value)
 		case LINKHELD:
 			Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
 			break;
-			
+		
+		case HEROSTEPS:
+		{
+			lsteps[vbound(ri->d[0]/10000,0,7)] = value/10000;
+			break;
+		}
+		
 		case LINKITEMD:
 		{
 			int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
