@@ -1,6 +1,32 @@
 ChangeLog for 2.53.1
 
+//Beta 22
+Updated year to 2020 for copyright and file dates.
+Added IsValidArray(int) to ZScript + Docs
+TheRandoHmeader is now in ./headers, updated to v2.1, optimised for 2.53.1
+	( ZoriaRPG, 10th January, 2020 )
+
+Add TheRandomHeader, Optimised for 2.53.x to ./headers
+	( ZoriaRPG, 9th January, 2020 )
+
 //Beta 21
+nly set map flag mTMPNORET for traps if it is not already set
+	on the current screen. This prevents logging slowdown from setting
+	it every frame.
+For some reason, D_REFRESH isn't occurring on the first time
+	that the user sets a KB button. This circumvents text errors
+	by padding both key strings and key/button integers.
+	( ZoriaRPG, 4th January, 2020 )
+	
+Decimal map number was too large to fit in small mode. Removed.
+	( Venrob, 3rd January, 2020 )
+	
+std.zh Version 1.5010
+	Fix a sanity check in float Distance(int x1, int y1, int x2, int y2, int scale)
+	Convert import to #include for 2.53.1
+	Old format is in std_imports for legacy versions.	
+	( ZoriaRPG, 2nd January, 2020 )	
+	
 Report script exiting on command 0xFFFF.
 	( ZoriaRPG, 28th December, 2019 )
 
