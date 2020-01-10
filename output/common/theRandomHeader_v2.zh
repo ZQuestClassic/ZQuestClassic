@@ -1,5 +1,5 @@
 //-------------------------------//
-// The Random Header - v. 2.0    //
+// The Random Header - v. 2.1    //
 // 9th January, 2020             //
 //-------------------------------//
 
@@ -193,8 +193,10 @@ void createEnemy(int enemyNum)
 		int comboType = Screen->ComboT[comboNum];
 		
 		// If the combo type is water or anything preventing enemies, the location is not okay
-		if(comboType == CT_WATER || comboType == CT_NOENEMY || comboType == CT_NOFLYZONE || comboType == CT_NOJUMPZONE)
-			ifLocationOkay = false;
+		if(comboType == CT_WATER ) ifLocationOkay = false;
+		if(comboType == CT_NOENEMY) ifLocationOkay = false; 
+		if(comboType == CT_NOFLYZONE) ifLocationOkay = false; 
+		if(comboType == CT_NOJUMPZONE) ifLocationOkay = false;
 			
 		// Check if there is a no enemy combo flag on the location
 		if(Screen->ComboF[comboNum] == CF_NOENEMY)
