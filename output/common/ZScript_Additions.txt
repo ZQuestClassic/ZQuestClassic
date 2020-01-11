@@ -3655,7 +3655,7 @@ int FireSound;
 ///  Hero  ///
 //////////////
 
-int Steps[8];
+int Step[8];
  * The number of pixels that the player moves in a frame, based on
  * his present animation frame.
  * The default values are: { 1, 1, 2, 1, 1, 2, 1, 1 };
