@@ -3657,7 +3657,10 @@ int FireSound;
 
 int Step[8];
  * The number of pixels that the player moves in a frame, based on
- * his present animation frame.
+ * his present coordinates. The movement is taken from his x and y:
+ * as: 
+ * x_move_in_pixels = Hero->Step[Hero->X&7]
+ * y_move_in_pixels = Hero->Step[Hero->Y&7]
  * The default values are: { 1, 1, 2, 1, 1, 2, 1, 1 };
  * You can double his speed by doubling these values, or adjust it slightly as needed.
 
