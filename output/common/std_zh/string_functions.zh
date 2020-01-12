@@ -1,5 +1,5 @@
 //string.zh
-//13-JUNE-2016
+//12th January, 2020
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -276,27 +276,33 @@ void strncpy(int dest, int src, int n)
 
 //Remove Characters
 //Remove all characters starting from pointer 'string'
-void remchr(int string, int pos)
+void remchr(int ptr, int pos)
 {
-	for(int i = 0; string[pos + i] != 0; ++i)
-		string[pos + i] = 0;
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		ptr[pos + i] = 0;
 }
 
-//Remove 'n' characters and shift string back to pointer 'string'
-void remnchr(int string, int pos, int n)
+void remchr(int ptr)
 {
-	int l = strlen(string);
+	for(int i = 0; ptr[i] != 0; ++i)
+		ptr[i] = 0;
+}
+
+//Remove 'n' characters and shift string back to pointer 'ptr'
+void remnchr(int ptr, int pos, int n)
+{
+	int l = strlen(ptr);
 	int temp = n + pos;
-	for(int i = 0; string[pos + i] != 0; ++i)
-		string[pos + i] = Cond(temp + i < l, string[temp + i] ,0);
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		ptr[pos + i] = Cond(temp + i < l, ptr[temp + i] ,0);
 }
 
 //String Length
-//Returns the length of string 'string'
-int strlen(int string)
+//Returns the length of string 'ptr'
+int strlen(int ptr)
 {
 	int l;
-	for(l = 0; string[l] != 0; ++l);
+	for(l = 0; ptr[l] != 0; ++l);
 	return l;
 }
 
@@ -333,51 +339,51 @@ void strncat(int dest, int src, int n)
 
 //String Searching
 //String Character
-//Returns the position of the first occurence of 'character' in 'string',
+//Returns the position of the first occurence of 'character' in 'ptr',
 //or -1 if none are found
-int strchr(int string, int pos, int chr)
+int strchr(int ptr, int pos, int chr)
 {
-	for(int i = 0; string[pos + i] != 0; ++i)
-		if(string[pos + i] == chr)
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		if(ptr[pos + i] == chr)
 			return pos + i;
 	return -1;
 }
-int strchr(int string, int chr)
+int strchr(int ptr, int chr)
 {
-	return strchr(string, 0, chr);
+	return strchr(ptr, 0, chr);
 }
 
 //String Reverse Character
-//Returns the position of the last occurence of 'character' in 'string'
+//Returns the position of the last occurence of 'character' in 'ptr'
 //starting from the end, or -1 if none are found
-int strrchr(int string, int pos, int chr)
+int strrchr(int ptr, int pos, int chr)
 {
-	for(int i = strlen(string) - pos; i > 0; --i)
-		if(string[i] == chr)
+	for(int i = strlen(ptr) - pos; i > 0; --i)
+		if(ptr[i] == chr)
 			return i;
 	return -1;
 }
-int strrchr(int string, int chr)
+int strrchr(int ptr, int chr)
 {
-	return strrchr(string, 0, chr);
+	return strrchr(ptr, 0, chr);
 }
 
 
 //String Sub-String
-//Returns the position of the first occurence of sub-string 'sub' in 'string',
+//Returns the position of the first occurence of sub-string 'sub' in 'ptr',
 //or -1 if sub is not found
-int strstr(int string, int pos, int sub)
+int strstr(int ptr, int pos, int sub)
 {
 	int l = strlen(sub) - 1;
-	for(int i = 0; string[pos + i] != 0; ++i)
-		for(int j = 0; sub[j] != 0 && string[pos + i + j] != 0 && string[pos + i + j] == sub[j]; ++j)
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		for(int j = 0; sub[j] != 0 && ptr[pos + i + j] != 0 && ptr[pos + i + j] == sub[j]; ++j)
 			if(j == l)
 				return pos + i;
 	return -1;
 }
-int strstr(int string, int sub)
+int strstr(int ptr, int sub)
 {
-	return strstr(string, 0, sub);
+	return strstr(ptr, 0, sub);
 }
 
 //String Span
@@ -453,194 +459,194 @@ int strncmp(int str1, int str2, int n)
 
 //Converting between variables and strings
 //ASCII to Integer
-//Returns the decimal integer pointed by 'string'
-int atoi(int string, int pos)
+//Returns the decimal integer pointed by 'ptr'
+int atoi(int ptr, int pos)
 {
 	int i=0;
 	bool neg = false;
-	if(string[pos + i] == '-'){
+	if(ptr[pos + i] == '-'){
 		++i;
 		neg = true;
 	}
 	int ret;
-	for(ret = 0; isNumber(string[pos + i]); ++i)
-		ret = ret*10 + (string[pos + i] - '0');
+	for(ret = 0; isNumber(ptr[pos + i]); ++i)
+		ret = ret*10 + (ptr[pos + i] - '0');
 	return ret*Cond(neg, -1, 1);
 }
-int atoi(int string)
+int atoi(int ptr)
 {
-	return atoi(string, 0);
+	return atoi(ptr, 0);
 }
 
 //Integer Length
-//Returns the length of characters of the decimal integer pointed by 'string'
-int ilen(int string, int pos)
+//Returns the length of characters of the decimal integer pointed by 'ptr'
+int ilen(int ptr, int pos)
 {
 	int ret = 0;
-	if(string[pos] == '-')
+	if(ptr[pos] == '-')
 		ret++;
-	for(; isNumber(string[pos + ret]); ++ret);
+	for(; isNumber(ptr[pos + ret]); ++ret);
 	return ret;
 }
-int ilen(int string)
+int ilen(int ptr)
 {
-	return ilen(string, 0);
+	return ilen(ptr, 0);
 }
 
 //Hexadecimal ASCII to Integer
-//Returns the (positive) hexadecimal integer pointed by 'string'
-int xtoi(int string, int pos)
+//Returns the (positive) hexadecimal integer pointed by 'ptr'
+int xtoi(int ptr, int pos)
 {
 	int ret = 0;
-	for(int i = 0; isHex(string[pos + i]); ++i)
-		ret = ret*0x10 + Cond(isNumber(string[pos + i]), string[pos + i] - '0', LowerToUpper(string[pos + i]) - 'A' + 0xA);
+	for(int i = 0; isHex(ptr[pos + i]); ++i)
+		ret = ret*0x10 + Cond(isNumber(ptr[pos + i]), ptr[pos + i] - '0', LowerToUpper(ptr[pos + i]) - 'A' + 0xA);
 	return ret;
 }
-int xtoi(int string)
+int xtoi(int ptr)
 {
-	return xtoi(string, 0);
+	return xtoi(ptr, 0);
 }
 
 //Hexadecimal Length
-//Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
-int xlen(int string, int pos)
+//Returns the length of characters of the (positive) hexadecimal integer pointed by 'ptr'
+int xlen(int ptr, int pos)
 {
 	int ret = 0;
-	for(; isHex(string[pos + ret]); ++ret);
+	for(; isHex(ptr[pos + ret]); ++ret);
 	return ret;
 }
-int xlen(int string)
+int xlen(int ptr)
 {
-	return xlen(string, 0);
+	return xlen(ptr, 0);
 }
 
 //ASCII to Float
-//Returns the floating point number pointed by 'string'
-float atof(int string, int pos)
+//Returns the floating point number pointed by 'ptr'
+float atof(int ptr, int pos)
 {
 	int i = 0;
 	bool neg = false;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 	{
 		++i;
 		neg = true;
 	}
 
 	int ret = 0;
-	for(; isNumber(string[pos + i]); ++i)
-		ret = ret*10 + (string[pos + i]-'0');
+	for(; isNumber(ptr[pos + i]); ++i)
+		ret = ret*10 + (ptr[pos + i]-'0');
 
-	if(string[pos + i] != '.')
+	if(ptr[pos + i] != '.')
 		return ret;
 	i++;
 
 	int decimal = 0;
 	for(int j = 0; j < 4; ++j)
-		decimal = decimal*10 + Cond(isNumber(string[pos + i + j]), (string[pos + i + j] - '0'), 0);
+		decimal = decimal*10 + Cond(isNumber(ptr[pos + i + j]), (ptr[pos + i + j] - '0'), 0);
 
 	return (ret + decimal / 10000) * Cond(neg, -1, 1);
 }
-float atof(int string)
+float atof(int ptr)
 {
-	return atof(string, 0);
+	return atof(ptr, 0);
 }
 
 //Float Length
-//Returns the length of characters of the floating point number pointed by 'string'
-int flen(int string, int pos)
+//Returns the length of characters of the floating point number pointed by 'ptr'
+int flen(int ptr, int pos)
 {
-	int ret = ilen(string, pos);
+	int ret = ilen(ptr, pos);
 
-	if(string[pos + ret] != '.')
+	if(ptr[pos + ret] != '.')
 		return ret;
 	++ret;
 
-	return ret + ilen(string, pos + ret);
+	return ret + ilen(ptr, pos + ret);
 }
-int flen(int string)
+int flen(int ptr)
 {
-	return flen(string, 0);
+	return flen(ptr, 0);
 }
 
 //ASCII to Number
 //Calls either atoi or atof depending on context
-int aton(int string, int pos)
+int aton(int ptr, int pos)
 {
 	int i = 0;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); ++i);
+	for(; isNumber(ptr[pos + i]); ++i);
 
-	if(string[pos + i] == '.')
-		return atof(string, pos);
+	if(ptr[pos + i] == '.')
+		return atof(ptr, pos);
 	else
-		return atoi(string, pos);
+		return atoi(ptr, pos);
 }
-int aton(int string)
+int aton(int ptr)
 {
-	return aton(string, 0);
+	return aton(ptr, 0);
 }
 
 //Number Length
 //Calls either flen or ilen depending on context
-int nlen(int string, int pos)
+int nlen(int ptr, int pos)
 {
 	int i = 0;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); ++i);
+	for(; isNumber(ptr[pos + i]); ++i);
 
-	if(string[i] == '.')
-		return flen(string, pos);
+	if(ptr[i] == '.')
+		return flen(ptr, pos);
 	else
-		return ilen(string, pos);
+		return ilen(ptr, pos);
 }
-int nlen(int string)
+int nlen(int ptr)
 {
-	return nlen(string, 0);
+	return nlen(ptr, 0);
 }
 
 //Integer to ASCII
-//Places integer 'num' into string 'string' without checking for overflow,
+//Places integer 'num' into string 'ptr' without checking for overflow,
 //and returns the number of characters used
-int itoa(int string, int pos, int num)
+int itoa(int ptr, int pos, int num)
 {
 	int ret = 0;
 	if(num < 0)
 	{
-		string[pos] = '-';
+		ptr[pos] = '-';
 		++ret;
 		num = -num;
 	}
 	else if(num == 0)
 	{
-		string[pos] = '0';
+		ptr[pos] = '0';
 		return 1;
 	}
 
 	int digits = Floor(Log10(num) + 1);
 	for(int i = 0; i < digits; ++i)
-		string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
+		ptr[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
 	return ret + digits;
 }
-int itoa(int string, int num)
+int itoa(int ptr, int num)
 {
-	return itoa(string, 0, num);
+	return itoa(ptr, 0, num);
 }
 
 //Hexadecimal Integer to ASCII
-//Places integer 'num' into string 'string' in base 16 without checking for overflow,
+//Places integer 'num' into string 'ptr' in base 16 without checking for overflow,
 //and returns the number of characters used
-int xtoa(int string, int pos, int num, bool upper)
+int xtoa(int ptr, int pos, int num, bool upper)
 {
     num = Floor(Abs(num));
-    string[pos] = '0';
-    string[pos+1] = 'x';
+    ptr[pos] = '0';
+    ptr[pos+1] = 'x';
     int ret = 2;
 
 	if(num == 0)
 	{
-		string[pos+2] = '0';
+		ptr[pos+2] = '0';
 		return 3;
 	}
 
@@ -649,24 +655,24 @@ int xtoa(int string, int pos, int num, bool upper)
 	for(int i = 0; i < digits; ++i)
 	{
 		int coeff = (Floor(num / Pow(0x10, digits - i - 1)) % 0x10);
-		string[pos + ret + i] = Cond(coeff < 0xA, coeff + '0', coeff + alphaoffset);
+		ptr[pos + ret + i] = Cond(coeff < 0xA, coeff + '0', coeff + alphaoffset);
 	}
 	return ret + digits;
 }
-int xtoa(int string, int num, bool upper)
+int xtoa(int ptr, int num, bool upper)
 {
-	return xtoa(string, 0, num, upper);
+	return xtoa(ptr, 0, num, upper);
 }
-int xtoa(int string, int num)
+int xtoa(int ptr, int num)
 {
-	return xtoa(string, 0, num, true);
+	return xtoa(ptr, 0, num, true);
 }
 
 //Float to ASCII
-//Places float 'num' into string 'string' without checking for overflow,
+//Places float 'num' into string 'ptr' without checking for overflow,
 //and returns the number of characters used. If 'printall' is true, it will add 4 decimal places
 //regardless of the most significant digit
-int ftoa(int string, int pos, float num, bool printall)
+int ftoa(int ptr, int pos, float num, bool printall)
 {
     int oldPos=pos;
     int place=100000;
@@ -676,7 +682,7 @@ int ftoa(int string, int pos, float num, bool printall)
     
     if(num<0)
     {
-        string[pos]='-';
+        ptr[pos]='-';
         ++pos;
         num=-num;
     }
@@ -692,7 +698,7 @@ int ftoa(int string, int pos, float num, bool printall)
         {
             if(digit>0 || printZero)
             {
-                string[pos]=digit+'0';
+                ptr[pos]=digit+'0';
                 ++pos;
                 
                 // Start printing 0 at the first non-zero digit.
@@ -713,11 +719,11 @@ int ftoa(int string, int pos, float num, bool printall)
             {
                 for(; storedZeroes>0; storedZeroes--)
                 {
-                    string[pos]='0';
+                    ptr[pos]='0';
                     ++pos;
                 }
                 
-                string[pos]=digit+'0';
+                ptr[pos]=digit+'0';
                 ++pos;
             }
         }
@@ -730,7 +736,7 @@ int ftoa(int string, int pos, float num, bool printall)
         
         else if(place==0.1) // Reached the fractional part
         {
-            string[pos]='.';
+            ptr[pos]='.';
             ++pos;
         }
     }
@@ -739,37 +745,37 @@ int ftoa(int string, int pos, float num, bool printall)
     {
         // printall is false and the number is an integer;
         // just add one zero to the end.
-        string[pos]='0';
+        ptr[pos]='0';
         ++pos;
     }
     
     return pos-oldPos;
 }
-int ftoa(int string, float num, bool printall)
+int ftoa(int ptr, float num, bool printall)
 {
-	return ftoa(string, 0, num, printall);
+	return ftoa(ptr, 0, num, printall);
 }
-int ftoa(int string, int pos, float num)
+int ftoa(int ptr, int pos, float num)
 {
-	return ftoa(string, pos, num, false);
+	return ftoa(ptr, pos, num, false);
 }
-int ftoa(int string, float num)
+int ftoa(int ptr, float num)
 {
-	return ftoa(string, 0, num, false);
+	return ftoa(ptr, 0, num, false);
 }
 
 //Number to ASCII
 //Checks whether 'num' is an integer or not, and calls the appropriate function
-int ntoa(int string, int pos, float num)
+int ntoa(int ptr, int pos, float num)
 {
 	if(num == Floor(num))
-		return itoa(string, pos, num);
+		return itoa(ptr, pos, num);
 	else
-		return ftoa(string, pos, num, false);
+		return ftoa(ptr, pos, num, false);
 }
-int ntoa(int string, float num)
+int ntoa(int ptr, float num)
 {
-	return ntoa(string, 0, num);
+	return ntoa(ptr, 0, num);
 }
 
 
