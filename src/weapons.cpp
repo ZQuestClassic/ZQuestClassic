@@ -3731,6 +3731,7 @@ bool weapon::blocked(int xOffset, int yOffset)
 void weapon::runscript(int index)
 {
     return;
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	switch(id)
 	{
 	    case wScript1:
@@ -3968,6 +3969,7 @@ void weapon::runscript(int index)
 
 bool weapon::animate(int index)
 {
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
     // do special timing stuff
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
