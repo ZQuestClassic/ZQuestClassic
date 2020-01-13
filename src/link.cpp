@@ -361,6 +361,7 @@ void LinkClass::setBigHitbox(bool newbighitbox)
 void LinkClass::linkstep()
 {
     lstep = lstep<((zinit.linkanimationstyle==las_bszelda)?27:11) ? lstep+1 : 0;
+	//need to run all global/hero/dmap scripts here?
 }
 
 bool is_moving()
