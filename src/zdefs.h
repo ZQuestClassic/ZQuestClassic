@@ -952,6 +952,7 @@ enum
 	
 	qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2, qr_combos_run_scripts_layer_3,
 	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6,
+	qr_OLD_INIT_SCRIPT_TIMING, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 	
     qr_MAX
 };

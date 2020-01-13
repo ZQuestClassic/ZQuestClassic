@@ -1996,8 +1996,11 @@ int init_game()
 	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
 	{
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		if(!get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+			FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
@@ -2097,7 +2100,7 @@ int init_game()
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     //}
     //else
-	if(!firstplay)
+	if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
@@ -2124,7 +2127,22 @@ int init_game()
     
     if(!Quit)
         playLevelMusic();
-        
+     
+    //2.53 timing
+    if(get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+    {
+	    if(firstplay)
+	    {
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+	    }
+	    else
+	    {
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	    }    
+    }
     
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
     FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME

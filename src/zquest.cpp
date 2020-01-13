@@ -23739,7 +23739,7 @@ static DIALOG assignscript_dlg[] =
 
 static int zscript_settings_scripts_list[] =
 {
-	6, 18, 22, 25, 26, 31,32,33,34,35,36,37, -1
+	6, 18, 22, 25, 26, 31,32,33,34,35,36,37,38, -1
 };
 
 static int zscript_settings_instructions_list[] =
@@ -23759,7 +23759,8 @@ static int zscript_settings_drawing_list[] =
 
 static int zscript_settings_bugfixes_list[] =
 {
-	10, 17, 21, -1
+	10, 17, 21, 39,
+	-1
 };
 
 static TABPANEL zscript_settings_tabs[] =
@@ -23822,6 +23823,8 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
 	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -23837,7 +23840,8 @@ static int zscriptrules[] =
 	qr_DISALLOW_SETTING_RAFTING, qr_WEAPONS_EXTRA_FRAME, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
 	qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
 	qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2, qr_combos_run_scripts_layer_3,
-	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6,
+	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6, qr_OLD_INIT_SCRIPT_TIMING, 
+	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
     -1
 };
 
