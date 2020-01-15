@@ -1,6 +1,12 @@
 ChangeLog for 2.53.1
 
 //Beta 22
+Updated ghost.zh to v2.8.8
+Correct std.zh file date.
+<std> 1.5011 : Add missing remchr(ptr) to string.zh.
+	Also removed 'string' as identifiers; replacing it with 'ptr'.
+	( ZoriaRPG, 12th January, 2020 )
+	
 Updated year to 2020 for copyright and file dates.
 Added IsValidArray(int) to ZScript + Docs
 TheRandoHmeader is now in ./headers, updated to v2.1, optimised for 2.53.1
