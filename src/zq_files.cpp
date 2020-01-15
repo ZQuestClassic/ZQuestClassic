@@ -510,6 +510,7 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
 
 int PickRuleset()
 {
+	zprint("Running int PickRuleset()\n");
     ruleset_dlg[0].dp2=lfont;
     
     // Large Mode conversion
