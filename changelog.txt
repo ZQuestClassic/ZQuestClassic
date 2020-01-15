@@ -1,6 +1,8 @@
 //2.55 Changes
 
 //Alpha 48
+Now includes ghost 2.8.8
+Updated copyright year to 2020.
 Fixed Link->Steps[] datatype.
 	( ZoriaRPG, 15th January 2020 )
 	
