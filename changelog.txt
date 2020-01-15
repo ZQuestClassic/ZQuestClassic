@@ -1,8 +1,158 @@
 //2.55 Changes
 
-//Alpha 47
-Fixed a crash when using Generic Trigger combos with IDs > 255. 
+//Alpha 48
+Fixed Link->Steps[] datatype.
+	( ZoriaRPG, 15th January 2020 )
+	
+Fixed a crash with no error halt and undeclared const/var in array literals.
+	( Venrob, 15th January, 2020 )
+	
+If the weapon is brought back to life by script, the dying frame variable
+	must be reset, else it would remain alive but invisible, and not
+	get another frame if it died again. Fixed.
+	( Venrob, 13th January, 2020 )	
 
+Because some quests may rely on the specific, old timing, of
+	when the global init and global saveload (formerly continue) scripts
+	run, I added a flag to ZScript>>>Quest Script Settings>>Scripts
+	as 'Use Old Global Init/SaveLoad Timing'.
+	This bit is enabled when loading a quest made before 2.54.x.
+I also added an emergency flag to ZScript>>>Quest Script Settings>>Bugfixes
+	that prevents deallocating arrays from the global init and saveload scripts.
+Added a comment about scripts during Link scrolling.
+	( ZoriaRPG, 13th January 2020 )
+	
+<std> 1.7042 
+	Add missing remchr(ptr) to string.zh.
+	( ZoriaRPG, 12th January 2020 )
+
+Corrected docs for Link->Step[]
+Changed Link->Steps[ to Step[ for Uniformity
+	( ZoriaRPG, 11th January 2020 )
+
+Added Hero->Steps[8] to Adjust Walking Speed
+Update 2.53.x Version of TheRandomHeader to v.2.1 to match 2.53.1
+Optimised TheRandomHeader for 2.55 as v 3.0
+	( ZoriaRPG, 10th January 2020 )
+
+File: Add TheRandomHeader, Optimised for 2.53.x to ./headers
+	( ZoriaRPG, 9th January 2020 )
+
+Made ->Power and ->Damage uniform between *weapon and itemdata.
+Fixed a bug in shopdata->String[3]
+Corrected shopdata documentation.
+Added int shopdata->Type as read-only.
+	( ZoriaRPG, 8th January 2020 )
+	
+Fix: WarpEx() forcedir 
+	Wasn't working at all as supposed to. Now, given a valid dir,
+	that dir will be used; given an invalid dir, it will automatically
+	determine the direction to use.
+	( Venrob, 5th January, 2020 )
+	
+Only set map flag mTMPNORET for traps if it is not already set
+	on the current screen. This prevents logging slowdown from setting
+	it every frame.
+For some reason, D_REFRESH isn't occurring on the first time
+	that the user sets a KB button. This circumvents text errors
+	by padding both key strings and key/button integers.
+	( ZoriaRPG, 4th January 2020 )
+	
+Add Link->ScriptCSet, and fix combodata->Attribytes in globalsymbols
+	( ZoriaRPG, 3rd January 2020 )
+
+XOR was missing a typecheck entirely.
+	Now all logical operators (&&, ||, ^^) are typechecked
+	with UNTYPED,UNTYPED. This alows 'if(npc && bool)' and such.
+Fix: Void cast to Untyped. Nothing can cast to void, and void can cast to nothing, now.
+All global pointer constants now have value '1' instead of '0'.
+Decimal map number was too large to fit in small mode. Removed.
+	( Venrob, 3rd January 2020 )
+	
+<std> Expanded a comment.
+<std> Updated Doxygen comments in limits.zh.
+<std> 1.7041 
+	Fixed compiler warnigs when using limits.zh w/o TRUE_INT_SIZE.
+	Fixed a sanity check in float Distance(int x1, int y1, int x2, int y2, int scale)
+	( ZoriaRPG, 2nd January 2020 )
+	
+std.zh v1.7040 
+	Added Collision(combodata this);
+Added demo scripts:
+	combo_scripts/tollroad.zs
+	item_scripts/brangcontrol.zs
+	item_scripts/weapon_dir_control.zs
+	npc_scripts/stealitem.zs	
+Updated ZSA.txt with combodata script information.
+Added the following combodata members in ZScript:
+	int Pos();
+	 * Returns the combo screen index of a combo from a combodata script, from the 'this->'
+	 * pointer as 'this->Pos()'.
+	 * Using this from any other combodata variable is illegal and undefined. Y;
+
+	int Script;
+	 * The combodata script used by this combo.
+
+	untyped InitD[2];
+	 * The two InitD args used by the combodata script for this combo.
+	( ZoriaRPG, 31st December, 2019 )
+	
+Updated Combos.txt to v4
+Lockblocks: Added Option for Counter Requirement 'No Drain'.
+Added Troll/Thief Lockblocks Req. by ShadowTiger
+Room Guys with Anim==aNONE once again Update Every Frame
+Check [cid] not [MAPCOMBO)-1]. If Any new combo stuff breaks, look here.
+Restore tall grass drops to combos without flag2 set.
+	( ZoriaRPG, 30th December, 2019 )
+	
+Add comboscript->this->PosX(), PosY()
+Add parser comment for 'this->'
+Parser: Fix 'this' mismatches, esp. for combo scripts.
+Add Import Combo ASM Script Menu Option
+Combo scripts now run on each screen load.
+combo doscript now triggers on new screen, but script does not run
+Combo scripts now run on layer 0 of the first screen of the quest.
+Call combo_script_engine() in game_loop()
+	Add suspend type for combo scripts.
+	Default that combo scripts run on layer 0.
+FFScript now assigns the combo script.
+Fixed crah due to invalid data in comboscripts[].
+Fixed mismatch in combo save/load for newcombo.initd[]
+Minor Combo Editor Script Tab Cleanup
+Fix Combo Editor Sctipt Tab
+Added Scripts tab to Combo Editor; fixed linker errors.
+Added the compiler tab for 'Combo' script types.
+Combodata: Start adding script storage and compiler recognition.
+	( ZoriaRPG, 29th December, 2019 )
+	
+Minor fix to combodata->X(), Y()
+Move Combodata X(), Y() back into get_register, with slight change.
+Startmoving COMBOXR/COMBOYR to Commands
+Add missing defines to zdefs
+Add combodata->X() and Y() and other combo script code.
+Start adding Combo Scripts and InitD
+	( ZoriaRPG, 25th December, 2019 )
+	
+//Alpha 47
+Overload Link->Warp with WarpEx
+Add ./zsdocs
+	( ZoriaRPG, 23rd December, 2019 )
+Updated doc revision data for zscript.txt
+Fixed errors in the description of Triangle3D in zscript.txt
+Added chapter title for timing, to head of zsa.txt
+Update zsa.txt with script timing.
+	( ZoriaRPG, 19th December, 2019 )
+
+Added an emulation flag for buggy ->Next combo behaviour.
+Fixed the issue reported by Matthew, where a Slash->Next combo
+	that transformed into a Step->Secrets combo would immediately transform
+	into the secret combo of the step combo, without being stepped upon,
+	immediately after being slashed.
+	( ZoriaRPG, 17th December, 2019 )
+	
+Fixed a crash when using Generic Trigger combos with IDs > 255. 
+	( ZoriaRPG, 14th December, 2019 )
+	
 //Alpha 46
 Added npc script wolfie.zs (1x2/2x1 enemy) to test_scripts.
 Added Waitdraw to npc and lweapon scripts.
