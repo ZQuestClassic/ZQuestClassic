@@ -264,6 +264,7 @@ public:
     void setTileModifier(int ntemod);
     void movelink();
     void move(int d);
+	void moveOld(int d2)
     void hitlink(int hit);
     int  nextcombo(int cx,int cy,int cdir);
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
