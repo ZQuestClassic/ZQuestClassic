@@ -227,6 +227,7 @@ namespace ZScript
 			{
 				if (breakRecursion(host, param)) return;
 				visit(**it, param);
+				syncDisable(host, **it);
 			}
 		}
 
