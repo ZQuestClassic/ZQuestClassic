@@ -1,5 +1,12 @@
 ChangeLog for 2.53.1
 
+//Beta 23
+Made header guards strict to the filename, instead of the
+	quotedstring. They are still case-insensitive.
+Disabled compiler import/include logging. Re-enable by setting LOGLEVEL
+	to '1' in ffscript.ypp.
+	( ZoriaRPG, 16th January, 2020 )
+
 //Beta 22
 Updated ghost.zh to v2.8.8
 Correct std.zh file date.

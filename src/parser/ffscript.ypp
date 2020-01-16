@@ -30,6 +30,8 @@ string headerguards;
 string headerguardsPPC;
 extern YYLTYPE noloc;
 
+#define LOGLEVEL 0
+
 #define SHORTCUT(x,d1,d3,dd,l1,l2) ASTExpr *lval = (ASTExpr *)d1; \
 					Clone c; \
 					lval->execute(c,NULL); \
@@ -648,7 +650,7 @@ int go(const char *f)
 	
 	if(includesfirst)
 	{
-		box_eol(); box_out("Scanning Include Paths First");  box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
 						
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
@@ -674,7 +676,7 @@ int go(const char *f)
 									
 						std::size_t found = f2.find_last_of("/");
 						std::string fileonly = f2.substr(found+1);
-						box_out(fileonly.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
@@ -683,14 +685,19 @@ int go(const char *f)
 						
 						//search header guard string substrings for it
 						
-						box_out("token: "); box_out(tkn.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
 						//if no match, append it
-						if ( headerguards.find (tkn,0) == string::npos )
+						//if ( headerguards.find (tkn,0) == string::npos )
+						if ( headerguards.find (tkn2,0) == string::npos )
 						{
 							//headerguards += "$";
-							headerguards += tkn;
-							box_out("Appending file: "); box_out(f);box_eol();
+							//headerguards += tkn;
+							headerguards += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
 						}
 						else if ( strcmp(f, "tmp") )
 						{
@@ -716,15 +723,22 @@ int go(const char *f)
 					
 					//use fileonly instead of tkn to match the filename, not the quoted string. -Z
 					
-					box_out("token: "); box_out(tkn.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguards.find (tkn,0) == string::npos )
+					
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					
+					//if ( headerguards.find (tkn,0) == string::npos )
+					if ( headerguards.find (tkn2,0) == string::npos )
 					{
 						//headerguards += "$";
-						headerguards += tkn;
-						box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+						//headerguards += tkn;
+						headerguards += tkn2;
+						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
 					}
 					else if ( strcmp(f, "tmp") )
 					{
@@ -740,21 +754,28 @@ int go(const char *f)
 					
 				std::size_t found = pth_headers.find_last_of("/");
 				std::string fileonly = pth_headers.substr(found+1);
-				box_out(fileonly.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				box_out("token: "); box_out(tkn.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguards.find (tkn,0) == string::npos )
+				
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				
+				//if ( headerguards.find (tkn,0) == string::npos )
+				if ( headerguards.find (tkn2,0) == string::npos )
 				{
 					//headerguards += "$";
-					headerguards += tkn;
-					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+					//headerguards += tkn;
+					headerguards += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();  }
 				}
 				else if ( strcmp(f, "tmp") )
 				{
@@ -771,20 +792,25 @@ int go(const char *f)
 					
 			std::size_t found = pth_include.find_last_of("/");
 			std::string fileonly = pth_include.substr(found+1);
-			box_out(fileonly.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
 			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 			//tempname should now match the true filename
-			box_out("token: "); box_out(tkn.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			//search header guard string substrings for it
 			//if no match, append it
-			if ( headerguards.find (tkn,0) == string::npos )
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguards.find (tkn,0) == string::npos )
+			if ( headerguards.find (tkn2,0) == string::npos )
 			{
 				//headerguards += "$";
-				headerguards += tkn;
-				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+				//headerguards += tkn;
+				headerguards += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
 			}
 			else if ( strcmp(pth_include.c_str(), "tmp") )
 			{
@@ -798,11 +824,11 @@ int go(const char *f)
 		int result = yyparse();
 		fclose(yyin);
 		return result;
-		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Include Paths Scanned First"); box_eol(); }
 	}
 	else
 	{
-		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -835,15 +861,20 @@ int go(const char *f)
 						
 						//use fileonly instead of tkn to match the filename, not the quoted string. -Z
 						
-						box_out("token: "); box_out(tkn.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						//search header guard string substrings for it
 						//if no match, append it
-						if ( headerguards.find (tkn,0) == string::npos )
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguards.find (tkn,0) == string::npos )
+						if ( headerguards.find (tkn2,0) == string::npos )
 						{
 							//headerguards += "$";
-							headerguards += tkn;
-							box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+							//headerguards += tkn;
+							headerguards += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
 						}
 						else if ( strcmp(f, "tmp") )
 						{
@@ -859,21 +890,26 @@ int go(const char *f)
 						
 					std::size_t found = pth_headers.find_last_of("/");
 					std::string fileonly = pth_headers.substr(found+1);
-					box_out(fileonly.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					box_out("token: "); box_out(tkn.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguards.find (tkn,0) == string::npos )
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguards.find (tkn,0) == string::npos )
+					if ( headerguards.find (tkn2,0) == string::npos )
 					{
 						//headerguards += "$";
-						headerguards += tkn;
-						box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+						//headerguards += tkn;
+						headerguards += tkn2;
+						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 					}
 					else if ( strcmp(f, "tmp") )
 					{
@@ -890,20 +926,25 @@ int go(const char *f)
 						
 				std::size_t found = pth_include.find_last_of("/");
 				std::string fileonly = pth_include.substr(found+1);
-				box_out(fileonly.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				box_out("token: "); box_out(tkn.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguards.find (tkn,0) == string::npos )
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguards.find (tkn,0) == string::npos )
+				if ( headerguards.find (tkn2,0) == string::npos )
 				{
 					//headerguards += "$";
-					headerguards += tkn;
-					box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+					//headerguards += tkn;
+					headerguards += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
 				}
 				else if ( strcmp(pth_include.c_str(), "tmp") )
 				{
@@ -921,7 +962,7 @@ int go(const char *f)
 						
 			std::size_t found = f2.find_last_of("/");
 			std::string fileonly = f2.substr(found+1);
-			box_out(fileonly.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
@@ -930,14 +971,19 @@ int go(const char *f)
 			
 			//search header guard string substrings for it
 			
-			box_out("token: "); box_out(tkn.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			
 			//if no match, append it
-			if ( headerguards.find (tkn,0) == string::npos )
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguards.find (tkn,0) == string::npos )
+			if ( headerguards.find (tkn2,0) == string::npos )
 			{
 				//headerguards += "$";
-				headerguards += tkn;
-				box_out("Appending file: "); box_out(f);box_eol();
+				//headerguards += tkn;
+				headerguards += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
 			}
 			else if ( strcmp(f, "tmp") )
 			{
@@ -1004,7 +1050,7 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
-		box_eol(); box_out("Scanning Include Paths First");  box_eol();
+		if ( LOGLEVEL > 0 )  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -1030,7 +1076,7 @@ int goPPC(const char *f)
 									
 						std::size_t found = f2.find_last_of("/");
 						std::string fileonly = f2.substr(found+1);
-						box_out(fileonly.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
@@ -1040,14 +1086,19 @@ int goPPC(const char *f)
 						
 						//search header guard string substrings for it
 						
-						box_out("token: "); box_out(tkn.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						//if no match, append it
-						if ( headerguardsPPC.find (tkn,0) == string::npos )
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguardsPPC.find (tkn,0) == string::npos )
+						if ( headerguardsPPC.find (tkn2,0) == string::npos )
 						{
 							//headerguards += "$";
-							headerguardsPPC += tkn;
-							box_out("PPC Appending file: "); box_out(f);box_eol();
+							//headerguardsPPC += tkn;
+							headerguardsPPC += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(f);box_eol(); }
 						}
 						else if ( strcmp(f, "tmp") )
 						{
@@ -1064,22 +1115,27 @@ int goPPC(const char *f)
 					
 					std::size_t found = pth_user.find_last_of("/");
 					std::string fileonly = pth_user.substr(found+1);
-					box_out(fileonly.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					box_out("token: "); box_out(tkn.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguardsPPC.find (tkn,0) == string::npos )
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguardsPPC.find (tkn,0) == string::npos )
+					if ( headerguardsPPC.find (tkn2,0) == string::npos )
 					{
 						//headerguards += "$";
-						box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol();
-						headerguardsPPC += tkn;
+						if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol(); }
+						//headerguardsPPC += tkn;
+						headerguardsPPC += tkn2;
 					}
 					else if ( strcmp(pth_user.c_str(), "tmp") )
 					{
@@ -1095,20 +1151,25 @@ int goPPC(const char *f)
 					
 				std::size_t found = pth_headers.find_last_of("/");
 				std::string fileonly = pth_headers.substr(found+1);
-				box_out(fileonly.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				box_out("token: "); box_out(tkn.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguardsPPC.find (tkn,0) == string::npos )
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguardsPPC.find (tkn,0) == string::npos )
+				if ( headerguardsPPC.find (tkn2,0) == string::npos )
 				{
 					//headerguards += "$";
-					headerguardsPPC += tkn;
-					box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol();
+					//headerguardsPPC += tkn;
+					headerguardsPPC += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 				}
 				else if ( strcmp(pth_headers.c_str(), "tmp") )
 				{
@@ -1125,20 +1186,25 @@ int goPPC(const char *f)
 					
 			std::size_t found = pth_include.find_last_of("/");
 			std::string fileonly = pth_include.substr(found+1);
-			box_out(fileonly.c_str());box_eol();
+			if ( LOGLEVEL > 0 )  { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
 			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 			//tempname should now match the true filename
-			box_out("token: "); box_out(tkn.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			//search header guard string substrings for it
 			//if no match, append it
-			if ( headerguardsPPC.find (tkn,0) == string::npos )
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguardsPPC.find (tkn,0) == string::npos )
+			if ( headerguardsPPC.find (tkn2,0) == string::npos )
 			{
 				//headerguards += "$";
-				headerguardsPPC += tkn;
-				box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol();
+				//headerguardsPPC += tkn;
+				headerguardsPPC += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
 			}
 			else if ( strcmp(pth_include.c_str(), "tmp") )
 			{
@@ -1151,11 +1217,11 @@ int goPPC(const char *f)
 		int result = yyparse();
 		fclose(yyin);
 		return result;
-		box_eol(); box_out("Include Paths Scanned First"); box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Include Paths Scanned First"); box_eol(); }
 	}
 	else
 	{
-		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1179,22 +1245,27 @@ int goPPC(const char *f)
 						
 						std::size_t found = pth_user.find_last_of("/");
 						std::string fileonly = pth_user.substr(found+1);
-						box_out(fileonly.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
 						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 						//tempname should now match the true filename
-						box_out("token: "); box_out(tkn.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						
 						//search header guard string substrings for it
 						//if no match, append it
-						if ( headerguardsPPC.find (tkn,0) == string::npos )
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguardsPPC.find (tkn,0) == string::npos )
+						if ( headerguardsPPC.find (tkn2,0) == string::npos )
 						{
 							//headerguards += "$";
-							box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol();
-							headerguardsPPC += tkn;
+							if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol(); }
+							//headerguardsPPC += tkn;
+							headerguardsPPC += tkn2;
 						}
 						else if ( strcmp(pth_user.c_str(), "tmp") )
 						{
@@ -1210,20 +1281,25 @@ int goPPC(const char *f)
 						
 					std::size_t found = pth_headers.find_last_of("/");
 					std::string fileonly = pth_headers.substr(found+1);
-					box_out(fileonly.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					box_out("token: "); box_out(tkn.c_str());box_eol();
+					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					//search header guard string substrings for it
 					//if no match, append it
-					if ( headerguardsPPC.find (tkn,0) == string::npos )
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguardsPPC.find (tkn,0) == string::npos )
+					if ( headerguardsPPC.find (tkn2,0) == string::npos )
 					{
 						//headerguards += "$";
-						headerguardsPPC += tkn;
-						box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol();
+						//headerguardsPPC += tkn;
+						headerguardsPPC += tkn2;
+						if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 					}
 					else if ( strcmp(pth_headers.c_str(), "tmp") )
 					{
@@ -1240,20 +1316,25 @@ int goPPC(const char *f)
 						
 				std::size_t found = pth_include.find_last_of("/");
 				std::string fileonly = pth_include.substr(found+1);
-				box_out(fileonly.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				box_out("token: "); box_out(tkn.c_str());box_eol();
+				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
-				if ( headerguardsPPC.find (tkn,0) == string::npos )
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguardsPPC.find (tkn,0) == string::npos )
+				if ( headerguardsPPC.find (tkn2,0) == string::npos )
 				{
 					//headerguards += "$";
-					headerguardsPPC += tkn;
-					box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol();
+					//headerguardsPPC += tkn;
+					headerguardsPPC += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
 				}
 				else if ( strcmp(pth_include.c_str(), "tmp") )
 				{
@@ -1271,7 +1352,7 @@ int goPPC(const char *f)
 						
 			std::size_t found = f2.find_last_of("/");
 			std::string fileonly = f2.substr(found+1);
-			box_out(fileonly.c_str());box_eol();
+			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
@@ -1281,14 +1362,25 @@ int goPPC(const char *f)
 			
 			//search header guard string substrings for it
 			
-			box_out("token: "); box_out(tkn.c_str());box_eol();
+			if ( LOGLEVEL > 0 )
+			{
+				box_out("token: "); box_out(tkn.c_str());box_eol();
+			}
 			
 			//if no match, append it
-			if ( headerguardsPPC.find (tkn,0) == string::npos )
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguardsPPC.find (tkn,0) == string::npos )
+			if ( headerguardsPPC.find (tkn2,0) == string::npos )
 			{
 				//headerguards += "$";
-				headerguardsPPC += tkn;
-				box_out("PPC Appending file: "); box_out(f);box_eol();
+				//headerguardsPPC += tkn;
+				headerguardsPPC += tkn2;
+				if ( LOGLEVEL > 0 )
+				{
+					box_out("PPC Appending file: "); box_out(f);box_eol();
+				}
 			}
 			else if ( strcmp(f, "tmp") )
 			{
@@ -1355,7 +1447,10 @@ int go_noguard(const char *f)
 	
 	if(includesfirst)
 	{
-		box_eol(); box_out("Scanning Include Paths First");  box_eol();
+		if ( LOGLEVEL > 0 )
+		{
+			box_eol(); box_out("Scanning Include Paths First");  box_eol();
+		}
 		yyin = fopen(pth_include.c_str(), "r");
 
 		if(!yyin) 
@@ -1373,22 +1468,22 @@ int go_noguard(const char *f)
 						box_eol();
 						return -1;
 					}
-					else
+					else if ( LOGLEVEL > 0 )
 					{
 						box_out("Appending file: "); box_out(f);box_eol();
 					}
 				}
-				else
+				else if ( LOGLEVEL > 0 )
 				{
 					box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
 				}
 			}
-			else
+			else if ( LOGLEVEL > 0 )
 			{
 				box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
 			}
 		}
-		else
+		else if ( LOGLEVEL > 0 )
 		{
 			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
 		}
@@ -1400,7 +1495,10 @@ int go_noguard(const char *f)
 	}
 	else
 	{
-		box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
+		if ( LOGLEVEL > 0 ) 
+		{
+			box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
+		}
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1417,22 +1515,22 @@ int go_noguard(const char *f)
 						box_eol();
 						return -1;
 					}
-					else
+					else if ( LOGLEVEL > 0 )
 					{
-						box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+						if ( LOGLEVEL > 0 ) box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
 					}
 				}
-				else
+				else if ( LOGLEVEL > 0 )
 				{
 					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
 				}
 			}
-			else
+			else if ( LOGLEVEL > 0 )
 			{
 				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
 			}
 		}
-		else
+		else if ( LOGLEVEL > 0 )
 		{
 			box_out("Appending file: "); box_out(f);box_eol();
 		}
