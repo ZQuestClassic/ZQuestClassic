@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 49
+Make ZASM errors for scommand printf format %lu, not %ld.
 Fixed the DMap Selection window not drawing a preview or other data.
 	The array passed to dlg->dp3 was passing invalid data, but it is hardcoded
 	to specific values, so I coded it into the function as 
