@@ -51,7 +51,6 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
-	if(recursionStack.size()) recursionStack.back()->errorDisabled = true;
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
@@ -167,9 +166,53 @@ void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 
 void RecursiveVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 {
+	visit(host, host.ranges, param);
+	if (breakRecursion(host, param)) return;
+	for(vector<ASTRange*>::iterator it = host.ranges.begin();
+		it != host.ranges.end(); ++it)
+	{
+		ASTRange& range = **it;
+		optional<long> start = (*range.start).getCompileTimeValue(this, scope);
+		optional<long> end = (*range.end).getCompileTimeValue(this, scope);
+		if(*start % 10000 > 0)
+		{
+			handleError(CompileError::CaseRangeNonInt(&host, *start));
+		}
+		if(*end % 10000 > 0)
+		{
+			handleError(CompileError::CaseRangeNonInt(&host, *end));
+		}
+		if (breakRecursion(host, param)) return;
+		long e = *end / 10000;
+		for(long val = *start / 10000; val <= e; ++val)
+		{
+			host.cases.push_back(new ASTExprConst(new ASTNumberLiteral(new ASTFloat(val, 0, host.location), host.location), host.location));
+		}
+	}
 	visit(host, host.cases, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.block.get(), param);
+}
+
+void RecursiveVisitor::caseRange(ASTRange& host, void* param)
+{
+	visit(host.start.get(), param);
+	syncDisable(host, *host.start);
+	if (breakRecursion(host, param)) return;
+	visit(host.end.get(), param);
+	syncDisable(host, *host.end);
+	if (breakRecursion(host, param)) return;
+	optional<long> start = (*host.start).getCompileTimeValue(this, scope);
+	optional<long> end = (*host.end).getCompileTimeValue(this, scope);
+	//`start` and `end` must exist, as they are ASTConstExpr. -V
+	if(*start > *end)
+	{
+		handleError(CompileError::RangeInverted(&host, *start, *end));
+	}
+	else if(*start == *end)
+	{
+		handleError(CompileError::RangeEqual(&host, *start, *end));
+	}	
 }
 
 void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)

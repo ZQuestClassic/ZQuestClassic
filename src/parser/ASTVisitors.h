@@ -34,6 +34,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseSwitchCases(ASTSwitchCases& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseRange(ASTRange& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL) {
@@ -243,6 +245,7 @@ namespace ZScript
 		virtual void caseStmtIfElse(ASTStmtIfElse& host, void* param = NULL);
 		virtual void caseStmtSwitch(ASTStmtSwitch & host, void* param = NULL);
 		virtual void caseSwitchCases(ASTSwitchCases & host, void* param = NULL);
+		virtual void caseRange(ASTRange & host, void* param = NULL);
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);

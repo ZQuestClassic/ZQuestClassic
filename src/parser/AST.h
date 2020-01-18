@@ -61,6 +61,7 @@ namespace ZScript
 	class ASTStmtIfElse;
 	class ASTStmtSwitch;
 	class ASTSwitchCases;
+	class ASTRange;
 	class ASTStmtFor;
 	class ASTStmtWhile;
 	class ASTStmtDo;
@@ -443,10 +444,24 @@ namespace ZScript
 
 		// The list of case labels.
 		owning_vector<ASTExprConst> cases;
+		//The list of cases with ranges
+		owning_vector<ASTRange> ranges;
 		// If the default case is included in this grouping.
 		bool isDefault;
 		// The block to run.
 		owning_ptr<ASTBlock> block;
+	};
+	
+	class ASTRange : public AST
+	{
+	public:
+		ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location = LocationData::NONE);
+		ASTRange* clone() const {return new ASTRange(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTExprConst> start;
+		owning_ptr<ASTExprConst> end;
 	};
 
 

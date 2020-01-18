@@ -373,6 +373,17 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 	visitor.caseSwitchCases(*this, param);
 }
 
+// ASTRange
+
+ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location)
+	: AST(location), start(start), end(end)
+{}
+
+void ASTRange::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseRange(*this, param);
+}
+
 // ASTStmtFor
 
 ASTStmtFor::ASTStmtFor(

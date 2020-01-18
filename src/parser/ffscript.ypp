@@ -192,6 +192,17 @@ extern YYLTYPE noloc;
 %token ANDASSIGN
 %token ORASSIGN
 %token CAST
+%token RANGE
+%token APPXEQUAL
+%token DOUBLEBANG
+%token PERCENT
+%token BITNOTASSIGN
+%token INVMOD
+%token DOUBLEADDR
+%token DOUBLESTAR
+%token HANDLE
+%token HANDLETOHANDLE
+%token ADDR
 
  // Hash Only
 %token HASH
@@ -850,6 +861,11 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		cases->isDefault = true;
 		$$ = cases;}
+	| Statement_Switch_Cases CASE Expression_Range COLON {
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		ASTRange* range = (ASTRange*)$3;
+		cases->ranges.push_back(range);
+		$$ = cases;}
 	| CASE Expression_Constant COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTExprConst* key = (ASTExprConst*)$2;
@@ -858,6 +874,11 @@ Statement_Switch_Cases :
 	| DEFAULT COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		cases->isDefault = true;
+		$$ = cases;}
+	| CASE Expression_Range COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTRange* range = (ASTRange*)$2;
+		cases->ranges.push_back(range);
 		$$ = cases;}
 	;
 
@@ -1285,6 +1306,13 @@ Expression_Constant :
 	Expression {
 		ASTExpr* content = (ASTExpr*)$1;
 		$$ = new ASTExprConst(content, @$);}
+	;
+
+Expression_Range :
+	Expression_Constant RANGE Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
