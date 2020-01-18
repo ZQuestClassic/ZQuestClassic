@@ -227,6 +227,17 @@ or_equal		TOKEN( BITORASSIGN );
 "||="		TOKEN( ORASSIGN );
 "^^"		TOKEN( XOR );
 "xor"		TOKEN( XOR );
+"..."			TOKEN( RANGE );
+"~~"			TOKEN (APPXEQUAL);
+"!!"			TOKEN (DOUBLEBANG);
+"%%"			TOKEN (PERCENT);
+"~="			TOKEN (BITNOTASSIGN);
+"!%"			TOKEN (INVMOD);
+"$$"			TOKEN (DOUBLEADDR);
+"**"			TOKEN (DOUBLESTAR);
+"@"			TOKEN (HANDLE);
+"@@"			TOKEN (HANDLETOHANDLE);
+"$"			TOKEN (ADDR);
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
 
