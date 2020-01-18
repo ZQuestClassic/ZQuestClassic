@@ -1,5 +1,12 @@
 //2.55 Changes
 
+//Alpha 49
+Fixed the DMap Selection window not drawing a preview or other data.
+	The array passed to dlg->dp3 was passing invalid data, but it is hardcoded
+	to specific values, so I coded it into the function as 
+	nothing else uses this jwin proc type. 
+	( ZoriaRPG, 18th January 2020 )
+
 //Alpha 48
 Now includes ghost 2.8.8
 Updated copyright year to 2020.
