@@ -10296,7 +10296,7 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         default:
-            Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+            Z_scripterrlog("Invalid ZASM command %lu reached\n", scommand);
             break;
         }
                
