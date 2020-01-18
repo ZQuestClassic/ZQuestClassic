@@ -1,5 +1,12 @@
 ChangeLog for 2.53.1
 
+//Beta 24
+Fixed the DMap Selection window not drawing a preview or other data.
+	The array passed to dlg->dp3 was passing invalid data, but it is hardcoded
+	to specific values, so I coded it into the function as 
+	nothing else uses this jwin proc type. 
+	( ZoriaRPG, 18th January 2020 )
+
 //Beta 23
 Made header guards strict to the filename, instead of the
 	quotedstring. They are still case-insensitive.
