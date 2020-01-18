@@ -706,6 +706,22 @@ Script_Block_Element :
 ////////////////////////////////////////////////////////////////
 // Statements
 
+Block_Statement :
+	Statement {
+		ASTStmt* stmt = (ASTStmt*)$1;
+		if(ASTBlock* existing_block = dynamic_cast<ASTBlock*>(stmt))
+		{
+			$$ = existing_block;
+		}
+		else
+		{
+			ASTBlock* block = new ASTBlock(@$);
+			block->statements.push_back(stmt);
+			$$ = block;
+		}
+	}
+	;
+
 Statement :
 	// Declarations
 	Data SEMICOLON {$$ = $1;}
@@ -788,11 +804,11 @@ Statement_If :
 	;
 	
 If_Body :
-	LPAREN Expression RPAREN Statement {
+	LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* cond = (ASTExpr*)$2;
 		ASTStmt* stmt = (ASTStmt*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
-	| LPAREN Expression RPAREN Statement ELSE Statement {
+	| LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
 		ASTExpr* test = (ASTExpr*)$2;
 		ASTStmt* thenStatement = (ASTStmt*)$4;
 		ASTStmt* elseStatement = (ASTStmt*)$6;
@@ -850,7 +866,7 @@ Statement_For :
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
 		Statement_NoSemicolon RPAREN
-		Statement
+		Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
@@ -861,11 +877,11 @@ Statement_For :
 	;
 
 Statement_While :
-	WHILE LPAREN Expression RPAREN Statement {
+	WHILE LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtWhile(test, body, @$);}
-	| UNTIL LPAREN Expression RPAREN Statement {
+	| UNTIL LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
@@ -874,11 +890,11 @@ Statement_While :
 	;
 	
 Statement_Do :
-	DO Statement WHILE LPAREN Expression RPAREN {
+	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		$$ = new ASTStmtDo(test, body, @$);}
-	| DO Statement UNTIL LPAREN Expression RPAREN {
+	| DO Block_Statement UNTIL LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
