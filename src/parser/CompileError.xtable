@@ -105,6 +105,5 @@ X(	NoArrayGlobalVar,				R,	A,	E,	VOID,	VOID,	"Arrays cannot be used in global va
 X(	TooManyType,				P,	A,	E,	STR,	VOID,	"There are too many types named %s. Check your 'using' statements."				)
 X(	RangeInverted,				CX,	A,	E,	INT,	INT,	"Value range must have smallest...largest; %d...%d is inverted."				)
 X(	RangeEqual,				CX,	A,	W,	INT,	INT,	"Range is of equal value (%d...%d) on both ends"				)
-X(	CaseRangeNonInt,				CX,	A,	E,	INT,	VOID,	"Range value %d of is not an integer."				)
 
 #undef STR

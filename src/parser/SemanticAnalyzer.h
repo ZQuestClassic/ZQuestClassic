@@ -23,6 +23,7 @@ namespace ZScript
 		void caseStmtIf(ASTStmtIf& host, void* = NULL);
 		void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* = NULL);
+		void caseRange(ASTRange& host, void* = NULL);
 		void caseStmtFor(ASTStmtFor& host, void* = NULL);
 		void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
 		void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
