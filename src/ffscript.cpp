@@ -27365,7 +27365,12 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
 			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
-			if ( !section_id || section_id&svCOMBOS ) FFCore.read_combos(f,sram_version);
+			if ( !section_id || section_id&svCOMBOS ) 
+			{
+				reset_combo_animations();
+				reset_combo_animations2();
+				FFCore.read_combos(f,sram_version);
+			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
@@ -27408,7 +27413,12 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
 			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
-			if ( !section_id || section_id&svCOMBOS ) FFCore.write_combos(f,SRAM_VERSION);
+			if ( !section_id || section_id&svCOMBOS ) 
+			{
+				reset_combo_animations();
+				reset_combo_animations2();
+				FFCore.write_combos(f,SRAM_VERSION);
+			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
