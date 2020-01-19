@@ -1,6 +1,10 @@
 ChangeLog for 2.53.1
 
 //Beta 24
+Reset combo anims before importing or exporting .ZCOMBO files
+	as otherwise they will be corrupted by offsets.
+	( ZoriaRPG, 19th January 2020 )
+	
 Make ZASM errors for scommand printf format %lu, not %ld.
 Fixed the DMap Selection window not drawing a preview or other data.
 	The array passed to dlg->dp3 was passing invalid data, but it is hardcoded
