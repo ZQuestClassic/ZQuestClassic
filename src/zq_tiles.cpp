@@ -15171,7 +15171,8 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		return 0;
 	}
 	al_trace("Reading combo: count(%d)\n", count);
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
 
@@ -15429,7 +15430,8 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 	}
 	al_trace("Reading tile: count(%d)\n", count);
 	
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
 	
@@ -15665,7 +15667,8 @@ int writecombofile(PACKFILE *f, int index, int count)
 	{
 		return 0;
 	}
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
