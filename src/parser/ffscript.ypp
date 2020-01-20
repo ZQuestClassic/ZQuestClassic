@@ -1290,6 +1290,15 @@ Expr_17 : Expr_16 {$$ = $1;}
 	| Expr_16 RSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
 	| Expr_16 BITANDASSIGN Expr_17 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	// BitNot Assignment
+	// `a ~= b` == `a &= ~b` == `a = a & ~b`
+	| Expr_16 BITNOTASSIGN Expr_17 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
+		bitnot->operand = right;
+		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
+		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
 	| Expr_16 BITXORASSIGN Expr_17 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
