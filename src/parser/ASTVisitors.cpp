@@ -523,6 +523,15 @@ void RecursiveVisitor::caseExprNE(ASTExprNE& host, void* param)
 	syncDisable(host, *host.right);
 }
 
+void RecursiveVisitor::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
+{
+	visit(host.left.get(), param);
+	syncDisable(host, *host.left);
+	if (breakRecursion(host, param)) return;
+	visit(host.right.get(), param);
+	syncDisable(host, *host.right);
+}
+
 void RecursiveVisitor::caseExprXOR(ASTExprXOR& host, void* param)
 {
 	visit(host.left.get(), param);

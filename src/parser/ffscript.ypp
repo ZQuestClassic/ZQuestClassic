@@ -1231,6 +1231,8 @@ Expr_10 : Expr_9 {$$ = $1;}
 	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
 	// Inequality
 	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	// Approximate Equality
+	| Expr_10 APPXEQUAL Expr_9 {BINARY(ASTExprAppxEQ, $$, $1, $3, @$)}
 	// Logical XOR
 	| Expr_10 XOR Expr_9 {BINARY(ASTExprXOR, $$, $1, $3, @$)}
 	;

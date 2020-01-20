@@ -1410,6 +1410,21 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
+	
+	class ASTExprAppxEQ : public ASTRelExpr
+	{
+	public:
+		ASTExprAppxEQ(ASTExpr* left = NULL,
+		          ASTExpr* right = NULL,
+		          LocationData const& location = LocationData::NONE);
+		ASTExprAppxEQ* clone() const {return new ASTExprAppxEQ(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+	};
 
 	class ASTExprXOR : public ASTRelExpr
 	{
