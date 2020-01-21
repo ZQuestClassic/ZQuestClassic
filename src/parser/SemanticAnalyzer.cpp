@@ -1116,6 +1116,11 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 	if (breakRecursion(host)) return;
 }
 
+void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
+{
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+}
+
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
 {
 	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
