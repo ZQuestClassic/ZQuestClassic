@@ -7,7 +7,7 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 	
 	namespace version
 	{
-		const float ID 		= 1.0000;
+		const float ID 		= 1.0001;
 		const int DATE_YEAR	= 2020;
 		const int DATE_MONTH 	= 1;
 		const int DATE_DAY 	= 21;
@@ -43,7 +43,7 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 		for(int q = eos; q < 512; ++q)
 		{
 			hsh(q) = Rand('A', 'z');
-			if ( hsh[q] >= CHAR_LBRACE && hsh[q] <= CHAR_GRAVE ) hsh[q] = Rand('A', 'Z');
+			if ( hsh[q] >= CHAR_LBRACE && hsh[q] <= CHAR_GRAVE ) hsh[q] = Rand('0', '9');
 		}
 		
 		hash[511] = 0;
