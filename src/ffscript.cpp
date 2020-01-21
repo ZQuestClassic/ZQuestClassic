@@ -6193,13 +6193,23 @@ void set_register(const long arg, const long value)
         {
             int newpickup = value/10000;
             // Values that the questmaker should not use, ever
-            newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+            // Allowing it, for now, until something breaks. -Z 21-Jan-2020
+            //newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+            if (( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 33 )
+		    || ( quest_header_zelda_version < 0x250  ))
+	    {
+		newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+	    }
             
             // If making an item timeout, set its timer
             if(newpickup & ipFADE)
             {
                 (((item*)(s))->clk2) = 512;
             }
+	    //else if(newpickup & ~ipFADE)
+            //{
+            //    (((item*)(s))->clk2) = 0;
+            //}
             
             // If making it a carried item,
             // alter hasitem and set an itemguy.

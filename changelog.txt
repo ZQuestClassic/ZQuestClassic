@@ -1,9 +1,17 @@
 ChangeLog for 2.53.1
 
+//Beta 25
+Experimentally Allow setting all item pickup flags. None are blocked.
+	Unblocked some item pickup flags in ffscript.cpp, that were
+	blocked--probably by L or Joe123?--until it causes some old quest
+	to break. 
+	In quests last saved in 2.50.x Build 32 or lower, it remains blocked.
+	( ZoriaRPG, 21st January, 2020 )
+
 //Beta 24
 Reset combo anims before importing or exporting .ZCOMBO files
 	as otherwise they will be corrupted by offsets.
-	( ZoriaRPG, 19th January 2020 )
+	( ZoriaRPG, 19th January, 2020 )
 	
 Make ZASM errors for scommand printf format %lu, not %ld.
 Fixed the DMap Selection window not drawing a preview or other data.
