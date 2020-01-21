@@ -3,16 +3,17 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 	char32 hash[512]; //filename
 	const int FILE_FAIL 	= 0;
 	const int FILE_CREATED 	= 1;
+	const int FILE_SUCCESS 	= 1;
 	const int FILE_EXISTS 	= 2;
 	
 	namespace version
 	{
-		const float ID 		= 1.0001;
+		const float ID 		= 1.0002;
 		const int DATE_YEAR	= 2020;
 		const int DATE_MONTH 	= 1;
 		const int DATE_DAY 	= 21;
 		const int DATE_HOUR 	= 2;
-		const int DATE_MINUTE 	= 17;
+		const int DATE_MINUTE 	= 30;
 	}
 	
 	int valid()
@@ -66,33 +67,48 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 		*/
 	}
 
-	void Save()
+	int Save()
 	{
 		if ( generatehash() )
 		{
 			SaveSRAM(hash,0);
+			return FILE_SUCCESS;
 		}
 	}
-	void Save(int section)
+	int Save(int section)
 	{
 		if ( generatehash() )
 		{
 			SaveSRAM(hash,section);
+			return FILE_SUCCESS;
 		}
 	}
-	void Load()
+	int Load()
 	{
 		if ( valid() )
 		{
 			LoadSRAM(hash,0);
+			return FILE_SUCCESS;
+		}
+		else 
+		{
+			generatehash();
+			return FILE_FAIL;
 		}
 	}
-	void Load(int section)
+	int Load(int section)
 	{
 		if ( valid() )
 		{
 			LoadSRAM(hash,section);
+			return FILE_SUCCESS;
 		}
+		else 
+		{
+			generatehash();
+			return FILE_FAIL;
+		}
+		
 	}
 	
 }
