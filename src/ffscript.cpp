@@ -10091,13 +10091,24 @@ void set_register(const long arg, const long value)
 			{
 				int newpickup = value/10000;
 				// Values that the questmaker should not use, ever
-				newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				//Allowing it, for now, until something breaks. -Z 21-Jan-2020
+				//newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				//
+				if (( FFCore.GetQuestVersion() == 0x250 && FFCore.GetQuestBuild() < 33 ) //this ishowit looks in 2.53.1, Beta 25
+					|| ( FFCore.GetQuestVersion() < 0x250  ))
+				{
+					newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				}
 				
 				// If making an item timeout, set its timer
 				if(newpickup & ipFADE)
 				{
 					(((item*)(s))->clk2) = 512;
 				}
+				//else if(newpickup & ~ipFADE)
+				//{
+				//    (((item*)(s))->clk2) = 0;
+				//}
 				
 				// If making it a carried item,
 				// alter hasitem and set an itemguy.
