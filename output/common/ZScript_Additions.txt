@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 49
-Document Revision: 10th January, 2020
+Document Revision: 22nd January, 2020
 
 
  __           _   _                 
@@ -86,6 +86,12 @@ The ZScript parser supports the following standard and alternative tokens:
 !=		:	Not-Equal
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
+~~		:	Approximately Equal
+	Compares if two valuesae equal within aset margin of error.
+	The default margin is 0.100
+	You can set a custom margin with:
+	#option APPROX_EQUAL_MARGIN <float>
+	
 
 //Logical
 !		: 	Not
@@ -122,6 +128,7 @@ xor_eq 		: 	Equivalent to 	^=
 xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
+~=		:	Equivalent to &= ~
 
 Notes: Xor abd Logical Xor alternative Tokens
 	C lacks logical xor (^^), and thus the alternate token 
