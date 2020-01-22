@@ -2022,6 +2022,11 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		This option is FORCED to 'off' for 'std.zh', as it would break a number of functions.
 		Be cautious when using this option.
 		
+	APPROX_EQUAL_MARGIN <float>
+		Sets the margin of error for the ~~ (approximately equal) operator.
+		The defailt margin of error is 0.100, so 1.900 ~~ 2 == true.
+		Set to af;oating point value to use a new error margin for ~~.
+		
 Files default to inheriting the option state of the file that imported them. For the buffer, this will use the defaults.
 You may force an option to its' default value by setting it to 'default'
 The default values can be modified in ZQuest, under 'ZScript->Compiler Settings'.
