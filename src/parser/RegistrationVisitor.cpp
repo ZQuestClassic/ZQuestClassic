@@ -817,6 +817,11 @@ void RegistrationVisitor::caseExprNE(ASTExprNE& host, void* param)
 	analyzeBinaryExpr(host);
 }
 
+void RegistrationVisitor::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
+{
+	analyzeBinaryExpr(host);
+}
+
 void RegistrationVisitor::caseExprPlus(ASTExprPlus& host, void* param)
 {
 	analyzeBinaryExpr(host);

@@ -10091,13 +10091,24 @@ void set_register(const long arg, const long value)
 			{
 				int newpickup = value/10000;
 				// Values that the questmaker should not use, ever
-				newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				//Allowing it, for now, until something breaks. -Z 21-Jan-2020
+				//newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				//
+				if (( FFCore.GetQuestVersion() == 0x250 && FFCore.GetQuestBuild() < 33 ) //this ishowit looks in 2.53.1, Beta 25
+					|| ( FFCore.GetQuestVersion() < 0x250  ))
+				{
+					newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+				}
 				
 				// If making an item timeout, set its timer
 				if(newpickup & ipFADE)
 				{
 					(((item*)(s))->clk2) = 512;
 				}
+				//else if(newpickup & ~ipFADE)
+				//{
+				//    (((item*)(s))->clk2) = 0;
+				//}
 				
 				// If making it a carried item,
 				// alter hasitem and set an itemguy.
@@ -22077,7 +22088,7 @@ int run_script(const byte type, const word script, const long i)
 			
 			default:
 			{
-				Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+				Z_scripterrlog("Invalid ZASM command %lu reached\n", scommand);
 				break;
 			}
 		}
@@ -27365,7 +27376,12 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
 			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
-			if ( !section_id || section_id&svCOMBOS ) FFCore.read_combos(f,sram_version);
+			if ( !section_id || section_id&svCOMBOS ) 
+			{
+				reset_combo_animations();
+				reset_combo_animations2();
+				FFCore.read_combos(f,sram_version);
+			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
@@ -27408,7 +27424,12 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
 			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
-			if ( !section_id || section_id&svCOMBOS ) FFCore.write_combos(f,SRAM_VERSION);
+			if ( !section_id || section_id&svCOMBOS ) 
+			{
+				reset_combo_animations();
+				reset_combo_animations2();
+				FFCore.write_combos(f,SRAM_VERSION);
+			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);

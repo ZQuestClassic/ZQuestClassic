@@ -34,6 +34,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseSwitchCases(ASTSwitchCases& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseRange(ASTRange& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL) {
@@ -130,6 +132,8 @@ namespace ZScript
 		virtual void caseExprEQ(ASTExprEQ& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprNE(ASTExprNE& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprAppxEQ(ASTExprAppxEQ& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprXOR(ASTExprXOR& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -243,6 +247,7 @@ namespace ZScript
 		virtual void caseStmtIfElse(ASTStmtIfElse& host, void* param = NULL);
 		virtual void caseStmtSwitch(ASTStmtSwitch & host, void* param = NULL);
 		virtual void caseSwitchCases(ASTSwitchCases & host, void* param = NULL);
+		virtual void caseRange(ASTRange & host, void* param = NULL);
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);
@@ -288,6 +293,7 @@ namespace ZScript
 		virtual void caseExprLE(ASTExprLE& host, void* param = NULL);
 		virtual void caseExprEQ(ASTExprEQ& host, void* param = NULL);
 		virtual void caseExprNE(ASTExprNE& host, void* param = NULL);
+		virtual void caseExprAppxEQ(ASTExprAppxEQ& host, void* param = NULL);
 		virtual void caseExprXOR(ASTExprXOR& host, void* param = NULL);
 		virtual void caseExprPlus(ASTExprPlus& host, void* param = NULL);
 		virtual void caseExprMinus(ASTExprMinus& host, void* param = NULL);

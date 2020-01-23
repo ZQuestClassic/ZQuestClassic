@@ -51,7 +51,6 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
-	if(recursionStack.size()) recursionStack.back()->errorDisabled = true;
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
@@ -167,9 +166,20 @@ void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 
 void RecursiveVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 {
+	visit(host, host.ranges, param);
+	if (breakRecursion(host, param)) return;
 	visit(host, host.cases, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.block.get(), param);
+}
+
+void RecursiveVisitor::caseRange(ASTRange& host, void* param)
+{
+	visit(host.start.get(), param);
+	syncDisable(host, *host.start);
+	if (breakRecursion(host, param)) return;
+	visit(host.end.get(), param);
+	syncDisable(host, *host.end);
 }
 
 void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
@@ -505,6 +515,15 @@ void RecursiveVisitor::caseExprEQ(ASTExprEQ& host, void* param)
 }
 
 void RecursiveVisitor::caseExprNE(ASTExprNE& host, void* param)
+{
+	visit(host.left.get(), param);
+	syncDisable(host, *host.left);
+	if (breakRecursion(host, param)) return;
+	visit(host.right.get(), param);
+	syncDisable(host, *host.right);
+}
+
+void RecursiveVisitor::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 {
 	visit(host.left.get(), param);
 	syncDisable(host, *host.left);

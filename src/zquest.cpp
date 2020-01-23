@@ -14564,7 +14564,8 @@ int d_dmaplist_proc(int msg,DIALOG *d,int c)
     if(msg==MSG_DRAW)
     {
         int dmap = d->d1;
-        int *xy = (int*)(d->dp3);
+        int xy[6] = {44,92,128,100,128,110};
+        //int *xy = (int*)(d->dp3);
         float temp_scale = 1;
         
         if(is_large)

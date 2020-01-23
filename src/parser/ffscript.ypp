@@ -192,6 +192,17 @@ extern YYLTYPE noloc;
 %token ANDASSIGN
 %token ORASSIGN
 %token CAST
+%token RANGE
+%token APPXEQUAL
+%token DOUBLEBANG
+%token PERCENT
+%token BITNOTASSIGN
+%token INVMOD
+%token DOUBLEADDR
+%token DOUBLESTAR
+%token HANDLE
+%token HANDLETOHANDLE
+%token ADDR
 
  // Hash Only
 %token HASH
@@ -706,6 +717,22 @@ Script_Block_Element :
 ////////////////////////////////////////////////////////////////
 // Statements
 
+Block_Statement :
+	Statement {
+		ASTStmt* stmt = (ASTStmt*)$1;
+		if(ASTBlock* existing_block = dynamic_cast<ASTBlock*>(stmt))
+		{
+			$$ = existing_block;
+		}
+		else
+		{
+			ASTBlock* block = new ASTBlock(@$);
+			block->statements.push_back(stmt);
+			$$ = block;
+		}
+	}
+	;
+
 Statement :
 	// Declarations
 	Data SEMICOLON {$$ = $1;}
@@ -788,11 +815,11 @@ Statement_If :
 	;
 	
 If_Body :
-	LPAREN Expression RPAREN Statement {
+	LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* cond = (ASTExpr*)$2;
 		ASTStmt* stmt = (ASTStmt*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
-	| LPAREN Expression RPAREN Statement ELSE Statement {
+	| LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
 		ASTExpr* test = (ASTExpr*)$2;
 		ASTStmt* thenStatement = (ASTStmt*)$4;
 		ASTStmt* elseStatement = (ASTStmt*)$6;
@@ -834,6 +861,11 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		cases->isDefault = true;
 		$$ = cases;}
+	| Statement_Switch_Cases CASE Expression_Range COLON {
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		ASTRange* range = (ASTRange*)$3;
+		cases->ranges.push_back(range);
+		$$ = cases;}
 	| CASE Expression_Constant COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTExprConst* key = (ASTExprConst*)$2;
@@ -843,6 +875,11 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		cases->isDefault = true;
 		$$ = cases;}
+	| CASE Expression_Range COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTRange* range = (ASTRange*)$2;
+		cases->ranges.push_back(range);
+		$$ = cases;}
 	;
 
 Statement_For :
@@ -850,7 +887,7 @@ Statement_For :
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
 		Statement_NoSemicolon RPAREN
-		Statement
+		Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
@@ -861,11 +898,11 @@ Statement_For :
 	;
 
 Statement_While :
-	WHILE LPAREN Expression RPAREN Statement {
+	WHILE LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtWhile(test, body, @$);}
-	| UNTIL LPAREN Expression RPAREN Statement {
+	| UNTIL LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
@@ -874,11 +911,11 @@ Statement_While :
 	;
 	
 Statement_Do :
-	DO Statement WHILE LPAREN Expression RPAREN {
+	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		$$ = new ASTStmtDo(test, body, @$);}
-	| DO Statement UNTIL LPAREN Expression RPAREN {
+	| DO Block_Statement UNTIL LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
@@ -1194,6 +1231,8 @@ Expr_10 : Expr_9 {$$ = $1;}
 	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
 	// Inequality
 	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	// Approximate Equality
+	| Expr_10 APPXEQUAL Expr_9 {BINARY(ASTExprAppxEQ, $$, $1, $3, @$)}
 	// Logical XOR
 	| Expr_10 XOR Expr_9 {BINARY(ASTExprXOR, $$, $1, $3, @$)}
 	;
@@ -1253,6 +1292,15 @@ Expr_17 : Expr_16 {$$ = $1;}
 	| Expr_16 RSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
 	| Expr_16 BITANDASSIGN Expr_17 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	// BitNot Assignment
+	// `a ~= b` == `a &= ~b` == `a = a & ~b`
+	| Expr_16 BITNOTASSIGN Expr_17 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
+		bitnot->operand = right;
+		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
+		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
 	| Expr_16 BITXORASSIGN Expr_17 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
@@ -1269,6 +1317,13 @@ Expression_Constant :
 	Expression {
 		ASTExpr* content = (ASTExpr*)$1;
 		$$ = new ASTExprConst(content, @$);}
+	;
+
+Expression_Range :
+	Expression_Constant RANGE Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

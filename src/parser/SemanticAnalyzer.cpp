@@ -203,6 +203,23 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
 	checkCast(*host.key->getReadType(scope, this), DataType::FLOAT, &host);
 }
 
+void SemanticAnalyzer::caseRange(ASTRange& host, void*)
+{
+	RecursiveVisitor::caseRange(host);
+	if(breakRecursion(host)) return;
+	optional<long> start = (*host.start).getCompileTimeValue(this, scope);
+	optional<long> end = (*host.end).getCompileTimeValue(this, scope);
+	//`start` and `end` must exist, as they are ASTConstExpr. -V
+	if(*start > *end)
+	{
+		handleError(CompileError::RangeInverted(&host, *start, *end));
+	}
+	else if(*start == *end)
+	{
+		handleError(CompileError::RangeEqual(&host, *start, *end));
+	}
+}
+
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 {
 	//Use sub-scope
@@ -1097,6 +1114,11 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 
 	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
+}
+
+void SemanticAnalyzer::caseExprAppxEQ(ASTExprAppxEQ& host, void*)
+{
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)

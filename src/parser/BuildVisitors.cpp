@@ -248,6 +248,31 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
 		}
+		for (vector<ASTRange*>::iterator it = cases->ranges.begin();
+			it != cases->ranges.end();
+			++it)
+		{
+			ASTRange& range = **it;
+			int skipLabel = ScriptParser::getUniqueLabelID();
+			//Test each full range
+			result.push_back(new OPushRegister(new VarArgument(EXP2))); //Push the key
+			visit(*range.start, param); //Handle the starting EXPR
+			result.push_back(new OPopRegister(new VarArgument(EXP2))); //Pop the key
+			result.push_back(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //Compare key to lower bound
+			result.push_back(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
+			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+			result.push_back(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
+			result.push_back(new OPushRegister(new VarArgument(EXP2))); //Push the key
+			visit(*range.end, param); //Handle the ending EXPR
+			result.push_back(new OPopRegister(new VarArgument(EXP2))); //Pop the key
+			result.push_back(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //Compare key to upper bound
+			result.push_back(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
+			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+			result.push_back(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
+			Opcode *end = new ONoOp(); //Just here so the skip label can be placed
+			end->setLabel(skipLabel);
+			result.push_back(end); //add the skip label
+		}
 
 		// If this set includes the default case, mark it.
 		if (cases->isDefault)
@@ -1192,6 +1217,29 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 		addOpcode(new OSetFalse(new VarArgument(EXP1)));
 	else
 		addOpcode(new OSetFalseI(new VarArgument(EXP1)));
+}
+
+void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
+{
+    if (host.getCompileTimeValue(NULL, scope))
+    {
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+        return;
+    }
+
+    // Compute both sides.
+    visit(host.left.get(), param);
+    addOpcode(new OPushRegister(new VarArgument(EXP1)));
+    visit(host.right.get(), param);
+    addOpcode(new OPopRegister(new VarArgument(EXP2)));
+	addOpcode(new OSubRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	addOpcode(new OAbsRegister(new VarArgument(EXP1)));
+	
+    addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+		addOpcode(new OSetLess(new VarArgument(EXP1)));
+	else
+		addOpcode(new OSetLessI(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)

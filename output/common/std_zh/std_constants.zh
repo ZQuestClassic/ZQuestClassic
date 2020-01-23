@@ -1,5 +1,5 @@
 // std_constants.zh
-// 5th November, 2019 for ZC 2.55 Alpha 32
+// 22nd January, 2020 for ZC 2.55 Alpha 49
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -12,6 +12,8 @@ const float PI2				= 6.2832;
 const float E				= 2.7183;
 
 const untyped NULL				= 0;
+const untyped null				= 0;
+const untyped Null				= 0;
 
 const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
 const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
@@ -35,8 +37,8 @@ const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
 const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
 const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
-const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
-const int MIN_COUNTER 			= -32768; //" -32767
+const int MAX_COUNTER 			= WORD_MAX; 
+const int MIN_COUNTER 			= WORD_MIN;
 
 const int MIN_LWEAPON 			= 1; //Lowest numbered objects.
 const int MIN_EWEAPON 			= 1;
@@ -591,6 +593,57 @@ const int IC_CUSTOM17           = 83;
 const int IC_CUSTOM18           = 84;
 const int IC_CUSTOM19           = 85;
 const int IC_CUSTOM20           = 86;
+
+// These item classes create a projectile of the 
+// type LW_CUSTOM/LW_SCRIPT, 01 to 10
+const int IC_WPN_CUSTOM_01           = 256;
+const int IC_WPN_SCRIPT_01           = 256;
+const int IC_WPN_CUSTOM_02           = 257;
+const int IC_WPN_SCRIPT_02           = 257;
+const int IC_WPN_CUSTOM_03           = 258;
+const int IC_WPN_SCRIPT_03           = 258;
+const int IC_WPN_CUSTOM_04           = 259;
+const int IC_WPN_SCRIPT_04           = 259;
+const int IC_WPN_CUSTOM_05           = 260;
+const int IC_WPN_SCRIPT_05           = 260;
+const int IC_WPN_CUSTOM_06           = 261;
+const int IC_WPN_SCRIPT_06           = 261;
+const int IC_WPN_CUSTOM_07           = 262;
+const int IC_WPN_SCRIPT_07           = 262;
+const int IC_WPN_CUSTOM_08           = 263;
+const int IC_WPN_SCRIPT_08           = 263;
+const int IC_WPN_CUSTOM_09           = 264;
+const int IC_WPN_SCRIPT_09           = 264;
+const int IC_WPN_CUSTOM_19           = 265;
+const int IC_WPN_SCRIPT_10           = 265;
+
+const int IC_ICEROD          	     = 266;
+// 267 is unused; reserved for somaria
+// The following are unimplemented, andreserved.
+const int IC_ETHER                   = 268;
+const int IC_BOMBOS                  = 269;
+const int IC_QUAKE                   = 270;
+const int IC_POWDER                  = 271;
+const int IC_TWOWEL                  = 272;
+const int IC_SHOVEL                  = 273;
+const int IC_INSTRUMENT              = 274;
+const int IC_SWORD180                = 275;
+const int IC_SWORD_GB                = 276;
+const int IC_FIREROD                 = 277;
+
+const int IC_SCRIPTED_01             = 400;
+const int IC_SCRIPTED_02             = 401;
+const int IC_SCRIPTED_03             = 402;
+const int IC_SCRIPTED_04             = 403;
+const int IC_SCRIPTED_05             = 404;
+const int IC_SCRIPTED_06             = 405;
+const int IC_SCRIPTED_07             = 406;
+const int IC_SCRIPTED_08             = 407;
+const int IC_SCRIPTED_09             = 408;
+const int IC_SCRIPTED_10             = 409;
+
+const int IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
+
 
 
 //Item IDs. Use with CreateItem() and Link->Item[].
@@ -1600,6 +1653,7 @@ define FONT_LISA_HEIGHT = 8;
 // PrintString Text Formats. Use with Screen->DrawString.
 const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
+const int TF_CENTRED           = 1; // prints the string centered on (x)
 const int TF_RIGHT              = 2; // treats the right-most char as (x)
 
 // Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle

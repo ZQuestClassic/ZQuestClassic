@@ -689,14 +689,14 @@ void CopyTileRow(int source, int dest, int length)
 //Add to a counter without rollover.
 void CounterAdd(int counter, int amount)
 {
-	if ( amount + Game->Counter[counter] > MAX_COUNTER ) Game->Counter[counter] = MAX_COUNTER;
+	if ( amount + Game->Counter[counter] > COUNTER_MAX ) Game->Counter[counter] = COUNTER_MAX;
 	else Game->Counter[counter] += amount;
 }
 
 //Reduce a counter without rollvoer. 
 void CounterReduce(int counter, int amount)
 {
-	if ( Game->Counter[counter] - amount < 0 ) Game->Counter[counter] = 0; 
+	if ( Game->Counter[counter] - amount < COUNTER_MIN ) Game->Counter[counter] = COUNTER_MIN; 
 	else Game->Counter[counter] -= amount;
 }
 
@@ -768,14 +768,14 @@ float CrossProduct( float x1, float y1, float x2, float y2 )
 //Add to a drain counter without rollover.
 void DCounterAdd(int counter, int amount)
 {
-	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
+	if ( amount + Game->DCounter[counter] > DCOUNTER_MAX ) Game->DCounter[counter] = DCOUNTER_MAX;
 	else Game->MCounter[counter] += amount;
 }
 
 //Reduce a drain counter without rollvoer. 
 void DCounterReduce(int counter, int amount)
 {
-	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
+	if ( Game->DCounter[counter] - amount < DCOUNTER_MIN ) Game->DCounter[counter] = DCOUNTER_MIN;
 	else Game->DCounter[counter] -= amount;
 }
 

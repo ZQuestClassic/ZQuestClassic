@@ -373,6 +373,17 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 	visitor.caseSwitchCases(*this, param);
 }
 
+// ASTRange
+
+ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location)
+	: AST(location), start(start), end(end)
+{}
+
+void ASTRange::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseRange(*this, param);
+}
+
 // ASTStmtFor
 
 ASTStmtFor::ASTStmtFor(
@@ -1424,6 +1435,30 @@ optional<long> ASTExprNE::getCompileTimeValue(
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+}
+
+// ASTExprAppxEQ
+
+ASTExprAppxEQ::ASTExprAppxEQ(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+void ASTExprAppxEQ::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprAppxEQ(*this, param);
+}
+
+optional<long> ASTExprAppxEQ::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if (!rightValue) return nullopt;
+	return (abs(*leftValue - *rightValue) <= (*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprXOR

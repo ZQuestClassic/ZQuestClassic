@@ -62,6 +62,7 @@ namespace ZScript
 		void caseExprLE(ASTExprLE& host, void* param = NULL);
 		void caseExprEQ(ASTExprEQ& host, void* param = NULL);
 		void caseExprNE(ASTExprNE& host, void* param = NULL);
+		void caseExprAppxEQ(ASTExprAppxEQ& host, void* param = NULL);
 		void caseExprPlus(ASTExprPlus& host, void* param = NULL);
 		void caseExprMinus(ASTExprMinus& host, void* param = NULL);
 		void caseExprTimes(ASTExprTimes& host, void* param = NULL);
