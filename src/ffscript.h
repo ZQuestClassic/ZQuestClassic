@@ -100,16 +100,17 @@ enum {
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
-	//16->26 Script Types
+	//16->27 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	//21
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //26
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS //27
 	
-	//27->29 : Moving items
+	//28->30 : Moving items
 	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
-	//30->34 : Misc
+	//31->35 : Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//35
+	//36
 	susptLAST };
 
 //npc function enums
