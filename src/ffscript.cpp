@@ -5319,7 +5319,12 @@ long get_register(const long arg)
 			break;
 		case GAMESUSPEND:
 		{
-			ret = (( FFCore.system_suspend[(ri->d[0])/10000] ) ? 10000 : 0);
+			int inx = (ri->d[0])/10000;
+			if ( (unsigned) inx > (susptLAST-1) )
+			{
+				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+			}
+			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
 			break;
 		}
 		case GAMELITEMSD:
@@ -12026,7 +12031,12 @@ void set_register(const long arg, const long value)
 		
 		case GAMESUSPEND:
 		{
-			FFCore.system_suspend[(ri->d[0])/10000]= ( (value) ? 1 : 0 );
+			int inx = (ri->d[0])/10000;
+			if ( (unsigned) inx > (susptLAST-1) )
+			{
+				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+			}
+			FFCore.system_suspend[inx]= ( (value) ? 1 : 0 );
 			break;
 		}
 			
