@@ -10588,6 +10588,7 @@ void LinkClass::movelink()
 		}
 		else
 		{
+			walkable = false;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
 			{
 				if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
@@ -10635,10 +10636,14 @@ void LinkClass::movelink()
 							
 							if(info.isUnwalkable())
 							{
-								if(z3_newstep > 1)
+								if(y != int(y))
+								{
+									y = floor((double)y);
+								}
+								else if(z3_newstep > 1)
 								{
 									if(z3_newstep != int(z3_newstep)) //floor
-										z3_newstep = int(z3_newstep);
+										z3_newstep = floor((double)z3_newstep);
 									else --z3_newstep;
 								}
 								else
@@ -10667,10 +10672,14 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(z3_newstep_diag > 1)
+									if(x != int(x))
+									{
+										x = floor((double)x);
+									}
+									else if(z3_newstep_diag > 1)
 									{
 										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
-											z3_newstep_diag = int(z3_newstep_diag);
+											z3_newstep_diag = floor((double)z3_newstep_diag);
 										else --z3_newstep_diag;
 									}
 									else
@@ -10684,10 +10693,14 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(z3_newstep_diag > 1)
+											if(x != int(x))
+											{
+												x = floor((double)x);
+											}
+											else if(z3_newstep_diag > 1)
 											{
 												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
-													z3_newstep_diag = int(z3_newstep_diag);
+													z3_newstep_diag = floor((double)z3_newstep_diag);
 												else --z3_newstep_diag;
 											}
 											else
@@ -10698,28 +10711,62 @@ void LinkClass::movelink()
 									while(shiftdir != -1);
 									break;
 								}
+								else break;
 							}
 							while(shiftdir != -1);
 						}
 						else if(s==right)
 						{
-							info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,right);
+								info = (walkflag(x+15+z3_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3_newstep_diag,y+15,1,right));
+									
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(x != int(x))
+									{
+										x = floor((double)x);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+z3_newstep_diag,(bigHitbox?0:8)+(y-z3_newstep),1,right);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != int(x))
+											{
+												x = floor((double)x);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 					}
 					
@@ -10799,47 +10846,35 @@ void LinkClass::movelink()
 					}
 					else
 					{
-						info = walkflag(x,y+15+z3step,2,down);
-						
-						if(int(x)&7)
-							info = info || walkflag(x+16,y+15+z3step,1,down);
-						else if(blockmoving)
-							info = info || walkflagMBlock(x+16, y+15+z3step);
-						
-						execute(info);
-						
-						if(info.isUnwalkable())
+						do
 						{
-							if(z3step==2)
+							info = walkflag(x,15+(y+z3_newstep),2,down);
+							
+							if(int(x) & 7)
+								info = info || walkflag(x+16,15+(y+z3_newstep),1,down);
+							else if(blockmoving)
+								info = info || walkflagMBlock(x+16, 15+(y+z3_newstep));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
 							{
-								z3step=1;
-								info = walkflag(x,y+15+z3step,2,down);
-								
-								if(int(x)&7)
-									info = info || walkflag(x+16,y+15+z3step,1,down);
-								else if(blockmoving)
-									info = info || walkflagMBlock(x+16, y+15+z3step);
-									
-								execute(info);
-								
-								if(info.isUnwalkable())
+								if(y != int(y))
 								{
-									walkable = false;
+									y = floor((double)y);
+								}
+								else if(z3_newstep > 1)
+								{
+									if(z3_newstep != int(z3_newstep)) //floor
+										z3_newstep = floor((double)z3_newstep);
+									else --z3_newstep;
 								}
 								else
-								{
-									walkable=true;
-								}
+									break;
 							}
-							else
-							{
-								walkable=false;
-							}
+							else walkable = true;
 						}
-						else
-						{
-							walkable = true;
-						}
+						while(!walkable);
 					}
 					
 					int s=shiftdir;
@@ -10852,43 +10887,109 @@ void LinkClass::movelink()
 					{
 						if(s==left)
 						{
-							info = walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x-1,y+16,1,left);
+								info = (walkflag(x-z3_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-z3_newstep_diag,y+15,1,left));
+									
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(x != int(x))
+									{
+										x = floor((double)x);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-z3_newstep_diag,15+(y+z3_newstep),1,left);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != int(x))
+											{
+												x = floor((double)x);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 						else if(s==right)
 						{
-							info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x+16,y+16,1,right);
+								info = (walkflag(x+15+z3_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3_newstep_diag,y+15,1,right));
+									
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(x != int(x))
+									{
+										x = floor((double)x);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+z3_newstep_diag,15+(y+z3_newstep),1,right);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != int(x))
+											{
+												x = floor((double)x);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 					}
 					
@@ -10921,8 +11022,6 @@ void LinkClass::movelink()
 								{
 								}
 							}
-							
-							z3step=2;
 						}
 						else
 						{
@@ -10931,8 +11030,6 @@ void LinkClass::movelink()
 							if(action!=swimming)
 							{
 							}
-							
-							z3step=2;
 						}
 					}
 					
@@ -10967,44 +11064,33 @@ void LinkClass::movelink()
 						shiftdir=-1;
 					}
 					
-					//bool walkable;
-					info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
-					
-					if(int(y)&7)
-						info = info || walkflag(x-z3step,y+16,1,left);
-						
-					execute(info);
-					
-					if(info.isUnwalkable())
+					do
 					{
-						if(z3step==2)
+						info = walkflag(x-z3_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-z3_newstep,y+8,1,left);
+						
+						if(int(y) & 7)
+							info = info || walkflag(x-z3_newstep,y+16,1,left);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
 						{
-							z3step=1;
-							info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
-							
-							if(int(y)&7)
-								info = info || walkflag(x-z3step,y+16,1,left);
-								
-							execute(info);
-							
-							if(info.isUnwalkable())
+							if(x != int(x))
 							{
-								walkable = false;
+								x = floor((double)x);
+							}
+							else if(z3_newstep > 1)
+							{
+								if(z3_newstep != int(z3_newstep)) //floor
+									z3_newstep = floor((double)z3_newstep);
+								else --z3_newstep;
 							}
 							else
-							{
-								walkable=true;
-							}
+								break;
 						}
-						else
-						{
-							walkable=false;
-						}
+						else walkable = true;
 					}
-					else
-					{
-						walkable = true;
-					}
+					while(!walkable);
 					
 					int s=shiftdir;
 					
@@ -11016,43 +11102,109 @@ void LinkClass::movelink()
 					{
 						if(s==up)
 						{
-							info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-z3_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-z3_newstep_diag,1,up);
+									
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(y != int(y))
+									{
+										y = floor((double)y);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-z3_newstep,y+(bigHitbox?0:8)-z3_newstep_diag,1,up);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != int(y))
+											{
+												y = floor((double)y);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 						else if(s==down)
 						{
-							info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x-1,y+16,1,down);
+								info = walkflag(x,y+15+z3_newstep_diag,2,down)||walkflag(x+15,y+15+z3_newstep_diag,1,down);
+								
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(y != int(y))
+									{
+										y = floor((double)y);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-z3_newstep,y+15+z3_newstep_diag,1,down);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != int(y))
+											{
+												y = floor((double)y);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 					}
 					
@@ -11088,8 +11240,6 @@ void LinkClass::movelink()
 								{
 								}
 							}
-							
-							z3step=2;
 						}
 						else
 						{
@@ -11098,8 +11248,6 @@ void LinkClass::movelink()
 							if(action!=swimming)
 							{
 							}
-							
-							z3step=2;
 						}
 					}
 					
@@ -11134,44 +11282,33 @@ void LinkClass::movelink()
 						shiftdir=-1;
 					}
 					
-					//bool walkable;
-					info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
-					
-					if(int(y)&7)
-						info = info || walkflag(x+15+z3step,y+16,1,right);
-						
-					execute(info);
-					
-					if(info.isUnwalkable())
+					do
 					{
-						if(z3step==2)
+						info = walkflag(x+15+z3_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3_newstep,y+8,1,right);;
+						
+						if(int(y) & 7)
+							info = info || walkflag(x+15+z3_newstep,y+16,1,right);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
 						{
-							z3step=1;
-							info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
-							
-							if(int(y)&7)
-								info = info || walkflag(x+15+z3step,y+16,1,right);
-								
-							execute(info);
-							
-							if(info.isUnwalkable())
+							if(x != int(x))
 							{
-								walkable = false;
+								x = floor((double)x);
+							}
+							else if(z3_newstep > 1)
+							{
+								if(z3_newstep != int(z3_newstep)) //floor
+									z3_newstep = floor((double)z3_newstep);
+								else --z3_newstep;
 							}
 							else
-							{
-								walkable=true;
-							}
+								break;
 						}
-						else
-						{
-							walkable=false;
-						}
+						else walkable = true;
 					}
-					else
-					{
-						walkable = true;
-					}
+					while(!walkable);
 					
 					int s=shiftdir;
 					
@@ -11183,43 +11320,109 @@ void LinkClass::movelink()
 					{
 						if(s==up)
 						{
-							info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-z3_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-z3_newstep_diag,1,up);
+								
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(y != int(y))
+									{
+										y = floor((double)y);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+z3_newstep,y+(bigHitbox?0:8)-z3_newstep_diag,1,up);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != int(y))
+											{
+												y = floor((double)y);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 						else if(s==down)
 						{
-							info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
-							execute(info);
-							
-							if(info.isUnwalkable())
+							do
 							{
-								shiftdir=-1;
-							}
-							else if(walkable)
-							{
-								info = walkflag(x+16,y+16,1,down);
+								info = walkflag(x,y+15+z3_newstep_diag,2,down)||walkflag(x+15,y+15+z3_newstep_diag,1,down);
+									
 								execute(info);
 								
 								if(info.isUnwalkable())
 								{
-									shiftdir=-1;
+									if(y != int(y))
+									{
+										y = floor((double)y);
+									}
+									else if(z3_newstep_diag > 1)
+									{
+										if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+											z3_newstep_diag = floor((double)z3_newstep_diag);
+										else --z3_newstep_diag;
+									}
+									else
+										shiftdir = -1;
 								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+z3_newstep,y+15+z3_newstep_diag,1,down);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != int(y))
+											{
+												y = floor((double)y);
+											}
+											else if(z3_newstep_diag > 1)
+											{
+												if(z3_newstep_diag != int(z3_newstep_diag)) //floor
+													z3_newstep_diag = floor((double)z3_newstep_diag);
+												else --z3_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
 							}
+							while(shiftdir != -1);
 						}
 					}
 					
@@ -11264,8 +11467,6 @@ void LinkClass::movelink()
 									}
 								}
 							}
-							
-							z3step=2;
 						}
 						else
 						{
@@ -11274,8 +11475,6 @@ void LinkClass::movelink()
 							if(action!=swimming)
 							{
 							}
-							
-							z3step=2;
 						}
 					}
 					
@@ -11650,19 +11849,18 @@ void LinkClass::move(int d2)
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.link_swim_speed>60);
 	fix dx, dy;
-	bool z3skip = false, z3diagskip = false;
 	int steprate = 150;
 	fix movepix(steprate / 100.0);
 	fix step(movepix);
 	fix step_diag(movepix);
 	//2/3 speed
-	if((is_swimming && fastSwim) || (!isSwimming && (slowcharging ^ slowcombo)))
+	if((is_swimming && fastSwim) || (!is_swimming && (slowcharging ^ slowcombo)))
 	{
 		step = ((step / 3.0) * 2);
 		step_diag = ((step_diag / 3.0) * 2);
 	}
 	//1/2 speed
-	else if((is`_swimming && !fastSwim) || (slowcharging && slowcombo))
+	else if((is_swimming && !fastSwim) || (slowcharging && slowcombo))
 	{
 		step /= 2;
 		step_diag /= 2;
@@ -11678,10 +11876,10 @@ void LinkClass::move(int d2)
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
 			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
 		{
-			if(z3diagskip)
+			if(z3_newstep > 0 && z3_newstep_diag > 0)
 			{
-				step = StepDiagonal(step);
-				step_diag = StepDiagonal(step_diag);
+				step = STEP_DIAGONAL(step);
+				step_diag = STEP_DIAGONAL(step_diag);
 			}
 		}
 		if(z3_newstep < step) step = z3_newstep; //handle collision
@@ -11756,7 +11954,32 @@ void LinkClass::move(int d2)
 	{
 		assert(false); //Nonreachable.
 	}
-	sprite::move(dx, dy);
+	
+	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME)
+	{
+		dir=d2;
+	}
+	
+	if(action != swimming)
+	{
+		linkstep();
+		
+		//ack... don't walk if in midair! -DD
+		if(charging==0 && spins==0 && z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
+		{
+			action=walking; FFCore.setLinkAction(walking);
+		}
+			
+		if(++link_count > (16*link_animation_speed))
+			link_count=0;
+	}
+	else if(!(frame & 1))
+	{
+		linkstep();
+	}
+	
+	if(charging==0 || attack!=wHammer)
+		sprite::move(dx, dy);
 }
 
 void LinkClass::moveOld(int d2)
@@ -12060,6 +12283,10 @@ void LinkClass::moveOld(int d2)
     }
 }
 
+LinkClass::WalkflagInfo LinkClass::walkflag(fix fx,fix fy,int cnt,byte d2)
+{
+	return walkflag(int(floor(double(fx))), int(floor(double(fy))), cnt, d2);
+}
 LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 {
     WalkflagInfo ret;

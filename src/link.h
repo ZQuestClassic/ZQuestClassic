@@ -264,7 +264,7 @@ public:
     void setTileModifier(int ntemod);
     void movelink();
     void move(int d);
-	void moveOld(int d2)
+	void moveOld(int d2);
     void hitlink(int hit);
     int  nextcombo(int cx,int cy,int cdir);
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
@@ -293,6 +293,7 @@ public:
     bool can_attack();
     void do_rafting();
     void do_hopping();
+    WalkflagInfo walkflag(fix fx,fix fy,int cnt,byte d);
     WalkflagInfo walkflag(int wx,int wy,int cnt,byte d);
     WalkflagInfo walkflagMBlock(int wx,int wy);
     bool edge_of_dmap(int side);
