@@ -244,6 +244,10 @@ appx_equal		TOKEN( APPXEQUAL );
 "$"			TOKEN (ADDR);
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
+ /* "*"+IDENTIFIER how do we segregate from multiply? */
+ /* "&"+IDENTIFIER how do we segregate from bitand? */
+ /* these would need to see if they are LH values. */
+ /* "**" pointer/poiters */
 
  /* Line Comments */
 "//".*		/* hit end of file */
