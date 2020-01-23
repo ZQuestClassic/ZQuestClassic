@@ -106,11 +106,13 @@ enum {
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
 	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS //27
 	
-	//28->30 : Moving items
-	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
-	//31->35 : Misc
+	//28->59: Reserved padding
+	
+	//60->42 : Moving items
+	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
+	//63->67 : Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//36
+	//68
 	susptLAST };
 
 //npc function enums
