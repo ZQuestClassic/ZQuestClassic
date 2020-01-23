@@ -247,6 +247,7 @@ appx_equal		TOKEN( APPXEQUAL );
  /* "*"+IDENTIFIER how do we segregate from multiply? */
  /* "&"+IDENTIFIER how do we segregate from bitand? */
  /* these would need to see if they are LH values. */
+ /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
  /* "**" pointer/poiters */
 
  /* Line Comments */
