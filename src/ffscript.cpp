@@ -9344,12 +9344,14 @@ void set_register(const long arg, const long value)
 		
 		//Set Link Diagonal
 		case LINKDIAG:
-			Link.setDiagMove((value/10000)?1:0);
+			Link.setDiagMove(value?1:0);
+			set_bit(quest_rules, qr_LTTPWALK, value?1:0);
 			break;
 		
 		//Set Link Big Hitbox
 		case LINKBIGHITBOX:
 			Link.setBigHitbox((value/10000)?1:0);
+			set_bit(quest_rules, qr_LTTPCOLLISION, (value/10000)?1:0);
 			break;
 		
 		case LINKCLIMBING:
@@ -9557,9 +9559,17 @@ void set_register(const long arg, const long value)
 		
 		case FFRULE:
 		{
-			//Read-only
 			int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
 			set_bit(quest_rules, ruleid, (value?true:false));
+			switch(ruleid)
+			{
+				case qr_LTTPWALK:
+					Link.setDiagMove(value?1:0);
+					break;
+				case qr_LTTPCOLLISION:
+					Link.setBigHitbox(value?1:0);
+					break;
+			}
 		}
 		break;
 		
