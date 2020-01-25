@@ -16170,7 +16170,18 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    
 		    
 	}
-        
+        if ( s_version >= 20 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+	{
+		al_trace("2.50.x version of init data, or older.\n");
+		if(!p_igetw(&temp_zinit.heroStep,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{	
+		temp_zinit.heroStep = 150; //1.5 pixels per frame
+	}
         //old only
         if((Header->zelda_version == 0x192)&&(Header->build<174))
         {
