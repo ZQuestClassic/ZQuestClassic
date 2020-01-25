@@ -264,7 +264,7 @@ public:
     int getTileModifier();
     void setTileModifier(int ntemod);
     void movelink();
-    void move(int d);
+    void move(int d, int forceRate = -1);
 	void moveOld(int d2);
     void hitlink(int hit);
     int  nextcombo(int cx,int cy,int cdir);
@@ -467,6 +467,8 @@ public:
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
     void setBigHitbox(bool newbighitbox);
+	int getStepRate();
+	void setStepRate(int newrate);
 	
 	
 	int getLastLensID();	

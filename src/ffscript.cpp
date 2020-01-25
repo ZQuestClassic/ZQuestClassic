@@ -2572,6 +2572,10 @@ long get_register(const long arg)
 		case HEROSTEPS:
 			ret = lsteps[vbound(ri->d[0]/10000, 0, 7)] * 10000;
 			break;
+		
+		case HEROSTEPRATE:
+			ret = Link.getStepRate() * 10000;
+			break;
 			
 		case LINKEQUIP:
 			ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
@@ -8940,6 +8944,14 @@ void set_register(const long arg, const long value)
 			lsteps[vbound(ri->d[0]/10000,0,7)] = value/10000;
 			break;
 		}
+		
+		case HEROSTEPRATE:
+			if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			{
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
+			}
+			Link.setStepRate(zc_max(value/10000,0));
+			break;
 		
 		case LINKITEMD:
 		{

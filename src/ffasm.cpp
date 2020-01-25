@@ -2054,6 +2054,7 @@ script_variable variable_list[]=
 	{ "HEROSCRIPTCSET",		HEROSCRIPTCSET,        0,             0 },
 	{ "SHOPDATATYPE",		SHOPDATATYPE,        0,             0 },
 	{ "HEROSTEPS",		HEROSTEPS,        0,             0 },
+	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

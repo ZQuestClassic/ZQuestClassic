@@ -358,6 +358,14 @@ void LinkClass::setBigHitbox(bool newbighitbox)
 {
     bigHitbox=newbighitbox;
 }
+int LinkClass::getStepRate()
+{
+    return steprate;
+}
+void LinkClass::setStepRate(int newrate)
+{
+    steprate = newrate;
+}
 
 
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
@@ -12726,7 +12734,7 @@ LEFTRIGHT_OLDMOVE:
 }
 
 //solid ffc checking should probably be moved to here.
-void LinkClass::move(int d2)
+void LinkClass::move(int d2, int forceRate)
 {
     if( inlikelike || link_is_stunned > 0 )
         return;
@@ -12869,7 +12877,39 @@ void LinkClass::move(int d2)
 	{
 		dir=d2;
 	}
-	
+	if(forceRate > -1)
+	{
+		switch(dir)
+		{
+			case right:
+			case r_up:
+			case r_down:
+				dx = fix(forceRate) / 100;
+				break;
+			case left:
+			case l_up:
+			case l_down:
+				dx = fix(-forceRate) / 100;
+				break;
+			default:
+				dx = 0;
+		}
+		switch(dir)
+		{
+			case down:
+			case r_down:
+			case l_down:
+				dy = fix(forceRate) / 100;
+				break;
+			case up:
+			case r_up:
+			case l_up:
+				dy = fix(-forceRate) / 100;
+				break;
+			default:
+				dy = 0;
+		}
+	}
 	if(action != swimming)
 	{
 		linkstep();
@@ -17460,10 +17500,10 @@ void LinkClass::stepforward(int steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
-    int tx=x;           //temp x
-    int ty=y;           //temp y
-    int tstep=0;        //temp single step distance
-    int s=0;            //calculated step distance for all steps
+    fix tx=x;           //temp x
+    fix ty=y;           //temp y
+    fix tstep(0);        //temp single step distance
+    fix s(0);            //calculated step distance for all steps
     z3step=2;
     int sh=shiftdir;
     shiftdir=-1;
@@ -17474,7 +17514,7 @@ void LinkClass::stepforward(int steps, bool adjust)
         {
 			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 			{
-				tstep = int(link_newstep);
+				tstep = 1.5;
 			}
 			else
 			{
@@ -17486,7 +17526,7 @@ void LinkClass::stepforward(int steps, bool adjust)
         {
 			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 			{
-				tstep = int(link_newstep);
+				tstep = 1.5;
 			}
 			else
 			{
@@ -17518,31 +17558,56 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     z3step=2;
     
+	x = FIX_FLOOR(x);
+	y = FIX_FLOOR(y);
     while(s>=0)
     {
         if(diagonalMovement)
         {
             if((dir<left?FIX_FLOOR(x)&7:FIX_FLOOR(y)&7)&&adjust==true)
             {
-                walkable=false;
-                shiftdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
-				x = FIX_FLOOR(x);
-				y = FIX_FLOOR(y);
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				{
+					walkable = false;
+					shiftdir = -1;
+					int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					switch(tdir)
+					{
+						case left:
+							--x;
+							break;
+						case right:
+							++x;
+							break;
+						case up:
+							--y;
+							break;
+						case down:
+							++y;
+							break;
+					}
+				}
+				else
+				{
+					walkable=false;
+					shiftdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					move(dir, 150);
+				}
             }
             else
             {
 				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 				{
-					s-=zc_max(1,int(link_newstep));
+					s-=1.5;
 				}
 				else
 				{
 					s-=z3step;
 				}
                 walkable=true;
+				move(dir, 150);
             }
             
-            move(dir);
             shiftdir=-1;
         }
         else
@@ -17551,8 +17616,6 @@ void LinkClass::stepforward(int steps, bool adjust)
             {
                 walkable=false;
                 int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
-				x = FIX_FLOOR(x);
-				y = FIX_FLOOR(y);
 				switch(tdir)
 				{
 					case left:
@@ -17573,7 +17636,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 			{
 				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 				{
-					s-=zc_max(1,int(link_newstep));
+					s-=1.5;
 				}
 				else if(dir<left)
 				{
@@ -17584,7 +17647,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 					s-=lsteps[FIX_FLOOR(x)&7];
 				}
 				
-				move(dir);
+				move(dir, 200);
 			}
         }
         
@@ -17660,7 +17723,16 @@ void LinkClass::stepforward(int steps, bool adjust)
         if(Quit)
             return;
     }
-    
+	if(dir==right||dir==down)
+	{
+		x=int(x);
+		y=int(y);
+	}
+	else
+	{
+		x = FIX_FLOOR(x);
+		y = FIX_FLOOR(y);
+	}
     setEntryPoints(x,y);
     draw_screen(tmpscr);
     eat_buttons();

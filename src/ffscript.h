@@ -3733,9 +3733,10 @@ enum ASM_DEFINE
 #define HEROSCRIPTCSET          0x1393
 #define SHOPDATATYPE    	0x1394
 #define HEROSTEPS    		0x1395
+#define HEROSTEPRATE    		0x1396
 
 
-#define NUMVARIABLES         	0x1396
+#define NUMVARIABLES         	0x1397
 
 // Script types
 
