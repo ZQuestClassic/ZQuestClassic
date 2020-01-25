@@ -205,6 +205,7 @@ int onSecretCombo();
 int onHeader();
 int onAnimationRules();
 int onWeaponRules();
+int onHeroRules();
 int onComboRules();
 int onItemRules();
 int onEnemyRules();

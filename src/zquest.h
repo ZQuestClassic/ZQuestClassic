@@ -1076,6 +1076,7 @@ int RulesPage_9();
 int RulesPage_10();
 int onAnimationRules();
 int onWeaponRules();
+int onHeroRules();
 int onComboRules();
 int onItemRules();
 int onEnemyRules();
