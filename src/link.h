@@ -241,6 +241,7 @@ public:
     byte warp_sound;
     bool diagonalMovement;
     bool bigHitbox;
+	int steprate;
     byte defence[wMax];
     void check_slash_block(weapon *w);
     void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
