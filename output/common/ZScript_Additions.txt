@@ -3714,7 +3714,7 @@ int FireSound;
 ///  Hero  ///
 //////////////
 
-int Step[8];
+int Steps[8];
  * The number of pixels that the player moves in a frame, based on
  * his present coordinates. The movement is taken from his x and y:
  * as: 
@@ -3722,6 +3722,15 @@ int Step[8];
  * y_move_in_pixels = Hero->Step[Hero->Y&7]
  * The default values are: { 1, 1, 2, 1, 1, 2, 1, 1 };
  * You can double his speed by doubling these values, or adjust it slightly as needed.
+ * NOTE: This only affects 4-way movement, and has no effect
+ *       if the quest rule 'New Hero Movement' is enabled.
+
+int Step;
+ * The steprate that the player moves at. This functions similarly to "npc->Step" and such;
+ * a step rate of '100' means that you move '1 pixel per frame'. The default step rate is
+ * '150', moving at '1.5 pixels per frame'.
+ * NOTE: This affects BOTH 4-way and 8-way movement, but ONLY
+ *       if the quest rule "New Hero Movement" is enabled.
 
 bool Animation;
  * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.
