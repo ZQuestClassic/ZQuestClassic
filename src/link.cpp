@@ -1074,7 +1074,7 @@ void LinkClass::init()
     walkable=false;
     obeys_gravity = 1;
     warp_sound = 0;
-	steprate = 150;
+	steprate = zinit.heroStep;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -17647,7 +17647,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 					s-=lsteps[FIX_FLOOR(x)&7];
 				}
 				
-				move(dir, 200);
+				move(dir, 150);
 			}
         }
         
