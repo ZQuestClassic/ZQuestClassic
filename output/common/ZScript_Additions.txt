@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 49
-Document Revision: 22nd January, 2020
+Document Revision: 23rd January, 2020
 
 
  __           _   _                 
@@ -87,8 +87,11 @@ The ZScript parser supports the following standard and alternative tokens:
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
 ~~		:	Approximately Equal
-	Compares if two valuesae equal within aset margin of error.
-	The default margin is 0.100
+	
+	
+Approximately Equal
+	Compares if two values are apprxiately equal within aset margin of error.
+	The default margin is 0.0100
 	You can set a custom margin with:
 	#option APPROX_EQUAL_MARGIN <float>
 	
@@ -103,6 +106,8 @@ xor		: 	Equivalent to 	^^
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
+appx_eq 	:	Equivalent to 	~~
+appx_equal 	:	Equivalent to 	~~
 
 //Resolution
 .		:	Script Name Scope Resolution
@@ -129,6 +134,8 @@ xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
 ~=		:	Equivalent to &= ~
+bitnot_eq	:	Equivalent to &= ~
+bitnot_equal	:	Equivalent to &= ~
 
 Notes: Xor abd Logical Xor alternative Tokens
 	C lacks logical xor (^^), and thus the alternate token 
@@ -1101,7 +1108,7 @@ of iterations is known at compile-time.
 /////////////////
 
 	ZScript now supports C-style switch statements. Case values must be numeric literals,
-	or constant expressions. Switch-case cases must end in a break instruction, and a you
+	ranges, or constant expressions. Switch-case cases must end in a break instruction, and a you
 	may provide a default case.
 
 	[example-- 
@@ -1133,7 +1140,47 @@ of iterations is known at compile-time.
 		}
 
 	--end example]
+	
+	
+	 _    __      __              ____                       
+	| |  / /___ _/ /_  _____     / __ \____ _____  ____ ____ 
+	| | / / __ `/ / / / / _ \   / /_/ / __ `/ __ \/ __ `/ _ \
+	| |/ / /_/ / / /_/ /  __/  / _, _/ /_/ / / / / /_/ /  __/
+	|___/\__,_/_/\__,_/\___/  /_/ |_|\__,_/_/ /_/\__, /\___/ 
+						    /____/       
+						    
+	You may use a VALUE RANGE in a case statement. 
+	
+	Value ranges take the form of one nuber, three dots and another number.
+	
+	The numbers in this range may have decimal places, and you may use constants
+		as the upper and lower bounds of a range.
+		
+	If the switch value is >= left range value] and is <= [right range value]
+		then that case will execute.
+		
+	The left value of a range must be smaller than the right:
+		1...3
+		This is a range of values >= 1.0000 and <= 3.0000
+		
+		3...1
+		This is invalid and will generate an error. 
+	
+	[example-- 
+	
+		float a = 1.5;
+		const float B = 1.0;
+		const float C = 2.5;
+		switch(a)
+		{
+			case B...2.4: DoFirst(); break;
+			case C...3: DoSecond(); break;
+		}
+	--end example]
 
+	As the value of 'a' at this time is 1.5000, it fallswithin the range of the
+	first case (B...2.4) and DoFirst() will execute.
+		
 	
 ///////////////////
 /// Logical Xor ///
@@ -2024,8 +2071,8 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		
 	APPROX_EQUAL_MARGIN <float>
 		Sets the margin of error for the ~~ (approximately equal) operator.
-		The defailt margin of error is 0.100, so 1.900 ~~ 2 == true.
-		Set to af;oating point value to use a new error margin for ~~.
+		The defailt margin of error is 0.0100, so (1.090 ~~ 1.080) == true.
+		Set to a foating point value to use a new error margin for ~~.
 		
 Files default to inheriting the option state of the file that imported them. For the buffer, this will use the defaults.
 You may force an option to its' default value by setting it to 'default'

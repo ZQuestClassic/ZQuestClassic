@@ -198,7 +198,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        19
+#define V_INITDATA        20
 #define V_GUYS            41
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -3722,7 +3722,7 @@ struct zinitdata
     byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
     byte link_swim_speed;
     
-    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax;
+    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep;
 };
 
 struct zcmap

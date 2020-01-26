@@ -11960,6 +11960,10 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(73);
         }
+	if(!p_iputw(zinit.heroStep,f))
+        {
+            new_return(73);
+        }
         
         if(writecycle==0)
         {

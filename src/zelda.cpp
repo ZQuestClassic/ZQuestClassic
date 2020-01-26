@@ -30,7 +30,7 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "metadata/devsig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
