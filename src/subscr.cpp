@@ -4244,18 +4244,19 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
 				case -3:
 				case -2:
 				case sscLIFE:
+				case sscRUPEES:
 				{
 					//do nothing if any of these three. -Z
 					//value+=game->get_life(); Life cannot stack. It's NULL. :/
 					break;
 				}
-				case sscRUPEES:
-				{
-					if(current_item_power(itype_wallet))
-					infinite=true;
-					value+=game->get_rupies();
-					break;
-				}
+				//case sscRUPEES:
+				//{
+				//	if(current_item_power(itype_wallet))
+				//	infinite=true;
+				//	value+=game->get_rupies();
+				//	break;
+				//}
 				case sscBOMBS:
 				{
 					if(current_item_power(itype_bombbag))
