@@ -2572,6 +2572,10 @@ long get_register(const long arg)
 		case HEROSTEPS:
 			ret = lsteps[vbound(ri->d[0]/10000, 0, 7)] * 10000;
 			break;
+		
+		case HEROSTEPRATE:
+			ret = Link.getStepRate() * 10000;
+			break;
 			
 		case LINKEQUIP:
 			ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
@@ -8946,6 +8950,15 @@ void set_register(const long arg, const long value)
 			break;
 		}
 		
+		case HEROSTEPRATE:
+			if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			{
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
+			}
+			Link.setStepRate(zc_max(value/10000,0));
+			zinit.heroStep = Link.getStepRate();
+			break;
+		
 		case LINKITEMD:
 		{
 			int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
@@ -9349,12 +9362,14 @@ void set_register(const long arg, const long value)
 		
 		//Set Link Diagonal
 		case LINKDIAG:
-			Link.setDiagMove((value/10000)?1:0);
+			Link.setDiagMove(value?1:0);
+			set_bit(quest_rules, qr_LTTPWALK, value?1:0);
 			break;
 		
 		//Set Link Big Hitbox
 		case LINKBIGHITBOX:
 			Link.setBigHitbox((value/10000)?1:0);
+			set_bit(quest_rules, qr_LTTPCOLLISION, (value/10000)?1:0);
 			break;
 		
 		case LINKCLIMBING:
@@ -9562,9 +9577,17 @@ void set_register(const long arg, const long value)
 		
 		case FFRULE:
 		{
-			//Read-only
 			int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
 			set_bit(quest_rules, ruleid, (value?true:false));
+			switch(ruleid)
+			{
+				case qr_LTTPWALK:
+					Link.setDiagMove(value?1:0);
+					break;
+				case qr_LTTPCOLLISION:
+					Link.setBigHitbox(value?1:0);
+					break;
+			}
 		}
 		break;
 		

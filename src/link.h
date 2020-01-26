@@ -241,6 +241,7 @@ public:
     byte warp_sound;
     bool diagonalMovement;
     bool bigHitbox;
+	int steprate;
     byte defence[wMax];
     void check_slash_block(weapon *w);
     void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
@@ -263,7 +264,8 @@ public:
     int getTileModifier();
     void setTileModifier(int ntemod);
     void movelink();
-    void move(int d);
+    void move(int d, int forceRate = -1);
+	void moveOld(int d2);
     void hitlink(int hit);
     int  nextcombo(int cx,int cy,int cdir);
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
@@ -292,6 +294,7 @@ public:
     bool can_attack();
     void do_rafting();
     void do_hopping();
+    WalkflagInfo walkflag(fix fx,fix fy,int cnt,byte d);
     WalkflagInfo walkflag(int wx,int wy,int cnt,byte d);
     WalkflagInfo walkflagMBlock(int wx,int wy);
     bool edge_of_dmap(int side);
@@ -464,6 +467,8 @@ public:
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
     void setBigHitbox(bool newbighitbox);
+	int getStepRate();
+	void setStepRate(int newrate);
 	
 	
 	int getLastLensID();	

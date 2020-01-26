@@ -267,29 +267,7 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Unique Sprites for Custom EWeapons", NULL, NULL },
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Angular Reflected Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Mirrors Use Weapon Centre for Collision", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //10
-    //{ d_dummy_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //15
-    //{ d_dummy_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //20
-    //{ d_dummy_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    
-    // rules 2 //22
-    //{ d_dummy_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
-    //{ d_dummy_proc,      10, 33+40, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
+    // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -327,6 +305,73 @@ int onWeaponRules()
     return D_O_K;
 }
 
+static int herorules_tab_1[] =
+{
+	6,7,
+    -1
+};
+
+static TABPANEL herorules_tabs[] =
+{
+	// (text)
+	{ (char *)" 1 ",     D_SELECTED,          herorules_tab_1, 0, NULL },
+	
+	{ NULL,              0,          NULL,             0, NULL }
+};
+
+static DIALOG herorules_dlg[] =
+{
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Hero", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) herorules_tabs, NULL, (void *)herorules_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules //6
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Diagonal Movement", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Large Hitbox", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Hero Movement", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable 4-Way Movement's Gridlock", NULL, NULL },
+	// { d_dummy_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "", NULL, NULL },
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+static int herorules[] =
+{
+   qr_LTTPWALK, qr_LTTPCOLLISION, qr_NEW_HERO_MOVEMENT, qr_DISABLE_4WAY_GRIDLOCK,
+    -1
+};
+
+int onHeroRules()
+{
+    if(is_large)
+        large_dialog(herorules_dlg);
+        
+    herorules_dlg[0].dp2=lfont;
+    
+    for(int i=0; herorules[i]!=-1; i++)
+    {
+        herorules_dlg[i+6].flags = get_bit(quest_rules,herorules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(herorules_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; herorules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, herorules[i], herorules_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
 static int itemrules1_list[] =
 {
 	6, 8, 10, 11, 12, 17, 19, 20, 21, 27, 29, 31, 32, 33, -1
@@ -350,32 +395,32 @@ static DIALOG itemrules_dlg[] =
 	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
 	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Items", NULL, NULL },
 	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)itemrules_dlg },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) itemrules_tabs, NULL, (void *)itemrules_dlg },
 	// 3
 	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
 	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
 	
 	// rules //6
-	{ jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
+	{ jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
-	{ jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True Arrows", NULL, NULL },
+	{ jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True Arrows", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Diving", NULL, NULL },
 	//10
-	{ jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted and Enemy Fire Lights Temporarily", NULL, NULL },
-	{ jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Fire LWeapons Don't Hurt Link", NULL, NULL },
-	{ jwin_check_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Bomb LWeapons Hurt Link", NULL, NULL },
+	{ jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted and Enemy Fire Lights Temporarily", NULL, NULL },
+	{ jwin_check_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Fire LWeapons Don't Hurt Link", NULL, NULL },
+	{ jwin_check_proc,      10, 21+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Bomb LWeapons Hurt Link", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Rings Affect Damage Combos", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Quick Sword", NULL, NULL },
 	//15
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flip Right-Facing Slash", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
-	{ jwin_check_proc,      10, 21+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Melee Weapons Can't Pick Up Items", NULL, NULL },
+	{ jwin_check_proc,      10, 21+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Melee Weapons Can't Pick Up Items", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
-	{ jwin_check_proc,      10, 21+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "'Hearts Required' Affects Non-Special Items", NULL, NULL },
+	{ jwin_check_proc,      10, 21+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "'Hearts Required' Affects Non-Special Items", NULL, NULL },
 	//20
-	{ jwin_check_proc,      10, 21+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
-	{ jwin_check_proc,      10, 21+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
+	{ jwin_check_proc,      10, 21+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
+	{ jwin_check_proc,      10, 21+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
 	// rules 2 //22
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
 	//Deprecated:  23, 24, 25, 26, 27, 28, 29
@@ -384,14 +429,14 @@ static DIALOG itemrules_dlg[] =
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
 	
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
-	{ jwin_check_proc,      10, 21+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Don't Remove Sword Jinxes", NULL, NULL },
+	{ jwin_check_proc,      10, 21+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Don't Remove Sword Jinxes", NULL, NULL },
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
-	{ jwin_check_proc,      10, 21+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Remove Item Jinxes", NULL, NULL },
+	{ jwin_check_proc,      10, 21+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Remove Item Jinxes", NULL, NULL },
 	//30
 	{ d_dummy_proc,         10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
-	{ jwin_check_proc,      10, 21+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
-	{ jwin_check_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reroll Useless Drops", NULL, NULL },
-	{ jwin_check_proc,      10, 21+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Ignore Sideview Platforms", NULL, NULL },
+	{ jwin_check_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
+	{ jwin_check_proc,      10, 21+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reroll Useless Drops", NULL, NULL },
+	{ jwin_check_proc,      10, 21+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Ignore Sideview Platforms", NULL, NULL },
    
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }

@@ -1338,7 +1338,8 @@ static MENU rules_menu[] =
 {
     { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
     { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                    onWeaponRules,              NULL,                     0,            NULL   },
+    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
+    { (char *)"&Hero",                      onHeroRules,               NULL,                     0,            NULL   },
     { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
