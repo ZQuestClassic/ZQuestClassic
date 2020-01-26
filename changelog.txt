@@ -1,5 +1,26 @@
 ChangeLog for 2.53.1
 
+//Beta 26
+The Item 2 and Item 3 counters of subscreen objects are intended
+	to stack with counter 0, but someone disabled that to prevent stacking
+	values with Life at all times.
+
+	I corrected the issue by making '0' for item2 and item3 an ignored
+	field.
+
+	Further, if item 2 == item 1, or item 3 == either item1 or item 2,
+		then they will not stack. This will prevent having all
+		three at the same ID from tripling, or two or more of the same
+		ID from doubling the true count.
+
+	Quests saed in versions < 2.53.1 ignore this.
+	( ZoriaRPG, 26th January, 2020 )
+Fixed an unintentional fallthrough in switch(itemtype) inside subscr.cpp
+	where there is a missing break instruction after all script cases.
+	Should someone have added anything after those, then script counters
+	would fall through to the newly added counter.
+	( ZoriaRPG, 26th January, 2020 )
+
 //Beta 25
 Experimentally Allow setting all item pickup flags. None are blocked.
 	Unblocked some item pickup flags in ffscript.cpp, that were
