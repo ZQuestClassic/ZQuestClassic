@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 27
+All roomtypes now allow a 'Generic Catchall' set via the menus.
+	( ZoriaRPG, 27th January, 2020 )
+
 //Beta 26
 The Item 2 and Item 3 counters of subscreen objects are intended
 	to stack with counter 0, but someone disabled that to prevent stacking
