@@ -199,6 +199,82 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
     _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
     _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
 }
+void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style)
+{
+    int c1,c2,c3,c4;
+    
+    switch(style)
+    {
+    case FR_BOX:
+        c1 = jcLIGHT;
+        c2 = jcMEDLT;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+        
+    case FR_INV:
+        c1 = jcDARK;
+        c2 = jcMEDDARK;
+        c3 = jcMEDLT;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_DEEP:
+        c1 = jcMEDDARK;
+        c2 = jcDARK;
+        c3 = jcMEDLT;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_DARK:
+        c1 = jcDARK;
+        c2 = jcMEDDARK;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+        
+    case FR_ETCHED:
+        c1 = jcMEDDARK;
+        c2 = jcLIGHT;
+        c3 = jcMEDDARK;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_MEDDARK:
+        c1 = jcMEDDARK;
+        c2 = jcBOX;
+        c3 = jcBOX;
+        c4 = jcMEDDARK;
+        break;
+        
+    case FR_WIN:
+    default:
+        c1 = jcMEDLT;
+        c2 = jcLIGHT;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+    }
+    
+	rectfill(dest, x, y, x+w-1, y+h-scrsz-2, vc(0));
+	rectfill(dest, x, y+h-scrsz-2, x+4+(scrsz*8), y+h-1, vc(0));
+	
+    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), palette_color[scheme[c1]]);
+    _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), palette_color[scheme[c1]]);
+    
+    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), palette_color[scheme[c2]]);
+    _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c2]]);
+    
+    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+(scrsz*8)+4,0,dest->w-1), palette_color[scheme[c3]]);
+    _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-4-scrsz,0,dest->h-1), palette_color[scheme[c3]]);
+    _allegro_hline(dest, vbound(x+5+(scrsz*8),0,dest->w-1), vbound(y+h-3-scrsz,0,dest->h-1), vbound(x+w-2,0,dest->w-1), palette_color[scheme[c3]]);
+    _allegro_vline(dest, vbound(x+6+(scrsz*8)-2,0,dest->w-1), vbound(y+1+h-4-scrsz,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c3]]);
+    
+    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+(scrsz*8)+5,0, dest->w-1), palette_color[scheme[c4]]);
+    _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-3-scrsz,0,dest->h-1), palette_color[scheme[c4]]);
+    _allegro_hline(dest, vbound(x+5+(scrsz*8),0,dest->w-1), vbound(y+h-2-scrsz,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
+    _allegro_vline(dest, vbound(x+6+(scrsz*8)-1,0,dest->w-1), vbound(y+h-2-scrsz,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
+}
 
 /*  jwin_draw_win:
   *   Draws a window -- a box with a frame.
@@ -5538,6 +5614,12 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
     return D_O_K;
 }
 
+//Misc bitmap drawing
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color)
+{
+	line(dest, x1, y1, x2, y2, color);
+	line(dest, x1, y2, x2, y1, color);
+}
 
 
 /***  The End  ***/

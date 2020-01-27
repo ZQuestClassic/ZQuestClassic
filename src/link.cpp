@@ -67,6 +67,8 @@ extern bool active_subscreen_waitdraw;
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
 int z3step = 2;
+static fix link_newstep(1.5);
+static fix link_newstep_diag(1.5);
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
@@ -196,7 +198,8 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 		else return 0;
 }
 
-#define CANFORCEFACEUP (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
+#define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
+#define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
 
 static inline bool platform_fallthrough()
 {
@@ -354,6 +357,14 @@ bool  LinkClass::getBigHitbox()
 void LinkClass::setBigHitbox(bool newbighitbox)
 {
     bigHitbox=newbighitbox;
+}
+int LinkClass::getStepRate()
+{
+    return steprate;
+}
+void LinkClass::setStepRate(int newrate)
+{
+    steprate = newrate;
 }
 
 
@@ -1063,6 +1074,7 @@ void LinkClass::init()
     walkable=false;
     obeys_gravity = 1;
     warp_sound = 0;
+	steprate = zinit.heroStep;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -1861,7 +1873,7 @@ attack:
             
             if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideViewLink()))
             {
-                sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(int(x)));
+                sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
             }
             
             xofs=oxofs;
@@ -2625,7 +2637,7 @@ bool LinkClass::checkstab()
                 set_bit(ffcgrid, q, 0);
         }
         
-        if(dir==up && ((int(x)&15)==0))
+        if(dir==up && ((FIX_FLOOR(x)&15)==0))
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
@@ -2644,7 +2656,7 @@ bool LinkClass::checkstab()
 		
 		
         }
-        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
@@ -2662,7 +2674,7 @@ bool LinkClass::checkstab()
             check_slash_block_layer(wx+8,wy+8,2);
         }
         
-        if(dir==down && ((int(x)&15)==0))
+        if(dir==down && ((FIX_FLOOR(x)&15)==0))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
@@ -2674,7 +2686,7 @@ bool LinkClass::checkstab()
 	    check_slash_block_layer(wx,wy+wysz-8,2);
             check_slash_block_layer(wx,wy+wysz,2);
         }
-        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
@@ -2732,12 +2744,12 @@ bool LinkClass::checkstab()
         }
         
         // cutable blocks
-        if(dir==up && (int(x)&15)==0)
+        if(dir==up && (FIX_FLOOR(x)&15)==0)
         {
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
         }
-        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
@@ -2745,12 +2757,12 @@ bool LinkClass::checkstab()
             check_wand_block(wx+8,wy+8);
         }
         
-        if(dir==down && (int(x)&15)==0)
+        if(dir==down && (FIX_FLOOR(x)&15)==0)
         {
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
         }
-        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
@@ -2786,12 +2798,12 @@ bool LinkClass::checkstab()
         for(int q=0; q<32; q++)
             set_bit(ffcgrid, q, 0);
             
-        if(dir==up && (int(x)&15)==0)
+        if(dir==up && (FIX_FLOOR(x)&15)==0)
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
         }
-        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
@@ -2799,12 +2811,12 @@ bool LinkClass::checkstab()
             check_pound_block(wx+8,wy+8);
         }
         
-        if(dir==down && (int(x)&15)==0)
+        if(dir==down && (FIX_FLOOR(x)&15)==0)
         {
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
         }
-        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
+        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
@@ -5468,7 +5480,7 @@ int LinkClass::EwpnHit()
                 ew->ignorecombo=-1;
             }
             
-            sfx(itemsbuf[itemid].usesound,pan(int(x)));
+            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
         }
     }
     
@@ -5575,7 +5587,7 @@ int LinkClass::LwpnHit()                                    //only here to check
             lw->onhit(false, 1+reflect, dir);
             lw->ignoreLink=true;
             lw->ignorecombo=-1;
-            sfx(itemsbuf[itemid].usesound,pan(int(x)));
+            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
         }
         
     return -1;
@@ -5627,7 +5639,7 @@ void LinkClass::checkhit()
                 switch(hitdir)
                 {
                 case up:
-                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
+                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(FIX_FLOOR(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5636,7 +5648,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case down:
-                    if(hit_walkflag(x,y+16,2)||(int(x)&7?hit_walkflag(x+16,y+16,1):0))   
+                    if(hit_walkflag(x,y+16,2)||(FIX_FLOOR(x)&7?hit_walkflag(x+16,y+16,1):0))   
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5645,7 +5657,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case left:
-                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  
+                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(FIX_FLOOR(y)&7?hit_walkflag(x-1,y+16,1):0))  
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5654,7 +5666,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case right:
-                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0))
+                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(FIX_FLOOR(y)&7?hit_walkflag(x+16,y+16,1):0))
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5710,7 +5722,7 @@ void LinkClass::checkhit()
                 }
                 
                 hclk=48;
-                sfx(getHurtSFX(),pan(int(x)));
+                sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
                 return;
             }
         }
@@ -5860,7 +5872,7 @@ killweapon:
                 }
                 
                 hclk=48;
-                sfx(getHurtSFX(),pan(int(x)));
+                sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
                 return;
             }
         }
@@ -5934,7 +5946,7 @@ killweapon:
             tapping = false;
         }
         
-        sfx(getHurtSFX(),pan(int(x)));
+        sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
         return;
     }
     
@@ -5974,7 +5986,7 @@ killweapon:
             tapping = false;
         }
         
-        sfx(getHurtSFX(),pan(int(x)));
+        sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
         return;
     }
     //else { sethitLinkUID(HIT_BY_EWEAPON,(0)); } //fails to clear
@@ -6134,7 +6146,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
                 tapping = false;
             }
             
-            sfx(getHurtSFX(),pan(int(x)));
+            sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
             return true;
         }
         else paymagiccost(itemid); // Boots are successful
@@ -6197,7 +6209,7 @@ void LinkClass::hitlink(int hit2)
     }
         
     hclk=48;
-    sfx(getHurtSFX(),pan(int(x)));
+    sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
     
     if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
     {
@@ -6456,7 +6468,7 @@ bool LinkClass::animate(int)
 	if(isSideViewLink() && obeys_gravity)  // Sideview gravity
 	{
 		//Handle falling through a platform
-		if((int(y)%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
+		if((FIX_FLOOR(y)%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
 		{
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
@@ -6473,7 +6485,7 @@ bool LinkClass::animate(int)
 					&& fall < 0)
 			{
 				fall = jumping = 0; // Bumped his head
-				y -= int(y)%8; //fix coords
+				y -= FIX_FLOOR(y)%8; //fix coords
 				// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 				if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 				{
@@ -6486,9 +6498,9 @@ bool LinkClass::animate(int)
 		{
 			int ydiff = fall/(spins && fall<0 ? 200:100);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((int(y)+ydiff+15)&0xF0)!=((int(y)+15)&0xF0)) && !platform_fallthrough())
+			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((FIX_FLOOR(y)+ydiff+15)&0xF0)!=((FIX_FLOOR(y)+15)&0xF0)) && !platform_fallthrough())
 			{
-				ydiff -= (int(y)+ydiff)%16;
+				ydiff -= (FIX_FLOOR(y)+ydiff)%16;
 			}
 			y+=ydiff;
 			hs_starty+=ydiff;
@@ -6561,7 +6573,7 @@ bool LinkClass::animate(int)
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
-					y -= int(y)%8; //fix coords
+					y -= FIX_FLOOR(y)%8; //fix coords
 					// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 					if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 					{
@@ -6591,7 +6603,7 @@ bool LinkClass::animate(int)
 				if(itemsbuf[itemid].wpn)
 					decorations.add(new dHover(x, y, dHOVER, 0));
 					
-				sfx(itemsbuf[itemid].usesound,pan(int(x)));
+				sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder())
 			{
@@ -6651,7 +6663,7 @@ bool LinkClass::animate(int)
 			if(fall > 0)
 			{
 				if((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-					sfx(WAV_ZN1SPLASH,int(x));
+					sfx(WAV_ZN1SPLASH,FIX_FLOOR(x));
 					
 				stomping = true;
 			}
@@ -6681,7 +6693,7 @@ bool LinkClass::animate(int)
 				int itemid = current_item_id(itype_hoverboots);
 				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
 				decorations.add(new dHover(x, y, dHOVER, 0));
-				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(int(x)));
+				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(FIX_FLOOR(x)));
 			}
 			else fall += zinit.gravity;
 		}
@@ -6720,19 +6732,19 @@ bool LinkClass::animate(int)
 	    
     }
     
-    if(!is_on_conveyor && !diagonalMovement && (fall==0 || z>0) && charging==0 && spins<=5
+    if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || z>0) && charging==0 && spins<=5
             && action != gothit)
     {
         switch(dir)
         {
         case up:
         case down:
-            x=(int(x)+4)&0xFFF8;
+            x=(FIX_FLOOR(x)+4)&0xFFF8;
             break;
             
         case left:
         case right:
-            y=(int(y)+4)&0xFFF8;
+            y=(FIX_FLOOR(y)+4)&0xFFF8;
             break;
         }
     }
@@ -7193,14 +7205,14 @@ bool LinkClass::animate(int)
         {
             if(ladderdir==up)
             {
-                if((laddery-int(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-int(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-int(x))>8))
+                if((laddery-FIX_FLOOR(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-FIX_FLOOR(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-FIX_FLOOR(x))>8))
                 {
                     reset_ladder();
                 }
             }
             else
             {
-                if((abs(laddery-int(y))>8) || (ladderx-int(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-int(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
+                if((abs(laddery-FIX_FLOOR(y))>8) || (ladderx-FIX_FLOOR(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-FIX_FLOOR(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
                 {
                     reset_ladder();
                 }
@@ -7209,7 +7221,7 @@ bool LinkClass::animate(int)
     }
     else
     {
-        if((abs(laddery-int(y))>=16) || (abs(ladderx-int(x))>=16))
+        if((abs(laddery-FIX_FLOOR(y))>=16) || (abs(ladderx-FIX_FLOOR(x))>=16))
         {
             reset_ladder();
         }
@@ -7433,25 +7445,25 @@ bool LinkClass::animate(int)
     
     if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting)
     {
-        if(((dtype==dBOMBED)?DrunkUp():dir==up) && (diagonalMovement?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
+        if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
         {
             walk=true;
             dir=up;
         }
         
-        if(((dtype==dBOMBED)?DrunkDown():dir==down) && (diagonalMovement?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
+        if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
         {
             walk=true;
             dir=down;
         }
         
-        if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && (diagonalMovement?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
+        if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && ((diagonalMovement||NO_GRIDLOCK)?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
         {
             walk=true;
             dir=left;
         }
         
-        if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && (diagonalMovement?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
+        if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && ((diagonalMovement||NO_GRIDLOCK)?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
         {
             walk=true;
             dir=right;
@@ -7705,7 +7717,7 @@ bool LinkClass::startwpn(int itemid)
             if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
                 reset_ladder();
                 
-            sfx(itemsbuf[itemid].usesound,pan(int(x)));
+            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
         }
         
         ret = false;
@@ -8292,7 +8304,7 @@ bool LinkClass::startwpn(int itemid)
             if(dir==up)
             {
                 if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
-                        (_walkflag(x+2,y+4,1) && !ishookshottable(int(x),int(y+4))))
+                        (_walkflag(x+2,y+4,1) && !ishookshottable(FIX_FLOOR(x),int(y+4))))
                 {
                     use_hookshot=false;
                 }
@@ -8584,7 +8596,7 @@ bool LinkClass::doattack()
         if(charging==normalcharge)
         {
             paymagiccost(itemid);
-            sfx(WAV_ZN1CHARGE,pan(int(x)));
+            sfx(WAV_ZN1CHARGE,pan(FIX_FLOOR(x)));
         }
         else if(charging==magiccharge)
         {
@@ -8594,7 +8606,7 @@ bool LinkClass::doattack()
             {
                 paymagiccost(itemid);
                 charging++; // charging>magiccharge signifies a successful supercharge.
-                sfx(WAV_ZN1CHARGE2,pan(int(x)));
+                sfx(WAV_ZN1CHARGE2,pan(FIX_FLOOR(x)));
             }
         }
     }
@@ -8654,7 +8666,7 @@ bool LinkClass::doattack()
                 spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
                        : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
                 attackclk=1;
-                sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(int(x)));
+                sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(FIX_FLOOR(x)));
             }
             /*
             else if(attack==wWand)
@@ -8667,7 +8679,7 @@ bool LinkClass::doattack()
             {
                 spins=1; //signifies the quake hammer
                 bool super = (charging>magiccharge && current_item(itype_quakescroll2));
-                sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(int(x)));
+                sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(FIX_FLOOR(x)));
                 quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
                 
                 // general area stun
@@ -8920,7 +8932,7 @@ void LinkClass::do_hopping()
                 diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
         }
         
-        if((!(int(x)&7) && !(int(y)&7)) || diagonalMovement)
+        if((!(FIX_FLOOR(x)&7) && !(FIX_FLOOR(y)&7)) || (diagonalMovement||NO_GRIDLOCK))
         {
             action=swimming; FFCore.setLinkAction(swimming);
             hopclk = 0;
@@ -8956,7 +8968,7 @@ void LinkClass::do_hopping()
     }
     else                                                      // hopping in or out (need to separate the cases...)
     {
-        if(diagonalMovement)
+        if((diagonalMovement||NO_GRIDLOCK))
         {
             if(hopclk==1) //hopping out
 		    //>= 1 possible fix for getting stuck on land edges. 
@@ -8981,7 +8993,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9005,7 +9017,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9029,7 +9041,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9053,7 +9065,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9082,7 +9094,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9105,7 +9117,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9129,7 +9141,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9153,7 +9165,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9165,13 +9177,13 @@ void LinkClass::do_hopping()
         }
         else
         {
-            if(dir<left ? !(int(x)&7) && !(int(y)&15) : !(int(x)&15) && !(int(y)&7))
+            if(dir<left ? !(FIX_FLOOR(x)&7) && !(FIX_FLOOR(y)&15) : !(FIX_FLOOR(x)&15) && !(FIX_FLOOR(y)&7))
             {
                 action=none; FFCore.setLinkAction(none);
                 hopclk = 0;
                 diveclk = 0;
                 
-                if(iswater(MAPCOMBO(int(x),int(y)+8)))
+                if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+8)))
                 {
                     // hopped in
                     attackclk = charging = spins = 0;
@@ -9186,8 +9198,8 @@ void LinkClass::do_hopping()
                 if(++link_count>(16*link_animation_speed))
                     link_count=0;
                     
-                int xofs2 = int(x)&15;
-                int yofs2 = int(y)&15;
+                int xofs2 = FIX_FLOOR(x)&15;
+                int yofs2 = FIX_FLOOR(y)&15;
                 int s = 1 + (frame&1);
                 
                 switch(dir)
@@ -9236,7 +9248,7 @@ void LinkClass::do_rafting()
     
     linkstep();
     
-    if(!(int(x)&15) && !(int(y)&15))
+    if(!(FIX_FLOOR(x)&15) && !(FIX_FLOOR(y)&15))
     {
         // this sections handles switching to raft branches
         if((MAPFLAG(x,y)==mfRAFT_BRANCH||MAPCOMBOFLAG(x,y)==mfRAFT_BRANCH))
@@ -9306,9 +9318,9 @@ skip:
     switch(dir)
     {
     case up:
-        if(int(x)&15)
+        if(FIX_FLOOR(x)&15)
         {
-            if(int(x)&8)
+            if(FIX_FLOOR(x)&8)
                 x++;
             else x--;
         }
@@ -9317,9 +9329,9 @@ skip:
         break;
         
     case down:
-        if(int(x)&15)
+        if(FIX_FLOOR(x)&15)
         {
-            if(int(x)&8)
+            if(FIX_FLOOR(x)&8)
                 x++;
             else x--;
         }
@@ -9328,9 +9340,9 @@ skip:
         break;
         
     case left:
-        if(int(y)&15)
+        if(FIX_FLOOR(y)&15)
         {
-            if(int(y)&8)
+            if(FIX_FLOOR(y)&8)
                 y++;
             else y--;
         }
@@ -9339,9 +9351,9 @@ skip:
         break;
         
     case right:
-        if(int(y)&15)
+        if(FIX_FLOOR(y)&15)
         {
-            if(int(y)&8)
+            if(FIX_FLOOR(y)&8)
                 y++;
             else y--;
         }
@@ -9353,12 +9365,20 @@ skip:
 
 void LinkClass::movelink()
 {
-    int xoff=int(x)&7;
-    int yoff=int(y)&7;
-    int push=pushing;
-    int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
-    pushing=0;
-    
+	int xoff=FIX_FLOOR(x)&7;
+	int yoff=FIX_FLOOR(y)&7;
+	if(NO_GRIDLOCK)
+	{
+		xoff = 0;
+		yoff = 0;
+	}
+	int push=pushing;
+	int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
+	pushing=0;
+	fix temp_step(link_newstep);
+	fix temp_x(x);
+	fix temp_y(y);
+	
 	int flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
 	{
@@ -9377,85 +9397,86 @@ void LinkClass::movelink()
 			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
 	}
 	
-    if(action==rafting)
-    {
-        do_rafting();
-        
-        if(action==rafting)
-        {
-            return;
-        }
-        
-        setEntryPoints(x,y);
-    }
-    
-    int olddirectwpn = directWpn; // To be reinstated if startwpn() fails
-    int btnwpn = -1;
-    
-    //&0xFFF removes the "bow & arrows" bitmask
-    //The Quick Sword is allowed to interrupt attacks.
-    int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
-    {
-        if(DrunkrBbtn())
-        {
-            btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
-            dowpn = Bwpn&0xFFF;
-            directWpn = directItemB;
-        }
-        else if(DrunkrAbtn())
-        {
-            btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
-            dowpn = Awpn&0xFFF;
-            directWpn = directItemA;
-        }
-        
-        if(directWpn > 255) directWpn = 0;
-        
-        // The Quick Sword only allows repeated sword or wand swings.
-        if(action==attacking && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-            btnwpn=-1;
-    }
-    
-    if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
-    {
-	attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-	if(checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)) //what about wands and canes?
+	if(action==rafting)
+	{
+		do_rafting();
+		
+		if(action==rafting)
+		{
+			return;
+		}
+		
+		setEntryPoints(x,y);
+	}
+	
+	int olddirectwpn = directWpn; // To be reinstated if startwpn() fails
+	int btnwpn = -1;
+	
+	//&0xFFF removes the "bow & arrows" bitmask
+	//The Quick Sword is allowed to interrupt attacks.
+	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
+	if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
+	{
+		if(DrunkrBbtn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			dowpn = Bwpn&0xFFF;
+			directWpn = directItemB;
+		}
+		else if(DrunkrAbtn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			dowpn = Awpn&0xFFF;
+			directWpn = directItemA;
+		}
+		
+		if(directWpn > 255) directWpn = 0;
+		
+		// The Quick Sword only allows repeated sword or wand swings.
+		if(action==attacking && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+			btnwpn=-1;
+	}
+	
+	if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
+	{
+		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
+		if(checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)) //what about wands and canes?
 		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
 		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
-	{
-		if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_SWORD_COST)){
-			paymagiccost(attackid,true);
-			misc_internal_link_flags |= LF_PAID_SWORD_COST;
-		}
-		action=attacking; FFCore.setLinkAction(attacking);
-		attack=wSword;
-		
-		attackclk=0;
-		sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(int(x)));
-		
-		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn) && !item_doscript[dowpn])
 		{
-			//clear the item script stack for a new script
-		
-			ri = &(itemScriptData[dowpn]);
-			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-			ri->Clear();
-			//itemScriptData[(dowpn & 0xFFF)].Clear();
-			//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-			item_doscript[dowpn] = 1;
-			itemscriptInitialised[dowpn] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
-			did_scripta=true;
+			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_SWORD_COST))
+			{
+				paymagiccost(attackid,true);
+				misc_internal_link_flags |= LF_PAID_SWORD_COST;
+			}
+			action=attacking; FFCore.setLinkAction(attacking);
+			attack=wSword;
+			
+			attackclk=0;
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(FIX_FLOOR(x)));
+			
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn) && !item_doscript[dowpn])
+			{
+				//clear the item script stack for a new script
+			
+				ri = &(itemScriptData[dowpn]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+				ri->Clear();
+				//itemScriptData[(dowpn & 0xFFF)].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+				item_doscript[dowpn] = 1;
+				itemscriptInitialised[dowpn] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+				did_scripta=true;
+			}
 		}
 	}
-    }
-    else
-    {
-        did_scripta=false;
-    }
-    
+	else
+	{
+		did_scripta=false;
+	}
+	
 	if(action!=swimming && !getOnSideviewLadder())
 	{
 		if(DrunkUp() && canSideviewLadder())
@@ -9469,9 +9490,9 @@ void LinkClass::movelink()
 		}
 	}
 	
-    int wx=x;
-    int wy=y;
-    if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	int wx=x;
+	int wy=y;
+	if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
 		{
@@ -9485,37 +9506,37 @@ void LinkClass::movelink()
 			if(DrunkRight()) dir=right;
 		}
 	}
-    
-    switch(dir)
-    {
-    case up:
-        wy-=16;
-        break;
-        
-    case down:
-        wy+=16;
-        break;
-        
-    case left:
-        wx-=16;
-        break;
-        
-    case right:
-        wx+=16;
-        break;
-    }
-    
-    do_lens();
-    
-    WalkflagInfo info;
-    
-    if(can_attack() && itemclk==0 && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
-    {
-        bool paidmagic = false;
-        
-        if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
-        {
-            attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
+	
+	switch(dir)
+	{
+	case up:
+		wy-=16;
+		break;
+		
+	case down:
+		wy+=16;
+		break;
+		
+	case left:
+		wx-=16;
+		break;
+		
+	case right:
+		wx+=16;
+		break;
+	}
+	
+	do_lens();
+	
+	WalkflagInfo info;
+	
+	if(can_attack() && itemclk==0 && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	{
+		bool paidmagic = false;
+		
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		{
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			if((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_WAND_COST)){
@@ -9526,29 +9547,29 @@ void LinkClass::movelink()
 				attack=wWand;
 				attackclk=0;
 			}
-        }
-        else if((btnwpn==itype_hammer)&&!(action==attacking && attack==wHammer)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
-        {
-            paymagiccost(dowpn);
-            paidmagic = true;
-            action=attacking; FFCore.setLinkAction(attacking);
-            attack=wHammer;
-            attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
-            attackclk=0;
-        }
-        else if((btnwpn==itype_candle)&&!(action==attacking && attack==wFire)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
-        {
-            action=attacking; FFCore.setLinkAction(attacking);
-            attack=wFire;
-            attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
-            attackclk=0;
-        }
-        else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
-        {
-            attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
+		}
+		else if((btnwpn==itype_hammer)&&!(action==attacking && attack==wHammer)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
+		{
+			paymagiccost(dowpn);
+			paidmagic = true;
+			action=attacking; FFCore.setLinkAction(attacking);
+			attack=wHammer;
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
+			attackclk=0;
+		}
+		else if((btnwpn==itype_candle)&&!(action==attacking && attack==wFire)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
+		{
+			action=attacking; FFCore.setLinkAction(attacking);
+			attack=wFire;
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
+			attackclk=0;
+		}
+		else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
+		{
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			if((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_CBYRNA_COST)){
@@ -9559,67 +9580,67 @@ void LinkClass::movelink()
 				attack=wCByrna;
 				attackclk=0;
 			}
-        }
-        else
-        {
-            paidmagic = startwpn(directWpn>-1 ? directWpn : current_item_id(btnwpn));
-            
-            if(paidmagic)
-            {
-                if(action==casting || action==drowning)
-                {
-                    ;
-                }
-                else
-                {
-                    action=attacking; FFCore.setLinkAction(attacking);
-                    attackclk=0;
-                    attack=none;
-                    
-                    if(btnwpn==itype_brang)
-                    {
-                        attack=wBrang;
-                    }
-                }
-            }
-            else
-            {
-                // Weapon not started: directWpn should be reset to prev. value.
-                directWpn = olddirectwpn;
-            }
-        }
-        
-        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)) && !item_doscript[dowpn])
-        {
-            // Only charge for magic if item's magic cost wasn't already charged
-            // for the item's main use.
-            if(!paidmagic && attack!=wWand)
-                paymagiccost(dowpn);
-                //clear the item script stack for a new script
-		//itemScriptData[(dowpn & 0xFFF)].Clear();
-		ri = &(itemScriptData[dowpn]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-		ri->Clear();
-		//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-		item_doscript[dowpn] = 1;
-	        itemscriptInitialised[dowpn] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
-		did_scriptb=true;
-        }
-        
-        if(action==casting || action==drowning)
-        {
-            return;
-        }
-    }
-    else
-    {
-        did_scriptb=false;
-    }
-    
-    if(attackclk || action==attacking)
-    {
+		}
+		else
+		{
+			paidmagic = startwpn(directWpn>-1 ? directWpn : current_item_id(btnwpn));
+			
+			if(paidmagic)
+			{
+				if(action==casting || action==drowning)
+				{
+					;
+				}
+				else
+				{
+					action=attacking; FFCore.setLinkAction(attacking);
+					attackclk=0;
+					attack=none;
+					
+					if(btnwpn==itype_brang)
+					{
+						attack=wBrang;
+					}
+				}
+			}
+			else
+			{
+				// Weapon not started: directWpn should be reset to prev. value.
+				directWpn = olddirectwpn;
+			}
+		}
+		
+		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)) && !item_doscript[dowpn])
+		{
+			// Only charge for magic if item's magic cost wasn't already charged
+			// for the item's main use.
+			if(!paidmagic && attack!=wWand)
+				paymagiccost(dowpn);
+			//clear the item script stack for a new script
+			//itemScriptData[(dowpn & 0xFFF)].Clear();
+			ri = &(itemScriptData[dowpn]);
+			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+			ri->Clear();
+			//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			item_doscript[dowpn] = 1;
+			itemscriptInitialised[dowpn] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+			did_scriptb=true;
+		}
+		
+		if(action==casting || action==drowning)
+		{
+			return;
+		}
+	}
+	else
+	{
+		did_scriptb=false;
+	}
+	
+	if(attackclk || action==attacking)
+	{
 		
 		if((attackclk==0) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
@@ -9636,1313 +9657,3292 @@ void LinkClass::movelink()
 			}
 		}
 		
-        bool attacked = doattack();
-        
-        // This section below interferes with script-setting Link->Dir, so it comes after doattack
-        if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0)
-        {
-            if((xoff==0)||diagonalMovement)
-            {
-                if(DrunkUp()) dir=up;
-                
-                if(DrunkDown()) dir=down;
-            }
-            
-            if((yoff==0)||diagonalMovement)
-            {
-                if(DrunkLeft()) dir=left;
-                
-                if(DrunkRight()) dir=right;
-            }
-        }
-        
-        if(attacked && (charging==0 && spins<=5) && jumping<1)
-        {
-            return;
-        }
-        else if(!(attacked))
-        {
-            // Spin attack - change direction
-            if(spins>1)
-            {
-                spins--;
-                
-                if(spins%5==0)
-                    sfx(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(int(x)));
-                    
-                attackclk=1;
-                
-                switch(dir)
-                {
-                case up:
-                    dir=left;
-                    break;
-                    
-                case right:
-                    dir=up;
-                    break;
-                    
-                case down:
-                    dir=right;
-                    break;
-                    
-                case left:
-                    dir=down;
-                    break;
-                }
-                
-                return;
-            }
-            else
-            {
-                spins=0;
-            }
-            
-            action=none; FFCore.setLinkAction(none);
-            attackclk=0;
-            charging=0;
-        }
-    }
-    
-    if(action==walking) //still walking
-    {
-        if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
-        {
-            action=(attackclk>0 ? attacking : none);
-		FFCore.setLinkAction(attackclk>0 ? attacking : none);
-            link_count=-1;
-            return;
-        }
-        
-        autostep=false;
-        
-        if(!diagonalMovement)
-        {
-            if(dir==up&&yoff)
-            {
-                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
-                if(blockmoving)
-                    info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]));
-                execute(info);
-                
-                if(!info.isUnwalkable())
-                {
-			bool ffcwalk = true;
-			//check for solid ffcs here -Z
-			//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
-			for ( int q = 0; q < 32; ++q )
+		bool attacked = doattack();
+		
+		// This section below interferes with script-setting Link->Dir, so it comes after doattack
+		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0)
+		{
+			if((xoff==0)||diagonalMovement)
 			{
-				//solid ffcs attampt -Z ( 30th March, 2019 )
-				if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-				{
-					//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
-					//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
-					int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
-					//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-					//al_trace("int(lsteps[int(y)&7] is %d\n",int(lsteps[int(y)&7]));
-					//if ( (int)y - int(lsteps[int(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
-					if ( (int)y == max_y ) //if the ffc bottom edge is in the step range
-					{
-						//al_trace("Link is under the ffc\n");
-						int linkwidthx = (int)x+(int)hxsz;
-						//al_trace("linkwidthx is: %d\n",linkwidthx);
-						if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && (int)x < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
-						{
-							al_trace("Link is under X border of ffc\n");
-							//Link is under the ffc
-							ffcwalk = false;
-						}
-					}
-				}
+				if(DrunkUp()) dir=up;
+				
+				if(DrunkDown()) dir=down;
 			}
 			
-			if ( ffcwalk ) move(up);
-                }
-                else
-                {
-                    action=none; FFCore.setLinkAction(none);
-                }
-                
-                return;
-            }
-            
-            if(dir==down&&yoff)
-            {
-                info = walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
-                if(blockmoving)
-                    info = info || walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
-                execute(info);
-                
-                if(!info.isUnwalkable())
-                {
-			
-			
-			bool ffcwalk = true;
-			//solid ffcs attampt -Z ( 30th March, 2019 )
-			//check for solid ffcs here -Z
-			for ( int q = 0; q < 32; ++q )
+			if((yoff==0)||diagonalMovement)
 			{
-				if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+				if(DrunkLeft()) dir=left;
+				
+				if(DrunkRight()) dir=right;
+			}
+		}
+		
+		if(attacked && (charging==0 && spins<=5) && jumping<1)
+		{
+			return;
+		}
+		else if(!(attacked))
+		{
+			// Spin attack - change direction
+			if(spins>1)
+			{
+				spins--;
+				
+				if(spins%5==0)
+					sfx(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(FIX_FLOOR(x)));
+					
+				attackclk=1;
+				
+				switch(dir)
 				{
-					int min_y = (((int)tmpscr->ffy[0])/10000);
-					//if ( (int)y+(int)hysz + int(lsteps[int(y)&7]) > min_y ) //if the ffc bottom edge is in the step range
-					//if ( (int)y+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-					if ( (int)y+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
-					{
-						//al_trace("Link is under the ffc\n");
-						int linkwidthx = (int)x+(int)hxsz;
-						//al_trace("linkwidthx is: %d\n",linkwidthx);
-						if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && (int)x < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
-						{
-						//	al_trace("Link is under X border of ffc\n");
-							//Link is under the ffc
-							ffcwalk = false;
-						}
-					}
+				case up:
+					dir=left;
+					break;
+					
+				case right:
+					dir=up;
+					break;
+					
+				case down:
+					dir=right;
+					break;
+					
+				case left:
+					dir=down;
+					break;
 				}
+				
+				return;
+			}
+			else
+			{
+				spins=0;
 			}
 			
-			if ( ffcwalk )
-			
-                    move(down);
-                }
-                else
-                {
-                    action=none; FFCore.setLinkAction(none);
-                }
-                
-                return;
-            }
-            
-            if(dir==left&&xoff)
-            {
-                info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[int(x)&7]),y+8,1,left);
-                execute(info);
-                
-                if(!info.isUnwalkable())
-                {
-                    move(left);
-                }
-                else
-                {
-                    action=none; FFCore.setLinkAction(none);
-                }
-                
-                return;
-            }
-            
-            if(dir==right&&xoff)
-            {
-                info = walkflag(x+15+int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right);
-                execute(info);
-                
-                if(!info.isUnwalkable())
-                {
-                    move(right);
-                }
-                else
-                {
-                    action=none; FFCore.setLinkAction(none);
-                }
-                
-                return;
-            }
-        }
+			action=none; FFCore.setLinkAction(none);
+			attackclk=0;
+			charging=0;
+		}
+	}
 	
-    } // endif (action==walking)
-    
-    if((action!=swimming)&&(action!=casting)&&(action!=drowning) && charging==0 && spins==0 && jumping<1)
-    {
-        action=none; FFCore.setLinkAction(none);
-    }
-    
-    if(diagonalMovement)
-    {
-        switch(holddir)
-        {
-        case up:
-            if(!Up())
-            {
-                holddir=-1;
-            }
-            
-            break;
-            
-        case down:
-            if(!Down())
-            {
-                holddir=-1;
-            }
-            
-            break;
-            
-        case left:
-            if(!Left())
-            {
-                holddir=-1;
-            }
-            
-            break;
-            
-        case right:
-            if(!Right())
-            {
-                holddir=-1;
-            }
-            
-            break;
-            
-        default:
-            break;
-        } //end switch
-        
-        if(DrunkUp()&&(holddir==-1||holddir==up))
-        {
-            if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-            {
-            }
-            else
-            {
-                if(charging==0 && spins==0)
-                {
-                    dir=up;
-                }
-                
-                holddir=up;
-                
-                if(DrunkRight()&&shiftdir!=left)
-                {
-                    shiftdir=right;
-                }
-                else if(DrunkLeft()&&shiftdir!=right)
-                {
-                    shiftdir=left;
-                }
-                else
-                {
-                    shiftdir=-1;
-                }
-                
-                //walkable if Ladder can be placed or is already placed vertically
-                if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder())
-                {
-                    walkable=false;
-                }
-                else
-                {
-                    info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
-                    
-                    if(int(x) & 7)
-                        info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
-                    else if(blockmoving)
-                        info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
-                        
-                    execute(info);
-                    
-                    if(info.isUnwalkable())
-                    {
-                        if(z3step==2)
-                        {
-                            z3step=1;
-                            info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
-                            
-                            if(int(x)&7)
-                                info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
-                            else if(blockmoving)
-                                info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
-                                
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                walkable = false;
-                            }
-                            else
-                            {
-                                walkable=true;
-                            }
-                        }
-                        else
-                        {
-                            walkable=false;
-                        }
-                    }
-                    else
-                    {
-                        walkable = true;
-                    }
-                }
-                
-                int s=shiftdir;
-                
-                if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
-                {
-                    shiftdir=-1;
-                }
-                else
-                {
-                    if(s==left)
-                    {
-                        info = (walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left));
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,left);
-                            execute(info);
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                    else if(s==right)
-                    {
-                        info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,right);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                }
-                
-                move(up);
-                shiftdir=s;
-                
-                if(!walkable)
-                {
-                    if(shiftdir==-1)
-                    {
-                        if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-                                !_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
-                                _walkflag(x+15,y+(bigHitbox?0:8)-1,1))
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-                                sprite::move((fix)-1,(fix)0);
-                        }
-                        else
-                        {
-                            if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-                                    !_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
-                                    !_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
-                            {
-                                if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-                                    sprite::move((fix)1,(fix)0);
-                            }
-                            else
-                            {
-                                pushing=push+1;
-                            }
-                        }
-                        
-                        z3step=2;
-                    }
-                    else
-                    {
-                        pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
-                        z3step=2;
-                    }
-                }
-                
-                return;
-            }
-        }
-        
-        if(DrunkDown()&&(holddir==-1||holddir==down))
-        {
-            if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-            {
-            }
-            else
-            {
-                if(charging==0 && spins==0)
-                {
-                    dir=down;
-                }
-                
-                holddir=down;
-                
-                if(DrunkRight()&&shiftdir!=left)
-                {
-                    shiftdir=right;
-                }
-                else if(DrunkLeft()&&shiftdir!=right)
-                {
-                    shiftdir=left;
-                }
-                else
-                {
-                    shiftdir=-1;
-                }
-                
-                //bool walkable;
-                if(isSideViewLink() && !toogam && !getOnSideviewLadder())
-                {
-                    walkable=false;
-                }
-                else
-                {
-                    info = walkflag(x,y+15+z3step,2,down);
-                    
-                    if(int(x)&7)
-                        info = info || walkflag(x+16,y+15+z3step,1,down);
-                    else if(blockmoving)
-                        info = info || walkflagMBlock(x+16, y+15+z3step);
-                    
-                    execute(info);
-                    
-                    if(info.isUnwalkable())
-                    {
-                        if(z3step==2)
-                        {
-                            z3step=1;
-                            info = walkflag(x,y+15+z3step,2,down);
-                            
-                            if(int(x)&7)
-                                info = info || walkflag(x+16,y+15+z3step,1,down);
-                            else if(blockmoving)
-                                info = info || walkflagMBlock(x+16, y+15+z3step);
-                                
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                walkable = false;
-                            }
-                            else
-                            {
-                                walkable=true;
-                            }
-                        }
-                        else
-                        {
-                            walkable=false;
-                        }
-                    }
-                    else
-                    {
-                        walkable = true;
-                    }
-                }
-                
-                int s=shiftdir;
-                
-                if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
-                {
-                    shiftdir=-1;
-                }
-                else
-                {
-                    if(s==left)
-                    {
-                        info = walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x-1,y+16,1,left);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                    else if(s==right)
-                    {
-                        info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x+16,y+16,1,right);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                }
-                
-                move(down);
-                shiftdir=s;
-                
-                if(!walkable)
-                {
-                    if(shiftdir==-1)
-                    {
-                        if(!_walkflag(x,   y+15+1,1)&&
-                                !_walkflag(x+8, y+15+1,1)&&
-                                _walkflag(x+15,y+15+1,1))
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-                                sprite::move((fix)-1,(fix)0);
-                        }
-                        else if(_walkflag(x,   y+15+1,1)&&
-                                !_walkflag(x+7, y+15+1,1)&&
-                                !_walkflag(x+15,y+15+1,1))
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-                                sprite::move((fix)1,(fix)0);
-                        }
-                        else //if(shiftdir==-1)
-                        {
-                            pushing=push+1;
-                            
-                            if(action!=swimming)
-                            {
-                            }
-                        }
-                        
-                        z3step=2;
-                    }
-                    else
-                    {
-                        pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
-                        
-                        if(action!=swimming)
-                        {
-                        }
-                        
-                        z3step=2;
-                    }
-                }
-                
-                return;
-            }
-        }
-        
-        if(DrunkLeft()&&(holddir==-1||holddir==left))
-        {
-            if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-            {
-            }
-            else
-            {
-                if(charging==0 && spins==0)
-                {
-                    dir=left;
-                }
-                
-                holddir=left;
-                
-                if(DrunkUp()&&shiftdir!=down)
-                {
-                    shiftdir=up;
-                }
-                else if(DrunkDown()&&shiftdir!=up)
-                {
-                    shiftdir=down;
-                }
-                else
-                {
-                    shiftdir=-1;
-                }
-                
-                //bool walkable;
-                info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
-                
-                if(int(y)&7)
-                    info = info || walkflag(x-z3step,y+16,1,left);
-                    
-                execute(info);
-                
-                if(info.isUnwalkable())
-                {
-                    if(z3step==2)
-                    {
-                        z3step=1;
-                        info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
-                        
-                        if(int(y)&7)
-                            info = info || walkflag(x-z3step,y+16,1,left);
-                            
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            walkable = false;
-                        }
-                        else
-                        {
-                            walkable=true;
-                        }
-                    }
-                    else
-                    {
-                        walkable=false;
-                    }
-                }
-                else
-                {
-                    walkable = true;
-                }
-                
-                int s=shiftdir;
-                
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
-                {
-                    shiftdir=-1;
-                }
-                else
-                {
-                    if(s==up)
-                    {
-                        info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,up);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                    else if(s==down)
-                    {
-                        info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x-1,y+16,1,down);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                }
-                
-                move(left);
-                shiftdir=s;
-                
-                if(!walkable)
-                {
-                    if(shiftdir==-1)
-                    {
-                        int v1=bigHitbox?0:8;
-                        int v2=bigHitbox?8:12;
-                        
-                        if(!_walkflag(x-1,y+v1,1)&&
-                                !_walkflag(x-1,y+v2,1)&&
-                                _walkflag(x-1,y+15,1))
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-                                sprite::move((fix)0,(fix)-1);
-                        }
-                        else if(_walkflag(x-1,y+v1,  1)&&
-                                !_walkflag(x-1,y+v2-1,1)&&
-                                !_walkflag(x-1,y+15,  1))
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-                                sprite::move((fix)0,(fix)1);
-                        }
-                        else //if(shiftdir==-1)
-                        {
-                            pushing=push+1;
-                            
-                            if(action!=swimming)
-                            {
-                            }
-                        }
-                        
-                        z3step=2;
-                    }
-                    else
-                    {
-                        pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
-                        
-                        if(action!=swimming)
-                        {
-                        }
-                        
-                        z3step=2;
-                    }
-                }
-                
-                return;
-            }
-        }
-        
-        if(DrunkRight()&&(holddir==-1||holddir==right))
-        {
-            if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-            {
-            }
-            else
-            {
-                if(charging==0 && spins==0)
-                {
-                    dir=right;
-                }
-                
-                holddir=right;
-                
-                if(DrunkUp()&&shiftdir!=down)
-                {
-                    shiftdir=up;
-                }
-                else if(DrunkDown()&&shiftdir!=up)
-                {
-                    shiftdir=down;
-                }
-                else
-                {
-                    shiftdir=-1;
-                }
-                
-                //bool walkable;
-                info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
-                
-                if(int(y)&7)
-                    info = info || walkflag(x+15+z3step,y+16,1,right);
-                    
-                execute(info);
-                
-                if(info.isUnwalkable())
-                {
-                    if(z3step==2)
-                    {
-                        z3step=1;
-                        info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
-                        
-                        if(int(y)&7)
-                            info = info || walkflag(x+15+z3step,y+16,1,right);
-                            
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            walkable = false;
-                        }
-                        else
-                        {
-                            walkable=true;
-                        }
-                    }
-                    else
-                    {
-                        walkable=false;
-                    }
-                }
-                else
-                {
-                    walkable = true;
-                }
-                
-                int s=shiftdir;
-                
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
-                {
-                    shiftdir=-1;
-                }
-                else
-                {
-                    if(s==up)
-                    {
-                        info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,up);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                    else if(s==down)
-                    {
-                        info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
-                        execute(info);
-                        
-                        if(info.isUnwalkable())
-                        {
-                            shiftdir=-1;
-                        }
-                        else if(walkable)
-                        {
-                            info = walkflag(x+16,y+16,1,down);
-                            execute(info);
-                            
-                            if(info.isUnwalkable())
-                            {
-                                shiftdir=-1;
-                            }
-                        }
-                    }
-                }
-                
-                move(right);
-                shiftdir=s;
-                
-                if(!walkable)
-                {
-                    if(shiftdir==-1)
-                    {
-                        int v1=bigHitbox?0:8;
-                        int v2=bigHitbox?8:12;
-                        
-                        info = !walkflag(x+16,y+v1,1,right)&&
-                               !walkflag(x+16,y+v2,1,right)&&
-                               walkflag(x+16,y+15,1,right);
-                               
-                        //do NOT execute these
-                        if(info.isUnwalkable())
-                        {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-                                sprite::move((fix)0,(fix)-1);
-                        }
-                        else
-                        {
-                            info = walkflag(x+16,y+v1,  1,right)&&
-                                   !walkflag(x+16,y+v2-1,1,right)&&
-                                   !walkflag(x+16,y+15,  1,right);
-                                   
-                            if(info.isUnwalkable())
-                            {
-                                if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-                                    sprite::move((fix)0,(fix)1);
-                            }
-                            else //if(shiftdir==-1)
-                            {
-                                pushing=push+1;
-                                z3step=2;
-                                
-                                if(action!=swimming)
-                                {
-                                }
-                            }
-                        }
-                        
-                        z3step=2;
-                    }
-                    else
-                    {
-                        pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
-                        
-                        if(action!=swimming)
-                        {
-                        }
-                        
-                        z3step=2;
-                    }
-                }
-                
-                return;
-            }
-        }
-        
-        bool wtry  = iswater(MAPCOMBO(x,y+15));
-        bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
-        bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));
-        bool wtrx8 = iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)));
-        
-        if(can_use_item(itype_flippers,i_flippers)&&!(ladderx+laddery)&&z==0)
-        {
-            if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
-            {
-                //action=swimming;
-                if(action !=none && action != swimming)
-                {
-                    hopclk = 0xFF;
-                }
-            }
-        }
-        
-        return;
-    } //endif (LTTPWALK)
-    
-    if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-    {
-        goto LEFTRIGHT;
-    }
-    
-    // make it easier to get in left & right doors
-    
-    //ignore ladder for this part. sigh sigh sigh -DD
-    oldladderx = ladderx;
-    oldladdery = laddery;
-    info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) ||
-           walkflag(x-int(lsteps[int(x)&7]),y+8,1,left);
-    
-    if(isdungeon() && DrunkLeft() && x==32 && y==80 && !info.isUnwalkable())
-    {
-        //ONLY process the side-effects of the above walkflag if Link will actually move
-        //sigh sigh sigh... walkflag is a horrible mess :-/ -DD
-        execute(info);
-        move(left);
-        return;
-    }
-    
-    info = walkflag(x+15+int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) ||
-           walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right);
-    
-    if(isdungeon() && DrunkRight() && x==208 && y==80 && !info.isUnwalkable())
-    {
-        execute(info);
-        move(right);
-        return;
-    }
-    
-    ladderx = oldladderx;
-    laddery = oldladdery;
-    
-    if(DrunkUp())
-    {
-        if(xoff && !is_on_conveyor && action != swimming && jumping<1)
-        {
-            if(dir!=up && dir!=down)
-            {
-                if(xoff>2&&xoff<6)
-                {
-                    move(dir);
-                }
-                else if(xoff>=6)
-                {
-                    move(right);
-                }
-                else if(xoff>=1)
-                {
-                    move(left);
-                }
-            }
-            else
-            {
-                if(xoff>=4)
-                {
-                    move(right);
-                }
-                else if(xoff<4)
-                {
-                    move(left);
-                }
-            }
-        }
-        else
-        {
-            if(action==swimming)
-            {
-                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
-                
-                if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[int(y)&7]), 1) &&
-                        !(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[int(y)&7]))) &&
-                          iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[int(y)&7])))))
-                    info.setUnwalkable(true);
-            }
-            else
-            {
-                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
-                if(blockmoving)
-                    info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]));
-            }
-            
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                move(up);
-                return;
-            }
-            
-            if(!DrunkLeft() && !DrunkRight())
-            {
-                pushing=push+1;
-                
-                if(charging==0 && spins==0)
-                {
-                    dir=up;
-                }
-                
-                if(action!=swimming)
-                {
-                    linkstep();
-                }
-                
-                return;
-            }
-            else
-            {
-                goto LEFTRIGHT;
-            }
-        }
-        
-        return;
-    }
-    
-    if(DrunkDown())
-    {
-        if(xoff && !is_on_conveyor && action != swimming && jumping<1)
-        {
-            if(dir!=up && dir!=down)
-            {
-                if(xoff>2&&xoff<6)
-                {
-                    move(dir);
-                }
-                else if(xoff>=6)
-                {
-                    move(right);
-                }
-                else if(xoff>=1)
-                {
-                    move(left);
-                }
-            }
-            else
-            {
-                if(xoff>=4)
-                {
-                    move(right);
-                }
-                else if(xoff<4)
-                {
-                    move(left);
-                }
-            }
-        }
-        else
-        {
-            if(action==swimming)
-            {
-                info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
-                
-                if(_walkflag(x+15, y+15+int(lsteps[int(y)&7]), 1) &&
-                        !(iswater(MAPCOMBO(x, y+15+int(lsteps[int(y)&7]))) &&
-                          iswater(MAPCOMBO(x+15, y+15+int(lsteps[int(y)&7])))))
-                    info.setUnwalkable(true);
-            }
-            else
-            {
-                info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
-                if(blockmoving)
-                     info = info || walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
-            }
-            
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                move(down);
-                return;
-            }
-            
-            if(!DrunkLeft() && !DrunkRight())
-            {
-                pushing=push+1;
-                
-                if(charging==0 && spins==0)
-                {
-                    dir=down;
-                }
-                
-                if(action!=swimming)
-                {
-                    linkstep();
-                }
-                
-                return;
-            }
-            else goto LEFTRIGHT;
-        }
-        
-        return;
-    }
-    
-LEFTRIGHT:
+	if(action==walking) //still walking
+	{
+		if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
+		{
+			action=(attackclk>0 ? attacking : none);
+			FFCore.setLinkAction(action);
+			link_count=-1;
+			return;
+		}
+		
+		autostep=false;
+		
+		if(!(diagonalMovement || NO_GRIDLOCK))
+		{
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			{
+				if(dir==up&&yoff)
+				{
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
+					if(blockmoving)
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]));
+					execute(info);
+					
+					if(!info.isUnwalkable())
+					{
+						bool ffcwalk = true;
+						//check for solid ffcs here -Z
+						//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
+						for ( int q = 0; q < 32; ++q )
+						{
+							//solid ffcs attampt -Z ( 30th March, 2019 )
+							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+							{
+								//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
+								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
+								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
+								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
+								//al_trace("int(lsteps[FIX_FLOOR(y)&7] is %d\n",int(lsteps[FIX_FLOOR(y)&7]));
+								//if ( (int)y - int(lsteps[FIX_FLOOR(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
+								if ( (int)y == max_y ) //if the ffc bottom edge is in the step range
+								{
+									//al_trace("Link is under the ffc\n");
+									int linkwidthx = (int)x+(int)hxsz;
+									//al_trace("linkwidthx is: %d\n",linkwidthx);
+									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && (int)x < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+									{
+										al_trace("Link is under X border of ffc\n");
+										//Link is under the ffc
+										ffcwalk = false;
+									}
+								}
+							}
+						}
+						
+						if ( ffcwalk ) move(up);
+					}
+					else
+					{
+						action=none; FFCore.setLinkAction(none);
+					}
+					
+					return;
+				}
+				
+				if(dir==down&&yoff)
+				{
+					info = walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
+					if(blockmoving)
+						info = info || walkflagMBlock(x+8,y+15+int(lsteps[FIX_FLOOR(y)&7]));
+					execute(info);
+					
+					if(!info.isUnwalkable())
+					{
+						bool ffcwalk = true;
+						//solid ffcs attampt -Z ( 30th March, 2019 )
+						//check for solid ffcs here -Z
+						for ( int q = 0; q < 32; ++q )
+						{
+							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+							{
+								int min_y = (((int)tmpscr->ffy[0])/10000);
+								//if ( (int)y+(int)hysz + int(lsteps[FIX_FLOOR(y)&7]) > min_y ) //if the ffc bottom edge is in the step range
+								//if ( (int)y+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+								if ( (int)y+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+								{
+									//al_trace("Link is under the ffc\n");
+									int linkwidthx = (int)x+(int)hxsz;
+									//al_trace("linkwidthx is: %d\n",linkwidthx);
+									if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && (int)x < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+									{
+									//	al_trace("Link is under X border of ffc\n");
+										//Link is under the ffc
+										ffcwalk = false;
+									}
+								}
+							}
+						}
+						
+						if ( ffcwalk )
+							move(down);
+					}
+					else
+					{
+						action=none; FFCore.setLinkAction(none);
+					}
+					
+					return;
+				}
+				
+				if(dir==left&&xoff)
+				{
+					info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8,1,left);
+					execute(info);
+					
+					if(!info.isUnwalkable())
+					{
+						move(left);
+					}
+					else
+					{
+						action=none; FFCore.setLinkAction(none);
+					}
+					
+					return;
+				}
+				
+				if(dir==right&&xoff)
+				{
+					info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+8,1,right);
+					execute(info);
+					
+					if(!info.isUnwalkable())
+					{
+						move(right);
+					}
+					else
+					{
+						action=none; FFCore.setLinkAction(none);
+					}
+					
+					return;
+				}
+			}
+			else
+			{
+				if(dir==up&&yoff)
+				{
+					while(true)
+					{
+						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
+						if(blockmoving)
+							info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
+						execute(info);
+						
+						if(!info.isUnwalkable())
+						{
+							bool ffcwalk = true;
+							//check for solid ffcs here -Z
+							//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
+							for ( int q = 0; q < 32; ++q )
+							{
+								//solid ffcs attampt -Z ( 30th March, 2019 )
+								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+								//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
+								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
+								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
+								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
+								//al_trace("int(lsteps[FIX_FLOOR(y)&7] is %d\n",int(lsteps[FIX_FLOOR(y)&7]));
+								//if ( (int)y - int(lsteps[FIX_FLOOR(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
+								if ( FIX_FLOOR(temp_y) == max_y ) //if the ffc bottom edge is in the step range
+								{
+									//al_trace("Link is under the ffc\n");
+									int linkwidthx = FIX_FLOOR(temp_x)+(int)hxsz;
+									//al_trace("linkwidthx is: %d\n",linkwidthx);
+									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && FIX_FLOOR(temp_x) < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+									{
+										al_trace("Link is under X border of ffc\n");
+										//Link is under the ffc
+										ffcwalk = false;
+									}
+								}
+							}
+							
+							if ( ffcwalk )
+							{
+								link_newstep = temp_step;
+								x = temp_x;
+								y = temp_y;
+								move(up);
+								return;
+							}
+						}
+						//Could not move, try moving less
+						if(temp_y != int(temp_y))
+						{
+							temp_y = floor((double)temp_y);
+							continue;
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+							continue;
+						}
+						else //Can't move less, stop moving
+						{
+							action=none; FFCore.setLinkAction(none);
+						}
+						return;
+					}
+				}
+				
+				if(dir==down&&yoff)
+				{
+					while(true)
+					{
+						info = walkflag(temp_x,temp_y+15+temp_step,2,down);
+						if(blockmoving)
+							info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
+						execute(info);
+						
+						if(!info.isUnwalkable())
+						{
+							bool ffcwalk = true;
+							//solid ffcs attampt -Z ( 30th March, 2019 )
+							//check for solid ffcs here -Z
+							for ( int q = 0; q < 32; ++q )
+							{
+								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+								{
+									int min_y = (((int)tmpscr->ffy[0])/10000);
+									//if ( FIX_FLOOR(temp_y)+(int)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
+									//if ( FIX_FLOOR(temp_y)+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+									if ( FIX_FLOOR(temp_y)+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+									{
+										//al_trace("Link is under the ffc\n");
+										int linkwidthx = FIX_FLOOR(temp_x)+(int)hxsz;
+										//al_trace("linkwidthx is: %d\n",linkwidthx);
+										if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && FIX_FLOOR(temp_x) < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+										{
+										//	al_trace("Link is under X border of ffc\n");
+											//Link is under the ffc
+											ffcwalk = false;
+										}
+									}
+								}
+							}
+							
+							if ( ffcwalk )
+							{
+								link_newstep = temp_step;
+								x = temp_x;
+								y = temp_y;
+								move(down);
+								return;
+							}
+						}
+						//Could not move, try moving less
+						if(temp_y != int(temp_y))
+						{
+							temp_y = floor((double)temp_y);
+							continue;
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+							continue;
+						}
+						else //Can't move less, stop moving
+						{
+							action=none; FFCore.setLinkAction(none);
+						}
+						return;
+					}
+				}
+				
+				if(dir==left&&xoff)
+				{
+					while(true)
+					{
+						info = walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left) || walkflag(temp_x-temp_step,temp_y+8,1,left);
+						execute(info);
+						
+						if(!info.isUnwalkable())
+						{
+							link_newstep = temp_step;
+							x = temp_x;
+							y = temp_y;
+							move(left);
+							return;
+						}
+						//Could not move, try moving less
+						if(temp_x != int(temp_x))
+						{
+							temp_x = floor((double)temp_x);
+							continue;
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+							continue;
+						}
+						else //Can't move less, stop moving
+						{
+							action=none; FFCore.setLinkAction(none);
+						}
+						return;
+					}
+				}
+				
+				if(dir==right&&xoff)
+				{
+					while(true)
+					{
+						info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) || walkflag(temp_x+15+temp_step,temp_y+8,1,right);
+						execute(info);
+						
+						if(!info.isUnwalkable())
+						{
+							link_newstep = temp_step;
+							x = temp_x;
+							y = temp_y;
+							move(right);
+							return;
+						}
+						//Could not move, try moving less
+						if(temp_x != int(temp_x))
+						{
+							temp_x = floor((double)temp_x);
+							continue;
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+							continue;
+						}
+						else //Can't move less, stop moving
+						{
+							action=none; FFCore.setLinkAction(none);
+						}
+						return;
+					}
+				}
+			}
+		}
+	
+	} // endif (action==walking)
+	
+	if((action!=swimming)&&(action!=casting)&&(action!=drowning) && charging==0 && spins==0 && jumping<1)
+	{
+		action=none; FFCore.setLinkAction(none);
+	}
+	
+	if(diagonalMovement)
+	{
+		switch(holddir)
+		{
+		case up:
+			if(!Up())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		case down:
+			if(!Down())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		case left:
+			if(!Left())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		case right:
+			if(!Right())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		default:
+			break;
+		} //end switch
+		
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+		{
+			walkable = false;
+			if(DrunkUp()&&(holddir==-1||holddir==up))
+			{
+				if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=up;
+					}
+					
+					holddir=up;
+					
+					if(DrunkRight()&&shiftdir!=left)
+					{
+						shiftdir=right;
+					}
+					else if(DrunkLeft()&&shiftdir!=right)
+					{
+						shiftdir=left;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//walkable if Ladder can be placed or is already placed vertically
+					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder())
+					{
+						walkable=false;
+					}
+					else
+					{
+						do
+						{
+							info = walkflag(x,(bigHitbox?0:8)+(y-link_newstep),2,up);
+							
+							if(FIX_FLOOR(x) & 7)
+								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-link_newstep),1,up);
+							else if(blockmoving)
+								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-link_newstep));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != FIX_FLOOR(y))
+								{
+									y = floor((double)y);
+								}
+								else if(link_newstep > 1)
+								{
+									if(link_newstep != int(link_newstep)) //floor
+										link_newstep = floor((double)link_newstep);
+									else --link_newstep;
+								}
+								else
+									break;
+							}
+							else walkable = true;
+						}
+						while(!walkable);
+					}
+					
+					int s=shiftdir;
+					
+					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==left)
+						{
+							do
+							{
+								info = (walkflag(x-link_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep_diag,y+15,1,left));
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(x != FIX_FLOOR(x))
+									{
+										x = floor((double)x);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-link_newstep_diag,(bigHitbox?0:8)+(y-link_newstep),1,left);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != FIX_FLOOR(x))
+											{
+												x = floor((double)x);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+						else if(s==right)
+						{
+							do
+							{
+								info = (walkflag(x+15+link_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep_diag,y+15,1,right));
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(x != FIX_FLOOR(x))
+									{
+										x = floor((double)x);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+link_newstep_diag,(bigHitbox?0:8)+(y-link_newstep),1,right);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != FIX_FLOOR(x))
+											{
+												x = floor((double)x);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+					}
+					
+					move(up);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							x = FIX_FLOOR(x);
+							y = FIX_FLOOR(y);
+							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
+									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+									sprite::move((fix)-1,(fix)0);
+							}
+							else
+							{
+								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
+										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+								{
+									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+										sprite::move((fix)1,(fix)0);
+								}
+								else
+								{
+									pushing=push+1;
+								}
+							}
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkDown()&&(holddir==-1||holddir==down))
+			{
+				if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=down;
+					}
+					
+					holddir=down;
+					
+					if(DrunkRight()&&shiftdir!=left)
+					{
+						shiftdir=right;
+					}
+					else if(DrunkLeft()&&shiftdir!=right)
+					{
+						shiftdir=left;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//bool walkable;
+					if(isSideViewLink() && !toogam && !getOnSideviewLadder())
+					{
+						walkable=false;
+					}
+					else
+					{
+						do
+						{
+							info = walkflag(x,15+(y+link_newstep),2,down);
+							
+							if(FIX_FLOOR(x) & 7)
+								info = info || walkflag(x+16,15+(y+link_newstep),1,down);
+							else if(blockmoving)
+								info = info || walkflagMBlock(x+16, 15+(y+link_newstep));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != FIX_FLOOR(y))
+								{
+									y = floor((double)y);
+								}
+								else if(link_newstep > 1)
+								{
+									if(link_newstep != int(link_newstep)) //floor
+										link_newstep = floor((double)link_newstep);
+									else --link_newstep;
+								}
+								else
+									break;
+							}
+							else walkable = true;
+						}
+						while(!walkable);
+					}
+					
+					int s=shiftdir;
+					
+					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==left)
+						{
+							do
+							{
+								info = (walkflag(x-link_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep_diag,y+15,1,left));
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(x != FIX_FLOOR(x))
+									{
+										x = floor((double)x);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-link_newstep_diag,15+(y+link_newstep),1,left);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != FIX_FLOOR(x))
+											{
+												x = floor((double)x);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+						else if(s==right)
+						{
+							do
+							{
+								info = (walkflag(x+15+link_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep_diag,y+15,1,right));
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(x != FIX_FLOOR(x))
+									{
+										x = floor((double)x);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+link_newstep_diag,15+(y+link_newstep),1,right);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(x != FIX_FLOOR(x))
+											{
+												x = floor((double)x);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+					}
+					
+					move(down);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							x = FIX_FLOOR(x);
+							y = FIX_FLOOR(y);
+							if(!_walkflag(x,   y+15+1,1)&&
+									!_walkflag(x+8, y+15+1,1)&&
+									_walkflag(x+15,y+15+1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+									sprite::move((fix)-1,(fix)0);
+							}
+							else if(_walkflag(x,   y+15+1,1)&&
+									!_walkflag(x+7, y+15+1,1)&&
+									!_walkflag(x+15,y+15+1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+									sprite::move((fix)1,(fix)0);
+							}
+							else
+							{
+								pushing=push+1;
+							}
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkLeft()&&(holddir==-1||holddir==left))
+			{
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=left;
+					}
+					
+					holddir=left;
+					
+					if(DrunkUp()&&shiftdir!=down)
+					{
+						shiftdir=up;
+					}
+					else if(DrunkDown()&&shiftdir!=up)
+					{
+						shiftdir=down;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					do
+					{
+						info = walkflag(x-link_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep,y+8,1,left);
+						
+						if(FIX_FLOOR(y) & 7)
+							info = info || walkflag(x-link_newstep,y+16,1,left);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(x != FIX_FLOOR(x))
+							{
+								x = floor((double)x);
+							}
+							else if(link_newstep > 1)
+							{
+								if(link_newstep != int(link_newstep)) //floor
+									link_newstep = floor((double)link_newstep);
+								else --link_newstep;
+							}
+							else
+								break;
+						}
+						else walkable = true;
+					}
+					while(!walkable);
+					
+					int s=shiftdir;
+					
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==up)
+						{
+							do
+							{
+								info = walkflag(x,y+(bigHitbox?0:8)-link_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(y != FIX_FLOOR(y))
+									{
+										y = floor((double)y);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-link_newstep,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != FIX_FLOOR(y))
+											{
+												y = floor((double)y);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+						else if(s==down)
+						{
+							do
+							{
+								info = walkflag(x,y+15+link_newstep_diag,2,down)||walkflag(x+15,y+15+link_newstep_diag,1,down);
+								
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(y != FIX_FLOOR(y))
+									{
+										y = floor((double)y);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x-link_newstep,y+15+link_newstep_diag,1,down);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != FIX_FLOOR(y))
+											{
+												y = floor((double)y);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+					}
+					
+					move(left);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							x = FIX_FLOOR(x);
+							y = FIX_FLOOR(y);
+							int v1=bigHitbox?0:8;
+							int v2=bigHitbox?8:12;
+							
+							if(!_walkflag(x-1,y+v1,1)&&
+									!_walkflag(x-1,y+v2,1)&&
+									_walkflag(x-1,y+15,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+									sprite::move((fix)0,(fix)-1);
+							}
+							else if(_walkflag(x-1,y+v1,  1)&&
+									!_walkflag(x-1,y+v2-1,1)&&
+									!_walkflag(x-1,y+15,  1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+									sprite::move((fix)0,(fix)1);
+							}
+							else
+							{
+								pushing=push+1;
+							}
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							
+							if(action!=swimming)
+							{
+							}
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkRight()&&(holddir==-1||holddir==right))
+			{
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=right;
+					}
+					
+					holddir=right;
+					
+					if(DrunkUp()&&shiftdir!=down)
+					{
+						shiftdir=up;
+					}
+					else if(DrunkDown()&&shiftdir!=up)
+					{
+						shiftdir=down;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					do
+					{
+						info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep,y+8,1,right);;
+						
+						if(FIX_FLOOR(y) & 7)
+							info = info || walkflag(x+15+link_newstep,y+16,1,right);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(x != FIX_FLOOR(x))
+							{
+								x = floor((double)x);
+							}
+							else if(link_newstep > 1)
+							{
+								if(link_newstep != int(link_newstep)) //floor
+									link_newstep = floor((double)link_newstep);
+								else --link_newstep;
+							}
+							else
+								break;
+						}
+						else walkable = true;
+					}
+					while(!walkable);
+					
+					int s=shiftdir;
+					
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==up)
+						{
+							do
+							{
+								info = walkflag(x,y+(bigHitbox?0:8)-link_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+								
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(y != FIX_FLOOR(y))
+									{
+										y = floor((double)y);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != FIX_FLOOR(y))
+											{
+												y = floor((double)y);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+						else if(s==down)
+						{
+							do
+							{
+								info = walkflag(x,y+15+link_newstep_diag,2,down)||walkflag(x+15,y+15+link_newstep_diag,1,down);
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									if(y != FIX_FLOOR(y))
+									{
+										y = floor((double)y);
+									}
+									else if(link_newstep_diag > 1)
+									{
+										if(link_newstep_diag != int(link_newstep_diag)) //floor
+											link_newstep_diag = floor((double)link_newstep_diag);
+										else --link_newstep_diag;
+									}
+									else
+										shiftdir = -1;
+								}
+								else if(walkable)
+								{
+									do
+									{
+										info = walkflag(x+15+link_newstep,y+15+link_newstep_diag,1,down);
+										execute(info);
+										if(info.isUnwalkable())
+										{
+											if(y != FIX_FLOOR(y))
+											{
+												y = floor((double)y);
+											}
+											else if(link_newstep_diag > 1)
+											{
+												if(link_newstep_diag != int(link_newstep_diag)) //floor
+													link_newstep_diag = floor((double)link_newstep_diag);
+												else --link_newstep_diag;
+											}
+											else
+												shiftdir = -1;
+										}
+										else break;
+									}
+									while(shiftdir != -1);
+									break;
+								}
+								else break;
+							}
+							while(shiftdir != -1);
+						}
+					}
+					
+					move(right);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							x = FIX_FLOOR(x);
+							y = FIX_FLOOR(y);
+							int v1=bigHitbox?0:8;
+							int v2=bigHitbox?8:12;
+								   
+							if(!_walkflag(x+16,y+v1,1)&&
+								   !_walkflag(x+16,y+v2,1)&&
+								   _walkflag(x+16,y+15,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+									sprite::move((fix)0,(fix)-1);
+							}
+							else if(_walkflag(x+16,y+v1,1)&&
+									   !_walkflag(x+16,y+v2-1,1)&&
+									   !_walkflag(x+16,y+15,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+									sprite::move((fix)0,(fix)1);
+							}
+							else
+							{
+								pushing=push+1;
+								z3step=2;
+							}
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							
+							if(action!=swimming)
+							{
+							}
+						}
+					}
+					
+					return;
+				}
+			}
+		}
+		else
+		{
+			if(DrunkUp()&&(holddir==-1||holddir==up))
+			{
+				if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=up;
+					}
+					
+					holddir=up;
+					
+					if(DrunkRight()&&shiftdir!=left)
+					{
+						shiftdir=right;
+					}
+					else if(DrunkLeft()&&shiftdir!=right)
+					{
+						shiftdir=left;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//walkable if Ladder can be placed or is already placed vertically
+					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder())
+					{
+						walkable=false;
+					}
+					else
+					{
+						info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
+						
+						if(FIX_FLOOR(x) & 7)
+							info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+						else if(blockmoving)
+							info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(z3step==2)
+							{
+								z3step=1;
+								info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
+								
+								if(FIX_FLOOR(x)&7)
+									info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
+								else if(blockmoving)
+									info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									walkable = false;
+								}
+								else
+								{
+									walkable=true;
+								}
+							}
+							else
+							{
+								walkable=false;
+							}
+						}
+						else
+						{
+							walkable = true;
+						}
+					}
+					
+					int s=shiftdir;
+					
+					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==left)
+						{
+							info = (walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left));
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,left);
+								execute(info);
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+						else if(s==right)
+						{
+							info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,right);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+					}
+					
+					move(up);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
+									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+									sprite::move((fix)-1,(fix)0);
+							}
+							else
+							{
+								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
+										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+								{
+									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+										sprite::move((fix)1,(fix)0);
+								}
+								else
+								{
+									pushing=push+1;
+								}
+							}
+							
+							z3step=2;
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							z3step=2;
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkDown()&&(holddir==-1||holddir==down))
+			{
+				if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=down;
+					}
+					
+					holddir=down;
+					
+					if(DrunkRight()&&shiftdir!=left)
+					{
+						shiftdir=right;
+					}
+					else if(DrunkLeft()&&shiftdir!=right)
+					{
+						shiftdir=left;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//bool walkable;
+					if(isSideViewLink() && !toogam && !getOnSideviewLadder())
+					{
+						walkable=false;
+					}
+					else
+					{
+						info = walkflag(x,y+15+z3step,2,down);
+						
+						if(FIX_FLOOR(x)&7)
+							info = info || walkflag(x+16,y+15+z3step,1,down);
+						else if(blockmoving)
+							info = info || walkflagMBlock(x+16, y+15+z3step);
+						
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(z3step==2)
+							{
+								z3step=1;
+								info = walkflag(x,y+15+z3step,2,down);
+								
+								if(FIX_FLOOR(x)&7)
+									info = info || walkflag(x+16,y+15+z3step,1,down);
+								else if(blockmoving)
+									info = info || walkflagMBlock(x+16, y+15+z3step);
+									
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									walkable = false;
+								}
+								else
+								{
+									walkable=true;
+								}
+							}
+							else
+							{
+								walkable=false;
+							}
+						}
+						else
+						{
+							walkable = true;
+						}
+					}
+					
+					int s=shiftdir;
+					
+					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==left)
+						{
+							info = walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x-1,y+16,1,left);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+						else if(s==right)
+						{
+							info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x+16,y+16,1,right);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+					}
+					
+					move(down);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							if(!_walkflag(x,   y+15+1,1)&&
+									!_walkflag(x+8, y+15+1,1)&&
+									_walkflag(x+15,y+15+1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+									sprite::move((fix)-1,(fix)0);
+							}
+							else if(_walkflag(x,   y+15+1,1)&&
+									!_walkflag(x+7, y+15+1,1)&&
+									!_walkflag(x+15,y+15+1,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+									sprite::move((fix)1,(fix)0);
+							}
+							else //if(shiftdir==-1)
+							{
+								pushing=push+1;
+								
+								if(action!=swimming)
+								{
+								}
+							}
+							
+							z3step=2;
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							
+							if(action!=swimming)
+							{
+							}
+							
+							z3step=2;
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkLeft()&&(holddir==-1||holddir==left))
+			{
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=left;
+					}
+					
+					holddir=left;
+					
+					if(DrunkUp()&&shiftdir!=down)
+					{
+						shiftdir=up;
+					}
+					else if(DrunkDown()&&shiftdir!=up)
+					{
+						shiftdir=down;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//bool walkable;
+					info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
+					
+					if(FIX_FLOOR(y)&7)
+						info = info || walkflag(x-z3step,y+16,1,left);
+						
+					execute(info);
+					
+					if(info.isUnwalkable())
+					{
+						if(z3step==2)
+						{
+							z3step=1;
+							info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
+							
+							if(FIX_FLOOR(y)&7)
+								info = info || walkflag(x-z3step,y+16,1,left);
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								walkable = false;
+							}
+							else
+							{
+								walkable=true;
+							}
+						}
+						else
+						{
+							walkable=false;
+						}
+					}
+					else
+					{
+						walkable = true;
+					}
+					
+					int s=shiftdir;
+					
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==up)
+						{
+							info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,up);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+						else if(s==down)
+						{
+							info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x-1,y+16,1,down);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+					}
+					
+					move(left);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							int v1=bigHitbox?0:8;
+							int v2=bigHitbox?8:12;
+							
+							if(!_walkflag(x-1,y+v1,1)&&
+									!_walkflag(x-1,y+v2,1)&&
+									_walkflag(x-1,y+15,1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+									sprite::move((fix)0,(fix)-1);
+							}
+							else if(_walkflag(x-1,y+v1,  1)&&
+									!_walkflag(x-1,y+v2-1,1)&&
+									!_walkflag(x-1,y+15,  1))
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+									sprite::move((fix)0,(fix)1);
+							}
+							else //if(shiftdir==-1)
+							{
+								pushing=push+1;
+								
+								if(action!=swimming)
+								{
+								}
+							}
+							
+							z3step=2;
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							
+							if(action!=swimming)
+							{
+							}
+							
+							z3step=2;
+						}
+					}
+					
+					return;
+				}
+			}
+			
+			if(DrunkRight()&&(holddir==-1||holddir==right))
+			{
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+				{
+				}
+				else
+				{
+					if(charging==0 && spins==0)
+					{
+						dir=right;
+					}
+					
+					holddir=right;
+					
+					if(DrunkUp()&&shiftdir!=down)
+					{
+						shiftdir=up;
+					}
+					else if(DrunkDown()&&shiftdir!=up)
+					{
+						shiftdir=down;
+					}
+					else
+					{
+						shiftdir=-1;
+					}
+					
+					//bool walkable;
+					info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
+					
+					if(FIX_FLOOR(y)&7)
+						info = info || walkflag(x+15+z3step,y+16,1,right);
+						
+					execute(info);
+					
+					if(info.isUnwalkable())
+					{
+						if(z3step==2)
+						{
+							z3step=1;
+							info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
+							
+							if(FIX_FLOOR(y)&7)
+								info = info || walkflag(x+15+z3step,y+16,1,right);
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								walkable = false;
+							}
+							else
+							{
+								walkable=true;
+							}
+						}
+						else
+						{
+							walkable=false;
+						}
+					}
+					else
+					{
+						walkable = true;
+					}
+					
+					int s=shiftdir;
+					
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					{
+						shiftdir=-1;
+					}
+					else
+					{
+						if(s==up)
+						{
+							info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,up);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+						else if(s==down)
+						{
+							info = walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down);
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								shiftdir=-1;
+							}
+							else if(walkable)
+							{
+								info = walkflag(x+16,y+16,1,down);
+								execute(info);
+								
+								if(info.isUnwalkable())
+								{
+									shiftdir=-1;
+								}
+							}
+						}
+					}
+					
+					move(right);
+					shiftdir=s;
+					
+					if(!walkable)
+					{
+						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+						{
+							int v1=bigHitbox?0:8;
+							int v2=bigHitbox?8:12;
+							
+							info = !walkflag(x+16,y+v1,1,right)&&
+								   !walkflag(x+16,y+v2,1,right)&&
+								   walkflag(x+16,y+15,1,right);
+								   
+							//do NOT execute these
+							if(info.isUnwalkable())
+							{
+								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+									sprite::move((fix)0,(fix)-1);
+							}
+							else
+							{
+								info = walkflag(x+16,y+v1,  1,right)&&
+									   !walkflag(x+16,y+v2-1,1,right)&&
+									   !walkflag(x+16,y+15,  1,right);
+									   
+								if(info.isUnwalkable())
+								{
+									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+										sprite::move((fix)0,(fix)1);
+								}
+								else //if(shiftdir==-1)
+								{
+									pushing=push+1;
+									z3step=2;
+									
+									if(action!=swimming)
+									{
+									}
+								}
+							}
+							
+							z3step=2;
+						}
+						else
+						{
+							pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+							
+							if(action!=swimming)
+							{
+							}
+							
+							z3step=2;
+						}
+					}
+					
+					return;
+				}
+			}
+		}
+		bool wtry  = iswater(MAPCOMBO(x,y+15));
+		bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
+		bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));
+		bool wtrx8 = iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)));
+		
+		if(can_use_item(itype_flippers,i_flippers)&&!(ladderx+laddery)&&z==0)
+		{
+			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
+			{
+				//action=swimming;
+				if(action !=none && action != swimming)
+				{
+					hopclk = 0xFF;
+				}
+			}
+		}
+		
+		return;
+	} //endif (LTTPWALK)
+	temp_step = link_newstep;
+	temp_x = x;
+	temp_y = y;
+	
+	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+	{
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			goto LEFTRIGHT_OLDMOVE;
+		else goto LEFTRIGHT_NEWMOVE;
+	}
+	
+	// make it easier to get in left & right doors
+	
+	//ignore ladder for this part. sigh sigh sigh -DD
+	oldladderx = ladderx;
+	oldladdery = laddery;
+	if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	{
+		if(isdungeon() && DrunkLeft() && (temp_x==32 && temp_y==80))
+		{
+			do
+			{
+				info = walkflag(temp_x,temp_y+(bigHitbox?0:8),1,left) ||
+					   walkflag(temp_x-temp_step,temp_y+8,1,left);
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_x != int(temp_x))
+					{
+						temp_x = floor((double)temp_x);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
+						break;
+				}
+			}
+			while(info.isUnwalkable());
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				link_newstep = temp_step;
+				//ONLY process the side-effects of the above walkflag if Link will actually move
+				//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
+				execute(info);
+				move(left);
+				return;
+			}
+			temp_x = x;
+			temp_y = y;
+			temp_step = link_newstep;
+		}
+		
+		if(isdungeon() && DrunkRight() && temp_x==208 && temp_y==80)
+		{
+			do
+			{
+				info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) ||
+				   walkflag(temp_x+15+temp_step,temp_y+8,1,right);
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_x != int(temp_x))
+					{
+						temp_x = floor((double)temp_x);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
+						break;
+				}
+			}
+			while(info.isUnwalkable());
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				link_newstep = temp_step;
+				execute(info);
+				move(right);
+				return;
+			}
+			temp_x = x;
+			temp_y = y;
+			temp_step = link_newstep;
+		}
+		
+		ladderx = oldladderx;
+		laddery = oldladdery;
+		
+		if(DrunkUp())
+		{
+			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=up && dir!=down)
+				{
+					if(xoff>2&&xoff<6)
+					{
+						move(dir);
+					}
+					else if(xoff>=6)
+					{
+						move(right);
+					}
+					else if(xoff>=1)
+					{
+						move(left);
+					}
+				}
+				else
+				{
+					if(xoff>=4)
+					{
+						move(right);
+					}
+					else if(xoff<4)
+					{
+						move(left);
+					}
+				}
+			}
+			else
+			{
+				do
+				{
+					if(action==swimming)
+					{
+						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
+						
+						if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1) &&
+								!(iswater(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step)) &&
+								  iswater(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step))))
+							info.setUnwalkable(true);
+					}
+					else
+					{
+						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
+						if(FIX_FLOOR(x) & 7)
+							info = info || walkflag(temp_x+16,temp_y+(bigHitbox?0:8)-temp_step,1,up);
+						else if(blockmoving)
+							info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
+					}
+					
+					if(info.isUnwalkable())
+					{
+						if(temp_y != int(temp_y))
+						{
+							temp_y = floor((double)temp_y);
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+						}
+						else
+							break;
+					}
+				}
+				while(info.isUnwalkable());
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					x = temp_x;
+					y = temp_y;
+					link_newstep = temp_step;
+					move(up);
+					return;
+				}
+				
+				if(!DrunkLeft() && !DrunkRight())
+				{
+					if(NO_GRIDLOCK)
+					{
+						x = FIX_FLOOR(x);
+						y = FIX_FLOOR(y);
+						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
+								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+								sprite::move((fix)-1,(fix)0);
+						}
+						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+								sprite::move((fix)1,(fix)0);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=up;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+				else
+				{
+					goto LEFTRIGHT_NEWMOVE;
+				}
+			}
+			
+			return;
+		}
+		
+		if(DrunkDown())
+		{
+			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=up && dir!=down)
+				{
+					if(xoff>2&&xoff<6)
+					{
+						move(dir);
+					}
+					else if(xoff>=6)
+					{
+						move(right);
+					}
+					else if(xoff>=1)
+					{
+						move(left);
+					}
+				}
+				else
+				{
+					if(xoff>=4)
+					{
+						move(right);
+					}
+					else if(xoff<4)
+					{
+						move(left);
+					}
+				}
+			}
+			else
+			{
+				do
+				{
+					if(action==swimming)
+					{
+						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
+						
+						if(_walkflag(temp_x+15, temp_y+15+temp_step, 1) &&
+								!(iswater(MAPCOMBO(temp_x, temp_y+15+temp_step)) &&
+								  iswater(MAPCOMBO(temp_x+15, temp_y+15+temp_step))))
+							info.setUnwalkable(true);
+					}
+					else
+					{
+						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
+						if(FIX_FLOOR(x) & 7)
+							info = info || walkflag(temp_x+16,temp_y+15+temp_step,1,down);
+						else if(blockmoving)
+							 info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
+					}
+					
+					if(info.isUnwalkable())
+					{
+						if(temp_y != int(temp_y))
+						{
+							temp_y = floor((double)temp_y);
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+						}
+						else
+							break;
+					}
+				}
+				while(info.isUnwalkable());
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					x = temp_x;
+					y = temp_y;
+					link_newstep = temp_step;
+					move(down);
+					return;
+				}
+				
+				if(!DrunkLeft() && !DrunkRight())
+				{
+					if(NO_GRIDLOCK)
+					{
+						x = FIX_FLOOR(x);
+						y = FIX_FLOOR(y);
+						if(!_walkflag(x,   y+15+1,1)&&
+								!_walkflag(x+8, y+15+1,1)&&
+								_walkflag(x+15,y+15+1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+								sprite::move((fix)-1,(fix)0);
+						}
+						else if(_walkflag(x,   y+15+1,1)&&
+								!_walkflag(x+7, y+15+1,1)&&
+								!_walkflag(x+15,y+15+1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+								sprite::move((fix)1,(fix)0);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=down;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+				else goto LEFTRIGHT_NEWMOVE;
+			}
+			
+			return;
+		}
+		
+LEFTRIGHT_NEWMOVE:
+		temp_x = x;
+		temp_y = y;
+		temp_step = link_newstep;
+		if(isdungeon() && (temp_y<=26 || temp_y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+		{
+			return;
+		}
+		
+		if(DrunkLeft())
+		{
+			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=left && dir!=right)
+				{
+					if(yoff>2&&yoff<6)
+					{
+						move(dir);
+					}
+					else if(yoff>=6)
+					{
+						move(down);
+					}
+					else if(yoff>=1)
+					{
+						move(up);
+					}
+				}
+				else
+				{
+					if(yoff>=4)
+					{
+						move(down);
+					}
+					else if(yoff<4)
+					{
+						move(up);
+					}
+				}
+			}
+			else
+			{
+				do
+				{
+					info = walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left) ||
+						   walkflag(temp_x-temp_step,temp_y+(isSideViewLink() ?0:8), 1,left);
+					   
+					if(FIX_FLOOR(y) & 7)
+						info = info || walkflag(temp_x-temp_step,temp_y+16,1,left);
+					
+					if(info.isUnwalkable())
+					{
+						if(temp_x != int(temp_x))
+						{
+							temp_x = floor((double)temp_x);
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+						}
+						else
+							break;
+					}
+				}
+				while(info.isUnwalkable());
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					x = temp_x;
+					y = temp_y;
+					link_newstep = temp_step;
+					move(left);
+					return;
+				}
+				
+				if(!DrunkUp() && !DrunkDown())
+				{
+					if(NO_GRIDLOCK)
+					{
+						x = FIX_FLOOR(x);
+						y = FIX_FLOOR(y);
+						int v1=bigHitbox?0:8;
+						int v2=bigHitbox?8:12;
+						
+						if(!_walkflag(x-1,y+v1,1)&&
+								!_walkflag(x-1,y+v2,1)&&
+								_walkflag(x-1,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+								sprite::move((fix)0,(fix)-1);
+						}
+						else if(_walkflag(x-1,y+v1,1)&&
+								!_walkflag(x-1,y+v2-1,1)&&
+								!_walkflag(x-1,y+15,  1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+								sprite::move((fix)0,(fix)1);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=left;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+			}
+			
+			return;
+		}
+		
+		if(DrunkRight())
+		{
+			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=left && dir!=right)
+				{
+					if(yoff>2&&yoff<6)
+					{
+						move(dir);
+					}
+					else if(yoff>=6)
+					{
+						move(down);
+					}
+					else if(yoff>=1)
+					{
+						move(up);
+					}
+				}
+				else
+				{
+					if(yoff>=4)
+					{
+						move(down);
+					}
+					else if(yoff<4)
+					{
+						move(up);
+					}
+				}
+			}
+			else
+			{
+				do
+				{
+					info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) || 
+							walkflag(temp_x+15+temp_step,temp_y+(isSideViewLink() ?0:8),1,right);
+					
+					if(FIX_FLOOR(y) & 7)
+						info = info || walkflag(temp_x+15+temp_step,y+16,1,right);
+					
+					if(info.isUnwalkable())
+					{
+						if(temp_x != int(temp_x))
+						{
+							temp_x = floor((double)temp_x);
+						}
+						else if(temp_step > 1)
+						{
+							if(temp_step != int(temp_step)) //floor
+								temp_step = floor((double)temp_step);
+							else --temp_step;
+						}
+						else
+							break;
+					}
+				}
+				while(info.isUnwalkable());
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					x = temp_x;
+					y = temp_y;
+					link_newstep = temp_step;
+					move(right);
+					return;
+				}
+				
+				if(!DrunkUp() && !DrunkDown())
+				{
+					if(NO_GRIDLOCK)
+					{
+						x = FIX_FLOOR(x);
+						y = FIX_FLOOR(y);
+						int v1=bigHitbox?0:8;
+						int v2=bigHitbox?8:12;
+							   
+						if(!_walkflag(x+16,y+v1,1)&&
+							   !_walkflag(x+16,y+v2,1)&&
+							   _walkflag(x+16,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+								sprite::move((fix)0,(fix)-1);
+						}
+						else if(_walkflag(x+16,y+v1,1)&&
+								   !_walkflag(x+16,y+v2-1,1)&&
+								   !_walkflag(x+16,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+								sprite::move((fix)0,(fix)1);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=right;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+			}
+		}
+	}
+	else
+	{
+		info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) ||
+			   walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8,1,left);
+		
+		if(isdungeon() && DrunkLeft() && !info.isUnwalkable() && (x==32 && y==80))
+		{
+			//ONLY process the side-effects of the above walkflag if Link will actually move
+			//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
+			execute(info);
+			move(left);
+			return;
+		}
+		
+		info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right) ||
+			   walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+8,1,right);
+		
+		if(isdungeon() && DrunkRight() && !info.isUnwalkable() && x==208 && y==80)
+		{
+			execute(info);
+			move(right);
+			return;
+		}
+		
+		ladderx = oldladderx;
+		laddery = oldladdery;
+		
+		if(DrunkUp())
+		{
+			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=up && dir!=down)
+				{
+					if(xoff>2&&xoff<6)
+					{
+						move(dir);
+					}
+					else if(xoff>=6)
+					{
+						move(right);
+					}
+					else if(xoff>=1)
+					{
+						move(left);
+					}
+				}
+				else
+				{
+					if(xoff>=4)
+					{
+						move(right);
+					}
+					else if(xoff<4)
+					{
+						move(left);
+					}
+				}
+			}
+			else
+			{
+				if(action==swimming)
+				{
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
+					
+					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]), 1) &&
+							!(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]))) &&
+							  iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7])))))
+						info.setUnwalkable(true);
+				}
+				else
+				{
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
+					if(FIX_FLOOR(x) & 7)
+						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),1,up);
+					else if(blockmoving)
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]));
+				}
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					move(up);
+					return;
+				}
+				
+				if(!DrunkLeft() && !DrunkRight())
+				{
+					if(NO_GRIDLOCK)
+					{
+						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
+								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+								sprite::move((fix)-1,(fix)0);
+						}
+						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
+								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+								sprite::move((fix)1,(fix)0);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=up;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+				else
+				{
+					goto LEFTRIGHT_OLDMOVE;
+				}
+			}
+			
+			return;
+		}
+		
+		if(DrunkDown())
+		{
+			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=up && dir!=down)
+				{
+					if(xoff>2&&xoff<6)
+					{
+						move(dir);
+					}
+					else if(xoff>=6)
+					{
+						move(right);
+					}
+					else if(xoff>=1)
+					{
+						move(left);
+					}
+				}
+				else
+				{
+					if(xoff>=4)
+					{
+						move(right);
+					}
+					else if(xoff<4)
+					{
+						move(left);
+					}
+				}
+			}
+			else
+			{
+				if(action==swimming)
+				{
+					info=walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
+					
+					if(_walkflag(x+15, y+15+int(lsteps[FIX_FLOOR(y)&7]), 1) &&
+							!(iswater(MAPCOMBO(x, y+15+int(lsteps[FIX_FLOOR(y)&7]))) &&
+							  iswater(MAPCOMBO(x+15, y+15+int(lsteps[FIX_FLOOR(y)&7])))))
+						info.setUnwalkable(true);
+				}
+				else
+				{
+					info=walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
+					if(FIX_FLOOR(x) & 7)
+						info = info || walkflag(x+16,y+15+int(lsteps[FIX_FLOOR(y)&7]),1,down);
+					else if(blockmoving)
+						 info = info || walkflagMBlock(x+8,y+15+int(lsteps[FIX_FLOOR(y)&7]));
+				}
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					move(down);
+					return;
+				}
+				
+				if(!DrunkLeft() && !DrunkRight())
+				{
+					if(NO_GRIDLOCK)
+					{
+						if(!_walkflag(x,   y+15+1,1)&&
+								!_walkflag(x+8, y+15+1,1)&&
+								_walkflag(x+15,y+15+1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+								sprite::move((fix)-1,(fix)0);
+						}
+						else if(_walkflag(x,   y+15+1,1)&&
+								!_walkflag(x+7, y+15+1,1)&&
+								!_walkflag(x+15,y+15+1,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+								sprite::move((fix)1,(fix)0);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=down;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+				else goto LEFTRIGHT_OLDMOVE;
+			}
+			
+			return;
+		}
+		
+LEFTRIGHT_OLDMOVE:
 
-    if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
-    {
-        return;
-    }
-    
-    if(DrunkLeft())
-    {
-        if(yoff && !is_on_conveyor && action != swimming && jumping<1)
-        {
-            if(dir!=left && dir!=right)
-            {
-                if(yoff>2&&yoff<6)
-                {
-                    move(dir);
-                }
-                else if(yoff>=6)
-                {
-                    move(down);
-                }
-                else if(yoff>=1)
-                {
-                    move(up);
-                }
-            }
-            else
-            {
-                if(yoff>=4)
-                {
-                    move(down);
-                }
-                else if(yoff<4)
-                {
-                    move(up);
-                }
-            }
-        }
-        else
-        {
-            info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) ||
-                   walkflag(x-int(lsteps[int(x)&7]),y+(isSideViewLink() ?0:8), 1,left);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                move(left);
-                return;
-            }
-            
-            if(!DrunkUp() && !DrunkDown())
-            {
-                pushing=push+1;
-                
-                if(charging==0 && spins==0)
-                {
-                    dir=left;
-                }
-                
-                if(action!=swimming)
-                {
-                    linkstep();
-                }
-                
-                return;
-            }
-        }
-        
-        return;
-    }
-    
-    if(DrunkRight())
-    {
-        if(yoff && !is_on_conveyor && action != swimming && jumping<1)
-        {
-            if(dir!=left && dir!=right)
-            {
-                if(yoff>2&&yoff<6)
-                {
-                    move(dir);
-                }
-                else if(yoff>=6)
-                {
-                    move(down);
-                }
-                else if(yoff>=1)
-                {
-                    move(up);
-                }
-            }
-            else
-            {
-                if(yoff>=4)
-                {
-                    move(down);
-                }
-                else if(yoff<4)
-                {
-                    move(up);
-                }
-            }
-        }
-        else
-        {
-            info = walkflag((int)x+15+(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag((int)x+15+(lsteps[int(x)&7]),y+(isSideViewLink() ?0:8),             1,right);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                move(right);
-                return;
-            }
-            
-            if(!DrunkUp() && !DrunkDown())
-            {
-                pushing=push+1;
-                
-                if(charging==0 && spins==0)
-                {
-                    dir=right;
-                }
-                
-                if(action!=swimming)
-                {
-                    linkstep();
-                }
-                
-                return;
-            }
-        }
-    }
+		if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+		{
+			return;
+		}
+		
+		if(DrunkLeft())
+		{
+			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=left && dir!=right)
+				{
+					if(yoff>2&&yoff<6)
+					{
+						move(dir);
+					}
+					else if(yoff>=6)
+					{
+						move(down);
+					}
+					else if(yoff>=1)
+					{
+						move(up);
+					}
+				}
+				else
+				{
+					if(yoff>=4)
+					{
+						move(down);
+					}
+					else if(yoff<4)
+					{
+						move(up);
+					}
+				}
+			}
+			else
+			{
+				info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) ||
+					   walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(isSideViewLink() ?0:8), 1,left);
+					   
+				if(FIX_FLOOR(y) & 7)
+					info = info || walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+16,1,left);
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					move(left);
+					return;
+				}
+				
+				if(!DrunkUp() && !DrunkDown())
+				{
+					if(NO_GRIDLOCK)
+					{
+						int v1=bigHitbox?0:8;
+						int v2=bigHitbox?8:12;
+						
+						if(!_walkflag(x-1,y+v1,1)&&
+								!_walkflag(x-1,y+v2,1)&&
+								_walkflag(x-1,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+								sprite::move((fix)0,(fix)-1);
+						}
+						else if(_walkflag(x-1,y+v1,  1)&&
+								!_walkflag(x-1,y+v2-1,1)&&
+								!_walkflag(x-1,y+15,  1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+								sprite::move((fix)0,(fix)1);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=left;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+			}
+			
+			return;
+		}
+		
+		if(DrunkRight())
+		{
+			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			{
+				if(dir!=left && dir!=right)
+				{
+					if(yoff>2&&yoff<6)
+					{
+						move(dir);
+					}
+					else if(yoff>=6)
+					{
+						move(down);
+					}
+					else if(yoff>=1)
+					{
+						move(up);
+					}
+				}
+				else
+				{
+					if(yoff>=4)
+					{
+						move(down);
+					}
+					else if(yoff<4)
+					{
+						move(up);
+					}
+				}
+			}
+			else
+			{
+				info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right)
+					|| walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(isSideViewLink()?0:8),1,right);
+				
+				if(FIX_FLOOR(y) & 7)
+					info = info || walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+16,1,right);
+				
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					move(right);
+					return;
+				}
+				
+				if(!DrunkUp() && !DrunkDown())
+				{
+					if(NO_GRIDLOCK)
+					{
+						int v1=bigHitbox?0:8;
+						int v2=bigHitbox?8:12;
+							   
+						if(!_walkflag(x+16,y+v1,1)&&
+							   !_walkflag(x+16,y+v2,1)&&
+							   _walkflag(x+16,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+								sprite::move((fix)0,(fix)-1);
+						}
+						else if(_walkflag(x+16,y+v1,1)&&
+								   !_walkflag(x+16,y+v2-1,1)&&
+								   !_walkflag(x+16,y+15,1))
+						{
+							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+								sprite::move((fix)0,(fix)1);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else pushing=push+1;
+					
+					if(charging==0 && spins==0)
+					{
+						dir=right;
+					}
+					
+					if(action!=swimming)
+					{
+						linkstep();
+					}
+					
+					return;
+				}
+			}
+		}
+	}
 }
 
 //solid ffc checking should probably be moved to here.
-void LinkClass::move(int d2)
+void LinkClass::move(int d2, int forceRate)
 {
-//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
+    if( inlikelike || link_is_stunned > 0 )
+        return;
+	
+	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	{
+		moveOld(d2);
+		return;
+	}
+	
+    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
+                     (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+    bool is_swimming = (action == swimming);
+	bool fastSwim = (zinit.link_swim_speed>60);
+	fix dx, dy;
+	fix movepix(steprate / 100.0);
+	fix step(movepix);
+	fix step_diag(movepix);
+	if(link_newstep > movepix) link_newstep = movepix;
+	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
+	//2/3 speed
+	if((is_swimming && fastSwim) || (!is_swimming && (slowcharging ^ slowcombo)))
+	{
+		step = ((step / 3.0) * 2);
+		step_diag = ((step_diag / 3.0) * 2);
+	}
+	//1/2 speed
+	else if((is_swimming && !fastSwim) || (slowcharging && slowcombo))
+	{
+		step /= 2;
+		step_diag /= 2;
+	}
+	//normal speed
+	else
+	{
+		//no modification
+	}
+	
+	if(diagonalMovement)
+	{
+		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
+			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
+		{
+			if(link_newstep > 0 && link_newstep_diag > 0)
+			{
+				step = STEP_DIAGONAL(step);
+				step_diag = STEP_DIAGONAL(step_diag);
+			}
+		}
+		if(link_newstep < step) step = link_newstep; //handle collision
+		if(link_newstep_diag < step_diag) step_diag = link_newstep_diag; //handle collision
+		switch(d2)
+		{
+			case up:
+				switch(shiftdir)
+				{
+					case left:
+						dx = -step_diag;
+						break;
+					case right:
+						dx = step_diag;
+						break;
+				}
+				if(walkable)
+				{
+					dy = -step;
+				}
+				break;
+			case down:
+				switch(shiftdir)
+				{
+					case left:
+						dx = -step_diag;
+						break;
+					case right:
+						dx = step_diag;
+						break;
+				}
+				if(walkable)
+				{
+					dy = step;
+				}
+				break;
+			case left:
+				switch(shiftdir)
+				{
+					case up:
+						dy = -step_diag;
+						break;
+					case down:
+						dy = step_diag;
+						break;
+				}
+				if(walkable)
+				{
+					dx = -step;
+				}
+				break;
+			case right:
+				switch(shiftdir)
+				{
+					case up:
+						dy = -step_diag;
+						break;
+					case down:
+						dy = step_diag;
+						break;
+				}
+				if(walkable)
+				{
+					dx = step;
+				}
+				break;
+		};
+	}
+	else
+	{
+		if(link_newstep < step) step = link_newstep; //handle collision
+		switch(d2)
+		{
+			case up:
+				dy -= step;
+				break;
+			case down:
+				dy += step;
+				break;
+			case left:
+				dx -= step;
+				break;
+			case right:
+				dx += step;
+				break;
+		}
+	}
+	link_newstep = movepix;
+	link_newstep_diag = movepix;
+
+	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME)
+	{
+		dir=d2;
+	}
+	if(forceRate > -1)
+	{
+		switch(dir)
+		{
+			case right:
+			case r_up:
+			case r_down:
+				dx = fix(forceRate) / 100;
+				break;
+			case left:
+			case l_up:
+			case l_down:
+				dx = fix(-forceRate) / 100;
+				break;
+			default:
+				dx = 0;
+		}
+		switch(dir)
+		{
+			case down:
+			case r_down:
+			case l_down:
+				dy = fix(forceRate) / 100;
+				break;
+			case up:
+			case r_up:
+			case l_up:
+				dy = fix(-forceRate) / 100;
+				break;
+			default:
+				dy = 0;
+		}
+	}
+	if(action != swimming)
+	{
+		linkstep();
+		
+		//ack... don't walk if in midair! -DD
+		if(charging==0 && spins==0 && z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
+		{
+			action=walking; FFCore.setLinkAction(walking);
+		}
+			
+		if(++link_count > (16*link_animation_speed))
+			link_count=0;
+	}
+	else if(!(frame & 1))
+	{
+		linkstep();
+	}
+	
+	if(charging==0 || attack!=wHammer)
+		sprite::move(dx, dy);
+}
+
+void LinkClass::moveOld(int d2)
+{
+	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
     
     if( inlikelike || link_is_stunned > 0 )
         return;
-        
+	
     int dx=0,dy=0;
-    int xstep=lsteps[int(x)&7];
-    int ystep=lsteps[int(y)&7];
+    int xstep=lsteps[FIX_FLOOR(x)&7];
+    int ystep=lsteps[FIX_FLOOR(y)&7];
     int z3skip=0;
     int z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
@@ -11233,6 +13233,10 @@ void LinkClass::move(int d2)
     }
 }
 
+LinkClass::WalkflagInfo LinkClass::walkflag(fix fx,fix fy,int cnt,byte d2)
+{
+	return walkflag(int(floor(double(fx))), int(floor(double(fy))), cnt, d2);
+}
 LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 {
     WalkflagInfo ret;
@@ -11255,7 +13259,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         return ret;
     }
     
-    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && ((diagonalMovement?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
+    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
             && !get_bit(quest_rules,qr_FREEFORM))
     {
         ret.setUnwalkable(true);
@@ -11266,7 +13270,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     
     if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
     {
-        if(diagonalMovement)
+        if((diagonalMovement||NO_GRIDLOCK))
         {
             if(wx>=112&&wx<120&&wy<40&&wy>=32) wf=true;
             
@@ -11284,7 +13288,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 //Check for out of bounds for swimming
                 bool changehop = true;
                 
-                if(diagonalMovement)
+                if((diagonalMovement||NO_GRIDLOCK))
                 {
                     if(wx<0||wy<0)
                         changehop = false;
@@ -11390,7 +13394,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         int lx = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wx : x;
         int ly = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wy : y;
         
-        if(diagonalMovement)
+        if((diagonalMovement||NO_GRIDLOCK))
         {
             if(ladderdir==up)
             {
@@ -11449,7 +13453,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 switch(d2)
                 {
                 case up:
-                    if(int(y)<=laddery)
+                    if(FIX_FLOOR(y)<=laddery)
                     {
                         ret.setUnwalkable(_walkflag(ladderx,laddery-8,1) ||
                                           _walkflag(ladderx+8,laddery-8,1));
@@ -11532,7 +13536,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
-                if(!diagonalMovement)
+                if(!(diagonalMovement||NO_GRIDLOCK))
                 {
                     ret.setHopClk(2);
                     
@@ -11594,7 +13598,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             
             bool walkwater = get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy));
             
-            if(diagonalMovement)
+            if((diagonalMovement||NO_GRIDLOCK))
             {
                 if(d2==dir)
                 {
@@ -11624,7 +13628,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                                 laddery = y;
                                 ladderdir = left;
                                 ladderstart = d2;
-                                ret.setUnwalkable(laddery!=int(y));
+                                ret.setUnwalkable(laddery!=FIX_FLOOR(y));
                                 return ret;
                             }
                         }
@@ -11638,7 +13642,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                             laddery = wy&0xF0;
                             ladderdir = up;
                             ladderstart = d2;
-                            ret.setUnwalkable(ladderx!=int(x));
+                            ret.setUnwalkable(ladderx!=FIX_FLOOR(x));
                             return ret;
                         }
                         
@@ -11650,7 +13654,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                                 laddery = wy&0xF0;
                                 ladderdir = up;
                                 ladderstart = d2;
-                                ret.setUnwalkable(ladderx!=int(x));
+                                ret.setUnwalkable(ladderx!=FIX_FLOOR(x));
                                 return ret;
                             }
                         }
@@ -11666,20 +13670,20 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                         // Deploy the ladder vertically even if Link is only half on water.
                         || (d2<=down && ((wtrx && !flgx8) || (wtrx8 && !flgx))))
                 {
-                    if(((int(y)+15) < wy) || ((int(y)+8) > wy))
+                    if(((FIX_FLOOR(y)+15) < wy) || ((FIX_FLOOR(y)+8) > wy))
                         ladderdir = up;
                     else
                         ladderdir = left;
                         
                     if(ladderdir==up)
                     {
-                        ladderx = int(x)&0xF8;
+                        ladderx = FIX_FLOOR(x)&0xF8;
                         laddery = wy&0xF0;
                     }
                     else
                     {
                         ladderx = wx&0xF0;
-                        laddery = int(y)&0xF8;
+                        laddery = FIX_FLOOR(y)&0xF8;
                     }
                     
                     ret.setUnwalkable(false);
@@ -11710,14 +13714,14 @@ void LinkClass::checkpushblock()
     // Return early in some cases..
     bool earlyReturn=false;
     
-    if(!diagonalMovement || dir==left)
-        if(int(x)&15) earlyReturn=true;
+    if(!(diagonalMovement||NO_GRIDLOCK) || dir==left)
+        if(FIX_FLOOR(x)&15) earlyReturn=true;
         
     // if(y<16) return;
     if(isSideViewLink() && !on_sideview_solid(x,y)) return;
     
-    int bx = int(x)&0xF0;
-    int by = (int(y)&0xF0);
+    int bx = FIX_FLOOR(x)&0xF0;
+    int by = (FIX_FLOOR(y)&0xF0);
     
     switch(dir)
     {
@@ -11759,7 +13763,7 @@ void LinkClass::checkpushblock()
         {
             bx-=16;
             
-            if(int(y)&8)
+            if(FIX_FLOOR(y)&8)
             {
                 by+=16;
             }
@@ -11777,7 +13781,7 @@ void LinkClass::checkpushblock()
         {
             bx+=16;
             
-            if(int(y)&8)
+            if(FIX_FLOOR(y)&8)
             {
                 by+=16;
             }
@@ -12010,9 +14014,9 @@ void LinkClass::checklockblock()
 {
     if(toogam) return;
     
-    int bx = int(x)&0xF0;
+    int bx = FIX_FLOOR(x)&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = int(y)&0xF0;
+    int by = FIX_FLOOR(y)&0xF0;
     
     switch(dir)
     {
@@ -12029,7 +14033,7 @@ void LinkClass::checklockblock()
         if((((int)x)&0x0F)<8)
             bx-=16;
         
-        if(int(y)&8)
+        if(FIX_FLOOR(y)&8)
         {
             by+=16;
         }
@@ -12040,7 +14044,7 @@ void LinkClass::checklockblock()
     case right:
         bx+=16;
         
-        if(int(y)&8)
+        if(FIX_FLOOR(y)&8)
         {
             by+=16;
         }
@@ -12150,9 +14154,9 @@ void LinkClass::checkbosslockblock()
 {
     if(toogam) return;
     
-    int bx = int(x)&0xF0;
+    int bx = FIX_FLOOR(x)&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = int(y)&0xF0;
+    int by = FIX_FLOOR(y)&0xF0;
     
     switch(dir)
     {
@@ -12169,7 +14173,7 @@ void LinkClass::checkbosslockblock()
         if((((int)x)&0x0F)<8)
             bx-=16;
         
-        if(int(y)&8)
+        if(FIX_FLOOR(y)&8)
         {
             by+=16;
         }
@@ -12180,7 +14184,7 @@ void LinkClass::checkbosslockblock()
     case right:
         bx+=16;
         
-        if(int(y)&8)
+        if(FIX_FLOOR(y)&8)
         {
             by+=16;
         }
@@ -12227,9 +14231,9 @@ void LinkClass::checkchest(int type)
     // chests aren't affected by tmpscr->flags2&fAIRCOMBOS
     if(toogam || z>0) return;
     
-    int bx = int(x)&0xF0;
+    int bx = FIX_FLOOR(x)&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = int(y)&0xF0;
+    int by = FIX_FLOOR(y)&0xF0;
     
     switch(dir)
     {
@@ -12338,11 +14342,11 @@ void LinkClass::checklocked()
     if ( !found ) return;
     
     int si = (currmap<<7) + currscr;
-    int di;
+    int di = NULL;
     
     
 	
-	if ( diagonalMovement ) 
+	if ( diagonalMovement || get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK)) 
 	{
 		//Up door
 		if ( y <= 32 && x >= 112 && x <= 128 )
@@ -12704,12 +14708,6 @@ void LinkClass::checklocked()
 			}
 		}
 	}
-	
-	
-		
-
-    
-    
 }
 
 void LinkClass::checkswordtap()
@@ -12784,7 +14782,7 @@ void LinkClass::checkswordtap()
                     break;
                 }
                 
-        sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(int(x)));
+        sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(FIX_FLOOR(x)));
     }
     
 }
@@ -13427,12 +15425,12 @@ void LinkClass::checkspecial()
 
 void LinkClass::checkspecial2(int *ls)
 {
-    if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !diagonalMovement)
+    if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
     {
-        if(int(y)&7)
+        if(FIX_FLOOR(y)&7)
             return;
             
-        if(int(x)&7)
+        if(FIX_FLOOR(x)&7)
             return;
     }
     
@@ -13577,7 +15575,7 @@ void LinkClass::checkspecial2(int *ls)
     y1 = ty;
     y2 = ty+15;
     
-    if(diagonalMovement)
+    if((diagonalMovement||NO_GRIDLOCK))
     {
         x1 = tx+4;
         x2 = tx+11;
@@ -13607,7 +15605,7 @@ void LinkClass::checkspecial2(int *ls)
         flag = types[0];
         
     // 2.10 compatibility...
-    else if(int(y)%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
+    else if(FIX_FLOOR(y)%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
         flag = types[0];
         
         
@@ -14628,7 +16626,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         kill_enemy_sfx();
         ALLOFF();
 	//play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(int(x)));
+	if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));
         homescr=currscr;
         currscr=0x81;
         specialcave = PASSAGEWAY;
@@ -15011,7 +17009,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             kill_sfx();
         }
         //play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(int(x)));
+	if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));
         if(wtype==wtIWARPZAP)
         {
             zapout();
@@ -15157,7 +17155,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		    kill_sfx();
 		}
 		//play sound
-		if(warpsfx > 0) sfx(warpsfx,pan(int(x)));	
+		if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));	
 		if(wtype==wtIWARPZAP)
 		{
 		    zapout();
@@ -15502,43 +17500,57 @@ void LinkClass::stepforward(int steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
-    int tx=x;           //temp x
-    int ty=y;           //temp y
-    int tstep=0;        //temp single step distance
-    int s=0;            //calculated step distance for all steps
+    fix tx=x;           //temp x
+    fix ty=y;           //temp y
+    fix tstep(0);        //temp single step distance
+    fix s(0);            //calculated step distance for all steps
     z3step=2;
     int sh=shiftdir;
     shiftdir=-1;
     
     for(int i=steps; i>0; --i)
     {
-        if(diagonalMovement)
+		if(diagonalMovement)
         {
-            tstep=z3step;
-            z3step=(z3step%2)+1;
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			{
+				tstep = 1.5;
+			}
+			else
+			{
+				tstep=z3step;
+				z3step=(z3step%2)+1;
+			}
         }
         else
         {
-            tstep=lsteps[int((dir<left)?ty:tx)&7];
-            
-            switch(dir)
-            {
-            case up:
-                ty-=tstep;
-                break;
-                
-            case down:
-                ty+=tstep;
-                break;
-                
-            case left:
-                tx-=tstep;
-                break;
-                
-            case right:
-                tx+=tstep;
-                break;
-            }
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			{
+				tstep = 1.5;
+			}
+			else
+			{
+				tstep=lsteps[int((dir<left)?ty:tx)&7];
+				
+				switch(dir)
+				{
+				case up:
+					ty-=tstep;
+					break;
+					
+				case down:
+					ty+=tstep;
+					break;
+					
+				case left:
+					tx-=tstep;
+					break;
+					
+				case right:
+					tx+=tstep;
+					break;
+				}
+			}
         }
         
         s+=tstep;
@@ -15546,36 +17558,97 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     z3step=2;
     
+	x = FIX_FLOOR(x);
+	y = FIX_FLOOR(y);
     while(s>=0)
     {
         if(diagonalMovement)
         {
-            if((dir<left?int(x)&7:int(y)&7)&&adjust==true)
+            if((dir<left?FIX_FLOOR(x)&7:FIX_FLOOR(y)&7)&&adjust==true)
             {
-                walkable=false;
-                shiftdir=dir<left?(int(x)&8?left:right):(int(y)&8?down:up);
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				{
+					walkable = false;
+					shiftdir = -1;
+					int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					switch(tdir)
+					{
+						case left:
+							--x;
+							break;
+						case right:
+							++x;
+							break;
+						case up:
+							--y;
+							break;
+						case down:
+							++y;
+							break;
+					}
+				}
+				else
+				{
+					walkable=false;
+					shiftdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					move(dir, 150);
+				}
             }
             else
             {
-                s-=z3step;
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				{
+					s-=1.5;
+				}
+				else
+				{
+					s-=z3step;
+				}
                 walkable=true;
+				move(dir, 150);
             }
             
-            move(dir);
             shiftdir=-1;
         }
         else
         {
-            if(dir<left)
+			if((dir<left?FIX_FLOOR(x)&7:FIX_FLOOR(y)&7)&&adjust==true)
             {
-                s-=lsteps[int(y)&7];
+                walkable=false;
+                int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+				switch(tdir)
+				{
+					case left:
+						--x;
+						break;
+					case right:
+						++x;
+						break;
+					case up:
+						--y;
+						break;
+					case down:
+						++y;
+						break;
+				}
             }
             else
-            {
-                s-=lsteps[int(x)&7];
-            }
-            
-            move(dir);
+			{
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				{
+					s-=1.5;
+				}
+				else if(dir<left)
+				{
+					s-=lsteps[FIX_FLOOR(y)&7];
+				}
+				else
+				{
+					s-=lsteps[FIX_FLOOR(x)&7];
+				}
+				
+				move(dir, 150);
+			}
         }
         
         if(s<0)
@@ -15650,7 +17723,16 @@ void LinkClass::stepforward(int steps, bool adjust)
         if(Quit)
             return;
     }
-    
+	if(dir==right||dir==down)
+	{
+		x=int(x);
+		y=int(y);
+	}
+	else
+	{
+		x = FIX_FLOOR(x);
+		y = FIX_FLOOR(y);
+	}
     setEntryPoints(x,y);
     draw_screen(tmpscr);
     eat_buttons();
@@ -15666,17 +17748,17 @@ void LinkClass::walkdown(bool opening) //entering cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
+    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
     clk=0;
-    //  int cmby=(int(y)&0xF0)+16;
+    //  int cmby=(FIX_FLOOR(y)&0xF0)+16;
     // Fix Link's position to the grid
-    y=int(y)&0xF0;
+    y=FIX_FLOOR(y)&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=(int(y)&0xF0)+16;
+    climb_cover_x=FIX_FLOOR(x)&0xF0;
+    climb_cover_y=(FIX_FLOOR(y)&0xF0)+16;
     
     guys.clear();
     chainlinks.clear();
@@ -15713,7 +17795,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
         
     dir=down;
     // Fix Link's position to the grid
-    y=int(y)&0xF0;
+    y=FIX_FLOOR(y)&0xF0;
     z=fall=0;
     
     if(opening)
@@ -15723,15 +17805,15 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
+    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
     clk=0;
-    //  int cmby=int(y)&0xF0;
+    //  int cmby=FIX_FLOOR(y)&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=int(y)&0xF0;
+    climb_cover_x=FIX_FLOOR(x)&0xF0;
+    climb_cover_y=FIX_FLOOR(y)&0xF0;
     
     guys.clear();
     chainlinks.clear();
@@ -15767,7 +17849,7 @@ void LinkClass::walkup(bool opening) //exiting cave
         y+=16;
         
     // Fix Link's position to the grid
-    y=int(y)&0xF0;
+    y=FIX_FLOOR(y)&0xF0;
     z=fall=0;
     
     if(opening)
@@ -15777,16 +17859,16 @@ void LinkClass::walkup(bool opening) //exiting cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
+    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
     dir=down;
     clk=0;
-    //  int cmby=int(y)&0xF0;
+    //  int cmby=FIX_FLOOR(y)&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=int(y)&0xF0;
+    climb_cover_x=FIX_FLOOR(x)&0xF0;
+    climb_cover_y=FIX_FLOOR(y)&0xF0;
     
     guys.clear();
     chainlinks.clear();
@@ -15825,16 +17907,16 @@ void LinkClass::walkup2(bool opening) //entering cave2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
+    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
     dir=up;
     clk=0;
-    //  int cmby=int(y)&0xF0;
+    //  int cmby=FIX_FLOOR(y)&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=(int(y)&0xF0)-16;
+    climb_cover_x=FIX_FLOOR(x)&0xF0;
+    climb_cover_y=(FIX_FLOOR(y)&0xF0)-16;
     
     guys.clear();
     chainlinks.clear();
@@ -17221,9 +19303,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
                 // If the ladder moves on both axes, the player can
                 // gradually shift it by going back and forth
                 if(scrolldir==up || scrolldir==down)
-                    laddery = int(y);
+                    laddery = FIX_FLOOR(y);
                 else
-                    ladderx = int(x);
+                    ladderx = FIX_FLOOR(x);
             }
         }
         //FFScript.OnWaitdraw()
@@ -19953,7 +22035,7 @@ void LinkClass::heroDeathAnimation()
 		switch(f)
 		{
 		case   0:
-			sfx(getHurtSFX(),pan(int(x)));
+			sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
 			break;
 			//Death sound.
 		case  60:
@@ -20200,7 +22282,7 @@ void LinkClass::check_conveyor()
             {
                 int step=0;
                 
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!diagonalMovement)
+                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<(abs(deltay)*(isSideViewLink()?2:1)))
                     {
@@ -20245,7 +22327,7 @@ void LinkClass::check_conveyor()
             {
                 int step=0;
                 
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!diagonalMovement)
+                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltay))
                     {
@@ -20284,14 +22366,14 @@ void LinkClass::check_conveyor()
         
         if(deltax<0)
         {
-            info = walkflag(x-int(lsteps[int(x)&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+            info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8-(bigHitbox ? 8 : 0),1,left);
             execute(info);
             
             if(!info.isUnwalkable())
             {
                 int step=0;
                 
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!diagonalMovement)
+                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {
@@ -20325,7 +22407,7 @@ void LinkClass::check_conveyor()
                     Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
                 }
             }
-            else checkdamagecombos(x-int(lsteps[int(x)&7]),y+8-(bigHitbox ? 8 : 0));
+            else checkdamagecombos(x-int(lsteps[FIX_FLOOR(x)&7]),y+8-(bigHitbox ? 8 : 0));
         }
         else if(deltax>0)
         {
@@ -20336,7 +22418,7 @@ void LinkClass::check_conveyor()
             {
                 int step=0;
                 
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!diagonalMovement)
+                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {

@@ -2116,8 +2116,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_rupies(zinit2->rupies);
     game2->set_hcp_per_hc(zinit2->hcp_per_hc);
     game2->set_cont_hearts(zinit2->cont_heart);
-    //Uncomment here
-    //Link.setStep((fix)zinit2->heroStep);
     game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
     
     for(int i=0; i<MAXLEVELS; i++)
@@ -2145,9 +2143,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
     game2->set_arrows(zinit2->nArrows);
-    
-    //Uncomment here:
-    //Link.setStep((fix)zinit2->heroStep);
     
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();
