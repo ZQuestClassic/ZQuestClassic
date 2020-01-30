@@ -12321,7 +12321,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 			item *ashes = (item*)items.spr(q);
 			if ( ashes->linked_parent == eeGANON )
 			{
-				Z_scripterrlog("Found correct dustpile!\n");
+				//Z_scripterrlog("Found correct dustpile!\n");
 				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
 			}
 		}
