@@ -245,7 +245,7 @@ void putstring(int x,int y,const char* str,int cset)
 //#define ii    11
 #define ii    14
 //static byte vine[5] = { 2,3,6,7,10 };
-static byte vine[5] = { 3,6,7,10,11 };
+static byte vine[5] = { 23,6,7,10,11 };
 
 static void storyscreen(int f)
 {

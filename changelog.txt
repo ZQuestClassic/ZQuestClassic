@@ -1,6 +1,13 @@
 ChangeLog for 2.53.1
 
+//Beta 28
+Fixed vine tiles in story scroll; updated qst.dat.
+	( ZoriaRPG, 1st February, 2020 )
+
 //Beta 27
+Disabled a trace on dustpile creation.
+	( ZoriaRPG, 30th January, 2020 )
+	
 All roomtypes now allow a 'Generic Catchall' set via the menus.
 	( ZoriaRPG, 27th January, 2020 )
 
