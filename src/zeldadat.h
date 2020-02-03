@@ -1,6 +1,6 @@
-/* Allegro datafile object indexes, produced by grabber v4.2.1, Unix */
-/* Datafile: /root/shardstorm.com/trunk/zelda.dat */
-/* Date: Fri Feb  9 12:27:03 2007 */
+/* Allegro datafile object indexes, produced by grabber v4.2.0, MSVC.s */
+/* Datafile: e:\ZC\253dat\zelda_newagnlogo2.dat */
+/* Date: Mon Feb 03 03:52:55 2020 */
 /* Do not hand edit! */
 
 #define _SIGNATURE                       0        /* DATA */
@@ -8,7 +8,7 @@
 #define BMP_TITLE_NES                    2        /* BMP  */
 #define PAL_CREDITS                      3        /* PAL  */
 #define PAL_GUI                          4        /* PAL  */
-#define RLE_AGTEXT                       5        /* RLE  */
+#define RLE_AGTEXT                       5        /* BMP  */
 #define RLE_CREDITS                      6        /* RLE  */
 #define TITLE_25                         7        /* FILE */
 
@@ -35,11 +35,10 @@
 #define ZC_MIDI_DUNGEON                  0        /* MIDI */
 #define ZC_MIDI_ENDING                   1        /* MIDI */
 #define ZC_MIDI_GAMEOVER                 2        /* MIDI */
-#define ZC_MIDI_LEVEL9                   3        /* MIDI */
+#define ZC_MIDI_newlogopal               3        /* PAL  */
 #define ZC_MIDI_OVERWORLD                4        /* MIDI */
 #define ZC_MIDI_TITLE                    5        /* MIDI */
 #define ZC_MIDI_TRIFORCE                 6        /* MIDI */
 #define ZC_MIDI_COUNT                    7
 
 
- 
