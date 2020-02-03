@@ -132,32 +132,38 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     clear_bitmap(firebuf);
     clear_bitmap(screen);
     
-    for(int f=0; f<128; f++)
-    {
-        AddFire(firebuf,(f>>3)+1);
-        CopyAvg(firebuf);
-    }
+    //for(int f=0; f<128; f++)
+    //{
+    //    AddFire(firebuf,(f>>3)+1);
+    //    CopyAvg(firebuf);
+    //}
     
     int fadecnt=0;
     bool blackout=false;
     logovolume = get_config_int("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
+    blit((BITMAP*)data[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
+    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
     
     do
     {
-        AddFire(firebuf,17);
-        CopyAvg(firebuf);
+        //AddFire(firebuf,17);
+        //CopyAvg(firebuf);
 
-        blit(firebuf,frame,8,0,0,0,320,198);
-        draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
-	textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
+        //blit(firebuf,frame,8,0,0,0,320,198);
+        //draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
+	//stretch_blit((BITMAP*)data[RLE_AGTEXT].dat,screen,0,0,255,223,0,0,SCREEN_W, SCREEN_H);//255, 223);
+	
+	//blit((BITMAP*)data[RLE_AGTEXT].dat,frame, 0,0,0,0,256,224);
+	//    textout_ex(screen, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
 	    
         vsync();
         
-        if(sbig)
-            stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
-        else
-            blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+        //if(sbig)
+            stretch_blit(frame,screen, 0,0,255,223, 0,0,SCREEN_W, SCREEN_H);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
+        //else
+        //    blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
             
         poll_joystick();
         
