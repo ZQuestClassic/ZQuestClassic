@@ -15517,6 +15517,7 @@ void LinkClass::checkspecial2(int *ls)
             
             if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
             {
+		zprint("Step Secs\n");
                 if(stype==cSTRIGFLAG && !isdungeon())
                 { 
                     if(!didstrig)
@@ -15527,7 +15528,9 @@ void LinkClass::checkspecial2(int *ls)
                         {
                             setmapflag(mSECRET);
                         }
-                        sfx(warpsound,pan((int)x));
+			int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+			zprint("Step Secrets SFX: %d\n", thesfx);
+                        sfx(thesfx,pan((int)x));
                         hidden_entrance(0,true,false); 
                         didstrig = true;
                     }
@@ -15540,7 +15543,9 @@ void LinkClass::checkspecial2(int *ls)
                         hidden_entrance(0,true,true); 
                         didstrig = true;
 			//play trigger sound
-			sfx(warpsound,pan((int)x));
+			int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+			zprint("Step Secrets SFX: %d\n", thesfx);
+                        sfx(thesfx,pan((int)x));
                     }
                 }
             }
@@ -16039,9 +16044,12 @@ void LinkClass::checkspecial2(int *ls)
         
     if((type==cTRIGNOFLAG || type==cTRIGFLAG))
     { 
+    
         if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
         {
             stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
+	    sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int)x));
+	    zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
             
             if(type==cTRIGFLAG && !isdungeon())
             { 
@@ -16083,6 +16091,7 @@ void LinkClass::checkspecial2(int *ls)
         
         return;
     }
+    
     
     if(type==cSTEP)
     { 
