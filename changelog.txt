@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 30
+Added fire/animation to the new AGN logo. It's done. Please...No more.
+	( ZoriaRPG, 4th February, 2020 )
+
 //Beta 29
 Added new splash logo theme, by stk13, resequenced into a shorter loop.
 	( ZoriaRPG, 4th February, 2020 )
