@@ -121,7 +121,7 @@ static void CopyAvg(BITMAP* fire)
 	}
 }
 
-int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
+int aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 {
     // frame should be 320x200, firebuf at least 340x206
     PALETTE pal;
@@ -280,7 +280,7 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 }
 
 
-int aglogo_old_new_nofire(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
+int aglogo_old(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 {
 	// frame should be 320x200, firebuf at least 340x206
 	PALETTE pal;
