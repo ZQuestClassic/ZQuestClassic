@@ -1,5 +1,11 @@
 ChangeLog for 2.53.1
 
+//Beta 29
+Packaged nom-UPD'd bins; added UPX'd bins to ./upx
+Fixed title screen copyright years. They are now automated at compilation.
+Added new AGN Splash Screen and Audio
+	( ZoriaRPG, 3rd February, 2020 )
+
 //Beta 28
 Fixed vine tiles in story scroll; updated qst.dat.
 	( ZoriaRPG, 1st February, 2020 )
