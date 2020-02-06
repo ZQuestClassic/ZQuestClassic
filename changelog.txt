@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 31
+Probably fixed clash between tile warp and warp ring dialogues. 
+	( ZoriaRPG, 6th February, 2010 )
+
 //Beta 30
 Added fire/animation to the new AGN logo. It's done. Please...No more.
 	( ZoriaRPG, 4th February, 2020 )
