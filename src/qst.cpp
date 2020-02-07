@@ -3029,7 +3029,6 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		
 	}
-	
     if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
 		set_bit(quest_rules,qr_OLD_F6,1);
@@ -14168,6 +14167,18 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 	}
 	al_trace("Read combo script data\n");
+	if(section_version>=15)
+	{
+		if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
+		if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
+		if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
+	}
+	else
+	{
+		temp_combo.o_tile = temp_combo.tile;
+		temp_combo.cur_frame = 0;
+		temp_combo.aclk = 0;
+	}
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)

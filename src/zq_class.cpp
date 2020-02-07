@@ -4347,7 +4347,7 @@ void zmap::update_combo_cycling()
         
         //time to restart
         if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4401,7 +4401,7 @@ void zmap::update_combo_cycling()
         
         //time to restart
         if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4462,7 +4462,7 @@ void zmap::update_combo_cycling()
                 
                 //time to restart
                 if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1)	&&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
@@ -4512,7 +4512,7 @@ void zmap::update_combo_cycling()
     {
         if(restartanim[i])
         {
-            combobuf[i].tile = animated_combo_table[i][1];
+            combobuf[i].tile = combobuf[i].o_tile;
             animated_combo_table4[animated_combo_table[i][0]][1]=0;
         }
         
@@ -9032,6 +9032,18 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(27);
 		}
 	    }
+	    if(!p_iputl(combobuf[i].o_tile,f))
+		{
+			new_return(28);
+		}
+	    if(!p_putc(combobuf[i].cur_frame,f))
+		{
+			new_return(29);
+		}
+	    if(!p_putc(combobuf[i].aclk,f))
+		{
+			new_return(30);
+		}
 	    
 		    
         }

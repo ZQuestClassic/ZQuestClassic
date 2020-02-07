@@ -188,7 +188,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          6
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           14
+#define V_COMBOS           15
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            14
@@ -934,7 +934,7 @@ enum
 	qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, qr_SHORTDGNWALK, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS,
 	qr_MIRRORS_USE_WEAPON_CENTRE, qr_CUSTOMCOMBOSLAYERS1AND2, qr_BUSHESONLAYERS1AND2, qr_NEW_HERO_MOVEMENT,
 	//26
-	qr_DISABLE_4WAY_GRIDLOCK,
+	qr_DISABLE_4WAY_GRIDLOCK, qr_NEW_COMBO_ANIMATION,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -2692,6 +2692,9 @@ struct newcombo
     long initd[2];
     //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
     //byte initialised; //no, better to have 176 inits, each bit for a layter,  
+	int o_tile;
+	byte cur_frame;
+	byte aclk;
 };
 
 #define AF_FRESH 1

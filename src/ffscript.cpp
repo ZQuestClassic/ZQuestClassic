@@ -8001,6 +8001,8 @@ long get_register(const long arg)
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
+		case COMBODOTILE:		GET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
+		case COMBODFRAME:		GET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
 		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
 		case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
@@ -14631,6 +14633,8 @@ void set_register(const long arg, const long value)
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
+		case COMBODOTILE:		SET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
+		case COMBODFRAME:		SET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
 		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
@@ -30163,6 +30167,12 @@ script_variable ZASMVars[]=
 	{ "COMBOPOSR",		COMBOPOSR,        0,             0 },
 	{ "COMBODATASCRIPT",		COMBODATASCRIPT,        0,             0 },
 	{ "COMBODATAINITD",		COMBODATAINITD,        0,             0 },
+	{ "HEROSCRIPTCSET",		HEROSCRIPTCSET,        0,             0 },
+	{ "SHOPDATATYPE",		SHOPDATATYPE,        0,             0 },
+	{ "HEROSTEPS",		HEROSTEPS,        0,             0 },
+	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
+	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
+	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -31150,7 +31160,28 @@ void FFScript::read_combos(PACKFILE *f, int version_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
 			}
 		}
-			
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_getc(&combobuf[i].attribytes[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",25);
+			}
+		}
+		if(!p_igetw(&combobuf[i].script,f,true))
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",26);
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_igetl(&combobuf[i].initd[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",27);
+			}
+		}
+		if(!p_igetl(&combobuf[i].o_tile,f,true))
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",28);
+		if(!p_getc(&combobuf[i].cur_frame,f,true))
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",29);
+		if(!p_getc(&combobuf[i].aclk,f,true))
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",30);
 		}
 }
 
@@ -31269,6 +31300,36 @@ void FFScript::write_combos(PACKFILE *f, int version_id)
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
 			}
+		}
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_putc(combobuf[i].attribytes[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",25);
+			}
+		}
+		if(!p_iputw(combobuf[i].script,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",26);
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_iputl(combobuf[i].initd[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",27);
+			}
+		}
+		if(!p_iputl(combobuf[i].o_tile,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",28);
+		}
+		if(!p_putc(combobuf[i].cur_frame,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",29);
+		}
+		if(!p_putc(combobuf[i].aclk,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",30);
 		}
 			
 		}

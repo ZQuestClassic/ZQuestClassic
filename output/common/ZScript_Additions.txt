@@ -4759,8 +4759,19 @@ int Type;
  * The 'type' of the combo, in the Combo Editor. 
  * Setting this changes the combo type variables. ?
 
+int OriginalTile; 
+ * The original tile of the combo's animation. Writing to this will cause the combo
+ * 	to shift to the new animation immediately.
+ * Writing this variable is undefined if the quest rule 'New Combo Animation' is off.
+ 
 int Tile; 
  * The tile ID used by the current animation frame of the combo.
+ * Writing to this will cause the tile you write to display for at least 1 frame.
+ * Writing this variable is undefined if the quest rule 'New Combo Animation' is off.
+ 
+int Frame;
+ * The frame of the combo's animation that is presently showing. Writing to this will skip in the animation.
+ * Using this variable is undefined if the quest rule 'New Combo Animation' is off.
 
 int ASpeed;
  * The animation speed of the combo. 
