@@ -480,7 +480,7 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
     switch(ruleset)
     {
     case rulesetNES: // Original NES
-        sprintf(buf,  "Emulates the behaviour, the quirks");
+        sprintf(buf,  "Emulates the behaviour, the quirks,");
         sprintf(buf2, "bugs, and oddities found in the NES");
         sprintf(buf3, "game 'The Legend of Zelda'.");
         sprintf(buf4, "All but a few rules are off.");
@@ -501,7 +501,7 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
         break;
         
     case rulesetZ3: // Zelda 3-esque
-        sprintf(buf,  "As 16-bit, plus diagonal movement");
+        sprintf(buf,  "As 16-bit, plus diagonal movement,");
         sprintf(buf2, "new message strings, magic use, real");
         sprintf(buf3, "arrows, more sounds, drowning, ");
         sprintf(buf4, "modern boomerang/item interaction.");
