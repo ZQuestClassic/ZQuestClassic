@@ -27,7 +27,7 @@ const int SHORT_MIN 	= -32768;	/**< Minimum value of a signed short. */
 const int SSHRT_MIN 	= -32768;	/**< Minimum value of a signed short. */ 
 const int WORD_MAX 	= 65535;	/**< Maximum value of an unsigned short. */ 
 const int USHRT_MAX 	= 65535;	/**< Maximum value of an unsigned short. */ 
-const int SSHOR_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
+const int SHORT_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
 const int SSHRT_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
 
 //Longer Values

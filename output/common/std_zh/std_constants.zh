@@ -1,5 +1,5 @@
 // std_constants.zh
-// 23rd January, 2020 for ZC 2.55 Alpha 49
+// 8th February, 2020 for ZC 2.55 Alpha 50
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -1653,7 +1653,7 @@ define FONT_LISA_HEIGHT = 8;
 // PrintString Text Formats. Use with Screen->DrawString.
 const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
-const int TF_CENTRED           = 1; // prints the string centered on (x)
+//const int TF_CENTRED           = 1; // in ./locale -- prints the string centered on (x)
 const int TF_RIGHT              = 2; // treats the right-most char as (x)
 
 // Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle

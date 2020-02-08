@@ -3,6 +3,7 @@
 //Alpha 50
 
 std.zh: 1.7047
+	Fix typo in <limits> and duplicate const in std_cxonstants.
 	Moved version metadata into its own file.
 	Moved include of std_vars abd std_extension into std.cfg
 	Updated version of ffrules.zh
