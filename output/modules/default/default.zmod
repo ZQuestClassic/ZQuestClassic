@@ -9,15 +9,15 @@ info_4 = the GPLv2 license.
 
 version_first = 2
 version_second = 0
-version_third = 1
+version_third = 2
 version_fourth = 0
 version_build = 0
 version_beta = 0
-version_year = 2019
-version_month = 11
-version_day = 19
-version_hour = 6
-version_minute = 40
+version_year = 2020
+version_month = 2
+version_day = 8
+version_hour = 12
+version_minute = 51
 
 [QUESTS]
 quest_flow = 0
