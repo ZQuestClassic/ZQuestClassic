@@ -414,31 +414,33 @@ static DIALOG ruleset_dlg[] =
 {
     { jwin_win_proc,           0,     0,  230,   180,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "New Quest", NULL, NULL },
     { jwin_button_proc,       76,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_frame_proc,   102,   80-2,   128,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
+    { jwin_frame_proc,   102,   80-2-7,   128,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
     
     { d_dummy_proc,			    20,    71,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0,       0, NULL, NULL },
-    { d_ruleset_radio_proc,       20,    91,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES (8-bit)", NULL, NULL },
-    { d_ruleset_radio_proc,       20,    101,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES (8-bit)", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   111,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (BS/16-bit)", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   121,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (Enhanced)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    91-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    101-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   111-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (BS/16-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   121-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (Enhanced)", NULL, NULL },
     { d_rulesettext_proc,      108,   85,   0,    0,  vc(14),              vc(1),                 0,       0,     0,             0,       NULL, NULL, NULL },
     // 9
-    { jwin_text_proc,       16,   24,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "You have embarked on a new quest! Please specify which", NULL, NULL },
-    { jwin_text_proc,       16,   34,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "initial set of Quest Rules you want to enable for this", NULL, NULL },
-    { jwin_text_proc,       16,   44,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "quest. Quest Rules affect the behaviour and features of", NULL, NULL },
-    { jwin_text_proc,       16,   54,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the game engine and how different your quest is from", NULL, NULL },
-    { jwin_text_proc,       16,   64,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the NES game 'The Legend of Zelda'.", NULL, NULL },
+    { jwin_text_proc,       16,   24,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please specify the ruleset template for your new quest:", NULL, NULL },
+    { jwin_text_proc,       16,   34,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "These rules affect select sets of engine features that", NULL, NULL },
+    { jwin_text_proc,       16,   44,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "are enabled by default, that you may later toggle on/off,", NULL, NULL },
+    { jwin_text_proc,       16,   54,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "based on the mechanics that you wish to use in your game.", NULL, NULL },
+    { jwin_text_proc,       16,   64,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) " ", NULL, NULL },
     // 14
     { jwin_text_proc,       16,   28,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "You have embarked on a new quest!", NULL, NULL },
-    { jwin_text_proc,       16,   38,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please select an initial set of Quest Rules", NULL, NULL },
-    { jwin_text_proc,       16,   48,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "for your quest. Quest Rules affect", NULL, NULL },
-    { jwin_text_proc,       16,   58,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the features of the game engine.", NULL, NULL },
+    { jwin_text_proc,       16,   38,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please select an initial ruleset template:", NULL, NULL },
+    { jwin_text_proc,       16,   48,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "These settings affect the features of", NULL, NULL },
+    { jwin_text_proc,       16,   58,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the game engine that are enabled.", NULL, NULL },
     
     { jwin_text_proc,       8,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "After creation, you can toggle individual Rules from the menu", NULL, NULL },
     { jwin_text_proc,       8,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "options: 'Quest >> Rules' and 'ZScript >> Quest Specific Settings'.", NULL, NULL },
     // There's no d_timer_proc; don't be silly.
-    { d_ruleset_radio_proc,       20,   81,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Modern", NULL, NULL },
-   
+    { d_ruleset_radio_proc,       20,   81-8,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Modern", NULL, NULL },
+    { jwin_text_proc,       8,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "To customise, open the 'Quest >> Rules' and ", NULL, NULL },
+    { jwin_text_proc,       8,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "'ZScript >> Quest Specific Settings' dialogues.", NULL, NULL },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -480,46 +482,99 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
     switch(ruleset)
     {
     case rulesetNES: // Original NES
-        sprintf(buf,  "Emulates the behaviour, the quirks,");
-        sprintf(buf2, "bugs, and oddities found in the NES");
-        sprintf(buf3, "game 'The Legend of Zelda'.");
-        sprintf(buf4, "All but a few rules are off.");
+	if(is_large)
+	{
+		sprintf(buf,  "Emulates the behaviour, the quirks,");
+		sprintf(buf2, "bugs, and oddities found in the NES");
+		sprintf(buf3, "game 'The Legend of Zelda'.");
+		sprintf(buf4, "All but a few rules are off.");
+	}
+	else
+	{
+		sprintf(buf,  "Traditional NES");
+		sprintf(buf2,  "bugs and quirks.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
         
     case rulesetFixedNES: // Fixed NES
-        sprintf(buf,  "Corrects a large number of oddities");
-        sprintf(buf2, "found in the original NES engine, ");
-        sprintf(buf3, "such as bomb interactions. ");
-        sprintf(buf4, "Enables all 'NES Fixes' Rules");
+	if(is_large)
+	{
+		sprintf(buf,  "Corrects a large number of oddities");
+		sprintf(buf2, "found in the original NES engine, ");
+		sprintf(buf3, "such as bomb interactions. ");
+		sprintf(buf4, "Enables all 'NES Fixes' Rules");
+	}
+	else
+	{
+		sprintf(buf,  "Applies all NES");
+		sprintf(buf2,  "fixes rules.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+	}
         break;
         
     case rulesetBSZ: // BS Zelda
-        sprintf(buf,  "Adds expanded animations befitting a");
-        sprintf(buf2, "Super Famicom era game: Expanded");
-        sprintf(buf3, "enemy tiles, fast scrolling, new push-");
-        sprintf(buf4, "blocks, transition wipes, etc.");
+	if(is_large)
+	{
+		sprintf(buf,  "Adds expanded animations befitting a");
+		sprintf(buf2, "Super Famicom era game: Expanded");
+		sprintf(buf3, "enemy tiles, fast scrolling, new push-");
+		sprintf(buf4, "blocks, transition wipes, etc.");
+	}
+	else
+	{
+		sprintf(buf,  "Expanded graphics");
+		sprintf(buf2,  "and sounds.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
         
     case rulesetZ3: // Zelda 3-esque
-        sprintf(buf,  "As 16-bit, plus diagonal movement,");
-        sprintf(buf2, "new message strings, magic use, real");
-        sprintf(buf3, "arrows, more sounds, drowning, ");
-        sprintf(buf4, "modern boomerang/item interaction.");
+	if(is_large)
+	{
+		sprintf(buf,  "As 16-bit, plus diagonal movement,");
+		sprintf(buf2, "new message strings, magic use, real");
+		sprintf(buf3, "arrows, more sounds, drowning, ");
+		sprintf(buf4, "modern boomerang/item interaction.");
+	}
+	else
+	{
+		sprintf(buf,  "Diagonal movement");
+		sprintf(buf2,  "and other enhancements.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+	}
         break;
     
     case rulesetModern: // 255
-        sprintf(buf,  "Enables all new 2.55 features including");
-        sprintf(buf2, "new Hero movement/step speed, new");
-        sprintf(buf3, "combo animations, scripting extensions,");
-        sprintf(buf4, "and other engine enhancements.");
+	if(is_large)
+	{
+		sprintf(buf,  "Enables all new 2.55 features including");
+		sprintf(buf2, "new Hero movement/step speed, new");
+		sprintf(buf3, "combo animations, scripting extensions,");
+		sprintf(buf4, "and other engine enhancements.");
+	}
+	else
+	{
+		sprintf(buf,  "All new, core 2.55");
+		sprintf(buf2,  "features are enabled.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
     }
     
     FONT *f = is_large ? font : sfont2;
-    textprintf_ex(screen,f,d->x-1,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
-    textprintf_ex(screen,f,d->x-1,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
-    textprintf_ex(screen,f,d->x-1,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
-    textprintf_ex(screen,f,d->x-1,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
     return D_O_K;
 }
 
@@ -536,6 +591,16 @@ int PickRuleset()
     int end = (is_large?17:13);
     
     for(int i = start; i <= end; i++)
+    {
+        ruleset_dlg[i].proc = d_dummy_proc;
+    }
+    
+    //18-19 or 20-21
+    
+    int infostart = (is_large?21:18);
+    int infoend = (is_large?22:19);
+    
+    for(int i = infostart; i <= infoend; i++)
     {
         ruleset_dlg[i].proc = d_dummy_proc;
     }
