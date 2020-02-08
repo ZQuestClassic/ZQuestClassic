@@ -414,13 +414,13 @@ static DIALOG ruleset_dlg[] =
 {
     { jwin_win_proc,           0,     0,  230,   180,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "New Quest", NULL, NULL },
     { jwin_button_proc,       76,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_frame_proc,   102,   80,   112,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
+    { jwin_frame_proc,   102,   80-2,   128,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
     
     { d_dummy_proc,			    20,    71,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0,       0, NULL, NULL },
-    { d_ruleset_radio_proc,       20,    81,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES", NULL, NULL },
-    { d_ruleset_radio_proc,       20,    91,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   101,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "BS-Zelda", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   111,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Zelda 3-esque", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    91,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    101,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   111,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (BS/16-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   121,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (Enhanced)", NULL, NULL },
     { d_rulesettext_proc,      108,   85,   0,    0,  vc(14),              vc(1),                 0,       0,     0,             0,       NULL, NULL, NULL },
     // 9
     { jwin_text_proc,       16,   24,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "You have embarked on a new quest! Please specify which", NULL, NULL },
@@ -437,7 +437,14 @@ static DIALOG ruleset_dlg[] =
     { jwin_text_proc,       16,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "After creation, individual Quest Rules can be", NULL, NULL },
     { jwin_text_proc,       16,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "set in the Rules submenu of the Quest menu.", NULL, NULL },
     // There's no d_timer_proc; don't be silly.
+    { d_ruleset_radio_proc,       20,   81,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Modern", NULL, NULL },
+   
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+enum
+{
+	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
 };
 
 int d_ruleset_radio_proc(int msg,DIALOG *d,int c)
@@ -445,11 +452,12 @@ int d_ruleset_radio_proc(int msg,DIALOG *d,int c)
     int temp = ruleset;
     int ret = jwin_radiofont_proc(msg,d,c);
     
-    if(ruleset_dlg[3].flags & D_SELECTED) ruleset =0;
-    else if(ruleset_dlg[4].flags & D_SELECTED) ruleset =1;
-    else if(ruleset_dlg[5].flags & D_SELECTED) ruleset =2;
-    else if(ruleset_dlg[6].flags & D_SELECTED) ruleset =3;
-    else if(ruleset_dlg[7].flags & D_SELECTED) ruleset =4;
+    if(ruleset_dlg[3].flags & D_SELECTED) ruleset = rulesetNONE;
+    else if(ruleset_dlg[4].flags & D_SELECTED) ruleset = rulesetNES;
+    else if(ruleset_dlg[5].flags & D_SELECTED) ruleset = rulesetFixedNES;
+    else if(ruleset_dlg[6].flags & D_SELECTED) ruleset = rulesetBSZ;
+    else if(ruleset_dlg[7].flags & D_SELECTED) ruleset = rulesetZ3;
+    else if(ruleset_dlg[20].flags & D_SELECTED) ruleset = rulesetModern;
     
     if(temp != ruleset)
     {
@@ -464,47 +472,54 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
     if(msg!=MSG_DRAW)
         return D_O_K;
         
-    char buf[31];
-    char buf2[31];
-    char buf3[31];
-    char buf4[31];
+    char buf[42];
+    char buf2[42];
+    char buf3[42];
+    char buf4[42];
     
     switch(ruleset)
     {
-    case 1: // Original NES
-        sprintf(buf,  "Matches the behaviour of");
-        sprintf(buf2, "'The Legend of Zelda'.");
-        sprintf(buf3, "All but a few rules are off.");
-        sprintf(buf4, " ");
+    case rulesetNES: // Original NES
+        sprintf(buf,  "Emulates the behaviour, the quirks");
+        sprintf(buf2, "bugs, and oddities found in the NES");
+        sprintf(buf3, "game 'The Legend of Zelda'.");
+        sprintf(buf4, "All but a few rules are off.");
         break;
         
-    case 2: // Fixed NES
-        sprintf(buf,  "Various bugs in 'The Legend");
-        sprintf(buf2, "of Zelda' are fixed.");
-        sprintf(buf3, "All Quest Rules in the NES");
-        sprintf(buf4, "Fixes category are on.");
+    case rulesetFixedNES: // Fixed NES
+        sprintf(buf,  "Corrects a large number of oddities");
+        sprintf(buf2, "found in the original NES engine, ");
+        sprintf(buf3, "such as bomb interactions. ");
+        sprintf(buf4, "Enables all 'NES Fixes' Rules");
         break;
         
-    case 3: // BS Zelda
-        sprintf(buf,  "Fixed NES, plus BS-Zelda");
-        sprintf(buf2, "animations, new enemy tiles,");
-        sprintf(buf3, "fast scrolling, new push-");
+    case rulesetBSZ: // BS Zelda
+        sprintf(buf,  "Adds expanded animations befitting a");
+        sprintf(buf2, "Super Famicom era game: Expanded");
+        sprintf(buf3, "enemy tiles, fast scrolling, new push-");
         sprintf(buf4, "blocks, transition wipes, etc.");
         break;
         
-    case 4: // Zelda 3-esque
-        sprintf(buf,  "BS-Zelda, plus diagonal Link");
-        sprintf(buf2, "movement, new message strings,");
-        sprintf(buf3, "magic and arrow meters, more");
-        sprintf(buf4, "sound effects, drowning, etc.");
+    case rulesetZ3: // Zelda 3-esque
+        sprintf(buf,  "As 16-bit, plus diagonal movement");
+        sprintf(buf2, "new message strings, magic use, real");
+        sprintf(buf3, "arrows, more sounds, drowning, ");
+        sprintf(buf4, "modern boomerang/item interaction.");
+        break;
+    
+    case rulesetModern: // 255
+        sprintf(buf,  "Enables all new 2.55 features including");
+        sprintf(buf2, "new Hero movement/step speed, new");
+        sprintf(buf3, "combo animations, scripting extensions,");
+        sprintf(buf4, "and other engine enhancements.");
         break;
     }
     
     FONT *f = is_large ? font : sfont2;
-    textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+    textprintf_ex(screen,f,d->x-1,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
+    textprintf_ex(screen,f,d->x-1,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
+    textprintf_ex(screen,f,d->x-1,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
+    textprintf_ex(screen,f,d->x-1,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
     return D_O_K;
 }
 
@@ -529,7 +544,17 @@ int PickRuleset()
         large_dialog(ruleset_dlg);
         
     int ret = zc_popup_dialog(ruleset_dlg,1);
-    
+    //List of all NES Fixes as one set.
+    int fixesrules[] =
+            {
+                qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
+                qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
+                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
+                qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
+                qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
+                qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
+            };
+	    
     if(ret==1)
     {
         if(ruleset>0)
@@ -550,45 +575,35 @@ int PickRuleset()
         //Script errors on by default
         set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
         set_bit(quest_rules, qr_LOG, 1);
-        set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
-        set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
-        set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
-        set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1);
-        set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
-        set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
-        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
-        set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
-        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
-        set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
+       // set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
+	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
+	set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
+	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
         set_bit(quest_rules, qr_EPILEPSY, 1);
         set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
         set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
         set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
         set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
         set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
-        set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1);
-        set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
-        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
-        /* currently bugged: wBrang Lv2 and above. //set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);*/
-        set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
+	set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
         set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
         set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
-        set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-        set_bit(quest_rules, qr_ITEMSHADOWS, 1);
-        set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
-        set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
-        set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
+	set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
         set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
+        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
+	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
+        
         
         switch(ruleset)
         {
-        case 1: // Original NES
+        case rulesetNES: // Original NES
             set_bit(quest_rules, qr_OLDPICKUP, 1);
             set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
-            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
             break;
             
-        case 4: // Zelda 3-esque
+        case rulesetZ3: // Zelda 3-esque
         
             // Make the water combos drownable
             for(int i=0; i < MAXCOMBOS; i++)
@@ -615,10 +630,36 @@ int PickRuleset()
             set_bit(quest_rules, qr_SHADOWS, 1);
             set_bit(quest_rules, qr_LTTPWALK, 1);
             set_bit(quest_rules, qr_MORESOUNDS, 1);
-            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+	    break;
             
-            // Fallthrough
-        case 3: // BS Zelda
+        case rulesetBSZ: // BS Zelda
+	    // Make the water combos drownable
+            for(int i=0; i < MAXCOMBOS; i++)
+            {
+                if(combo_class_buf[combobuf[i].type].water!=0)
+                {
+                    combobuf[i].walk = 0;
+                }
+            }
+            
+            set_bit(quest_rules, qr_DROWN, 1);
+            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+            set_bit(quest_rules, qr_MSGFREEZE, 1);
+            
+            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+            set_bit(quest_rules, qr_NOWANDMELEE, 1);
+            set_bit(quest_rules, qr_TRUEARROWS, 1);
+            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+            set_bit(quest_rules, qr_SHADOWS, 1);
+            set_bit(quest_rules, qr_LTTPWALK, 1);
+            set_bit(quest_rules, qr_MORESOUNDS, 1);
+            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
             set_bit(quest_rules, qr_TIME, 1);
             set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
             set_bit(quest_rules, qr_NEWENEMYTILES, 1);
@@ -632,20 +673,52 @@ int PickRuleset()
             set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
             set_bit(quest_rules, qr_EXPANDEDLTM, 1);
             set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
             
-            // Fallthrough
-        case 2: // Fixed NES
+            break;
+	    
+        case rulesetFixedNES: // Fixed NES
             // Copied from zq_rules.cpp
-            int fixesrules[] =
+	
+	    for(int i=0; i < MAXCOMBOS; i++)
             {
-                qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
-                qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
-                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
-                qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
-                qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
-                qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
-            };
+                if(combo_class_buf[combobuf[i].type].water!=0)
+                {
+                    combobuf[i].walk = 0;
+                }
+            }
+            
+            set_bit(quest_rules, qr_DROWN, 1);
+            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+            set_bit(quest_rules, qr_MSGFREEZE, 1);
+            
+            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+            set_bit(quest_rules, qr_NOWANDMELEE, 1);
+            set_bit(quest_rules, qr_TRUEARROWS, 1);
+            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+            set_bit(quest_rules, qr_SHADOWS, 1);
+            set_bit(quest_rules, qr_LTTPWALK, 1);
+            set_bit(quest_rules, qr_MORESOUNDS, 1);
+            set_bit(quest_rules, qr_TIME, 1);
+            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+            set_bit(quest_rules, qr_FASTDNGN, 1);
+            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+            set_bit(quest_rules, qr_COOLSCROLL, 1);
+            set_bit(quest_rules, qr_BSZELDA, 1);
+            set_bit(quest_rules, qr_SOLIDBLK, 1);
+            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+            
             for(int i=0; fixesrules[i]!=-1; i++)
             {
                 if(i!=qr_OLDPICKUP)
@@ -653,10 +726,79 @@ int PickRuleset()
             }
             
             break;
+	    
+	    case rulesetModern:
+		for(int i=0; i < MAXCOMBOS; i++)
+            {
+                if(combo_class_buf[combobuf[i].type].water!=0)
+                {
+                    combobuf[i].walk = 0;
+                }
+            }
+            
+            set_bit(quest_rules, qr_DROWN, 1);
+            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+            set_bit(quest_rules, qr_MSGFREEZE, 1);
+            
+            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+            set_bit(quest_rules, qr_NOWANDMELEE, 1);
+            set_bit(quest_rules, qr_TRUEARROWS, 1);
+            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+            set_bit(quest_rules, qr_SHADOWS, 1);
+            set_bit(quest_rules, qr_LTTPWALK, 1);
+            set_bit(quest_rules, qr_MORESOUNDS, 1);
+            set_bit(quest_rules, qr_TIME, 1);
+            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+            set_bit(quest_rules, qr_FASTDNGN, 1);
+            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+            set_bit(quest_rules, qr_COOLSCROLL, 1);
+            set_bit(quest_rules, qr_BSZELDA, 1);
+            set_bit(quest_rules, qr_SOLIDBLK, 1);
+            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+            
+            for(int i=0; fixesrules[i]!=-1; i++)
+            {
+                if(i!=qr_OLDPICKUP)
+                    set_bit(quest_rules, fixesrules[i], 1);
+            }
+	    
+	    set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
+        set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+        set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1);
+        
+        set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
+        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+        
+        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+        
+        /*bugged set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1); */
+        
+        /* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
+	    set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
+        
+        
+        set_bit(quest_rules, qr_ITEMSHADOWS, 1);
+        set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
+        set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
+        set_bit(quest_rules, qr_OLDSPRITEDRAWS, 0); //User can manually disable.
+	set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+	set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1); //Give Script 1 to 10 weapons, generated by ZScript unique sprites. 
+            
+            break;
             
         }
 	
-	if ( ruleset == 4 ) set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+	if ( ruleset == rulesetZ3 ) set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
     }
     
     return D_O_K;
