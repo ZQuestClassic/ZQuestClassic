@@ -2055,6 +2055,8 @@ script_variable variable_list[]=
 	{ "SHOPDATATYPE",		SHOPDATATYPE,        0,             0 },
 	{ "HEROSTEPS",		HEROSTEPS,        0,             0 },
 	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
+	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
+	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

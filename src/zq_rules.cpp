@@ -127,7 +127,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,-1 
+    22,23,24,25,26,27,28,29,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -179,6 +179,7 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
+    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
   
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -191,7 +192,7 @@ static int comborules[] =
     qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
-	qr_BUSHESONLAYERS1AND2,
+	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION,
 	
 	-1
 };

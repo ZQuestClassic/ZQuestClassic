@@ -3737,9 +3737,11 @@ enum ASM_DEFINE
 #define SHOPDATATYPE    	0x1394
 #define HEROSTEPS    		0x1395
 #define HEROSTEPRATE    		0x1396
+#define COMBODOTILE    		0x1397
+#define COMBODFRAME    		0x1398
 
 
-#define NUMVARIABLES         	0x1397
+#define NUMVARIABLES         	0x1399
 
 // Script types
 

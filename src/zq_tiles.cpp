@@ -11565,12 +11565,13 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_CLICK)
     {
-        int t=curr_combo.tile;
+        int t=curr_combo.o_tile;
         int f=curr_combo.flip;
         
         if(select_tile(t,f,1,edit_combo_cset,true,0,true))
         {
             curr_combo.tile=t;
+            curr_combo.o_tile=t;
             curr_combo.flip=f;
             return D_REDRAW;
         }
@@ -11588,7 +11589,7 @@ int d_combo_loader(int msg,DIALOG *d,int c)
     {
         FONT *f = is_large ? lfont_l : font;
         textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.tile);
+        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
         textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
