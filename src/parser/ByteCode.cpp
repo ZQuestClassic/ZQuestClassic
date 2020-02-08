@@ -1808,6 +1808,8 @@ string ZScript::VarToString(long ID)
 	case SHOPDATATYPE: return "SHOPDATATYPE";
 	case HEROSTEPS: return "HEROSTEPS";
 	case HEROSTEPRATE: return "HEROSTEPRATE";
+	case COMBODOTILE: return "COMBODOTILE";
+	case COMBODFRAME: return "COMBODFRAME";
 	
 	
 	default:
