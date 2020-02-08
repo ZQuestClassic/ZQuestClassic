@@ -1,13 +1,187 @@
 //2.55 Changes
 
+//Alpha 50
+
+std.zh: 1.7047
+	Moved version metadata into its own file.
+	Moved include of std_vars abd std_extension into std.cfg
+	Updated version of ffrules.zh
+Quests created using the 'Modern' template now enable the
+	following QRs by default:
+	qr_NEW_COMBO_ANIMATION
+	qr_DISABLE_4WAY_GRIDLOCK
+	qr_NEW_HERO_MOVEMENT
+	qr_BUSHESONLAYERS1AND2
+	qr_CUSTOMCOMBOSLAYERS1AND2	
+Fix Quest Template Dialogue in Small Mode
+Added missing commas in Ruleset Info
+Changed the Quest Template language a bit.
+Reised all rulesets, remoing fallthroughs using code block
+	duplication; that I sincerely hope remains correct (asd before).
+Added new 'Modern' Ruleset, enabling all 2.55 enhancements.
+Resized the ruleset description frame and fixed centring/pos issues.
+Renamed the rules to be more generic (non-infringing).
+	( ZoriaRPG, 8th February, 2020 )
+	
+Feat: New Combo Animation
+	( Venrob, 7th February, 2020 )
+	
+Fixed clash between tile warp and warp ring dialogues where data
+	from one was corrupting the other.
+	( ZoriaRPG, 6th February, 2020 )
+
+Fix zcplaer.dat and add fire to logo; fix compile.
+Added fire/animation to the new AGN logo. It's done. Please...No more.
+Add master WAV for new logo to output/common/logo
+Add master sources of new logo by King_Aquamentus to common/logo
+Updated Logo WAV with a theme by stk13; added credits.txt
+	( ZoriaRPG, 4th February, 2020 )
+
+Converted ZC Player to use the new AGN Logo / Sound on
+	the splash screens.
+	Updated the .dat files in the Default and Classic Modules.
+	Updated the title screen copyrights in te Classic and Default Modules.
+cTRIGOFLAG/cTRIGFLAG are Step->Secrets Perm/Temp
+	cSTRIG* is 'sensitive'
+	Fixed the label in the combo editor for non-sens step->secret
+	combo ound attribyte field.
+	Reverted a change for sens types in Link.cpp.
+Feat: Added SFX Step->Secrets Combos
+	( ZoriaRPG, 3rd February, 2020 )
+
+Disabled a trace on dustpile generation/linking.
+	( ZoriaRPG, 30th January, 2020 )
+
+All roomtypes now allow a 'Generic Catchall' set via the menus.
+Begin documenting how ZASM/ZScript Arrays and Vars Work
+	( ZoriaRPG, 27th January, 2020 )
+
+Better ZQ Minimap 
+	Large mode:
+		No more border highlight
+		X's instead of black for invalid screens
+	Small mode:
+		Border highlight only if !InvalidStatic
+		Highlight is better calculated
+	Both: Better minimap frame
+	Optional blinking cursor, swapping colors
+std_zh: Update 'ffrules.zh'
+Docs: Update ZSA.txt
+Finish: Integrate the "zinit" field for "heroStep"
+	Now it is integrated with the system, and works as intended.
+	( Venrob, 26th January, 2020 )
+
+Amend: Last commit, also ignore money for item2 and item3
+The Item 2 and Item 3 counters of subscreen objects are intended
+	to stack with counter 0, but someone disabled that to prevent stacking
+	values with Life at all times.
+
+	I corrected the issue by making '0' for item2 and item3 an ignored
+	field.
+
+	Further, if item 2 == item 1, or item 3 == either item1 or item 2,
+		then they will not stack. This will prevent having all
+		three at the same ID from tripling, or two or more of the same
+		ID from doubling the true count.
+
+Fixed an unintentional fallthrough in switch(itemtype) inside subscr.cpp
+	where there is a missing break instruction after all script cases.
+	Should someone have added anything after those, then script counters
+	would fall through to the newly added counter.
+	( ZoriaRPG, 26th January, 2020 )
+
+Edited the Init Datadialogues to add 'Hero Step' to the
+	'Constants' tab, and renamed thattab to 'Variables'.
+	V_INITDATA is now 20. uest loaders will populate Hero->Step
+	to a value of 150 if the s_version is < 20.
+Fix missing comma in suspTypes enum.	
+Added value ranges to zsa.txt under switch-case
+Fix ZC Player to read ./sigs for dev sig.
+	( ZoriaRPG, 25th January, 2020 )
+	
+Feat: script-modifiable step rate for Hero 
+	Also updated `Hero->Step[]` to `Hero->Steps[]`
+Feat: Add "Quest->Rules->Hero" for hero rules. 
+	Contains both new rules, as well as Diagonal and BigHitbox rules.
+Fix: Link QRs with `Hero->` vars
+	Writing to Hero->Diagonal affects 'qr_LTTPWALK', and vice-versa.
+	Writing to Hero->BigHitbox affects 'qr_LTTPCOLLISION', and vice-versa.
+Fix some rewrite stuff, add 4-way movement w/o gridlock.
+I don't recommend using new-movement with 4-way unless you also
+	disable gridlock, as decimal movement + gridlock is...
+	a little wonky, even at my best optimization.
+	( Venrob, 25th January, 2020 )	
+	
+Added Troy Gilnert's explanation of NES Hero Grid Snapping & Related
+	( ZoriaRPG, 24th January, 2020 )
+	
+Feat: Finish diagonal movement rewrite 	
+	Now collision and logic is done for diagonal movement.
+	TODO: Try to rewrite for 4-way, add a steprate var,
+		and ZScript steprate var access.
+	( Venrob, 23rd January, 2020 )	
+	
+Added a URL note for how to make *ptr not conflict with * multiply in flex.
+Added some flex notes.
+Added the following alt tokens to the lexer:
+	appx_eq, appx_equal : ~~
+	bitnot_eq, bitnot_equal : ~=
+	Corrected ~~ info in zsa.txt
+Fix: Added sanity bounds to Game->Suspend[]	
+Reserved space in the suspend types enum.
+Fixed some numbering comments in n enum.
+<std 1.7026> Corrected theenum for Game->Suspend[] in std_constants
+	( ZoriaRPG, 23rd January, 2020 )
+	
+Aded a combodatascript that changes if Link is in a surrounding combo.
+Fix counter min/max in std_constants
+Fix DCounterAdd/Reduce, CounterAdd/Reduce
+Restrict item->Pickup Flags by Version
+<std> Add counter consts to limits.zh	
+	Add/Reduce Counter/DCounter functions require a rewrite.
+	( ZoriaRPG, 22nd January, 2020 )	
+	
+sram v1.0002 : Generate hash if the user destroyed the old one.
+hash.zv v1.0001 : Use numbers in the hashmask.
+Added sram.zh
+	( ZoriaRPG, 21st January, 2020 )
+	
+Set default approx equal margin to `0.0100`	
+Feat: Approximate Equality 
+	`a ~~ b` returns true if the numbers are "Approximately Equal".
+	The margin of approximation is set via a compile option.
+Feat: '~=' (bitnot assign)
+	( Venrob, 20th January, 2020 )	
+	
+Adjust OnSaveLoad script timing to run ere opening wipe.	
+Fix: SRAM also must reset combo anims.
+Reset combo anims before importing or exporting .ZCOMBO files
+	as otherwise they will be corrupted by offsets.
+	( ZoriaRPG, 19th January, 2020 )
+	
+Feat: Make case ranges FAR better
+Feat: Add case ranges
+Fix: Block issues in parser
+	Now if and while statement types (and variants) use a forced block-scope.
+	This fixes several bugs, while changing nothing on the user's end.
+	( Venrob, 28th January, 2020 )
+	
 //Alpha 49
 Make ZASM errors for scommand printf format %lu, not %ld.
+<std> 1.7044 Added null, Null, and TF_CENTRED to std_constants.
 Fixed the DMap Selection window not drawing a preview or other data.
 	The array passed to dlg->dp3 was passing invalid data, but it is hardcoded
 	to specific values, so I coded it into the function as 
 	nothing else uses this jwin proc type. 
 	( ZoriaRPG, 18th January 2020 )
-
+	
+<std> 1.7043 - Add itemclass constants for new classes.
+	( ZoriaRPG, 17th January 2020 )
+	
+Work: Begin rewriting Link::move() 
+	This will eventually allow modifying Link's step speed by script.
+	( Venrob, 15th January, 2020 )
+	
 //Alpha 48
 Now includes ghost 2.8.8
 Updated copyright year to 2020.
