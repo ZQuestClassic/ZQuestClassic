@@ -177,6 +177,8 @@ void setup_combo_animations()
         {
             animated_combo_table4[y][0]=x;
             animated_combo_table4[y][1]=0;
+			combobuf[x].aclk = 0;
+			combobuf[x].cur_frame = 0;
             ++y;
         }
     }
@@ -199,6 +201,8 @@ void setup_combo_animations2()
         {
             animated_combo_table24[y][0]=x;
             animated_combo_table24[y][1]=0;
+			combobuf[x].aclk = 0;
+			combobuf[x].cur_frame = 0;
             ++y;
         }
     }
@@ -215,7 +219,8 @@ void reset_combo_animation(int c)
         if(y==c)
         {
             combobuf[y].tile=combobuf[y].o_tile;        //reset tile
-            animated_combo_table4[x][1]=0;                        //reset clock
+			combobuf[y].cur_frame=0;
+            combobuf[y].aclk=0;                        //reset clock
             return;
         }
     }
@@ -230,7 +235,8 @@ void reset_combo_animation2(int c)
         if(y==c)
         {
             combobuf[y].tile=combobuf[y].o_tile;        //reset tile
-            combobuf[y].cur_frame=0;                        //reset clock
+            combobuf[y].cur_frame=0;
+            combobuf[y].aclk=0;                        //reset clock
             return;
         }
     }

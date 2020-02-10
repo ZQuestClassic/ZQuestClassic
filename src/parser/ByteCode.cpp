@@ -1810,6 +1810,7 @@ string ZScript::VarToString(long ID)
 	case HEROSTEPRATE: return "HEROSTEPRATE";
 	case COMBODOTILE: return "COMBODOTILE";
 	case COMBODFRAME: return "COMBODFRAME";
+	case COMBODACLK: return "COMBODACLK";
 	
 	
 	default:

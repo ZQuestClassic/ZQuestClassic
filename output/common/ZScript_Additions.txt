@@ -4773,6 +4773,9 @@ int Frame;
  * The frame of the combo's animation that is presently showing. Writing to this will skip in the animation.
  * Using this variable is undefined if the quest rule 'New Combo Animation' is off.
 
+int AClk;
+ * The clock used for the combo's animation cycle.
+
 int ASpeed;
  * The animation speed of the combo. 
  

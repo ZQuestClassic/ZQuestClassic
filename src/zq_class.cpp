@@ -4343,10 +4343,10 @@ void zmap::update_combo_cycling()
         newcset[i]=-1;
         
         x=prvscr.data[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
@@ -4364,11 +4364,11 @@ void zmap::update_combo_cycling()
     for(int i=0; i<176; i++)
     {
         x=prvscr.data[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4397,10 +4397,10 @@ void zmap::update_combo_cycling()
         newcset[i]=-1;
         
         x=prvscr.ffdata[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
@@ -4418,11 +4418,11 @@ void zmap::update_combo_cycling()
     for(int i=0; i<32; i++)
     {
         x=prvscr.ffdata[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4458,10 +4458,10 @@ void zmap::update_combo_cycling()
                 newcset[i]=-1;
                 
                 x=(prvlayers[j]).data[i];
-                y=animated_combo_table[x][0];
+                //y=animated_combo_table[x][0];
                 
                 //time to restart
-                if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
                         (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
                         (combobuf[x].nextcombo!=0))
                 {
@@ -4479,11 +4479,11 @@ void zmap::update_combo_cycling()
             for(int i=0; i<176; i++)
             {
                 x=(prvlayers[j]).data[i];
-                y=animated_combo_table2[x][0];
+                //y=animated_combo_table2[x][0];
                 
                 //time to restart
-                if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
@@ -4513,13 +4513,13 @@ void zmap::update_combo_cycling()
         if(restartanim[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].aclk = 0;
         }
         
         if(restartanim2[i])
         {
-            combobuf[i].tile = animated_combo_table2[i][1];
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].tile = combobuf[i].o_tile;
+            combobuf[i].aclk = 0;
         }
     }
     

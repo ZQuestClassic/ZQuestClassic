@@ -8003,6 +8003,7 @@ long get_register(const long arg)
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
 		case COMBODOTILE:		GET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
 		case COMBODFRAME:		GET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
+		case COMBODACLK:		GET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
 		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
 		case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
@@ -14635,6 +14636,7 @@ void set_register(const long arg, const long value)
 		case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
 		case COMBODOTILE:		SET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
 		case COMBODFRAME:		SET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
+		case COMBODACLK:		SET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
 		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
@@ -30173,6 +30175,7 @@ script_variable ZASMVars[]=
 	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
 	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
 	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
+	{ "COMBODACLK",		COMBODACLK,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -3739,9 +3739,10 @@ enum ASM_DEFINE
 #define HEROSTEPRATE    		0x1396
 #define COMBODOTILE    		0x1397
 #define COMBODFRAME    		0x1398
+#define COMBODACLK    		0x1399
 
 
-#define NUMVARIABLES         	0x1399
+#define NUMVARIABLES         	0x139A
 
 // Script types
 

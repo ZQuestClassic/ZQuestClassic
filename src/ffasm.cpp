@@ -2057,6 +2057,7 @@ script_variable variable_list[]=
 	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
 	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
 	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
+	{ "COMBODACLK",		COMBODACLK,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

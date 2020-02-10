@@ -16024,7 +16024,7 @@ void screen_combo_modify_postroutine(mapscr *s, int pos)
 
 void awaken_spinning_tile(mapscr *s, int pos)
 {
-    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,animated_combo_table[s->data[pos]][1]+zc_max(1,combobuf[s->data[pos]].frames));
+    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,combobuf[s->data[pos]].o_tile+zc_max(1,combobuf[s->data[pos]].frames));
 }
 
 
