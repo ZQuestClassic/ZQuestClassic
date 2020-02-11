@@ -1352,6 +1352,7 @@ static MENU quest_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
     { (char *)"&Rules\t ",                  NULL,                      rules_menu,               0,            NULL   },
+    { (char *)"&Pick Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
     { (char *)"Ma&p Count",                 onMapCount,                NULL,                     0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },

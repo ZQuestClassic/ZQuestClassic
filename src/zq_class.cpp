@@ -6049,7 +6049,8 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
     {
         skip_flags[i]=0;
     }
-    
+    for(int i=0; i<qr_MAX; i++)
+                set_bit(quest_rules,i,0);
     int ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
 //  setPackfilePassword(NULL);
 

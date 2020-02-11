@@ -413,7 +413,7 @@ int d_rulesettext_proc(int msg, DIALOG *d, int c);
 static DIALOG ruleset_dlg[] =
 {
     { jwin_win_proc,           0,     0,  230,   180,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "New Quest", NULL, NULL },
-    { jwin_button_proc,       76,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,       40,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_frame_proc,   102,   80-2-7,   128,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
     
     { d_dummy_proc,			    20,    71,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0,       0, NULL, NULL },
@@ -440,6 +440,7 @@ static DIALOG ruleset_dlg[] =
     { d_ruleset_radio_proc,       20,   81-8,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Modern", NULL, NULL },
     { jwin_text_proc,       8,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "To customise, open the 'Quest >> Rules' and ", NULL, NULL },
     { jwin_text_proc,       8,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "'ZScript >> Quest Specific Settings' dialogues.", NULL, NULL },
+    { jwin_button_proc,       93+40-4,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -642,22 +643,7 @@ int PickRuleset()
         set_bit(quest_rules, qr_LOG, 1);
        // set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
 	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
-	set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
 	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
-        set_bit(quest_rules, qr_EPILEPSY, 1);
-        set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
-        set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
-        set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
-        set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
-        set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
-	set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
-        set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
-        set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
-	set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
-        set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
-	set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
-        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
-	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
         
         
         switch(ruleset)
@@ -844,7 +830,6 @@ int PickRuleset()
         set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
         set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
         
-        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
         
         /*bugged set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1); */
         
@@ -889,7 +874,21 @@ int onNew()
     */
     int ret=0;
     NewQuestFile(ret);
-    
+    set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
+        set_bit(quest_rules, qr_EPILEPSY, 1);
+        set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
+        set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
+        set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
+        set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
+        set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
+	set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
+        set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+        set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+	set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
+        set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
+        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
+	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
     if(RulesetDialog > 0)
         PickRuleset();
         

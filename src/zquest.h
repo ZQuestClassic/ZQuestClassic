@@ -1063,6 +1063,7 @@ int d_showedit_proc(int msg,DIALOG *d,int c);
 int onHeader();
 
 //static ZCHEATS tmpcheats;
+int PickRuleset();
 int onCheats();
 int RulesPage_1();
 int RulesPage_2();

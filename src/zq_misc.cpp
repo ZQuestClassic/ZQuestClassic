@@ -1240,6 +1240,7 @@ void domouse();
 void init_doorcombosets();
 
 int onNew();
+int PickRuleset();
 int onOpen();
 int onOpen2();
 int onRevert();
