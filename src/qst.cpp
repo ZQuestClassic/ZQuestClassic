@@ -3033,6 +3033,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_F6,1);
 	}
+	
+	//always set
+	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
+	
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));

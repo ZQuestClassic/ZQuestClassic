@@ -9467,6 +9467,7 @@ void weapon::draw(BITMAP *dest)
 			//Bugfix script weapons not animating:
 			//Let's see if this works, and failstobreakanything. -Z
 			//This also will need a QR, if it works!
+			/* Bugged, disabling.
 			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS) )
 			{
 				if(frames>1 && ++aframe >= frames)
@@ -9476,6 +9477,7 @@ void weapon::draw(BITMAP *dest)
 				//update_weapon_frame(aframe,o_tile);
 				update_weapon_frame(aframe,o_tile);
 			}
+			*/
 			//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
 			//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
 			//{ 

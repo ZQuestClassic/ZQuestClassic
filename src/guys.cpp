@@ -386,7 +386,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
         frate = d->frate;
     }
     
-    tile=0;
+    tile=0; //init to 0 here, but set it later.
+    
     scripttile = -1;
     scriptflip = -1;
     do_animation = 1;
@@ -439,6 +440,9 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 	
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
+    
+    //tile should never be 0 after init --Z (failsafe)
+    if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
 }
 
 /*
@@ -5740,7 +5744,10 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
-    if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) return; //Anim == none, don't animate. -Z
+    if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
+    {  
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
+    }
     int newfrate = zc_max(frate,4);
     int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
     int f2=clk/(newfrate/2); // casts clk to [0,1]
