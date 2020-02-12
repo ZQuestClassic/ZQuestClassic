@@ -1270,6 +1270,7 @@ script_variable variable_list[]=
     { "DMAPMAP",            DMAPMAP,             0,             0 },
     { "ZELDAVERSION",         ZELDAVERSION,            0,             0 },
     { "GETRENDERTARGET",         GETRENDERTARGET,            0,             0 },
+    { "LINKEATEN",         LINKEATEN,            0,             0 },
 	
     { " ",                       -1,             0,             0 }
 };

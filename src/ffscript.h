@@ -1003,7 +1003,7 @@ enum ASM_DEFINE
 #define UNUSED32             0x0250
 #define UNUSED33             0x0251
 #define UNUSED34             0x0252
-#define UNUSED35             0x0253
+#define LINKEATEN            0x0253
 #define UNUSED36             0x0254
 #define UNUSED37             0x0255
 #define UNUSED38             0x0256

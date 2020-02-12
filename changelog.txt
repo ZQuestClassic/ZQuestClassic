@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 32
+Added Link->Eaten, backported from 2.55.
 Init Bwpn andAwpn to 0 on start and on game select.
 Added sanity bounds and error logging to Screen->Combo*[pos].
 	Assigning an illegal alue, or accessing an inalid

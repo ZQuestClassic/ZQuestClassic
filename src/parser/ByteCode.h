@@ -359,6 +359,8 @@ using namespace std;
 #define UNDERCSET			331
 #define DMAPOFFSET			332 //512 of these
 #define DMAPMAP				333 //512 of these
+
+#define LINKEATEN 391
 //#define FFDD			    309 //8 of these
 #define GETRENDERTARGET		1083 //From 2.55, ported to 2.53R3/2.53.1
 

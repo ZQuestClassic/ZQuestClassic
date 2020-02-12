@@ -1010,6 +1010,9 @@ string VarArgument::toString()
     
     case GETRENDERTARGET:
         return "GETRENDERTARGET";
+    
+    case LINKEATEN:
+        return "LINKEATEN";
         
     default:
     {

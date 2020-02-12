@@ -1,5 +1,5 @@
 2.53.1 ZScript Changes
-10th January, 2020
+12th February, 2020
 
 The following ZScript instructons have been changed, or added
 to ZC v2.53.1.
@@ -73,6 +73,12 @@ int Attributes[];			ZASM Instruction:
 /// Link-> //
 /////////////
 
+int Eaten;				ZASM Instruction: 
+					LINKEATEN					
+/**
+*  Returns 0 if Link is not eaten, otherwise it returns the duration of him being eaten.
+*
+*/ Example Use: !#!
 
 int Equipment;				ZASM Instruction: 
 					LINKEQUIP

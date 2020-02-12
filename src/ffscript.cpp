@@ -3722,6 +3722,10 @@ long get_register(const long arg)
     case LINKDRUNK:
         ret = (int)(Link.DrunkClock())*10000;
         break;
+    
+    case LINKEATEN:
+			ret=(int)Link.getEaten()*10000;
+			break;
         
     case LINKMISCD:
         ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]); //DO NOT multiply by 10000. Causes Incompatibility (-Z, 12Feb19) //Why was this not multiplied by 10000 before? -Z
@@ -5768,6 +5772,10 @@ void set_register(const long arg, const long value)
     case LINKZOFS:
         (Link.zofs)=(fix)(value/10000);
         break;
+    
+    case LINKEATEN:
+			Link.setEaten(value/10000);
+			break;
         
     case LINKHXSZ:
         (Link.hxsz)=(fix)(value/10000);
