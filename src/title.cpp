@@ -2071,6 +2071,7 @@ static void selectscreen()
     init_NES_mode();
     //  loadfullpal();
     loadlvlpal(1);
+    Bwpn = 0, Awpn = 0;
     clear_bitmap(scrollbuf);
     QMisc.colors.blueframe_tile = 237;
     QMisc.colors.blueframe_cset = 0;

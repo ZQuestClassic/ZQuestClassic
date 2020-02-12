@@ -13,7 +13,7 @@
 #define V_ZC_FOURTH 0
 //build
 #define V_ZC_ALPHA 0
-#define V_ZC_BETA 31
+#define V_ZC_BETA 32
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
 #define V_ZC_YEAR 2020

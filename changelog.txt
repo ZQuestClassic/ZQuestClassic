@@ -1,8 +1,15 @@
 ChangeLog for 2.53.1
 
+//Beta 32
+Init Bwpn andAwpn to 0 on start and on game select.
+Added sanity bounds and error logging to Screen->Combo*[pos].
+	Assigning an illegal alue, or accessing an inalid
+	index will now generate errors instead of crashing ZC.
+	( ZoriaRPG, 12th February, 2020 )
+	
 //Beta 31
 Probably fixed clash between tile warp and warp ring dialogues. 
-	( ZoriaRPG, 6th February, 2010 )
+	( ZoriaRPG, 6th February, 2020 )
 
 //Beta 30
 Added fire/animation to the new AGN logo. It's done. Please...No more.

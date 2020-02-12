@@ -5121,7 +5121,10 @@ long get_register(const long arg)
 { \
 int pos = ri->d[0] / 10000; \
 if(BC::checkComboPos(pos, str) != SH::_NoError) \
+{ \
+    Z_scripterrlog("Inalid pos used to read %s\n"); \
     ret = -10000; \
+} \
 else \
     ret = tmpscr->member[pos]*10000; \
 }
@@ -5139,7 +5142,10 @@ else \
 { \
     int pos = ri->d[0] / 10000; \
     if(BC::checkComboPos(pos, str) != SH::_NoError) \
+    { \
+        Z_scripterrlog("Inalid pos used to read %s\n"); \
         ret = -10000; \
+    } \
     else \
         ret = combobuf[tmpscr->data[pos]].member * 10000; \
 }
@@ -7224,11 +7230,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBODD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+	int val = (value/10000);
+        if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= MAXCOMBOS )
+	{
+		Z_scripterrlog("Inalid combo ID %d used to write to Screen->ComboD[]\n", val);
+	}
+        else
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(value/10000);
+            tmpscr->data[pos]=(val);
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -7237,11 +7251,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOCD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+        int val = (value/10000); //cset
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 15 )
+	{
+		Z_scripterrlog("Inalid CSet ID %d used to write to Screen->ComboC[]\n", val);
+	}
+        else
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->cset[pos]=(value/10000)&15;
+            tmpscr->cset[pos]=(val)&15;
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -7250,17 +7272,34 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOFD:
     {
         int pos = (ri->d[0])/10000;
+        int val = (value/10000); //flag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboF[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboF[]\n", val);
+	}
         
-        if(pos >= 0 && pos < 176)
-            tmpscr->sflag[pos]=(value/10000);
+        else
+            tmpscr->sflag[pos]=(val);
     }
     break;
     
     case COMBOTD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+        int val = (value/10000); //type
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+	}
+        else
         {
             // Preprocess each instance of the combo on the screen
             for(int i = 0; i < 176; i++)
@@ -7271,7 +7310,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
                 }
             }
             
-            combobuf[tmpscr->data[pos]].type=value/10000;
+            combobuf[tmpscr->data[pos]].type=val;
             
             for(int i = 0; i < 176; i++)
             {
@@ -7287,18 +7326,35 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOID:
     {
         int pos = (ri->d[0])/10000;
+        int val = (value/10000); //iflag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboI[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboI[]\n", val);
+	}
         
-        if(pos >= 0 && pos < 176)
-            combobuf[tmpscr->data[pos]].flag=value/10000;
+        else
+            combobuf[tmpscr->data[pos]].flag=val;
     }
     break;
     
     case COMBOSD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
-            combobuf[tmpscr->data[pos]].walk=(value/10000)&15;
+        int val = (value/10000); //iflag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+	}
+        else
+            combobuf[tmpscr->data[pos]].walk=(val)&15;
     }
     break;
     
