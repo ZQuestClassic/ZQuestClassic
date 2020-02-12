@@ -7152,6 +7152,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboD[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7180,6 +7181,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboC[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7207,6 +7209,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboF[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7236,6 +7239,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboT[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7265,6 +7269,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboI[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7295,6 +7300,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
 				{
+					Z_scripterrlog("Inalid pos used to read mapdata->ComboS[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -13996,11 +14002,21 @@ void set_register(const long arg, const long value)
 		case MAPDATACOMBODD:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000);
+      
 			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
+			if ( ((unsigned) pos) > 175 )
+			{
+				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
+			}
+			else if ( ((unsigned) val) >= MAXCOMBOS )
+			{
+				Z_scripterrlog("Inalid combo ID %d used to write to mapdata->ComboD[]\n", val);
+			}
+			else
 			{
 				screen_combo_modify_preroutine(m,pos);
-				m->data[pos]=vbound(value/10000,0,MAXCOMBOS);
+				m->data[pos]=val;
 				screen_combo_modify_postroutine(m,pos);
 			}
 		}
@@ -14009,11 +14025,20 @@ void set_register(const long arg, const long value)
 		case MAPDATACOMBOCD:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000); //cset
 			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
+			if ( ((unsigned) pos) > 175 )
+			{
+				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
+			}
+			else if ( ((unsigned) val) >= 15 )
+			{
+				Z_scripterrlog("Inalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
+			}
+			else
 			{
 				screen_combo_modify_preroutine(m,pos);
-				m->cset[pos]=(value/10000)&15;
+				m->cset[pos]=(val)&15;
 				screen_combo_modify_postroutine(m,pos);
 			}
 		}
@@ -14022,17 +14047,36 @@ void set_register(const long arg, const long value)
 		case MAPDATACOMBOFD:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000); //flag
 			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
-				m->sflag[pos]=(value/10000);
+			if ( ((unsigned) pos) > 175 )
+			{
+				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
+			}
+			else if ( ((unsigned) val) >= 256 )
+			{
+				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
+			}
+			
+			else
+				m->sflag[pos]=(val);
 		}
 		break;
 		
 		case MAPDATACOMBOTD:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000); //type
 			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
+			if ( ((unsigned) pos) > 175 )
+			{
+				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
+			}
+			else if ( ((unsigned) val) >= 256 )
+			{
+				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboT[]\n", val);
+			}
+			else
 			{
 				// Preprocess each instance of the combo on the screen
 				for(int i = 0; i < 176; i++)
@@ -14043,7 +14087,7 @@ void set_register(const long arg, const long value)
 					}
 				}
 				
-				combobuf[m->data[pos]].type=value/10000;
+				combobuf[m->data[pos]].type=val;
 				
 				for(int i = 0; i < 176; i++)
 				{
@@ -14059,6 +14103,7 @@ void set_register(const long arg, const long value)
 		case MAPDATACOMBOID:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000); //iflag
 			mapscr *m = GetMapscr(ri->mapsref);
 			if(pos >= 0 && pos < 176)
 				combobuf[m->data[pos]].flag=value/10000;
@@ -14068,9 +14113,19 @@ void set_register(const long arg, const long value)
 		case MAPDATACOMBOSD:
 		{
 			int pos = (ri->d[0])/10000;
+			int val = (value/10000); //solidity
 			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
-				combobuf[m->data[pos]].walk=(value/10000)&15;
+			if ( ((unsigned) pos) > 175 )
+			{
+				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
+			}
+			else if ( ((unsigned) val) >= 256 )
+			{
+				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
+			}
+			
+			else
+				combobuf[m->data[pos]].walk=(val)&15;
 		}
 		break;
 
