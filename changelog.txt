@@ -1,7 +1,29 @@
 //2.55 Changes
 
+//Alpha 51
+Copied Screen->Combo*[] Sanity Bounds to mapdata->Combo*[]
+Added sanity bounds and error logging to Screen->Combo*[pos].
+	Assigning an illegal alue, or accessing an inalid
+	index will now generate errors instead of crashing ZC.
+	( ZoriaRPG, 12th February, 2020 )
+	
+Seemingly fixed 2.55 quest rulesbeing carried oer to older quests
+	loaded/saed in 2.55.
+Added Quest->Pick Ruleset menu dlg.
+Repeatedly try to fix QR porting from old quests.
+If a quest was saved in 2.55, enemies will hae their tile
+	set to their o_tile. If it was saved < 2.55, aNone (Animation)
+	rill not exit its body. This prevents graphical issues when
+	converting quests. Probably needs an anim rule.
+Removed qr_ANIMATECUSTOMWEAPONS, disabling it in all locations.
+	( ZoriaRPG, 11th February, 2020 )
+	
+Fixed some missed references to the animated combo table that now should
+	reference the combo struct
+Added ZScript access to 'combodata->AClk'
+	( Venrob, 10th February, 2020 )
+	
 //Alpha 50
-
 std.zh: 1.7047
 	Fix typo in <limits> and duplicate const in std_cxonstants.
 	Moved version metadata into its own file.
