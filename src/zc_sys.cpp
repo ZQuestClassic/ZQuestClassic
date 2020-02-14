@@ -3796,21 +3796,24 @@ void updatescr(bool allowwavy)
     else if(Playing && !Paused)
         wavy--; // Wavy was set by a script. Decrement it.
         
-    if(!(msgdisplaybuf->clip) && Playing && msgpos && !screenscrolling)
+    if(Playing && msgpos && !screenscrolling)
     {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+		if(!(msg_bg_display_buf->clip))
+			masked_blit(msg_bg_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
+		if(!(msg_txt_display_buf->clip))
+			masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
     }
     
     /*
-    if(!(msgdisplaybuf->clip) && Playing && msgpos && !screenscrolling)
+    if(!(msg_txt_display_buf->clip) && Playing && msgpos && !screenscrolling)
     {
 	    BITMAP* subBmp = 0;
-	    masked_blit(msgdisplaybuf,subBmp,0,0,0,playing_field_offset,256,168);
-	    // masked_blit(msgdisplaybuf,subBmp,0,playing_field_offset,256,168);
+	    masked_blit(msg_txt_display_buf,subBmp,0,0,0,playing_field_offset,256,168);
+	    // masked_blit(msg_txt_display_buf,subBmp,0,playing_field_offset,256,168);
 	     draw_trans_sprite(framebuf, subBmp, 0, playing_field_offset);
 	    destroy_bitmap(subBmp);
 	    //void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip);
-       // masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+       // masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
 	    //void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
     }
     */

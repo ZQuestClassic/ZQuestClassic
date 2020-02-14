@@ -3429,10 +3429,16 @@ void draw_screen(mapscr* this_screen, bool showlink)
     set_clip_rect(framebuf,0,0,256,224);
     set_clip_rect(scrollbuf,0,0,256,224);
     
-    if(!(msgdisplaybuf->clip))
+    if(!(msg_bg_display_buf->clip))
     {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-        masked_blit(msgdisplaybuf,scrollbuf,0,0,0,playing_field_offset,256,168);
+        masked_blit(msg_bg_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
+        masked_blit(msg_bg_display_buf,scrollbuf,0,0,0,playing_field_offset,256,168);
+    }
+    
+    if(!(msg_txt_display_buf->clip))
+    {
+        masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
+        masked_blit(msg_txt_display_buf,scrollbuf,0,0,0,playing_field_offset,256,168);
     }
     
     //12. Draw the subscreen, without clipping

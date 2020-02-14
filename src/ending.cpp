@@ -278,7 +278,8 @@ void ending()
 		if(Quit) return;
 	}
 	
-	clear_bitmap(msgdisplaybuf);
+	clear_bitmap(msg_txt_display_buf);
+	clear_bitmap(msg_bg_display_buf);
 	draw_screen(tmpscr);
 	advanceframe(true);
 	
