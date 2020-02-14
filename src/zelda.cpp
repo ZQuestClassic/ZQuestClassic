@@ -865,12 +865,7 @@ int donew_shop_msg(int itmstr, int shopstr)
     clear_bitmap(msg_txt_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
     
-    //transparency needs to occur here. -Z
-    if(MsgStrings[msgstr].tile!=0)
-    {
-        frame2x2(msg_bg_bmp_buf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
-                 (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
-    }
+	msg_bg(MsgStrings[msgstr]);
     
     msgclk=msgpos=msgptr=0;
     msgspace=true;
@@ -881,6 +876,71 @@ int donew_shop_msg(int itmstr, int shopstr)
     cursor_x=0;
     cursor_y=0;
     return tempmsgnext;
+}
+void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
+{
+	for(int tx = 0; tx < w; ++tx)
+		for(int ty = 0; ty < h; ++ty)
+		{
+			int c1 = src->line[sy+ty][sx+tx];
+			int c2 = dest->line[dy+ty][dx+tx];
+			if(c1)
+			{
+				dest->line[dy+ty][dx+tx] = trans_table.data[c1][c2];
+			}
+		}
+}
+void msg_bg(MsgStr const& msg)
+{
+	if(msg.tile == 0) return;
+	if(msg.stringflags & STRINGFLAG_FULLTILE)
+	{
+		draw_block_flip(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
+			(int)ceil(msg.w/16.0),(int)ceil(msg.h/16.0),0,false,false);
+	}
+	else
+	{
+        frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
+                 (msg.w>>3)+2,(msg.h>>3)+2,0,true,0);
+	}
+}
+void blit_msgstr_bg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_BG)
+	{
+		/*BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		if(subbmp)
+		{
+			clear_bitmap(subbmp);
+			masked_blit(msg_bg_display_buf, subbmp, sx, sy, 0, 0, w, h);
+			draw_trans_sprite(dest, subbmp, dx, dy);
+			destroy_bitmap(subbmp);
+		}*/
+		zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
+	}
+	else
+	{
+		masked_blit(msg_bg_display_buf, dest, sx, sy, dx, dy, w, h);
+	}
+}
+void blit_msgstr_fg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_FG)
+	{
+		/*BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		if(subbmp)
+		{
+			clear_bitmap(subbmp);
+			masked_blit(msg_txt_display_buf, subbmp, sx, sy, 0, 0, w, h);
+			draw_trans_sprite(dest, subbmp, dx, dy);
+			destroy_bitmap(subbmp);
+		}*/
+		zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
+	}
+	else
+	{
+		masked_blit(msg_txt_display_buf, dest, sx, sy, dx, dy, w, h);
+	}
 }
 
 void clearmsgnext(int str)
@@ -919,11 +979,7 @@ void donewmsg(int str)
     clear_bitmap(msg_bg_bmp_buf);
     
     //transparency needs to occur here. -Z
-    if(MsgStrings[msgstr].tile!=0)
-    {
-        frame2x2(msg_bg_bmp_buf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
-                 (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
-    }
+    msg_bg(MsgStrings[msgstr]);
     
     msgclk=msgpos=msgptr=0;
     msgspace=true;

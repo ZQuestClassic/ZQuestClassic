@@ -3799,9 +3799,9 @@ void updatescr(bool allowwavy)
     if(Playing && msgpos && !screenscrolling)
     {
 		if(!(msg_bg_display_buf->clip))
-			masked_blit(msg_bg_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
 		if(!(msg_txt_display_buf->clip))
-			masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
+			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
     }
     
     /*

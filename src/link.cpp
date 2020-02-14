@@ -19478,10 +19478,15 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
         do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
         
+		
         if(msg_bg_display_buf->clip == 0)
-            masked_blit(msg_bg_display_buf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		{
+			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
         if(msg_txt_display_buf->clip == 0)
-            masked_blit(msg_txt_display_buf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		{
+			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
             
         put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
         
@@ -21605,12 +21610,12 @@ void setup_red_screen_old()
     
     if(!(msg_bg_display_buf->clip))
     {
-        masked_blit(msg_bg_display_buf, framebuf,0,0,0,playing_field_offset, 256,168);
+		blit_msgstr_bg(framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     }
     
     if(!(msg_txt_display_buf->clip))
     {
-        masked_blit(msg_txt_display_buf, framebuf,0,0,0,playing_field_offset, 256,168);
+		blit_msgstr_fg(framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     }
     
     if(!(pricesdisplaybuf->clip))
@@ -21651,14 +21656,20 @@ void setup_red_screen_old()
         //do an AND masked blit for messages on top of layers
         if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip) || !(pricesdisplaybuf->clip))
         {
+			BITMAP* subbmp = create_bitmap_ex(8,256,168);
+			clear_bitmap(subbmp);
+			if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip))
+			{
+				masked_blit(framebuf, subbmp, 0, playing_field_offset, 0, 0, 256, 168);
+				blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
+				blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
+			}
             for(int y=0; y<168; y++)
             {
                 for(int x=0; x<256; x++)
                 {
                     int c1 = framebuf->line[y+playing_field_offset][x];
-                    int c2_bg = msg_bg_display_buf->clip == 0 ? msg_bg_display_buf->line[y][x] : 0;
-					int c2_fg = msg_txt_display_buf->clip == 0 ? msg_txt_display_buf->line[y][x] : 0;
-					int c2 = c2_fg != 0 ? c2_fg : c2_bg;
+                    int c2 = subbmp->line[y][x];
                     int c3 = pricesdisplaybuf->line[y][x];
                     
                     if(c1 && c3)
@@ -21671,7 +21682,8 @@ void setup_red_screen_old()
                     }
                 }
             }
-        }
+			destroy_bitmap(subbmp);
+		}
         
         //red shift
         // color scale the game screen
