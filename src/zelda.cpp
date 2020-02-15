@@ -908,15 +908,17 @@ void blit_msgstr_bg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
 {
 	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_BG)
 	{
-		/*BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		BITMAP* subbmp = create_bitmap_ex(8,w,h);
 		if(subbmp)
 		{
+			color_map = &trans_table2;
 			clear_bitmap(subbmp);
 			masked_blit(msg_bg_display_buf, subbmp, sx, sy, 0, 0, w, h);
 			draw_trans_sprite(dest, subbmp, dx, dy);
 			destroy_bitmap(subbmp);
-		}*/
-		zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
+			color_map = &trans_table;
+		}
+		//zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
@@ -927,15 +929,17 @@ void blit_msgstr_fg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
 {
 	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_FG)
 	{
-		/*BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		BITMAP* subbmp = create_bitmap_ex(8,w,h);
 		if(subbmp)
 		{
+			color_map = &trans_table2;
 			clear_bitmap(subbmp);
 			masked_blit(msg_txt_display_buf, subbmp, sx, sy, 0, 0, w, h);
 			draw_trans_sprite(dest, subbmp, dx, dy);
 			destroy_bitmap(subbmp);
-		}*/
-		zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
+			color_map = &trans_table;
+		}
+		//zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
