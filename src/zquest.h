@@ -374,8 +374,6 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
-void zprint(const char * const format,...);
-
 int playTune1();
 int playTune2();
 int playTune3();
@@ -1184,6 +1182,7 @@ void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
 void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
 int get_currdmap();
 int current_item(int item_type);
 int current_item_power(int item_type);

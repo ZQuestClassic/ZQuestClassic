@@ -112,6 +112,7 @@ void set_debug(bool d);
 void Z_eventlog(const char *format, ...);
 void Z_scripterrlog(const char * const format, ...);
 void zprint(const char * const format, ...);
+void zprint2(const char * const format, ...);
 
 // zelda.cc
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
@@ -197,6 +198,8 @@ Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
 //2.54
 extern short int lastMonoPreset;
 extern short int lastCustomTint[4];
+
+//extern byte __isZQuest;
 
 void setMonochromatic(int mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 

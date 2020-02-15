@@ -124,7 +124,7 @@ void initMsgStr(MsgStr *str);
 void init_msgstrings(int start, int end);
 
 int copyquest(PACKFILE *f);
-int readheader(PACKFILE *f, zquestheader *Header, bool keepdata);
+int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata = 0);
 int readrules(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata);
