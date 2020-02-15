@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 33
+Added ASCII Art Logo to Console
 Quest [METADATA] is now shown in the console, and I added
 	logging for older formats (back to 1.80) along with build, gamma,
 	and beta metadata, as much as possible with known variables and the
