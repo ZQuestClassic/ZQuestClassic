@@ -1,5 +1,20 @@
 ChangeLog for 2.53.1
 
+//Beta 33
+Quest [METADATA] is now shown in the console, and I added
+	logging for older formats (back to 1.80) along with build, gamma,
+	and beta metadata, as much as possible with known variables and the
+	available source allows.
+Added zprint2(). This ALWAYS prints, with no regard to log level settings, to
+	be used for critical metadata displays and special system messages
+	such as holiday greetings (e.g. terminal motd).
+Added colour console andzprint to Zuest to matchh 2.55.
+Added byte __isZQuest to both programmes.
+	If the editor is running, it has a value of 1, otherwise 0, so that
+	shared functionscan reference this to know which of the two components
+	is calling the function.
+	( ZoriaRPG, 15th February, 2020 )
+
 //Beta 32
 Added Link->Eaten, backported from 2.55.
 Init Bwpn andAwpn to 0 on start and on game select.

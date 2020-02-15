@@ -108,6 +108,8 @@ void set_debug(bool d);
 
 void Z_eventlog(const char *format, ...);
 void Z_scripterrlog(const char * const format, ...);
+void zprint(const char * const format, ...);
+void zprint2(const char * const format, ...);
 
 // zelda.cc
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
