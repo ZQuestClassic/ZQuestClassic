@@ -1365,7 +1365,7 @@ int init_game()
         lens_hint_weapon[x][1]=0;
     }
     
-    
+    /* Disabling to see if this is causing virus scanner redflags. -Z
 //Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
@@ -1375,7 +1375,7 @@ int init_game()
     game->Clear();
     
     zc_free(dummy);
-    
+    */
 //Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
