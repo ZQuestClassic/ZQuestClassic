@@ -1,5 +1,10 @@
 ChangeLog for 2.53.1
 
+//Beta 34
+Fixed a crash when using header guards and also declaring
+	constants in the buffer.
+	( ZoriaRPG, 16th February, 2020 )
+
 //Beta 33
 Disable anti-cheating memory nobfustification to see if it
 	is the cause of virus scanner red flags.
