@@ -17010,7 +17010,7 @@ bool parsemsgcode()
         case MSGC_NAME:
           if (!((cBbtn()&&get_bit(quest_rules,qr_ALLOWMSGBYPASS)) || msgspeed==0))
             sfx(MsgStrings[msgstr].sfx);
-          textprintf_ex(msgdisplaybuf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
+          textprintf_ex(msg_txt_display_buf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
                         "%s",game->get_name());
           return true;
     */
@@ -17093,15 +17093,15 @@ bool parsemsgcode()
     {
         bool done=false;
         int pos = 0;
-        set_clip_state(msgdisplaybuf, 0);
+        set_clip_state(msg_txt_display_buf, 0);
         
         do // Copied from title.cpp...
         {
             int f=-1;
             bool done2=false;
             // TODO: Lower Y value limit
-            textout_ex(msgdisplaybuf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
-            textout_ex(msgdisplaybuf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
+            textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
+            textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
             
             do
             {
@@ -17136,23 +17136,23 @@ bool parsemsgcode()
                         switch(pos)
                         {
                         case 0:
-                            textout_ex(msgdisplaybuf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
+                            textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
                             break;
                             
                         case 1:
-                            textout_ex(msgdisplaybuf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
+                            textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
                             break;
                         }
                     }
                 }
                 
-                rectfill(msgdisplaybuf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
-                overtile8(msgdisplaybuf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
+                rectfill(msg_txt_display_buf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
+                overtile8(msg_txt_display_buf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
                 advanceframe(true);
             }
             while(!Quit && !done2);
             
-            clear_bitmap(msgdisplaybuf);
+            clear_bitmap(msg_txt_display_buf);
             done=true;
         }
         while(!Quit && !done);
@@ -17300,7 +17300,7 @@ void putmsg()
                         cursor_x=0;
                     }
                     
-                    textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                    textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                                   "%c",MsgStrings[msgstr].s[msgptr]);
                     cursor_x+=tlength;
                 }
@@ -17315,7 +17315,7 @@ void putmsg()
                     }
                     
                     sfx(MsgStrings[msgstr].sfx);
-                    textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                    textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                                   "%c",MsgStrings[msgstr].s[msgptr]);
                     cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
                     cursor_x += MsgStrings[msgstr].hspace;
@@ -17401,7 +17401,7 @@ breakout:
             }
             
             sfx(MsgStrings[msgstr].sfx);
-            textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+            textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                           "%c",MsgStrings[msgstr].s[msgptr]);
             cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
             cursor_x += MsgStrings[msgstr].hspace;

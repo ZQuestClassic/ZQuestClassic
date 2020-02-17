@@ -19478,8 +19478,15 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
         do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
         
-        if(msgdisplaybuf->clip == 0)
-            masked_blit(msgdisplaybuf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		
+        if(msg_bg_display_buf->clip == 0)
+		{
+			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
+        if(msg_txt_display_buf->clip == 0)
+		{
+			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
             
         put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
         
@@ -19496,8 +19503,10 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     }//end main scrolling loop (2 spaces tab width makes me sad =( )
     
     
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_bg_display_buf, 1);
     
     //Move link to the other side of the screen if scrolling's not turned on
     if(get_bit(quest_rules, qr_NOSCROLL))
@@ -20371,7 +20380,8 @@ void dospecialmoney(int index)
 		 game->change_drupy(0);   
 	    }
         }
-        rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
+        rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
+        rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
         donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
@@ -21598,9 +21608,14 @@ void setup_red_screen_old()
     
     do_layer(framebuf,-2, tmpscr, 0, 0, 2);
     
-    if(!(msgdisplaybuf->clip))
+    if(!(msg_bg_display_buf->clip))
     {
-        masked_blit(msgdisplaybuf, framebuf,0,0,0,playing_field_offset, 256,168);
+		blit_msgstr_bg(framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+    }
+    
+    if(!(msg_txt_display_buf->clip))
+    {
+		blit_msgstr_fg(framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     }
     
     if(!(pricesdisplaybuf->clip))
@@ -21634,19 +21649,27 @@ void setup_red_screen_old()
         if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, tmpscr, 0, 0, 2);
         
         do_layer(framebuf,3, tmpscr, 0, 0, 2);
-        do_layer(framebuf,-1, tmpscr, 0, 0, 2);
+        do_layer(framebuf,-1, tmpscr, 0, 0, 2);	
         do_layer(framebuf,4, tmpscr, 0, 0, 2);
         do_layer(framebuf,5, tmpscr, 0, 0, 2);
         
         //do an AND masked blit for messages on top of layers
-        if(!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip))
+        if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip) || !(pricesdisplaybuf->clip))
         {
+			BITMAP* subbmp = create_bitmap_ex(8,256,168);
+			clear_bitmap(subbmp);
+			if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip))
+			{
+				masked_blit(framebuf, subbmp, 0, playing_field_offset, 0, 0, 256, 168);
+				blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
+				blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
+			}
             for(int y=0; y<168; y++)
             {
                 for(int x=0; x<256; x++)
                 {
                     int c1 = framebuf->line[y+playing_field_offset][x];
-                    int c2 = msgdisplaybuf->line[y][x];
+                    int c2 = subbmp->line[y][x];
                     int c3 = pricesdisplaybuf->line[y][x];
                     
                     if(c1 && c3)
@@ -21659,7 +21682,8 @@ void setup_red_screen_old()
                     }
                 }
             }
-        }
+			destroy_bitmap(subbmp);
+		}
         
         //red shift
         // color scale the game screen

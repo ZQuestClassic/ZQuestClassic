@@ -156,6 +156,9 @@ void game_loop();
 void clearmsgnext(int str);
 void donewmsg(int str);
 int donew_shop_msg(int itmstr, int shopstr);
+void msg_bg(MsgStr const& msg);
+void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
+void blit_msgstr_fg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
 void dismissmsg();
 void dointro();
 void init_dmap();
@@ -269,7 +272,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;

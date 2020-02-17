@@ -18331,8 +18331,10 @@ int FFScript::do_get_internal_uid_eweapon(int index)
 
 void FFScript::AlloffLimited(int flagset)
 {
-	clear_bitmap(msgdisplaybuf);
-	set_clip_state(msgdisplaybuf, 1);
+	clear_bitmap(msg_txt_display_buf);
+	clear_bitmap(msg_bg_display_buf);
+	set_clip_state(msg_txt_display_buf, 1);
+	set_clip_state(msg_bg_display_buf, 1);
 	
 	
 	clear_bitmap(pricesdisplaybuf);
