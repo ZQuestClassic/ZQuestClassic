@@ -204,7 +204,7 @@ namespace ZScript
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
 		
-		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
+		RecursiveVisitor() : failure(false), failure_halt(false), failure_temp(false), breakNode(NULL) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -231,7 +231,18 @@ namespace ZScript
 			{
 				if (breakRecursion(host, param)) return;
 				visit(**it, param);
-				syncDisable(host, **it);
+			}
+		}
+		
+		template <class Container>
+		void block_visit(AST& host, Container const& nodes, void* param = NULL)
+		{
+			for (typename Container::const_iterator it = nodes.begin();
+			     it != nodes.end(); ++it)
+			{
+				failure_temp = false;
+				visit(**it, param);
+				if(failure_halt) return;
 			}
 		}
 
@@ -314,7 +325,7 @@ namespace ZScript
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 		
 		bool hasFailed() const {return failure;}
-		bool hasSkipFailed() const {return failure_skipped;}
+		bool hasTempFailed() const {return failure_temp;}
 		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
@@ -324,8 +335,8 @@ namespace ZScript
 		virtual bool breakRecursion(void* param = NULL) const;
 		
 		// Call this when a node relies on a child node. If the child is disabled, the parent must also be disabled, or else it can crash.
-		static void syncDisable(AST& parent, AST const& child);
-		static void syncDisable(AST& parent, AST const* child);
+		/*static void syncDisable(AST& parent, AST const& child);
+		static void syncDisable(AST& parent, AST const* child);*/
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
@@ -333,11 +344,14 @@ namespace ZScript
 		// Node which we are breaking recursion until we reach.
 		AST* breakNode;
 	
-		// Set to true if any errors have occured.
+		// Set to true if any errors have occurred.
 		bool failure;
 		
-		// Set to true if any errors have occured, but `NO_ERROR_HALT` was set.
-		bool failure_skipped;
+		// Set to true if any errors have occurred. This is cleared when recursion reaches a block-level.
+		bool failure_temp;
+		
+		// Set to true if a hard error occurs (Halting)
+		bool failure_halt;
 	};
 }
 

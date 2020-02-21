@@ -23,15 +23,15 @@ void* const RecursiveVisitor::paramReadWrite = new tag();
 
 bool RecursiveVisitor::breakRecursion(AST& host, void* param) const
 {
-	return host.errorDisabled || failure || breakNode;
+	return host.errorDisabled || failure_temp || failure_halt || breakNode;
 }
 
 bool RecursiveVisitor::breakRecursion(void* param) const
 {
-	return failure || breakNode;
+	return failure_temp || failure_halt || breakNode;
 }
 
-void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
+/*void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 {
 	if(child.errorDisabled) parent.errorDisabled = true;
 	if(child.isDisabled()) parent.disable();
@@ -46,11 +46,11 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 	}
 	if(child->errorDisabled) parent.errorDisabled = true;
 	if(child->isDisabled()) parent.disable();
-}
+}*/
 
 void RecursiveVisitor::handleError(CompileError const& error)
 {
-	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
+	bool hard_error = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) == 0);
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
@@ -69,7 +69,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			if (*errorId == *error.getId() * 10000L)
 			{
 				ancestor.compileErrorCatches.erase(it);
-				if (error.isStrict()) //Let errors be caught, if expected; don't disable this on skipError -V
+				if (error.isStrict())
 				{
 					ancestor.errorDisabled = true;
 					breakNode = &ancestor;
@@ -82,8 +82,9 @@ void RecursiveVisitor::handleError(CompileError const& error)
 	// Actually handle the error.
 	if (error.isStrict())
 	{
-		if(skipError) failure_skipped = true;
-		else failure = true;
+		if(hard_error) failure_halt = true;
+		failure = true;
+		failure_temp = true;
 	}
 	box_out_err(error);
 }
@@ -144,7 +145,7 @@ void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
 	visit(host.condition.get(), param);
-	syncDisable(host, *host.condition);
+	//syncDisable(host, *host.condition);
 	if (breakRecursion(host, param)) return;
 	visit(host.thenStatement.get(), param);
 }
@@ -159,7 +160,7 @@ void RecursiveVisitor::caseStmtIfElse(ASTStmtIfElse& host, void* param)
 void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 {
 	visit(host.key.get(), param);
-	syncDisable(host, *host.key);
+	//syncDisable(host, *host.key);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.cases, param);
 }
@@ -176,10 +177,10 @@ void RecursiveVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 void RecursiveVisitor::caseRange(ASTRange& host, void* param)
 {
 	visit(host.start.get(), param);
-	syncDisable(host, *host.start);
+	//syncDisable(host, *host.start);
 	if (breakRecursion(host, param)) return;
 	visit(host.end.get(), param);
-	syncDisable(host, *host.end);
+	//syncDisable(host, *host.end);
 }
 
 void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
@@ -187,10 +188,10 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	visit(host.setup.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
-	syncDisable(host, *host.test);
+	//syncDisable(host, *host.test);
 	if (breakRecursion(host, param)) return;
 	visit(host.increment.get(), param);
-	syncDisable(host, *host.increment);
+	//syncDisable(host, *host.increment);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 }
@@ -198,7 +199,7 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 {
 	visit(host.test.get(), param);
-	syncDisable(host, *host.test);
+	//syncDisable(host, *host.test);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 }
@@ -208,13 +209,13 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
-	syncDisable(host, *host.test);
+	//syncDisable(host, *host.test);
 }
 
 void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 {
 	visit(*host.iter, param);
-	syncDisable(host, *host.iter);
+	//syncDisable(host, *host.iter);
 	if(breakRecursion(host, param)) return;
 	optional<long> repeats = (*host.iter).getCompileTimeValue(this, scope);
 	if(repeats)
@@ -242,7 +243,7 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
 	visit(host.value.get(), param);
-	syncDisable(host, *host.value);
+	//syncDisable(host, *host.value);
 }
 
 // Declarations
@@ -317,18 +318,18 @@ void RecursiveVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	visit(host.baseType.get(), param);
-	if(host.baseType) syncDisable(host, *host.baseType);
+	//if(host.baseType) syncDisable(host, *host.baseType);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.extraArrays, param);
 	for(vector<ASTDataDeclExtraArray*>::iterator it = host.extraArrays.begin();
 		it != host.extraArrays.end(); ++it)
 	{
-		syncDisable(host, *it);
+		//syncDisable(host, *it);
 	}
 	if (breakRecursion(host, param)) return;
 	visit(host.getInitializer(), param);
 	if(host.getInitializer())
-		syncDisable(host, *host.getInitializer());
+		//syncDisable(host, *host.getInitializer());
 }
 
 void RecursiveVisitor::caseDataDeclExtraArray(
@@ -354,7 +355,7 @@ void RecursiveVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* p
 void RecursiveVisitor::caseExprConst(ASTExprConst& host, void* param)
 {
 	visit(host.content.get(), param);
-	syncDisable(host, *host.content);
+	//syncDisable(host, *host.content);
 }
 
 void RecursiveVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* param)
@@ -365,28 +366,28 @@ void RecursiveVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* par
 void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.index.get(), param);
-	syncDisable(host, *host.index);
+	//syncDisable(host, *host.index);
 }
 
 void RecursiveVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	visit(host.array.get(), param);
-	syncDisable(host, *host.array);
+	//syncDisable(host, *host.array);
 	if (breakRecursion(host, param)) return;
 	visit(host.index.get(), param);
-	syncDisable(host, *host.index);
+	//syncDisable(host, *host.index);
 }
 
 void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
@@ -397,250 +398,250 @@ void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 	for(vector<ASTExpr*>::iterator it = host.parameters.begin();
 		it != host.parameters.end(); ++it)
 	{
-		syncDisable(host, *it);
+		//syncDisable(host, *it);
 	}
 }
 
 void RecursiveVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprNot(ASTExprNot& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprPreIncrement(
 		ASTExprPreIncrement& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprPreDecrement(
 		ASTExprPreDecrement& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprCast(ASTExprCast& host, void* param)
 {
 	visit(host.operand.get(), param);
-	syncDisable(host, *host.operand);
+	//syncDisable(host, *host.operand);
 }
 
 void RecursiveVisitor::caseExprAnd(ASTExprAnd& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprOr(ASTExprOr& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprGT(ASTExprGT& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprGE(ASTExprGE& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprLT(ASTExprLT& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprLE(ASTExprLE& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprEQ(ASTExprEQ& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprNE(ASTExprNE& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprXOR(ASTExprXOR& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprPlus(ASTExprPlus& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprMinus(ASTExprMinus& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprTimes(ASTExprTimes& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprDivide(ASTExprDivide& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprModulo(ASTExprModulo& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprLShift(ASTExprLShift& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 void RecursiveVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
 	visit(host.left.get(), param);
-	syncDisable(host, *host.left);
+	//syncDisable(host, *host.left);
 	if (breakRecursion(host, param)) return;
 	visit(host.middle.get(), param);
-	syncDisable(host, *host.middle);
+	//syncDisable(host, *host.middle);
 	if (breakRecursion(host, param)) return;
 	visit(host.right.get(), param);
-	syncDisable(host, *host.right);
+	//syncDisable(host, *host.right);
 }
 
 // Literals
