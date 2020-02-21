@@ -637,7 +637,6 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
 	// Recurse on left.
 	visit(host.left.get());
-	//syncDisable(host, *host.left);
     if (breakRecursion(host)) return;
 	if(!registered(host.left.get())) return;
 
@@ -713,10 +712,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	visit(host.array.get());
-	//syncDisable(host, *host.array);
 	if (breakRecursion(host)) return;
 	visit(host.index.get());
-	//syncDisable(host, *host.index);
 	if (breakRecursion(host)) return;
 	if(registered(host.array.get()) && registered(host.index.get())) doRegister(host);
 }
@@ -875,13 +872,10 @@ void RegistrationVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
 	visit(host.left.get());
-	//syncDisable(host, *host.left);
 	if (breakRecursion(host)) return;
 	visit(host.middle.get());
-	//syncDisable(host, *host.middle);
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
-	//syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
 	if(registered(host.left.get()) && registered(host.middle.get()) && registered(host.right.get())) doRegister(host);
 }
@@ -918,7 +912,6 @@ void RegistrationVisitor::caseStringLiteral(ASTStringLiteral& host, void* param)
 void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 {
 	visit(host.operand.get());
-	//syncDisable(host, *host.operand);
 	if (breakRecursion(host)) return;
 	if(registered(host.operand.get()))doRegister(host);
 }
@@ -926,10 +919,8 @@ void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 {
 	visit(host.left.get());
-	//syncDisable(host, *host.left);
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
-	//syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
 	if((registered(host.left.get()) && registered(host.right.get()))) doRegister(host);
 }

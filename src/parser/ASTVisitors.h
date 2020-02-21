@@ -333,10 +333,6 @@ namespace ZScript
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
 		virtual bool breakRecursion(void* param = NULL) const;
-		
-		// Call this when a node relies on a child node. If the child is disabled, the parent must also be disabled, or else it can crash.
-		/*static void syncDisable(AST& parent, AST const& child);
-		static void syncDisable(AST& parent, AST const* child);*/
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
