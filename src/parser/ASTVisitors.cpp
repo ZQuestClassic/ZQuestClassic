@@ -139,7 +139,7 @@ void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 {
 	visit(host, host.options, param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.statements, param);
+	block_visit(host, host.statements, param);
 }
 
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
