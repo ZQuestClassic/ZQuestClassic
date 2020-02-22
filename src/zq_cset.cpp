@@ -174,39 +174,134 @@ int color = 0;
 int gray  = 0;
 int ratio = 32;
 
+static DIALOG edit_cset_dlg[] =
+{
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Edit CSet", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0, NULL, NULL, NULL },
+    { jwin_button_proc,    240,  152,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,    240,  184,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    //6
+    { jwin_button_proc,    130,  140,    61,   21,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Insert", NULL, NULL },
+    { jwin_hsl_proc,        72,   28,   174,   88,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
+}
 
-
+int jwin_hsl_proc(int msg, DIALOG *d, int c)
+{
+	ASSERT(d);
+	//d->w and d->h are ignored
+	//w == 174
+	//h == 88
+	static const int hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
+		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64;
+	switch(msg)
+	{
+		case MSG_DRAW:
+			//Hue
+			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int(128*(is_large?1.5:1)+4), 20, FR_DEEP);
+			for(int i=0; i<128; i++)
+			{
+				rectfill(screen,int(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+15,i);
+			}
+			//Light
+			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, 20, int(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int i=0; i<32; i++)
+			{
+				rectfill(screen,d->x+light_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
+						 d->x+light_x_offs+15,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
+			}
+			break;
+		case MSG_GOTMOUSE:
+			if(gui_mouse_b()==1)
+			{
+				int x=gui_mouse_x();
+				int y=gui_mouse_y();
+				if(isinRect(x,y,(d->x+c_x_offs),(d->y+c_y_offs),d->x+c_x_offs+c_wid-1,(d->y+c_y_offs)+c_hei-1))
+				{
+					color = vbound(x-(d->x+hue_x_offs),0,is_large?191:127);
+					gray = vbound(y-(d->y+light_y_offs),0,is_large?95:63);
+				}
+				if(isinRect(x,y,(d->x+sat_x_offs),(d->y+sat_y_offs),(d->x+sat_x_offs)+15,(d->y+sat_y_offs)+(is_large?96:64)-1))
+				{
+					ratio = vbound(y-(d->y+sat_y_offs),0,is_large?95:63);
+				}
+			}
+			break;
+	}
+}
+void init_gfxpal()
+{
+	for(int i=0; i<128; i++)
+	{
+		RAMpal[i] = _RGB(gfx_pal+i*3); //hue
+	}
+	for(int i=0; i<32; i++)
+	{
+		RAMpal[i+128] = _RGB(i<<1,i<<1,i<<1); //lightness
+	}
+}
 void edit_dataset(int dataset)
 {
-    PALETTE holdpal;
-    memcpy(holdpal,RAMpal,sizeof(RAMpal));
+	PALETTE holdpal;
+	memcpy(holdpal,RAMpal,sizeof(RAMpal));
+	
+	if(is_large)
+		large_dialog(edit_cset_dlg);
+	
+	load_cset(RAMpal,12,dataset);
+	load_cset(RAMpal,14,dataset);
+	set_palette_range(RAMpal,0,255,false);
+	
+	init_gfxpal();
+	
+	while(gui_mouse_b()) {} //Do nothing
+	while(true)
+	{
+		switch(zc_popup_dialog(edit_cset_dlg,3))
+		{
+			case 3: //Cancel
+				break;
+			case 4: //OK
+				break;
+			case 6: //Insert
+				break;
+		}
+	}
+	while(gui_mouse_b()) {} //Do nothing
+}
+void edit_dataset_old(int dataset)
+{
+    // PALETTE holdpal;
+    // memcpy(holdpal,RAMpal,sizeof(RAMpal));
     int index = 0;
     
-    hue_x=96;
-    hue_y=30;
-    hue_h=16;
-    light_x=74;
-    light_y=52;
-    light_w=16;
-    sat_x=230;
-    sat_y=52;
-    sat_w=16;
-    color_x=96;
-    color_y=52;
-    color_w=128;
-    color_h=64;
-    cset_x=96;
-    cset_y=170;
-    cset_h=8;
-    cset_spacing=4;
-    int ok_button_x=240, ok_button_y=152, ok_button_w=61, ok_button_h=21;
-    int cancel_button_x=240, cancel_button_y=184, cancel_button_w=61, cancel_button_h=21;
-    int insert_button_x=130, insert_button_y=140, insert_button_w=61, insert_button_h=21;
-    int window_xofs=0;
-    int window_yofs=0;
+    //{ hue_x=96;
+    // hue_y=30;
+    // hue_h=16;
+    // light_x=74;
+    // light_y=52;
+    // light_w=16;	
+    // sat_x=230;
+    // sat_y=52;
+    // sat_w=16;
+    // color_x=96;
+    // color_y=52;
+    // color_w=128;
+    // color_h=64;
+    // cset_x=96;
+    // cset_y=170;
+    // cset_h=8;
+    // cset_spacing=4;
+    // int ok_button_x=240, ok_button_y=152, ok_button_w=61, ok_button_h=21;
+    // int cancel_button_x=240, cancel_button_y=184, cancel_button_w=61, cancel_button_h=21;
+    // int insert_button_x=130, insert_button_y=140, insert_button_w=61, insert_button_h=21;
+    // int window_xofs=0;
+    //} int window_yofs=0;
     bool just_clicked=false;
     
-    if(is_large)
+    /* if(is_large)
     {
         window_xofs=(zq_screen_w-480)>>1;
         window_yofs=(zq_screen_h-360)>>1;
@@ -256,24 +351,24 @@ void edit_dataset(int dataset)
         insert_button_w = int(insert_button_w*1.5);
         insert_button_h = int(insert_button_h*1.5);
     }
-    
+     */
     custom_vsync();
     scare_mouse();
     
-    if(is_large)
-        rectfill(screen, 0, 0, screen->w, screen->h, 128);
+    // if(is_large)
+        // rectfill(screen, 0, 0, screen->w, screen->h, 128);
         
-    jwin_draw_win(screen, window_xofs, window_yofs, int(320*(is_large?1.5:1)), int(240*(is_large?1.5:1)), FR_WIN);
-    FONT *oldfont=is_large?lfont_l:nfont;
-    font=lfont;
-    jwin_draw_titlebar(screen, 3+window_xofs, 3+window_yofs, int((320*(is_large?1.5:1))-6), 18, "Edit CSet", true);
-    font = oldfont;
+    // jwin_draw_win(screen, window_xofs, window_yofs, int(320*(is_large?1.5:1)), int(240*(is_large?1.5:1)), FR_WIN);
+    // FONT *oldfont=is_large?lfont_l:nfont;
+    // font=lfont;
+    // jwin_draw_titlebar(screen, 3+window_xofs, 3+window_yofs, int((320*(is_large?1.5:1))-6), 18, "Edit CSet", true);
+    // font = oldfont;
     //draw_x_button(screen, 320 - 21, 5, 0);
-    load_cset(RAMpal,12,dataset);
-    load_cset(RAMpal,14,dataset);
-    set_palette_range(RAMpal,0,255,false);
+    // load_cset(RAMpal,12,dataset);
+    // load_cset(RAMpal,14,dataset);
+    // set_palette_range(RAMpal,0,255,false);
     
-    init_colormixer();
+    // init_colormixer();
     colormixer(color,gray,ratio);
     
     jwin_draw_frame(screen, cset_x-2, cset_y-2, int(128*(is_large?1.5:1)+4), cset_h+4, FR_DEEP);
@@ -285,19 +380,11 @@ void edit_dataset(int dataset)
     
     draw_edit_dataset_specs(index,-1);
     
-    draw_text_button(screen,ok_button_x,ok_button_y,ok_button_w,ok_button_h,"OK",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen,cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen,insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    // draw_text_button(screen,ok_button_x,ok_button_y,ok_button_w,ok_button_h,"OK",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    // draw_text_button(screen,cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    // draw_text_button(screen,insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
     
     unscare_mouse();
-    //if(zqwin_scale > 1)
-    {
-        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    //else
-    {
-        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
     
     while(gui_mouse_b())
     {
@@ -305,7 +392,7 @@ void edit_dataset(int dataset)
     }
     
     bool bdown=false;
-    int doing=0;
+    int	 doing=0;
     //doing:
     //1=hue
     //2=color index
