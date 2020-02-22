@@ -103,6 +103,9 @@ namespace ZScript
 		// Visit a group of nodes. Handle moving the nodes as needed, to accomodate order.
 		template <class Container>
 		void regvisit(AST& host, Container const& nodes, void* param = NULL);
+		
+		template <class Container>
+		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
 	private:
 		ZScript::Program& program;
 		
