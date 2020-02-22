@@ -223,7 +223,7 @@ void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 
 void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 {
-	block_visit(host.type.get(), param);
+	visit(host.type.get(), param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.options, param);
 	if (breakRecursion(host, param)) return;

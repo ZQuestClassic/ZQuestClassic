@@ -55,6 +55,7 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
 	Scope& functionScope = *function.internalScope;
 
