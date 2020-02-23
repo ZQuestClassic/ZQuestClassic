@@ -44,6 +44,17 @@ void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* para
 		visit(**it, param);
 	}
 }
+template <class Container>
+void RegistrationVisitor::block_regvisit(AST& host, Container const& nodes, void* param)
+{
+	for (typename Container::const_iterator it = nodes.begin();
+		 it != nodes.end(); ++it)
+	{
+		failure_temp = false;
+		visit(**it, param);
+		if(failure_halt) return;
+	}
+}
 
 void RegistrationVisitor::caseDefault(AST& host, void* param)
 {
@@ -71,23 +82,23 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 		scope = host.scope;
 	else
 		scope = host.scope = scope->makeFileChild(host.asString());
-	regvisit(host, host.options, param);
+	block_regvisit(host, host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.use, param);
+	block_regvisit(host, host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.dataTypes, param);
+	block_regvisit(host, host.dataTypes, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.scriptTypes, param);
+	block_regvisit(host, host.scriptTypes, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.imports, param);
+	block_regvisit(host, host.imports, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.variables, param);
+	block_regvisit(host, host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.functions, param);
+	block_regvisit(host, host.functions, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.namespaces, param);
+	block_regvisit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.scripts, param);
+	block_regvisit(host, host.scripts, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
 		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts))
@@ -138,15 +149,15 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 
 	// Recurse on script elements with its scope.
 	scope = &script.getScope();
-	regvisit(host, host.options, param);
+	block_regvisit(host, host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.use, param);
+	block_regvisit(host, host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.types, param);
+	block_regvisit(host, host.types, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.variables, param);
+	block_regvisit(host, host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	regvisit(host, host.functions, param);
+	block_regvisit(host, host.functions, param);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
@@ -188,21 +199,21 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
 	Scope* temp = scope;
 	scope = &namesp.getScope();
-	regvisit(host, host.options, param);
+	block_regvisit(host, host.options, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.dataTypes, param);
+	block_regvisit(host, host.dataTypes, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.scriptTypes, param);
+	block_regvisit(host, host.scriptTypes, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.use, param);
+	block_regvisit(host, host.use, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.variables, param);
+	block_regvisit(host, host.variables, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.functions, param);
+	block_regvisit(host, host.functions, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.namespaces, param);
+	block_regvisit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	regvisit(host, host.scripts, param);
+	block_regvisit(host, host.scripts, param);
 	scope = temp;
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.variables) && registered(host, host.functions)
@@ -637,7 +648,6 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
 	// Recurse on left.
 	visit(host.left.get());
-	syncDisable(host, *host.left);
     if (breakRecursion(host)) return;
 	if(!registered(host.left.get())) return;
 
@@ -713,10 +723,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	visit(host.array.get());
-	syncDisable(host, *host.array);
 	if (breakRecursion(host)) return;
 	visit(host.index.get());
-	syncDisable(host, *host.index);
 	if (breakRecursion(host)) return;
 	if(registered(host.array.get()) && registered(host.index.get())) doRegister(host);
 }
@@ -875,13 +883,10 @@ void RegistrationVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
 	visit(host.left.get());
-	syncDisable(host, *host.left);
 	if (breakRecursion(host)) return;
 	visit(host.middle.get());
-	syncDisable(host, *host.middle);
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
-	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
 	if(registered(host.left.get()) && registered(host.middle.get()) && registered(host.right.get())) doRegister(host);
 }
@@ -918,7 +923,6 @@ void RegistrationVisitor::caseStringLiteral(ASTStringLiteral& host, void* param)
 void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 {
 	visit(host.operand.get());
-	syncDisable(host, *host.operand);
 	if (breakRecursion(host)) return;
 	if(registered(host.operand.get()))doRegister(host);
 }
@@ -926,10 +930,8 @@ void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 {
 	visit(host.left.get());
-	syncDisable(host, *host.left);
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
-	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
 	if((registered(host.left.get()) && registered(host.right.get()))) doRegister(host);
 }
