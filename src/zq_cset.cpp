@@ -174,63 +174,163 @@ int color = 0;
 int gray  = 0;
 int ratio = 32;
 
-static DIALOG edit_cset_dlg[] =
-{
-	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Edit CSet", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0, NULL, NULL, NULL },
-    { jwin_button_proc,    240,  152,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,    240,  184,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    //6
-    { jwin_button_proc,    130,  140,    61,   21,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Insert", NULL, NULL },
-    { jwin_hsl_proc,        72,   28,   174,   88,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
-}
-
 int jwin_hsl_proc(int msg, DIALOG *d, int c)
 {
+#define HSL_FLAG_HASMOUSE	1
+#define HSL_FLAG_COLOR		2
+#define HSL_FLAG_SATURATION	4
+#define HSL_FLAGS_CS		(HSL_FLAG_COLOR|HSL_FLAG_SATURATION)
 	ASSERT(d);
 	//d->w and d->h are ignored
-	//w == 174
-	//h == 88
-	static const int hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
-		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64;
+	d->w = (is_large?1.5:1)*174;
+	d->h = (is_large?1.5:1)*88;
+	static int hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
+		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64, misc_wh = 16;
+	if(is_large && c_hei == 64)
+	{
+		hue_x_offs *= 1.5;
+		hue_y_offs *= 1.5;
+		light_x_offs *= 1.5;
+		light_y_offs *= 1.5;
+		sat_x_offs *= 1.5;
+		sat_y_offs *= 1.5;
+		c_x_offs *= 1.5;
+		c_y_offs *= 1.5;
+		c_wid *= 1.5;
+		c_hei *= 1.5;
+		misc_wh *= 1.5;
+	}
+	int clr = color, gr = gray, rat = ratio;
+	int x=gui_mouse_x();
+	int y=gui_mouse_y();
 	switch(msg)
 	{
+		case MSG_START:
+			d->d1 = 0;
+			break;
+		case MSG_GOTMOUSE:
+			d->d1 |= HSL_FLAG_HASMOUSE;
+			break;
+		case MSG_LOSTMOUSE:
+			d->d1 &= ~HSL_FLAG_HASMOUSE;
+			break;
+		case MSG_CLICK:
+		case MSG_DCLICK:
+		case MSG_LPRESS:
+			if((d->d1 & HSL_FLAG_HASMOUSE)&&!(d->d1 & HSL_FLAGS_CS))
+			{
+				if(isinRect(x,y,(d->x+c_x_offs),(d->y+c_y_offs),d->x+c_x_offs+c_wid-1,(d->y+c_y_offs)+c_hei-1))
+				{
+					d->d1 |= HSL_FLAG_COLOR;
+				}
+				else if(isinRect(x,y,(d->x+sat_x_offs),(d->y+sat_y_offs),(d->x+sat_x_offs)+misc_wh-1,(d->y+sat_y_offs)+c_hei-1))
+				{
+					d->d1 |= HSL_FLAG_SATURATION;
+				}
+			}
+			break;
+		case MSG_LRELEASE:
+			d->d1 &= ~HSL_FLAGS_CS;
+			break;
+		case MSG_IDLE:
+			if(gui_mouse_b()==1)
+			{
+				if(d->d1 & HSL_FLAG_COLOR)
+				{
+					color = vbound(x-(d->x+c_x_offs),0,c_wid-1);
+					gray = vbound(y-(d->y+c_y_offs),0,c_hei-1);
+				}
+				if(d->d1 & HSL_FLAG_SATURATION)
+				{
+					ratio = vbound(y-(d->y+sat_y_offs),0,c_hei-1);
+				}
+			}
+			else
+			{
+				d->d1 &= ~(HSL_FLAG_COLOR|HSL_FLAG_SATURATION);
+			}
+			//Fallthrough
 		case MSG_DRAW:
+			if(is_large)
+			{
+				clr /= 1.5;
+				gr /= 1.5;
+				rat /= 1.5;
+			}
+			custom_vsync();
+			scare_mouse();
 			//Hue
-			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int(128*(is_large?1.5:1)+4), 20, FR_DEEP);
+			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int(128*(is_large?1.5:1)+4), misc_wh+4, FR_DEEP);
 			for(int i=0; i<128; i++)
 			{
-				rectfill(screen,int(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+15,i);
+				rectfill(screen,int(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
 			}
 			//Light
-			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, 20, int(64*(is_large?1.5:1)+4), FR_DEEP);
+			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
 			for(int i=0; i<32; i++)
 			{
 				rectfill(screen,d->x+light_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
-						 d->x+light_x_offs+15,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
+						 d->x+light_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
 			}
-			break;
-		case MSG_GOTMOUSE:
-			if(gui_mouse_b()==1)
+			//Saturation
+			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int i=0; i<32; i++)
 			{
-				int x=gui_mouse_x();
-				int y=gui_mouse_y();
-				if(isinRect(x,y,(d->x+c_x_offs),(d->y+c_y_offs),d->x+c_x_offs+c_wid-1,(d->y+c_y_offs)+c_hei-1))
-				{
-					color = vbound(x-(d->x+hue_x_offs),0,is_large?191:127);
-					gray = vbound(y-(d->y+light_y_offs),0,is_large?95:63);
-				}
-				if(isinRect(x,y,(d->x+sat_x_offs),(d->y+sat_y_offs),(d->x+sat_x_offs)+15,(d->y+sat_y_offs)+(is_large?96:64)-1))
-				{
-					ratio = vbound(y-(d->y+sat_y_offs),0,is_large?95:63);
-				}
+				RAMpal[i+160] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],
+									   gfx_pal[clr*3+2],gr,gr,gr,i<<1); //saturatn
+				rectfill(screen,d->x + sat_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs,
+						 d->x+sat_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs+1,i+160);
 			}
+			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
+			RAMpal[edi] = invRGB(RAMpal[edc]);
+			set_palette_range(RAMpal,0,255,false);
+			//Color
+			jwin_draw_frame(screen, d->x+c_x_offs-2, d->y+c_y_offs-2, c_wid+4, c_hei+4, FR_DEEP);
+			rectfill(screen,d->x+c_x_offs,d->y+c_y_offs,d->x+c_x_offs+c_wid-1,d->y+c_y_offs+c_hei-1,edc);
+			//
+			_allegro_hline(screen,d->x+c_x_offs,gray+d->y+c_y_offs,d->x+c_x_offs+c_wid-1,edi);
+			_allegro_vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
+			_allegro_hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
+			textprintf_centre_ex(screen,font,d->x+(d->w/2),int(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+			unscare_mouse();
+			SCRFIX();
 			break;
 	}
+	return D_O_K;
 }
+
+int jwin_cset_proc(int msg, DIALOG* d, int c)
+{
+	ASSERT(d);
+	
+	switch(msg)
+	{
+		case MSG_START:
+			d->d1 = 0;
+			break;
+		case MSG_DRAW:
+			break;
+	}
+	return D_O_K;
+}
+
+static DIALOG edit_cset_dlg[] =
+{
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    320,  240,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Edit CSet", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0, NULL, NULL, NULL },
+	{ jwin_button_proc,    240,  184,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,    240,  152,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	//6
+	{ jwin_button_proc,    130,  140,    61,   21,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Insert", NULL, NULL },
+	{ jwin_hsl_proc,        72,   28,   174,   88,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
+	{ jwin_cset_proc,        72,   120,   174,   88,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
+	
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 void init_gfxpal()
 {
 	for(int i=0; i<128; i++)
@@ -248,29 +348,51 @@ void edit_dataset(int dataset)
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
 	
 	if(is_large)
+	{
+		rectfill(screen, 0, 0, screen->w, screen->h, 128);
 		large_dialog(edit_cset_dlg);
+	}
 	
 	load_cset(RAMpal,12,dataset);
 	load_cset(RAMpal,14,dataset);
 	set_palette_range(RAMpal,0,255,false);
+	FONT* old = font;
+	font = is_large?lfont_l:nfont;
 	
 	init_gfxpal();
 	
 	while(gui_mouse_b()) {} //Do nothing
-	while(true)
+	bool running = true;
+	edit_cset_dlg[0].dp2 = lfont;
+	while(running)
 	{
 		switch(zc_popup_dialog(edit_cset_dlg,3))
 		{
 			case 3: //Cancel
+				running = false;
 				break;
 			case 4: //OK
+				get_cset(dataset,14,RAMpal);
+				saved=false;
+				running = false;
 				break;
 			case 6: //Insert
 				break;
 		}
 	}
+	font = nfont;
+	
+	//  RAMpal = holdpal;
+	
+	memcpy(RAMpal, holdpal, sizeof(holdpal));
+	
+	set_palette(RAMpal);
 	while(gui_mouse_b()) {} //Do nothing
+	font = old;
+	rectfill(screen, 0, 0, screen->w, screen->h, 128);
 }
+
+#if 0 > 1
 void edit_dataset_old(int dataset)
 {
     // PALETTE holdpal;
@@ -739,7 +861,7 @@ void edit_dataset_old(int dataset)
         /* do nothing */
     }
 }
-
+#endif
 int pal_index(RGB *pal,RGB c)
 {
     for(int i=0; i<256; i++)
