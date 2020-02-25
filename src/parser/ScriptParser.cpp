@@ -81,8 +81,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_eol();
 	
 	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed() || semanticAnalyzer.hasSkipFailed()
-		|| regVisitor.hasSkipFailed())
+	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
 		return NULL;
     
 	FunctionData fd(program);
