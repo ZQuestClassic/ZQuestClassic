@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 50
-Document Revision: 10th February, 2020
+Document for: 2.55, Alpha 52
+Document Revision: 25th February, 2020
 
 
  __           _   _                 
@@ -3427,7 +3427,7 @@ void Max(int newmax);
  * The current legal range is 
  * 1 to 1024.
  
-bool isSubmerged();
+bool Submerged();
  * Returns if the npc is submerged (in the ground, in the water, or in a wall).
  * Returns true if the npc is FULLY submerged.
  * Returns false as soon as the npc is even partly submerged, and
