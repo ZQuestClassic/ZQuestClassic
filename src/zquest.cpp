@@ -144,6 +144,11 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+#ifndef _WIN32
+class CConsoleLogger;
+class CConsoleLoggerEx;
+#endif
+
 #include "ConsoleLogger.h"
 
 #ifdef _WIN32

@@ -45,6 +45,12 @@ int hangcount = 0;
 #endif
 
 #include "ffdebug.h"
+
+#ifndef _WIN32
+class CConsoleLogger;
+class CConsoleLoggerEx;
+#endif
+
 #include "ConsoleLogger.h"
 
 
