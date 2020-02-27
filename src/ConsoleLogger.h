@@ -9,6 +9,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#ifdef _WIN32
+
+#include <windows.h>
 #include "windows.h"
 #include <time.h>
 #include <stdio.h>
@@ -225,5 +228,186 @@ protected:
 
 
 };
+
+#endif
+
+#else
+//unix
+typedef critical_section_bunk mutex;
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	// create a logger: starts a pipe+create the child process
+	long Create(const char *lpszWindowTitle=NULL,
+				int buffer_size_x=-1,int buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+
+	// close everything
+	long Close(void);
+	
+	// output functions
+	inline int print(const char *lpszText,int iSize=-1);
+	int printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int SetAsDefaultOutput(void);
+	static int ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	HANDLE	m_hPipe;
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile long m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0;
+#else
+	critical_section_bunk	m_cs;
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
+
+#endif
+
+	// you can extend this class by overriding the function
+	virtual long	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int _print(const char *lpszText,int iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ HANDLE hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	LPCVOID lpBuffer,
+		/*__in        */ DWORD nNumberOfBytesToWrite,
+		/*__out_opt   */ LPDWORD lpNumberOfBytesWritten,
+		/*__inout_opt */ LPOVERLAPPED lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	long	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE=FOREGROUND_BLUE,
+		COLOR_GREEN=FOREGROUND_GREEN ,
+		COLOR_RED =FOREGROUND_RED ,
+		COLOR_WHITE=COLOR_RED|COLOR_GREEN|COLOR_BLUE,
+		COLOR_INTENSITY =FOREGROUND_INTENSITY ,
+		COLOR_BACKGROUND_BLACK=0,
+		COLOR_BACKGROUND_BLUE =BACKGROUND_BLUE ,
+		COLOR_BACKGROUND_GREEN =BACKGROUND_GREEN ,
+		COLOR_BACKGROUND_RED =BACKGROUND_RED ,
+		COLOR_BACKGROUND_WHITE =COLOR_BACKGROUND_RED|COLOR_BACKGROUND_GREEN|COLOR_BACKGROUND_BLUE ,
+		COLOR_BACKGROUND_INTENSITY =BACKGROUND_INTENSITY ,
+		COLOR_COMMON_LVB_LEADING_BYTE =COMMON_LVB_LEADING_BYTE ,
+		COLOR_COMMON_LVB_TRAILING_BYTE =COMMON_LVB_TRAILING_BYTE ,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL =COMMON_LVB_GRID_HORIZONTAL ,
+		COLOR_COMMON_LVB_GRID_LVERTICAL =COMMON_LVB_GRID_LVERTICAL ,
+		COLOR_COMMON_LVB_GRID_RVERTICAL =COMMON_LVB_GRID_RVERTICAL ,
+		COLOR_COMMON_LVB_REVERSE_VIDEO =COMMON_LVB_REVERSE_VIDEO ,
+		COLOR_COMMON_LVB_UNDERSCORE=COMMON_LVB_UNDERSCORE
+
+		
+	};
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(DWORD color);
+	
+	// write string , use specified color
+	int cprintf(int attributes,const char *format,...);
+	
+	// write string , use current color
+	int cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int x,int y);
+
+
+
+	word	GetCurrentColor(void)
+	{  }
+	
+	void	SetCurrentColor(word dwColor)
+	{ }
+	
+
+protected:
+	virtual long	AddHeaders(void)
+	{	=
+		return  0;
+	}
+	
+	virtual int _print(const char *lpszText,int iSize);
+	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+
+
+};
+
 
 #endif
