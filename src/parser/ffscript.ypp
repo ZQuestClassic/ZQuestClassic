@@ -699,7 +699,7 @@ int go(const char *f)
 							headerguards += tkn2;
 							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
 						}
-						else if ( strcmp(f, "tmp") )
+						else /* if ( strcmp(f, "tmp") )*/
 						{
 							box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
 							box_eol();
@@ -740,7 +740,7 @@ int go(const char *f)
 						headerguards += tkn2;
 						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
 					}
-					else if ( strcmp(f, "tmp") )
+					else /*if ( strcmp(f, "tmp") )*/
 					{
 						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
 						return -99;
@@ -777,7 +777,7 @@ int go(const char *f)
 					headerguards += tkn2;
 					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();  }
 				}
-				else if ( strcmp(f, "tmp") )
+				else /*if ( strcmp(f, "tmp") )*/
 				{
 					box_out("File already included, ignoring duplicate include: "); 
 					box_eol();box_out(pth_headers.c_str());box_eol();
@@ -812,7 +812,7 @@ int go(const char *f)
 				headerguards += tkn2;
 				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
 			}
-			else if ( strcmp(pth_include.c_str(), "tmp") )
+			else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
 			{
 				box_out("File already included, ignoring duplicate include: "); box_eol();
 				box_out(pth_include.c_str());box_eol();
@@ -876,7 +876,7 @@ int go(const char *f)
 							headerguards += tkn2;
 							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
 						}
-						else if ( strcmp(f, "tmp") )
+						else /*if ( strcmp(f, "tmp") )*/
 						{
 							box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
 							return -99;
@@ -911,7 +911,7 @@ int go(const char *f)
 						headerguards += tkn2;
 						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 					}
-					else if ( strcmp(f, "tmp") )
+					else /*if ( strcmp(f, "tmp") )*/
 					{
 						box_out("File already included, ignoring duplicate include: "); 
 						box_eol();box_out(pth_headers.c_str());box_eol();
@@ -946,7 +946,7 @@ int go(const char *f)
 					headerguards += tkn2;
 					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
 				}
-				else if ( strcmp(pth_include.c_str(), "tmp") )
+				else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
 				{
 					box_out("File already included, ignoring duplicate include: "); box_eol();
 					box_out(pth_include.c_str());box_eol();
@@ -985,7 +985,7 @@ int go(const char *f)
 				headerguards += tkn2;
 				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
 			}
-			else if ( strcmp(f, "tmp") )
+			else /*if ( strcmp(f, "tmp") )*/
 			{
 				box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
 				box_eol();
@@ -1050,7 +1050,7 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
-		if ( LOGLEVEL > 0 )  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
+		/*if ( LOGLEVEL > 0 )*/  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -1100,7 +1100,7 @@ int goPPC(const char *f)
 							headerguardsPPC += tkn2;
 							if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(f);box_eol(); }
 						}
-						else if ( strcmp(f, "tmp") )
+						else /*if ( strcmp(f, "tmp") )*/
 						{
 							box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
 							box_eol();
@@ -1137,7 +1137,7 @@ int goPPC(const char *f)
 						//headerguardsPPC += tkn;
 						headerguardsPPC += tkn2;
 					}
-					else if ( strcmp(pth_user.c_str(), "tmp") )
+					else /*if ( strcmp(pth_user.c_str(), "tmp") )*/
 					{
 						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
 						return -99;
@@ -1171,7 +1171,7 @@ int goPPC(const char *f)
 					headerguardsPPC += tkn2;
 					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 				}
-				else if ( strcmp(pth_headers.c_str(), "tmp") )
+				else /*if ( strcmp(pth_headers.c_str(), "tmp") )*/
 				{
 					box_out("File already included, ignoring duplicate include: "); 
 					box_eol();box_out(pth_headers.c_str());box_eol();
@@ -1206,7 +1206,7 @@ int goPPC(const char *f)
 				headerguardsPPC += tkn2;
 				if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
 			}
-			else if ( strcmp(pth_include.c_str(), "tmp") )
+			else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
 			{
 				box_out("File already included, ignoring duplicate include: "); box_eol();
 				box_out(pth_include.c_str());box_eol();
@@ -1221,7 +1221,7 @@ int goPPC(const char *f)
 	}
 	else
 	{
-		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
+		/*if ( LOGLEVEL > 0 )*/ { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1267,7 +1267,7 @@ int goPPC(const char *f)
 							//headerguardsPPC += tkn;
 							headerguardsPPC += tkn2;
 						}
-						else if ( strcmp(pth_user.c_str(), "tmp") )
+						else /*if ( strcmp(pth_user.c_str(), "tmp") )*/
 						{
 							box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
 							return -99;
@@ -1301,7 +1301,7 @@ int goPPC(const char *f)
 						headerguardsPPC += tkn2;
 						if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
 					}
-					else if ( strcmp(pth_headers.c_str(), "tmp") )
+					else /*if ( strcmp(pth_headers.c_str(), "tmp") )*/
 					{
 						box_out("File already included, ignoring duplicate include: "); 
 						box_eol();box_out(pth_headers.c_str());box_eol();
@@ -1336,7 +1336,7 @@ int goPPC(const char *f)
 					headerguardsPPC += tkn2;
 					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
 				}
-				else if ( strcmp(pth_include.c_str(), "tmp") )
+				else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
 				{
 					box_out("File already included, ignoring duplicate include: "); box_eol();
 					box_out(pth_include.c_str());box_eol();
@@ -1382,7 +1382,7 @@ int goPPC(const char *f)
 					box_out("PPC Appending file: "); box_out(f);box_eol();
 				}
 			}
-			else if ( strcmp(f, "tmp") )
+			else /*if ( strcmp(f, "tmp") )*/
 			{
 				box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
 				box_eol();

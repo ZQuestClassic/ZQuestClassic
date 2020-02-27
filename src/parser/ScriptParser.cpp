@@ -236,7 +236,8 @@ ScriptsData * compile_headerguards(const char *filename)
 {
     ScriptParser::resetState();
     headerguards.clear();
-
+    headerguardsPPC.clear();	
+	
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 1: Parsing");
     box_eol();
@@ -262,15 +263,33 @@ ScriptsData * compile_headerguards(const char *filename)
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 2: Preprocessing");
     box_eol();
-    headerguardsPPC.clear();
+    //headerguardsPPC.clear();
 #endif
     map<string, long> *consts = new map<string,long>();
-    
-    if(!ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts))
+    /*if ( !(strcmp(filename, "tmp") )
     {
-        delete theAST;
-        delete consts;
-        return NULL;
+	    box_out("tmp"); box_eol();
+	    if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT,consts))
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;
+	    }
+    }*/
+    //else
+    {
+	    if(!ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts))
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;
+	    }
+	    else if (ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts) == 2 )
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;    
+	    }
     }
     
 #ifndef SCRIPTPARSER_COMPILE
@@ -475,7 +494,7 @@ string ScriptParser::trimQuotes(string quoteds)
 
 int ScriptParser::preprocess_headerguard(AST *theAST, int reclimit, map<string,long> *constants)
 {
-    headerguards.clear();
+    //headerguards.clear();
     if(reclimit == 0)
     {
         printErrorMsg(NULL, IMPORTRECURSION);
