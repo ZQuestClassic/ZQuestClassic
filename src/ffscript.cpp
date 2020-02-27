@@ -738,12 +738,9 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 
 #endif
 
-
-#ifdef _WIN32
+//no ifdef here
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-#endif
-
 
 const char script_types[11][16]=
 {
