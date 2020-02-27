@@ -2,7 +2,7 @@
 #include "../zsys.h"
 #include "Compiler.h"
 
-extern byte headerguard;
+extern char headerguard;
 
 ScriptsData * compile(const char *filename)
 {
