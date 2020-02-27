@@ -1050,7 +1050,7 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
-		if ( LOGLEVEL > 0 )  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
+		/*if ( LOGLEVEL > 0 )*/  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -1221,7 +1221,7 @@ int goPPC(const char *f)
 	}
 	else
 	{
-		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
+		/*if ( LOGLEVEL > 0 )*/ { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
