@@ -182,7 +182,7 @@ static void mainscreen(int f)
         blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
         char tbuf[80];
-	char copyrbuf[80] = { {NULL } };
+	char copyrbuf[80] = { NULL };
         sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
 	sprintf(copyrbuf, "%c", 0xBB);
 	
@@ -610,7 +610,7 @@ static void DX_mainscreen(int f)
 	 sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
 	    
-	char copyrbuf2[80] = { {NULL } };
+	char copyrbuf2[80] = { NULL };
 	sprintf(copyrbuf2, "%c", 0xBB);
 	
 	char t_year[5];
@@ -732,7 +732,7 @@ static void v25_mainscreen(int f)
     memset(emulation_patches,0,sizeof(emulation_patches));
     static int pic=0;
     char tbuf[80];
-    char copyrbuf[80] = { {NULL } };
+    char copyrbuf[80] = { NULL };
         
 	sprintf(copyrbuf, "%c", 0xBB);
 	
