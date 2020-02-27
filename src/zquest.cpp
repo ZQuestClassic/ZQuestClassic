@@ -30,13 +30,9 @@
 #include "mem_debug.h"
 void setZScriptVersion(int) { } //bleh...
 
-#ifndef _WIN32
-typedef byte unsigned char;
-#endif
+char headerguard = 0;
 
-byte headerguard = 0;
-
-byte __isZQuest = 1; //Shared functionscan reference this. -Z
+char __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include <png.h>
 #include <pngconf.h>

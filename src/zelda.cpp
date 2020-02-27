@@ -118,7 +118,7 @@ extern int directItemB;
 extern byte emulation_patches[emuLAST];
 extern int hangcount;
 bool is_large=false;
-byte __isZQuest = 0; //Shared functionscan reference this. -Z
+char __isZQuest = 0; //Shared functionscan reference this. -Z
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;

@@ -38,7 +38,7 @@
 extern int midi_strict; //L
 #endif
 extern bool cancelgetnum;
-extern byte headerguard;
+extern char headerguard;
 
 extern bool is_large;
 extern int RulesetDialog;
