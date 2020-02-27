@@ -147,7 +147,6 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #ifdef _WIN32
 #include "ConsoleLogger.h"
 #else
-//#else
 //unix
 typedef critical_section_bunk mutex;
 class CConsoleLogger
@@ -325,6 +324,7 @@ protected:
 
 };
 #endif
+
 
 #ifdef _WIN32
 //////////////////////////////////////////////////////////////////////
