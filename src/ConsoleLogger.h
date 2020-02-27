@@ -232,6 +232,8 @@ protected:
 #endif
 
 #else
+//unix
+typedef critical_section_bunk mutex;
 class CConsoleLogger
 {
 public:
@@ -282,7 +284,7 @@ protected:
 	inline void LeaveCriticalSection(void)
 	{ m_fast_critical_section=0;
 #else
-	CRITICAL_SECTION	m_cs;
+	critical_section_bunk	m_cs;
 	inline void InitializeCriticalSection(void)
 	{  }
 	
@@ -310,7 +312,7 @@ protected:
 
 
 	// SafeWriteFile : write safely to the pipe
-	inline BOOL SafeWriteFile(
+	inline bool SafeWriteFile(
 		/*__in*/ HANDLE hFile,
 		/*__in_bcount(nNumberOfBytesToWrite)*/	LPCVOID lpBuffer,
 		/*__in        */ DWORD nNumberOfBytesToWrite,
@@ -326,7 +328,7 @@ protected:
 
 class CConsoleLoggerEx : public CConsoleLogger
 {
-	DWORD	m_dwCurrentAttributes;
+	long	m_dwCurrentAttributes;
 	enum enumCommands
 	{
 		COMMAND_PRINT,
@@ -369,7 +371,7 @@ public:
 	void cls(void);
 	
 	// Clear screen use specific color
-	void cls(DWORD color);
+	void cls(word color);
 
 	// Clear till End Of Line , use default color (black&white)
 	void clear_eol(void);
@@ -388,10 +390,10 @@ public:
 
 
 
-	DWORD	GetCurrentColor(void)
+	word	GetCurrentColor(void)
 	{  }
 	
-	void	SetCurrentColor(DWORD dwColor)
+	void	SetCurrentColor(word dwColor)
 	{ }
 	
 
