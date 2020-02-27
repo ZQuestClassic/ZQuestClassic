@@ -55,7 +55,11 @@ ZModule zcm;
 #include "ffscript.h"
 #include "ConsoleLogger.h"
 extern FFScript FFCore;
+
+#ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+#endif
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
