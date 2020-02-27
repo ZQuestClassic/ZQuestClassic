@@ -45,13 +45,13 @@ int hangcount = 0;
 #endif
 
 #include "ffdebug.h"
+#include "ConsoleLogger.h"
+
 
 #ifdef _WIN32
 // ConsoleLogger.cpp: implementation of the CConsoleLogger class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#include "ConsoleLogger.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -549,8 +549,6 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 #else
 //Unix
 
-
-#include "ConsoleLogger.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
