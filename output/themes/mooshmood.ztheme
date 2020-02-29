@@ -51,7 +51,7 @@ jctextfg = 2		//Radio Button FG
 jcselbg = 2		//Menu Selection BG
 jcselfg = 6		//Menu Selection Text
 
-jccursormisc = 1	//Mouse Bottom Edge
-jccursoroutline = 1 	//Mouse Left/Right Edges
-jccursorlight = 8	//Mouse Core, Light Half
-jccursordark = 8	//Mouse Core, Dark Half
+jccursormisc = 7	//Mouse Bottom Edge
+jccursoroutline = 6 	//Mouse Left/Right Edges
+jccursorlight = 3	//Mouse Core, Light Half
+jccursordark = 1	//Mouse Core, Dark Half
