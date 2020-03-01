@@ -1,5 +1,12 @@
 ChangeLog for 2.53.1
 
+//Beta 35
+Fixed crashes with long filenames overflowing the char buffers[]
+	on some save and load routines. 
+	( ZoriaRPG, 1st March, 2020 )
+Fixed issues compiling on Linux/g++.
+	( ZoriaRPG, roracle, 27th February, 2020 )
+
 //Beta 34
 Fixed a crash when using header guards and also declaring
 	constants in the buffer.

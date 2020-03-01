@@ -1419,7 +1419,7 @@ int checksave()
     if(saved)
         return 1;
         
-    char buf[80];
+    char buf[256+20];
     char *name = get_filename(filepath);
     
     if(name[0]==0)

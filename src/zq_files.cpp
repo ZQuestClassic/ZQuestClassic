@@ -665,7 +665,7 @@ int onSave()
     }
     
     int ret = save_quest(filepath, false);
-    char buf[80],name[256];
+    char buf[256+20],name[256];
     extract_name(filepath,name,FILENAMEALL);
     
     if(!ret)
@@ -799,7 +799,7 @@ int onOpen()
     }
     else
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
@@ -837,7 +837,7 @@ int onRevert()
         }
         else
         {
-            char buf[80],name[256];
+            char buf[256+20],name[256];
             extract_name(filepath,name,FILENAMEALL);
             sprintf(buf,"Unable to load %s",name);
             jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
@@ -923,7 +923,7 @@ int onImport_Map()
     
     if(ret)
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,loaderror[ret],NULL,"O&K",NULL,'k',0,lfont);
@@ -972,7 +972,7 @@ int onExport_Map()
         return D_O_K;
         
     int ret = Map.save(temppath);
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(!ret)
@@ -999,7 +999,7 @@ int onImport_DMaps_old()
     
     if(!load_dmaps(temppath,0))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1070,7 +1070,7 @@ int onImport_DMaps()
 	{
 		if(!readsomedmaps(f))
 		{
-			char buf[80],name[256];
+			char buf[256+20],name[256];
 			extract_name(temppath,name,FILENAMEALL);
 			sprintf(buf,"Unable to load %s",name);
 			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1079,7 +1079,7 @@ int onImport_DMaps()
 		{
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
-			char tmpbuf[80]={0};
+			char tmpbuf[256+20]={0};
 			sprintf(tmpbuf,"Loaded %s",name);
 			
 			
@@ -1145,7 +1145,7 @@ int onImport_Tiles()
 	{
 		if(!readtilefile_to_location(f,0,ret))
 		{
-			char buf[80],name[256];
+			char buf[256+20],name[256];
 			extract_name(temppath,name,FILENAMEALL);
 			sprintf(buf,"Unable to load %s",name);
 			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1154,7 +1154,7 @@ int onImport_Tiles()
 		{
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
-			char tmpbuf[80]={0};
+			char tmpbuf[256+20]={0};
 			sprintf(tmpbuf,"Saved %s",name);
 			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 		}
@@ -1171,7 +1171,7 @@ int onExport_Tiles()
     if(!getname("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     //writetilefile(f,first_tile_id,the_tile_count);
@@ -1182,7 +1182,7 @@ int onExport_Tiles()
 		writetilefile(f,0,NEWMAXTILES);
 		pack_fclose(f);
 		
-		char tmpbuf[80]={0};
+		char tmpbuf[256+20]={0};
 		sprintf(tmpbuf,"Saved %s",name);
 		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
@@ -1301,7 +1301,7 @@ int onExport_DMaps_old()
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_dmaps(temppath))
@@ -1328,7 +1328,7 @@ int onImport_Pals()
     
     if(!load_pals(temppath,0))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1342,7 +1342,7 @@ int onExport_Pals()
     if(!getname("Export Palettes (.zpl)","zpl",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_pals(temppath))
@@ -1369,7 +1369,7 @@ int onImport_Msgs()
     
     if(!load_msgstrs(temppath,0))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1383,7 +1383,7 @@ int onExport_Msgs()
     if(!getname("Export String Table (.zqs)","zqs",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs(temppath))
@@ -1407,7 +1407,7 @@ int onExport_MsgsText()
     if(!getname("Export Text Dump (.txt)","txt",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs_text(temppath))
@@ -1449,7 +1449,7 @@ int onImport_Combos_old()
     if(!load_combos(temppath, ret*COMBOS_PER_PAGE))
     {
         // if(!load_combos(temppath)) {
-        char buf[80],name[13];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAME8_3);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1466,7 +1466,7 @@ int onExport_Combos()
     if(!getname("Export Combos (.zcombo)","zcombo",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     //writetilefile(f,first_tile_id,the_tile_count);
@@ -1477,7 +1477,7 @@ int onExport_Combos()
 		writecombofile(f,0,MAXCOMBOS);
 		pack_fclose(f);
 		
-		char tmpbuf[80]={0};
+		char tmpbuf[256+20]={0};
 		sprintf(tmpbuf,"Saved %s",name);
 		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
@@ -1497,7 +1497,7 @@ int onExport_Combos_old()
     if(!getname("Export Combo Table (.cmb)","cmb",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_combos(temppath))
@@ -1534,7 +1534,7 @@ int onImport_Tiles_old()
     // usetiles=true;
     if(!load_tiles(temppath, ret*TILES_PER_PAGE))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1549,7 +1549,7 @@ int onExport_Tiles_old()
     if(!getname("Export Tiles (.til)","til",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_tiles(temppath))
@@ -1574,7 +1574,7 @@ int onImport_Guys()
         
     if(!load_guys(temppath))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1589,7 +1589,7 @@ int onExport_Guys()
     if(!getname("Export Enemies (.guy)","guy",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_guys(temppath))
@@ -1620,7 +1620,7 @@ int onImport_ComboAlias()
         
     if(!load_combo_alias(temppath))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1635,7 +1635,7 @@ int onExport_ComboAlias()
     if(!getname("Export Combo Alias (.zca)","zca",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_combo_alias(temppath))
@@ -1663,7 +1663,7 @@ int onImport_ZGP()
     // usetiles=true;
     if(!load_zgp(temppath))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1678,7 +1678,7 @@ int onExport_ZGP()
     if(!getname("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_zgp(temppath))
@@ -1706,7 +1706,7 @@ int onImport_Subscreen()
     // usetiles=true;
     if(!load_subscreen(temppath))
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1722,7 +1722,7 @@ int onExport_Subscreen()
         return D_O_K;
         
     bool cancel;
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_subscreen(temppath, &cancel))
@@ -1759,7 +1759,7 @@ int onImport_ZQT()
     
     if(error != qe_OK && error != qe_cancel)
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1780,7 +1780,7 @@ int onExport_ZQT()
     if(!getname("Export Quest Template (.zqt)","zqt",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(!save_unencoded_quest(temppath, true))
@@ -1809,7 +1809,7 @@ int onImport_UnencodedQuest()
     
     if(ret != qe_OK && ret != qe_cancel)
     {
-        char buf[80],name[256];
+        char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1830,7 +1830,7 @@ int onExport_UnencodedQuest()
     if(!getname("Export Unencoded Quest (.qsu)","qsu",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[256];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAMEALL);
     
     if(!save_unencoded_quest(temppath, false))
