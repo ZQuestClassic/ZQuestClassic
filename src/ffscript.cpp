@@ -10905,7 +10905,25 @@ int run_script(const byte type, const word script, const byte i)
         }
     }
     else
+    {
         pc++;
+	if ( pc < 0 ) //rolled over from overflow
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			default: pc = 1; scommand = 0xFFFF; break;				
+		}
+	}
+    }
         
     ri->pc = pc; //Put it back where we got it from
     
