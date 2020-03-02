@@ -3078,7 +3078,7 @@ void do_exportdoorset(const char *prompt,int initialval)
 static DIALOG load_doorset_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Set (Range)", NULL, NULL },
+    { jwin_win_proc,      0,   0,   120,  124,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Set (Range)", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
@@ -3090,8 +3090,13 @@ static DIALOG load_doorset_dlg[] =
     {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
     { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
     //8
-    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,   15,   92,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  92,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //10
+    {  jwin_text_proc,        10,    64,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Dest",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     63,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    
     //{ jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -3100,19 +3105,19 @@ static DIALOG load_doorset_dlg[] =
 void do_importdoorset(const char *prompt,int initialval)
 {
 	
-	char firstdoor[8], doorct[8];;
+	char firstdoor[8], doorct[8], destid[8];
 	int first_doorset_id = 0; int the_doorset_count = 1;
+	int the_dest_id = 0;
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
+	sprintf(destid,"%d",0);
 		//int ret;
 	
 	save_doorset_dlg[0].dp2 = lfont;
 	
-	sprintf(firstdoor,"%d",0);
-	sprintf(doorct,"%d",1);
-	
 	load_doorset_dlg[5].dp = firstdoor;
 	load_doorset_dlg[7].dp = doorct;
+	load_doorset_dlg[11].dp = destid;
 	
 	byte nooverwrite = 0;
 	
@@ -3128,8 +3133,9 @@ void do_importdoorset(const char *prompt,int initialval)
 	
 		//al_trace("Nooverwrite is: %d\n", nooverwrite);
 		//sanity bound
-		//first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
-		//the_doorset_count = vbound(atoi(doorct), 1, NEWMAXTILES-first_doorset_id);
+		first_doorset_id = vbound(atoi(firstdoor), 0, door_combo_set_count);
+		the_doorset_count = vbound(atoi(doorct), 1, door_combo_set_count);
+		the_dest_id = vbound(atoi(destid), 0, door_combo_set_count);
 		if(getname("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
 		{  
 			char name[256];
@@ -3137,15 +3143,21 @@ void do_importdoorset(const char *prompt,int initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
+				int ret = readzdoorsets(f,first_doorset_id,the_doorset_count, the_dest_id);
 				
-				if (!readzdoorsets(f,first_doorset_id,the_doorset_count))
+				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", name);
 					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
-				else
+				else if ( ret == 1 )
 				{
 					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				else if ( ret == 2 )
+				{
+					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 					saved=false;
 				}
 				pack_fclose(f);

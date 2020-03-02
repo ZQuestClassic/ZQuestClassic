@@ -1857,7 +1857,7 @@ void center_zq_files_dialogs()
 }
 
 //Doorsets
-int readzdoorsets(PACKFILE *f, int first, int count)
+int readzdoorsets(PACKFILE *f, int first, int count, int deststart)
 {
 	dword section_version=0;
 	dword section_cversion=0;
@@ -1869,6 +1869,7 @@ int readzdoorsets(PACKFILE *f, int first, int count)
 	int lastset = 0;
 	int firstset = 0;
 	int last = 0;
+	int ret = 1;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -1890,6 +1891,7 @@ int readzdoorsets(PACKFILE *f, int first, int count)
 	{
 		return 0;
 	}
+	al_trace("doorscount is: %d\n", doorscount);
 	if(!p_igetl(&firstset,f,true))
 	{
 		return 0;
@@ -1903,7 +1905,7 @@ int readzdoorsets(PACKFILE *f, int first, int count)
 	{
 		first = firstset;
 	}
-	if ( lastset < 1 || lastset > count )
+	if ( lastset < 0 || lastset > count )
 	{
 		lastset = doorscount;
 	}
@@ -1930,8 +1932,14 @@ int readzdoorsets(PACKFILE *f, int first, int count)
 	}
 	
 	//section data for doors
-	for(int i=firstset; i<lastset; ++i)
+	for(int i=firstset+deststart; i<lastset+deststart; ++i)
 	{
+		if(i+deststart >= door_combo_set_count)
+		{
+			al_trace("Reached the current door count trying to import doorsets.\n");
+			ret = 2; break;
+		}
+		al_trace("Door readcycle %d\n", i-deststart);
 		//Clear per set
 		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
 		//name
@@ -2108,7 +2116,7 @@ int readzdoorsets(PACKFILE *f, int first, int count)
 		}
 		memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
 	}
-	return 1;	
+	return ret;
 }
 
 
@@ -2168,6 +2176,7 @@ int writezdoorsets(PACKFILE *f, int first = 0, int count = door_combo_set_count)
 	//doorset data
 	for(int i=firstset; i<lastset; ++i)
         {
+		al_trace("Door writecycle %d\n", i);
 		//name
 		if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
 		{
