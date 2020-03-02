@@ -655,14 +655,22 @@ ScriptsData::ScriptsData(Program& program)
 		zasm_meta& meta = theScripts[name].first;
 		theScripts[name].second = script.code;
 		meta.autogen();
-		meta.type = script.getType().getTrueId();
+		meta.script_type = script.getType().getTrueId();
 		if(Function* run = script.getRun())
 		{
 			int ind = 0;
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{
-				meta.run_idens[ind++] = **it;
+				char* dest = meta.run_idens[ind++];
+				strcpy(dest, (**it).c_str());	
+			}
+			ind = 0;
+			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
+				it != run->paramTypes.end(); ++it)
+			{
+				optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
 			}
 		}
 		

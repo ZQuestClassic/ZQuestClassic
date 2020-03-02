@@ -104,10 +104,6 @@
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       48                              //build number of this version
-#define V_ZC_FIRST			2
-#define V_ZC_SECOND			55
-#define V_ZC_THIRD			0
-#define V_ZC_FOURTH			0
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 //#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 //#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
@@ -211,7 +207,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         15
+#define V_FFSCRIPT         16
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -2456,35 +2452,52 @@ struct mapscr
 #define SCRIPT_PASSIVESUBSCREEN			13
 #define SCRIPT_COMBO					14
 
-#define ZMETA_AUTOGEN	0x01
+#define ZMETA_AUTOGEN		0x01
+
+#define METADATA_V			1
+#define V_COMPILER_FIRST	2020
+#define V_COMPILER_SECOND	3
+#define V_COMPILER_THIRD	2
+#define V_COMPILER_FOURTH	0
+#define ZMETA_NULL_TYPE		1
 struct zasm_meta
 {
 	word zasm_v;
-	byte type;
-	std::string run_idens[8];
+	word meta_v;
+	word ffscript_v;
+	byte script_type;
+	char run_idens[8][33];
+	byte run_types[8];
 	byte flags;
-	word v1, v2, v3, v4;
+	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
 	
 	void zero()
 	{
 		zasm_v = 0;
-		type = 0;
+		meta_v = 0;
+		ffscript_v = 0;
+		script_type = 0;
 		flags = 0;
-		v1 = 0;
-		v2 = 0;
-		v3 = 0;
-		v4 = 0;
+		compiler_v1 = 0;
+		compiler_v2 = 0;
+		compiler_v3 = 0;
+		compiler_v4 = 0;
 		for(int q = 0; q < 8; ++q)
-			run_idens[q] = "";
+		{
+			memset(&run_idens[q], 0, 33);
+			run_types[q] = ZMETA_NULL_TYPE;
+		}
 	}
 	void autogen()
 	{
 		zasm_v = ZASM_VERSION;
+		meta_v = METADATA_V;
+		ffscript_v = V_FFSCRIPT;
 		flags = ZMETA_AUTOGEN;
-		v1 = V_ZC_FIRST;
-		v2 = V_ZC_SECOND;
-		v3 = V_ZC_THIRD;
-		v4 = V_ZC_FOURTH;
+		compiler_v1 = V_COMPILER_FIRST;
+		compiler_v2 = V_COMPILER_SECOND;
+		compiler_v3 = V_COMPILER_THIRD;
+		compiler_v4 = V_COMPILER_FOURTH;
 	}
 	zasm_meta()
 	{
@@ -2493,14 +2506,19 @@ struct zasm_meta
 	zasm_meta& operator=(zasm_meta const& other)
 	{
 		zasm_v = other.zasm_v;
-		type = other.type;
+		meta_v = other.meta_v;
+		ffscript_v = other.ffscript_v;
+		script_type = other.script_type;
 		for(int q = 0; q < 8; ++q)
-			run_idens[q] = other.run_idens[q];
+		{
+			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
+			run_types[q] = other.run_types[q];
+		}
 		flags = other.flags;
-		v1 = other.v1;
-		v2 = other.v2;
-		v3 = other.v3;
-		v4 = other.v4;
+		compiler_v1 = other.compiler_v1;
+		compiler_v2 = other.compiler_v2;
+		compiler_v3 = other.compiler_v3;
+		compiler_v4 = other.compiler_v4;
 		return *this;
 	}
 };

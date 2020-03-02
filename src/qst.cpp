@@ -10165,7 +10165,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
     ffscript temp_script;
     temp_script.ptr=NULL;
     long num_commands=1000;
-    
+	
     if(s_version>=2)
     {
         if(!p_igetl(&num_commands,f,true))
@@ -10176,13 +10176,81 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
     
     if(keepdata)
     {
-        //FIXME:
-        if((*script) != NULL) //Surely we want to do this regardless of keepdata?
+        if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
             delete (*script);
 		(*script) = new script_data(num_commands);
-            
-        //(*script) = new ffscript[num_commands]; //memory leak
     }
+	if(s_version >= 16)
+	{
+		zasm_meta temp_meta;
+		
+		if(!p_igetw(&(temp_meta.zasm_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.meta_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.ffscript_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&(temp_meta.script_type),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_getc(&(temp_meta.run_types[q]),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&(temp_meta.flags),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v1),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v2),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v3),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v4),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(keepdata)
+			(*script)->meta = temp_meta;
+	}
     
     for(int j=0; j<num_commands; j++)
     {

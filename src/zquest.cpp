@@ -25352,7 +25352,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				
 				for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25362,12 +25362,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25392,7 +25395,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				
 				for(std::map<int, pair<string,string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25402,12 +25405,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25431,7 +25437,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				
 				for(std::map<int, pair<string,string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25441,12 +25447,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25469,7 +25478,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25479,12 +25488,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25507,7 +25519,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25517,12 +25529,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25545,7 +25560,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25555,12 +25570,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25583,7 +25601,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25593,12 +25611,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25621,7 +25642,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25631,12 +25652,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25659,7 +25683,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25669,12 +25693,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25697,7 +25724,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				}
 				for(std::map<int, pair<string,string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25707,14 +25734,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
-						
-						
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
@@ -25739,7 +25767,7 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 				
 				for(std::map<int, pair<string,string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25749,14 +25777,15 @@ bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
-						
-						
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
 						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{

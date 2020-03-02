@@ -11485,13 +11485,78 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
     {
         new_return(6);
     }
-    
+	
+	//Metadata
+	if(!p_iputw((*script)->meta.zasm_v,f))
+	{
+		new_return(7);
+	}
+	
+	if(!p_iputw((*script)->meta.meta_v,f))
+	{
+		new_return(8);
+	}
+	
+	if(!p_iputw((*script)->meta.ffscript_v,f))
+	{
+		new_return(9);
+	}
+	
+	if(!p_putc((*script)->meta.script_type,f))
+	{
+		new_return(10);
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		for(int c = 0; c < 33; ++c)
+		{
+			if(!p_putc((*script)->meta.run_idens[q][c],f))
+			{
+				new_return(11);
+			}
+		}
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		if(!p_putc((*script)->meta.run_types[q],f))
+		{
+			new_return(12);
+		}
+	}
+	
+	if(!p_putc((*script)->meta.flags,f))
+	{
+		new_return(13);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v1,f))
+	{
+		new_return(14);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v2,f))
+	{
+		new_return(15);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v3,f))
+	{
+		new_return(16);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v4,f))
+	{
+		new_return(17);
+	}
+	
     for(int j=0; j<num_commands; j++)
     {
         
         if(!p_iputw((*script)->zasm[j].command,f))
         {
-            new_return(7);
+            new_return(18);
         }
         
         if((*script)->zasm[j].command==0xFFFF)
@@ -11503,12 +11568,12 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
             if(!p_iputl((*script)->zasm[j].arg1,f))
             {
-                new_return(8);
+                new_return(19);
             }
             
             if(!p_iputl((*script)->zasm[j].arg2,f))
             {
-                new_return(9);
+                new_return(20);
             }
         }
     }

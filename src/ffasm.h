@@ -21,6 +21,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data
 int parse_script(script_data **script);
 int parse_script_file(script_data **script, const char *path, bool report_success);
 long ffparse(char *string);
+std::string get_meta(zasm_meta const& meta);
 
 #endif
 
