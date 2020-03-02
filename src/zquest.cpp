@@ -1447,6 +1447,10 @@ static MENU import_graphics[]=
     
     { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
     { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Doorsets",           	    onImport_Doorset,   NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1483,6 +1487,8 @@ static MENU export_graphics[]=
 	{ (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Doorsets",           	    onExport_Doorset,   NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -2998,6 +3004,157 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 		}
 	}
 }
+
+
+
+//Doorsets
+
+static DIALOG save_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Doorset", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void do_exportdoorset(const char *prompt,int initialval)
+{
+	char firstdoor[8], doorct[8];
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	//int ret;
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	
+	save_doorset_dlg[5].dp = firstdoor;
+	save_doorset_dlg[7].dp = doorct;
+	
+	if(is_large)
+		large_dialog(save_doorset_dlg);
+	
+	int ret = zc_popup_dialog(save_doorset_dlg,-1);
+	jwin_center_dialog(save_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		/* sanity bounds
+		first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
+		the_doorset_count = vbound(atoi(doorct), 1, (MAXCOMBOS-1)-first_doorset_id);
+		*/
+		if(getname("Save ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving doorsets %d to %d: %d\n", first_doorset_id, first_doorset_id+(the_doorset_count-1));
+				writezdoorsets(f,first_doorset_id,the_doorset_count);
+				pack_fclose(f);
+				char tmpbuf[512]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+static DIALOG load_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Set (Range)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //{ jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void do_importdoorset(const char *prompt,int initialval)
+{
+	
+	char firstdoor[8], doorct[8];;
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+		//int ret;
+	
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	
+	load_doorset_dlg[5].dp = firstdoor;
+	load_doorset_dlg[7].dp = doorct;
+	
+	byte nooverwrite = 0;
+	
+	if(is_large)
+		large_dialog(load_doorset_dlg);
+	
+	int ret = zc_popup_dialog(load_doorset_dlg,-1);
+	jwin_center_dialog(load_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		//if (load_doorset_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+	
+		//al_trace("Nooverwrite is: %d\n", nooverwrite);
+		//sanity bound
+		//first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
+		//the_doorset_count = vbound(atoi(doorct), 1, NEWMAXTILES-first_doorset_id);
+		if(getname("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readzdoorsets(f,first_doorset_id,the_doorset_count))
+				{
+					al_trace("Could not read from .zdoors packfile %s\n", name);
+					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
+
 
 
 int gettilepagenumber(const char *prompt, int initialval)
