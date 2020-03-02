@@ -61,7 +61,7 @@ namespace ZScript
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return (getErrors().size());}
+		bool hasError() const {return (getErrors().size()>0);}
 
 	private:
 		std::map<std::string, Script*> scriptsByName_;
@@ -91,13 +91,17 @@ namespace ZScript
 		virtual ASTScript* getNode() const = 0;
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
-
+		
+		void setRun(Function* func) {runFunc = func;}
+		Function* getRun() const {return runFunc;}
+		
 		std::vector<Opcode*> code;
 
 	protected:
 		Script(Program& program);
 
 	private:
+		Function* runFunc;
 		Program& program;
 	};
 
@@ -147,7 +151,6 @@ namespace ZScript
 			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
-	Function* getRunFunction(Script const&);
 	optional<int> getLabel(Script const&);
 
 	
@@ -343,12 +346,13 @@ namespace ZScript
 	{
 	public:
 		Function(DataType const* returnType, std::string const& name,
-		         std::vector<DataType const*> paramTypes, int id, int flags = 0);
+		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames, int id, int flags = 0);
 		~Function();
 		
 		DataType const* returnType;
 		std::string name;
 		std::vector<DataType const*> paramTypes;
+		std::vector<std::string const*> paramNames;
 		int id;
 
 		ASTFuncDecl* node;
@@ -376,7 +380,7 @@ namespace ZScript
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
 			state ? flags |= flag : flags &= ~flag;
 		}
-		bool getFlag(int flag) const {return flags & flag;}
+		bool getFlag(int flag) const {return (flags & flag) != 0;}
 		
 		bool isInternal() const {return !node;};
 		

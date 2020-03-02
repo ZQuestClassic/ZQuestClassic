@@ -983,7 +983,7 @@ miscQdata *misc;
 long sarg1 = 0;
 long sarg2 = 0;
 refInfo *ri = NULL;
-ffscript *curscript = NULL;
+script_data *curscript = NULL;
 
 static int numInstructions; // Used to detect hangs
 static bool scriptCanSave = true;
@@ -19890,9 +19890,9 @@ int run_script(const byte type, const word script, const long i)
 	}
 	
 	//dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
-	word scommand = curscript[ri->pc].command;
-	sarg1 = curscript[ri->pc].arg1;
-	sarg2 = curscript[ri->pc].arg2;
+	word scommand = curscript->zasm[ri->pc].command;
+	sarg1 = curscript->zasm[ri->pc].arg1;
+	sarg2 = curscript->zasm[ri->pc].arg2;
 	
 	
 #ifdef _FFDISSASSEMBLY
@@ -22264,9 +22264,9 @@ int run_script(const byte type, const word script, const long i)
 		
 		if(scommand != 0xFFFF)
 		{
-			scommand = curscript[ri->pc].command;
-			sarg1 = curscript[ri->pc].arg1;
-			sarg2 = curscript[ri->pc].arg2;
+			scommand = curscript->zasm[ri->pc].command;
+			sarg1 = curscript->zasm[ri->pc].arg1;
+			sarg2 = curscript->zasm[ri->pc].arg2;
 		}
 	}
 	
@@ -25172,13 +25172,13 @@ void FFScript::runF6Engine()
 {
 	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
 	{
-		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
+		if(globalscripts[GLOBAL_SCRIPT_F6]->valid())
 		{
 			//Incase this was called mid-another script, store ref data
 			long tsarg1 = sarg1;
 			long tsarg2 = sarg2;
 			refInfo *tri = ri;
-			ffscript *tcurscript = curscript;
+			script_data *tcurscript = curscript;
 			//
 			clear_bitmap(script_menu_buf);
 			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
@@ -25233,7 +25233,7 @@ void FFScript::runF6Engine()
 }
 void FFScript::runOnDeathEngine()
 {
-	if(linkscripts[SCRIPT_LINK_DEATH][0].command == 0xFFFF) return; //No script to run
+	if(!linkscripts[SCRIPT_LINK_DEATH]->valid()) return; //No script to run
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptLinkScripts();
@@ -25260,7 +25260,7 @@ void FFScript::runOnDeathEngine()
 }
 void FFScript::runOnLaunchEngine()
 {
-	if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command == 0xFFFF) return; //No script to run
+	if(!globalscripts[GLOBAL_SCRIPT_ONLAUNCH]->valid()) return; //No script to run
 	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
 	clear_to_color(script_menu_buf,BLACK);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
@@ -25289,7 +25289,7 @@ void FFScript::runOnLaunchEngine()
 bool FFScript::runActiveSubscreenScriptEngine()
 {
 	word activesubscript = DMaps[currdmap].active_sub_script;
-	if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return false; //No script to run
+	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run
 	word passivesubscript = DMaps[currdmap].passive_sub_script;
 	word dmapactivescript = DMaps[currdmap].script;
 	clear_bitmap(script_menu_buf);
@@ -25335,7 +25335,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		if(currdmap != script_dmap)
 		{
 			activesubscript = DMaps[currdmap].active_sub_script;
-			if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return true; //No script to run
+			if(!activesubscript || !dmapscripts[activesubscript]->valid()) return true; //No script to run
 			passivesubscript = DMaps[currdmap].passive_sub_script;
 			dmapactivescript = DMaps[currdmap].script;
 			script_dmap = currdmap;

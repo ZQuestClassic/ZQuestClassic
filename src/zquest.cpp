@@ -659,7 +659,7 @@ ZModule zcm;
 zcmodule moduledata;
 
 void do_previewtext();
-bool do_slots(std::map<std::string, std::vector<ZScript::Opcode *> > &scripts);
+bool do_slots(std::map<std::string, std::pair<zasm_meta, std::vector<ZScript::Opcode*>>> &scripts);
 
 int startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -838,18 +838,18 @@ bool is_large = true;
 byte BMM = 3; // Big Minimap
 BITMAP *hw_screen, *scrtmp;
 
-ffscript *ffscripts[NUMSCRIPTFFC];
-ffscript *itemscripts[NUMSCRIPTITEM];
-ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-ffscript *globalscripts[NUMSCRIPTGLOBAL];
-ffscript *linkscripts[NUMSCRIPTLINK];
-ffscript *screenscripts[NUMSCRIPTSCREEN];
-ffscript *dmapscripts[NUMSCRIPTSDMAP];
-ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
-ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *ffscripts[NUMSCRIPTFFC];
+script_data *itemscripts[NUMSCRIPTITEM];
+script_data *guyscripts[NUMSCRIPTGUYS];
+script_data *wpnscripts[NUMSCRIPTWEAPONS];
+script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *linkscripts[NUMSCRIPTLINK];
+script_data *screenscripts[NUMSCRIPTSCREEN];
+script_data *dmapscripts[NUMSCRIPTSDMAP];
+script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -25063,7 +25063,7 @@ int onCompileScript()
 			
 			std::map<string, ZScript::ScriptType> stypes =
 				result->scriptTypes;
-			std::map<string, vector<ZScript::Opcode *> > scripts = result->theScripts;
+			std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*>>> scripts = result->theScripts;
 			delete result;
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
@@ -25204,7 +25204,7 @@ int onSlotAssign()
 	ascomboscripts.clear();
 	ascomboscripts.push_back("<none>");
 	//Declare new script vector
-	std::map<string, vector<ZScript::Opcode *> > scripts;
+	std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*>>> scripts;
 	
 	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
@@ -25216,7 +25216,7 @@ int onSlotAssign()
 			default:
 				if(globalmap[i].second != "")
 				{
-					if(globalscripts[i][0].command!=0xFFFF)
+					if(globalscripts[i]->valid())
 					{
 						scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
 						asglobalscripts.push_back(globalmap[i].second);
@@ -25228,7 +25228,7 @@ int onSlotAssign()
 	{
 		if(ffcmap[i].second != "")
 		{
-			if(ffscripts[i+1][0].command!=0xFFFF)
+			if(ffscripts[i+1]->valid())
 			{
 				scripts[ffcmap[i].second] = disassemble_script(ffscripts[i+1]);
 				asffcscripts.push_back(ffcmap[i].second);
@@ -25239,7 +25239,7 @@ int onSlotAssign()
 	{
 		if(itemmap[i].second != "")
 		{
-			if(itemscripts[i+1][0].command!=0xFFFF)
+			if(itemscripts[i+1]->valid())
 			{
 				scripts[itemmap[i].second] = disassemble_script(itemscripts[i+1]);
 				asitemscripts.push_back(itemmap[i].second);
@@ -25250,7 +25250,7 @@ int onSlotAssign()
 	{
 		if(npcmap[i].second != "")
 		{
-			if(guyscripts[i+1][0].command!=0xFFFF)
+			if(guyscripts[i+1]->valid())
 			{
 				scripts[npcmap[i].second] = disassemble_script(guyscripts[i+1]);
 				asnpcscripts.push_back(npcmap[i].second);
@@ -25261,7 +25261,7 @@ int onSlotAssign()
 	{
 		if(lwpnmap[i].second != "")
 		{
-			if(lwpnscripts[i+1][0].command!=0xFFFF)
+			if(lwpnscripts[i+1]->valid())
 			{
 				scripts[lwpnmap[i].second] = disassemble_script(lwpnscripts[i+1]);
 				aslweaponscripts.push_back(lwpnmap[i].second);
@@ -25272,7 +25272,7 @@ int onSlotAssign()
 	{
 		if(ewpnmap[i].second != "")
 		{
-			if(ewpnscripts[i+1][0].command!=0xFFFF)
+			if(ewpnscripts[i+1]->valid())
 			{
 				scripts[ewpnmap[i].second] = disassemble_script(ewpnscripts[i+1]);
 				aseweaponscripts.push_back(ewpnmap[i].second);
@@ -25283,7 +25283,7 @@ int onSlotAssign()
 	{
 		if(linkmap[i].second != "")
 		{
-			if(linkscripts[i+1][0].command!=0xFFFF)
+			if(linkscripts[i+1]->valid())
 			{
 				scripts[linkmap[i].second] = disassemble_script(linkscripts[i+1]);
 				aslinkscripts.push_back(linkmap[i].second);
@@ -25294,7 +25294,7 @@ int onSlotAssign()
 	{
 		if(dmapmap[i].second != "")
 		{
-			if(dmapscripts[i+1][0].command!=0xFFFF)
+			if(dmapscripts[i+1]->valid())
 			{
 				scripts[dmapmap[i].second] = disassemble_script(dmapscripts[i+1]);
 				asdmapscripts.push_back(dmapmap[i].second);
@@ -25305,7 +25305,7 @@ int onSlotAssign()
 	{
 		if(screenmap[i].second != "")
 		{
-			if(screenscripts[i+1][0].command!=0xFFFF)
+			if(screenscripts[i+1]->valid())
 			{
 				scripts[screenmap[i].second] = disassemble_script(screenscripts[i+1]);
 				asscreenscripts.push_back(screenmap[i].second);
@@ -25316,7 +25316,7 @@ int onSlotAssign()
 	{
 		if(itemspritemap[i].second != "")
 		{
-			if(itemspritescripts[i+1][0].command!=0xFFFF)
+			if(itemspritescripts[i+1]->valid())
 			{
 				scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
 				asitemspritescripts.push_back(itemspritemap[i].second);
@@ -25327,7 +25327,7 @@ int onSlotAssign()
 	{
 		if(comboscriptmap[i].second != "")
 		{
-			if(comboscripts[i+1][0].command!=0xFFFF)
+			if(comboscripts[i+1]->valid())
 			{
 				scripts[comboscriptmap[i].second] = disassemble_script(comboscripts[i+1]);
 				ascomboscripts.push_back(comboscriptmap[i].second);
@@ -25339,9 +25339,8 @@ int onSlotAssign()
 	return D_O_K;
 }
 
-bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
+bool do_slots(std::map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*>>> &scripts)
 {
-	
 	while(true)
 	{
 		//{
@@ -25519,7 +25518,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25529,14 +25528,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25552,15 +25554,14 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(ffscripts[it->first+1])
 					{
-						delete[] ffscripts[it->first+1];
-						ffscripts[it->first+1] = new ffscript[1];
-						ffscripts[it->first+1][0].command = 0xFFFF;
+						delete ffscripts[it->first+1];
+						ffscripts[it->first+1] = new script_data();
 					}
 				}
 				
 				for(std::map<int, pair<string,string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25570,14 +25571,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25592,15 +25596,14 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(globalscripts[it->first])
 					{
-						delete[] globalscripts[it->first];
-						globalscripts[it->first] = new ffscript[1];
-						globalscripts[it->first][0].command = 0xFFFF;
+						delete globalscripts[it->first];
+						globalscripts[it->first] = new script_data();
 					}
 				}
 				
 				for(std::map<int, pair<string,string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25610,14 +25613,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25632,14 +25638,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(itemscripts[it->first+1])
 					{
-						delete[] itemscripts[it->first+1];
-						itemscripts[it->first+1] = new ffscript[1];
-						itemscripts[it->first+1][0].command = 0xFFFF;
+						delete itemscripts[it->first+1];
+						itemscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25649,14 +25654,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25671,14 +25679,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(guyscripts[it->first+1])
 					{
-						delete[] guyscripts[it->first+1];
-						guyscripts[it->first+1] = new ffscript[1];
-						guyscripts[it->first+1][0].command = 0xFFFF;
+						delete guyscripts[it->first+1];
+						guyscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25688,14 +25695,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25710,14 +25720,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(lwpnscripts[it->first+1])
 					{
-						delete[] lwpnscripts[it->first+1];
-						lwpnscripts[it->first+1] = new ffscript[1];
-						lwpnscripts[it->first+1][0].command = 0xFFFF;
+						delete lwpnscripts[it->first+1];
+						lwpnscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25727,14 +25736,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25749,14 +25761,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(ewpnscripts[it->first+1])
 					{
-						delete[] ewpnscripts[it->first+1];
-						ewpnscripts[it->first+1] = new ffscript[1];
-						ewpnscripts[it->first+1][0].command = 0xFFFF;
+						delete ewpnscripts[it->first+1];
+						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25766,14 +25777,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25788,14 +25802,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(linkscripts[it->first+1])
 					{
-						delete[] linkscripts[it->first+1];
-						linkscripts[it->first+1] = new ffscript[1];
-						linkscripts[it->first+1][0].command = 0xFFFF;
+						delete linkscripts[it->first+1];
+						linkscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25805,14 +25818,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25827,14 +25843,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(dmapscripts[it->first+1])
 					{
-						delete[] dmapscripts[it->first+1];
-						dmapscripts[it->first+1] = new ffscript[1];
-						dmapscripts[it->first+1][0].command = 0xFFFF;
+						delete dmapscripts[it->first+1];
+						dmapscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25844,14 +25859,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25866,14 +25884,13 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(screenscripts[it->first+1])
 					{
-						delete[] screenscripts[it->first+1];
-						screenscripts[it->first+1] = new ffscript[1];
-						screenscripts[it->first+1][0].command = 0xFFFF;
+						delete screenscripts[it->first+1];
+						screenscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int, pair<string,string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25883,16 +25900,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						
-						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25908,15 +25926,14 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(itemspritescripts[it->first+1])
 					{
-						delete[] itemspritescripts[it->first+1];
-						itemspritescripts[it->first+1] = new ffscript[1];
-						itemspritescripts[it->first+1][0].command = 0xFFFF;
+						delete itemspritescripts[it->first+1];
+						itemspritescripts[it->first+1] = new script_data();
 					}
 				}
 				
 				for(std::map<int, pair<string,string> >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.second != "" && (it->second.first.find("--") == string::npos))
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25926,16 +25943,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.second].first);
 						if(output)
 						{
 							al_trace("\n");
 							al_trace("%s",it->second.second.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						
-						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].second.begin(); line != scripts[it->second.second].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25951,9 +25969,8 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					}
 					else if(comboscripts[it->first+1])
 					{
-						delete[] comboscripts[it->first+1];
-						comboscripts[it->first+1] = new ffscript[1];
-						comboscripts[it->first+1][0].command = 0xFFFF;
+						delete comboscripts[it->first+1];
+						comboscripts[it->first+1] = new script_data();
 					}
 				}
 				unlink("tmp");
@@ -25982,9 +25999,9 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				build_biffs_list();
 				build_biitems_list();
 				
-				for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+				for(map<string, std::pair<zasm_meta, std::vector<ZScript::Opcode*>>>::iterator it = scripts.begin(); it != scripts.end(); it++)
 				{
-					for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
 					{
 						delete *it2;
 					}
@@ -30505,67 +30522,56 @@ int main(int argc,char **argv)
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
+        ffscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
+        itemscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
+        guyscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
+        screenscripts[i] = new script_data();
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
+        globalscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
+        linkscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        dmapscripts[i] = new ffscript[1];
-        dmapscripts[i][0].command = 0xFFFF;
+        dmapscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        itemspritescripts[i] = new ffscript[1];
-        itemspritescripts[i][0].command = 0xFFFF;
+        itemspritescripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        comboscripts[i] = new ffscript[1];
-        comboscripts[i][0].command = 0xFFFF;
+        comboscripts[i] = new script_data();
     }
     
     zScript = std::string();
@@ -31056,55 +31062,55 @@ void quit_game()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -31242,55 +31248,55 @@ void quit_game2()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
