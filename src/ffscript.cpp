@@ -8641,6 +8641,10 @@ long get_register(const long arg)
 			ret = ri->sp * 10000;
 			break;
 			
+		case PC:
+			ret = ri->pc * 10000;
+			break;
+			
 		case SCRIPTRAM:
 		case GLOBALRAM:
 			ret = ArrayH::getElement(ri->d[0] / 10000, ri->d[1] / 10000);
@@ -15291,6 +15295,10 @@ void set_register(const long arg, const long value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
+			break;
+			
+		case PC:
+			ri->pc = value / 10000;
 			break;
 			
 		case SCRIPTRAM:
