@@ -121,7 +121,9 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 
 // ZScript::Script
 
-Script::Script(Program& program) : program(program) {}
+Script::Script(Program& program)
+	: program(program), runFunc(NULL)
+{}
 
 Script::~Script()
 {
@@ -205,16 +207,9 @@ BuiltinScript* ZScript::createScript(
 	return script;
 }
 
-Function* ZScript::getRunFunction(Script const& script)
-{
-	//ret//urn getOnly<Function*>(script.getScope().getLocalFunctions("run"))
-	return getOnly<Function*>(script.getScope().getLocalFunctions(FFCore.scriptRunString))
-		.value_or(NULL);
-}
-
 optional<int> ZScript::getLabel(Script const& script)
 {
-	if (Function* run = getRunFunction(script))
+	if (Function* run = script.getRun())
 		return run->getLabel();
 	return nullopt;
 }
@@ -422,15 +417,16 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id, int flags)
+				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id, int flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
-	  returnType(returnType), name(name), paramTypes(paramTypes),
+	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
 	  id(id), label(nullopt), flags(flags)
 {}
 
 Function::~Function()
 {
 	deleteElements(ownedCode);
+	deleteElements(paramNames);
 }
 
 vector<Opcode*> Function::takeCode()

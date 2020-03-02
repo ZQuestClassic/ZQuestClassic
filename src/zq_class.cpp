@@ -10840,19 +10840,19 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
     new_return(0);
 }
 
-extern ffscript *ffscripts[NUMSCRIPTFFC];
-extern ffscript *itemscripts[NUMSCRIPTITEM];
-extern ffscript *guyscripts[NUMSCRIPTGUYS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[NUMSCRIPTLINK];
-extern ffscript *screenscripts[NUMSCRIPTSCREEN];
-extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
-extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
-extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *ffscripts[NUMSCRIPTFFC];
+extern script_data *itemscripts[NUMSCRIPTITEM];
+extern script_data *guyscripts[NUMSCRIPTGUYS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *globalscripts[NUMSCRIPTGLOBAL];
+extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *screenscripts[NUMSCRIPTSCREEN];
+extern script_data *dmapscripts[NUMSCRIPTSDMAP];
+extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -11464,7 +11464,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script)
+int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -11474,7 +11474,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     
     for(int j=0;; j++)
     {
-        if((*script)[j].command==0xFFFF)
+        if((*script)->zasm[j].command==0xFFFF)
         {
             num_commands = j+1;
             break;
@@ -11489,24 +11489,24 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     for(int j=0; j<num_commands; j++)
     {
         
-        if(!p_iputw((*script)[j].command,f))
+        if(!p_iputw((*script)->zasm[j].command,f))
         {
             new_return(7);
         }
         
-        if((*script)[j].command==0xFFFF)
+        if((*script)->zasm[j].command==0xFFFF)
         {
             break;
         }
         else
         {
-		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
-            if(!p_iputl((*script)[j].arg1,f))
+		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
+            if(!p_iputl((*script)->zasm[j].arg1,f))
             {
                 new_return(8);
             }
             
-            if(!p_iputl((*script)[j].arg2,f))
+            if(!p_iputl((*script)->zasm[j].arg2,f))
             {
                 new_return(9);
             }

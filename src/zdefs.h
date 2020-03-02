@@ -104,6 +104,10 @@
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       48                              //build number of this version
+#define V_ZC_FIRST			2
+#define V_ZC_SECOND			55
+#define V_ZC_THIRD			0
+#define V_ZC_FOURTH			0
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 //#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 //#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
@@ -2430,12 +2434,119 @@ struct mapscr
     
 };
 
+// The version of the ZASM engine a script was compiled for
+// NOT the same as V_FFSCRIPT, which is the version of the packfile format
+// where the scripts are serialized
+#define ZASM_VERSION        2
+
+// Script types
+#define SCRIPT_NONE						0
+#define SCRIPT_GLOBAL					1
+#define SCRIPT_FFC						2
+#define SCRIPT_SCREEN					3
+#define SCRIPT_LINK						4
+#define SCRIPT_ITEM						5
+#define SCRIPT_LWPN						6
+#define SCRIPT_NPC						7
+#define SCRIPT_SUBSCREEN				8
+#define SCRIPT_EWPN						9
+#define SCRIPT_DMAP						10
+#define SCRIPT_ITEMSPRITE				11
+#define SCRIPT_ACTIVESUBSCREEN			12
+#define SCRIPT_PASSIVESUBSCREEN			13
+#define SCRIPT_COMBO					14
+
+#define ZMETA_AUTOGEN	0x01
+struct zasm_meta
+{
+	word zasm_v;
+	byte type;
+	std::string run_idens[8];
+	byte flags;
+	word v1, v2, v3, v4;
+	
+	void zero()
+	{
+		zasm_v = 0;
+		type = 0;
+		flags = 0;
+		v1 = 0;
+		v2 = 0;
+		v3 = 0;
+		v4 = 0;
+		for(int q = 0; q < 8; ++q)
+			run_idens[q] = "";
+	}
+	void autogen()
+	{
+		zasm_v = ZASM_VERSION;
+		flags = ZMETA_AUTOGEN;
+		v1 = V_ZC_FIRST;
+		v2 = V_ZC_SECOND;
+		v3 = V_ZC_THIRD;
+		v4 = V_ZC_FOURTH;
+	}
+	zasm_meta()
+	{
+		zero();
+	}
+	zasm_meta& operator=(zasm_meta const& other)
+	{
+		zasm_v = other.zasm_v;
+		type = other.type;
+		for(int q = 0; q < 8; ++q)
+			run_idens[q] = other.run_idens[q];
+		flags = other.flags;
+		v1 = other.v1;
+		v2 = other.v2;
+		v3 = other.v3;
+		v4 = other.v4;
+		return *this;
+	}
+};
+
 struct ffscript
 {
     word command;
     long arg1;
     long arg2;
     char *ptr;
+};
+
+struct script_data
+{
+	ffscript* zasm;
+	zasm_meta meta;
+	
+	bool valid()
+	{
+		return (zasm && zasm[0].command != 0xFFFF);
+	}
+	
+	void disable()
+	{
+		if(zasm)
+			zasm[0].command = 0xFFFF;
+	}
+	
+	script_data(long cmds)
+	{
+		if(cmds > 0)
+			zasm = new ffscript[cmds];
+		else zasm = NULL;
+	}
+	
+	script_data()
+	{
+		zasm = new ffscript[1];
+		zasm[0].command = 0xFFFF;
+	}
+	
+	~script_data()
+	{
+		if(zasm)
+			delete[] zasm;
+	}
 };
 
 struct script_command
@@ -2454,29 +2565,6 @@ struct script_variable
     word maxcount;
     byte multiple;
 };
-
-// The version of the ZASM engine a script was compiled for
-// NOT the same as V_FFSCRIPT, which is the version of the packfile format
-// where the scripts are serialized
-#define ZASM_VERSION        2
-
-// Script types
-
-#define SCRIPT_NONE                      -1
-#define SCRIPT_GLOBAL                    0
-#define SCRIPT_FFC                       1
-#define SCRIPT_SCREEN                    2
-#define SCRIPT_LINK                      3
-#define SCRIPT_ITEM                      4
-#define SCRIPT_LWPN                      5
-#define SCRIPT_NPC                       6
-#define SCRIPT_SUBSCREEN                 7
-#define SCRIPT_EWPN                      8
-#define SCRIPT_DMAP                      9
-#define SCRIPT_ITEMSPRITE                10
-#define SCRIPT_ACTIVESUBSCREEN           11
-#define SCRIPT_PASSIVESUBSCREEN          12
-#define SCRIPT_COMBO          		 13
 
 //Sprite boundary array indices
 enum

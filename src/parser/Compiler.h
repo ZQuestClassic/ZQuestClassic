@@ -12,6 +12,7 @@
 #include <string>
 #include "CompilerUtils.h"
 #include "Types.h"
+#include "parserDefs.h"
 
 namespace ZScript
 {
@@ -89,7 +90,7 @@ namespace ZScript
 	{
 	public:
 		ScriptsData(Program&);
-		std::map<std::string, std::vector<Opcode *> > theScripts;
+		std::map<std::string, std::pair<zasm_meta, std::vector<Opcode*>>> theScripts;
 		std::map<std::string, ScriptType> scriptTypes;
 	};
 

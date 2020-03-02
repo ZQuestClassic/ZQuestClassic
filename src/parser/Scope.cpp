@@ -839,38 +839,38 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
 	getters_[name] = fun;
 	return fun;
 }
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
 	setters_[name] = fun;
 	return fun;
 }
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	FunctionSignature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature_, signature))
 		return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID(), flags);
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
@@ -996,10 +996,10 @@ bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerGetter(name, result))
 		result = NULL;
@@ -1008,10 +1008,10 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerSetter(name, result))
 		result = NULL;
@@ -1020,10 +1020,10 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;

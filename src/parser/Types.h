@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "CompilerUtils.h"
+#include "parserDefs.h"
 
 namespace ZScript
 {
@@ -459,6 +460,41 @@ namespace ZScript
 		ScriptType() : id_(idInvalid) {}
 		
 		std::string const& getName() const;
+		int getTrueId() const
+		{
+			switch(id_)
+			{
+				case idInvalid:
+					return SCRIPT_NONE;
+				case idGlobal:
+					return SCRIPT_GLOBAL;
+				case idFfc:
+					return SCRIPT_FFC;
+				case idItem:
+					return SCRIPT_ITEM;
+				case idNPC:
+					return SCRIPT_NPC;
+				case idEWeapon:
+					return SCRIPT_EWPN;
+				case idLWeapon:
+					return SCRIPT_LWPN;
+				case idLink:
+					return SCRIPT_LINK;
+				case idScreen:
+					return SCRIPT_SCREEN;
+				case idDMap:
+					return SCRIPT_DMAP;
+				case idItemSprite:
+					return SCRIPT_ITEMSPRITE;
+				case idUntyped:
+					return SCRIPT_NONE;
+				case idComboData:
+					return SCRIPT_COMBO;
+				case idSubscreenData:
+					return SCRIPT_NONE;
+			}
+			return SCRIPT_NONE;
+		}
 		DataTypeId getThisTypeId() const;
 		bool isValid() const {return id_ >= idStart && id_ < idEnd;}
 

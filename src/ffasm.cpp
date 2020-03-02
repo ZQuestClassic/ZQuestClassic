@@ -2136,7 +2136,7 @@ int lines[65536];
 int numlines;
 
 //The Dialogue that loads an ASM Script filename.
-int parse_script(ffscript **script)
+int parse_script(script_data **script)
 {
 	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
@@ -2151,7 +2151,7 @@ int parse_script(ffscript **script)
 	else return parse_script_file(script,temppath, true);
 }
 
-int parse_script_file(ffscript **script, const char *path, bool report_success)
+int parse_script_file(script_data **script, const char *path, bool report_success)
 {
 	saved=false;
 	FILE *fscript = fopen(path,"rb");
@@ -2245,15 +2245,16 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 	fseek(fscript, 0, SEEK_SET);
 	stop = false;
 	
-	if((*script)!=NULL) delete [](*script);
+	if((*script)!=NULL) delete (*script);
+	(*script) = new script_data(num_commands);
 	
-	(*script) = new ffscript[num_commands];
+	//(*script) = new ffscript[num_commands];
 	
 	for(int i=0; i<num_commands; i++)
 	{
 		if(stop)
 		{
-			(*script)[i].command = 0xFFFF;
+			(*script)->zasm[i].command = 0xFFFF;
 			break;
 		}
 		else
@@ -2377,7 +2378,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
 				stop=true;
 				success=false;
-				(*script)[0].command = 0xFFFF;
+				(*script)->disable();
 			}
 		}
 	}
@@ -2398,17 +2399,17 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 	return success?D_O_K:D_CLOSE;
 }
 
-int set_argument(char *argbuf, ffscript **script, int com, int argument)
+int set_argument(char *argbuf, script_data **script, int com, int argument)
 {
 	long *arg;
 	
 	if(argument)
 	{
-		arg = &((*script)[com].arg2);
+		arg = &((*script)->zasm[com].arg2);
 	}
 	else
 	{
-		arg = &((*script)[com].arg1);
+		arg = &((*script)->zasm[com].arg1);
 	}
 	
 	int i=0;
@@ -2451,10 +2452,10 @@ int set_argument(char *argbuf, ffscript **script, int com, int argument)
 #define ERR_PARAM1 1
 #define ERR_PARAM2 2
 
-int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **script, int com, int &retcode)
+int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int com, int &retcode)
 {
-	(*script)[com].arg1 = 0;
-	(*script)[com].arg2 = 0;
+	(*script)->zasm[com].arg1 = 0;
+	(*script)->zasm[com].arg2 = 0;
 	bool found_command=false;	
 	
 	for(int i=0; i<NUMCOMMANDS&&!found_command; ++i)
@@ -2462,7 +2463,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 		if(strcmp(combuf,command_list[i].name)==0)
 		{
 			found_command=true;
-			(*script)[com].command = i;
+			(*script)->zasm[com].command = i;
 			
 			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
 			{
@@ -2472,7 +2473,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 				{
 					if(stricmp(arg1buf,labels[j])==0)
 					{
-						(*script)[com].arg1 = lines[j];
+						(*script)->zasm[com].arg1 = lines[j];
 						nomatch = false;
 						j=numlines;
 					}
@@ -2480,7 +2481,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 				
 				if(nomatch)
 				{
-					(*script)[com].arg1 = atoi(arg1buf)-1;
+					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 				}
 				
 				if(strnicmp(combuf,"LOOP",4)==0)
@@ -2493,7 +2494,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 							return 0;
 						}
 						
-						(*script)[com].arg2 = ffparse(arg2buf);
+						(*script)->zasm[com].arg2 = ffparse(arg2buf);
 					}
 					else
 					{
@@ -2517,7 +2518,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 							return 0;
 						}
 						
-						(*script)[com].arg1 = ffparse(arg1buf);
+						(*script)->zasm[com].arg1 = ffparse(arg1buf);
 					}
 					else
 					{
@@ -2538,7 +2539,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 								return 0;
 							}
 							
-							(*script)[com].arg2 = ffparse(arg2buf);
+							(*script)->zasm[com].arg2 = ffparse(arg2buf);
 						}
 						else
 						{
@@ -2562,4 +2563,3 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 	retcode=ERR_INSTRUCTION;
 	return 0;
 }
-

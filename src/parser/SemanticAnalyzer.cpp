@@ -613,6 +613,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters.data();
+	vector<string const*> paramNames;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
 	{
@@ -633,13 +634,13 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
 			return;
 		}
-
+		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, host.getFlags(), &host);
+			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host);
 	host.func = function;
 
 	// If adding it failed, it means this scope already has a function with

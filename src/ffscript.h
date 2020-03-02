@@ -375,7 +375,7 @@ void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void FFScript::ZScriptConsole(int attributes,const char *format,...);
+void ZScriptConsole(int attributes,const char *format,...);
 void TraceScriptIDs(bool zasm_console = false);
 void ZScriptConsolePrint(int colourformat, const char * const format,...);
 void ZASMPrint(bool open);
@@ -3743,26 +3743,6 @@ enum ASM_DEFINE
 
 
 #define NUMVARIABLES         	0x139A
-
-// Script types
-
-#define SCRIPT_NONE                      -1
-#define SCRIPT_GLOBAL                    0
-#define SCRIPT_FFC                       1
-#define SCRIPT_SCREEN                    2
-#define SCRIPT_LINK                      3
-#define SCRIPT_ITEM                      4
-#define SCRIPT_LWPN                      5
-#define SCRIPT_NPC                       6
-#define SCRIPT_SUBSCREEN                 7
-#define SCRIPT_EWPN                      8
-#define SCRIPT_DMAP                      9
-#define SCRIPT_ITEMSPRITE                10
-#define SCRIPT_ACTIVESUBSCREEN           11
-#define SCRIPT_PASSIVESUBSCREEN          12
-#define SCRIPT_COMBO          		 13
-
-
 
 struct quad3Dstruct
 {
