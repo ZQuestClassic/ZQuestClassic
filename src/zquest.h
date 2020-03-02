@@ -290,6 +290,9 @@ int readsomedmaps(PACKFILE *f);
 //need readsomedmaps_to, with a starting index, in the future
 void savesomedmaps(const char *prompt,int initialval);
 
+void do_importdoorset(const char *prompt,int initialval);
+void do_exportdoorset(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 
