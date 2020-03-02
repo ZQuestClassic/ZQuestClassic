@@ -2355,6 +2355,474 @@ int writezdoorsets(PACKFILE *f, int first = 0, int count = door_combo_set_count)
 
 
 
+
+int writeonezdoorset(PACKFILE *f, int index)
+{
+	dword section_version=V_DOORS;
+	dword section_cversion=CV_DOORS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	int doorscount = door_combo_set_count;
+	int firstset = 0;
+	int lastset = 1;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(doorscount,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(firstset,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(lastset,f))
+	{
+		return 0;
+	}
+	//doorset data
+	
+        {
+		//name
+		if(!pfwrite(&DoorComboSets[index].name,sizeof(DoorComboSets[0].name),f))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_u[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_u[j],f))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_d[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_d[j],f))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_l[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_l[j],f))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_r[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_r[j],f))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].walkthroughcombo[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_putc(DoorComboSets[index].walkthroughcset[j],f))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].flags[j],f))
+			{
+				return 0;
+			}
+		}
+        }
+	return 1;
+}
+
+
+
+
+int readonezdoorset(PACKFILE *f, int index)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	int doorscount = 0;
+	DoorComboSet tempDoorComboSet;
+	memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+	int firstset = 0;
+	int last = 0;
+	int ret = 1;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&doorscount,f,true))
+	{
+		return 0;
+	}
+	al_trace("doorscount is: %d\n", doorscount);
+	if(!p_igetl(&firstset,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&last,f,true))
+	{
+		return 0;
+	}
+	
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdoors packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	{
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zdoors packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	//section data for doors
+	{
+		//if(i+deststart >= door_combo_set_count)
+		//{
+		//	al_trace("Reached the current door count trying to import doorsets.\n");
+		//	ret = 2; break;
+		//}
+		//al_trace("Door readcycle %d\n", i-deststart);
+		//Clear per set
+		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+		//name
+		if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f,true))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.flags[j],f,true))
+			{
+				return 0;
+			}
+		}
+		memcpy(&DoorComboSets[index], &tempDoorComboSet, sizeof(tempDoorComboSet));
+	}
+	return ret;
+}
+
 int onExport_Doorset()
 {
 	do_exportdoorset("Export Doorsets", 0);
