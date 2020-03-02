@@ -8642,7 +8642,7 @@ long get_register(const long arg)
 			break;
 			
 		case PC:
-			ret = ri->pc * 10000;
+			ret = ri->pc;
 			break;
 			
 		case SCRIPTRAM:
@@ -15298,7 +15298,7 @@ void set_register(const long arg, const long value)
 			break;
 			
 		case PC:
-			ri->pc = value / 10000;
+			ri->pc = value;
 			break;
 			
 		case SCRIPTRAM:
@@ -19889,10 +19889,10 @@ int run_script(const byte type, const word script, const long i)
 		}
 	}
 	
-	dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
-	word scommand = curscript[pc].command;
-	sarg1 = curscript[pc].arg1;
-	sarg2 = curscript[pc].arg2;
+	//dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
+	word scommand = curscript[ri->pc].command;
+	sarg1 = curscript[ri->pc].arg1;
+	sarg2 = curscript[ri->pc].arg2;
 	
 	
 #ifdef _FFDISSASSEMBLY
@@ -20022,13 +20022,13 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case GOTO:
-				pc = sarg1;
+				ri->pc = sarg1;
 				increment = false;
 				break;
 				
 			case GOTOR:
 			{
-				pc = (get_register(sarg1) / 10000) - 1;
+				ri->pc = (get_register(sarg1) / 10000) - 1;
 				increment = false;
 			}
 			break;
@@ -20036,7 +20036,7 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOTRUE:
 				if(ri->scriptflag & TRUEFLAG)
 				{
-				pc = sarg1;
+				ri->pc = sarg1;
 				increment = false;
 				}
 				
@@ -20045,7 +20045,7 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOFALSE:
 				if(!(ri->scriptflag & TRUEFLAG))
 				{
-					pc = sarg1;
+					ri->pc = sarg1;
 					increment = false;
 				}
 				
@@ -20054,7 +20054,7 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOMORE:
 				if(ri->scriptflag & MOREFLAG)
 				{
-					pc = sarg1;
+					ri->pc = sarg1;
 					increment = false;
 				}
 				
@@ -20063,7 +20063,7 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOLESS:
 				if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
 				{
-					pc = sarg1;
+					ri->pc = sarg1;
 					increment = false;
 				}
 				
@@ -20073,7 +20073,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				if(get_register(sarg2) > 0)
 				{
-					pc = sarg1;
+					ri->pc = sarg1;
 					increment = false;
 				}
 				else
@@ -20085,7 +20085,7 @@ int run_script(const byte type, const word script, const long i)
 
 			case RETURN:
 			{
-				pc = SH::read_stack(ri->sp) - 1;
+				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
 				increment = false;
 				break;
@@ -22259,14 +22259,14 @@ int run_script(const byte type, const word script, const long i)
 		++script_execount[*command];
 #endif
 		
-		if(increment)	pc++;
+		if(increment)	ri->pc++;
 		else			increment = true;
 		
 		if(scommand != 0xFFFF)
 		{
-			scommand = curscript[pc].command;
-			sarg1 = curscript[pc].arg1;
-			sarg2 = curscript[pc].arg2;
+			scommand = curscript[ri->pc].command;
+			sarg1 = curscript[ri->pc].arg1;
+			sarg2 = curscript[ri->pc].arg2;
 		}
 	}
 	
@@ -22547,9 +22547,9 @@ int run_script(const byte type, const word script, const long i)
 		}
 	}
 	else
-		pc++;
+		ri->pc++;
 		
-	ri->pc = pc; //Put it back where we got it from
+	//ri->pc = pc; //Put it back where we got it from
 	
 #ifdef _SCRIPT_COUNTER
 	
