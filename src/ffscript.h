@@ -3741,8 +3741,10 @@ enum ASM_DEFINE
 #define COMBODFRAME    		0x1398
 #define COMBODACLK    		0x1399
 
+#define PC                   0x139A
 
-#define NUMVARIABLES         	0x139A
+
+#define NUMVARIABLES         	0x139B
 
 struct quad3Dstruct
 {

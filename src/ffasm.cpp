@@ -2065,6 +2065,7 @@ script_variable variable_list[]=
 	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
 	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
 	{ "COMBODACLK",		COMBODACLK,        0,             0 },
+	{ "PC",                PC,                   0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

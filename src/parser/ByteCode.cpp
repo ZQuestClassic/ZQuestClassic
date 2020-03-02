@@ -40,6 +40,8 @@ string ZScript::VarToString(long ID)
 	{
 	case SP:
 		return "SP";
+	case PC:
+		return "PC";
 		
 	case DATA:
 		return "DATA";

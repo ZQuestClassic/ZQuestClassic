@@ -31,7 +31,7 @@
 #define NUL                     5
 #define SFTEMP                  6
 #define WHAT_NO_7               7 // What, no 7?
-#define WHAT_NO_8               8 // What, no 8?
+#define PC               	8 // What, no 8?
 #define ZELDAVERSION               9 // What, no 9?
 #define SP                     10
 #define DATA                   11
