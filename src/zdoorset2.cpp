@@ -488,6 +488,18 @@ int writezdoorsets(PACKFILE *f, int index, int first = 0, int count)
 }
 
 
+
+int onExport_Doorset()
+{
+	do_exportdoorset("Export Doorsets", 0);
+	return D_O_K;
+}
+int onImport_Doorset()
+{
+	do_importdoorset("Import Doorsets", 0);
+	return D_O_K;
+}
+
 //zquest.cpp
 
 static DIALOG save_doorset_dlg[] =
@@ -511,7 +523,7 @@ static DIALOG save_doorset_dlg[] =
 };
 
 
-void do_exportoorset(const char *prompt,int initialval)
+void do_exportdoorset(const char *prompt,int initialval)
 {
 	char firstdoor[8], doorct[8];
 	int first_doorset_id = 0; int the_doorset_count = 1;

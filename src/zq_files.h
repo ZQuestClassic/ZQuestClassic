@@ -74,5 +74,14 @@ int onExport_Comboaliaspack();
 
 int onExport_UnencodedQuest();
 void center_zq_files_dialogs();
+
+int writezdoorsets(PACKFILE *f, int first, int count);
+int readzdoorsets(PACKFILE *f, int first, int count, int deststart);
+int writeonezdoorset(PACKFILE *f, int index);
+int readonezdoorset(PACKFILE *f, int index);
+
+int onExport_Doorset();
+int onImport_Doorset();
+
 #endif
  

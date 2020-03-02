@@ -1,6 +1,21 @@
 ChangeLog for 2.53.1
 
 //Beta 35
+Added the .zdoors file type.
+	Added Import Doorsets: You can set a desired first destination,
+	first source, and count fro the first source. This will load
+	doorsets starting at src, ending at src+count, to dest, ending at
+	dest+count-1. 
+		Overflow beyond the current doorcount is skipped, displaying
+		a dialogue that it overflowed. 
+	Added Export Doorsets: You can specify a starting doorset, and a 
+	count (min 1), exporting doorset 'first' through 'first+count-1'.
+	Added a contextual menu to the Edit Door Set list dialogue with 
+	the options 'Save' and 'Load'.
+		Saving will save that doorset only; while loading loads
+		the first doorset from a .zdoors file to the selected index
+		of the lister.
+	( ZoriaRPG, 2nd March, 2020 )
 Fixed crashes with long filenames overflowing the char buffers[]
 	on some save and load routines. 
 	( ZoriaRPG, 1st March, 2020 )
