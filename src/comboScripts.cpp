@@ -236,7 +236,7 @@ case COMBOXR:
 	}
 	else
 	{
-		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].scriptname.c_str() );
 		ret = -10000;
 	}
 	break;
@@ -250,7 +250,7 @@ case COMBOYR:
 	}
 	else
 	{
-		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
+		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].scriptname.c_str() );
 		ret = -10000;
 	}
 	break;

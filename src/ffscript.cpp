@@ -911,6 +911,7 @@ byte itemScriptsWaitdraw[256] = {0};
 #include "rendertarget.h" //Needed for LoadBitmap
 
 #include "zc_custom.h"
+#include "qst.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -945,18 +946,6 @@ extern sprite_list particles;
 extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
-extern std::map<int, std::pair<string,string> > ffcmap;
-extern std::map<int, std::pair<string,string> > itemmap;
-extern std::map<int, std::pair<string,string> > globalmap;
-extern std::map<int, std::pair<string, string> > itemmap;
-extern std::map<int, std::pair<string, string> > npcmap;
-extern std::map<int, std::pair<string, string> > ewpnmap;
-extern std::map<int, std::pair<string, string> > lwpnmap;
-extern std::map<int, std::pair<string, string> > linkmap;
-extern std::map<int, std::pair<string, string> > dmapmap;
-extern std::map<int, std::pair<string, string> > screenmap;
-extern std::map<int, std::pair<string, string> > itemspritemap;
-extern std::map<int, std::pair<string, string> > comboscriptmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -7978,7 +7967,7 @@ long get_register(const long arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -7992,7 +7981,7 @@ long get_register(const long arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -8005,7 +7994,7 @@ long get_register(const long arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].second.c_str() );
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -19418,7 +19407,7 @@ void do_getffcscript()
 	
 	for(int i=0; i<NUMSCRIPTFFC; i++)
 	{
-		if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
+		if(strcmp(name.c_str(), ffcmap[i].scriptname.c_str())==0)
 		{
 			num=i+1;
 			break;
@@ -19457,7 +19446,7 @@ void do_getitemscript()
 	
 	for(int i=0; i<512; i++)
 	{
-		if(strcmp(name.c_str(), itemmap[i].second.c_str())==0)
+		if(strcmp(name.c_str(), itemmap[i].scriptname.c_str())==0)
 		{
 			num=i+1;
 			break;
@@ -19990,28 +19979,28 @@ int run_script(const byte type, const word script, const long i)
 				switch(type)
 				{
 					case SCRIPT_FFC:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
 					case SCRIPT_NPC:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], npcmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
 					case SCRIPT_LWPN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], lwpnmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
 					case SCRIPT_EWPN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ewpnmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
 					case SCRIPT_ITEMSPRITE:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemspritemap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
 					case SCRIPT_ITEM:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
 					case SCRIPT_GLOBAL:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
 					case SCRIPT_LINK:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], linkmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], screenmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
-					//case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].second.c_str()); break;
+						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					//case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
 					
 					default: break;					
 				}
@@ -27698,7 +27687,7 @@ void FFScript::do_getnpcscript()
 	
 	for(int q = 0; q < NUMSCRIPTGUYS; q++)
 	{
-		if(!(strcmp(the_string.c_str(), npcmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), npcmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27715,7 +27704,7 @@ void FFScript::do_getlweaponscript()
 	
 	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
 	{
-		if(!(strcmp(the_string.c_str(), lwpnmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), lwpnmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27732,7 +27721,7 @@ void FFScript::do_geteweaponscript()
 	
 	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
 	{
-		if(!(strcmp(the_string.c_str(), ewpnmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), ewpnmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27749,7 +27738,7 @@ void FFScript::do_getheroscript()
 	
 	for(int q = 0; q < NUMSCRIPTLINK; q++)
 	{
-		if(!(strcmp(the_string.c_str(), linkmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), linkmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27766,7 +27755,7 @@ void FFScript::do_getglobalscript()
 	
 	for(int q = 0; q < NUMSCRIPTGLOBAL; q++)
 	{
-		if(!(strcmp(the_string.c_str(), globalmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), globalmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27783,7 +27772,7 @@ void FFScript::do_getdmapscript()
 	
 	for(int q = 0; q < NUMSCRIPTSDMAP; q++)
 	{
-		if(!(strcmp(the_string.c_str(), dmapmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), dmapmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27800,7 +27789,7 @@ void FFScript::do_getscreenscript()
 	
 	for(int q = 0; q < NUMSCRIPTSCREEN; q++)
 	{
-		if(!(strcmp(the_string.c_str(), screenmap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), screenmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27817,7 +27806,7 @@ void FFScript::do_getitemspritescript()
 	
 	for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
 	{
-		if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+		if(!(strcmp(the_string.c_str(), itemspritemap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -27836,7 +27825,7 @@ void FFScript::do_getuntypedscript()
 	
 	//for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
 	//{
-	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].scriptname.c_str())))
 	//	{
 	//		script_num = q+1;
 	//		break;
@@ -27853,7 +27842,7 @@ void FFScript::do_getsubscreenscript()
 	
 	//for(int q = 0; q < NUMSCRIPTSUBSCREEN; q++)
 	//{
-	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].second.c_str())))
+	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].scriptname.c_str())))
 	//	{
 	//		script_num = q+1;
 	//		break;
@@ -30628,103 +30617,103 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
-				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
-					curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
 				#endif
 				break;
 			
 			case SCRIPT_LINK:
-				al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
+				al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
 				#endif    
 			break;
 			
 			case SCRIPT_LWPN:
-				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
 				#endif    
 			break;
 			
 			case SCRIPT_EWPN:
-				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());
+				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
 				#endif    
 			break;
 			
 			case SCRIPT_NPC:
-				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
+				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
 				#endif    
 			break;
 				
 			case SCRIPT_FFC:
-				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
 				
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 				
 			case SCRIPT_ITEM:
-				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 			
 			case SCRIPT_ACTIVESUBSCREEN:
 			case SCRIPT_PASSIVESUBSCREEN:
 			case SCRIPT_DMAP:
-				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
+				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
 				
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 			
 			case SCRIPT_ITEMSPRITE:
-				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());
+				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 			
 			case SCRIPT_SCREEN:
-				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());
+				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 			
 			//case SCRIPT_SUBSCREEN:
-			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 			//	#ifdef _WIN32
 			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
 			//	#endif
 			//break;
 			
 			case SCRIPT_COMBO:
-				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());
+				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].second.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
 				#endif
 			break;
 		}
