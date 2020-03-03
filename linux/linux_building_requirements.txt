@@ -13,8 +13,13 @@ The following needs to be installed (package name for apt):
    git
    build-essential
    cmake
+	^ Required to fetch repos and create makefiles.
    flex
    bison
+	^ Required to build ZScript
+	
+   libasound2-dev
+	^ ALSA is required, for sound. 
 
 Packages installed for Allegro 4.4.3.1 to compile:
    xorg-dev

@@ -9863,12 +9863,48 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         case GOTO:
+	{
+	    unsigned char invalid = 0;
+	    if(sarg1 < 0 )
+	    {
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+			
+			default: break;
+		}
+		invalid = 1; scommand = 0xFFFF;
+	    }
+	    if ( invalid ) break;
             pc = sarg1;
             increment = false;
             break;
+	}
             
         case GOTOR:
         {
+	    unsigned char invalid = 0;
+	    if( get_register(sarg1) < 0 )
+	    {
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], globalmap[i].second.c_str()); break;
+			
+			default: break;
+		}
+		invalid = 1; scommand = 0xFFFF;
+	    }
+	    if ( invalid ) break;
             pc = (get_register(sarg1) / 10000) - 1;
             increment = false;
         }
@@ -9877,6 +9913,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOTRUE:
             if(ri->scriptflag & TRUEFLAG)
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -9886,6 +9939,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOFALSE:
             if(!(ri->scriptflag & TRUEFLAG))
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -9895,6 +9965,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOMORE:
             if(ri->scriptflag & MOREFLAG)
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -9904,6 +9991,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOLESS:
             if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -10741,7 +10845,23 @@ int run_script(const byte type, const word script, const byte i)
 #endif
         
         if(increment)	pc++;
-        else			increment = true;
+        else	increment = true;
+	if ( pc < 0 ) //rolled over from overflow
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			default: pc = 1; scommand = 0xFFFF; break;				
+		}
+	}
         
         if(scommand != 0xFFFF)
         {
@@ -10785,7 +10905,25 @@ int run_script(const byte type, const word script, const byte i)
         }
     }
     else
+    {
         pc++;
+	if ( pc < 0 ) //rolled over from overflow
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			default: pc = 1; scommand = 0xFFFF; break;				
+		}
+	}
+    }
         
     ri->pc = pc; //Put it back where we got it from
     

@@ -1,5 +1,5 @@
-//Docs for 2.53.1, 2.55.0
-//Rev. 0.7.7; 19th December, 2019
+// Docs for 2.53.1
+// Rev. 0.8.0; 3rd March, 2020
 
 Search for !#! to find areas that require completion. 
 
@@ -5321,22 +5321,18 @@ FLIPROTTILEVR<><>
 ZASM Register Reservations
 
 Name		Register		Use
-SP 
-    stack pointer
-D4 
-    stack frame pointer
-D6 
-    stack frame offset accumulator
-D2 
-    expression accumulator #1
-D3 
-    expression accumulator #2
-D0 
-    array index accumulator
-D1 
-    secondary array index accumulator
-D5 
-    pure SETR sink
+INDEX		D0			array index accumulator
+INDEX2		D1			secondary array index accumulator
+EXP1		D2			expression accumulator #1
+EXP2		D3			expression accumulator #2
+SFRAME		D4			stack frame pointer
+NUL		D5			NULL, pure SETR sink
+SFTEMP		D6			stack frame offset accumulator
+*unused		D7
+*unused		D8
+ZELDAVERSION	9			The current ZC version.
+SP 		10			stack pointer
+
     
     
 //Unimplemented ZASM Instructions
@@ -5403,40 +5399,40 @@ FLOODFILL
 /// System Limitations, Minimums, Maximums ///
 //////////////////////////////////////////////
 
-     Maximum numeric literal: 214747.9999
+These values are as of 2.53.1
+
+Maximum numeric constant: 214747.9999
+Minimum numeric constant: -214747.9999
 
 Ints, Floats, Arrays
 
 	Maximum float: -214747.9999 to 214747.9999
-	Maximum int -214747 to 214747
-	Maximum array size (number of indices): 214747
+	Maximum int -214748 to 214748
+	Maximum array size (number of indices): 214748
 
 	* This further includes arrays with a type of npc, leweapon, eweapon, item, and itemdata. 
 	Maximum value in an array index: Same as float, or int; based on type declaration.
-	Maximum size of string index: 214747
-	Maximum string length: 214747
+	Maximum size of string index: 214748
+	Maximum string length: 214747 characters (a NULL terminator is required, using one index).
 	Maximum simultaneous arrays in operation: 4095
 
 Counters, Tiles, Combos, Strings
 
 	Maximum Tiles: 65519
 	Maximum Combos: 65279
-	Maximum Counter Value: 0 to 32767
+	Maximum Counter Value: 65535
+	Minimum Counter Value: 0
+	Minimum DCounter Value: -32768
+	Maximum DCounter Value: 32767
 	Maximum strings in string editor: ( 65519 )
-
-	Largest tile ID (ZQ Editors): 32767 ? 
-
-	The largest value that can be referenced in the ZQ item, enemy, and other editors.
-
-                --> I seem to remember a problem calling high values.
 		
 Pointers and Objects
 
-	Maximum number of item pointers (on-screen items) at any one time: 255
-	Maximum number of lweapon pointers (on-screen lweapons) at any one time: 255
-	Maximum number of eweapon pointers (on-screen eweapons) at any one time: 255
-	Maximum number of npc pointers (on-screen NPCs) at any one time: 255
-	Maximum number of ffc (on-screen FFCs) pointers at any one time: 32
+	Maximum number of item objects (on-screen items) at any one time: 255
+	Maximum number of lweapon objects (on-screen lweapons) at any one time: 255
+	Maximum number of eweapon objects (on-screen eweapons) at any one time: 255
+	Maximum number of npc objects (on-screen NPCs) at any one time: 255
+	Number of ffc (on-screen FFCs) objects at any one time: 32
 	Array Pointers (maximum number of arrays in operation): 4095
 
 	Maximum total (cumulative) number of 'object' pointers at any one time: 1020 
@@ -5454,7 +5450,7 @@ Compiler
 		Note that this is limited by the filesystem, as each function requires its ASCII size in bytes, 
 		and is stored in the quest file. Many filesystems have a file size limit, that restricts it. 
 		At the smallest function size, max functions would use ~40GB of space. 
-		It is further restricted by the maximum buffer size at between 18MB and 22MB.
+		It is further restricted by the maximum script length.
 
 Script Drawing
 
@@ -5466,34 +5462,50 @@ Script Drawing
 
 Stack Operation
 
-	Maximum number of concurrent stacks: ? 
-		--> Essentially, the maximum number of concurrent scripts; except that item scripts share one stack.
+	Maximum number of concurrent stacks: 
+	item: 	1; action has priority over collect.
+	ffc: 	32
+	global: 1
 
-	Maximum variables in operation at any given time: 255* (gd1-gd255)
+	Maximum global variables/pointers in operation at any given time: 255* (gd1-gd255)
 	Maximum variables per script: 255*
-	Maximum function calls per script ( 127* )
+	Maximum simultaneous/nested function calls per script ( 127* )
 	*Note: 255 variables will compile, but fail to run. A safe maximum is closer to 245, to allow instructions and function calls on the stack
-	*Note: Both variables, and function calls share registers (global variables are gd registers), and thus cumulatively count against their combined caps (within a register type). See: ZASM_Registers
-                --> How are these tabulated at compilation, and is there a strict ratio ( function call:variable ) ?
-                --> Script-scope variables use gd registers. Thus, you need to retain free registers for scripts to run. 
+	*Note: Both variables, and function calls share registers (global variables are gd registers), and thus cumulatively count
+	against their caps (within a register type). See: ZASM_Registers
+	
+	Script-scope variables (higher than the scope of 'run()', use gd registers. 
+	Thus, you need to retain free registers for scripts to run. 
 
-	Maximum script buffer size: ~18MB, including code imported with the 'import' directive. 
-                --> Maximum line count is also limited, but it is restricted by being a signed int. 
-                --> Thus, max line-count is somewhere around 2,147,483,647 lines, however, 
-                    this is still restricted by the 18MB buffer size.  
+	Maximum instructions (ZASM lines) per script: 214748.
+	Maximum instructions per frame: Effectively unlimited, but performance per machine will constrain this. 
 
-	Maximum number of instructions: 2^32-1 * Max Scripts
-	Maximum instructions per script: 4,294,967,295 (2^31 - 1)
-	Maximum instructions per frame: Effectively unlimited, save by instructions per script. 
+	Maximum number of scripts:
+		ffc: 		511
+		itemdata: 	255
+		global: 	4	
 
-	Maximum number of scripts ?
-	Max ffc scripts at compilation ?
-	Max Item scripts at compilation ?
-	Max global scripts at compilation ? 
-                --> I know this is unlikely to ever be reached.
+	Maximum function calls per script: Limited by maximum instructions, and available registers.
+	Maximum local functions per script: Effectively unlimited, and tied to maximum functions (see above). 
 
-	Maximum function calls per script: Limited by maximum instructions, and available gd registers.
-	Maximum local functions per script: ? Effectively unlimited, and tied to maximum functions (see above). 
+Script Type IDs
+	-1	none
+	0	global
+	1	ffc
+	2	screendata*
+	3	hero*
+	4	itemdata
+	5	lweapon*
+	6	npc*
+	7	subscreen*
+	8	eweapon*
+	9	dmapdata*
+	10	itemsprite*
+	11	dmapdata (active subscreen)*
+	12	dmapdata (passive subscreen)*
+	13	combodata*
+	
+		*Not implemented in this version.
 
 Maximum Values (Binary, Hex) for Use as Flags
 
