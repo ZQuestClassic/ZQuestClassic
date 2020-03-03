@@ -1,0 +1,31 @@
+CSet	Behavior	Description	
+0	Constant	Used for various GUI items such as status icons.	
+1	Constant	Used for various GUI items such as status icons.	
+2	Palette		Used for overworld and dungeon graphics such as trees, 
+			walls, statues, etc.	
+3	Palette		Used for overworld and dungeon graphics such as trees, 
+			walls, statues, etc.
+4	Palette		Used for overworld and dungeon graphics such as trees, 
+			walls, statues, etc.
+5	Constant	Used for overworld and dungeon graphics such as trees, 
+			walls, statues, etc.	
+6	Varies		Used for Link, the "Zelda" Guy and the "Merchant" Guy.	
+			Changes when you acquire some items.
+7	Constant	Used for sprites, typically blue and red enemies.	
+8	Constant	Used for sprites and the remaining Guy and enemies.	
+9	Palette		Used for sprites whose color depends on the level.	 
+10	Constant	Generally not used, but available for use by ZC to color 
+			various in-game visual items such as the player minimap 
+			position indicator or the flashing compass/boss indicator 
+			when the player has the compass.
+			(See: Quest > Graphics > Misc Colors).	
+11	Constant	Generally not used, but available for use by ZC to color 
+			various in-game UI elements items such as the message text, 
+			and other in-game UI elements. 
+			(See:  Quest > Graphics > Misc Colors).
+12	Constant	Not used by ZC. You can do whatever you want with this Cset.	
+13	Varies		Used for Extra Sprite Palettes (ESPs). 
+			The last enemy on a screen with an ESp loads its palette 
+			to this CSet.
+14	VGA/UI		Used for some GUI elements. 
+15	DVGA/UI		Used for the overal UI Theme (.ztheme).
