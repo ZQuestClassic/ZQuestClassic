@@ -2141,6 +2141,8 @@ bool ffcheck(char *arg)
 	return true;
 }
 
+std::map<std::string, int> label_map;
+
 char labels[65536][80];
 int lines[65536];
 int numlines;
@@ -2528,7 +2530,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 		
 		if(buffer[k] == '\0')
 		{
-			i--;
+			--i;
 			continue;
 		}
 		
@@ -2536,15 +2538,27 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 		
 		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
 		{
+			char lbuf[80] = {0};
 			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
 			{
-				labels[numlines][k] = buffer[k];
+				lbuf[k] = buffer[k];
+				//labels[numlines][k] = buffer[k];
 				k++;
 			}
-			
-			labels[numlines][k] = '\0';
-			lines[numlines] = i;
-			numlines++;
+			string lbl(lbuf);
+			label_map[lbl] = i;
+			//labels[numlines][k] = '\0';
+			//lines[numlines] = i;
+			//numlines++;
+			while(buffer[k] == ' ' || buffer[k] == '\t')
+			{
+				++k;
+			}
+			if(buffer[k] == '\n' || buffer[k] == '\r' || buffer[k] == ';')
+			{
+				--i; //No command on this line
+				continue;
+			}
 		}
 	}
 	
@@ -2593,7 +2607,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 				else
 				{
 					ungetc(temp,fscript);
-					buffer[j] = getc(fscript);
+					buffer[j] = toupper(getc(fscript));
 					if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
 					{
 						meta_mode = true;
@@ -2661,7 +2675,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 			
 			if(buffer[k] == '\0')
 			{
-				i--;
+				--i;
 				continue;
 			}
 			
@@ -2676,6 +2690,12 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 				combuf[l] = buffer[k];
 				k++;
 				l++;
+			}
+			
+			if(l == 0) //No command
+			{
+				--i;
+				continue;
 			}
 			
 			combuf[l] = '\0';
@@ -2810,6 +2830,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data
 			
 			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
 			{
+				/*
 				bool nomatch = true;
 				
 				for(int j=0; j<numlines; j++)
@@ -2823,9 +2844,18 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data
 				}
 				
 				if(nomatch)
+				*/
+				string lbl(arg1buf);
+				map<string,int>::iterator it = label_map.find(lbl);
+				if(it != label_map.end())
+				{
+					(*script)->zasm[com].arg1 = (*it).second;
+				}
+				else
 				{
 					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 				}
+				
 				
 				if(strnicmp(combuf,"LOOP",4)==0)
 				{
