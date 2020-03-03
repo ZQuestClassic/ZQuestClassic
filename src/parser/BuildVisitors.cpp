@@ -1167,6 +1167,41 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
+	else
+	{
+		if(ASTExpr* lhs = host.left.get())
+		{
+			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0)
+				{
+					visit(host.right.get(), param);
+					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+					if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+						addOpcode(new OSetTrue(new VarArgument(EXP1)));
+					else
+						addOpcode(new OSetTrueI(new VarArgument(EXP1)));
+					return;
+				}
+			}
+		}
+		if(ASTExpr* rhs = host.right.get())
+		{
+			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0)
+				{
+					visit(host.left.get(), param);
+					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+					if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+						addOpcode(new OSetTrue(new VarArgument(EXP1)));
+					else
+						addOpcode(new OSetTrueI(new VarArgument(EXP1)));
+					return;
+				}
+			}
+		}
+	}
 
     // Compute both sides.
     visit(host.left.get(), param);
@@ -1199,6 +1234,39 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
+	else
+	{
+		if(ASTExpr* lhs = host.left.get())
+		{
+			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0)
+				{
+					visit(host.right.get(), param);
+					if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+						addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+					else
+						addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+					return;
+				}
+			}
+		}
+		if(ASTExpr* rhs = host.right.get())
+		{
+			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0)
+				{
+					visit(host.left.get(), param);
+					if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+						addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+					else
+						addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+					return;
+				}
+			}
+		}
+	}
 
     // Compute both sides.
     visit(host.left.get(), param);
@@ -1273,6 +1341,31 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
+	else
+	{
+		if(ASTExpr* lhs = host.left.get())
+		{
+			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0) // 0 + y? Just do y!
+				{
+					visit(host.right.get(), param);
+					return;
+				}
+			}
+		}
+		if(ASTExpr* rhs = host.right.get())
+		{
+			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0) // x + 0? Just do x!
+				{
+					visit(host.left.get(), param);
+					return;
+				}
+			}
+		}
+	}
 
     // Compute both sides.
     visit(host.left.get(), param);
@@ -1289,6 +1382,20 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
+	else
+	{
+		if(ASTExpr* rhs = host.right.get())
+		{
+			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==0) // x - 0? Just do x!
+				{
+					visit(host.left.get(), param);
+					return;
+				}
+			}
+		}
+	}
 
     // Compute both sides.
     visit(host.left.get(), param);
@@ -1306,6 +1413,31 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
+	else
+	{
+		if(ASTExpr* lhs = host.left.get())
+		{
+			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==10000L)
+				{
+					visit(host.right.get(), param);
+					return;
+				}
+			}
+		}
+		if(ASTExpr* rhs = host.right.get())
+		{
+			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			{
+				if((*val)==10000L)
+				{
+					visit(host.left.get(), param);
+					return;
+				}
+			}
+		}
+	}
 
     // Compute both sides.
     visit(host.left.get(), param);
