@@ -763,6 +763,15 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if(host.binding->isInternal())
 		{
 			int startRefCount = arrayRefs.size(); //Store ref count
+			
+			if (host.left->isTypeArrow())
+			{
+				//load the value of the left-hand of the arrow into EXP1
+				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+				//visit(host.getLeft(), param);
+				//push it onto the stack
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 			//push the parameters, in forward order
 			for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 				it != host.parameters.end(); ++it)
