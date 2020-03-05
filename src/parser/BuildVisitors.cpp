@@ -697,35 +697,64 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
-    OpcodeContext* c = (OpcodeContext*)param;
-    bool isIndexed = host.index != NULL;
-    //this is actually a function call
-    //to the appropriate gettor method
-    //so, set that up:
-    //push the stack frame
-    addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-    int returnlabel = ScriptParser::getUniqueLabelID();
-    //push the return address
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnlabel)));
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    //push the lhs of the arrow
-    visit(host.left.get(), param);
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
+    OpcodeContext *c = (OpcodeContext *)param;
+    int isIndexed = (host.index != NULL);
+	assert(host.readFunction->isInternal());
+	
+	if(host.readFunction->getFlag(FUNCFLAG_INLINE))
+	{
+		if (!(host.readFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		{
+			//push the lhs of the arrow
+			visit(host.left.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		if(isIndexed)
+		{
+			visit(host.index.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		vector<Opcode*> const& funcCode = host.readFunction->getCode();
+		for(vector<Opcode*>::const_iterator it = funcCode.begin();
+			it != funcCode.end(); ++it)
+		{
+			addOpcode((*it)->makeClone());
+		}
+	}
+	else
+	{
+		//this is 	actually a function call
+		//to the appropriate gettor method
+		//so, set that up:
+		//push the stack frame
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		int returnlabel = ScriptParser::getUniqueLabelID();
+		//push the return address
+		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
+		if (!(host.readFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		{
+			//push the lhs of the arrow
+			visit(host.left.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
 
-    //if indexed, push the index
-    if(isIndexed)
-    {
-	    visit(host.index.get(), param);
-        addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    }
+		//if indexed, push the index
+		if(isIndexed)
+		{
+			visit(host.index.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
 
-    //call the function
-    int label = host.readFunction->getLabel();
-    addOpcode(new OGotoImmediate(new LabelArgument(label)));
-    //pop the stack frame
-    Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-    next->setLabel(returnlabel);
-    addOpcode(next);
+		//call the function
+		int label = host.readFunction->getLabel();
+		addOpcode(new OGotoImmediate(new LabelArgument(label)));
+		//pop the stack frame
+		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnlabel);
+		addOpcode(next);
+	}
 }
 
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
@@ -764,7 +793,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			int startRefCount = arrayRefs.size(); //Store ref count
 			
-			if (host.left->isTypeArrow())
+			if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
 			{
 				//load the value of the left-hand of the arrow into EXP1
 				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -797,7 +826,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 												
 			// If the function is a pointer function (->func()) we need to push the
 			// left-hand-side.
-			if (host.left->isTypeArrow())
+			if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
 			{
 				//load the value of the left-hand of the arrow into EXP1
 				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -845,7 +874,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
-		if (host.left->isTypeArrow())
+		if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -2049,47 +2078,96 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
     int isIndexed = (host.index != NULL);
-    // This is actually implemented as a settor function call.
+	assert(host.writeFunction->isInternal());
+	
+	if(host.writeFunction->getFlag(FUNCFLAG_INLINE))
+	{
+		if (!(host.writeFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		{
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//Get lval
+			BuildOpcodes oc(scope);
+			oc.visit(host.left.get(), param);
+			addOpcodes(oc.getResult());
+			//Pop rval
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+			//Push lval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP2)));
+		}
+		else
+		{
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		if(isIndexed)
+		{
+			BuildOpcodes oc2(scope);
+			oc2.visit(host.index.get(), param);
+			addOpcodes(oc2.getResult());
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		vector<Opcode*> const& funcCode = host.writeFunction->getCode();
+		for(vector<Opcode*>::const_iterator it = funcCode.begin();
+			it != funcCode.end(); ++it)
+		{
+			addOpcode((*it)->makeClone());
+		}
+	}
+	else
+	{
+		// This is actually implemented as a settor function call.
 
-    // Push the stack frame.
-    addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		// Push the stack frame.
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 
-    int returnlabel = ScriptParser::getUniqueLabelID();
-    //push the return address
-    addOpcode(new OSetImmediate(new VarArgument(EXP2), new LabelArgument(returnlabel)));
-    addOpcode(new OPushRegister(new VarArgument(EXP2)));
-    //push the lhs of the arrow
-    //but first save the value of EXP1
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		int returnlabel = ScriptParser::getUniqueLabelID();
+		//push the return address
+		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
+		
+		if (!(host.writeFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		{
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//Get lval
+			BuildOpcodes oc(scope);
+			oc.visit(host.left.get(), param);
+			addOpcodes(oc.getResult());
+			//Pop rval
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+			//Push lval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP2)));
+		}
+		else
+		{
+			//Push rval
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		//and push the index, if indexed
+		if(isIndexed)
+		{
+			BuildOpcodes oc2(scope);
+			oc2.visit(host.index.get(), param);
+			addOpcodes(oc2.getResult());
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		//finally, goto!
+		int label = host.writeFunction->getLabel();
+		addOpcode(new OGotoImmediate(new LabelArgument(label)));
 
-    BuildOpcodes oc(scope);
-    oc.visit(host.left.get(), param);
-	addOpcodes(oc.getResult());
-    
-    //pop the old value of EXP1
-    addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    //and push the lhs
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    //and push the old value of EXP1
-    addOpcode(new OPushRegister(new VarArgument(EXP2)));
-    
-    //and push the index, if indexed
-    if(isIndexed)
-    {
-        BuildOpcodes oc2(scope);
-        oc2.visit(host.index.get(), param);
-		addOpcodes(oc2.getResult());
-        addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    }
-    
-    //finally, goto!
-    int label = host.writeFunction->getLabel();
-    addOpcode(new OGotoImmediate(new LabelArgument(label)));
-
-    // Pop the stack frame
-    Opcode* next = new OPopRegister(new VarArgument(SFRAME));
-    next->setLabel(returnlabel);
-    addOpcode(next);
+		// Pop the stack frame
+		Opcode* next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnlabel);
+		addOpcode(next);
+	}
 }
 
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)

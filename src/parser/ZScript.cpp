@@ -422,10 +422,10 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id, int flags)
+				   vector<DataType const*> paramTypes, int id, int flags, int internal_flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
-	  id(id), label(nullopt), flags(flags)
+	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags)
 {}
 
 Function::~Function()
