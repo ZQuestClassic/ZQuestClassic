@@ -284,14 +284,14 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
     }
 	else
 	{
-		if(host.getFirstOperand().hasIntValue() && host.getFirstOperand().getIntValue() == 0)
+		if(host.getFirstOperand()->hasIntValue() && host.getFirstOperand()->getIntValue() == 0)
 		{
 			host.getSecondOperand()->execute(*this,param);
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 			result.push_back(new OSetTrue(new VarArgument(EXP1)));
 			return;
 		}
-		else if(host.getSecondOperand().hasIntValue() && host.getSecondOperand().getIntValue() == 0)
+		else if(host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 0)
 		{
 			host.getFirstOperand()->execute(*this,param);
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -328,14 +328,14 @@ void BuildOpcodes::caseExprNE(ASTExprNE &host, void *param)
     }
 	else
 	{
-		if(host.getFirstOperand().hasIntValue() && host.getFirstOperand().getIntValue() == 0)
+		if(host.getFirstOperand()->hasIntValue() && host.getFirstOperand()->getIntValue() == 0)
 		{
 			host.getSecondOperand()->execute(*this,param);
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 			result.push_back(new OSetFalse(new VarArgument(EXP1)));
 			return;
 		}
-		else if(host.getSecondOperand().hasIntValue() && host.getSecondOperand().getIntValue() == 0)
+		else if(host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 0)
 		{
 			host.getFirstOperand()->execute(*this,param);
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -369,12 +369,12 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus &host, void *param)
     }
 	else
 	{
-		if(host.getFirstOperand().hasIntValue() && host.getFirstOperand().getIntValue() == 0)
+		if(host.getFirstOperand()->hasIntValue() && host.getFirstOperand()->getIntValue() == 0)
 		{
 			host.getSecondOperand()->execute(*this,param);
 			return;
 		}
-		else if(host.getSecondOperand().hasIntValue() && host.getSecondOperand().getIntValue() == 0)
+		else if(host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 0)
 		{
 			host.getFirstOperand()->execute(*this,param);
 			return;
@@ -398,7 +398,7 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus &host, void *param)
     }
 	else
 	{
-		if(host.getSecondOperand().hasIntValue() && host.getSecondOperand().getIntValue() == 0)
+		if(host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 0)
 		{
 			host.getFirstOperand()->execute(*this,param);
 			return;
@@ -423,12 +423,12 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes &host, void *param)
     }
 	else
 	{
-		if(host.getFirstOperand().hasIntValue() && host.getFirstOperand().getIntValue() == 10000L)
+		if(host.getFirstOperand()->hasIntValue() && host.getFirstOperand()->getIntValue() == 10000L)
 		{
 			host.getSecondOperand()->execute(*this,param);
 			return;
 		}
-		else if(host.getSecondOperand().hasIntValue() && host.getSecondOperand().getIntValue() == 10000L)
+		else if(host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 10000L)
 		{
 			host.getFirstOperand()->execute(*this,param);
 			return;
