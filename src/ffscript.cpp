@@ -19959,7 +19959,7 @@ int run_script(const byte type, const word script, const long i)
 		}
 		
 		//Handle manual breaking
-		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readkey(KEY_INSERT, true))
+		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readrawkey(KEY_INSERT, true))
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 		//Break
 		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
@@ -30396,6 +30396,7 @@ void FFScript::ZASMPrint(bool open)
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
 		//coloured_console.SetAsDefaultOutput();
 		zasm_debugger = 1;
+		zasm_break_mode = ZASM_BREAK_HALT;
 	}
 	else
 	{
@@ -30406,6 +30407,32 @@ void FFScript::ZASMPrint(bool open)
 	#endif	
 }
 
+std::string ZASMVarToString(long arg)
+{
+	for(int q = 0; ZASMVars[q].id != -1; ++q)
+	{
+		if(ZASMVars[q].maxcount>0)
+		{
+			long start = ZASMVars[q].id;
+			int mult = zc_max(1,ZASMVars[q].multiple);
+			if(arg >= start && arg < start+(ZASMVars[q].maxcount*mult))
+			{
+				for(int w = 0; w < ZASMVars[q].maxcount; ++w)
+				{
+					if(arg!=start+(w*mult)) continue;
+					
+					char buf[64];
+					if(strcmp(ZASMVars[q].name, "A")==0)
+						sprintf(buf, "%s%d", ZASMVars[q].name, w+1);
+					else sprintf(buf, "%s%d", ZASMVars[q].name, w);
+					return string(buf);
+				}
+			}
+		}
+		else if(ZASMVars[q].id == arg) return string(ZASMVars[q].name);
+	}
+	return "(null)";
+}
 
 void FFScript::ZASMPrintCommand(const word scommand)
 {
@@ -30413,7 +30440,6 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	//if ( !zasm_debugger ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
-	script_variable s_v = ZASMVars[0];
 	
 	if(s_c.args == 2)
 	{
@@ -30422,10 +30448,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		
 		if(s_c.arg1_type == 0)
 		{
-			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d), ", s_v.id-8, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
@@ -30434,10 +30459,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		}
 		if(s_c.arg2_type == 0)
 		{
-			s_v = ZASMVars[sarg2];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg2));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
 		}
 		else
 		{
@@ -30452,10 +30476,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		
 		if(s_c.arg1_type == 0)
 		{
-			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
@@ -30478,10 +30501,10 @@ void FFScript::ZASMPrintVarSet(const long arg, long argval)
 {
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
-	script_variable s_v = ZASMVars[arg];
+	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",s_v.name);
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
@@ -30492,10 +30515,10 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 {
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
-	script_variable s_v = ZASMVars[arg];
+	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",s_v.name);
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
