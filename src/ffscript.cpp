@@ -25170,7 +25170,7 @@ bool FFScript::newScriptEngine()
 
 void FFScript::runF6Engine()
 {
-	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_F6SCRIPT_ACTIVE))
 	{
 		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
 		{
@@ -25180,14 +25180,14 @@ void FFScript::runF6Engine()
 			refInfo *tri = ri;
 			ffscript *tcurscript = curscript;
 			//
-			clear_bitmap(script_menu_buf);
-			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			clear_bitmap(f6_menu_buf);
+			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, 256, 224);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
 			int openingwipe = black_opening_count;
 			int openingshape = black_opening_shape;
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
-			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
 				script_drawing_commands.Clear();
@@ -25207,7 +25207,7 @@ void FFScript::runF6Engine()
 				if(Quit) break; //Something quit, end script running
 			}
 			script_drawing_commands.Clear();
-			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
 			//Restore opening wipe
 			black_opening_count = openingwipe;
 			black_opening_shape = openingshape;
@@ -25253,7 +25253,7 @@ void FFScript::runOnDeathEngine()
 		if( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -25281,7 +25281,7 @@ void FFScript::runOnLaunchEngine()
 		
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -25330,7 +25330,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 		//Handle warps; run game_loop once!
 		if(currdmap != script_dmap)
 		{
@@ -25352,7 +25352,8 @@ bool FFScript::runActiveSubscreenScriptEngine()
 
 void FFScript::doScriptMenuDraws()
 {
-	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	BITMAP* menu_buf = ((GameFlags & GAMEFLAG_F6SCRIPT_ACTIVE) != 0) ? f6_menu_buf : script_menu_buf;
+	blit(menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
 	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
 	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
