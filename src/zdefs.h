@@ -3876,6 +3876,7 @@ struct zcmodule
 //GameFlags
 #define GAMEFLAG_TRYQUIT	0x01
 #define GAMEFLAG_SCRIPTMENU_ACTIVE	0x02
+#define GAMEFLAG_F6SCRIPT_ACTIVE	0x04
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1

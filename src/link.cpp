@@ -19494,7 +19494,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
             
         //end drawing
-        advanceframe(true,true,false);
+        advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setLinkAction(scrolling);
 		FFCore.runF6Engine();
