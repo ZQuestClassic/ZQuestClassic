@@ -25188,6 +25188,7 @@ void FFScript::runF6Engine()
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
+			pause_all_sfx();
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
 				script_drawing_commands.Clear();
@@ -25206,6 +25207,7 @@ void FFScript::runF6Engine()
 				advanceframe(true,true,false);
 				if(Quit) break; //Something quit, end script running
 			}
+			resume_all_sfx();
 			script_drawing_commands.Clear();
 			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
 			//Restore opening wipe
@@ -25238,6 +25240,7 @@ void FFScript::runOnDeathEngine()
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptLinkScripts();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	kill_sfx(); //No need to pause/resume; the player is dead.
 	while(link_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -25297,6 +25300,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	initZScriptActiveSubscreenScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
+	pause_all_sfx();
 	while(active_subscreen_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -25346,6 +25350,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}
+	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	return true;
 }
