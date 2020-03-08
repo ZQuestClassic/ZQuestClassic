@@ -2142,16 +2142,14 @@ bool ffcheck(char *arg)
 	return true;
 }
 
-char labels[65536][80];
-int lines[65536];
-int numlines;
+std::map<std::string, int> labels;
 
 //The Dialogue that loads an ASM Script filename.
 int parse_script(script_data **script)
 {
 	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
-	
+	labels.clear();
 	FILE *zscript = fopen(temppath,"r");
 			
 	if(zscript == NULL)
@@ -2450,7 +2448,6 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 	bool stop=false;
 	bool success=true;
 	bool meta_done=false;
-	numlines = 0;
 	int num_commands;
 	
 	for(int i=0;; i++)
@@ -2529,7 +2526,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 		
 		if(buffer[k] == '\0')
 		{
-			i--;
+			--i;
 			continue;
 		}
 		
@@ -2537,15 +2534,37 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 		
 		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
 		{
+			char lbuf[80] = {0};
 			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
 			{
-				labels[numlines][k] = buffer[k];
+				lbuf[k] = buffer[k];
 				k++;
 			}
-			
-			labels[numlines][k] = '\0';
-			lines[numlines] = i;
-			numlines++;
+			string lbl(lbuf);
+			map<string,int>::iterator it = labels.find(lbl);
+			if(it != labels.end())
+			{
+				char buf[80],buf2[80],buf3[80],name[13];
+				extract_name(temppath,name,FILENAME8_3);
+				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
+				sprintf(buf2,"The error was: Duplicate Label");
+				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
+				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				stop=true;
+				success=false;
+				(*script)->disable();
+				goto zasmfile_fail;
+			}
+			labels[lbl] = i;
+			while(buffer[k] == ' ' || buffer[k] == '\t')
+			{
+				++k;
+			}
+			if(buffer[k] == '\0')
+			{
+				--i; //No command on this line
+				continue;
+			}
 		}
 	}
 	
@@ -2594,7 +2613,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 				else
 				{
 					ungetc(temp,fscript);
-					buffer[j] = getc(fscript);
+					buffer[j] = toupper(getc(fscript));
 					if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
 					{
 						meta_mode = true;
@@ -2662,7 +2681,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 			
 			if(buffer[k] == '\0')
 			{
-				i--;
+				--i;
 				continue;
 			}
 			
@@ -2677,6 +2696,12 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 				combuf[l] = buffer[k];
 				k++;
 				l++;
+			}
+			
+			if(l == 0) //No command
+			{
+				--i;
+				continue;
 			}
 			
 			combuf[l] = '\0';
@@ -2734,7 +2759,7 @@ int parse_script_file(script_data **script, const char *path, bool report_succes
 		sprintf(buf,"Script %s has been parsed",name);
 		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
-	
+zasmfile_fail:
 	delete [] buffer;
 	delete [] combuf;
 	delete [] arg1buf;
@@ -2811,22 +2836,17 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data
 			
 			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
 			{
-				bool nomatch = true;
-				
-				for(int j=0; j<numlines; j++)
+				string lbl(arg1buf);
+				map<string,int>::iterator it = labels.find(lbl);
+				if(it != labels.end())
 				{
-					if(stricmp(arg1buf,labels[j])==0)
-					{
-						(*script)->zasm[com].arg1 = lines[j];
-						nomatch = false;
-						j=numlines;
-					}
+					(*script)->zasm[com].arg1 = (*it).second;
 				}
-				
-				if(nomatch)
+				else
 				{
 					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 				}
+				
 				
 				if(strnicmp(combuf,"LOOP",4)==0)
 				{
