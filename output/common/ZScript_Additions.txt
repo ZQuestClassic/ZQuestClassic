@@ -5470,10 +5470,13 @@ int MessageHeight(int msg);
 ///  bitmap  ///
 ////////////////
 
-void DrawPlane(int layer, int rt, int srcX, int srcY, 
-		int srcW, int srcH, int destW, int destH, 
-		int angle, int cx, int cy, int space_z, int horizon, 
-		int scale_x, int scale_y);
+//void DrawPlane(int layer, int rt, int srcX, int srcY, 
+//		int srcW, int srcH, int destW, int destH, 
+//		int angle, int cx, int cy, int space_z, int horizon, 
+//		int scale_x, int scale_y);
+void DrawPlane(int layer, bitmap src, int src_x, int src_y, int dest_x,
+			int dest_y, int dest_w, int dest_h, int space_z, int horizon, 
+			float scale_x, float scale_y, bool mask);
  * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward 
  * a horizon point.
  
