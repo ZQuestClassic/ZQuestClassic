@@ -2453,6 +2453,7 @@ struct mapscr
 #define SCRIPT_COMBO					14
 
 #define ZMETA_AUTOGEN		0x01
+#define ZMETA_DISASSEMBLED	0x02
 
 #define METADATA_V			1
 #define V_COMPILER_FIRST	2020

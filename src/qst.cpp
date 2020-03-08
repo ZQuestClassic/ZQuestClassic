@@ -85,22 +85,26 @@ extern int                 memrequested;
 extern char                *byte_conversion(int number, int format);
 extern char                *byte_conversion2(int number1, int number2, int format1, int format2);
 string				             zScript;
-std::map<int, pair<string,string> > ffcmap;
-std::map<int, pair<string,string> > globalmap;
-std::map<int, pair<string,string> > itemmap;
-std::map<int, pair<string, string> > npcmap;
-std::map<int, pair<string, string> > ewpnmap;
-std::map<int, pair<string, string> > lwpnmap;
-std::map<int, pair<string, string> > linkmap;
-std::map<int, pair<string, string> > dmapmap;
-std::map<int, pair<string, string> > screenmap;
-std::map<int, pair<string, string> > itemspritemap;
-std::map<int, pair<string, string> > comboscriptmap;
+std::map<int, script_slot_data > ffcmap;
+std::map<int, script_slot_data > globalmap;
+std::map<int, script_slot_data > itemmap;
+std::map<int, script_slot_data > npcmap;
+std::map<int, script_slot_data > ewpnmap;
+std::map<int, script_slot_data > lwpnmap;
+std::map<int, script_slot_data > linkmap;
+std::map<int, script_slot_data > dmapmap;
+std::map<int, script_slot_data > screenmap;
+std::map<int, script_slot_data > itemspritemap;
+std::map<int, script_slot_data > comboscriptmap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
+
+const std::string script_slot_data::DEFAULT_FORMAT = "%s %s";
+const std::string script_slot_data::INVALID_FORMAT = "%s --%s";
+const std::string script_slot_data::ZASM_FORMAT = "%s ++%s";
 
 char qstdat_string[2048] = { 0 };
 
@@ -9792,7 +9796,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             //fix for buggy older saved quests -DD
             if(keepdata && id < NUMSCRIPTFFC-1)
-                ffcmap[id].second = buf;
+                ffcmap[id].scriptname = buf;
                 
             delete[] buf;
         }
@@ -9817,14 +9821,14 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 //Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
                 if(strcmp(buf,"~Continue") == 0)
                 {
-                    globalmap[id].second = "";
+                    globalmap[id].scriptname = "";
                     
                     if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
                         globalscripts[GLOBAL_SCRIPT_ONSAVELOAD]->disable();
                 }
                 else
                 {
-                    globalmap[id].second = buf;
+                    globalmap[id].scriptname = buf;
                 }
             }
             
@@ -9847,7 +9851,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTITEM-1)
-                    itemmap[id].second = buf;
+                    itemmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9870,7 +9874,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTGUYS-1)
-                    npcmap[id].second = buf;
+                    npcmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9893,7 +9897,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTWEAPONS-1)
-                    lwpnmap[id].second = buf;
+                    lwpnmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9915,7 +9919,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTWEAPONS-1)
-                    ewpnmap[id].second = buf;
+                    ewpnmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9937,7 +9941,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTLINK-1)
-                    linkmap[id].second = buf;
+                    linkmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9959,7 +9963,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    dmapmap[id].second = buf;
+                    dmapmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -9981,7 +9985,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    screenmap[id].second = buf;
+                    screenmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -10002,7 +10006,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    itemspritemap[id].second = buf;
+                    itemspritemap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -10023,7 +10027,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 //fix this too
                 if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
-                    comboscriptmap[id].second = buf;
+                    comboscriptmap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -16940,51 +16944,53 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
-            ffcmap[i] = pair<string,string>("","");
+            ffcmap[i].clear();
         }
         
-        globalmap[0] = pair<string,string>("Slot 1: ~Init", "~Init");
+		globalmap[0].slotname = "Slot 1:";
+		globalmap[0].scriptname = "~Init";
+		globalmap[0].update();
         
         for(int i=1; i<NUMSCRIPTGLOBAL; i++)
         {
-            globalmap[i] = pair<string,string>("","");
+            globalmap[i].clear();
         }
         
         //globalmap[3] = pair<string,string>("Slot 4: ~Continue", "~Continue");
         for(int i=0; i<NUMSCRIPTITEM-1; i++)
         {
-            itemmap[i] = pair<string,string>("","");
+            itemmap[i].clear();
         }
         
         //new script types -- prevent carrying over to a quest that you load after reading them
         //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
         for(int i=0; i<NUMSCRIPTGUYS-1; i++)
         {
-            npcmap[i] = pair<string,string>("","");
+            npcmap[i].clear();
         }
         for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
         {
-            lwpnmap[i] = pair<string,string>("","");
+            lwpnmap[i].clear();
         }
         for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
         {
-            ewpnmap[i] = pair<string,string>("","");
+            ewpnmap[i].clear();
         }
         for(int i=0; i<NUMSCRIPTLINK-1; i++)
         {
-            linkmap[i] = pair<string,string>("","");
+            linkmap[i].clear();
         }
         for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
         {
-            dmapmap[i] = pair<string,string>("","");
+            dmapmap[i].clear();
         }
         for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
         {
-            screenmap[i] = pair<string,string>("","");
+            screenmap[i].clear();
         }
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
         {
-            itemspritemap[i] = pair<string,string>("","");
+            itemspritemap[i].clear();
         }
         
         reset_scripts();

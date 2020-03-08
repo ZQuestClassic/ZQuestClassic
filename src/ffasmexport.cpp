@@ -94,11 +94,11 @@ string getOpcodeString(ffscript const* line)
 	return string(buf);
 }
 
-std::pair<zasm_meta, std::vector<ZScript::Opcode*>> disassemble_script(script_data const* script)
+disassembled_script_data disassemble_script(script_data const* script)
 {
 	// al_trace("DISASSEMBLY:\n");
 	ffscript const* zasm = script->zasm;
-	std::pair<zasm_meta, std::vector<ZScript::Opcode*>> data;
+	disassembled_script_data data;
 	data.first = script->meta;
 	for(long lineCount = 0; zasm[lineCount].command != 0xFFFF; ++lineCount)
 	{
