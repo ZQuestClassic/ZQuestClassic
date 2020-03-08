@@ -5364,7 +5364,22 @@ long get_register(const long arg)
 			}
 			break;
 		}
-			
+		
+		case GAMESCROLLING:
+		{
+			int indx = ri->d[0]/10000;
+			if(indx < 0 || indx >= SZ_SCROLLDATA)
+			{
+				Z_scripterrlog("Invalid index used to access Game->Scrolling[]: %d\n", indx);
+			}
+			else
+			{
+				ret = FFCore.ScrollingData[indx] * 10000L;
+			}
+			break;
+		}
+		
+		
 		case SCREENSTATED:
 		{
 			int mi =(currmap*MAPSCRSNORMAL)+currscr;
@@ -24410,6 +24425,11 @@ void FFScript::init()
 		tempScreens[q+1] = tmpscr2+q;
 		ScrollingScreens[q+1] = tmpscr3+q;
 	}
+	ScrollingData[SCROLLDATA_DIR] = -1;
+	ScrollingData[SCROLLDATA_NX] = 0;
+	ScrollingData[SCROLLDATA_NY] = 0;
+	ScrollingData[SCROLLDATA_OX] = 0;
+	ScrollingData[SCROLLDATA_OY] = 0;
 }
 
 
