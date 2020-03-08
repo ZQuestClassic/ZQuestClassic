@@ -54,6 +54,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "ffasm.h"
 extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
@@ -404,20 +405,18 @@ mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
-ffscript *ffscripts[NUMSCRIPTFFC];
-ffscript *itemscripts[NUMSCRIPTITEM];
-ffscript *globalscripts[NUMSCRIPTGLOBAL];
-
-//If only...
-ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-ffscript *linkscripts[NUMSCRIPTLINK];
-ffscript *screenscripts[NUMSCRIPTSCREEN];
-ffscript *dmapscripts[NUMSCRIPTSDMAP];
-ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
-ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *ffscripts[NUMSCRIPTFFC];
+script_data *itemscripts[NUMSCRIPTITEM];
+script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *guyscripts[NUMSCRIPTGUYS];
+script_data *wpnscripts[NUMSCRIPTWEAPONS];
+script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+script_data *linkscripts[NUMSCRIPTLINK];
+script_data *screenscripts[NUMSCRIPTSCREEN];
+script_data *dmapscripts[NUMSCRIPTSDMAP];
+script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;
@@ -522,7 +521,7 @@ dword getNumGlobalArrays()
     
     do
     {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT][pc].command;
+        scommand = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
@@ -4748,71 +4747,59 @@ int main(int argc, char* argv[])
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
+        ffscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
+        itemscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
+        guyscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
+        screenscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
+        globalscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
+        linkscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new script_data();
     }
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        dmapscripts[i] = new ffscript[1];
-        dmapscripts[i][0].command = 0xFFFF;
+        dmapscripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        itemspritescripts[i] = new ffscript[1];
-        itemspritescripts[i][0].command = 0xFFFF;
+        itemspritescripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        comboscripts[i] = new ffscript[1];
-        comboscripts[i][0].command = 0xFFFF;
+        comboscripts[i] = new script_data();
     }
     
     
@@ -5381,54 +5368,54 @@ void quit_game()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

@@ -465,8 +465,8 @@ void ScriptParser::assemble(IntermediateData *id)
 		Script& script = **it;
 		if (script.getName() == "~Init") continue;
 		if(script.getType() == ScriptType::untyped) continue;
-		Function& run = *getRunFunction(script);
-		int numparams = getRunFunction(script)->paramTypes.size();
+		Function& run = *script.getRun();
+		int numparams = script.getRun()->paramTypes.size();
 		script.code = assembleOne(program, run.getCode(), numparams);
 	}
 }
@@ -652,7 +652,28 @@ ScriptsData::ScriptsData(Program& program)
 	{
 		Script& script = **it;
 		string const& name = script.getName();
-		theScripts[name] = script.code;
+		zasm_meta& meta = theScripts[name].first;
+		theScripts[name].second = script.code;
+		meta.autogen();
+		meta.script_type = script.getType().getTrueId();
+		if(Function* run = script.getRun())
+		{
+			int ind = 0;
+			for(vector<string const*>::const_iterator it = run->paramNames.begin();
+				it != run->paramNames.end(); ++it)
+			{
+				char* dest = meta.run_idens[ind++];
+				strcpy(dest, (**it).c_str());	
+			}
+			ind = 0;
+			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
+				it != run->paramTypes.end(); ++it)
+			{
+				optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
+			}
+		}
+		
 		script.code = vector<Opcode*>();
 		scriptTypes[name] = script.getType();
 	}

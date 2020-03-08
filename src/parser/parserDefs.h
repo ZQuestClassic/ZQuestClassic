@@ -1,6 +1,10 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
+#include "../zdefs.h"
+#undef TEXT
+#undef VOID
+
 #define PARSER_DEBUG 0
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.

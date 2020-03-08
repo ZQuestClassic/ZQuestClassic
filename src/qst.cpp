@@ -9523,19 +9523,19 @@ int setupsubscreens()
     return 0;
 }
 
-extern ffscript *ffscripts[NUMSCRIPTFFC];
-extern ffscript *itemscripts[NUMSCRIPTITEM];
-extern ffscript *guyscripts[NUMSCRIPTGUYS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[NUMSCRIPTLINK];
-extern ffscript *screenscripts[NUMSCRIPTSCREEN];
-extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
-extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
-extern ffscript *comboscripts[NUMSCRIPTSCOMBODATA];
-//ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
+extern script_data *ffscripts[NUMSCRIPTFFC];
+extern script_data *itemscripts[NUMSCRIPTITEM];
+extern script_data *guyscripts[NUMSCRIPTGUYS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *globalscripts[NUMSCRIPTGLOBAL];
+extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *screenscripts[NUMSCRIPTSCREEN];
+extern script_data *dmapscripts[NUMSCRIPTSDMAP];
+extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+//script_data *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 
 
@@ -9632,22 +9632,19 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
             if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+                delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
                 
-            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
             
             if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+                delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
                 
-            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_ONCONTGAME][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
             
             if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_F6];
+                delete globalscripts[GLOBAL_SCRIPT_F6];
                 
-            globalscripts[GLOBAL_SCRIPT_F6] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_F6][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
         }
         else
         {
@@ -9659,10 +9656,9 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
             if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
+                delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
                 
-            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
         }
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
@@ -9683,16 +9679,14 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    if(ret != 0) return qe_invalid;
 		}
 		if(linkscripts[3] != NULL)
-                delete [] linkscripts[3];
+                delete linkscripts[3];
                 
-		linkscripts[3] = new ffscript[1];
-		linkscripts[3][0].command = 0xFFFF;
+		linkscripts[3] = new script_data();
 		
 		if(linkscripts[4] != NULL)
-                delete [] linkscripts[4];
+                delete linkscripts[4];
                 
-		linkscripts[4] = new ffscript[1];
-		linkscripts[4][0].command = 0xFFFF;
+		linkscripts[4] = new script_data();
 	}
         if(s_version > 8 && s_version < 10)
         {
@@ -9826,7 +9820,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                     globalmap[id].second = "";
                     
                     if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
+                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD]->disable();
                 }
                 else
                 {
@@ -10051,139 +10045,127 @@ void reset_scripts()
     //OK, who spaced this? ;)
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(wpnscripts[i]!=NULL) delete wpnscripts[i];
     }
     
     
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        if(comboscripts[i]!=NULL) delete [] comboscripts[i];
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
+        ffscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
+        itemscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
+        guyscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
+        screenscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
+        globalscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
+        linkscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new script_data();
     }
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        dmapscripts[i] = new ffscript[1];
-        dmapscripts[i][0].command = 0xFFFF;
+        dmapscripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        itemspritescripts[i] = new ffscript[1];
-        itemspritescripts[i][0].command = 0xFFFF;
+        itemspritescripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
-        comboscripts[i] = new ffscript[1];
-        comboscripts[i][0].command = 0xFFFF;
+        comboscripts[i] = new script_data();
     }
 }
 
-int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_version, word , ffscript **script)
+int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_version, word , script_data **script)
 {
 
     //Please also update loadquest() when modifying this method -DD
     ffscript temp_script;
     temp_script.ptr=NULL;
     long num_commands=1000;
-    
+	
     if(s_version>=2)
     {
         if(!p_igetl(&num_commands,f,true))
@@ -10194,12 +10176,81 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
     
     if(keepdata)
     {
-        //FIXME:
-        if((*script) != NULL) //Surely we want to do this regardless of keepdata?
-            delete [](*script);
-            
-        (*script) = new ffscript[num_commands]; //memory leak
+        if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
+            delete (*script);
+		(*script) = new script_data(num_commands);
     }
+	if(s_version >= 16)
+	{
+		zasm_meta temp_meta;
+		
+		if(!p_igetw(&(temp_meta.zasm_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.meta_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.ffscript_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&(temp_meta.script_type),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_getc(&(temp_meta.run_types[q]),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&(temp_meta.flags),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v1),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v2),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v3),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v4),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(keepdata)
+			(*script)->meta = temp_meta;
+	}
     
     for(int j=0; j<num_commands; j++)
     {
@@ -10211,7 +10262,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
         if(temp_script.command == 0xFFFF)
         {
             if(keepdata)
-                (*script)[j].command = 0xFFFF;
+                (*script)->zasm[j].command = 0xFFFF;
                 
             break;
         }
@@ -10235,10 +10286,10 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
             
             if(keepdata)
             {
-                (*script)[j].command = temp_script.command;
+                (*script)->zasm[j].command = temp_script.command;
 		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
-                (*script)[j].arg1 = temp_script.arg1;
-                (*script)[j].arg2 = temp_script.arg2;
+                (*script)->zasm[j].arg1 = temp_script.arg1;
+                (*script)->zasm[j].arg2 = temp_script.arg2;
                 // I'll comment this out until the whole routine is finished using ptr
                 //if(is_string_command(temp_script.command))
                 //{

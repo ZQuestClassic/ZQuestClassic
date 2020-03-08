@@ -504,6 +504,8 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
 	TypeStore& typeStore = scope.getTypeStore();
 	
+	vector<string const*> blankParams;
+	
 	for (int i = 0; table[i].name != ""; i++)
 	{
 		AccessorTable& entry = table[i];
@@ -526,18 +528,15 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
 			varName = varName.substr(3); // Strip out "set".
-			function = scope.addSetter(returnType, varName, paramTypes, entry.funcFlags);
+			function = scope.addSetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
 			varName = varName.substr(3); // Strip out "get".
-			function = scope.addGetter(returnType, varName, paramTypes, entry.funcFlags);
+			function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 		}
 		else
-		{
-			function = scope.addFunction(returnType, varName, paramTypes, entry.funcFlags);
-		}
-		
+			function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 		functions[make_pair(name,function->numParams())] = function;
 
 		// Generate function code for getters/setters

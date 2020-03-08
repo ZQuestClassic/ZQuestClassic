@@ -207,7 +207,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         15
+#define V_FFSCRIPT         16
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -2430,12 +2430,141 @@ struct mapscr
     
 };
 
+// The version of the ZASM engine a script was compiled for
+// NOT the same as V_FFSCRIPT, which is the version of the packfile format
+// where the scripts are serialized
+#define ZASM_VERSION        2
+
+// Script types
+#define SCRIPT_NONE						0
+#define SCRIPT_GLOBAL					1
+#define SCRIPT_FFC						2
+#define SCRIPT_SCREEN					3
+#define SCRIPT_LINK						4
+#define SCRIPT_ITEM						5
+#define SCRIPT_LWPN						6
+#define SCRIPT_NPC						7
+#define SCRIPT_SUBSCREEN				8
+#define SCRIPT_EWPN						9
+#define SCRIPT_DMAP						10
+#define SCRIPT_ITEMSPRITE				11
+#define SCRIPT_ACTIVESUBSCREEN			12
+#define SCRIPT_PASSIVESUBSCREEN			13
+#define SCRIPT_COMBO					14
+
+#define ZMETA_AUTOGEN		0x01
+
+#define METADATA_V			1
+#define V_COMPILER_FIRST	2020
+#define V_COMPILER_SECOND	3
+#define V_COMPILER_THIRD	2
+#define V_COMPILER_FOURTH	0
+#define ZMETA_NULL_TYPE		1
+struct zasm_meta
+{
+	word zasm_v;
+	word meta_v;
+	word ffscript_v;
+	byte script_type;
+	char run_idens[8][33];
+	byte run_types[8];
+	byte flags;
+	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
+	
+	void zero()
+	{
+		zasm_v = 0;
+		meta_v = 0;
+		ffscript_v = 0;
+		script_type = 0;
+		flags = 0;
+		compiler_v1 = 0;
+		compiler_v2 = 0;
+		compiler_v3 = 0;
+		compiler_v4 = 0;
+		for(int q = 0; q < 8; ++q)
+		{
+			memset(&run_idens[q], 0, 33);
+			run_types[q] = ZMETA_NULL_TYPE;
+		}
+	}
+	void autogen()
+	{
+		zasm_v = ZASM_VERSION;
+		meta_v = METADATA_V;
+		ffscript_v = V_FFSCRIPT;
+		flags = ZMETA_AUTOGEN;
+		compiler_v1 = V_COMPILER_FIRST;
+		compiler_v2 = V_COMPILER_SECOND;
+		compiler_v3 = V_COMPILER_THIRD;
+		compiler_v4 = V_COMPILER_FOURTH;
+	}
+	zasm_meta()
+	{
+		zero();
+	}
+	zasm_meta& operator=(zasm_meta const& other)
+	{
+		zasm_v = other.zasm_v;
+		meta_v = other.meta_v;
+		ffscript_v = other.ffscript_v;
+		script_type = other.script_type;
+		for(int q = 0; q < 8; ++q)
+		{
+			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
+			run_types[q] = other.run_types[q];
+		}
+		flags = other.flags;
+		compiler_v1 = other.compiler_v1;
+		compiler_v2 = other.compiler_v2;
+		compiler_v3 = other.compiler_v3;
+		compiler_v4 = other.compiler_v4;
+		return *this;
+	}
+};
+
 struct ffscript
 {
     word command;
     long arg1;
     long arg2;
     char *ptr;
+};
+
+struct script_data
+{
+	ffscript* zasm;
+	zasm_meta meta;
+	
+	bool valid()
+	{
+		return (zasm && zasm[0].command != 0xFFFF);
+	}
+	
+	void disable()
+	{
+		if(zasm)
+			zasm[0].command = 0xFFFF;
+	}
+	
+	script_data(long cmds)
+	{
+		if(cmds > 0)
+			zasm = new ffscript[cmds];
+		else zasm = NULL;
+	}
+	
+	script_data()
+	{
+		zasm = new ffscript[1];
+		zasm[0].command = 0xFFFF;
+	}
+	
+	~script_data()
+	{
+		if(zasm)
+			delete[] zasm;
+	}
 };
 
 struct script_command
@@ -2454,29 +2583,6 @@ struct script_variable
     word maxcount;
     byte multiple;
 };
-
-// The version of the ZASM engine a script was compiled for
-// NOT the same as V_FFSCRIPT, which is the version of the packfile format
-// where the scripts are serialized
-#define ZASM_VERSION        2
-
-// Script types
-
-#define SCRIPT_NONE                      -1
-#define SCRIPT_GLOBAL                    0
-#define SCRIPT_FFC                       1
-#define SCRIPT_SCREEN                    2
-#define SCRIPT_LINK                      3
-#define SCRIPT_ITEM                      4
-#define SCRIPT_LWPN                      5
-#define SCRIPT_NPC                       6
-#define SCRIPT_SUBSCREEN                 7
-#define SCRIPT_EWPN                      8
-#define SCRIPT_DMAP                      9
-#define SCRIPT_ITEMSPRITE                10
-#define SCRIPT_ACTIVESUBSCREEN           11
-#define SCRIPT_PASSIVESUBSCREEN          12
-#define SCRIPT_COMBO          		 13
 
 //Sprite boundary array indices
 enum
