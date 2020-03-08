@@ -9592,6 +9592,26 @@ void weapon::findcombotriggers()
 	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
 }
 
+int weapon::run_script(int mode)
+{
+	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+		return RUNSCRIPT_OK;
+	int ret = RUNSCRIPT_OK;
+	switch(mode)
+	{
+		case MODE_NORMAL:
+			return ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+		case MODE_WAITDRAW:
+			if(waitdraw)
+			{
+				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+				waitdraw = 0;
+			}
+			break;
+	}
+    return ret;
+}
+
 //Dummy weapon for visual effects.
 weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g) : sprite(), parentid(prntid)
 {

@@ -224,6 +224,7 @@ public:
         return false;
     }
     
+	virtual int run_script(int mode);
 
 protected:
     int  clk2,sclk;

@@ -26,6 +26,8 @@
 #include "guys.h"
 #include "zdefs.h"
 #include "maps.h"
+#include "items.h"
+#include "zscriptversion.h"
 #include <stdio.h>
 
 extern sprite_list  guys;
@@ -173,6 +175,25 @@ int select_dropitem(int item_set, int x, int y)
     }
 	
 	return drop_item;
+}
+int item::run_script(int mode)
+{
+	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
+		return RUNSCRIPT_OK;
+	int ret = RUNSCRIPT_OK;
+	switch(mode)
+	{
+		case MODE_NORMAL:
+			return ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+		case MODE_WAITDRAW:
+			if(waitdraw)
+			{
+				ret = ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+				waitdraw = 0;
+			}
+			break;
+	}
+    return ret;
 }
 /*** end of sprite.cc ***/
 
