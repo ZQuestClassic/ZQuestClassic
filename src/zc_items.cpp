@@ -189,7 +189,7 @@ int item::run_script(int mode)
 			if(waitdraw)
 			{
 				ret = ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
-				waitdraw = false;
+				waitdraw = 0;
 			}
 			break;
 	}

@@ -9605,7 +9605,7 @@ int weapon::run_script(int mode)
 			if(waitdraw)
 			{
 				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
-				waitdraw = false;
+				waitdraw = 0;
 			}
 			break;
 	}

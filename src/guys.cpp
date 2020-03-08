@@ -6787,7 +6787,7 @@ int enemy::run_script(int mode)
 			if(waitdraw)
 			{
 				ret = ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
-				waitdraw = false;
+				waitdraw = 0;
 			}
 			break;
 	}
