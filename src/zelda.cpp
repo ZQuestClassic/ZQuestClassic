@@ -242,7 +242,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -4431,9 +4431,11 @@ int main(int argc, char* argv[])
     msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
+	f6_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
-            || !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf)
+            || !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
+			|| !script_menu_buf || !f6_menu_buf)
     {
         Z_error("Error");
         quit_game();
@@ -5291,6 +5293,7 @@ void quit_game()
 	destroy_bitmap(zcmouse[2]);
 	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
+	destroy_bitmap(f6_menu_buf);
     
     al_trace("Subscreens... \n");
     

@@ -5353,7 +5353,22 @@ long get_register(const long arg)
 			}
 			break;
 		}
-			
+		
+		case GAMESCROLLING:
+		{
+			int indx = ri->d[0]/10000;
+			if(indx < 0 || indx >= SZ_SCROLLDATA)
+			{
+				Z_scripterrlog("Invalid index used to access Game->Scrolling[]: %d\n", indx);
+			}
+			else
+			{
+				ret = FFCore.ScrollingData[indx] * 10000L;
+			}
+			break;
+		}
+		
+		
 		case SCREENSTATED:
 		{
 			int mi =(currmap*MAPSCRSNORMAL)+currscr;
@@ -19948,7 +19963,7 @@ int run_script(const byte type, const word script, const long i)
 		}
 		
 		//Handle manual breaking
-		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readkey(KEY_INSERT, true))
+		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readrawkey(KEY_INSERT, true))
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 		//Break
 		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
@@ -24399,6 +24414,11 @@ void FFScript::init()
 		tempScreens[q+1] = tmpscr2+q;
 		ScrollingScreens[q+1] = tmpscr3+q;
 	}
+	ScrollingData[SCROLLDATA_DIR] = -1;
+	ScrollingData[SCROLLDATA_NX] = 0;
+	ScrollingData[SCROLLDATA_NY] = 0;
+	ScrollingData[SCROLLDATA_OX] = 0;
+	ScrollingData[SCROLLDATA_OY] = 0;
 }
 
 
@@ -25159,7 +25179,7 @@ bool FFScript::newScriptEngine()
 
 void FFScript::runF6Engine()
 {
-	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_F6SCRIPT_ACTIVE))
 	{
 		if(globalscripts[GLOBAL_SCRIPT_F6]->valid())
 		{
@@ -25169,14 +25189,15 @@ void FFScript::runF6Engine()
 			refInfo *tri = ri;
 			script_data *tcurscript = curscript;
 			//
-			clear_bitmap(script_menu_buf);
-			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			clear_bitmap(f6_menu_buf);
+			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, 256, 224);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
 			int openingwipe = black_opening_count;
 			int openingshape = black_opening_shape;
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
-			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
+			pause_all_sfx();
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
 				script_drawing_commands.Clear();
@@ -25195,8 +25216,9 @@ void FFScript::runF6Engine()
 				advanceframe(true,true,false);
 				if(Quit) break; //Something quit, end script running
 			}
+			resume_all_sfx();
 			script_drawing_commands.Clear();
-			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
 			//Restore opening wipe
 			black_opening_count = openingwipe;
 			black_opening_shape = openingshape;
@@ -25227,6 +25249,7 @@ void FFScript::runOnDeathEngine()
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptLinkScripts();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	kill_sfx(); //No need to pause/resume; the player is dead.
 	while(link_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -25242,7 +25265,7 @@ void FFScript::runOnDeathEngine()
 		if( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -25270,7 +25293,7 @@ void FFScript::runOnLaunchEngine()
 		
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -25286,6 +25309,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	initZScriptActiveSubscreenScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
+	pause_all_sfx();
 	while(active_subscreen_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -25319,7 +25343,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
-		advanceframe(true,true,false);
+		advanceframe(true);
 		//Handle warps; run game_loop once!
 		if(currdmap != script_dmap)
 		{
@@ -25335,13 +25359,15 @@ bool FFScript::runActiveSubscreenScriptEngine()
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}
+	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	return true;
 }
 
 void FFScript::doScriptMenuDraws()
 {
-	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	BITMAP* menu_buf = ((GameFlags & GAMEFLAG_F6SCRIPT_ACTIVE) != 0) ? f6_menu_buf : script_menu_buf;
+	blit(menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
 	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
 	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
@@ -30385,6 +30411,7 @@ void FFScript::ZASMPrint(bool open)
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
 		//coloured_console.SetAsDefaultOutput();
 		zasm_debugger = 1;
+		zasm_break_mode = ZASM_BREAK_HALT;
 	}
 	else
 	{
@@ -30395,6 +30422,32 @@ void FFScript::ZASMPrint(bool open)
 	#endif	
 }
 
+std::string ZASMVarToString(long arg)
+{
+	for(int q = 0; ZASMVars[q].id != -1; ++q)
+	{
+		if(ZASMVars[q].maxcount>0)
+		{
+			long start = ZASMVars[q].id;
+			int mult = zc_max(1,ZASMVars[q].multiple);
+			if(arg >= start && arg < start+(ZASMVars[q].maxcount*mult))
+			{
+				for(int w = 0; w < ZASMVars[q].maxcount; ++w)
+				{
+					if(arg!=start+(w*mult)) continue;
+					
+					char buf[64];
+					if(strcmp(ZASMVars[q].name, "A")==0)
+						sprintf(buf, "%s%d", ZASMVars[q].name, w+1);
+					else sprintf(buf, "%s%d", ZASMVars[q].name, w);
+					return string(buf);
+				}
+			}
+		}
+		else if(ZASMVars[q].id == arg) return string(ZASMVars[q].name);
+	}
+	return "(null)";
+}
 
 void FFScript::ZASMPrintCommand(const word scommand)
 {
@@ -30402,7 +30455,6 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	//if ( !zasm_debugger ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
-	script_variable s_v = ZASMVars[0];
 	
 	if(s_c.args == 2)
 	{
@@ -30411,10 +30463,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		
 		if(s_c.arg1_type == 0)
 		{
-			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d), ", s_v.id-8, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
@@ -30423,10 +30474,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		}
 		if(s_c.arg2_type == 0)
 		{
-			s_v = ZASMVars[sarg2];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg2));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
 		}
 		else
 		{
@@ -30441,10 +30491,9 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		
 		if(s_c.arg1_type == 0)
 		{
-			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
@@ -30467,10 +30516,10 @@ void FFScript::ZASMPrintVarSet(const long arg, long argval)
 {
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
-	script_variable s_v = ZASMVars[arg];
+	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",s_v.name);
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
@@ -30481,10 +30530,10 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 {
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
-	script_variable s_v = ZASMVars[arg];
+	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",s_v.name);
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();

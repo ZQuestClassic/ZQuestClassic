@@ -1565,8 +1565,10 @@ optional<long> ASTExprTimes::getCompileTimeValue(
 {
 	if (!left || !right) return nullopt;
 	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
-	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if(rightValue && (*rightValue == 0)) return 0;
+	if(leftValue && (*leftValue == 0)) return 0;
+	if (!leftValue) return nullopt;
 	if (!rightValue) return nullopt;
 
 	return long(*leftValue * (*rightValue / 10000.0));

@@ -1,5 +1,5 @@
 // std_constants.zh
-// 8th February, 2020 for ZC 2.55 Alpha 50
+// 8th March, 2020 for ZC 2.55 Alpha 52
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -2819,4 +2819,13 @@ enum //Indexes for Game->Gravity[]
 	GR_STRENGTH,
 	GR_TERMINALV,
 	GR_SPRLAYER
+};
+
+enum //Indexes for Game->Scrolling[]
+{
+	SCROLL_DIR,
+	SCROLL_NX,
+	SCROLL_NY,
+	SCROLL_OX,
+	SCROLL_OY
 };
