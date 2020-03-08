@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 52
-Document Revision: 25th February, 2020
+Document Revision: 8th March, 2020
 
 
  __           _   _                 
@@ -2371,6 +2371,15 @@ void MaxItemsprites(int newmax);
 float Gravity[3];
  * Read or write to the Game's Gravity values.
  * Use the 'GR_' constants to access this array
+
+int Scrolling[5];
+ * Read values related to scrolling. READ-ONLY.
+ * Use the 'SCROLL_*' constants to access this array
+     * SCROLL_DIR: The direction the screen is scrolling. Returns -1 while not scrolling.
+     * SCROLL_NX: The x-offset for the new screen. Returns 0 while not scrolling.
+     * SCROLL_NY: The y-offset for the new screen. Returns 0 while not scrolling.
+     * SCROLL_OX: The x-offset for the old screen. Returns 0 while not scrolling.
+     * SCROLL_OY: The y-offset for the old screen. Returns 0 while not scrolling.
 
 int Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
