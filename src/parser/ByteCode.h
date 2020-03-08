@@ -11,7 +11,7 @@
 #include <string>
 
 //using namespace std; //Don't do this! This is bad! -V
-
+//{ START BYTECODE
 /*
  I will reserve the registers in the following scheme:
  SP - stack pointer
@@ -1192,10 +1192,11 @@
 #define COMBODOTILE 		1120
 #define COMBODFRAME 		1121
 #define COMBODACLK 		1122
+#define GAMESCROLLING		1123
 
-#define LAST_BYTECODE 		1123
+#define LAST_BYTECODE 		1124
 
-//END OF BYTECODE
+//} END OF BYTECODE
 
 namespace ZScript
 {

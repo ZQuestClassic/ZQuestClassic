@@ -4641,98 +4641,98 @@ static TABPANEL gamemisc_tabs[] =
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
-    
-{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
-    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    
-    //5
-    { jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //8
-    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //13
-    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //18
-    { jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //23
-    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //28
-    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //33
-    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //36
-    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //38
-    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //43
-    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //48
-    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //53
-    { jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //58
-    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //63
-    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //68
-    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
-    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    
-    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+	
+	{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
+	{ d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   26,   300,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+	
+	//5
+	{ jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//8
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//13
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//18
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//23
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//28
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//33
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//36
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//38
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//43
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//48
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//53
+	{ jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//58
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//63
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//68
+	{ jwin_button_proc,       70,    204,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+	{ jwin_button_proc,      170,    204,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+	
+	{ NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 void EditGameMiscArray()
