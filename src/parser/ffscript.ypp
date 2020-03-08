@@ -216,6 +216,7 @@ extern YYLTYPE noloc;
 %token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
+%token SCRIPTSTRUCT
 
 %%
 
@@ -645,7 +646,20 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 	script->location = @$;
 	$$ = script;
 	delete name;}
+	
+	|
+	
+	SCRIPTSTRUCT IDENTIFIER Script_Block {
+	ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
+	ASTString* name = (ASTString*)$2;
+	ASTScript* script = (ASTScript*)$3;
+	script->type = type;
+	script->name = name->getValue();
+	script->location = @$;
+	$$ = script;
+	delete name;}
 	;
+
 
 Script_Type :
 	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}

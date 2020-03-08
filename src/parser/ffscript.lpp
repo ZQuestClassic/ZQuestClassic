@@ -249,6 +249,8 @@ appx_equal		TOKEN( APPXEQUAL );
  /* these would need to see if they are LH values. */
  /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
  /* "**" pointer/poiters */
+ 
+ zstruct		TOKEN( SCRIPTSTRUCT );
 
  /* Line Comments */
 "//".*		/* hit end of file */
