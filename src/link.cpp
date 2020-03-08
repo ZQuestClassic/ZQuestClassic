@@ -18694,7 +18694,6 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	action=scrolling; FFCore.setLinkAction(scrolling);
 	
 	fix storex = x, storey = y;
-	
 	switch(scrolldir)
 	{
 	case up:
@@ -18938,6 +18937,34 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     kill_enemy_sfx();
     stop_sfx(WAV_ER);
     screenscrolling = true;
+	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
+	switch(scrolldir)
+	{
+		case up:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = -176;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case down:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 176;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case left:
+			FFCore.ScrollingData[SCROLLDATA_NX] = -256;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case right:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 256;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+	}
     FFCore.init_combo_doscript();
     tmpscr[1] = tmpscr[0];
     
@@ -19318,9 +19345,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
                     ladderx = FIX_FLOOR(x);
             }
         }
-        //FFScript.OnWaitdraw()
-		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
-        
+		
         //Drawing
         tx = sx;
         ty = sy;
@@ -19330,22 +19355,41 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         switch(scrolldir)
         {
         case right:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
             tx -= 256;
             break;
             
         case down:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 176-ty2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = -ty2;
             ty -= 176;
             break;
             
         case left:
+			FFCore.ScrollingData[SCROLLDATA_NX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
             tx2 -= 256;
             break;
             
         case up:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = -ty2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 176-ty2;
             ty2 -= 176;
             break;
         }
-        
+		
+        //FFScript.OnWaitdraw()
+		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
+		
         clear_bitmap(scrollbuf);
         clear_bitmap(framebuf);
         
@@ -19543,6 +19587,11 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     warpy   = -1;
     
     screenscrolling = false;
+	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
+	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
     
     if(destdmap != -1)
         currdmap = destdmap;

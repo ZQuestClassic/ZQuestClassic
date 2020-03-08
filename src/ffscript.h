@@ -176,6 +176,11 @@ enum
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+enum //ScrollingData indexes
+{
+	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
+};
+
 //User-generated / Script-Generated bitmap object
 struct user_bitmap
 {
@@ -253,6 +258,7 @@ void init();
 int max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
+int ScrollingData[SZ_SCROLLDATA];
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
 bool getRule(int rule_bit);
@@ -2469,7 +2475,7 @@ enum ASM_DEFINE
 };
 
 
-//ZASM registers
+//{ ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
 #define D(n)               ((0x0000)+(n)) //8
 #define A(n)               ((0x0008)+(n)) //2
@@ -3740,11 +3746,12 @@ enum ASM_DEFINE
 #define COMBODOTILE    		0x1397
 #define COMBODFRAME    		0x1398
 #define COMBODACLK    		0x1399
-
 #define PC                   0x139A
+#define GAMESCROLLING			0x139B
 
+#define NUMVARIABLES         	0x139C
 
-#define NUMVARIABLES         	0x139B
+//} End variables
 
 // Script types
 
