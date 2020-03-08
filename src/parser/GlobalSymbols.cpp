@@ -65,6 +65,12 @@ function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
 if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	code.push_back(new OReturn());
 
+/*
+	Adds the label passed to the back of the 'code' vector<Opcode*>
+*/
+#define LABELBACK(LBL) \
+code.back()->setLabel(LBL)
+
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
 	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
@@ -94,9 +100,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 
 #define PopFirstArg(reg_index) \
 { \
-	Opcode *first = new OPopRegister(new VarArgument(reg_index)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(reg_index))); \
+	LABELBACK(label); \
 } \
 
 #define SetRefVar(reg_index, ref_index2, ref_var) \
@@ -128,9 +133,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
         Function* function = getFunction(flabel, numparam); \
         int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(EXP1)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+        LABELBACK(label); \
         POPREF(); \
         code.push_back(new ffins(new VarArgument(EXP1))); \
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(ref_var))); \
@@ -144,9 +148,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 2);\
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	LABELBACK(label); \
 	POPREF(); \
 	code.push_back(new ffins(new VarArgument(EXP1),new VarArgument(EXP2))); \
 	RETURN(); \
@@ -159,9 +162,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 4); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(SFTEMP))); \
+	LABELBACK(label); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
 	POPREF(); \
@@ -176,9 +178,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 5); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	LABELBACK(label); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
 	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
@@ -194,9 +195,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 3); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	LABELBACK(label); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
 	POPREF(); \
 	code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(ffins))); \
@@ -210,9 +210,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 4); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	LABELBACK(label); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
 	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
 	POPREF(); \
@@ -227,9 +226,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
         id = getFunction(flabel, 1)->id; \
         int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        LABELBACK(label); \
         code.push_back(new ocode(new VarArgument(EXP2))); \
 	RETURN(); \
         function->giveCode(code); \
@@ -241,9 +239,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 2); \
 	int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(EXP1)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+        LABELBACK(label); \
         code.push_back(new OPopRegister(new VarArgument(EXP2))); \
         POPREF(); \
         code.push_back(new ocode(new VarArgument(EXP1),new VarArgument(EXP2))); \
@@ -258,9 +255,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, 3); \
         int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+        LABELBACK(label); \
         code.push_back(new OPopRegister(new VarArgument(EXP2))); \
         code.push_back(new OPopRegister(new VarArgument(SFTEMP))); \
         code.push_back(new ocode(new VarArgument(EXP2), new VarArgument(EXP1))); \
@@ -276,9 +272,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
         Function* function = getFunction(flabel, 3); \
         int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+        LABELBACK(label); \
         code.push_back(new OPopRegister(new VarArgument(INDEX))); \
         POPREF(); \
         code.push_back(new ocode(new VarArgument(EXP1))); \
@@ -292,9 +287,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
         Function* function = getFunction(flabel, 4); \
         int label = function->getLabel(); \
         vector<Opcode *> code; \
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
-        first->setLabel(label); \
-        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP))); \
+        LABELBACK(label); \
         code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
         code.push_back(new OPopRegister(new VarArgument(INDEX))); \
         POPREF(); \
@@ -309,9 +303,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, numparam); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	LABELBACK(label); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
 	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
 	POPREF(); \
@@ -326,9 +319,8 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	Function* function = getFunction(flabel, numparam); \
 	int label = function->getLabel(); \
 	vector<Opcode *> code; \
-	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
-	first->setLabel(label); \
-	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	LABELBACK(label); \
 	code.push_back(new OTraceRegister(new VarArgument(EXP2))); \
 	RETURN(); \
 	function->giveCode(code); \
@@ -396,16 +388,14 @@ void getVariable(int refVar, Function* function, int var)
 	if(refVar == NUL)
 	{
 		function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
-		Opcode *first = new OSetRegister(new VarArgument(EXP1), new VarArgument(var));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
+		LABELBACK(label);
 	}
 	else
 	{
 		//Pop object pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
 	}
 	RETURN();
@@ -419,9 +409,8 @@ void getIndexedVariable(int refVar, Function* function, int var)
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop index
-	Opcode *first = new OPopRegister(new VarArgument(INDEX));
-	first->setLabel(label);
-	code.push_back(first);
+	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	LABELBACK(label);
 	//pop object pointer
 	POPREF();
 	code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
@@ -436,9 +425,8 @@ void setVariable(int refVar, Function* function, int var)
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop off the value to set to
-	Opcode *first = new OPopRegister(new VarArgument(EXP1));
-	first->setLabel(label);
-	code.push_back(first);
+	code.push_back(new OPopRegister(new VarArgument(EXP1)));
+	LABELBACK(label);
 	//pop object pointer
 	POPREF();
 	code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
@@ -453,9 +441,8 @@ void setBoolVariable(int refVar, Function* function, int var)
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop off the value to set to
-	Opcode *first = new OPopRegister(new VarArgument(EXP1));
-	first->setLabel(label);
-	code.push_back(first);
+	code.push_back(new OPopRegister(new VarArgument(EXP1)));
+	LABELBACK(label);
 	//renormalize true to 1
 	int donerenorm = ScriptParser::getUniqueLabelID();
 	code.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -466,15 +453,13 @@ void setBoolVariable(int refVar, Function* function, int var)
 	if (refVar == NUL)
 	{
 		function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
-		Opcode *next = new OSetRegister(new VarArgument(var), new VarArgument(EXP1));
-		next->setLabel(donerenorm);
-		code.push_back(next);
+		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
+		LABELBACK(donerenorm);
 	}
 	else
 	{
-		Opcode *next = new OPopRegister(new VarArgument(refVar));
-		next->setLabel(donerenorm);
-		code.push_back(next);
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		LABELBACK(donerenorm);
 		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
 	}
 	RETURN();
@@ -488,9 +473,8 @@ void setIndexedVariable(int refVar, Function* function, int var)
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop off index
-	Opcode *first = new OPopRegister(new VarArgument(INDEX));
-	first->setLabel(label);
-	code.push_back(first);
+	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	LABELBACK(label);
 	//pop off the value to set to
 	code.push_back(new OPopRegister(new VarArgument(EXP1)));
 	//pop object pointer
@@ -714,9 +698,8 @@ void GlobalSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -729,9 +712,11 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		/*
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);*/
         //code.push_back(new OSetImmediate(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN(); //Just return it?
         function->giveCode(code);
@@ -743,9 +728,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop maxval
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new ORandRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -757,9 +741,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop seed
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OSRandRegister(new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -770,9 +753,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SRand", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSRandRand(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSRandRand(new VarArgument(EXP1)));
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -783,9 +765,8 @@ void GlobalSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode*> code;
 		//Pop array ptr
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		code.push_back(new OIsValidArray(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
@@ -796,9 +777,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("GetSystemTime", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OGetSystemRTCRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -809,9 +789,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Quit", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OQuit();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OQuit());
+        LABELBACK(label);
         function->giveCode(code);
     }
     //void Waitframe()
@@ -819,9 +798,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Waitframe", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OWaitframe();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OWaitframe());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -830,9 +808,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Waitdraw", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OWaitdraw();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OWaitdraw());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -841,9 +818,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Trace", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OTraceRegister(new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -871,9 +847,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("TraceB", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OTrace2Register(new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -883,9 +858,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("TraceS", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OTrace6Register(new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -895,9 +869,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("TraceNL", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OTrace3();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTrace3());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -906,9 +879,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("ClearTrace", 0);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OTrace4();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTrace4());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -917,9 +889,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("TraceToBase", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OTrace5Register();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTrace5Register());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -932,9 +903,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Sin", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -944,9 +914,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("RadianSin", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
         code.push_back(new OSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -957,9 +926,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("ArcSin", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OArcSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -969,9 +937,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Cos", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -981,9 +948,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("RadianCos", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
         code.push_back(new OCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -994,9 +960,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("ArcCos", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OArcCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -1006,9 +971,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Tan", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -1018,9 +982,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("ArcTan", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OATanRegister(new VarArgument(EXP1)));
         RETURN();
@@ -1032,9 +995,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("RadianTan", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
         code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1045,9 +1007,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Max", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OMaxRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1058,9 +1019,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Min", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OMinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1071,9 +1031,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Pow", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1084,9 +1043,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("InvPow", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OInvPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1097,9 +1055,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Factorial", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OFactorial(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1109,9 +1066,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Abs", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OAbsRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1121,9 +1077,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Log10", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OLog10Register(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1133,9 +1088,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Ln", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OLogERegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1145,9 +1099,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Sqrt", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OSqrtRegister(new VarArgument(EXP1), new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1159,9 +1112,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("CopyTile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OCopyTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1174,9 +1126,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SwapTile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OSwapTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1188,9 +1139,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("OverlayTile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OOverlayTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1202,9 +1152,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("ClearTile", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OClearTileRegister(new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -1215,9 +1164,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAMD)));
         RETURN();
         function->giveCode(code);
@@ -1228,9 +1176,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OSetRegister(new VarArgument(GLOBALRAMD), new VarArgument(EXP2)));
         RETURN();
@@ -1242,9 +1189,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         //code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCRIPTRAMD)));
         RETURN();
@@ -1256,9 +1202,8 @@ void GlobalSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OSetRegister(new VarArgument(SCRIPTRAMD), new VarArgument(EXP2)));
         RETURN();
@@ -1269,9 +1214,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SetColorBuffer", 4);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetColorBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetColorBufferRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -1284,9 +1228,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SetDepthBuffer", 4);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetDepthBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetDepthBufferRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -1299,9 +1242,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("GetColorBuffer", 4);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OGetColorBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGetColorBufferRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -1314,9 +1256,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("GetDepthBuffer", 4);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OGetDepthBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGetDepthBufferRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -1329,9 +1270,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArray", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySize(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1341,9 +1281,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Byte", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OByte(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1352,9 +1291,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Int8", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OByte(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1363,9 +1301,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SignedByte", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OSByte(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1374,9 +1311,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Word", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OWord(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1385,9 +1321,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Int16", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OWord(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1396,9 +1331,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Short", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OShort(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1407,9 +1341,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Integer", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OToInteger(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1418,9 +1351,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Floor", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OFloor(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1429,9 +1361,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("Ceiling", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OCeiling(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1441,9 +1372,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayFFC", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeF(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1454,9 +1384,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayNPC", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeN(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1467,9 +1396,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayBool", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeB(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1478,9 +1406,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayItem", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeI(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1489,9 +1416,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayItemdata", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeID(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1500,9 +1426,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayLWeapon", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeL(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1512,9 +1437,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SaveSRAM", 2);
 	    int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OSaveGameStructs(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1525,9 +1449,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("LoadSRAM", 2);
 	    int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OReadGameStructs(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
@@ -1538,9 +1461,8 @@ void GlobalSymbols::generateCode()
 	    Function* function = getFunction("SizeOfArrayEWeapon", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OArraySizeE(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
@@ -1551,9 +1473,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strlen", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Ostrlen(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1563,9 +1484,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strcpy", 2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		code.push_back(new Ostrcpy(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
@@ -1576,9 +1496,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strcmp",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new OStrCmp(new VarArgument(EXP1)));
 		RETURN();
@@ -1589,9 +1508,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strncmp", 3);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OStrNCmp(new VarArgument(EXP1)));
@@ -1603,9 +1521,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ArrayCopy", 2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		code.push_back(new oARRAYCOPY(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
@@ -1616,35 +1533,32 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("atoi", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Oatoi(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
-	//int atoi2(*a, *b)
-	//{
-	//	Function* function = getFunction("atoi",2);
-	//	int label = function->getLabel();
-	//	vector<Opcode *> code;
-	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-	//	first->setLabel(label);
-	//	code.push_back(first);
-	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
-	//	code.push_back(new Oatoi2(new VarArgument(EXP1)));
-	//	RETURN();
-	//	function->giveCode(code);
-	//}
+	/*int atoi2(*a, *b)
+	{
+		Function* function = getFunction("atoi",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oatoi2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}*/
 	
 	//int ilen(*p)
 	{
 		Function* function = getFunction("ilen", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Oilen(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1654,9 +1568,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("utol", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Ouppertolower(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1666,9 +1579,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ltou", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Olowertoupper(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1678,9 +1590,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("convcase", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Oconvertcase(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1691,9 +1602,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ilen",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Oilen2(new VarArgument(EXP1)));
 		RETURN();
@@ -1706,35 +1616,32 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("itoa_c",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Oitoa(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
-	//int remchr(*a, *b)
-	//{
-	//	Function* function = getFunction("remchr",2);
-	//	int label = function->getLabel();
-	//	vector<Opcode *> code;
-	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-	//	first->setLabel(label);
-	//	code.push_back(first);
-	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
-	//	code.push_back(new Oremchr2(new VarArgument(EXP1)));
-	//	RETURN();
-	//	function->giveCode(code);
-	//}
+	/*int remchr(*a, *b)
+	{
+		Function* function = getFunction("remchr",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oremchr2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}*/
 	//int strcat(*a, *b)
 	{
 		Function* function = getFunction("strcat",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrcat(new VarArgument(EXP1)));
 		RETURN();
@@ -1745,9 +1652,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strchr",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrchr(new VarArgument(EXP1)));
 		RETURN();
@@ -1758,9 +1664,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strcspn",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrcspn(new VarArgument(EXP1)));
 		RETURN();
@@ -1771,9 +1676,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strspn",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrspn(new VarArgument(EXP1)));
 		RETURN();
@@ -1784,9 +1688,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strstr",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrstr(new VarArgument(EXP1)));
 		RETURN();
@@ -1797,9 +1700,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("strrchr",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Ostrrchr(new VarArgument(EXP1)));
 		RETURN();
@@ -1811,9 +1713,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("xlen", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Oxlen(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1823,9 +1724,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("xlen",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Oxlen2(new VarArgument(EXP1)));
 		RETURN();
@@ -1836,9 +1736,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("xtoa",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Oxtoa(new VarArgument(EXP1)));
 		RETURN();
@@ -1849,9 +1748,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("xtoi", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
@@ -1861,9 +1759,8 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("xtoi",2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new Oxtoi2(new VarArgument(EXP1)));
 		RETURN();
@@ -1940,9 +1837,8 @@ void FFCSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OChangeFFCScriptRegister(new VarArgument(EXP1)));
@@ -1955,9 +1851,8 @@ void FFCSymbols::generateCode()
     	int label = function->getLabel();
     	vector<Opcode *> code;
     	//pop ffc
-    	Opcode *first = new OPopRegister(new VarArgument(EXP2));
-    	first->setLabel(label);
-    	code.push_back(first);
+    	code.push_back(new OPopRegister(new VarArgument(EXP2)));
+    	LABELBACK(label);
     	//if ffc = -1, it is "this"
     	int thislabel = ScriptParser::getUniqueLabelID();
     	code.push_back(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(-1)));
@@ -1972,9 +1867,8 @@ void FFCSymbols::generateCode()
     	code.push_back(new OGotoTrueImmediate(new LabelArgument(truelabel)));
     	code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     	RETURN();
-    	Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(1));
-    	next->setLabel(truelabel);
-    	code.push_back(next);
+    	code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+    	LABELBACK(truelabel);
     	RETURN();
     	function->giveCode(code);
     }*/
@@ -2215,9 +2109,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop ffc, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -2231,9 +2124,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLinkWarpExRegister(new VarArgument(EXP1)));
@@ -2245,9 +2137,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLinkWarpExRegister(new VarArgument(EXP1)));
@@ -2259,9 +2150,8 @@ void LinkSymbols::generateCode()
 	int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLinkExplodeRegister(new VarArgument(EXP1)));
@@ -2274,9 +2164,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -2292,9 +2181,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
         RETURN();
@@ -2306,9 +2194,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
         RETURN();
@@ -2321,9 +2208,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop ffc, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -2338,9 +2224,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer and ignore it
         POPREF();
         code.push_back(new OSelectAWeaponRegister(new VarArgument(EXP1)));
@@ -2353,9 +2238,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer and ignore it
         POPREF();
         code.push_back(new OSelectBWeaponRegister(new VarArgument(EXP1)));
@@ -2368,9 +2252,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -2384,9 +2267,8 @@ void LinkSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -2768,9 +2650,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         //convert from 1-index to 0-index
@@ -2787,9 +2668,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OCreateItemRegister(new VarArgument(EXP1)));
@@ -2804,9 +2684,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         //code.push_back(new OSetRegister(new VarArgument(REFFFC), new VarArgument(EXP1)));
@@ -2820,9 +2699,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         //convert from 1-index to 0-index
@@ -2839,9 +2717,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OCreateNPCRegister(new VarArgument(EXP1)));
@@ -2855,9 +2732,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         //convert from 1-index to 0-index
@@ -2874,9 +2750,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OCreateLWpnRegister(new VarArgument(EXP1)));
@@ -2891,9 +2766,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -2908,9 +2782,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         //convert from 1-index to 0-index
@@ -2926,9 +2799,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2944,9 +2816,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadLWeaponBySUIDRegister(new VarArgument(EXP1)));
@@ -2961,9 +2832,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadEWeaponBySUIDRegister(new VarArgument(EXP1)));
@@ -2978,9 +2848,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OCreateEWpnRegister(new VarArgument(EXP1)));
@@ -2995,9 +2864,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OClearSpritesRegister(new VarArgument(EXP1)));
@@ -3010,9 +2878,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Rectangle", 13);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ORectangleRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ORectangleRegister());
+        LABELBACK(label);
         POP_ARGS(12, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3025,9 +2892,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Circle", 12);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OCircleRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OCircleRegister());
+        LABELBACK(label);
         POP_ARGS(11, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3040,9 +2906,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Arc", 15);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OArcRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OArcRegister());
+        LABELBACK(label);
         POP_ARGS(14, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3055,9 +2920,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Ellipse", 13);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OEllipseRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OEllipseRegister());
+        LABELBACK(label);
         POP_ARGS(12, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3070,9 +2934,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Line", 12);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OLineRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OLineRegister());
+        LABELBACK(label);
         POP_ARGS(11, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3085,9 +2948,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Spline", 12);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSplineRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSplineRegister());
+        LABELBACK(label);
         POP_ARGS(11, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3100,9 +2962,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("PutPixel", 9);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPutPixelRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPutPixelRegister());
+        LABELBACK(label);
         POP_ARGS(8, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3115,9 +2976,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("PutPixels", 6);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPutPixelArrayRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPutPixelArrayRegister());
+        LABELBACK(label);
         POP_ARGS(5, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3130,9 +2990,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawTiles", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPutTileArrayRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPutTileArrayRegister());
+        LABELBACK(label);
         POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3145,9 +3004,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawCombos", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OFastComboArrayRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OFastComboArrayRegister());
+        LABELBACK(label);
         POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3160,9 +3018,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Lines", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPutLinesArrayRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPutLinesArrayRegister());
+        LABELBACK(label);
         POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3175,9 +3032,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawCharacter", 11);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawCharRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawCharRegister());
+        LABELBACK(label);
         POP_ARGS(10, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3190,9 +3046,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawInteger", 12);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawIntRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawIntRegister());
+        LABELBACK(label);
         POP_ARGS(11, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3205,9 +3060,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawTile", 16);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawTileRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawTileRegister());
+        LABELBACK(label);
         POP_ARGS(15, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3220,9 +3074,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawTileCloaked", 8);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawTileCloakedRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawTileCloakedRegister());
+        LABELBACK(label);
         POP_ARGS(7, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3235,9 +3088,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawCombo", 17);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawComboRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawComboRegister());
+        LABELBACK(label);
         POP_ARGS(16, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3250,9 +3102,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawComboCloaked", 8);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawComboCloakedRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawComboCloakedRegister());
+        LABELBACK(label);
         POP_ARGS(7, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3265,9 +3116,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Quad", 16);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OQuadRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OQuadRegister());
+        LABELBACK(label);
         POP_ARGS(15, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3281,9 +3131,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Polygon", 6);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPolygonRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPolygonRegister());
+        LABELBACK(label);
         POP_ARGS(5, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3297,9 +3146,8 @@ void ScreenSymbols::generateCode()
 	Function* function = getFunction("Triangle", 14);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OTriangleRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTriangleRegister());
+        LABELBACK(label);
         POP_ARGS(13, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3313,9 +3161,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Quad3D", 9);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OQuad3DRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OQuad3DRegister());
+        LABELBACK(label);
         POP_ARGS(8, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3328,9 +3175,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Triangle3D", 9);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OTriangle3DRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTriangle3DRegister());
+        LABELBACK(label);
         POP_ARGS(8, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3344,9 +3190,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("FastTile", 7);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OFastTileRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OFastTileRegister());
+        LABELBACK(label);
         POP_ARGS(6, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3359,9 +3204,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("FastCombo", 7);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OFastComboRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OFastComboRegister());
+        LABELBACK(label);
         POP_ARGS(6, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3374,9 +3218,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawString", 10);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawStringRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawStringRegister());
+        LABELBACK(label);
         POP_ARGS(9, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3389,9 +3232,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawLayer", 9);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawLayerRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawLayerRegister());
+        LABELBACK(label);
         POP_ARGS(8, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3404,9 +3246,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawScreen", 7);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawScreenRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawScreenRegister());
+        LABELBACK(label);
         POP_ARGS(6, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3419,9 +3260,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawBitmap", 13);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawBitmapRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawBitmapRegister());
+        LABELBACK(label);
         POP_ARGS(12, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3435,9 +3275,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("DrawBitmapEx", 17);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new ODrawBitmapExRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new ODrawBitmapExRegister());
+        LABELBACK(label);
         POP_ARGS(16, EXP2);
         //pop pointer, and ignore it
         POPREF();
@@ -3451,9 +3290,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("SetRenderTarget", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetRenderTargetRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetRenderTargetRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -3466,9 +3304,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("Message", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OMessageRegister(new VarArgument(EXP2)));
@@ -3481,9 +3318,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -3497,9 +3333,8 @@ void ScreenSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
@@ -3513,9 +3348,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("SetSideWarp", 5);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetSideWarpRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetSideWarpRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -3531,9 +3365,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("SetTileWarp", 5);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetTileWarpRegister();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetTileWarpRegister());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -3549,9 +3382,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("LayerScreen", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLayerScreenRegister(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -3563,9 +3395,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("LayerMap", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLayerMapRegister(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -3578,9 +3409,8 @@ void ScreenSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
 		ASSERT_NUL();
-        Opcode *first = new OTriggerSecrets();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OTriggerSecrets());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3591,9 +3421,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OZapIn();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OZapIn());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3606,9 +3435,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OZapOut();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OZapOut());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3620,9 +3448,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OOpenWipe();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OOpenWipe());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3634,9 +3461,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OWavyIn();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OWavyIn());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3648,9 +3474,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OWavyOut();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OWavyOut());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3660,9 +3485,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetSideWarpDMap", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetSideWarpDMap(new VarArgument(EXP1)));
@@ -3674,9 +3498,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetSideWarpScreen", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetSideWarpScreen(new VarArgument(EXP1)));
@@ -3688,9 +3511,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetSideWarpType", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetSideWarpType(new VarArgument(EXP1)));
@@ -3702,9 +3524,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetTileWarpDMap", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetTileWarpDMap(new VarArgument(EXP1)));
@@ -3716,9 +3537,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetTileWarpScreen", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetTileWarpScreen(new VarArgument(EXP1)));
@@ -3730,9 +3550,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("GetTileWarpType", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetTileWarpType(new VarArgument(EXP1)));
@@ -3747,9 +3566,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OZapIn();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OZapIn());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3761,9 +3579,8 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OCloseWipe();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OCloseWipe());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -3773,9 +3590,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("OpeningWipe", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
 		POPREF();
         code.push_back(new OOpenWipeShape(new VarArgument(EXP1)));
@@ -3788,9 +3604,8 @@ void ScreenSymbols::generateCode()
 	    Function* function = getFunction("ClosingWipe", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
 		POPREF();
         code.push_back(new OCloseWipeShape(new VarArgument(EXP1)));
@@ -3915,9 +3730,8 @@ void ItemSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //Check validity
         code.push_back(new OIsValidItem(new VarArgument(EXP1)));
         RETURN();
@@ -3929,9 +3743,8 @@ void ItemSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OItemExplodeRegister(new VarArgument(EXP1)));
@@ -4149,9 +3962,8 @@ void ItemclassSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetItemName(new VarArgument(EXP1)));
@@ -4164,9 +3976,8 @@ void ItemclassSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ORunItemScript(new VarArgument(EXP1)));
@@ -4466,9 +4277,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadItemDataRegister(new VarArgument(EXP1)));
@@ -4482,9 +4292,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadNPCDataRegister(new VarArgument(EXP1)));
@@ -4499,9 +4308,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadDMapDataRegister(new VarArgument(EXP1)));
@@ -4516,9 +4324,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadDropsetRegister(new VarArgument(EXP1)));
@@ -4532,9 +4339,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadMessageDataRegister(new VarArgument(EXP1)));
@@ -4548,9 +4354,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadComboDataRegister(new VarArgument(EXP1)));
@@ -4565,9 +4370,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
 	code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -4585,9 +4389,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -4602,9 +4405,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadTmpScr(new VarArgument(EXP1)));
@@ -4618,9 +4420,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadScrollScr(new VarArgument(EXP1)));
@@ -4634,9 +4435,8 @@ void GameSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		POPREF();
@@ -4652,9 +4452,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadSpriteDataRegister(new VarArgument(EXP1)));
@@ -4668,9 +4467,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadShopDataRegister(new VarArgument(EXP1)));
@@ -4684,9 +4482,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadInfoShopDataRegister(new VarArgument(EXP1)));
@@ -4706,9 +4503,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLoadBitmapDataRegister(new VarArgument(EXP1)));
@@ -4724,9 +4520,8 @@ void GameSymbols::generateCode()
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
@@ -4739,9 +4534,8 @@ void GameSymbols::generateCode()
         code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
         code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
         code.push_back(new OGotoImmediate(new LabelArgument(done)));
-        Opcode *next = new OReturn();
-        next->setLabel(done);
-        code.push_back(next);
+        code.push_back(new OReturn());
+        LABELBACK(done);
         function->giveCode(code);
     }
     //void SetScreenState(game, int,int,int,bool)
@@ -4751,9 +4545,8 @@ void GameSymbols::generateCode()
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
@@ -4765,9 +4558,8 @@ void GameSymbols::generateCode()
         code.push_back(new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
         code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
         code.push_back(new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
-        Opcode *next = new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP));
-        next->setLabel(done);
-        code.push_back(next);
+        code.push_back(new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP)));
+        LABELBACK(done);
         RETURN();
         function->giveCode(code);
     }
@@ -4777,9 +4569,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -4793,9 +4584,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -4810,9 +4600,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -4827,9 +4616,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
@@ -4845,9 +4633,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OPlaySoundRegister(new VarArgument(EXP1)));
@@ -4860,9 +4647,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OPlayMIDIRegister(new VarArgument(EXP1)));
@@ -4875,9 +4661,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -4891,9 +4676,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -4906,9 +4690,8 @@ void GameSymbols::generateCode()
 	    Function* function = getFunction("GetDMapMusicTrack", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetDMapMusicTrack(new VarArgument(EXP1)));
@@ -4920,9 +4703,8 @@ void GameSymbols::generateCode()
 	    Function* function = getFunction("SetDMapEnhancedMusic", 4);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OSetDMapEnhancedMusic();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSetDMapEnhancedMusic());
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -4938,9 +4720,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -4955,9 +4736,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -4973,9 +4753,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -4990,9 +4769,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5008,9 +4786,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -5025,9 +4802,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5043,9 +4819,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -5060,9 +4835,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5078,9 +4852,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -5095,9 +4868,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5113,9 +4885,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         //pop pointer, and ignore it
@@ -5130,9 +4901,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5148,9 +4918,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -5165,9 +4934,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -5183,9 +4951,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OSave();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OSave());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5196,9 +4963,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OEnd();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OEnd());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5210,9 +4976,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OGameContinue();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGameContinue());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5223,9 +4988,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(refVar));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(refVar)));
+        LABELBACK(label);
         code.push_back(new OGameSaveQuit());
         RETURN();
         function->giveCode(code);
@@ -5237,9 +5001,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(refVar));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(refVar)));
+        LABELBACK(label);
         code.push_back(new OGameSaveContinue());
         RETURN();
         function->giveCode(code);
@@ -5251,9 +5014,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OShowF6Screen();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OShowF6Screen());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5262,9 +5024,8 @@ void GameSymbols::generateCode()
 	    Function* function = getFunction("ComboTile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OComboTile(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -5277,9 +5038,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetSaveName(new VarArgument(EXP1)));
@@ -5292,9 +5052,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetSaveName(new VarArgument(EXP1)));
@@ -5307,9 +5066,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5323,9 +5081,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5339,9 +5096,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5355,9 +5111,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5375,9 +5130,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OGreyscaleOn();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGreyscaleOn());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5389,9 +5143,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OGreyscaleOff();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGreyscaleOff());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5403,9 +5156,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5419,9 +5171,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5435,9 +5186,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5451,9 +5201,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -5469,9 +5218,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OShowSaveScreen(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OShowSaveScreen(new VarArgument(EXP1)));
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5483,9 +5231,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OShowSaveQuitScreen();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OShowSaveQuitScreen());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -5496,9 +5243,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetFFCScript(new VarArgument(EXP1)));
@@ -5513,9 +5259,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetItemScript(new VarArgument(EXP1)));
@@ -5529,9 +5274,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETNPCSCRIPT(new VarArgument(EXP1)));
@@ -5544,9 +5288,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETLWEAPONSCRIPT(new VarArgument(EXP1)));
@@ -5559,9 +5302,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETEWEAPONSCRIPT(new VarArgument(EXP1)));
@@ -5574,9 +5316,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
@@ -5589,9 +5330,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
@@ -5604,9 +5344,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
@@ -5619,9 +5358,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETGLOBALSCRIPT(new VarArgument(EXP1)));
@@ -5634,9 +5372,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETDMAPSCRIPT(new VarArgument(EXP1)));
@@ -5649,9 +5386,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETSCREENSCRIPT(new VarArgument(EXP1)));
@@ -5664,9 +5400,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETSPRITESCRIPT(new VarArgument(EXP1)));
@@ -5679,9 +5414,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETUNTYPEDSCRIPT(new VarArgument(EXP1)));
@@ -5694,9 +5428,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETSUBSCREENSCRIPT(new VarArgument(EXP1)));
@@ -5709,9 +5442,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETNPCBYNAME(new VarArgument(EXP1)));
@@ -5724,9 +5456,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETITEMBYNAME(new VarArgument(EXP1)));
@@ -5739,9 +5470,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETCOMBOBYNAME(new VarArgument(EXP1)));
@@ -5754,9 +5484,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGETDMAPBYNAME(new VarArgument(EXP1)));
@@ -5770,9 +5499,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -5787,9 +5515,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -5804,9 +5531,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5822,9 +5548,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -5841,9 +5566,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -5858,9 +5582,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -5875,9 +5598,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -5892,9 +5614,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -5908,9 +5629,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -5925,9 +5645,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -5941,9 +5660,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -5958,9 +5676,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -5974,9 +5691,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -5991,9 +5707,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6007,9 +5722,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6024,9 +5738,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6040,9 +5753,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6057,9 +5769,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6073,9 +5784,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6090,9 +5800,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6106,9 +5815,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6123,9 +5831,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6139,9 +5846,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6156,9 +5862,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6172,9 +5877,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6189,9 +5893,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6205,9 +5908,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6222,9 +5924,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6238,9 +5939,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -6255,9 +5955,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -6272,9 +5971,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6290,9 +5988,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6308,9 +6005,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6326,9 +6022,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6344,9 +6039,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6362,9 +6056,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6379,9 +6072,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6397,9 +6089,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6415,9 +6106,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6433,9 +6123,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6452,9 +6141,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6470,9 +6158,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6488,9 +6175,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6506,9 +6192,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6523,9 +6208,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6541,9 +6225,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6558,9 +6241,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
@@ -6586,9 +6268,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
         //pop pointer, and ignore it
@@ -6603,9 +6284,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -6620,9 +6300,8 @@ void GameSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OGetEnhancedMusicPos(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
 }
@@ -6632,9 +6311,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEnhancedMusicPos(new VarArgument(EXP1)));
@@ -6648,9 +6326,8 @@ void GameSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
@@ -6861,9 +6538,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new OIsValidNPC(new VarArgument(EXP1)));
 		RETURN();
@@ -6875,9 +6551,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new OGetNPCName(new VarArgument(EXP1)));
@@ -6890,9 +6565,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCExplodeRegister(new VarArgument(EXP1)));
@@ -6905,9 +6579,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Break shield
 		code.push_back(new OBreakShield(new VarArgument(EXP1)));
 		RETURN();
@@ -6919,9 +6592,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new ONPCDead(new VarArgument(EXP1)));
 		RETURN();
@@ -6933,9 +6605,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new ONPCCanSlide(new VarArgument(EXP1)));
 		RETURN();
@@ -6947,9 +6618,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new ONPCSlide(new VarArgument(EXP1)));
 		RETURN();
@@ -6961,9 +6631,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Break shield
 		code.push_back(new ONPCRemove(new VarArgument(EXP1)));
 		RETURN();
@@ -6975,9 +6644,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Break shield
 		code.push_back(new ONPCStopSFX(new VarArgument(EXP1)));
 		RETURN();
@@ -6989,9 +6657,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Break shield
 		code.push_back(new ONPCAttack(new VarArgument(EXP1)));
 		RETURN();
@@ -7003,9 +6670,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCNewDir(new VarArgument(EXP1)));
@@ -7018,9 +6684,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCConstWalk(new VarArgument(EXP1)));
@@ -7034,9 +6699,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCConstWalk8(new VarArgument(EXP1)));
@@ -7050,9 +6714,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCVarWalk(new VarArgument(EXP1)));
@@ -7065,9 +6728,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCVarWalk8(new VarArgument(EXP1)));
@@ -7080,9 +6742,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCHaltWalk(new VarArgument(EXP1)));
@@ -7095,9 +6756,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCHaltWalk8(new VarArgument(EXP1)));
@@ -7110,9 +6770,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCFloatWalk(new VarArgument(EXP1)));
@@ -7125,9 +6784,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCBreatheFire(new VarArgument(EXP1)));
@@ -7140,9 +6798,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCNewDir8(new VarArgument(EXP1)));
@@ -7155,9 +6812,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		POPREF();
@@ -7171,9 +6827,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		POPREF();
@@ -7186,9 +6841,8 @@ void NPCSymbols::generateCode()
 		Function* function = getFunction("LinkInRange", 2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCLinkInRange(new VarArgument(EXP1)));
@@ -7203,9 +6857,8 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCAdd(new VarArgument(EXP1)));
@@ -7218,9 +6871,8 @@ void NPCSymbols::generateCode()
 		Function* function = getFunction("CanMove", 2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCCanMove(new VarArgument(EXP1)));
@@ -7232,9 +6884,8 @@ void NPCSymbols::generateCode()
 		Function* function = getFunction("SimulateHit", 2);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCHitWith(new VarArgument(EXP1)));
@@ -7246,9 +6897,8 @@ void NPCSymbols::generateCode()
 		Function* function = getFunction("Knockback", 4);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		//pop pointer, and ignore it
@@ -7396,9 +7046,8 @@ void LinkWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //Check validity
         code.push_back(new OIsValidLWpn(new VarArgument(EXP1)));
         RETURN();
@@ -7410,9 +7059,8 @@ void LinkWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OLWeaponExplodeRegister(new VarArgument(EXP1)));
@@ -7425,9 +7073,8 @@ void LinkWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the val
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop off the pointer
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
@@ -7568,9 +7215,8 @@ void EnemyWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //Check validity
         code.push_back(new OIsValidEWpn(new VarArgument(EXP1)));
         RETURN();
@@ -7582,9 +7228,8 @@ void EnemyWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OEWeaponExplodeRegister(new VarArgument(EXP1)));
@@ -7597,9 +7242,8 @@ void EnemyWeaponSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the val
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop off the pointer
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
@@ -7645,9 +7289,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the font
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop off the string ptr
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		//pop off the pointer
@@ -7662,9 +7305,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the font
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop off the character
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		//pop off the pointer
@@ -7679,9 +7321,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the font
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//ignore the string ptr; height is purely font-based
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		//pop off the pointer
@@ -7696,9 +7337,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the font
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//ignore the character; height is purely font-based
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		//pop off the pointer
@@ -7713,9 +7353,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the font
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop off the pointer
 		POPREF();
 		code.push_back(new OFontHeight(new VarArgument(EXP1)));
@@ -7728,9 +7367,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the message
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop off the pointer
 		POPREF();
 		code.push_back(new OMessageWidth(new VarArgument(EXP1)));
@@ -7743,9 +7381,8 @@ void TextPtrSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the message
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop off the pointer
 		POPREF();
 		code.push_back(new OMessageHeight(new VarArgument(EXP1)));
@@ -8347,9 +7984,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
 		POPREF();
@@ -8364,9 +8000,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
@@ -8382,9 +8017,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
 		POPREF();
@@ -8400,9 +8034,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
@@ -8419,9 +8052,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
 		POPREF();
@@ -8437,9 +8069,8 @@ void MapDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer
@@ -8510,9 +8141,8 @@ void InputSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -8525,9 +8155,8 @@ void InputSymbols::generateCode()
 	    int label = function->getLabel();
 	    vector<Opcode *> code;
 	    //pop off the params
-	    Opcode *first = new OPopRegister(new VarArgument(EXP1));
-	    first->setLabel(label);
-	    code.push_back(first);
+	    code.push_back(new OPopRegister(new VarArgument(EXP1)));
+	    LABELBACK(label);
 	    code.push_back(new OPopRegister(new VarArgument(EXP2)));
 	    //pop pointer, and ignore it
 	    POPREF();
@@ -8569,9 +8198,8 @@ void GraphicsSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		// Pop argument.
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		// Pop pointer.
 		POPREF();
 		code.push_back(new OWavyR(new VarArgument(EXP2)));
@@ -8585,9 +8213,8 @@ void GraphicsSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		//pop pointer, and ignore it
@@ -8601,9 +8228,8 @@ void GraphicsSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		// Pop argument.
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		// Pop pointer.
 		POPREF();
 		code.push_back(new OZapR(new VarArgument(EXP2)));
@@ -8615,9 +8241,8 @@ void GraphicsSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		// Pop argument.
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		// Pop pointer.
 		POPREF();
 		code.push_back(new OGreyscaleR(new VarArgument(EXP2)));
@@ -8629,9 +8254,8 @@ void GraphicsSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		// Pop argument.
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		// Pop pointer.
 		POPREF();
 		code.push_back(new OMonochromeR(new VarArgument(EXP2)));
@@ -8644,9 +8268,8 @@ void GraphicsSymbols::generateCode()
 		    Function* function = getFunction("Tint", 4);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OTintR();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OTintR());
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8661,9 +8284,8 @@ void GraphicsSymbols::generateCode()
 		    Function* function = getFunction("MonochromeHue", 5);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OMonoHueR();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OMonoHueR());
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8680,9 +8302,8 @@ void GraphicsSymbols::generateCode()
 		 Function* function = getFunction("ClearTint", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OClearTint();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OClearTint());
+		LABELBACK(label);
 		POPREF(); //pop the 'this'
 		RETURN();
 		function->giveCode(code);
@@ -8764,9 +8385,8 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		//pop pointer to EXP1
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
@@ -8781,9 +8401,8 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		POPREF();
@@ -8797,9 +8416,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Rectangle", 13);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPRectangleRegister();
-		first->setLabel(label);  
-		code.push_back(first);
+		code.push_back(new OBMPRectangleRegister());
+		LABELBACK(label);
 		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8813,9 +8431,8 @@ void BitmapSymbols::generateCode()
 		
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OReadBitmap();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OReadBitmap());
+		LABELBACK(label);
 		POP_ARGS(2, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8830,9 +8447,8 @@ void BitmapSymbols::generateCode()
 		
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OClearBitmap();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OClearBitmap());
+		LABELBACK(label);
 		POP_ARGS(1, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8847,9 +8463,8 @@ void BitmapSymbols::generateCode()
 		
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new ORegenerateBitmap();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new ORegenerateBitmap());
+		LABELBACK(label);
 		POP_ARGS(3, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8863,9 +8478,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Write", 4);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OWriteBitmap();
-		first->setLabel(label);  
-		code.push_back(first);
+		code.push_back(new OWriteBitmap());
+		LABELBACK(label);
 		POP_ARGS(3, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8878,9 +8492,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Circle", 12);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPCircleRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPCircleRegister());
+		LABELBACK(label);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8893,9 +8506,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Arc", 15);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPArcRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPArcRegister());
+		LABELBACK(label);
 		POP_ARGS(14, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8908,9 +8520,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Ellipse", 13);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPEllipseRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPEllipseRegister());
+		LABELBACK(label);
 		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8923,9 +8534,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Line", 12);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPLineRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPLineRegister());
+		LABELBACK(label);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8938,9 +8548,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Spline", 12);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPSplineRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPSplineRegister());
+		LABELBACK(label);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8953,9 +8562,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("PutPixel", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPPutPixelRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPPutPixelRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8968,9 +8576,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawCharacter", 11);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawCharRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawCharRegister());
+		LABELBACK(label);
 		POP_ARGS(10, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8983,9 +8590,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawInteger", 12);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawIntRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawIntRegister());
+		LABELBACK(label);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -8998,9 +8604,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawTile", 16);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawTileRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawTileRegister());
+		LABELBACK(label);
 		POP_ARGS(15, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9013,9 +8618,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawTileCloaked", 8);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawTileCloakedRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawTileCloakedRegister());
+		LABELBACK(label);
 		POP_ARGS(7, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9028,9 +8632,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawCombo", 17);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawComboRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawComboRegister());
+		LABELBACK(label);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9043,9 +8646,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawComboCloaked", 8);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawComboCloakedRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawComboCloakedRegister());
+		LABELBACK(label);
 		POP_ARGS(7, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9058,9 +8660,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Quad", 17);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPQuadRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPQuadRegister());
+		LABELBACK(label);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9074,9 +8675,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Polygon", 6);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPPolygonRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPPolygonRegister());
+		LABELBACK(label);
 		POP_ARGS(5, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9090,9 +8690,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Triangle", 15);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPTriangleRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPTriangleRegister());
+		LABELBACK(label);
 		POP_ARGS(14, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9106,9 +8705,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Quad3D", 10);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPQuad3DRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPQuad3DRegister());
+		LABELBACK(label);
 		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9121,9 +8719,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Triangle3D", 10);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPTriangle3DRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPTriangle3DRegister());
+		LABELBACK(label);
 		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9137,9 +8734,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("FastTile", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPFastTileRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPFastTileRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9152,9 +8748,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("FastCombo", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPFastComboRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPFastComboRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9167,9 +8762,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawString", 10);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawStringRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawStringRegister());
+		LABELBACK(label);
 		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9182,9 +8776,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayer", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawLayerRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawLayerRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9197,9 +8790,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayerComboIFlags", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenCIFlagRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenCIFlagRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9212,9 +8804,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayerComboFlags", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenCFlagRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenCFlagRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9227,9 +8818,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayerSolid", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenSolidMaskRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenSolidMaskRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9242,9 +8832,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayerComboTypes", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenCTypeRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenCTypeRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9258,9 +8847,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawLayerSolidity", 9);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenSolidityRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenSolidityRegister());
+		LABELBACK(label);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9273,9 +8861,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreen", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9289,9 +8876,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreenSolidity", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenSolidRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenSolidRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9305,9 +8891,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreenSolid", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenSolid2Register();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenSolid2Register());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9320,9 +8905,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreenComboTypes", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenComboTRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenComboTRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9335,9 +8919,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreenComboFlags", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenComboFRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenComboFRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9350,9 +8933,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawScreenComboIFlags", 7);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawScreenComboIRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawScreenComboIRegister());
+		LABELBACK(label);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9367,9 +8949,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("Blit", 17);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPDrawBitmapExRegister();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPDrawBitmapExRegister());
+		LABELBACK(label);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		POPREF();
@@ -9382,9 +8963,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("DrawPlane", 14);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPMode7();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPMode7());
+		LABELBACK(label);
 		POP_ARGS(13, EXP2);
 		//pop pointer, and ignore it
 		POPREF();
@@ -9397,9 +8977,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("BlitTo", 17);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPBlitTO();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPBlitTO());
+		LABELBACK(label);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		POPREF();
@@ -9412,9 +8991,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("RevBlit", 17);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBMPBlitTO();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBMPBlitTO());
+		LABELBACK(label);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		POPREF();
@@ -9428,9 +9006,8 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new OIsValidBitmap(new VarArgument(EXP1)));
 		RETURN();
@@ -9442,9 +9019,8 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//Check validity
 		code.push_back(new OIsAllocatedBitmap(new VarArgument(EXP1)));
 		RETURN();
@@ -9455,9 +9031,8 @@ void BitmapSymbols::generateCode()
 		Function* function = getFunction("ClearToColor", 3);
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OBitmapClearToColor();
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OBitmapClearToColor());
+		LABELBACK(label);
 		POP_ARGS(2, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -9522,9 +9097,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9538,9 +9112,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9554,9 +9127,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9570,9 +9142,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9586,9 +9157,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9602,9 +9172,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -9618,9 +9187,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -9634,9 +9202,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -9650,9 +9217,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -9666,9 +9232,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -9682,9 +9247,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -9698,9 +9262,8 @@ void SpriteDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -10604,9 +10167,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OAdjustVolumeRegister(new VarArgument(EXP1)));
@@ -10619,9 +10181,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OAdjustSFXVolumeRegister(new VarArgument(EXP1)));
@@ -10635,9 +10196,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -10652,9 +10212,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OPlaySoundRegister(new VarArgument(EXP1)));
@@ -10668,9 +10227,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OEndSoundRegister(new VarArgument(EXP1)));
@@ -10684,9 +10242,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OPauseSoundRegister(new VarArgument(EXP1)));
@@ -10700,9 +10257,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OContinueSFX(new VarArgument(EXP1)));
@@ -10716,9 +10272,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OResumeSoundRegister(new VarArgument(EXP1)));
@@ -10733,9 +10288,8 @@ void AudioSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OPauseMusic();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPauseMusic());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -10747,9 +10301,8 @@ void AudioSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OResumeMusic();
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OResumeMusic());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -10759,9 +10312,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OPlayMIDIRegister(new VarArgument(EXP1)));
@@ -10774,9 +10326,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -10790,9 +10341,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -10807,9 +10357,8 @@ void AudioSymbols::generateCode()
         vector<Opcode *> code;
         //pop pointer, and ignore it
 		ASSERT_NUL();
-        Opcode *first = new OGetEnhancedMusicPos(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
 }
@@ -10819,9 +10368,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEnhancedMusicPos(new VarArgument(EXP1)));
@@ -10834,9 +10382,8 @@ void AudioSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
@@ -10924,9 +10471,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetItemdataPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetItemDataPointer(new VarArgument(EXP1)));
@@ -10939,9 +10485,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetItemdataPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetItemDataPointer(new VarArgument(EXP1)));
@@ -10953,9 +10498,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetItemPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetItemPointer(new VarArgument(EXP1)));
@@ -10968,9 +10512,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetItemPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetItemPointer(new VarArgument(EXP1)));
@@ -10982,9 +10525,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetFFCPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetFFCPointer(new VarArgument(EXP1)));
@@ -10997,9 +10539,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetFFCPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetFFCPointer(new VarArgument(EXP1)));
@@ -11011,9 +10552,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetEWeaponPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetEWeaponPointer(new VarArgument(EXP1)));
@@ -11026,9 +10566,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetEWeaponPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEWeaponPointer(new VarArgument(EXP1)));
@@ -11040,9 +10579,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetLWeaponPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetLWeaponPointer(new VarArgument(EXP1)));
@@ -11055,9 +10593,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetLWeaponPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetLWeaponPointer(new VarArgument(EXP1)));
@@ -11069,9 +10606,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetNPCPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetNPCPointer(new VarArgument(EXP1)));
@@ -11084,9 +10620,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetNPCPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetNPCPointer(new VarArgument(EXP1)));
@@ -11098,9 +10633,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("GetBoolPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetBoolPointer(new VarArgument(EXP1)));
@@ -11113,9 +10647,8 @@ void DebugSymbols::generateCode()
         Function* function = getFunction("SetBoolPointer", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetBoolPointer(new VarArgument(EXP1)));
@@ -11130,9 +10663,8 @@ void DebugSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OTriggerSecretRegister(new VarArgument(EXP1)));
@@ -11146,9 +10678,8 @@ void DebugSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OChangeFFCScriptRegister(new VarArgument(EXP1)));
@@ -11160,9 +10691,8 @@ void DebugSymbols::generateCode()
 	    Function* function = getFunction("Breakpoint", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
 		POPREF();
         code.push_back(new OBreakpoint(new VarArgument(EXP2)));
         RETURN();
@@ -11411,9 +10941,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetTile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataBaseTile(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11429,9 +10958,8 @@ void NPCDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new OGetNPCDataName(new VarArgument(EXP1)));
@@ -11445,9 +10973,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
@@ -11461,9 +10988,8 @@ void NPCDataSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		POPREF();
@@ -11485,9 +11011,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -11501,9 +11026,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -11517,9 +11041,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -11533,9 +11056,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         POPREF();
@@ -11553,9 +11075,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -11572,9 +11093,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -11591,9 +11111,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -11610,9 +11129,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
@@ -11630,9 +11148,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetFlags2", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataFlags2(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11656,9 +11173,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetSWidth", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataSWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11670,9 +11186,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetSHeight", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataSHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11684,9 +11199,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetETile", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataETile(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11698,9 +11212,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetEWidth", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataEWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11712,9 +11225,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHP", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHP(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11726,9 +11238,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetFamily", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataFamily(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11740,9 +11251,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetCSet", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataCSet(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11754,9 +11264,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetAnim", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11768,9 +11277,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetEAnim", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataEAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11782,9 +11290,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetFramerate", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataFramerate(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11796,9 +11303,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetEFramerate", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataEFramerate(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11810,9 +11316,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetTouchDamage", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataTouchDamage(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11824,9 +11329,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetWeaponDamage", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataWeaponDamage(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11838,9 +11342,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetWeapon", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataWeapon(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11852,9 +11355,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetRandom", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataRandom(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11866,9 +11368,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHaltRate", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHalt(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11880,9 +11381,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetStep", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataStep(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11894,9 +11394,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHoming", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHoming(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11908,9 +11407,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHunger", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHunger(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11922,9 +11420,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetDropset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataropset(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11936,9 +11433,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetBGSFX", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataBGSound(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11950,9 +11446,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitSFX", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHitSound(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11964,9 +11459,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetDeathSFX", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF(); 
         code.push_back(new ONDataDeathSound(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11978,9 +11472,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetDrawXOffset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataXofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -11992,9 +11485,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetDrawYOffset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataYofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12006,9 +11498,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetDrawZOffset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataZofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12020,9 +11511,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitXOffset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHitXOfs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12034,9 +11524,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitYOffset", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHYOfs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12048,9 +11537,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitWidth", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHitWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12062,9 +11550,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitHeight", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHitHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12076,9 +11563,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetHitZHeight", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataHitZ(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12090,9 +11576,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetTileWidth", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataTileWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12104,9 +11589,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetTileHeight", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataTileHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12118,9 +11602,8 @@ void NPCDataSymbols::generateCode()
         Function* function = getFunction("GetWeaponSprite", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new ONDataWeapSprite(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -12133,9 +11616,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
 	    code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12149,9 +11631,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12165,9 +11646,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12181,9 +11661,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12197,9 +11676,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12213,9 +11691,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12229,9 +11706,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12245,9 +11721,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12261,9 +11736,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12277,9 +11751,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12293,9 +11766,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12309,9 +11781,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12325,9 +11796,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12341,9 +11811,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12357,9 +11826,8 @@ void NPCDataSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
@@ -12535,9 +12003,8 @@ void MessageDataSymbols::generateCode()
 	    Function* function = getFunction("Get", 2); 
 	    int label = function->getLabel(); 
 	    vector<Opcode *> code; 
-	    Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
-	    first->setLabel(label); 
-	    code.push_back(first); 
+	    code.push_back(new OPopRegister(new VarArgument(EXP2)));
+	    LABELBACK(label); 
 	    code.push_back(new OMessageDataSetStringRegister(new VarArgument(EXP2))); 
 	    RETURN(); 
         function->giveCode(code);
@@ -12549,9 +12016,8 @@ void MessageDataSymbols::generateCode()
 	    Function* function = getFunction("TriggerSecret", 2);
 	    int label = function->getLabel();
 	    vector<Opcode *> code; 
-	    Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
-	    first->setLabel(label); 
-	    code.push_back(first); 
+	    code.push_back(new OPopRegister(new VarArgument(EXP2)));
+	    LABELBACK(label); 
 	    code.push_back(new OMessageDataSetStringRegister(new VarArgument(EXP2))); 
 	    RETURN(); 
 	    function->giveCode(code); 
@@ -12845,9 +12311,8 @@ void FileSystemSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer
         POPREF();
         code.push_back(new ODirExists(new VarArgument(EXP1)));
@@ -12860,9 +12325,8 @@ void FileSystemSymbols::generateCode()
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
         //pop pointer
         POPREF();
         code.push_back(new OFileExists(new VarArgument(EXP1)));
