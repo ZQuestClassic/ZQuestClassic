@@ -2938,7 +2938,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 
 void draw_screen(mapscr* this_screen, bool showlink)
 {
-	if(GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE)
+	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
 		return;
