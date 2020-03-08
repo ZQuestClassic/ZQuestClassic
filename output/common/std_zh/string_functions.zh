@@ -1,5 +1,5 @@
 //string_functions.zh
-//1st July, 2019 for ZC 2.55 Alpha 26
+//12th January, 2020 for ZC 2.55 Alpha 48
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -313,6 +313,12 @@ void remchr(char32 ptr, int pos)
 {
 	for(int i = 0; ptr[pos + i] != 0; ++i)
 		ptr[pos + i] = 0;
+}
+
+void remchr(char32 ptr)
+{
+	for(int i = 0; ptr[i] != 0; ++i)
+		ptr[i] = 0;
 }
 
 //Remove 'n' characters and shift string back to pointer 'string'

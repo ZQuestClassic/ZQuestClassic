@@ -12,6 +12,8 @@
 #include <string>
 #include "CompilerUtils.h"
 #include "Types.h"
+#include "parserDefs.h"
+#include "../ffasmexport.h"
 
 namespace ZScript
 {
@@ -85,11 +87,21 @@ namespace ZScript
 		}
 	};
 
+	struct disassembled_script_data
+	{
+		zasm_meta first;
+		std::vector<ZScript::Opcode*> second;
+		bool disassembled;
+		
+		disassembled_script_data() : disassembled(false)
+		{}
+	};
+
 	class ScriptsData
 	{
 	public:
 		ScriptsData(Program&);
-		std::map<std::string, std::vector<Opcode *> > theScripts;
+		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ScriptType> scriptTypes;
 	};
 

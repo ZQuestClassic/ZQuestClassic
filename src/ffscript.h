@@ -100,16 +100,19 @@ enum {
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
-	//16->26 Script Types
+	//16->27 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	//21
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, //26
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
 	
-	//27->29 : Moving items
-	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
-	//30->34 : Misc
+	//28->59: Reserved padding
+	
+	//60->42 : Moving items
+	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
+	//63->67 : Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//35
+	//68
 	susptLAST };
 
 //npc function enums
@@ -171,6 +174,11 @@ enum
 enum
 {
 	 qQuestVersion, qMinQuestVersion, qvLAST
+};
+
+enum //ScrollingData indexes
+{
+	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
 };
 
 //User-generated / Script-Generated bitmap object
@@ -250,6 +258,7 @@ void init();
 int max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
+int ScrollingData[SZ_SCROLLDATA];
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
 bool getRule(int rule_bit);
@@ -266,7 +275,9 @@ void do_graphics_getpixel();
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
+void npcScriptEngineOnWaitdraw();
 bool itemScriptEngineOnWaitdraw();
+void lweaponScriptEngineOnWaitdraw();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
 void eweaponScriptEngineOnWaitdraw();
@@ -370,7 +381,7 @@ void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void FFScript::ZScriptConsole(int attributes,const char *format,...);
+void ZScriptConsole(int attributes,const char *format,...);
 void TraceScriptIDs(bool zasm_console = false);
 void ZScriptConsolePrint(int colourformat, const char * const format,...);
 void ZASMPrint(bool open);
@@ -498,6 +509,22 @@ void initZScriptDMapScripts();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
+
+//Combo Scripts
+void init_combo_doscript();
+void clear_combo_refinfo();
+void clear_combo_stacks();
+void clear_combo_refinfo(int pos);
+void clear_combo_stack(int q);
+void clear_combo_initialised();
+void ClearComboScripts();
+int getComboDataLayer(int c, int scripttype);
+int getCombodataPos(int c, int scripttype);
+int getCombodataY(int c, int scripttype);
+int getCombodataX(int c, int scripttype);
+
+//tba
+//void deallocateComboArrays();
 
 int GetScriptObjectUID(int type);
     
@@ -2448,7 +2475,7 @@ enum ASM_DEFINE
 };
 
 
-//ZASM registers
+//{ ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
 #define D(n)               ((0x0000)+(n)) //8
 #define A(n)               ((0x0008)+(n)) //2
@@ -3685,11 +3712,11 @@ enum ASM_DEFINE
 #define DMAPDATAID		0x1379
 #define NPCSUBMERGED		0x137A
 #define EWPNPARENTUID		0x137B
-#define GAMEGRAVITY			0x137C
+#define GAMEGRAVITY		0x137C
 #define COMBODASPEED		0x137D
 #define DROPSETITEMS		0x137E
 #define DROPSETCHANCES		0x137F
-#define DROPSETNULLCHANCE		0x1380
+#define DROPSETNULLCHANCE	0x1380
 #define DROPSETCHOOSE		0x1381
 #define KEYPRESS		0x1382
 #define KEYINPUT		0x1383
@@ -3701,32 +3728,30 @@ enum ASM_DEFINE
 #define SPRITEMAXLWPN 		0x1385
 #define SPRITEMAXEWPN 		0x1386
 #define SPRITEMAXITEM 		0x1387
-#define SPRITEMAXPARTICLE 		0x1388
+#define SPRITEMAXPARTICLE 	0x1388
 #define SPRITEMAXDECO 		0x1389
-#define EWPNLEVEL             0x138A
-#define HEROHEALTHBEEP             0x138B
-#define COMBODATTRIBYTES             0x138C
+#define EWPNLEVEL             	0x138A
+#define HEROHEALTHBEEP          0x138B
+#define COMBODATTRIBYTES        0x138C
+#define NPCRANDOM             	0x138D
+#define COMBOXR             	0x138E
+#define COMBOYR             	0x138F
+#define COMBOPOSR             	0x1390
+#define COMBODATASCRIPT         0x1391
+#define COMBODATAINITD          0x1392
+#define HEROSCRIPTCSET          0x1393
+#define SHOPDATATYPE    	0x1394
+#define HEROSTEPS    		0x1395
+#define HEROSTEPRATE    		0x1396
+#define COMBODOTILE    		0x1397
+#define COMBODFRAME    		0x1398
+#define COMBODACLK    		0x1399
+#define PC                   0x139A
+#define GAMESCROLLING			0x139B
 
-#define NUMVARIABLES         	0x138D
+#define NUMVARIABLES         	0x139C
 
-// Script types
-
-#define SCRIPT_NONE                      -1
-#define SCRIPT_GLOBAL                    0
-#define SCRIPT_FFC                       1
-#define SCRIPT_SCREEN                    2
-#define SCRIPT_LINK                      3
-#define SCRIPT_ITEM                      4
-#define SCRIPT_LWPN                      5
-#define SCRIPT_NPC                       6
-#define SCRIPT_SUBSCREEN                 7
-#define SCRIPT_EWPN                      8
-#define SCRIPT_DMAP                      9
-#define SCRIPT_ITEMSPRITE                10
-#define SCRIPT_ACTIVESUBSCREEN           11
-#define SCRIPT_PASSIVESUBSCREEN          12
-
-
+//} End variables
 
 struct quad3Dstruct
 {

@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 45            *
-*     Rev.2 - 8th December, 2019     *
+*     Rev.4, 30th December, 2019     *
 *************************************/
 
 1. COMBO TYPES
@@ -24,6 +24,10 @@ These additional combo types support extra features:
 		the amount of keys or counter points consumed, and the
 		sound of unlocking the block. 
 		
+		You may specify to unlock without draining a counter, checking
+		only for a minimum counter value; or to always drain the counter,
+		even if the ninimum amount is not met (but don't unlock for this).
+		
 	Cuttable Types
 		Bush, flower, and tall grass commbo types now support some
 		additional settings, including dropsets, custom sound effects,
@@ -33,6 +37,14 @@ These additional combo types support extra features:
 		You can now specify the enemies that statue combos generate, 
 		along with determining if they randomise between two enemies.
 		
+	Warp Types
+		Stairs, Sensitive Warp, Swim Warp, and Dive Warp combos now all
+		permit setting a sound effect to play during the warp.
+		These also work as FFCs.
+
+	Step Types
+		Step->Next, and Step->Secret combo types now allow setting a sound
+		effect to play when the Hero steps on them.
 
 2. TRIGGER WEAPONS
 	Combos now have a set of flags with which you can set weapons that trigger
@@ -430,11 +442,15 @@ Lockblock Combos
 			The required item ID is set in the Item field on Attributes Tab 1.
 			This interacts with the following flags:
 				Only, Eat Item
+			This interacts with the following attributes:
+				Item
 		Only
 			If the Require flag is also enabled, then instead of needing keys or 
 			counter points, this lockblock requires only the item specified to unlock.
 			This interacts with the following flags:
 				Require, Eat Item
+			This interacts with the following attributes:
+				Item
 		SFX
 			If enabled, the lockblock will play the sound specified in the Sound field
 			on Attributes Tab 1, instead of the normal system door unlocking sound effect.
@@ -447,6 +463,22 @@ Lockblock Combos
 			their inventory. 
 			This interacts with the following flags:
 				Require, Only
+		Thief
+			If enabled, should the player try to open the lockblock, but fail to meet the
+			required counter value, then his counter will be drained to 0, and the lock will
+			remain locked.
+			This interacts with the following flags:
+				Counter
+			This interacts with the following attributes:
+				Counter, Amount
+		No Drain
+			If enabled, as long as the player has a counter value greater than or equal to the
+			amount specified, then the lockblock wil open, but his counter will not be drained
+			in the process.
+			This interacts with the following flags:
+				Counter
+			This interacts with the following attributes:
+				Counter, Amount
 		
 
 
@@ -554,3 +586,39 @@ Armos/Statue Combos
 		Random
 			If enabled, then ZC will randomly determine between the
 			two specified enemies. 
+	
+
+ _       __                    ______                __              
+| |     / /___ __________     / ____/___  ____ ___  / /_  ____  _____
+| | /| / / __ `/ ___/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+| |/ |/ / /_/ / /  / /_/ /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+|__/|__/\__,_/_/  / .___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+                 /_/                                                 
+Warp Combos
+	You may set a sound effect to play during all instantaneous-type warp transitions
+	when the Hero touches a Warp combo, either on the map, or as an ffc.
+	This supports the following combo types:
+		Stairs, Sensitive Warp, Swim Warp, and Dive Warp.
+		
+	Attributes Tab 1
+		Sound
+			The ID of the sound effect to play. Set to '0' for 'none'.
+
+	
+
+
+   _____ __                ______                __              
+  / ___// /____  ____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ __/ _ \/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / /_/  __/ /_/ /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/\__/\___/ .___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+             /_/                                                 
+Step Combos
+	You may set a sound effect to play when the Hero triggers a Step->Next, or a
+	Step->Secrets combo.
+
+	Attributes Tab 1
+		Sound
+			The ID of the sound effect to play. Set to '0' for 'none'.
+			
+To-do: Chests

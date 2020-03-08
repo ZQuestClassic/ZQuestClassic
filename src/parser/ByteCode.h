@@ -11,7 +11,7 @@
 #include <string>
 
 //using namespace std; //Don't do this! This is bad! -V
-
+//{ START BYTECODE
 /*
  I will reserve the registers in the following scheme:
  SP - stack pointer
@@ -31,7 +31,7 @@
 #define NUL                     5
 #define SFTEMP                  6
 #define WHAT_NO_7               7 // What, no 7?
-#define WHAT_NO_8               8 // What, no 8?
+#define PC               	8 // What, no 8?
 #define ZELDAVERSION               9 // What, no 9?
 #define SP                     10
 #define DATA                   11
@@ -1179,10 +1179,24 @@
 #define EWPNLEVEL		1107
 #define HEROHEALTHBEEP		1108
 #define COMBODATTRIBYTES	1109
+#define NPCRANDOM 		1110
+#define COMBOXR 		1111
+#define COMBOYR 		1112
+#define COMBOPOSR 		1113
+#define COMBODATASCRIPT 	1114
+#define COMBODATAINITD 		1115
+#define HEROSCRIPTCSET 		1116
+#define SHOPDATATYPE 		1117
+#define HEROSTEPS 		1118
+#define HEROSTEPRATE 		1119
+#define COMBODOTILE 		1120
+#define COMBODFRAME 		1121
+#define COMBODACLK 		1122
+#define GAMESCROLLING		1123
 
-#define LAST_BYTECODE 		1110
+#define LAST_BYTECODE 		1124
 
-//END OF BYTECODE
+//} END OF BYTECODE
 
 namespace ZScript
 {

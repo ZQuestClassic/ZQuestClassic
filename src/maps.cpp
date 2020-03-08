@@ -33,6 +33,7 @@
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
@@ -630,13 +631,13 @@ void update_combo_cycling()
     for(int i=0; i<176; i++)
     {
         x=tmpscr->data[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -653,13 +654,13 @@ void update_combo_cycling()
     for(int i=0; i<176; i++)
     {
         x=tmpscr->data[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -690,13 +691,13 @@ void update_combo_cycling()
     for(int i=0; i<32; i++)
     {
         x=tmpscr->ffdata[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -713,13 +714,13 @@ void update_combo_cycling()
     for(int i=0; i<32; i++)
     {
         x=tmpscr->ffdata[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -754,13 +755,13 @@ void update_combo_cycling()
             for(int i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
-                y=animated_combo_table[x][0];
+               // y=animated_combo_table[x][0];
                 
                 if(combobuf[x].animflags & AF_FRESH) continue;
                 
                 //time to restart
-                if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
@@ -777,13 +778,13 @@ void update_combo_cycling()
             for(int i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
-                y=animated_combo_table2[x][0];
+                //y=animated_combo_table2[x][0];
                 
                 if(!(combobuf[x].animflags & AF_FRESH)) continue;
                 
                 //time to restart
-                if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata2[i]=combobuf[x].nextcombo;
@@ -799,7 +800,7 @@ void update_combo_cycling()
                     if(combobuf[c].type==cSPINTILE1)
                     {
                         // Uses animated_combo_table2
-                        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+zc_max(1,combobuf[c].frames));
+                        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
                     }
                 }
             }
@@ -832,15 +833,15 @@ void update_combo_cycling()
     {
         if(restartanim[i])
         {
-            combobuf[i].tile = animated_combo_table[i][1];
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].aclk = 0;
             restartanim[i]=false;
         }
         
         if(restartanim2[i])
         {
-            combobuf[i].tile = animated_combo_table2[i][1];
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].aclk = 0;
             restartanim2[i]=false;
         }
     }
@@ -1451,7 +1452,7 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
                         int cs=t[j].cset[i];
                         
                         if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-                            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+zc_max(1,combobuf[c].frames));
+                            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
                     }
                 }
                 
@@ -2937,7 +2938,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 
 void draw_screen(mapscr* this_screen, bool showlink)
 {
-	if(GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE)
+	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
 		return;
@@ -3428,10 +3429,16 @@ void draw_screen(mapscr* this_screen, bool showlink)
     set_clip_rect(framebuf,0,0,256,224);
     set_clip_rect(scrollbuf,0,0,256,224);
     
-    if(!(msgdisplaybuf->clip))
+    if(!(msg_bg_display_buf->clip))
     {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-        masked_blit(msgdisplaybuf,scrollbuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
+    }
+    
+    if(!(msg_txt_display_buf->clip))
+    {
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
     }
     
     //12. Draw the subscreen, without clipping
@@ -3932,12 +3939,14 @@ void openshutters()
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
+	
+    
     //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
     for(word x=0; x<animated_combos; x++)
     {
         if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
         {
-            animated_combo_table4[x][1]=0;
+			combobuf[animated_combo_table4[x][0]].aclk = 0;
         }
     }
     
@@ -3945,7 +3954,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     {
         if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
         {
-            animated_combo_table24[x][1]=0;
+			combobuf[animated_combo_table24[x][0]].aclk = 0;
         }
     }
     
@@ -3965,6 +3974,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     FFCore.clear_screen_stack();
     screenScriptData.Clear();
     FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+    //reset combo script doscripts
+    FFCore.init_combo_doscript();
     if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
     {
 	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
@@ -4272,7 +4283,7 @@ void loadscr2(int tmp,int scr,int)
     {
         if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
         {
-            animated_combo_table4[x][1]=0;
+			combobuf[animated_combo_table4[x][0]].aclk=0;
         }
     }
     

@@ -40,6 +40,8 @@ string ZScript::VarToString(long ID)
 	{
 	case SP:
 		return "SP";
+	case PC:
+		return "PC";
 		
 	case DATA:
 		return "DATA";
@@ -1782,6 +1784,7 @@ string ZScript::VarToString(long ID)
 	case NPCSUBMERGED: return "NPCSUBMERGED";
 	case EWPNPARENTUID: return "EWPNPARENTUID";
 	case GAMEGRAVITY: return "GAMEGRAVITY";
+	case GAMESCROLLING: return "GAMESCROLLING";
 	case COMBODASPEED: return "COMBODASPEED";
 	case DROPSETITEMS: return "DROPSETITEMS";
 	case DROPSETCHANCES: return "DROPSETCHANCES";
@@ -1798,6 +1801,19 @@ string ZScript::VarToString(long ID)
 	case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
 	case SPRITEMAXDECO: return "SPRITEMAXDECO";
 	case HEROHEALTHBEEP: return "HEROHEALTHBEEP";
+	case NPCRANDOM: return "NPCRANDOM";
+	case COMBOXR: return "COMBOXR";
+	case COMBOYR: return "COMBOYR";
+	case COMBOPOSR: return "COMBOPOSR";
+	case COMBODATASCRIPT: return "COMBODATASCRIPT";
+	case COMBODATAINITD: return "COMBODATAINITD";
+	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
+	case SHOPDATATYPE: return "SHOPDATATYPE";
+	case HEROSTEPS: return "HEROSTEPS";
+	case HEROSTEPRATE: return "HEROSTEPRATE";
+	case COMBODOTILE: return "COMBODOTILE";
+	case COMBODFRAME: return "COMBODFRAME";
+	case COMBODACLK: return "COMBODACLK";
 	
 	
 	default:

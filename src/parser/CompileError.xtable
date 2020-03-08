@@ -6,6 +6,17 @@
 // Strict :: 'E'rror or 'W'arning
 // Arg1 :: First argument type. (VOID, STR, INT)
 // Arg2 :: Second argument type. (VOID, STR, INT)
+/* Error Codes:
+ * P - Preprocessing
+ * S - Symbol Table
+ * T - Type Checking
+ * G - Code Generation
+ * A - Array
+ * U - Unimplemented Feature
+ * C - Constants
+ * M - Memory
+ * CX - Case eXpression
+ */
 
 
 // ERROR - A compiler error.
@@ -33,7 +44,7 @@ X(	ImplicitCast,			T,	D															)
 X(	IllegalCast,			T,	A,	E,	STR,	STR,	"Cannot cast from %s to %s."								)
 X(	VoidExpr,			T,	D															)
 X(	DivByZero,			T,	A,	E,	VOID,	VOID,	"Attempting to divide by 0."								)
-X(	ConstTrunc,			T,	A,	W,	STR,	VOID,	"Constant %s is too long and has been truncated."					)
+X(	ConstTrunc,			C,	A,	W,	STR,	VOID,	"Constant %s is too long and has been truncated."					)
 X(	NoFuncMatch,			T,	A,	E,	STR,	VOID,	"Function %s has not been declared."							)
 X(	TooFuncMatch,			T,	A,	E,	STR,	STR,	"There are too many choices for function %s.\n        The possible choices are:\n%s"	)
 X(	FuncBadReturn,			T,	A,	E,	VOID,	VOID,	"This function is not void, so it cannot return nothing."     	  	   	   	)
@@ -48,8 +59,8 @@ X(	IndexNotInt,			T,	D					       	    	     	   							)
 X(	ScriptBadType,			S,	A,	E,	STR,	VOID,	"Script %s is of an illegal type."							)
 X(	BreakBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"break;\" to do here."						)
 X(	ContinueBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"continue;\" to do here."					)
-X(	ConstRedef,			P,	D				       	  	      		       	  						)
-X(	LValConst,			T,	A,	E,	STR,	VOID,	"Variable %s is constant and cannot be changed."					)
+X(	ConstRedef,			S,	D				       	  	      		       	  						)
+X(	LValConst,			C,	A,	E,	STR,	VOID,	"Variable %s is constant and cannot be changed."					)
 X(	BadGlobalInit,			T,	D					     		     	       							)
 X(	DeprecatedGlobal,		S,	D															)
 X(	VoidArr,			S,	A,	E,	STR,	VOID,	"Array %s cannot have base type void."							)
@@ -65,26 +76,26 @@ X(	UnresolvedType,			T,	A,	E,	STR,	VOID,	"Type %s has not been declared."    	  
 X(	ConstUninitialized,		T,	A,	E,	VOID,	VOID,	"A constant has not been initialized."							)
 X(	ConstAssign,			T,	D															)
 X(	EmptyArrayLiteral,		S,	A,	E,	VOID,	VOID,	"Array Literals must not be empty."							)
-X(	DimensionMismatch,		B,	A,	E,	VOID,	VOID,	"Array Size Mismatch."	    								)
+X(	DimensionMismatch,		A,	A,	E,	VOID,	VOID,	"Array Size Mismatch."	    								)
 X(	ArrayLiteralResize,		S,	A,	E,	VOID,	VOID,	"Don't define the size of the same array twice."					)
-X(	MissingCompileError,		C,	A,	W,	INT,	VOID,	"The compile error with id %d did not occur."						)
-X(	UnimplementedFeature,		C,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been implemented yet."					)
-X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
+X(	MissingCompileError,		P,	A,	W,	INT,	VOID,	"The compile error with id %d did not occur."						)
+X(	UnimplementedFeature,		U,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been implemented yet."					)
+X(	UnknownOption,			P,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
 X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
 X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
 X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been declared."    	     					)
 X(	RedefScriptType,		T,	A,	W,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 X(	ArrayInvalidSize,		T,	A,	E,	VOID,	VOID,	"An array's size must be between 1 and 214748"	    	      		    			)
 X(	ArrayDecimal,		T,	A,	W,	VOID,	VOID,	"Array sizes containing decimals will be truncated"	    	      		    			)
-X(	ConstNotConstant,			S,	A,	E,	STR,	VOID,	"Constant %s is global or script scope, and the value is not constant at compile-time."				)
+X(	ConstNotConstant,			C,	A,	E,	STR,	VOID,	"Constant %s is global or script scope, and the value is not constant at compile-time."				)
 X(	TooManyUsing,				P,	A,	E,	STR,	VOID,	"'using' found too many matches for the namespace %s."				)
 X(	DuplicateUsing,				P,	A,	E,	STR,	VOID,	"Namespace %s is already being used!"				)
 X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. Check your 'using' statements."				)
 X(	HeaderGuardErr,			P,	A,	E,	STR,	VOID,	"Duplicate file for filename %s!"				)
 X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this instance."				)
 X(	RedefDataType,				T,	A,	W,	STR,	VOID,	"Data Type %s has already been defined"    			)
-X(	ConstAlreadyConstant,				T,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
-X(	ConstantBadSize,				T,	A,	E,	STR,	VOID,	"Invalid constant size. Constant must be %s."				)
+X(	ConstAlreadyConstant,				C,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
+X(	ConstantBadSize,				C,	A,	E,	STR,	VOID,	"Invalid constant size. Constant must be %s."				)
 X(	BadFuncModifiers,				T,	A,	E,	STR,	VOID,	"Invalid function modifiers.%s"				)
 X(	ScriptRunInline,		S,	A,	E,	STR,	VOID,	"void %s() functions cannot be inline."						)
 X(	NoUsingMatch,				P,	A,	E,	STR,	VOID,	"'using' found no matches for the namespace %s."				)
@@ -92,5 +103,7 @@ X(	RegistrationRecursion,				R,	A,	W,	INT,	VOID,	"Registration passed recursion 
 X(	GlobalVarFuncCall,				R,	A,	E,	VOID,	VOID,	"Global variable initializers cannot contain function calls"				)
 X(	NoArrayGlobalVar,				R,	A,	E,	VOID,	VOID,	"Arrays cannot be used in global variable initializers!"				)
 X(	TooManyType,				P,	A,	E,	STR,	VOID,	"There are too many types named %s. Check your 'using' statements."				)
+X(	RangeInverted,				CX,	A,	E,	INT,	INT,	"Value range must have smallest...largest; %d...%d is inverted."				)
+X(	RangeEqual,				CX,	A,	W,	INT,	INT,	"Range is of equal value (%d...%d) on both ends"				)
 
 #undef STR

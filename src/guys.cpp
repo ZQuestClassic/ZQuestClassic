@@ -338,6 +338,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
     script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
+    waitdraw = 0;
     weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
     
     for ( int q = 0; q < 8; q++ ) 
@@ -385,7 +386,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
         frate = d->frate;
     }
     
-    tile=0;
+    tile=0; //init to 0 here, but set it later.
+    
     scripttile = -1;
     scriptflip = -1;
     do_animation = 1;
@@ -438,6 +440,9 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 	
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
+    
+    //tile should never be 0 after init --Z (failsafe)
+    if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
 }
 
 /*
@@ -5739,7 +5744,10 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
-    if ( !do_animation || anim== aNONE) return; //Anim == none, don't animate. -Z
+    if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
+    {  
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
+    }
     int newfrate = zc_max(frate,4);
     int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
     int f2=clk/(newfrate/2); // casts clk to [0,1]
@@ -12340,7 +12348,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 			item *ashes = (item*)items.spr(q);
 			if ( ashes->linked_parent == eeGANON )
 			{
-				Z_scripterrlog("Found correct dustpile!\n");
+				//Z_scripterrlog("Found correct dustpile!\n");
 				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
 			}
 		}
@@ -16043,7 +16051,7 @@ void screen_combo_modify_postroutine(mapscr *s, int pos)
 
 void awaken_spinning_tile(mapscr *s, int pos)
 {
-    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,animated_combo_table[s->data[pos]][1]+zc_max(1,combobuf[s->data[pos]].frames));
+    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,combobuf[s->data[pos]].o_tile+zc_max(1,combobuf[s->data[pos]].frames));
 }
 
 
@@ -17022,7 +17030,7 @@ bool parsemsgcode()
         case MSGC_NAME:
           if (!((cBbtn()&&get_bit(quest_rules,qr_ALLOWMSGBYPASS)) || msgspeed==0))
             sfx(MsgStrings[msgstr].sfx);
-          textprintf_ex(msgdisplaybuf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
+          textprintf_ex(msg_txt_display_buf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
                         "%s",game->get_name());
           return true;
     */
@@ -17105,15 +17113,15 @@ bool parsemsgcode()
     {
         bool done=false;
         int pos = 0;
-        set_clip_state(msgdisplaybuf, 0);
+        set_clip_state(msg_txt_display_buf, 0);
         
         do // Copied from title.cpp...
         {
             int f=-1;
             bool done2=false;
             // TODO: Lower Y value limit
-            textout_ex(msgdisplaybuf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
-            textout_ex(msgdisplaybuf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
+            textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
+            textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
             
             do
             {
@@ -17148,23 +17156,23 @@ bool parsemsgcode()
                         switch(pos)
                         {
                         case 0:
-                            textout_ex(msgdisplaybuf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
+                            textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
                             break;
                             
                         case 1:
-                            textout_ex(msgdisplaybuf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
+                            textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
                             break;
                         }
                     }
                 }
                 
-                rectfill(msgdisplaybuf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
-                overtile8(msgdisplaybuf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
+                rectfill(msg_txt_display_buf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
+                overtile8(msg_txt_display_buf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
                 advanceframe(true);
             }
             while(!Quit && !done2);
             
-            clear_bitmap(msgdisplaybuf);
+            clear_bitmap(msg_txt_display_buf);
             done=true;
         }
         while(!Quit && !done);
@@ -17312,7 +17320,7 @@ void putmsg()
                         cursor_x=0;
                     }
                     
-                    textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                    textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                                   "%c",MsgStrings[msgstr].s[msgptr]);
                     cursor_x+=tlength;
                 }
@@ -17327,7 +17335,7 @@ void putmsg()
                     }
                     
                     sfx(MsgStrings[msgstr].sfx);
-                    textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                    textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                                   "%c",MsgStrings[msgstr].s[msgptr]);
                     cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
                     cursor_x += MsgStrings[msgstr].hspace;
@@ -17413,7 +17421,7 @@ breakout:
             }
             
             sfx(MsgStrings[msgstr].sfx);
-            textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+            textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                           "%c",MsgStrings[msgstr].s[msgptr]);
             cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
             cursor_x += MsgStrings[msgstr].hspace;

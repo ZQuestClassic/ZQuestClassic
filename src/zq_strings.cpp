@@ -50,7 +50,7 @@ static int editmsg_string_list[] =
 { 2, 3, 4, 5, 8, 17, 18, 29, 32, -1 };
 
 static int editmsg_attributes_list[] =
-{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, -1 };
+{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 33, 34, 35, -1 };
 
 static TABPANEL editmsg_tabs[] =
 {
@@ -137,6 +137,10 @@ DIALOG editmsg_dlg[] =
     { jwin_button_proc,     250,  187+6,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
     { d_keyboard_proc,         0,    0,     0,  0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     { jwin_check_proc,     52,  176,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Set previous string's \"Next string\" to this", NULL, NULL },
+    { jwin_check_proc,     56,  146,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Full Tiled Background", NULL, NULL },
+    { jwin_check_proc,     56,  156,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent BG", NULL, NULL },
+    // 35
+	{ jwin_check_proc,     56,  166,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent FG", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -886,6 +890,9 @@ void editmsg(int index, int addAfter)
     editmsg_dlg[28].flags=(MsgStrings[index].stringflags&STRINGFLAG_WRAP)?D_SELECTED:0;
     editmsg_dlg[32].flags=0;
     editmsg_dlg[32].proc=jwin_check_proc;
+    editmsg_dlg[33].flags=(MsgStrings[index].stringflags&STRINGFLAG_FULLTILE)?D_SELECTED:0;
+    editmsg_dlg[34].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_BG)?D_SELECTED:0;
+    editmsg_dlg[35].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_FG)?D_SELECTED:0;
         
     msg_x = 0;
     msg_y = 0;
@@ -973,6 +980,9 @@ void editmsg(int index, int addAfter)
         MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
         MsgStrings[index].stringflags = editmsg_dlg[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
         MsgStrings[index].stringflags = editmsg_dlg[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
+        MsgStrings[index].stringflags = editmsg_dlg[33].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_FULLTILE : MsgStrings[index].stringflags & ~STRINGFLAG_FULLTILE;
+        MsgStrings[index].stringflags = editmsg_dlg[34].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_BG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_BG;
+        MsgStrings[index].stringflags = editmsg_dlg[35].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_FG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_FG;
         
         if(index==msg_count)
         {
@@ -1181,6 +1191,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
     int flags = 0;
     flags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
     flags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+    flags |= (int)editmsg_dlg[33].flags & D_SELECTED ? STRINGFLAG_FULLTILE : 0;
+    flags |= (int)editmsg_dlg[34].flags & D_SELECTED ? STRINGFLAG_TRANS_BG : 0;
+    flags |= (int)editmsg_dlg[35].flags & D_SELECTED ? STRINGFLAG_TRANS_FG : 0;
     int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
     int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
     int nextstring = addtomsglist(editmsg_dlg[5].d1);
@@ -1201,7 +1214,17 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
         clear_bitmap(buf);
         
         if(msgtile)
-            frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+2,(h/8)+2,0,0,0);
+		{
+			if(flags & STRINGFLAG_FULLTILE)
+			{
+				draw_block_flip(buf,0,0,msgtile,msgcset,
+					(int)ceil(w/16.0),(int)ceil(h/16.0),0,false,false);
+			}
+			else
+			{
+				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+2,(h/8)+2,0,0,0);
+			}
+		}
             
         bool space=true;
         int tlength=0;

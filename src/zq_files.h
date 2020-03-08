@@ -65,5 +65,14 @@ int onImport_Comboaliaspack_To();
 int onExport_Comboaliaspack();
 
 void center_zq_files_dialogs();
+
+int writezdoorsets(PACKFILE *f, int first, int count);
+int readzdoorsets(PACKFILE *f, int first, int count, int deststart);
+int writeonezdoorset(PACKFILE *f, int index);
+int readonezdoorset(PACKFILE *f, int index);
+
+int onExport_Doorset();
+int onImport_Doorset();
+
 #endif
  

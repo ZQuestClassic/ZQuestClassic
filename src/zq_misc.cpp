@@ -407,9 +407,9 @@ const char *roomtype_string[MAXROOMTYPES] =
 
 const char *catchall_string[MAXROOMTYPES] =
 {
-    "Generic Catchall","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
-    "Shop Type","Price","Price"," ","Warp Ring"," "," ", " ", " ",
-    " ", "Price","Shop Type"
+    "Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
+    "Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
+    "Generic Catchall", "Price","Shop Type"
 };
 
 const char *warptype_string[MAXWARPTYPES] =
@@ -1240,6 +1240,7 @@ void domouse();
 void init_doorcombosets();
 
 int onNew();
+int PickRuleset();
 int onOpen();
 int onOpen2();
 int onRevert();
@@ -1553,7 +1554,7 @@ int checksave()
     if(saved)
         return 1;
         
-    char buf[80];
+    char buf[256+20];
     char *name = get_filename(filepath);
     
     if(name[0]==0)

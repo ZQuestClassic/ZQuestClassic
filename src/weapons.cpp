@@ -1110,12 +1110,12 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		//screen secrets
 		if ( c[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(tmpscr,cid);
+			screen_combo_modify_preroutine(tmpscr,scombo);
 			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
 			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
 			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
 			// newflag = s->secretflag[ft];
-			screen_combo_modify_postroutine(tmpscr,cid);
+			screen_combo_modify_postroutine(tmpscr,scombo);
 			if ( c[cid].attribytes[2] > 0 )
 				sfx(c[cid].attribytes[2],int(bx));
 		}
@@ -1130,8 +1130,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,cid);
-					screen_combo_modify_preroutine(FFCore.tempScreens[layer],cid);
+					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
 					if((c[cid].usrflags&cflag12))
@@ -1143,13 +1143,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					else
 						++FFCore.tempScreens[layer]->data[scombo];
 					
-					screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
+					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,cid);
+					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(tmpscr,cid);
+					screen_combo_modify_preroutine(tmpscr,scombo);
 					//undercombo or next?
 					if((c[cid].usrflags&cflag12))
 					{
@@ -1158,8 +1158,11 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 						tmpscr->sflag[scombo] = 0;	
 					}
 					else
-						++tmpscr->data[scombo];
-					screen_combo_modify_postroutine(tmpscr,cid);
+					{
+						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
+						//++tmpscr->data[scombo];
+					}
+					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
 				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
@@ -1582,6 +1585,7 @@ weapon::weapon(weapon const & other):
     collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
     duplicates(other.duplicates),	//long		A flagset that determines of the weapon can collect an item.
     linked_parent(other.linked_parent),	//long		A flagset that determines of the weapon can collect an item.
+    quantity_iterator(other.quantity_iterator),	//long		A flagset that determines of the weapon can collect an item.
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
@@ -1798,6 +1802,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
     linked_parent = 0;
+    quantity_iterator = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
     if ( Parentitem > -1 )
@@ -1805,6 +1810,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	weaponscript = itemsbuf[Parentitem].weaponscript;
 	useweapon = itemsbuf[Parentitem].useweapon;
 	usedefence = itemsbuf[Parentitem].usedefence;
+	quantity_iterator = type; //wCByrna uses this for positioning.
 	if ( id != wPhantom && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 	    //Note: eweapons use this for boss weapon block flags
 	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
@@ -2179,10 +2185,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
         int qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
-        clk = (int)((((2*type*PI)/qty)
+	//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
+        clk = (int)((((2*quantity_iterator*PI)/qty)
                      // Appear on top of the cane's hook
                      + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
-        type = 0;
+        quantity_iterator = 0;
         
         if(parentitem>-1)
         {
@@ -3724,6 +3731,7 @@ bool weapon::blocked(int xOffset, int yOffset)
 void weapon::runscript(int index)
 {
     return;
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	switch(id)
 	{
 	    case wScript1:
@@ -3961,6 +3969,7 @@ void weapon::runscript(int index)
 
 bool weapon::animate(int index)
 {
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
     // do special timing stuff
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
@@ -9458,6 +9467,7 @@ void weapon::draw(BITMAP *dest)
 			//Bugfix script weapons not animating:
 			//Let's see if this works, and failstobreakanything. -Z
 			//This also will need a QR, if it works!
+			/* Bugged, disabling.
 			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS) )
 			{
 				if(frames>1 && ++aframe >= frames)
@@ -9467,6 +9477,7 @@ void weapon::draw(BITMAP *dest)
 				//update_weapon_frame(aframe,o_tile);
 				update_weapon_frame(aframe,o_tile);
 			}
+			*/
 			//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
 			//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
 			//{ 

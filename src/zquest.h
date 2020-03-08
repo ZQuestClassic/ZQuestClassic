@@ -290,6 +290,9 @@ int readsomedmaps(PACKFILE *f);
 //need readsomedmaps_to, with a starting index, in the future
 void savesomedmaps(const char *prompt,int initialval);
 
+void do_importdoorset(const char *prompt,int initialval);
+void do_exportdoorset(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 
@@ -373,8 +376,6 @@ int onGotoPage();
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
-
-void zprint(const char * const format,...);
 
 int playTune1();
 int playTune2();
@@ -523,6 +524,7 @@ int onImportNPCScript();
 int onImportSCREENScript();
 int onImportHEROScript();
 int onImportITEMSPRITEScript();
+int onImportComboScript();
 int onImportDMapScript();
 int onImportLWPNScript();
 int onImportEWPNScript();
@@ -549,6 +551,7 @@ extern weapon_struct biw[wMAX];
 
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
+void build_bidcomboscripts_list();
 extern script_struct biitems[NUMSCRIPTFFC]; //item script
 extern int biitems_cnt;
 
@@ -1061,6 +1064,7 @@ int d_showedit_proc(int msg,DIALOG *d,int c);
 int onHeader();
 
 //static ZCHEATS tmpcheats;
+int PickRuleset();
 int onCheats();
 int RulesPage_1();
 int RulesPage_2();
@@ -1074,6 +1078,7 @@ int RulesPage_9();
 int RulesPage_10();
 int onAnimationRules();
 int onWeaponRules();
+int onHeroRules();
 int onComboRules();
 int onItemRules();
 int onEnemyRules();
@@ -1180,6 +1185,7 @@ void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
 void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
 int get_currdmap();
 int current_item(int item_type);
 int current_item_power(int item_type);

@@ -1,5 +1,5 @@
 //Extended functions for 2.55.0, Alpha 19 and later.
-//1st July, 2019
+//2nd January, 2020
 
 //A
 
@@ -754,7 +754,7 @@ int DirY(int dir)
 //Returns the distance between two sets of coordinates using Pythagoras' Theorem
 //Allows scaling for large distance determinations.
 //Argument 'scale' represents a ratio of 1:scale.
-//Argument 'scale' is most precise when using powers of 10 (i.e. 1, 10, 100, 1000, 10000).
+//Argument 'scale' is most precise when using powers of 10 (e.g.. 0.1, 1, 10, 100, 1000, 10000).
 //If arg 'scale' is set to 0, it defaults to '1'. 
 //Returns -1 on error. 
 float Distance(int x1, int y1, int x2, int y2, int scale) 
@@ -763,7 +763,7 @@ float Distance(int x1, int y1, int x2, int y2, int scale)
 	float x = (x1-x2) / scale;
 	float y = (y1-y2) / scale;
 	float factor = (x*x)+(y*y);
-	if ( factor < 0 ) return -1;
+	if ( factor <= 0 ) return -1;
 	else return Sqrt(factor) * scale;
 }
 

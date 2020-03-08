@@ -1,11 +1,17 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
+#include "../zdefs.h"
+#undef TEXT
+#undef VOID
+
 #define PARSER_DEBUG 0
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
 #define FUNCFLAG_INLINE				0x01
 #define FUNCFLAG_INVALID			0x02
+
+#define IFUNCFLAG_SKIPPOINTER		0x01
 
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0

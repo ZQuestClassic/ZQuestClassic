@@ -227,8 +227,28 @@ or_equal		TOKEN( BITORASSIGN );
 "||="		TOKEN( ORASSIGN );
 "^^"		TOKEN( XOR );
 "xor"		TOKEN( XOR );
+"..."			TOKEN( RANGE );
+"~~"			TOKEN (APPXEQUAL);
+appx_eq		TOKEN( APPXEQUAL );
+appx_equal		TOKEN( APPXEQUAL );
+"!!"			TOKEN (DOUBLEBANG);
+"%%"			TOKEN (PERCENT);
+"~="			TOKEN (BITNOTASSIGN);
+"bitnot_eq"			TOKEN (BITNOTASSIGN);
+"bitnot_equal"			TOKEN (BITNOTASSIGN);
+"!%"			TOKEN (INVMOD);
+"$$"			TOKEN (DOUBLEADDR);
+"**"			TOKEN (DOUBLESTAR);
+"@"			TOKEN (HANDLE);
+"@@"			TOKEN (HANDLETOHANDLE);
+"$"			TOKEN (ADDR);
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
+ /* "*"+IDENTIFIER how do we segregate from multiply? */
+ /* "&"+IDENTIFIER how do we segregate from bitand? */
+ /* these would need to see if they are LH values. */
+ /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
+ /* "**" pointer/poiters */
 
  /* Line Comments */
 "//".*		/* hit end of file */

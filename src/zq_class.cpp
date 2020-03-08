@@ -62,16 +62,6 @@ using std::pair;
 extern char msgbuf[MSGSIZE*3];
 
 extern string zScript;
-extern std::map<int, pair<string, string> > ffcmap;
-extern std::map<int, pair<string, string> > globalmap;
-extern std::map<int, pair<string, string> > itemmap;
-extern std::map<int, pair<string, string> > npcmap;
-extern std::map<int, pair<string, string> > ewpnmap;
-extern std::map<int, pair<string, string> > lwpnmap;
-extern std::map<int, pair<string, string> > linkmap;
-extern std::map<int, pair<string, string> > dmapmap;
-extern std::map<int, pair<string, string> > screenmap;
-extern std::map<int, pair<string, string> > itemspritemap;
 
 zmap Map;
 int prv_mode=0;
@@ -4342,11 +4332,11 @@ void zmap::update_combo_cycling()
         newcset[i]=-1;
         
         x=prvscr.data[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4363,11 +4353,11 @@ void zmap::update_combo_cycling()
     for(int i=0; i<176; i++)
     {
         x=prvscr.data[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4396,11 +4386,11 @@ void zmap::update_combo_cycling()
         newcset[i]=-1;
         
         x=prvscr.ffdata[i];
-        y=animated_combo_table[x][0];
+        //y=animated_combo_table[x][0];
         
         //time to restart
-        if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4417,11 +4407,11 @@ void zmap::update_combo_cycling()
     for(int i=0; i<32; i++)
     {
         x=prvscr.ffdata[i];
-        y=animated_combo_table2[x][0];
+        //y=animated_combo_table2[x][0];
         
         //time to restart
-        if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        if((combobuf[x].aclk>=combobuf[x].speed) &&
+                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
@@ -4457,11 +4447,11 @@ void zmap::update_combo_cycling()
                 newcset[i]=-1;
                 
                 x=(prvlayers[j]).data[i];
-                y=animated_combo_table[x][0];
+                //y=animated_combo_table[x][0];
                 
                 //time to restart
-                if((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1)	&&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
@@ -4478,11 +4468,11 @@ void zmap::update_combo_cycling()
             for(int i=0; i<176; i++)
             {
                 x=(prvlayers[j]).data[i];
-                y=animated_combo_table2[x][0];
+                //y=animated_combo_table2[x][0];
                 
                 //time to restart
-                if((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+                if((combobuf[x].aclk>=combobuf[x].speed) &&
+                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
@@ -4511,14 +4501,14 @@ void zmap::update_combo_cycling()
     {
         if(restartanim[i])
         {
-            combobuf[i].tile = animated_combo_table[i][1];
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].tile = combobuf[i].o_tile;
+            combobuf[i].aclk = 0;
         }
         
         if(restartanim2[i])
         {
-            combobuf[i].tile = animated_combo_table2[i][1];
-            animated_combo_table4[animated_combo_table[i][0]][1]=0;
+            combobuf[i].tile = combobuf[i].o_tile;
+            combobuf[i].aclk = 0;
         }
     }
     
@@ -6048,7 +6038,8 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
     {
         skip_flags[i]=0;
     }
-    
+    for(int i=0; i<qr_MAX; i++)
+                set_bit(quest_rules,i,0);
     int ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
 //  setPackfilePassword(NULL);
 
@@ -9020,6 +9011,30 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(25);
 		}
 	    }
+	    if(!p_iputw(combobuf[i].script,f))
+		{
+			new_return(26);
+		}
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(combobuf[i].initd[q],f))
+		{
+			new_return(27);
+		}
+	    }
+	    if(!p_iputl(combobuf[i].o_tile,f))
+		{
+			new_return(28);
+		}
+	    if(!p_putc(combobuf[i].cur_frame,f))
+		{
+			new_return(29);
+		}
+	    if(!p_putc(combobuf[i].aclk,f))
+		{
+			new_return(30);
+		}
+	    
 		    
         }
         
@@ -10814,18 +10829,19 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
     new_return(0);
 }
 
-extern ffscript *ffscripts[NUMSCRIPTFFC];
-extern ffscript *itemscripts[NUMSCRIPTITEM];
-extern ffscript *guyscripts[NUMSCRIPTGUYS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[NUMSCRIPTLINK];
-extern ffscript *screenscripts[NUMSCRIPTSCREEN];
-extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
-extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *ffscripts[NUMSCRIPTFFC];
+extern script_data *itemscripts[NUMSCRIPTITEM];
+extern script_data *guyscripts[NUMSCRIPTGUYS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *globalscripts[NUMSCRIPTGLOBAL];
+extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *screenscripts[NUMSCRIPTSCREEN];
+extern script_data *dmapscripts[NUMSCRIPTSDMAP];
+extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -10985,6 +11001,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
+	al_trace("About to write combo script pt 1.\n");
+	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
         
         if(!p_iputl((long)zScript.size(), f))
         {
@@ -10998,9 +11025,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         word numffcbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numffcbindings++;
             }
@@ -11011,21 +11038,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2003);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2004);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2005);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2006);
                 }
@@ -11034,9 +11061,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         word numglobalbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numglobalbindings++;
             }
@@ -11047,21 +11074,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2007);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2008);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2009);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2010);
                 }
@@ -11070,9 +11097,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         word numitembindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numitembindings++;
             }
@@ -11083,21 +11110,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2011);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2012);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2013);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2014);
                 }
@@ -11108,9 +11135,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         //npc scripts
         word numnpcbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numnpcbindings++;
             }
@@ -11121,21 +11148,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2015);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2016);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2017);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2018);
                 }
@@ -11146,9 +11173,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
 	word numlwpnbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numlwpnbindings++;
             }
@@ -11159,21 +11186,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2019);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2020);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2021);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2022);
                 }
@@ -11187,9 +11214,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
         word numewpnbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numewpnbindings++;
             }
@@ -11200,21 +11227,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2023);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2024);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2025);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2026);
                 }
@@ -11224,9 +11251,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//link scripts
 	word numlinkbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numlinkbindings++;
             }
@@ -11237,21 +11264,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2027);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2028);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2029);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2030);
                 }
@@ -11261,9 +11288,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//dmap scripts
 	word numdmapbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numdmapbindings++;
             }
@@ -11274,21 +11301,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2031);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2032);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2033);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2034);
                 }
@@ -11298,9 +11325,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//screen scripts
 	word numscreenbindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numscreenbindings++;
             }
@@ -11311,21 +11338,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2035);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2036);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2037);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2038);
                 }
@@ -11334,9 +11361,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         //item sprite scripts
 	word numitemspritebindings=0;
         
-        for(std::map<int, pair<string, string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 numitemspritebindings++;
             }
@@ -11347,23 +11374,61 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2039);
         }
         
-        for(std::map<int, pair<string, string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
-            if(it->second.second != "")
+            if(it->second.scriptname != "")
             {
                 if(!p_iputw(it->first,f))
                 {
                     new_return(2040);
                 }
                 
-                if(!p_iputl((long)it->second.second.size(), f))
+                if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2041);
                 }
                 
-                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2042);
+                }
+            }
+        }
+	
+	//combo scripts
+	al_trace("About to write combo script pt 2.\n");
+	word numcombobindings=0;
+        
+        for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numcombobindings++;
+            }
+        }
+	al_trace("About to write combo script pt 3.\n");
+	if(!p_iputw(numcombobindings, f))
+        {
+            new_return(2043);
+        }
+        al_trace("About to write combo script pt 4.\n");
+        for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2044);
+                }
+                
+                if(!p_iputl((long)it->second.scriptname.size(), f))
+                {
+                    new_return(2045);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                {
+                    new_return(2046);
                 }
             }
         }
@@ -11388,7 +11453,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script)
+int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -11398,7 +11463,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     
     for(int j=0;; j++)
     {
-        if((*script)[j].command==0xFFFF)
+        if((*script)->zasm[j].command==0xFFFF)
         {
             num_commands = j+1;
             break;
@@ -11409,30 +11474,95 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     {
         new_return(6);
     }
-    
+	
+	//Metadata
+	if(!p_iputw((*script)->meta.zasm_v,f))
+	{
+		new_return(7);
+	}
+	
+	if(!p_iputw((*script)->meta.meta_v,f))
+	{
+		new_return(8);
+	}
+	
+	if(!p_iputw((*script)->meta.ffscript_v,f))
+	{
+		new_return(9);
+	}
+	
+	if(!p_putc((*script)->meta.script_type,f))
+	{
+		new_return(10);
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		for(int c = 0; c < 33; ++c)
+		{
+			if(!p_putc((*script)->meta.run_idens[q][c],f))
+			{
+				new_return(11);
+			}
+		}
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		if(!p_putc((*script)->meta.run_types[q],f))
+		{
+			new_return(12);
+		}
+	}
+	
+	if(!p_putc((*script)->meta.flags,f))
+	{
+		new_return(13);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v1,f))
+	{
+		new_return(14);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v2,f))
+	{
+		new_return(15);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v3,f))
+	{
+		new_return(16);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v4,f))
+	{
+		new_return(17);
+	}
+	
     for(int j=0; j<num_commands; j++)
     {
         
-        if(!p_iputw((*script)[j].command,f))
+        if(!p_iputw((*script)->zasm[j].command,f))
         {
-            new_return(7);
+            new_return(18);
         }
         
-        if((*script)[j].command==0xFFFF)
+        if((*script)->zasm[j].command==0xFFFF)
         {
             break;
         }
         else
         {
-		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
-            if(!p_iputl((*script)[j].arg1,f))
+		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
+            if(!p_iputl((*script)->zasm[j].arg1,f))
             {
-                new_return(8);
+                new_return(19);
             }
             
-            if(!p_iputl((*script)[j].arg2,f))
+            if(!p_iputl((*script)->zasm[j].arg2,f))
             {
-                new_return(9);
+                new_return(20);
             }
         }
     }
@@ -11894,6 +12024,10 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
             new_return(72);
         }
 	if(!p_iputw(zinit.nArrowmax,f))
+        {
+            new_return(73);
+        }
+	if(!p_iputw(zinit.heroStep,f))
         {
             new_return(73);
         }

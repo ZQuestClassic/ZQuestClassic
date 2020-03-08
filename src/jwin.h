@@ -91,6 +91,7 @@ void jwin_set_colors(int *colors);
 
 /* drawing routines */
 void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style);
+void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style);
 void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame);
 void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type);
 void draw_x_button(BITMAP *dest, int x, int y, int state);
@@ -169,6 +170,9 @@ extern int  do_zqdialog(DIALOG *dialog, int focus_obj);
 
 int d_jslider_proc(int msg, DIALOG *d, int c);
 int d_jwinbutton_proc(int msg, DIALOG *d, int c);
+
+//Misc bitmap drawing
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
 
 
 #ifdef __cplusplus

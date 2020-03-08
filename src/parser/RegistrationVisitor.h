@@ -62,6 +62,7 @@ namespace ZScript
 		void caseExprLE(ASTExprLE& host, void* param = NULL);
 		void caseExprEQ(ASTExprEQ& host, void* param = NULL);
 		void caseExprNE(ASTExprNE& host, void* param = NULL);
+		void caseExprAppxEQ(ASTExprAppxEQ& host, void* param = NULL);
 		void caseExprPlus(ASTExprPlus& host, void* param = NULL);
 		void caseExprMinus(ASTExprMinus& host, void* param = NULL);
 		void caseExprTimes(ASTExprTimes& host, void* param = NULL);
@@ -102,6 +103,9 @@ namespace ZScript
 		// Visit a group of nodes. Handle moving the nodes as needed, to accomodate order.
 		template <class Container>
 		void regvisit(AST& host, Container const& nodes, void* param = NULL);
+		
+		template <class Container>
+		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
 	private:
 		ZScript::Program& program;
 		

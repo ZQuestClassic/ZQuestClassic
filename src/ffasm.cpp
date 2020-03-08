@@ -4,6 +4,7 @@
 
 #include "precompiled.h" //always first
 
+#include "parser/Types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,12 @@
 //#include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
+
+#include <sstream>
+
+using std::string;
+using std::ostringstream;
+
 #ifdef ALLEGRO_MACOSX
 #define strnicmp strncasecmp
 #endif
@@ -2045,8 +2052,25 @@ script_variable variable_list[]=
 	{ "SPRITEMAXPARTICLE",		SPRITEMAXPARTICLE,        0,             0 },
 	{ "SPRITEMAXDECO",		SPRITEMAXDECO,        0,             0 },
 	{ "HEROHEALTHBEEP",		HEROHEALTHBEEP,        0,             0 },
+	{ "NPCRANDOM",		NPCRANDOM,        0,             0 },
+	{ "COMBOXR",		COMBOXR,        0,             0 },
+	{ "COMBOYR",		COMBOYR,        0,             0 },
+	{ "COMBOPOSR",		COMBOPOSR,        0,             0 },
+	{ "COMBODATASCRIPT",		COMBODATASCRIPT,        0,             0 },
+	{ "COMBODATAINITD",		COMBODATAINITD,        0,             0 },
+	{ "HEROSCRIPTCSET",		HEROSCRIPTCSET,        0,             0 },
+	{ "SHOPDATATYPE",		SHOPDATATYPE,        0,             0 },
+	{ "HEROSTEPS",		HEROSTEPS,        0,             0 },
+	{ "HEROSTEPRATE",		HEROSTEPRATE,        0,             0 },
+	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
+	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
+	{ "COMBODACLK",		COMBODACLK,        0,             0 },
+	{ "PC",                PC,                   0,             0 },
+	{ "GAMESCROLLING", GAMESCROLLING, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
+
+
 
 long ffparse(char *string)
 {
@@ -2118,16 +2142,14 @@ bool ffcheck(char *arg)
 	return true;
 }
 
-char labels[65536][80];
-int lines[65536];
-int numlines;
+std::map<std::string, int> labels;
 
 //The Dialogue that loads an ASM Script filename.
-int parse_script(ffscript **script)
+int parse_script(script_data **script)
 {
 	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
-	
+	labels.clear();
 	FILE *zscript = fopen(temppath,"r");
 			
 	if(zscript == NULL)
@@ -2138,7 +2160,284 @@ int parse_script(ffscript **script)
 	else return parse_script_file(script,temppath, true);
 }
 
-int parse_script_file(ffscript **script, const char *path, bool report_success)
+int get_script_type(string const& name)
+{
+	if(name=="GLOBAL")
+		return SCRIPT_GLOBAL;
+	else if(name=="FFC")
+		return SCRIPT_FFC;
+	else if(name=="SCREEN")
+		return SCRIPT_SCREEN;
+	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
+		return SCRIPT_LINK;
+	else if(name=="ITEMDATA" || name=="ITEM")
+		return SCRIPT_ITEM;
+	else if(name=="LWEAPON" || name=="LWPN")
+		return SCRIPT_LWPN;
+	else if(name=="NPC")
+		return SCRIPT_NPC;
+	else if(name=="EWEAPON" || name=="EWPN")
+		return SCRIPT_EWPN;
+	else if(name=="DMAP")
+		return SCRIPT_DMAP;
+	else if(name=="ITEMSPRITE")
+		return SCRIPT_ITEMSPRITE;
+	else if(name=="COMBO" || name=="COMBODATA")
+		return SCRIPT_COMBO;
+	
+	return SCRIPT_NONE;
+}
+
+string get_script_name(int type)
+{
+	switch(type)
+	{
+		case SCRIPT_GLOBAL:
+			return "GLOBAL";
+		case SCRIPT_FFC:
+			return "FFC";
+		case SCRIPT_SCREEN:
+			return "SCREEN";
+		case SCRIPT_LINK:
+			return "HERO";
+		case SCRIPT_ITEM:
+			return "ITEMDATA";
+		case SCRIPT_LWPN:
+			return "LWEAPON";
+		case SCRIPT_NPC:
+			return "NPC";
+		case SCRIPT_EWPN:
+			return "EWEAPON";
+		case SCRIPT_DMAP:
+			return "DMAP";
+		case SCRIPT_ITEMSPRITE:
+			return "ITEMSPRITE";
+		case SCRIPT_COMBO:
+			return "COMBODATA";
+		case SCRIPT_NONE:
+		default:
+			return "UNKNOWN";
+	}
+}
+
+//Output metadata as a single string
+string get_meta(zasm_meta const& meta)
+{
+	ostringstream oss;
+	oss << "#ZASM_VERSION = " << meta.zasm_v
+		<< "\n#METADATA_VERSION = " << meta.meta_v
+		<< "\n#FFSCRIPT_VERSION = " << meta.ffscript_v
+		<< "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type)
+		<< "\n#AUTO_GEN = " << ((meta.flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
+		<< "\n#COMPILER_V1 = " << meta.compiler_v1
+		<< "\n#COMPILER_V2 = " << meta.compiler_v2
+		<< "\n#COMPILER_V3 = " << meta.compiler_v3
+		<< "\n#COMPILER_V4 = " << meta.compiler_v4
+		<< "\n#PARAM_TYPE_1 = " << ZScript::getTypeName(meta.run_types[0])
+		<< "\n#PARAM_NAME_1 = " << meta.run_idens[0]
+		<< "\n#PARAM_TYPE_2 = " << ZScript::getTypeName(meta.run_types[1])
+		<< "\n#PARAM_NAME_2 = " << meta.run_idens[1]
+		<< "\n#PARAM_TYPE_3 = " << ZScript::getTypeName(meta.run_types[2])
+		<< "\n#PARAM_NAME_3 = " << meta.run_idens[2]
+		<< "\n#PARAM_TYPE_4 = " << ZScript::getTypeName(meta.run_types[3])
+		<< "\n#PARAM_NAME_4 = " << meta.run_idens[3]
+		<< "\n#PARAM_TYPE_5 = " << ZScript::getTypeName(meta.run_types[4])
+		<< "\n#PARAM_NAME_5 = " << meta.run_idens[4]
+		<< "\n#PARAM_TYPE_6 = " << ZScript::getTypeName(meta.run_types[5])
+		<< "\n#PARAM_NAME_6 = " << meta.run_idens[5]
+		<< "\n#PARAM_TYPE_7 = " << ZScript::getTypeName(meta.run_types[6])
+		<< "\n#PARAM_NAME_7 = " << meta.run_idens[6]
+		<< "\n#PARAM_TYPE_8 = " << ZScript::getTypeName(meta.run_types[7])
+		<< "\n#PARAM_NAME_8 = " << meta.run_idens[7]
+		<< "\n";
+	return oss.str();
+}
+
+void upperstr(string& str)
+{
+	for(int q = str.size() - 1; q >= 0; --q)
+		str[q] = toupper(str[q]);
+}
+
+//Parse a single line of metadata
+bool parse_meta(zasm_meta& meta, const char *buffer)
+{
+	string line(buffer);
+	size_t space_pos = line.find_first_of(" \t=");
+	if(space_pos == string::npos) return false;
+	string cmd = line.substr(0, space_pos); //The command portion
+	size_t end_space_pos = line.find_first_not_of(" \t=", space_pos);
+	if(end_space_pos == string::npos) return false;
+	string val = line.substr(end_space_pos); //The value portion
+	
+	if(cmd == "#ZASM_VERSION")
+	{
+		meta.zasm_v = atoi(val.c_str());
+	}
+	else if(cmd == "#METADATA_VERSION")
+	{
+		meta.meta_v = atoi(val.c_str());
+	}
+	else if(cmd == "#FFSCRIPT_VERSION")
+	{
+		meta.ffscript_v = atoi(val.c_str());
+	}
+	else if(cmd == "#SCRIPT_TYPE" || cmd == "#TYPE")
+	{
+		upperstr(val);
+		meta.script_type = get_script_type(val);
+	}
+	else if(cmd == "#AUTO_GEN")
+	{
+		upperstr(val);
+		if(val=="TRUE")
+			meta.flags |= ZMETA_AUTOGEN;
+		else if(val=="FALSE")
+			meta.flags &= ~ZMETA_AUTOGEN;
+		else
+		{
+			if(atoi(val.c_str())!=0)
+			{
+				meta.flags |= ZMETA_AUTOGEN;
+			}
+			else meta.flags &= ~ZMETA_AUTOGEN;
+		}
+	}
+	else if(cmd == "#COMPILER_V1")
+	{
+		meta.compiler_v1 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V2")
+	{
+		meta.compiler_v2 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V3")
+	{
+		meta.compiler_v3 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V4")
+	{
+		meta.compiler_v4 = atoi(val.c_str());
+	}
+	else if(cmd == "#PARAM_NAME_1")
+	{
+		strcpy(meta.run_idens[0], val.c_str());
+		/*int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[0][ind] = val.at(ind);
+		}
+		meta.run_idens[0][ind] = 0;*/
+	}
+	else if(cmd == "#PARAM_NAME_2")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[1][ind] = val.at(ind);
+		}
+		meta.run_idens[1][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_3")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[2][ind] = val.at(ind);
+		}
+		meta.run_idens[2][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_4")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[3][ind] = val.at(ind);
+		}
+		meta.run_idens[3][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_5")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[4][ind] = val.at(ind);
+		}
+		meta.run_idens[4][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_6")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[5][ind] = val.at(ind);
+		}
+		meta.run_idens[5][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_7")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[6][ind] = val.at(ind);
+		}
+		meta.run_idens[6][ind] = 0;
+	}
+	else if(cmd == "#PARAM_NAME_8")
+	{
+		int ind = 0;
+		for(; ind < val.size() && ind < 33; ++ind)
+		{
+			meta.run_idens[7][ind] = val.at(ind);
+		}
+		meta.run_idens[7][ind] = 0;
+	}
+	else if(cmd == "#PARAM_TYPE_1")
+	{
+		upperstr(val);
+		meta.run_types[0] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_2")
+	{
+		upperstr(val);
+		meta.run_types[1] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_3")
+	{
+		upperstr(val);
+		meta.run_types[2] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_4")
+	{
+		upperstr(val);
+		meta.run_types[3] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_5")
+	{
+		upperstr(val);
+		meta.run_types[4] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_6")
+	{
+		upperstr(val);
+		meta.run_types[5] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_7")
+	{
+		upperstr(val);
+		meta.run_types[6] = ZScript::getTypeId(val);
+	}
+	else if(cmd == "#PARAM_TYPE_8")
+	{
+		upperstr(val);
+		meta.run_types[7] = ZScript::getTypeId(val);
+	}
+	else return false;
+	
+	return true;
+}
+
+int parse_script_file(script_data **script, const char *path, bool report_success)
 {
 	saved=false;
 	FILE *fscript = fopen(path,"rb");
@@ -2148,7 +2447,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 	char *arg2buf = new char[0x100];
 	bool stop=false;
 	bool success=true;
-	numlines = 0;
+	bool meta_done=false;
 	int num_commands;
 	
 	for(int i=0;; i++)
@@ -2161,6 +2460,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 			break;
 		}
 		
+		bool meta = false;
 		for(int j=0; j<0x400; j++)
 		{
 			char temp;
@@ -2177,102 +2477,22 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 			{
 				ungetc(temp,fscript);
 				buffer[j] = getc(fscript);
-				
-				if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == 13)
+				if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
 				{
-					if(buffer[j] == '\n')
+					while(getc(fscript)!='\n')
 					{
-						buffer[j] = '\0';
-						j=0x400;
-					}
-					else
-					{
-						while(getc(fscript)!='\n')
+						if(feof(fscript))
 						{
-							if(feof(fscript))
-							{
-								stop=true;
-								break;
-							}
+							stop=true;
+							break;
 						}
-						
-						buffer[j] = '\0';
-						j=0x400;
 					}
-				}
-			}
-		}
-		
-		int k=0;
-		
-		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-		
-		if(buffer[k] == '\0')
-		{
-			i--;
-			continue;
-		}
-		
-		k=0;
-		
-		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
-		{
-			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
-			{
-				labels[numlines][k] = buffer[k];
-				k++;
-			}
-			
-			labels[numlines][k] = '\0';
-			lines[numlines] = i;
-			numlines++;
-		}
-	}
-	
-	fseek(fscript, 0, SEEK_SET);
-	stop = false;
-	
-	if((*script)!=NULL) delete [](*script);
-	
-	(*script) = new ffscript[num_commands];
-	
-	for(int i=0; i<num_commands; i++)
-	{
-		if(stop)
-		{
-			(*script)[i].command = 0xFFFF;
-			break;
-		}
-		else
-		{
-			/*
-				sprintf(buffer, "");
-				sprintf(combuf, "");
-				sprintf(arg1buf, "");
-				sprintf(arg2buf, "");
-			*/
-			buffer[0]=0;
-			combuf[0]=0;
-			arg1buf[0]=0;
-			arg2buf[0]=0;
-			
-			for(int j=0; j<0x400; j++)
-			{
-				char temp;
-				temp = getc(fscript);
-				
-				if(feof(fscript))
-				{
-					stop=true;
-					buffer[j]='\0';
+					--i;
+					meta=true;
 					j=0x400;
-					ungetc(temp,fscript);
 				}
 				else
 				{
-					ungetc(temp,fscript);
-					buffer[j] = getc(fscript);
-					
 					if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == 13)
 					{
 						if(buffer[j] == '\n')
@@ -2297,6 +2517,163 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 					}
 				}
 			}
+		}
+		if(meta) continue;
+		else meta_done = true;
+		int k=0;
+		
+		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+		
+		if(buffer[k] == '\0')
+		{
+			--i;
+			continue;
+		}
+		
+		k=0;
+		
+		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
+		{
+			char lbuf[80] = {0};
+			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
+			{
+				lbuf[k] = buffer[k];
+				k++;
+			}
+			string lbl(lbuf);
+			map<string,int>::iterator it = labels.find(lbl);
+			if(it != labels.end())
+			{
+				char buf[80],buf2[80],buf3[80],name[13];
+				extract_name(temppath,name,FILENAME8_3);
+				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
+				sprintf(buf2,"The error was: Duplicate Label");
+				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
+				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				stop=true;
+				success=false;
+				(*script)->disable();
+				goto zasmfile_fail;
+			}
+			labels[lbl] = i;
+			while(buffer[k] == ' ' || buffer[k] == '\t')
+			{
+				++k;
+			}
+			if(buffer[k] == '\0')
+			{
+				--i; //No command on this line
+				continue;
+			}
+		}
+	}
+	
+	fseek(fscript, 0, SEEK_SET);
+	stop = false;
+	meta_done = false;
+	
+	if((*script)!=NULL) delete (*script);
+	(*script) = new script_data(num_commands);
+	
+	//(*script) = new ffscript[num_commands];
+	
+	for(int i=0; i<num_commands; i++)
+	{
+		if(stop)
+		{
+			(*script)->zasm[i].command = 0xFFFF;
+			break;
+		}
+		else
+		{
+			/*
+				sprintf(buffer, "");
+				sprintf(combuf, "");
+				sprintf(arg1buf, "");
+				sprintf(arg2buf, "");
+			*/
+			buffer[0]=0;
+			combuf[0]=0;
+			arg1buf[0]=0;
+			arg2buf[0]=0;
+			bool meta_mode = false;
+			
+			for(int j=0; j<0x400; j++)
+			{
+				char temp;
+				temp = getc(fscript);
+				
+				if(feof(fscript))
+				{
+					stop=true;
+					buffer[j]='\0';
+					j=0x400;
+					ungetc(temp,fscript);
+				}
+				else
+				{
+					ungetc(temp,fscript);
+					buffer[j] = toupper(getc(fscript));
+					if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
+					{
+						meta_mode = true;
+						char temp;
+						while((temp = getc(fscript))!='\n')
+						{
+							if(temp == '\r')
+							{
+								do
+								{
+									if(feof(fscript))
+									{
+										stop=true;
+										break;
+									}
+								}
+								while(getc(fscript)!='\n');
+								break;
+							}
+							else buffer[++j] = temp;
+							if(feof(fscript))
+							{
+								stop=true;
+								break;
+							}
+						}
+						buffer[++j] = '\0';
+						j=0x400;
+					}
+					else if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == '\r')
+					{
+						if(buffer[j] == '\n')
+						{
+							buffer[j] = '\0';
+							j=0x400;
+						}
+						else
+						{
+							while(getc(fscript)!='\n')
+							{
+								if(feof(fscript))
+								{
+									stop=true;
+									break;
+								}
+							}
+							
+							buffer[j] = '\0';
+							j=0x400;
+						}
+					}
+				}
+			}
+			
+			if(meta_mode)
+			{
+				parse_meta((*script)->meta, buffer);
+				--i; continue;
+			}
+			meta_done = true;
 			
 			int k=0, l=0;
 			
@@ -2304,7 +2681,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 			
 			if(buffer[k] == '\0')
 			{
-				i--;
+				--i;
 				continue;
 			}
 			
@@ -2319,6 +2696,12 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 				combuf[l] = buffer[k];
 				k++;
 				l++;
+			}
+			
+			if(l == 0) //No command
+			{
+				--i;
+				continue;
 			}
 			
 			combuf[l] = '\0';
@@ -2364,7 +2747,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
 				stop=true;
 				success=false;
-				(*script)[0].command = 0xFFFF;
+				(*script)->disable();
 			}
 		}
 	}
@@ -2376,7 +2759,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 		sprintf(buf,"Script %s has been parsed",name);
 		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
-	
+zasmfile_fail:
 	delete [] buffer;
 	delete [] combuf;
 	delete [] arg1buf;
@@ -2385,17 +2768,17 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
 	return success?D_O_K:D_CLOSE;
 }
 
-int set_argument(char *argbuf, ffscript **script, int com, int argument)
+int set_argument(char *argbuf, script_data **script, int com, int argument)
 {
 	long *arg;
 	
 	if(argument)
 	{
-		arg = &((*script)[com].arg2);
+		arg = &((*script)->zasm[com].arg2);
 	}
 	else
 	{
-		arg = &((*script)[com].arg1);
+		arg = &((*script)->zasm[com].arg1);
 	}
 	
 	int i=0;
@@ -2438,10 +2821,10 @@ int set_argument(char *argbuf, ffscript **script, int com, int argument)
 #define ERR_PARAM1 1
 #define ERR_PARAM2 2
 
-int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **script, int com, int &retcode)
+int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int com, int &retcode)
 {
-	(*script)[com].arg1 = 0;
-	(*script)[com].arg2 = 0;
+	(*script)->zasm[com].arg1 = 0;
+	(*script)->zasm[com].arg2 = 0;
 	bool found_command=false;	
 	
 	for(int i=0; i<NUMCOMMANDS&&!found_command; ++i)
@@ -2449,26 +2832,21 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 		if(strcmp(combuf,command_list[i].name)==0)
 		{
 			found_command=true;
-			(*script)[com].command = i;
+			(*script)->zasm[com].command = i;
 			
 			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
 			{
-				bool nomatch = true;
-				
-				for(int j=0; j<numlines; j++)
+				string lbl(arg1buf);
+				map<string,int>::iterator it = labels.find(lbl);
+				if(it != labels.end())
 				{
-					if(stricmp(arg1buf,labels[j])==0)
-					{
-						(*script)[com].arg1 = lines[j];
-						nomatch = false;
-						j=numlines;
-					}
+					(*script)->zasm[com].arg1 = (*it).second;
+				}
+				else
+				{
+					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 				}
 				
-				if(nomatch)
-				{
-					(*script)[com].arg1 = atoi(arg1buf)-1;
-				}
 				
 				if(strnicmp(combuf,"LOOP",4)==0)
 				{
@@ -2480,7 +2858,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 							return 0;
 						}
 						
-						(*script)[com].arg2 = ffparse(arg2buf);
+						(*script)->zasm[com].arg2 = ffparse(arg2buf);
 					}
 					else
 					{
@@ -2504,7 +2882,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 							return 0;
 						}
 						
-						(*script)[com].arg1 = ffparse(arg1buf);
+						(*script)->zasm[com].arg1 = ffparse(arg1buf);
 					}
 					else
 					{
@@ -2525,7 +2903,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 								return 0;
 							}
 							
-							(*script)[com].arg2 = ffparse(arg2buf);
+							(*script)->zasm[com].arg2 = ffparse(arg2buf);
 						}
 						else
 						{
@@ -2549,4 +2927,3 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 	retcode=ERR_INSTRUCTION;
 	return 0;
 }
-

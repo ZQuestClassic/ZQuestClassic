@@ -27,12 +27,18 @@ const int SHORT_MIN 	= -32768;	/**< Minimum value of a signed short. */
 const int SSHRT_MIN 	= -32768;	/**< Minimum value of a signed short. */ 
 const int WORD_MAX 	= 65535;	/**< Maximum value of an unsigned short. */ 
 const int USHRT_MAX 	= 65535;	/**< Maximum value of an unsigned short. */ 
-const int SSHOR_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
+const int SHORT_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
 const int SSHRT_MAX 	= 32767;	/**< Maximum value of a signed short. */ 
 
 //Longer Values
-const int INT_MIN 	= -214748;	/**< Minimum value of an int. */ 
-const int INT_MAX 	= 214748;	/**< Maximum value of an int. */ 
-const int LONG_MIN 	= -214748;	/**< Minimum value of an int. */ 
-const int FLOAT_MIN 	= -214748.3648;	/**< Minimum value of an int. */ 
-const int FLOAT_MAX 	= 214748.3647;	/**< Maximum value of an int. */ 
+const int INT_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
+const int INT_MAX 	= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Maximum value of an int. */ 
+const int LONG_MIN 	= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);	/**< Minimum value of an int. */ 
+const int FLOAT_MIN 	= -214747.9999 -(OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);	/**< Minimum value of a ZScript 'float' (int with fixed four-decimal places). */ 
+const int FLOAT_MAX 	= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);	/**< Maximum value of a ZScript 'float' (int with fixed four-decimal places). */ 
+
+//Game Elements
+const int COUNTER_MIN 	= WORD_MIN;
+const int COUNTER_MAX 	= WORD_MAX;
+const int DCOUNTER_MAX 	= SHORT_MAX;
+const int DCOUNTER_MIN 	= SHORT_MIN;

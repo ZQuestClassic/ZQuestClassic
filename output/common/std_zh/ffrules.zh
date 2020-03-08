@@ -2,8 +2,8 @@
 /// FFRules[] --- Array Indices ///
 ///     and Details of Each     ///
 ///  -------------------------- ///
-///    Document Revision 1.2    ///
-///     08th December, 2019     ///
+///    Document Revision 1.3    ///
+///     08th February, 2020     ///
 ///////////////////////////////////
 
 /*<< Enumerated list for Game->FFRules[] and Quest Rules get_bit. */
@@ -292,6 +292,10 @@ qr_ANGULAR_REFLECTED_WEAPONS, 		/*<<	Weapons (>>>) Angular Reflected Weapons */
 qr_MIRRORS_USE_WEAPON_CENTRE, 		/*<<	Weapons (>>>) Mirrors Use Weapon Centre for Collision */
 qr_CUSTOMCOMBOSLAYERS1AND2,		/*<<	Combos (>>>) 2 (>>>) Custom Combos Work on Layers 1 and 2 */
 qr_BUSHESONLAYERS1AND2,			/*<<	Combos (>>>) 2 (>>>) Slash Combos Work on Layers 1 and 2 */
+qr_NEW_HERO_MOVEMENT,	/*<<	Hero (>>>) New Hero Movement */
+
+//200
+qr_DISABLE_4WAY_GRIDLOCK,	/*<<	Hero (>>>) Disable 4-Way Movement's Gridlock */
 	
 //640
 qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
@@ -300,7 +304,7 @@ qr_PARSER_SHORT_CIRCUIT, 		/*<<	ZScript (>>>) Short-Circuit Boolean Operations *
 qr_PARSER_BOOL_TRUE_DECIMAL, 		/*<<	ZScript (>>>) Sprite Coordinates are Float */
 qr_PARSER_TRUE_INT_SIZE, 		/*<<	Compilation (>>>) True MAX_INT sizing */
 
-//555
+//645
 qr_WPNANIMFIX, 				/*<< 	Not Implemented : This was in 2.50.2, but never used. */ 
 qr_NOSCRIPTSDURINGSCROLL, 		/*<< 	Not Implemented : This was in 2.50.2, but never used. */
 qr_OLDSPRITEDRAWS, 			/*<<	Compatibility (>>>) Old (Faster) Sprite Drawing */
@@ -332,6 +336,19 @@ qr_250WRITEEDEFSCRIPT,			/*<<	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Se
 qr_SETENEMYWEAPONSPRITESONWPNCHANGE,	/*<<	ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite */
 qr_BROKENCHARINTDRAWING,		/*<<	ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling */
 qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,	/*<<	ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM* */
-	
+qr_combos_run_scripts_layer_0,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 0 */
+qr_combos_run_scripts_layer_1,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 1 */
+
+//670
+qr_combos_run_scripts_layer_2,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 2 */
+qr_combos_run_scripts_layer_3,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 3 */
+qr_combos_run_scripts_layer_4,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 4 */
+qr_combos_run_scripts_layer_5,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 5 */
+qr_combos_run_scripts_layer_6,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 6 */
+
+//675
+qr_OLD_INIT_SCRIPT_TIMING,	/*<<	ZScript (>>>) Use Old Global Init and SaveLoad Timing */
+qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,	/*<<	ZScript (>>>) Don't Deallocate Init/SaveLoad Local Arrays */
+
 qr_MAX
 };

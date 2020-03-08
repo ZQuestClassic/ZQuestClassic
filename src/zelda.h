@@ -112,6 +112,7 @@ void set_debug(bool d);
 void Z_eventlog(const char *format, ...);
 void Z_scripterrlog(const char * const format, ...);
 void zprint(const char * const format, ...);
+void zprint2(const char * const format, ...);
 
 // zelda.cc
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
@@ -156,6 +157,9 @@ void game_loop();
 void clearmsgnext(int str);
 void donewmsg(int str);
 int donew_shop_msg(int itmstr, int shopstr);
+void msg_bg(MsgStr const& msg);
+void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
+void blit_msgstr_fg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
 void dismissmsg();
 void dointro();
 void init_dmap();
@@ -197,6 +201,8 @@ Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
 //2.54
 extern short int lastMonoPreset;
 extern short int lastCustomTint[4];
+
+//extern byte __isZQuest;
 
 void setMonochromatic(int mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 
@@ -269,7 +275,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf, *f6_menu_buf;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
@@ -414,18 +420,20 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
-extern ffscript *ffscripts[NUMSCRIPTFFC];
-extern ffscript *itemscripts[NUMSCRIPTITEM];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
+extern script_data *ffscripts[NUMSCRIPTFFC];
+extern script_data *itemscripts[NUMSCRIPTITEM];
+extern script_data *globalscripts[NUMSCRIPTGLOBAL];
 
-extern ffscript *guyscripts[NUMSCRIPTGUYS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-extern ffscript *linkscripts[NUMSCRIPTLINK];
-extern ffscript *screenscripts[NUMSCRIPTSCREEN];
-extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
-extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *guyscripts[NUMSCRIPTGUYS];
+extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *screenscripts[NUMSCRIPTSCREEN];
+extern script_data *dmapscripts[NUMSCRIPTSDMAP];
+extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
 

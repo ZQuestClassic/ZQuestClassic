@@ -643,6 +643,7 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 #endif
 
 byte console_is_open = 0;
+byte __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #ifdef _WIN32
 CConsoleLoggerEx coloured_console;
@@ -658,7 +659,8 @@ ZModule zcm;
 zcmodule moduledata;
 
 void do_previewtext();
-bool do_slots(std::map<std::string, std::vector<ZScript::Opcode *> > &scripts);
+bool do_slots(std::map<std::string, disassembled_script_data> &scripts);
+void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -685,29 +687,17 @@ byte compile_finish_sample = 0;
 byte compile_audio_volume = 0;
 
 // Used to find FFC script names
-extern std::map<int, pair<string,string> > ffcmap;
 std::vector<string> asffcscripts;
-extern std::map<int, pair<string,string> > globalmap;
 std::vector<string> asglobalscripts;
-extern std::map<int, pair<string, string> > itemmap;
 std::vector<string> asitemscripts;
-
-
-extern std::map<int, pair<string, string> > npcmap;
 std::vector<string> asnpcscripts;
-extern std::map<int, pair<string, string> > ewpnmap;
 std::vector<string> aseweaponscripts;
-extern std::map<int, pair<string, string> > lwpnmap;
 std::vector<string> aslweaponscripts;
-extern std::map<int, pair<string, string> > linkmap;
 std::vector<string> aslinkscripts;
-extern std::map<int, pair<string, string> > dmapmap;
 std::vector<string> asdmapscripts;
-extern std::map<int, pair<string, string> > screenmap;
 std::vector<string> asscreenscripts;
-
-extern std::map<int, pair<string, string> > itemspritemap;
 std::vector<string> asitemspritescripts;
+std::vector<string> ascomboscripts;
 
 char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 
@@ -834,17 +824,18 @@ bool is_large = true;
 byte BMM = 3; // Big Minimap
 BITMAP *hw_screen, *scrtmp;
 
-ffscript *ffscripts[NUMSCRIPTFFC];
-ffscript *itemscripts[NUMSCRIPTITEM];
-ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-ffscript *globalscripts[NUMSCRIPTGLOBAL];
-ffscript *linkscripts[NUMSCRIPTLINK];
-ffscript *screenscripts[NUMSCRIPTSCREEN];
-ffscript *dmapscripts[NUMSCRIPTSDMAP];
-ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *ffscripts[NUMSCRIPTFFC];
+script_data *itemscripts[NUMSCRIPTITEM];
+script_data *guyscripts[NUMSCRIPTGUYS];
+script_data *wpnscripts[NUMSCRIPTWEAPONS];
+script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *linkscripts[NUMSCRIPTLINK];
+script_data *screenscripts[NUMSCRIPTSCREEN];
+script_data *dmapscripts[NUMSCRIPTSDMAP];
+script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -949,7 +940,7 @@ static int do_NewQuest()
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
+int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 bool Vsync, ShowFPS;
 int ComboBrush;                                             //show the brush instead of the normal mouse
@@ -1150,6 +1141,9 @@ static MENU import_graphics[]=
     
     { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
     { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Doorsets",           	    onImport_Doorset,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1206,7 +1200,9 @@ static MENU export_graphics[]=
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     
     { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Doorsets",           	    onExport_Doorset,   NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU export_menu[] =
@@ -1334,7 +1330,8 @@ static MENU rules_menu[] =
 {
     { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
     { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                    onWeaponRules,              NULL,                     0,            NULL   },
+    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
+    { (char *)"&Hero",                      onHeroRules,               NULL,                     0,            NULL   },
     { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
@@ -1347,6 +1344,7 @@ static MENU quest_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
     { (char *)"&Rules\t ",                  NULL,                      rules_menu,               0,            NULL   },
+    { (char *)"&Pick Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
     { (char *)"Ma&p Count",                 onMapCount,                NULL,                     0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
@@ -1581,6 +1579,7 @@ static MENU zscript_menu[] =
 	{ (char *)"Import ASM &DMap Script",        onImportDMapScript,        NULL,                     0,            NULL   },
 	{ (char *)"Import ASM &Screen Script",      onImportSCREENScript,      NULL,                     0,            NULL   },
 	{ (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,  NULL,                     0,            NULL   },
+	{ (char *)"Import ASM &Combo Script",  onImportComboScript,  NULL,                     0,            NULL   },
 //	{ (char *)"Set Include Path",               onZScriptSetIncludePath,   NULL,                     0,            NULL   },
 
 	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
@@ -2829,6 +2828,167 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 	}
 }
 
+
+
+
+//Doorsets
+
+static DIALOG save_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Doorset", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void do_exportdoorset(const char *prompt,int initialval)
+{
+	char firstdoor[8], doorct[8];
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	//int ret;
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	
+	save_doorset_dlg[5].dp = firstdoor;
+	save_doorset_dlg[7].dp = doorct;
+	
+	if(is_large)
+		large_dialog(save_doorset_dlg);
+	
+	int ret = zc_popup_dialog(save_doorset_dlg,-1);
+	jwin_center_dialog(save_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		/* sanity bounds
+		first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
+		the_doorset_count = vbound(atoi(doorct), 1, (MAXCOMBOS-1)-first_doorset_id);
+		*/
+		if(getname("Save ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving doorsets %d to %d: %d\n", first_doorset_id, first_doorset_id+(the_doorset_count-1));
+				writezdoorsets(f,first_doorset_id,the_doorset_count);
+				pack_fclose(f);
+				char tmpbuf[512]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+static DIALOG load_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  124,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Set (Range)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   92,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  92,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //10
+    {  jwin_text_proc,        10,    64,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Dest",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     63,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    
+    //{ jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void do_importdoorset(const char *prompt,int initialval)
+{
+	
+	char firstdoor[8], doorct[8], destid[8];
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	int the_dest_id = 0;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	sprintf(destid,"%d",0);
+		//int ret;
+	
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	load_doorset_dlg[5].dp = firstdoor;
+	load_doorset_dlg[7].dp = doorct;
+	load_doorset_dlg[11].dp = destid;
+	
+	byte nooverwrite = 0;
+	
+	if(is_large)
+		large_dialog(load_doorset_dlg);
+	
+	int ret = zc_popup_dialog(load_doorset_dlg,-1);
+	jwin_center_dialog(load_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		//if (load_doorset_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+	
+		//al_trace("Nooverwrite is: %d\n", nooverwrite);
+		//sanity bound
+		first_doorset_id = vbound(atoi(firstdoor), 0, door_combo_set_count);
+		the_doorset_count = vbound(atoi(doorct), 1, door_combo_set_count);
+		the_dest_id = vbound(atoi(destid), 0, door_combo_set_count);
+		if(getname("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				int ret = readzdoorsets(f,first_doorset_id,the_doorset_count, the_dest_id);
+				
+				if (!ret)
+				{
+					al_trace("Could not read from .zdoors packfile %s\n", name);
+					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else if ( ret == 1 )
+				{
+					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				else if ( ret == 2 )
+				{
+					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
 
 int gettilepagenumber(const char *prompt, int initialval)
 {
@@ -4467,98 +4627,98 @@ static TABPANEL gamemisc_tabs[] =
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
-    
-{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
-    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    
-    //5
-    { jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //8
-    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //13
-    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //18
-    { jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //23
-    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //28
-    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //33
-    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //36
-    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //38
-    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //43
-    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    
-    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //48
-    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //53
-    { jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //58
-    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //63
-    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //68
-    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
-    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    
-    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+	
+	{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
+	{ d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   26,   300,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+	
+	//5
+	{ jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//8
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//13
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//18
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//23
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//28
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//33
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//36
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//38
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//43
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//48
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//53
+	{ jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//58
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//63
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//68
+	{ jwin_button_proc,       70,    204,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+	{ jwin_button_proc,      170,    204,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+	
+	{ NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 void EditGameMiscArray()
@@ -6081,95 +6241,111 @@ void refresh(int flags)
         //  text_mode(vc(0));
         rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
         // The frame.
-        jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
-        // The black bar covering screens 88-8F.
-        rectfill(menu1, minimap.x+2+24*BMM, minimap.y+12+24*BMM,minimap.x+(27+22)*BMM,minimap.y+11+27*BMM,vc(0));
-        // Some lines.
-        /*
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+11,    minimap.x+3+48*BMM,  vc(0));
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+12+27*BMM, minimap.x+3+48*BMM,  vc(0));
-            _allegro_vline(menu1, minimap.x+2,    minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-            _allegro_vline(menu1, minimap.x+3+48*BMM, minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-        */
-        safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
-        
-        if(Map.getCurrMap()<Map.getMapCount())
-        {
-            for(int i=0; i<MAPSCRS; i++)
-            {
-                if(Map.Scr(i)->valid&mVALID)
-                {
-                   
-		    /* Level palettes ending in 0 can display in screen grid as pure black*/
-			
-		    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-		    }
-		    else
-		    {
-			
-			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-//                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
-		        safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-			    
-		    }
-			
-		    //vc(0)
-			
+		jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
 		/*
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-                       */      
-                    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                        if(!is_large)
-                            putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
-                        else
-                            rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
-                    }
-                }
-                else
-                {
-                    if(InvalidStatic)
-                    {
-                        for(int dy=0; dy<3*BMM; dy++)
-                        {
-                            for(int dx=0; dx<3*BMM; dx++)
-                            {
-                                menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
-                                 (i&15)*3*BMM+minimap.x+3+(1+BMM*BMM), (i/16)*3*BMM+minimap.y+12+(1+BMM*BMM), vc(0));
-                    }
-                }
-            }
-            
-            int s=Map.getCurrScr();
-            // The white marker rect
-	    if(((Map.Scr(s)->color)&15)>0)
-	    {
-		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-            }
-	    else
-	    {
-		if(InvalidStatic) safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
-		else safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
-            }
-	    
-	    
-            textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-            textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
-            
-            textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-            textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
-        }
+		if(is_large)
+			jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, 8, FR_DEEP);
+		else
+		{
+			jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
+			//Black BG fill
+			rectfill(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
+		}*/
+        
+		if(Map.getCurrMap()<Map.getMapCount())
+		{
+			for(int i=0; i<MAPSCRS; i++)
+			{
+				if(Map.Scr(i)->valid&mVALID)
+				{
+					if(((Map.Scr(i)->color)&15)>0)
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+						if(!is_large)
+							putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
+						else
+							rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
+					}
+					else
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+					}
+					if(!(is_large || InvalidStatic))
+					{
+						/*Level palettes which display close to black get a white border*/
+						RGB* col = &RAMpal[lc1(Map.Scr(i)->color&15)];
+						RGB* col2 = &RAMpal[lc2(Map.Scr(i)->color&15)];
+						if(col->r <= 10 && col->b <= 10 && col->g <= 10 && (!(((Map.Scr(i)->color)&15)>0) || (col2->r <= 10 && col2->b <= 10 && col2->g <= 10)))
+							safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+					}
+				}
+				else
+				{
+					if(InvalidStatic)
+					{
+						for(int dy=0; dy<3*BMM; dy++)
+						{
+							for(int dx=0; dx<3*BMM; dx++)
+							{
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+							}
+						}
+					}
+					else
+					{
+						if(is_large)
+						{
+							int offs = 2;
+							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
+						}
+						else
+						{
+							rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
+									 (i&15)*3*BMM+minimap.x+2+(BMM*BMM), (i/16)*3*BMM+minimap.y+11+(BMM*BMM), vc(0));
+						}
+					}
+				}
+			}
+			
+			int s=Map.getCurrScr();
+			// The white marker rect
+			int cursor_color = 0;
+			switch(MMapCursorStyle)
+			{
+				case 0:
+					cursor_color = vc(15);
+					break;
+				case 1:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
+					break;
+				case 2:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
+					break;
+			}
+			if(cursor_color)
+				safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),cursor_color);
+			
+			if(is_large)
+			{
+				int space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
+				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(menu1,font,minimap.x+spc_m,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				
+				textprintf_disabled(menu1,font,minimap.x+spc_m+space,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(menu1,font,minimap.x+spc_m+space+spc_s,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
+			}
+			else
+			{
+				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				
+				textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
+			}
+		}
     }
     
     if(flags&rCOMBOS)
@@ -6639,7 +6815,7 @@ void refresh(int flags)
         for(int i=0; i< MAXFFCS; i++)
             if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
             {
-                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 ypos+=16;
             }
     }
@@ -9165,7 +9341,7 @@ void domouse()
                     sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
                             i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
                             combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
-                            Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str());
+                            Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str());
                     update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
                     break;
                 }
@@ -14548,7 +14724,8 @@ int d_dmaplist_proc(int msg,DIALOG *d,int c)
     if(msg==MSG_DRAW)
     {
         int dmap = d->d1;
-        int *xy = (int*)(d->dp3);
+        int xy[6] = {44,92,128,100,128,110};
+        //int *xy = (int*)(d->dp3);
         float temp_scale = 1;
         
         if(is_large)
@@ -17642,6 +17819,36 @@ static TABPANEL warp_tabs[] =
     { NULL,            0,          NULL,       0, NULL }
 };
 
+
+static int warpring_warp1_list[] =
+{
+    2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
+};
+
+static int warpring_warp2_list[] =
+{
+    17,18,19,20,21,22,23,24,25,26,27,28,55,56,64,68,-1
+};
+
+static int warpring_warp3_list[] =
+{
+    29,30,31,32,33,34,35,36,37,38,39,40,57,58,65,69,-1
+};
+
+static int warpring_warp4_list[] =
+{
+    41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
+};
+static TABPANEL warpring_warp_tabs[] =
+{
+    // (text)
+    { (char *)"A",     D_SELECTED, warpring_warp1_list, 0, NULL },
+    { (char *)"B",     0,          warpring_warp2_list, 0, NULL },
+    { (char *)"C",     0,          warpring_warp3_list, 0, NULL },
+    { (char *)"D",     0,          warpring_warp4_list, 0, NULL },
+    { NULL,            0,          NULL,       0, NULL }
+};
+
 int onTileWarpIndex(int index)
 {
     int i=-1;
@@ -17796,6 +18003,129 @@ static DIALOG warp_dlg[] =
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warp_dlg  },
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warp_dlg  },
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warp_dlg  },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { NULL,                      0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              }
+};
+
+
+
+
+
+static DIALOG warpring_warp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,             0,      0,    302,    188,    vc(14),                 vc(1),                   0,       D_EXIT,     0,             0,  NULL,                          NULL,   NULL              },
+    { jwin_tab_proc,             6,     24,    290,    135,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) warpring_warp_tabs,            NULL, (void *)warpring_warp_dlg  },
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 7
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 10
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    // 14
+    { jwin_button_proc,         61,    163,     41,     21,    vc(14),                 vc(1),                   'k',     D_EXIT,     0,             0, (void *) "O&K",                NULL,   NULL              },
+    { jwin_button_proc,        121,    163,     41,     21,    vc(14),                 vc(1),                   'g',     D_EXIT,     0,             0, (void *) "&Go",                NULL,   NULL              },
+    { jwin_button_proc,        181,    163,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,             0, (void *) "Cancel",             NULL,   NULL              },
+    // 17
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 22
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 25
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    // 29
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 34
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 37
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    //41
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 46
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 49
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { d_keyboard_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,        0, (void *) onHelp,               NULL,   NULL              },
+    { d_timer_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    // 63
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    // 67
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,          8,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
@@ -19677,115 +20007,115 @@ int onItemDropSets()
 /********* onWarpRings **********/
 /********************************/
 
-int curr_ring;
+int curr_ring = 0;
 
 void EditWarpRingScr(int ring,int index)
 {
     char caption[40],buf[10];
     restore_mouse();
-    int tempx5=warp_dlg[5].x;
-    int tempx6=warp_dlg[6].x;
-    int tempx10=warp_dlg[10].x;
-    int tempx11=warp_dlg[11].x;
-    int tempx12=warp_dlg[12].x;
-    int tempx13=warp_dlg[13].x;
+    int tempx5=warpring_warp_dlg[5].x;
+    int tempx6=warpring_warp_dlg[6].x;
+    int tempx10=warpring_warp_dlg[10].x;
+    int tempx11=warpring_warp_dlg[11].x;
+    int tempx12=warpring_warp_dlg[12].x;
+    int tempx13=warpring_warp_dlg[13].x;
     
     int tempx[100];
     
     for(int m=17; m<100; m++)
     {
-        tempx[m-17]=warp_dlg[m].x;
+        tempx[m-17]=warpring_warp_dlg[m].x;
         
         if(m!=67)
         {
-            warp_dlg[m].x = SCREEN_W+10;
+            warpring_warp_dlg[m].x = SCREEN_W+10;
         }
     }
     
-    /*int tempx20=warp_dlg[20].x;
-      int tempx21=warp_dlg[21].x;
-      int tempx25=warp_dlg[25].x;
-      int tempx26=warp_dlg[26].x;
-      int tempx27=warp_dlg[27].x;
-      int tempx28=warp_dlg[28].x;
+    /*int tempx20=warpring_warp_dlg[20].x;
+      int tempx21=warpring_warp_dlg[21].x;
+      int tempx25=warpring_warp_dlg[25].x;
+      int tempx26=warpring_warp_dlg[26].x;
+      int tempx27=warpring_warp_dlg[27].x;
+      int tempx28=warpring_warp_dlg[28].x;
     
-      int tempx32=warp_dlg[32].x;
-      int tempx33=warp_dlg[33].x;
-      int tempx37=warp_dlg[37].x;
-      int tempx38=warp_dlg[38].x;
-      int tempx39=warp_dlg[39].x;
-      int tempx40=warp_dlg[40].x;
+      int tempx32=warpring_warp_dlg[32].x;
+      int tempx33=warpring_warp_dlg[33].x;
+      int tempx37=warpring_warp_dlg[37].x;
+      int tempx38=warpring_warp_dlg[38].x;
+      int tempx39=warpring_warp_dlg[39].x;
+      int tempx40=warpring_warp_dlg[40].x;
     
-      int tempx44=warp_dlg[44].x;
-      int tempx45=warp_dlg[45].x;
-      int tempx49=warp_dlg[49].x;
-      int tempx50=warp_dlg[50].x;
-      int tempx51=warp_dlg[51].x;
-      int tempx52=warp_dlg[52].x;*/
+      int tempx44=warpring_warp_dlg[44].x;
+      int tempx45=warpring_warp_dlg[45].x;
+      int tempx49=warpring_warp_dlg[49].x;
+      int tempx50=warpring_warp_dlg[50].x;
+      int tempx51=warpring_warp_dlg[51].x;
+      int tempx52=warpring_warp_dlg[52].x;*/
     
-    warp_dlg[5].x = SCREEN_W+10;
-    warp_dlg[6].x = SCREEN_W+10;
-    warp_dlg[10].x = SCREEN_W+10;
-    warp_dlg[11].x = SCREEN_W+10;
-    warp_dlg[12].x = SCREEN_W+10;
-    warp_dlg[13].x = SCREEN_W+10;
+    warpring_warp_dlg[5].x = SCREEN_W+10;
+    warpring_warp_dlg[6].x = SCREEN_W+10;
+    warpring_warp_dlg[10].x = SCREEN_W+10;
+    warpring_warp_dlg[11].x = SCREEN_W+10;
+    warpring_warp_dlg[12].x = SCREEN_W+10;
+    warpring_warp_dlg[13].x = SCREEN_W+10;
     
-    /*warp_dlg[20].x = SCREEN_W+10;
-      warp_dlg[21].x = SCREEN_W+10;
-      warp_dlg[25].x = SCREEN_W+10;
-      warp_dlg[26].x = SCREEN_W+10;
-      warp_dlg[27].x = SCREEN_W+10;
-      warp_dlg[28].x = SCREEN_W+10;
-      warp_dlg[32].x = SCREEN_W+10;
-      warp_dlg[33].x = SCREEN_W+10;
-      warp_dlg[37].x = SCREEN_W+10;
-      warp_dlg[38].x = SCREEN_W+10;
-      warp_dlg[39].x = SCREEN_W+10;
-      warp_dlg[40].x = SCREEN_W+10;
-      warp_dlg[44].x = SCREEN_W+10;
-      warp_dlg[45].x = SCREEN_W+10;
-      warp_dlg[49].x = SCREEN_W+10;
-      warp_dlg[50].x = SCREEN_W+10;
-      warp_dlg[51].x = SCREEN_W+10;
-      warp_dlg[52].x = SCREEN_W+10;*/
+    /*warpring_warp_dlg[20].x = SCREEN_W+10;
+      warpring_warp_dlg[21].x = SCREEN_W+10;
+      warpring_warp_dlg[25].x = SCREEN_W+10;
+      warpring_warp_dlg[26].x = SCREEN_W+10;
+      warpring_warp_dlg[27].x = SCREEN_W+10;
+      warpring_warp_dlg[28].x = SCREEN_W+10;
+      warpring_warp_dlg[32].x = SCREEN_W+10;
+      warpring_warp_dlg[33].x = SCREEN_W+10;
+      warpring_warp_dlg[37].x = SCREEN_W+10;
+      warpring_warp_dlg[38].x = SCREEN_W+10;
+      warpring_warp_dlg[39].x = SCREEN_W+10;
+      warpring_warp_dlg[40].x = SCREEN_W+10;
+      warpring_warp_dlg[44].x = SCREEN_W+10;
+      warpring_warp_dlg[45].x = SCREEN_W+10;
+      warpring_warp_dlg[49].x = SCREEN_W+10;
+      warpring_warp_dlg[50].x = SCREEN_W+10;
+      warpring_warp_dlg[51].x = SCREEN_W+10;
+      warpring_warp_dlg[52].x = SCREEN_W+10;*/
     for(int i=0; i<4; i++)
     {
-        warp_dlg[10+i].d2 = 0;
-        warp_dlg[25+i].d2 = 0;
-        warp_dlg[37+i].d2 = 0;
-        warp_dlg[49+i].d2 = 0;
+        warpring_warp_dlg[10+i].d2 = 0;
+        warpring_warp_dlg[25+i].d2 = 0;
+        warpring_warp_dlg[37+i].d2 = 0;
+        warpring_warp_dlg[49+i].d2 = 0;
     }
     
     sprintf(caption,"Ring %d  Warp %d",ring,index+1);
-    warp_dlg[0].dp = (void *)caption;
-    warp_dlg[0].dp2=lfont;
+    warpring_warp_dlg[0].dp = (void *)caption;
+    warpring_warp_dlg[0].dp2=lfont;
     
-    warp_dlg[1].dp = NULL;
-    warp_dlg[1].dp3 = NULL;
+    warpring_warp_dlg[1].dp = NULL;
+    warpring_warp_dlg[1].dp3 = NULL;
     
     sprintf(buf,"%02X",misc.warp[ring].scr[index]);
-    warp_dlg[8].d1=misc.warp[ring].dmap[index];
-    warp_dlg[9].dp=buf;
-    warp_dlg[24].dp=buf;
-    warp_dlg[36].dp=buf;
-    warp_dlg[48].dp=buf;
-    warp_dlg[2].fg=warp_dlg[5].fg=vc(7);
+    warpring_warp_dlg[8].d1=misc.warp[ring].dmap[index];
+    warpring_warp_dlg[9].dp=buf;
+    warpring_warp_dlg[24].dp=buf;
+    warpring_warp_dlg[36].dp=buf;
+    warpring_warp_dlg[48].dp=buf;
+    warpring_warp_dlg[2].fg=warpring_warp_dlg[5].fg=vc(7);
     
     for(int i=0; i<4; i++)
-        warp_dlg[10+i].d2 = 0;
+        warpring_warp_dlg[10+i].d2 = 0;
         
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
     
     if(is_large)
-        large_dialog(warp_dlg);
+        large_dialog(warpring_warp_dlg);
         
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int ret=zc_popup_dialog(warpring_warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
         saved=false;
-        misc.warp[ring].dmap[index] = warp_dlg[8].d1;
+        misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
         misc.warp[ring].scr[index] = xtoi(buf);
     }
     
@@ -19795,48 +20125,48 @@ void EditWarpRingScr(int ring,int index)
         refresh(rALL);
     }
     
-    warp_dlg[5].x = tempx5;
-    warp_dlg[6].x = tempx6;
-    warp_dlg[10].x = tempx10;
-    warp_dlg[11].x = tempx11;
-    warp_dlg[12].x = tempx12;
-    warp_dlg[13].x = tempx13;
+    warpring_warp_dlg[5].x = tempx5;
+    warpring_warp_dlg[6].x = tempx6;
+    warpring_warp_dlg[10].x = tempx10;
+    warpring_warp_dlg[11].x = tempx11;
+    warpring_warp_dlg[12].x = tempx12;
+    warpring_warp_dlg[13].x = tempx13;
     
     for(int m=17; m<100; m++)
     {
-        warp_dlg[m].x=tempx[m-17];
+        warpring_warp_dlg[m].x=tempx[m-17];
     }
     
-    /*warp_dlg[20].x = tempx20;
-      warp_dlg[21].x = tempx21;
-      warp_dlg[25].x = tempx25;
-      warp_dlg[26].x = tempx26;
-      warp_dlg[27].x = tempx27;
-      warp_dlg[28].x = tempx28;
+    /*warpring_warp_dlg[20].x = tempx20;
+      warpring_warp_dlg[21].x = tempx21;
+      warpring_warp_dlg[25].x = tempx25;
+      warpring_warp_dlg[26].x = tempx26;
+      warpring_warp_dlg[27].x = tempx27;
+      warpring_warp_dlg[28].x = tempx28;
     
-      warp_dlg[32].x = tempx32;
-      warp_dlg[33].x = tempx33;
-      warp_dlg[37].x = tempx37;
-      warp_dlg[38].x = tempx38;
-      warp_dlg[39].x = tempx39;
-      warp_dlg[40].x = tempx40;
+      warpring_warp_dlg[32].x = tempx32;
+      warpring_warp_dlg[33].x = tempx33;
+      warpring_warp_dlg[37].x = tempx37;
+      warpring_warp_dlg[38].x = tempx38;
+      warpring_warp_dlg[39].x = tempx39;
+      warpring_warp_dlg[40].x = tempx40;
     
-      warp_dlg[44].x = tempx44;
-      warp_dlg[45].x = tempx45;
-      warp_dlg[49].x = tempx49;
-      warp_dlg[50].x = tempx50;
-      warp_dlg[51].x = tempx51;
-      warp_dlg[52].x = tempx52;*/
+      warpring_warp_dlg[44].x = tempx44;
+      warpring_warp_dlg[45].x = tempx45;
+      warpring_warp_dlg[49].x = tempx49;
+      warpring_warp_dlg[50].x = tempx50;
+      warpring_warp_dlg[51].x = tempx51;
+      warpring_warp_dlg[52].x = tempx52;*/
     for(int i=0; i<4; i++)
     {
-        warp_dlg[10+i].d2 = 0x80;
-        warp_dlg[25+i].d2 = 0x80;
-        warp_dlg[37+i].d2 = 0x80;
-        warp_dlg[49+i].d2 = 0x80;
+        warpring_warp_dlg[10+i].d2 = 0x80;
+        warpring_warp_dlg[25+i].d2 = 0x80;
+        warpring_warp_dlg[37+i].d2 = 0x80;
+        warpring_warp_dlg[49+i].d2 = 0x80;
     }
     
-    warp_dlg[1].dp = (void *) warp_tabs;
-    warp_dlg[1].dp3 = (void *)warp_dlg;
+    warpring_warp_dlg[1].dp = (void *) warpring_warp_tabs;
+    warpring_warp_dlg[1].dp3 = (void *)warpring_warp_dlg;
     
 }
 
@@ -22740,6 +23070,9 @@ int bidmaps_cnt = -1;
 
 script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
 int biitemsprites_cnt = -1;
+
+script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
+int bidcomboscripts_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -22750,11 +23083,11 @@ void build_biffs_list()
     
     for(int i = 0; i < NUMSCRIPTFFC - 1; i++)
     {
-        if(ffcmap[i].second.length()==0)
+        if(ffcmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << ffcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << ffcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biffs[biffs_cnt].first = ss.str();
         biffs[biffs_cnt].second = i;
         biffs_cnt++;
@@ -22793,11 +23126,11 @@ void build_binpcs_list()
     
     for(int i = 0; i < NUMSCRIPTGUYS - 1; i++)
     {
-        if(npcmap[i].second.length()==0)
+        if(npcmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << npcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << npcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         binpcs[binpcs_cnt].first = ss.str();
         binpcs[binpcs_cnt].second = i;
         binpcs_cnt++;
@@ -22837,11 +23170,11 @@ void build_bilweapons_list()
     
     for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
     {
-        if(lwpnmap[i].second.length()==0)
+        if(lwpnmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << lwpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << lwpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bilweapons[bilweapons_cnt].first = ss.str();
         bilweapons[bilweapons_cnt].second = i;
         bilweapons_cnt++;
@@ -22880,11 +23213,11 @@ void build_bieweapons_list()
     
     for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
     {
-        if(ewpnmap[i].second.length()==0)
+        if(ewpnmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << ewpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << ewpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bieweapons[bieweapons_cnt].first = ss.str();
         bieweapons[bieweapons_cnt].second = i;
         bieweapons_cnt++;
@@ -22923,11 +23256,11 @@ void build_bilinks_list()
     
     for(int i = 0; i < NUMSCRIPTLINK - 1; i++)
     {
-        if(linkmap[i].second.length()==0)
+        if(linkmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << linkmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << linkmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bilinks[bilinks_cnt].first = ss.str();
         bilinks[bilinks_cnt].second = i;
         bilinks_cnt++;
@@ -22966,11 +23299,11 @@ void build_bidmaps_list()
     
     for(int i = 0; i < NUMSCRIPTSDMAP - 1; i++)
     {
-        if(dmapmap[i].second.length()==0)
+        if(dmapmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << dmapmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << dmapmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidmaps[bidmaps_cnt].first = ss.str();
         bidmaps[bidmaps_cnt].second = i;
         bidmaps_cnt++;
@@ -23009,11 +23342,11 @@ void build_biscreens_list()
     
     for(int i = 0; i < NUMSCRIPTSCREEN - 1; i++)
     {
-        if(screenmap[i].second.length()==0)
+        if(screenmap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << screenmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << screenmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biscreens[biscreens_cnt].first = ss.str();
         biscreens[biscreens_cnt].second = i;
         biscreens_cnt++;
@@ -23052,11 +23385,11 @@ void build_biitemsprites_list()
     
     for(int i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
     {
-        if(itemspritemap[i].second.length()==0)
+        if(itemspritemap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << itemspritemap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        ss << itemspritemap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biditemsprites[biitemsprites_cnt].first = ss.str();
         biditemsprites[biitemsprites_cnt].second = i;
         biitemsprites_cnt++;
@@ -23096,8 +23429,8 @@ void build_biitems_list()
     {
         std::stringstream ss;
         
-        if(itemmap[i].second != "")
-            ss << itemmap[i].second << " (" << i+1 << ")";
+        if(!itemmap[i].isEmpty())
+            ss << itemmap[i].scriptname << " (" << i+1 << ")";
             
         biitems[biitems_cnt].first = ss.str();
         biitems[biitems_cnt].second = i;
@@ -23118,6 +23451,51 @@ void build_biitems_list()
         if(biitems[i].first.length() > 0)
             biitems_cnt = i+1;
 }
+
+
+//dmap scripts
+void build_bidcomboscripts_list()
+{
+    bidcomboscripts[0].first = "(None)";
+    bidcomboscripts[0].second = -1;
+    bidcomboscripts_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
+    {
+        if(comboscriptmap[i].scriptname.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << comboscriptmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
+        bidcomboscripts[bidcomboscripts_cnt].second = i;
+        bidcomboscripts_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bidcomboscripts_cnt; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        bidcomboscripts[i].first="";
+        bidcomboscripts[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bidcomboscripts_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bidcomboscripts_cnt; j++)
+        {
+            if(stricmp(bidcomboscripts[i].first.c_str(),bidcomboscripts[j].first.c_str()) > 0 && strcmp(bidcomboscripts[j].first.c_str(),""))
+                zc_swap(bidcomboscripts[i],bidcomboscripts[j]);
+        }
+    }
+    
+    bidcomboscripts_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+        if(bidcomboscripts[i].first.length() > 0)
+            bidcomboscripts_cnt = i+1;
+}
+
 
 const char *ffscriptlist(int index, int *list_size)
 {
@@ -23159,7 +23537,7 @@ char *itemscriptlist(int index, int *list_size)
     if(index>=0)
     {
         bound(index,0,255);
-        sprintf(itemscript_str_buf,"%d: %s",index, ffcmap[index-1].second.c_str());
+        sprintf(itemscript_str_buf,"%d: %s",index, ffcmap[index-1].scriptname.c_str());
         return itemscript_str_buf;
     }
     
@@ -23176,11 +23554,11 @@ const char *ffscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,510);
         
-        if(ffcmap[index].second=="")
+        if(ffcmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, ffcmap[index].second.c_str(), 19);
+            strncpy(buf, ffcmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -23201,16 +23579,41 @@ const char *itemscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(itemmap[index].second=="")
+        if(itemmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, itemmap[index].second.c_str(), 19);
+            strncpy(buf, itemmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
         sprintf(itemscript_str_buf2,"%d: %s",index+1, buf);
         return itemscript_str_buf2;
+    }
+    
+    *list_size=255;
+    return NULL;
+}
+
+
+static char comboscript_str_buf2[32];
+const char *comboscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(comboscriptmap[index].scriptname=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, comboscriptmap[index].scriptname.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(comboscript_str_buf2,"%d: %s",index+1, buf);
+        return comboscript_str_buf2;
     }
     
     *list_size=255;
@@ -23227,11 +23630,11 @@ const char *gscriptlist2(int index, int *list_size)
         
         char buf[20];
         
-        if(globalmap[index].second == "")
+        if(globalmap[index].scriptname == "")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, globalmap[index].second.c_str(), 19);
+            strncpy(buf, globalmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -23287,6 +23690,7 @@ static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
 static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
+static int as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -23301,6 +23705,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
+    { (char *)"Combo",		 0,         as_comboscript_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -23312,7 +23717,7 @@ const char *assignffclist(int index, int *list_size)
         return NULL;
     }
     
-    return ffcmap[index].first.c_str();
+    return ffcmap[index].output.c_str();
 }
 
 const char *assigngloballist(int index, int *list_size)
@@ -23323,7 +23728,18 @@ const char *assigngloballist(int index, int *list_size)
         return NULL;
     }
     
-    return globalmap[index].first.c_str();
+    return globalmap[index].output.c_str();
+}
+
+const char *assigncombolist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)comboscriptmap.size();
+        return NULL;
+    }
+    
+    return comboscriptmap[index].output.c_str();
 }
 
 const char *assignitemlist(int index, int *list_size)
@@ -23334,7 +23750,7 @@ const char *assignitemlist(int index, int *list_size)
         return NULL;
     }
     
-    return itemmap[index].first.c_str();
+    return itemmap[index].output.c_str();
 }
 const char *assignnpclist(int index, int *list_size)
 {
@@ -23344,7 +23760,7 @@ const char *assignnpclist(int index, int *list_size)
         return NULL;
     }
     
-    return npcmap[index].first.c_str();
+    return npcmap[index].output.c_str();
 }
 
 const char *assignlweaponlist(int index, int *list_size)
@@ -23355,7 +23771,7 @@ const char *assignlweaponlist(int index, int *list_size)
         return NULL;
     }
     
-    return lwpnmap[index].first.c_str();
+    return lwpnmap[index].output.c_str();
 }
 
 const char *assigneweaponlist(int index, int *list_size)
@@ -23366,7 +23782,7 @@ const char *assigneweaponlist(int index, int *list_size)
         return NULL;
     }
     
-    return ewpnmap[index].first.c_str();
+    return ewpnmap[index].output.c_str();
 }
 
 const char *assignlinklist(int index, int *list_size)
@@ -23377,7 +23793,7 @@ const char *assignlinklist(int index, int *list_size)
         return NULL;
     }
     
-    return linkmap[index].first.c_str();
+    return linkmap[index].output.c_str();
 }
 
 const char *assigndmaplist(int index, int *list_size)
@@ -23388,7 +23804,7 @@ const char *assigndmaplist(int index, int *list_size)
         return NULL;
     }
     
-    return dmapmap[index].first.c_str();
+    return dmapmap[index].output.c_str();
 }
 
 const char *assignscreenlist(int index, int *list_size)
@@ -23399,7 +23815,7 @@ const char *assignscreenlist(int index, int *list_size)
         return NULL;
     }
     
-    return screenmap[index].first.c_str();
+    return screenmap[index].output.c_str();
 }
 
 const char *assignitemspritelist(int index, int *list_size)
@@ -23410,7 +23826,7 @@ const char *assignitemspritelist(int index, int *list_size)
         return NULL;
     }
     
-    return itemspritemap[index].first.c_str();
+    return itemspritemap[index].output.c_str();
 }
 
 const char *assignffcscriptlist(int index, int *list_size)
@@ -23523,6 +23939,17 @@ const char *assignitemspritescriptlist(int index, int *list_size)
     return asitemspritescripts[index].c_str();
 }
 
+const char *assigncomboscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)ascomboscripts.size();
+        return NULL;
+    }
+    
+    return ascomboscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -23547,6 +23974,9 @@ static ListData assignscreenscript_list(assignscreenscriptlist, &font);
 
 static ListData assignitemsprite_list(assignitemspritelist, &font);
 static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
+
+static ListData assigncombo_list(assigncombolist, &font);
+static ListData assigncomboscript_list(assigncomboscriptlist, &font);
 	
 static DIALOG assignscript_dlg[] =
 {
@@ -23569,10 +23999,10 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
-    { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
-    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with '--' were not found in the buffer and will not function.", NULL, NULL },
+    { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked with '--' were not found", NULL, NULL },
+    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "and will not function. Scripts marked with '++' were not found, but were preserved as", NULL, NULL },
     //16
-    { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
+    { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "ZASM. Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //npc scripts
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
@@ -23610,6 +24040,12 @@ static DIALOG assignscript_dlg[] =
     //38
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
+    //39
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncombo_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncomboscript_list, NULL, NULL },
+    //41
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -23617,7 +24053,7 @@ static DIALOG assignscript_dlg[] =
 
 static int zscript_settings_scripts_list[] =
 {
-	6, 18, 22, 25, 26, -1
+	6, 18, 22, 25, 26, 31,32,33,34,35,36,37,38, -1
 };
 
 static int zscript_settings_instructions_list[] =
@@ -23637,7 +24073,8 @@ static int zscript_settings_drawing_list[] =
 
 static int zscript_settings_bugfixes_list[] =
 {
-	10, 17, 21, -1
+	10, 17, 21, 39,
+	-1
 };
 
 static TABPANEL zscript_settings_tabs[] =
@@ -23692,6 +24129,16 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
 	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
 	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
+	//31
+	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 0", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 1", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
+	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
+	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
+	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -23706,6 +24153,9 @@ static int zscriptrules[] =
 	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
 	qr_DISALLOW_SETTING_RAFTING, qr_WEAPONS_EXTRA_FRAME, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
 	qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
+	qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2, qr_combos_run_scripts_layer_3,
+	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6, qr_OLD_INIT_SCRIPT_TIMING, 
+	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
     -1
 };
 
@@ -24053,6 +24503,20 @@ static DIALOG itemscript_sel_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
+
+static DIALOG comboscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &comboscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 static ListData gscript_sel_dlg_list(gscriptlist2, &font);
 
 static DIALOG gscript_sel_dlg[] =
@@ -24077,11 +24541,11 @@ const char *npcscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(npcmap[index].second=="")
+        if(npcmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, npcmap[index].second.c_str(), 19);
+            strncpy(buf, npcmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24118,11 +24582,11 @@ const char *lweaponscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(lwpnmap[index].second=="")
+        if(lwpnmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, lwpnmap[index].second.c_str(), 19);
+            strncpy(buf, lwpnmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24158,11 +24622,11 @@ const char *eweaponscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(ewpnmap[index].second=="")
+        if(ewpnmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, ewpnmap[index].second.c_str(), 19);
+            strncpy(buf, ewpnmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24197,11 +24661,11 @@ const char *linkscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,3);
         
-        if(linkmap[index].second=="")
+        if(linkmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, linkmap[index].second.c_str(), 19);
+            strncpy(buf, linkmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
 	
@@ -24232,11 +24696,11 @@ const char *itemspritescriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(itemspritemap[index].second=="")
+        if(itemspritemap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24273,11 +24737,11 @@ const char *dmapscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(dmapmap[index].second=="")
+        if(dmapmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, dmapmap[index].second.c_str(), 19);
+            strncpy(buf, dmapmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24312,11 +24776,11 @@ const char *itemspritescriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(itemspritemap[index].second=="")
+        if(itemspritemap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24351,11 +24815,11 @@ const char *screenscriptlist2(int index, int *list_size)
         char buf[20];
         bound(index,0,254);
         
-        if(screenmap[index].second=="")
+        if(screenmap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, screenmap[index].second.c_str(), 19);
+            strncpy(buf, screenmap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
         
@@ -24382,7 +24846,64 @@ static DIALOG screenscript_sel_dlg[] =
 };
 
 
-
+void clear_map_states()
+{
+	for(std::map<int, script_slot_data>::iterator it = ffcmap.begin();
+		it != ffcmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = globalmap.begin();
+		it != globalmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = itemmap.begin();
+		it != itemmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = npcmap.begin();
+		it != npcmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = ewpnmap.begin();
+		it != ewpnmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = lwpnmap.begin();
+		it != lwpnmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = linkmap.begin();
+		it != linkmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = dmapmap.begin();
+		it != dmapmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = screenmap.begin();
+		it != screenmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = itemspritemap.begin();
+		it != itemspritemap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+	for(std::map<int, script_slot_data>::iterator it = comboscriptmap.begin();
+		it != comboscriptmap.end(); ++it)
+	{
+		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+}
 
 int onCompileScript()
 {
@@ -24585,7 +25106,7 @@ int onCompileScript()
 			
 			std::map<string, ZScript::ScriptType> stypes =
 				result->scriptTypes;
-			std::map<string, vector<ZScript::Opcode *> > scripts = result->theScripts;
+			std::map<string, disassembled_script_data> scripts = result->theScripts;
 			delete result;
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
@@ -24607,6 +25128,9 @@ int onCompileScript()
 			asscreenscripts.push_back("<none>");
 			asitemspritescripts.clear();
 			asitemspritescripts.push_back("<none>");
+			ascomboscripts.clear();
+			ascomboscripts.push_back("<none>");
+			clear_map_states();
 			
 			for (std::map<string, ZScript::ScriptType>::iterator it =
 					 stypes.begin(); it != stypes.end(); ++it)
@@ -24631,6 +25155,8 @@ int onCompileScript()
 					{		asscreenscripts.push_back(name); }
 					else if ( type == ZScript::ScriptType::itemsprite )
 					{		asitemspritescripts.push_back(name); }
+					else if ( type == ZScript::ScriptType::combodata )
+					{		ascomboscripts.push_back(name); }
 					else if ( type == ZScript::ScriptType::global )
 					{
 						if (name != "~Init")
@@ -24668,6 +25194,8 @@ int onCompileScript()
 			assignscript_dlg[10].d1 = -1;
 			assignscript_dlg[11].d1 = -1;
 			assignscript_dlg[13].flags = 0;
+			
+			do_script_disassembly(scripts, true);
 			
 			//assign scripts to slots
 			if(do_slots(scripts))
@@ -24717,278 +25245,552 @@ int onSlotAssign()
 	asscreenscripts.push_back("<none>");
 	asitemspritescripts.clear();
 	asitemspritescripts.push_back("<none>");
-	//Declare new script vector
-	std::map<string, vector<ZScript::Opcode *> > scripts;
 	
+	ascomboscripts.clear();
+	ascomboscripts.push_back("<none>");
+	//Declare new script vector
+	std::map<string, disassembled_script_data> scripts;
+	
+	do_script_disassembly(scripts, false);
+	
+	do_slots(scripts);
+	return D_O_K;
+}
+
+void inc_script_name(string& name)
+{
+	size_t pos = name.find_last_not_of("0123456789");
+	pos = name.find_first_of("0123456789",pos);
+	std::ostringstream oss;
+	if(pos == string::npos)
+	{
+		oss << name << 2;
+	}
+	else
+	{
+		int val = atoi(name.substr(pos).c_str());
+		oss << name.substr(0,pos) << val+1;
+	}
+	name = oss.str();
+}
+
+void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
+{
 	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
+		if(scripts.find(globalmap[i].scriptname) != scripts.end())
+		{
+			if(scripts[globalmap[i].scriptname].first.script_type != SCRIPT_GLOBAL)
+			{
+				while(scripts.find(globalmap[i].scriptname) != scripts.end())
+					inc_script_name(globalmap[i].scriptname);
+			}
+			else continue;
+		}
 		switch(i)
 		{
 			case GLOBAL_SCRIPT_INIT:
-				scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
+			{
 				break;
+			}
 			default:
-				if(globalmap[i].second != "")
+				if(!globalmap[i].isEmpty())
 				{
-					if(globalscripts[i][0].command!=0xFFFF)
+					if(globalscripts[i]->valid())
 					{
-						scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
-						asglobalscripts.push_back(globalmap[i].second);
+						disassembled_script_data data = disassemble_script(globalscripts[i]);
+						if(fromCompile || (globalscripts[i]->meta.flags & ZMETA_DISASSEMBLED))
+						{
+							globalmap[i].format = SCRIPT_FORMAT_ZASM;
+							globalmap[i].update();
+						}
+						data.disassembled = globalmap[i].isDisassembled();
+						scripts[globalmap[i].scriptname] = data;
+						asglobalscripts.push_back((data.disassembled ? "++" : "") + globalmap[i].scriptname);
 					}
 				}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTFFC-1; ++i)
 	{
-		if(ffcmap[i].second != "")
+		if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 		{
-			if(ffscripts[i+1][0].command!=0xFFFF)
+			if(scripts[ffcmap[i].scriptname].first.script_type != SCRIPT_FFC)
 			{
-				scripts[ffcmap[i].second] = disassemble_script(ffscripts[i+1]);
-				asffcscripts.push_back(ffcmap[i].second);
+				while(scripts.find(ffcmap[i].scriptname) != scripts.end())
+					inc_script_name(ffcmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!ffcmap[i].isEmpty())
+		{
+			if(ffscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(ffscripts[i+1]);
+				if(fromCompile || (ffscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					ffcmap[i].format = SCRIPT_FORMAT_ZASM;
+					ffcmap[i].update();
+				}
+				data.disassembled = ffcmap[i].isDisassembled();
+				scripts[ffcmap[i].scriptname] = data;
+				asffcscripts.push_back((data.disassembled ? "++" : "") + ffcmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTITEM-1; ++i)
 	{
-		if(itemmap[i].second != "")
+		if(scripts.find(itemmap[i].scriptname) != scripts.end())
 		{
-			if(itemscripts[i+1][0].command!=0xFFFF)
+			if(scripts[itemmap[i].scriptname].first.script_type != SCRIPT_ITEM)
 			{
-				scripts[itemmap[i].second] = disassemble_script(itemscripts[i+1]);
-				asitemscripts.push_back(itemmap[i].second);
+				while(scripts.find(itemmap[i].scriptname) != scripts.end())
+					inc_script_name(itemmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!itemmap[i].isEmpty())
+		{
+			if(itemscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(itemscripts[i+1]);
+				if(fromCompile || (itemscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					itemmap[i].format = SCRIPT_FORMAT_ZASM;
+					itemmap[i].update();
+				}
+				data.disassembled = itemmap[i].isDisassembled();
+				scripts[itemmap[i].scriptname] = data;
+				asitemscripts.push_back((data.disassembled ? "++" : "") + itemmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTGUYS-1; ++i)
 	{
-		if(npcmap[i].second != "")
+		if(scripts.find(npcmap[i].scriptname) != scripts.end())
 		{
-			if(guyscripts[i+1][0].command!=0xFFFF)
+			if(scripts[npcmap[i].scriptname].first.script_type != SCRIPT_NPC)
 			{
-				scripts[npcmap[i].second] = disassemble_script(guyscripts[i+1]);
-				asnpcscripts.push_back(npcmap[i].second);
+				while(scripts.find(npcmap[i].scriptname) != scripts.end())
+					inc_script_name(npcmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!npcmap[i].isEmpty())
+		{
+			if(guyscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(guyscripts[i+1]);
+				if(fromCompile || (guyscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					npcmap[i].format = SCRIPT_FORMAT_ZASM;
+					npcmap[i].update();
+				}
+				data.disassembled = npcmap[i].isDisassembled();
+				scripts[npcmap[i].scriptname] = data;
+				asnpcscripts.push_back((data.disassembled ? "++" : "") + npcmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
-		if(lwpnmap[i].second != "")
+		if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 		{
-			if(lwpnscripts[i+1][0].command!=0xFFFF)
+			if(scripts[lwpnmap[i].scriptname].first.script_type != SCRIPT_LWPN)
 			{
-				scripts[lwpnmap[i].second] = disassemble_script(lwpnscripts[i+1]);
-				aslweaponscripts.push_back(lwpnmap[i].second);
+				while(scripts.find(lwpnmap[i].scriptname) != scripts.end())
+					inc_script_name(lwpnmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!lwpnmap[i].isEmpty())
+		{
+			if(lwpnscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(lwpnscripts[i+1]);
+				if(fromCompile || (lwpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					lwpnmap[i].format = SCRIPT_FORMAT_ZASM;
+					lwpnmap[i].update();
+				}
+				data.disassembled = lwpnmap[i].isDisassembled();
+				scripts[lwpnmap[i].scriptname] = data;
+				aslweaponscripts.push_back((data.disassembled ? "++" : "") + lwpnmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
-		if(ewpnmap[i].second != "")
+		if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 		{
-			if(ewpnscripts[i+1][0].command!=0xFFFF)
+			if(scripts[ewpnmap[i].scriptname].first.script_type != SCRIPT_EWPN)
 			{
-				scripts[ewpnmap[i].second] = disassemble_script(ewpnscripts[i+1]);
-				aseweaponscripts.push_back(ewpnmap[i].second);
+				while(scripts.find(ewpnmap[i].scriptname) != scripts.end())
+					inc_script_name(ewpnmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!ewpnmap[i].isEmpty())
+		{
+			if(ewpnscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(ewpnscripts[i+1]);
+				if(fromCompile || (ewpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					ewpnmap[i].format = SCRIPT_FORMAT_ZASM;
+					ewpnmap[i].update();
+				}
+				data.disassembled = ewpnmap[i].isDisassembled();
+				scripts[ewpnmap[i].scriptname] = data;
+				aseweaponscripts.push_back((data.disassembled ? "++" : "") + ewpnmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTLINK-1; ++i)
 	{
-		if(linkmap[i].second != "")
+		if(scripts.find(linkmap[i].scriptname) != scripts.end())
 		{
-			if(linkscripts[i+1][0].command!=0xFFFF)
+			if(scripts[linkmap[i].scriptname].first.script_type != SCRIPT_LINK)
 			{
-				scripts[linkmap[i].second] = disassemble_script(linkscripts[i+1]);
-				aslinkscripts.push_back(linkmap[i].second);
+				while(scripts.find(linkmap[i].scriptname) != scripts.end())
+					inc_script_name(linkmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!linkmap[i].isEmpty())
+		{
+			if(linkscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(linkscripts[i+1]);
+				if(fromCompile || (linkscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					linkmap[i].format = SCRIPT_FORMAT_ZASM;
+					linkmap[i].update();
+				}
+				data.disassembled = linkmap[i].isDisassembled();
+				scripts[linkmap[i].scriptname] = data;
+				aslinkscripts.push_back((data.disassembled ? "++" : "") + linkmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSDMAP-1; ++i)
 	{
-		if(dmapmap[i].second != "")
+		if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 		{
-			if(dmapscripts[i+1][0].command!=0xFFFF)
+			if(scripts[dmapmap[i].scriptname].first.script_type != SCRIPT_DMAP)
 			{
-				scripts[dmapmap[i].second] = disassemble_script(dmapscripts[i+1]);
-				asdmapscripts.push_back(dmapmap[i].second);
+				while(scripts.find(dmapmap[i].scriptname) != scripts.end())
+					inc_script_name(dmapmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!dmapmap[i].isEmpty())
+		{
+			if(dmapscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(dmapscripts[i+1]);
+				if(fromCompile || (dmapscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					dmapmap[i].format = SCRIPT_FORMAT_ZASM;
+					dmapmap[i].update();
+				}
+				data.disassembled = dmapmap[i].isDisassembled();
+				scripts[dmapmap[i].scriptname] = data;
+				asdmapscripts.push_back((data.disassembled ? "++" : "") + dmapmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSCREEN-1; ++i)
 	{
-		if(screenmap[i].second != "")
+		if(scripts.find(screenmap[i].scriptname) != scripts.end())
 		{
-			if(screenscripts[i+1][0].command!=0xFFFF)
+			if(scripts[screenmap[i].scriptname].first.script_type != SCRIPT_SCREEN)
 			{
-				scripts[screenmap[i].second] = disassemble_script(screenscripts[i+1]);
-				asscreenscripts.push_back(screenmap[i].second);
+				while(scripts.find(screenmap[i].scriptname) != scripts.end())
+					inc_script_name(screenmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!screenmap[i].isEmpty())
+		{
+			if(screenscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(screenscripts[i+1]);
+				if(fromCompile || (screenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					screenmap[i].format = SCRIPT_FORMAT_ZASM;
+					screenmap[i].update();
+				}
+				data.disassembled = screenmap[i].isDisassembled();
+				scripts[screenmap[i].scriptname] = data;
+				asscreenscripts.push_back((data.disassembled ? "++" : "") + screenmap[i].scriptname);
 			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
 	{
-		if(itemspritemap[i].second != "")
+		if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 		{
-			if(itemspritescripts[i+1][0].command!=0xFFFF)
+			if(scripts[itemspritemap[i].scriptname].first.script_type != SCRIPT_ITEMSPRITE)
 			{
-				scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
-				asitemspritescripts.push_back(itemspritemap[i].second);
+				while(scripts.find(itemspritemap[i].scriptname) != scripts.end())
+					inc_script_name(itemspritemap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!itemspritemap[i].isEmpty())
+		{
+			if(itemspritescripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(itemspritescripts[i+1]);
+				if(fromCompile || (itemspritescripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					itemspritemap[i].format = SCRIPT_FORMAT_ZASM;
+					itemspritemap[i].update();
+				}
+				data.disassembled = itemspritemap[i].isDisassembled();
+				scripts[itemspritemap[i].scriptname] = data;
+				asitemspritescripts.push_back((data.disassembled ? "++" : "") + itemspritemap[i].scriptname);
 			}
 		}
 	}
-	// TODO: Read all assign scripts back out into this vector, and push their names to the appropriate 'as[TYPE]scripts' vector.
-	do_slots(scripts);
-	return D_O_K;
+	for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
+	{
+		if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+		{
+			if(scripts[comboscriptmap[i].scriptname].first.script_type != SCRIPT_COMBO)
+			{
+				while(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+					inc_script_name(comboscriptmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!comboscriptmap[i].isEmpty())
+		{
+			if(comboscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(comboscripts[i+1]);
+				if(fromCompile || (comboscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					comboscriptmap[i].format = SCRIPT_FORMAT_ZASM;
+					comboscriptmap[i].update();
+				}
+				data.disassembled = comboscriptmap[i].isDisassembled();
+				scripts[comboscriptmap[i].scriptname] = data;
+				ascomboscripts.push_back((data.disassembled ? "++" : "") + comboscriptmap[i].scriptname);
+			}
+		}
+	}
 }
 
-bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
+bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
-	
 	while(true)
 	{
 		//{
 		char temp[100];
 		for(int i = 0; i < NUMSCRIPTFFC-1; i++)
 		{
-			if(ffcmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(ffcmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, ffcmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, ffcmap[i].second.c_str());
-			ffcmap[i].first = temp;
+			if(ffcmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(ffcmap[i].isDisassembled())
+				{}
+				else if(scripts.find(ffcmap[i].scriptname) != scripts.end())
+					ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					ffcmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			ffcmap[i].slotname = temp;
+			ffcmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
 		{
-			char buffer[64];
-			const char* format;
-			const char* emptymark;
 			switch(i)
 			{
 				case GLOBAL_SCRIPT_INIT:
-					format="Initialization: %s%s"; break;
+					globalmap[i].slotname="Init:"; break;
 				case GLOBAL_SCRIPT_GAME:
-					format="Active: %s%s"; break;
+					globalmap[i].slotname="Active:"; break;
 				case GLOBAL_SCRIPT_END:
-					format="onExit: %s%s"; break;
+					globalmap[i].slotname="onExit:"; break;
 				case GLOBAL_SCRIPT_ONSAVELOAD:
-					format="onSaveLoad: %s%s"; break;
+					globalmap[i].slotname="onSaveLoad:"; break;
 				case GLOBAL_SCRIPT_ONLAUNCH:
-					format="onLaunch: %s%s"; break;
+					globalmap[i].slotname="onLaunch:"; break;
 				case GLOBAL_SCRIPT_ONCONTGAME:
-					format="onContGame: %s%s"; break;
+					globalmap[i].slotname="onContGame:"; break;
 				case GLOBAL_SCRIPT_F6:
-					format="onF6Menu: %s%s"; break;
+					globalmap[i].slotname="onF6Menu:"; break;
 			}
-			if(globalmap[i].second == "")
-				emptymark="";
-			else if(scripts.find(globalmap[i].second) != scripts.end())
-				emptymark="";
-			else // Unloaded
-				emptymark="--";
-			snprintf(buffer, 50, format, emptymark, globalmap[i].second.c_str());
-			globalmap[i].first=buffer;
+			if(!globalmap[i].isEmpty())
+			{
+				if(globalmap[i].isDisassembled())
+				{}
+				else if(scripts.find(globalmap[i].scriptname) != scripts.end())
+					globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Unloaded
+					globalmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			globalmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTITEM-1; i++)
 		{
-			if(itemmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(itemmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, itemmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, itemmap[i].second.c_str());
-			itemmap[i].first = temp;
+			if(itemmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(itemmap[i].isDisassembled())
+				{}
+				else if(scripts.find(itemmap[i].scriptname) != scripts.end())
+					itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					itemmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			itemmap[i].slotname = temp;
+			itemmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
 		{
-			if(npcmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(npcmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, npcmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, npcmap[i].second.c_str());
-			npcmap[i].first = temp;
+			if(npcmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(npcmap[i].isDisassembled())
+				{}
+				else if(scripts.find(npcmap[i].scriptname) != scripts.end())
+					npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					npcmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			npcmap[i].slotname = temp;
+			npcmap[i].update();
 		} 
 		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 		{
-			if(ewpnmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(ewpnmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, ewpnmap[i].second.c_str());
-			ewpnmap[i].first = temp;
+			if(ewpnmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(ewpnmap[i].isDisassembled())
+				{}
+				else if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
+					ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			ewpnmap[i].slotname = temp;
+			ewpnmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 		{
-			if(lwpnmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(lwpnmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, lwpnmap[i].second.c_str());
-			lwpnmap[i].first = temp;
+			if(lwpnmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(lwpnmap[i].isDisassembled())
+				{}
+				else if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
+					lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			lwpnmap[i].slotname = temp;
+			lwpnmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTLINK-1; i++)
 		{
-			/*
-					if(linkmap[i].second == "")
-						sprintf(temp, "Slot %d: <none>", i+1);
-					else if(scripts.find(linkmap[i].second) != scripts.end())
-						sprintf(temp, "Slot %d: %s", i+1, linkmap[i].second.c_str());
-					else // Previously loaded script not found
-						sprintf(temp, "Slot %d: --%s", i+1, linkmap[i].second.c_str());
-					linkmap[i].first = temp;
-			*/
-			char buffer[64];
-			const char* format;
-			const char* emptymark;
 			switch(i)
 			{
-				case 0: format="Init: %s%s"; break;
-				case 1: format="Active: %s%s"; break;
-				case 2: format="onDeath: %s%s"; break;
-				case 3: format="onWin: %s%s"; break;
+				case 0: linkmap[i].slotname="Init:"; break;
+				case 1: linkmap[i].slotname="Active:"; break;
+				case 2: linkmap[i].slotname="onDeath:"; break;
+				case 3: linkmap[i].slotname="onWin:"; break;
 			}
-			if(linkmap[i].second == "")
-				emptymark="";
-			else if(scripts.find(linkmap[i].second) != scripts.end())
-				emptymark="";
-			else // Unloaded
-				emptymark="--";
-			snprintf(buffer, 50, format, emptymark, linkmap[i].second.c_str());
-			linkmap[i].first=buffer;
+			if(!linkmap[i].isEmpty())
+			{
+				if(linkmap[i].isDisassembled())
+				{}
+				else if(scripts.find(linkmap[i].scriptname) != scripts.end())
+					linkmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Unloaded
+					linkmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			linkmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
 		{
-			if(screenmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(screenmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, screenmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, screenmap[i].second.c_str());
-			screenmap[i].first = temp;
+			if(screenmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(screenmap[i].isDisassembled())
+				{}
+				else if(scripts.find(screenmap[i].scriptname) != scripts.end())
+					screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					screenmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			screenmap[i].slotname = temp;
+			screenmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
 		{
-			if(dmapmap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(dmapmap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, dmapmap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, dmapmap[i].second.c_str());
-			dmapmap[i].first = temp;
+			if(dmapmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(dmapmap[i].isDisassembled())
+				{}
+				else if(scripts.find(dmapmap[i].scriptname) != scripts.end())
+					dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					dmapmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			dmapmap[i].slotname = temp;
+			dmapmap[i].update();
 		}
 		for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
 		{
-			if(itemspritemap[i].second == "")
-				sprintf(temp, "Slot %d: <none>", i+1);
-			else if(scripts.find(itemspritemap[i].second) != scripts.end())
-				sprintf(temp, "Slot %d: %s", i+1, itemspritemap[i].second.c_str());
-			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: --%s", i+1, itemspritemap[i].second.c_str());
-			itemspritemap[i].first = temp;
+			if(itemspritemap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(itemspritemap[i].isDisassembled())
+				{}
+				else if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
+					itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			itemspritemap[i].slotname = temp;
+			itemspritemap[i].update();
+		}
+		for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
+		{
+			if(comboscriptmap[i].isEmpty())
+				sprintf(temp, "Slot %d:", i+1);
+			else
+			{
+				sprintf(temp, "Slot %d:", i+1);
+				if(comboscriptmap[i].isDisassembled())
+				{}
+				else if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+					comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
+				else // Previously loaded script not found
+					comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
+			}
+			comboscriptmap[i].slotname = temp;
+			comboscriptmap[i].update();
 		}
 		//}
 		if(is_large)
@@ -25010,9 +25812,9 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
 				
-				for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25022,14 +25824,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25042,18 +25847,18 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						
 						fclose(tempfile);
 						parse_script_file(&ffscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(ffscripts[it->first+1])
 					{
-						delete[] ffscripts[it->first+1];
-						ffscripts[it->first+1] = new ffscript[1];
-						ffscripts[it->first+1][0].command = 0xFFFF;
+						delete ffscripts[it->first+1];
+						ffscripts[it->first+1] = new script_data();
 					}
 				}
 				
-				for(std::map<int, pair<string,string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25063,14 +25868,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25082,18 +25890,18 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&globalscripts[it->first],"tmp",false);
+						if(it->second.isDisassembled()) globalscripts[it->first]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(globalscripts[it->first])
 					{
-						delete[] globalscripts[it->first];
-						globalscripts[it->first] = new ffscript[1];
-						globalscripts[it->first][0].command = 0xFFFF;
+						delete globalscripts[it->first];
+						globalscripts[it->first] = new script_data();
 					}
 				}
 				
-				for(std::map<int, pair<string,string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25103,14 +25911,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25122,17 +25933,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&itemscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(itemscripts[it->first+1])
 					{
-						delete[] itemscripts[it->first+1];
-						itemscripts[it->first+1] = new ffscript[1];
-						itemscripts[it->first+1][0].command = 0xFFFF;
+						delete itemscripts[it->first+1];
+						itemscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25142,14 +25953,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25161,17 +25975,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&guyscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(guyscripts[it->first+1])
 					{
-						delete[] guyscripts[it->first+1];
-						guyscripts[it->first+1] = new ffscript[1];
-						guyscripts[it->first+1][0].command = 0xFFFF;
+						delete guyscripts[it->first+1];
+						guyscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25181,14 +25995,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25200,17 +26017,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(lwpnscripts[it->first+1])
 					{
-						delete[] lwpnscripts[it->first+1];
-						lwpnscripts[it->first+1] = new ffscript[1];
-						lwpnscripts[it->first+1][0].command = 0xFFFF;
+						delete lwpnscripts[it->first+1];
+						lwpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25220,14 +26037,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25239,17 +26059,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(ewpnscripts[it->first+1])
 					{
-						delete[] ewpnscripts[it->first+1];
-						ewpnscripts[it->first+1] = new ffscript[1];
-						ewpnscripts[it->first+1][0].command = 0xFFFF;
+						delete ewpnscripts[it->first+1];
+						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25259,14 +26079,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25278,17 +26101,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&linkscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) linkscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(linkscripts[it->first+1])
 					{
-						delete[] linkscripts[it->first+1];
-						linkscripts[it->first+1] = new ffscript[1];
-						linkscripts[it->first+1][0].command = 0xFFFF;
+						delete linkscripts[it->first+1];
+						linkscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25298,14 +26121,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25317,17 +26143,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&dmapscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(dmapscripts[it->first+1])
 					{
-						delete[] dmapscripts[it->first+1];
-						dmapscripts[it->first+1] = new ffscript[1];
-						dmapscripts[it->first+1][0].command = 0xFFFF;
+						delete dmapscripts[it->first+1];
+						dmapscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25337,14 +26163,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25356,17 +26185,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&screenscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(screenscripts[it->first+1])
 					{
-						delete[] screenscripts[it->first+1];
-						screenscripts[it->first+1] = new ffscript[1];
-						screenscripts[it->first+1][0].command = 0xFFFF;
+						delete screenscripts[it->first+1];
+						screenscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, pair<string,string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+				for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
-					if(it->second.second != "")
+					if(it->second.hasScriptData())
 					{
 						tempfile = fopen("tmp","w");
 						
@@ -25376,16 +26205,17 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 							return false;
 						}
 						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
 						if(output)
 						{
 							al_trace("\n");
-							al_trace("%s",it->second.second.c_str());
+							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
+							al_trace(meta_str.c_str());
 						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						
-						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -25398,12 +26228,56 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 						
 						fclose(tempfile);
 						parse_script_file(&itemspritescripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
 					}
 					else if(itemspritescripts[it->first+1])
 					{
-						delete[] itemspritescripts[it->first+1];
-						itemspritescripts[it->first+1] = new ffscript[1];
-						itemspritescripts[it->first+1][0].command = 0xFFFF;
+						delete itemspritescripts[it->first+1];
+						itemspritescripts[it->first+1] = new script_data();
+					}
+				}
+				
+				for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+				{
+					if(it->second.hasScriptData())
+					{
+						tempfile = fopen("tmp","w");
+						
+						if(!tempfile)
+						{
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							return false;
+						}
+						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
+						if(output)
+						{
+							al_trace("\n");
+							al_trace("%s",it->second.scriptname.c_str());
+							al_trace("\n");
+							al_trace(meta_str.c_str());
+						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
+						
+						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						{
+							string theline = (*line)->printLine();
+							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+							
+							if(output)
+							{
+								al_trace("%s",theline.c_str());
+							}
+						}
+						
+						fclose(tempfile);
+						parse_script_file(&comboscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+					}
+					else if(comboscripts[it->first+1])
+					{
+						delete comboscripts[it->first+1];
+						comboscripts[it->first+1] = new script_data();
 					}
 				}
 				unlink("tmp");
@@ -25432,9 +26306,9 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				build_biffs_list();
 				build_biitems_list();
 				
-				for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
 				{
-					for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
 					{
 						delete *it2;
 					}
@@ -25453,11 +26327,20 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					
 				if(asffcscripts[rind] == "<none>")
 				{
-					ffcmap[lind].second = "";
+					ffcmap[lind].scriptname = "";
+					ffcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					ffcmap[lind].second = asffcscripts[rind];
+					if(asffcscripts[rind].at(0) == '+')
+					{
+						ffcmap[lind].scriptname = asffcscripts[rind].substr(2);
+					}
+					else ffcmap[lind].scriptname = asffcscripts[rind];
+					if(scripts[ffcmap[lind].scriptname].disassembled)
+						ffcmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						ffcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25479,11 +26362,20 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(asglobalscripts[rind] == "<none>")
 				{
-					globalmap[lind].second = "";
+					globalmap[lind].scriptname = "";
+					globalmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					globalmap[lind].second = asglobalscripts[rind];
+					if(asglobalscripts[rind].at(0) == '+')
+					{
+						globalmap[lind].scriptname = asglobalscripts[rind].substr(2);
+					}
+					else globalmap[lind].scriptname = asglobalscripts[rind];
+					if(scripts[globalmap[lind].scriptname].disassembled)
+						globalmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						globalmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25496,14 +26388,23 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(lind < 0 || rind < 0)
 					break;
-					
+				
 				if(asitemscripts[rind] == "<none>")
 				{
-					itemmap[lind].second = "";
+					itemmap[lind].scriptname = "";
+					itemmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					itemmap[lind].second = asitemscripts[rind];
+					if(asitemscripts[rind].at(0) == '+')
+					{
+						itemmap[lind].scriptname = asitemscripts[rind].substr(2);
+					}
+					else itemmap[lind].scriptname = asitemscripts[rind];
+					if(scripts[itemmap[lind].scriptname].disassembled)
+						itemmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						itemmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25516,14 +26417,23 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(lind < 0 || rind < 0)
 					break;
-					
+				
 				if(asnpcscripts[rind] == "<none>")
 				{
-					npcmap[lind].second = "";
+					npcmap[lind].scriptname = "";
+					npcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					npcmap[lind].second = asnpcscripts[rind];
+					if(asnpcscripts[rind].at(0) == '+')
+					{
+						npcmap[lind].scriptname = asnpcscripts[rind].substr(2);
+					}
+					else npcmap[lind].scriptname = asnpcscripts[rind];
+					if(scripts[npcmap[lind].scriptname].disassembled)
+						npcmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						npcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25536,14 +26446,23 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(lind < 0 || rind < 0)
 					break;
-					
+				
 				if(aslweaponscripts[rind] == "<none>")
 				{
-					lwpnmap[lind].second = "";
+					lwpnmap[lind].scriptname = "";
+					lwpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					lwpnmap[lind].second = aslweaponscripts[rind];
+					if(aslweaponscripts[rind].at(0) == '+')
+					{
+						lwpnmap[lind].scriptname = aslweaponscripts[rind].substr(2);
+					}
+					else lwpnmap[lind].scriptname = aslweaponscripts[rind];
+					if(scripts[lwpnmap[lind].scriptname].disassembled)
+						lwpnmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						lwpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25559,11 +26478,20 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					
 				if(aseweaponscripts[rind] == "<none>")
 				{
-					ewpnmap[lind].second = "";
+					ewpnmap[lind].scriptname = "";
+					ewpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					ewpnmap[lind].second = aseweaponscripts[rind];
+					if(aseweaponscripts[rind].at(0) == '+')
+					{
+						ewpnmap[lind].scriptname = aseweaponscripts[rind].substr(2);
+					}
+					else ewpnmap[lind].scriptname = aseweaponscripts[rind];
+					if(scripts[ewpnmap[lind].scriptname].disassembled)
+						ewpnmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						ewpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25576,14 +26504,23 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(lind < 0 || rind < 0)
 					break;
-					
+				
 				if(aslinkscripts[rind] == "<none>")
 				{
-					linkmap[lind].second = "";
+					linkmap[lind].scriptname = "";
+					linkmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					linkmap[lind].second = aslinkscripts[rind];
+					if(aslinkscripts[rind].at(0) == '+')
+					{
+						linkmap[lind].scriptname = aslinkscripts[rind].substr(2);
+					}
+					else linkmap[lind].scriptname = aslinkscripts[rind];
+					if(scripts[linkmap[lind].scriptname].disassembled)
+						linkmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						linkmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25596,14 +26533,23 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 				
 				if(lind < 0 || rind < 0)
 					break;
-					
+				
 				if(asscreenscripts[rind] == "<none>")
 				{
-					screenmap[lind].second = "";
+					screenmap[lind].scriptname = "";
+					screenmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					screenmap[lind].second = asscreenscripts[rind];
+					if(asscreenscripts[rind].at(0) == '+')
+					{
+						screenmap[lind].scriptname = asscreenscripts[rind].substr(2);
+					}
+					else screenmap[lind].scriptname = asscreenscripts[rind];
+					if(scripts[screenmap[lind].scriptname].disassembled)
+						screenmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						screenmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25619,11 +26565,20 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					
 				if(asdmapscripts[rind] == "<none>")
 				{
-					dmapmap[lind].second = "";
+					dmapmap[lind].scriptname = "";
+					dmapmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					dmapmap[lind].second = asdmapscripts[rind];
+					if(asdmapscripts[rind].at(0) == '+')
+					{
+						dmapmap[lind].scriptname = asdmapscripts[rind].substr(2);
+					}
+					else dmapmap[lind].scriptname = asdmapscripts[rind];
+					if(scripts[dmapmap[lind].scriptname].disassembled)
+						dmapmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						dmapmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25639,11 +26594,49 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					
 				if(asitemspritescripts[rind] == "<none>")
 				{
-					itemspritemap[lind].second = "";
+					itemspritemap[lind].scriptname = "";
+					itemspritemap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					itemspritemap[lind].second = asitemspritescripts[rind];
+					if(asitemspritescripts[rind].at(0) == '+')
+					{
+						itemspritemap[lind].scriptname = asitemspritescripts[rind].substr(2);
+					}
+					else itemspritemap[lind].scriptname = asitemspritescripts[rind];
+					if(scripts[itemspritemap[lind].scriptname].disassembled)
+						itemspritemap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						itemspritemap[lind].format = SCRIPT_FORMAT_DEFAULT;
+				}
+				
+				break;
+			}
+			case 41:
+				//<<, comboscript
+			{
+				int lind = assignscript_dlg[39].d1;
+				int rind = assignscript_dlg[40].d1;
+				
+				if(lind < 0 || rind < 0)
+					break;
+				
+				if(ascomboscripts[rind] == "<none>")
+				{
+					comboscriptmap[lind].scriptname = "";
+					comboscriptmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+				}
+				else
+				{
+					if(ascomboscripts[rind].at(0) == '+')
+					{
+						comboscriptmap[lind].scriptname = ascomboscripts[rind].substr(2);
+					}
+					else comboscriptmap[lind].scriptname = ascomboscripts[rind];
+					if(scripts[comboscriptmap[lind].scriptname].disassembled)
+						comboscriptmap[lind].format = SCRIPT_FORMAT_ZASM;
+					else 
+						comboscriptmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
 				break;
@@ -25704,10 +26697,13 @@ int onImportFFScript()
         if(parse_script(&ffscripts[ffscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)ffscript_sel_dlg[2].dp)>0)
-                ffcmap[ffscript_sel_dlg[5].d1].second=(char *)ffscript_sel_dlg[2].dp;
+                ffcmap[ffscript_sel_dlg[5].d1].scriptname=(char *)ffscript_sel_dlg[2].dp;
             else
-                ffcmap[ffscript_sel_dlg[5].d1].second="ASM script";
-                
+                ffcmap[ffscript_sel_dlg[5].d1].scriptname="ASM script";
+			ffcmap[ffscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+            
+			ffscripts[ffscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			
             build_biffs_list();
         }
     }
@@ -25733,9 +26729,11 @@ int onImportNPCScript()
         if(parse_script(&guyscripts[npcscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)npcscript_sel_dlg[2].dp)>0)
-                npcmap[npcscript_sel_dlg[5].d1].second=(char *)npcscript_sel_dlg[2].dp;
+                npcmap[npcscript_sel_dlg[5].d1].scriptname=(char *)npcscript_sel_dlg[2].dp;
             else
-                npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
+                npcmap[npcscript_sel_dlg[5].d1].scriptname="ASM script";
+            npcmap[npcscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			guyscripts[npcscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_binpcs_list();
         }
@@ -25761,9 +26759,11 @@ int onImportITEMSPRITEScript()
         if(parse_script(&itemspritescripts[itemspritescript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)itemspritescript_sel_dlg[2].dp)>0)
-                itemspritemap[itemspritescript_sel_dlg[5].d1].second=(char *)itemspritescript_sel_dlg[2].dp;
+                itemspritemap[itemspritescript_sel_dlg[5].d1].scriptname=(char *)itemspritescript_sel_dlg[2].dp;
             else
-                itemspritemap[itemspritescript_sel_dlg[5].d1].second="ASM script";
+                itemspritemap[itemspritescript_sel_dlg[5].d1].scriptname="ASM script";
+            itemspritemap[itemspritescript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			itemspritescripts[itemspritescript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_biitemsprites_list();
         }
@@ -25789,9 +26789,11 @@ int onImportSCREENScript()
         if(parse_script(&screenscripts[screenscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)screenscript_sel_dlg[2].dp)>0)
-                screenmap[screenscript_sel_dlg[5].d1].second=(char *)screenscript_sel_dlg[2].dp;
+                screenmap[screenscript_sel_dlg[5].d1].scriptname=(char *)screenscript_sel_dlg[2].dp;
             else
-                screenmap[screenscript_sel_dlg[5].d1].second="ASM script";
+                screenmap[screenscript_sel_dlg[5].d1].scriptname="ASM script";
+            screenmap[screenscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			screenscripts[screenscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_biscreens_list();
         }
@@ -25818,9 +26820,11 @@ int onImportHEROScript()
         if(parse_script(&linkscripts[linkscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)linkscript_sel_dlg[2].dp)>0)
-                linkmap[linkscript_sel_dlg[5].d1].second=(char *)linkscript_sel_dlg[2].dp;
+                linkmap[linkscript_sel_dlg[5].d1].scriptname=(char *)linkscript_sel_dlg[2].dp;
             else
-                linkmap[linkscript_sel_dlg[5].d1].second="ASM script";
+                linkmap[linkscript_sel_dlg[5].d1].scriptname="ASM script";
+            linkmap[linkscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			linkscripts[linkscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_bilinks_list();
         }
@@ -25847,11 +26851,44 @@ int onImportDMapScript()
         if(parse_script(&dmapscripts[dmapscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)dmapscript_sel_dlg[2].dp)>0)
-                dmapmap[dmapscript_sel_dlg[5].d1].second=(char *)dmapscript_sel_dlg[2].dp;
+                dmapmap[dmapscript_sel_dlg[5].d1].scriptname=(char *)dmapscript_sel_dlg[2].dp;
             else
-                dmapmap[dmapscript_sel_dlg[5].d1].second="ASM script";
+                dmapmap[dmapscript_sel_dlg[5].d1].scriptname="ASM script";
+            dmapmap[dmapscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			dmapscripts[dmapscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_bidmaps_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportComboScript()
+{
+    char name[20]="";
+    
+    comboscript_sel_dlg[0].dp2 = lfont;
+    comboscript_sel_dlg[2].dp = name;
+    comboscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(comboscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(comboscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&comboscripts[comboscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)comboscript_sel_dlg[2].dp)>0)
+                comboscriptmap[comboscript_sel_dlg[5].d1].scriptname=(char *)comboscript_sel_dlg[2].dp;
+            else
+                comboscriptmap[comboscript_sel_dlg[5].d1].scriptname="ASM script";
+            comboscriptmap[comboscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			comboscripts[comboscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+                
+            build_bidcomboscripts_list();
         }
     }
     
@@ -25876,9 +26913,11 @@ int onImportEWPNScript()
         if(parse_script(&ewpnscripts[eweaponscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)eweaponscript_sel_dlg[2].dp)>0)
-                ewpnmap[eweaponscript_sel_dlg[5].d1].second=(char *)eweaponscript_sel_dlg[2].dp;
+                ewpnmap[eweaponscript_sel_dlg[5].d1].scriptname=(char *)eweaponscript_sel_dlg[2].dp;
             else
-                ewpnmap[eweaponscript_sel_dlg[5].d1].second="ASM script";
+                ewpnmap[eweaponscript_sel_dlg[5].d1].scriptname="ASM script";
+            ewpnmap[eweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			ewpnscripts[eweaponscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_bieweapons_list();
         }
@@ -25905,9 +26944,11 @@ int onImportLWPNScript()
         if(parse_script(&lwpnscripts[lweaponscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)lweaponscript_sel_dlg[2].dp)>0)
-                lwpnmap[lweaponscript_sel_dlg[5].d1].second=(char *)lweaponscript_sel_dlg[2].dp;
+                lwpnmap[lweaponscript_sel_dlg[5].d1].scriptname=(char *)lweaponscript_sel_dlg[2].dp;
             else
-                lwpnmap[lweaponscript_sel_dlg[5].d1].second="ASM script";
+                lwpnmap[lweaponscript_sel_dlg[5].d1].scriptname="ASM script";
+            lwpnmap[lweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			lwpnscripts[lweaponscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_bilweapons_list();
         }
@@ -25934,9 +26975,11 @@ int onImportItemScript()
         if(parse_script(&itemscripts[itemscript_sel_dlg[5].d1+1])==D_O_K)
         {
             if(strlen((char *)itemscript_sel_dlg[2].dp)>0)
-                itemmap[itemscript_sel_dlg[5].d1].second=(char *)itemscript_sel_dlg[2].dp;
+                itemmap[itemscript_sel_dlg[5].d1].scriptname=(char *)itemscript_sel_dlg[2].dp;
             else
-                itemmap[itemscript_sel_dlg[5].d1].second="ASM script";
+				itemmap[itemscript_sel_dlg[5].d1].scriptname="ASM script";
+			itemmap[itemscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			itemscripts[itemscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
                 
             build_biitems_list();
         }
@@ -25963,9 +27006,11 @@ int onImportGScript()
         if(parse_script(&globalscripts[gscript_sel_dlg[5].d1])==D_O_K)
         {
             if(strlen((char *)gscript_sel_dlg[2].dp)>0)
-                globalmap[gscript_sel_dlg[5].d1].second=(char *)gscript_sel_dlg[2].dp;
+                globalmap[gscript_sel_dlg[5].d1].scriptname=(char *)gscript_sel_dlg[2].dp;
             else
-                globalmap[gscript_sel_dlg[5].d1].second="ASM script";
+                globalmap[gscript_sel_dlg[5].d1].scriptname="ASM script";
+			globalmap[gscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
+			globalscripts[gscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
         }
     }
     
@@ -28688,6 +29733,7 @@ int main(int argc,char **argv)
     
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
+	MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
@@ -29905,62 +30951,56 @@ int main(int argc,char **argv)
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
+        ffscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
+        itemscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
+        guyscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
+        screenscripts[i] = new script_data();
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
+        globalscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
+        linkscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        dmapscripts[i] = new ffscript[1];
-        dmapscripts[i][0].command = 0xFFFF;
+        dmapscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        itemspritescripts[i] = new ffscript[1];
-        itemspritescripts[i][0].command = 0xFFFF;
+        itemspritescripts[i] = new script_data();
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new script_data();
     }
     
     zScript = std::string();
@@ -30451,51 +31491,55 @@ void quit_game()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -30633,51 +31677,55 @@ void quit_game2()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -31344,6 +32392,7 @@ int save_config_file()
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
     set_config_int("zquest","invalid_static",InvalidStatic);
+	set_config_int("zquest","cursorblink_style",MMapCursorStyle);
     set_config_int("zquest","skip_layer_warning",skipLayerWarning);
     set_config_int("zquest","tile_protection",TileProtection);
     set_config_int("zquest","showinfo",ShowInfo);
@@ -33951,6 +35000,28 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 void zprint(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+	#ifdef _WIN32
+	if ( console_is_open )
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	#endif
+	
+    }
+}
+
+//Always prints
+void zprint2(const char * const format,...)
+{
+    //if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
         char buf[2048];
         

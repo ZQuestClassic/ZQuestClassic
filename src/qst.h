@@ -19,6 +19,78 @@
 #include "ffscript.h"
 extern FFScript ffengine;
 
+#define SCRIPT_FORMAT_DEFAULT	0
+#define SCRIPT_FORMAT_INVALID	1
+#define SCRIPT_FORMAT_ZASM		2
+struct script_slot_data
+{
+	std::string slotname;
+	std::string scriptname;
+	byte format;
+	std::string output;
+	
+	script_slot_data() : slotname(""), scriptname(""), output(""), format(SCRIPT_FORMAT_DEFAULT) {}
+	void update()
+	{
+		char temp[128];
+		sprintf(temp, getFormatStr()->c_str(), slotname.c_str(), scriptname.c_str());
+		output = temp;
+	}
+	
+	void clear()
+	{
+		slotname = "";
+		scriptname = "";
+		format = SCRIPT_FORMAT_DEFAULT;
+		output = "";
+	}
+	
+	bool hasScriptData()
+	{
+		return (scriptname != "") && (format != SCRIPT_FORMAT_INVALID);
+	}
+	
+	bool isEmpty()
+	{
+		return scriptname == "";
+	}
+	
+	bool isDisassembled()
+	{
+		return (format == SCRIPT_FORMAT_ZASM);
+	}
+	
+	std::string const* getFormatStr()
+	{
+		switch(format)
+		{
+			case SCRIPT_FORMAT_DEFAULT:
+				return &DEFAULT_FORMAT;
+			case SCRIPT_FORMAT_INVALID:
+				return &INVALID_FORMAT;
+			case SCRIPT_FORMAT_ZASM:
+				return &ZASM_FORMAT;
+		}
+		return &DEFAULT_FORMAT;
+	}
+	
+	static const std::string DEFAULT_FORMAT;
+	static const std::string INVALID_FORMAT;
+	static const std::string ZASM_FORMAT;
+};
+
+extern std::map<int, script_slot_data > ffcmap;
+extern std::map<int, script_slot_data > globalmap;
+extern std::map<int, script_slot_data > itemmap;
+extern std::map<int, script_slot_data > npcmap;
+extern std::map<int, script_slot_data > ewpnmap;
+extern std::map<int, script_slot_data > lwpnmap;
+extern std::map<int, script_slot_data > linkmap;
+extern std::map<int, script_slot_data > dmapmap;
+extern std::map<int, script_slot_data > screenmap;
+extern std::map<int, script_slot_data > itemspritemap;
+extern std::map<int, script_slot_data > comboscriptmap;
+
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);
@@ -124,7 +196,7 @@ void initMsgStr(MsgStr *str);
 void init_msgstrings(int start, int end);
 
 int copyquest(PACKFILE *f);
-int readheader(PACKFILE *f, zquestheader *Header, bool keepdata);
+int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata = 0);
 int readrules(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata);
@@ -147,7 +219,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata);
 int read_one_subscreen(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion);
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
-int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion, ffscript **script);
+int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion, script_data **script);
 int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readitemdropsets(PACKFILE *f, word version, word build, bool keepdata);
 int readfavorites(PACKFILE *f, int, word, bool keepdata);
