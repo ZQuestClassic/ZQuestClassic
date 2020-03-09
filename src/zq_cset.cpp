@@ -535,9 +535,56 @@ void edit_dataset(int dataset)
                 break;
                 
             case KEY_S:
-                onSnapshot();
+	    {
+		if ( key[KEY_LSHIFT] || key[KEY_RSHIFT]  ) 
+		{
+			ratio = vbound(ratio+1,0,is_large?95:63);
+			colormixer(color,gray,ratio);
+			break;
+		}
+		else if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) 
+		{
+			ratio = vbound(ratio-1,0,is_large?95:63);
+			colormixer(color,gray,ratio);
+			break;
+		}
+                else onSnapshot();
                 break;
+	    }
+	    case KEY_B:
+	    {
+		if ( key[KEY_LSHIFT] || key[KEY_RSHIFT] ) 
+		{
+			gray= vbound(gray+1,0,is_large?95:63);;
+			colormixer(color,gray,ratio);
+			break;
+		}
+		else if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) 
+		{
+			gray= vbound(gray-1,0,is_large?95:63);
+			colormixer(color,gray,ratio);
+			break;
+		}
+		else break;
+	    }
+	    case KEY_H:
+	    {
+		if ( key[KEY_LSHIFT] || key[KEY_RSHIFT] ) 
+		{
+			color = vbound(color+1,0,is_large?191:127);
+			colormixer(color,gray,ratio);
+			break;
+		}
+		else if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) 
+		{ 
+			color = vbound(color-1,0,is_large?191:127);
+			colormixer(color,gray,ratio);
+			break;
+		}
                 
+		else break;
+	    }
+	    
             default:
                 switch(k&255)
                 {
