@@ -3529,6 +3529,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 						}
 					}
 				}
+				else set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
                 
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {

@@ -1210,6 +1210,7 @@ char *parse_msg_str(char *s)
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
+	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
     int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
     int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
     int fonta = editmsg_dlg[18].d1;
@@ -1225,7 +1226,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 	byte msg_margins[4];
 	for(int q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
+		msg_margins[q] = oldmargin ? 0 : vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
 	}
     int cursor_x = msg_margins[left];
     int cursor_y = msg_margins[up];
@@ -1368,7 +1369,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     default:
                         if(s3[k] >= 32 && s3[k] <= 126)
                         {
-                            textprintf_ex(buf,workfont,cursor_x,cursor_y,msgcolour,-1,"%c",s3[k]);
+                            textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
                             cursor_x += workfont->vtable->char_length(workfont, s3[k]);
                             cursor_x += hspace;
                         }

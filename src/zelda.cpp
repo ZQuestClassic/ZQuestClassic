@@ -988,7 +988,7 @@ void donewmsg(int str)
     msg_ypos=MsgStrings[msgstr].y;
 	for(int q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = MsgStrings[msgstr].margins[q];
+		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
 	}
     cursor_x=msg_margins[left];
     cursor_y=msg_margins[up];
@@ -3407,8 +3407,15 @@ void game_loop()
                 set_clip_state(msg_bg_display_buf, 0);
                 blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
                 set_clip_state(msg_txt_display_buf, 0);
-                blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-            }
+				if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+				}
+				else
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+				}
+			}
         }
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
