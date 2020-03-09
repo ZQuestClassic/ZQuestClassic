@@ -50,7 +50,7 @@ static int editmsg_string_list[] =
 { 2, 3, 4, 5, 8, 17, 18, 29, 32, -1 };
 
 static int editmsg_attributes_list[] =
-{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 33, 34, 35, -1 };
+{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, -1 };
 
 static TABPANEL editmsg_tabs[] =
 {
@@ -142,7 +142,17 @@ DIALOG editmsg_dlg[] =
     // 35
 	{ jwin_check_proc,     56,  166,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent FG", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+    { jwin_edit_proc,      232,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "T. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    // 40
+	{ jwin_ctext_proc,     208,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "B. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "L. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  102,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   106,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "R. Margin:", NULL, NULL },
+    // 45
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 DIALOG editmsg_help_dlg[] =
@@ -554,6 +564,10 @@ int onStrings()
             MsgStrings[msg_count].vspace=0;
             MsgStrings[msg_count].stringflags=0;
             MsgStrings[msg_count].listpos=msg_count;
+            MsgStrings[msg_count].margins[up] = 8;
+            MsgStrings[msg_count].margins[down] = 0;
+            MsgStrings[msg_count].margins[left] = 8;
+            MsgStrings[msg_count].margins[right] = 0;
         }
         
         strlist_dlg[7].dp=msgmore_xstring;
@@ -871,18 +885,27 @@ void editmsg(int index, int addAfter)
     char msg_hbuf[5];
     char msg_hsbuf[5];
     char msg_vsbuf[5];
+	char msg_margins_bufs[4][5];
     sprintf(msg_ybuf,"%d",MsgStrings[index].y);
     sprintf(msg_xbuf,"%d",MsgStrings[index].x);
     sprintf(msg_wbuf,"%d",MsgStrings[index].w);
     sprintf(msg_hbuf,"%d",MsgStrings[index].h);
     sprintf(msg_hsbuf,"%d",MsgStrings[index].hspace);
     sprintf(msg_vsbuf,"%d",MsgStrings[index].vspace);
+	for(int q = 0; q < 4; ++q)
+	{
+		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
+	}
     editmsg_dlg[9].dp = msg_ybuf;
     editmsg_dlg[15].dp = msg_xbuf;
     editmsg_dlg[19].dp = msg_wbuf;
     editmsg_dlg[21].dp = msg_hbuf;
     editmsg_dlg[23].dp = msg_hsbuf;
     editmsg_dlg[25].dp = msg_vsbuf;
+	for(int q = 0; q < 4; ++q)
+	{
+		editmsg_dlg[37+(2*q)].dp = msg_margins_bufs[q];
+	}
     char msg_sfxbuf[5];
     sprintf(msg_sfxbuf,"%d",MsgStrings[index].sfx);
     editmsg_dlg[13].dp = msg_sfxbuf;
@@ -975,6 +998,10 @@ void editmsg(int index, int addAfter)
         MsgStrings[index].y = vbound((int)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].w = vbound((int)strtol(msg_wbuf, (char **)NULL, 10),8,512);
         MsgStrings[index].h = vbound((int)strtol(msg_hbuf, (char **)NULL, 10),8,512);
+		for(int q = 0; q < 4; ++q)
+		{
+			MsgStrings[index].margins[q] = vbound((byte)strtol(msg_margins_bufs[q], (char **)NULL, 10),0,255);
+		}
         MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
@@ -1183,8 +1210,6 @@ char *parse_msg_str(char *s)
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
-    int cursor_x = 0;
-    int cursor_y = 0;
     int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
     int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
     int fonta = editmsg_dlg[18].d1;
@@ -1197,6 +1222,13 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
     int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
     int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
     int nextstring = addtomsglist(editmsg_dlg[5].d1);
+	byte msg_margins[4];
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
+	}
+    int cursor_x = msg_margins[left];
+    int cursor_y = msg_margins[up];
     
     int i=0;
     int msgcolour=misc.colors.msgtext;
@@ -1297,10 +1329,12 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                 
                 tlength = text_length(workfont, s3);
                 
-                if(cursor_x+tlength+hjump > w  && ((cursor_x > w || !(flags & STRINGFLAG_WRAP)) ? 1 : strcmp(s3," ")!=0))
+                if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
+				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
+				        ? 1 : strcmp(s3," ")!=0))
                 {
                     cursor_y += text_height(workfont) + vspace;
-                    cursor_x=0;
+                    cursor_x=msg_margins[left];
                     //if(space) s3[0]=0;
                 }
                 
@@ -1312,10 +1346,10 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     {
                     case MSGC_NEWLINE:
                     {
-                        if(cursor_x>0 || (cursor_y==0 && cursor_x==0)) // If the newline's already at the end of a line, ignore it
+                        if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
                         {
                             cursor_y += text_height(workfont) + vspace;
-                            cursor_x=0;
+                            cursor_x=msg_margins[left];
                         }
                         
                         //No i++ here - s3 terminates at newlines.
@@ -1334,7 +1368,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     default:
                         if(s3[k] >= 32 && s3[k] <= 126)
                         {
-                            textprintf_ex(buf,workfont,cursor_x+8,cursor_y+8,msgcolour,-1,"%c",s3[k]);
+                            textprintf_ex(buf,workfont,cursor_x,cursor_y,msgcolour,-1,"%c",s3[k]);
                             cursor_x += workfont->vtable->char_length(workfont, s3[k]);
                             cursor_x += hspace;
                         }

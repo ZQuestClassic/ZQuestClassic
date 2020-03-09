@@ -3185,6 +3185,10 @@ void init_msgstr(MsgStr *str)
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
+	str->margins[up] = 8;
+	str->margins[down] = 0;
+	str->margins[left] = 8;
+	str->margins[right] = 0;
 }
 
 void init_msgstrings(int start, int end)
@@ -3281,6 +3285,10 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             tempMsgString.hspace=0;
             tempMsgString.vspace=0;
             tempMsgString.stringflags=0;
+			tempMsgString.margins[up] = 8;
+			tempMsgString.margins[down] = 0;
+			tempMsgString.margins[left] = 8;
+			tempMsgString.margins[right] = 0;
             
             if(!pfread(&tempMsgString.s,73,f,true))
             {
@@ -3396,6 +3404,10 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             tempMsgString.hspace=0;
             tempMsgString.vspace=0;
             tempMsgString.stringflags=0;
+			tempMsgString.margins[up] = 8;
+			tempMsgString.margins[down] = 0;
+			tempMsgString.margins[left] = 8;
+			tempMsgString.margins[right] = 0;
             
             if(!pfread(&tempMsgString.s,string_length,f,true))
             {
@@ -3506,6 +3518,17 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
                 }
+				
+				if(s_version >= 7)
+				{
+					for(int q = 0; q < 4; ++q)
+					{
+						if(!p_getc(&tempMsgString.margins[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
                 
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {

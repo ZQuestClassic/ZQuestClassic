@@ -298,6 +298,7 @@ word     msgclk, msgstr,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+byte msg_margins[4];
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL;
 FONT	 *msgfont;
@@ -863,8 +864,12 @@ int donew_shop_msg(int itmstr, int shopstr)
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
     return tempmsgnext;
 }
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
@@ -981,8 +986,12 @@ void donewmsg(int str)
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
 }
 
 // Called to make a message disappear
@@ -3398,7 +3407,7 @@ void game_loop()
                 set_clip_state(msg_bg_display_buf, 0);
                 blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
                 set_clip_state(msg_txt_display_buf, 0);
-                blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+                blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
             }
         }
         #if LOGGAMELOOP > 0

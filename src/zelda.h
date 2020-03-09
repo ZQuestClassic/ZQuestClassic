@@ -335,6 +335,7 @@ extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,m
        msg_ypos,
        cursor_x,
        cursor_y;
+extern byte msg_margins[4];
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;
 extern word     door_combo_set_count;

@@ -9376,6 +9376,14 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
             {
                 return qe_invalid;
             }
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_putc(MsgStrings[i].margins[q],f))
+				{
+					return qe_invalid;
+				}
+			}
             
             if(!p_putc(MsgStrings[i].sfx,f))
             {

@@ -185,7 +185,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           5
 #define V_RULES           15
-#define V_STRINGS          6
+#define V_STRINGS          7
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           15
@@ -3030,6 +3030,7 @@ struct MsgStr
     byte vspace;
     byte hspace;
     byte stringflags;
+	short margins[4];
     
     // Copy everything except listpos
     MsgStr& operator=(MsgStr &other)
@@ -3055,6 +3056,10 @@ struct MsgStr
         vspace=other.vspace;
         hspace=other.hspace;
         stringflags=other.stringflags;
+		for(int q = 0; q < 4; ++q)
+		{
+			margins[q] = other.margins[q];
+		}
     }
 };
 
