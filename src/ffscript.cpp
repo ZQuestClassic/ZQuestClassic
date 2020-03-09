@@ -7784,7 +7784,122 @@ long get_register(const long arg)
 				ret = ((int)MsgStrings[ID].stringflags) * 10000;
 			break;
 		}
-
+		case MESSAGEDATAMARGINS: //BYTE, 4
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 3 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to messagedata->Margins[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->Margins[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].margins[indx]) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTTILE: //INT
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTile") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_tile) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTCSET: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitCSet") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_cset) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTX: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitX") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_x) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTY: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitY") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_y) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTWID: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTileWidth") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_tw) * 10000;
+			break;
+		}
+		case MESSAGEDATAPORTHEI: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int)MsgStrings[ID].portrait_th) * 10000;
+			break;
+		}
+		case MESSAGEDATAFLAGSARR: //BOOL, 7
+		{
+			int indx = ri->d[0] / 10000;
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->Flags[]") != SH::_NoError)
+				ret = -10000;
+			else
+			{
+				switch(indx)
+				{
+					case 0:
+						ret = (MsgStrings[ID].stringflags & STRINGFLAG_WRAP)!=0 ? 10000 : 0;
+						break;
+					case 1:
+						ret = (MsgStrings[ID].stringflags & STRINGFLAG_CONT)!=0 ? 10000 : 0;
+						break;
+					case 2: //Not implemented
+						ret = 0;//ret = (MsgStrings[ID].stringflags & STRINGFLAG_CENTER)!=0 ? 10000 : 0;
+						break;
+					case 3: //Not implemented
+						ret = 0;//ret = (MsgStrings[ID].stringflags & STRINGFLAG_RIGHT)!=0 ? 10000 : 0;
+						break;
+					case 4:
+						ret = (MsgStrings[ID].stringflags & STRINGFLAG_FULLTILE)!=0 ? 10000 : 0;
+						break;
+					case 5:
+						ret = (MsgStrings[ID].stringflags & STRINGFLAG_TRANS_BG)!=0 ? 10000 : 0;
+						break;
+					case 6:
+						ret = (MsgStrings[ID].stringflags & STRINGFLAG_TRANS_FG)!=0 ? 10000 : 0;
+						break;
+					default:
+						Z_scripterrlog("Invalid index supplied to messagedata->Flags[]: %d\n", indx);
+						ret = -10000;
+				}
+			}
+			break;
+		}
 
 		///----------------------------------------------------------------------------------------------------//
 		//combodata cd-> Getter variables
@@ -14458,7 +14573,7 @@ void set_register(const long arg, const long value)
 			if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
 				break;
 			else 
-				MsgStrings[ID].cset = ((byte)vbound((value/10000), 0, 255));
+				MsgStrings[ID].cset = ((byte)vbound((value/10000), 0, 15));
 			break;
 		}	
 		case MESSAGEDATATRANS: //BOOL
@@ -14571,6 +14686,123 @@ void set_register(const long arg, const long value)
 				MsgStrings[ID].stringflags = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}
+		case MESSAGEDATAMARGINS: //BYTE, 4
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 3 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to messagedata->Margins[]: %d\n", indx);
+				break;
+			}
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->Margins[]") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].margins[indx] = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATAPORTTILE: //INT
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTile") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_tile = vbound((value/10000), 0, (NEWMAXTILES));
+			break;
+		}
+		case MESSAGEDATAPORTCSET: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitCSet") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_cset = ((byte)vbound((value/10000), 0, 15));
+			break;
+		}
+		case MESSAGEDATAPORTX: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitX") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_x = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATAPORTY: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitY") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_y = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATAPORTWID: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTileWidth") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_tw = ((byte)vbound((value/10000), 0, 16));
+			break;
+		}
+		case MESSAGEDATAPORTHEI: //BYTE
+		{
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].portrait_th = ((byte)vbound((value/10000), 0, 14));
+			break;
+		}
+		case MESSAGEDATAFLAGSARR: //BOOL, 7
+		{
+			int indx = ri->d[0] / 10000;
+			long ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->Flags[]") != SH::_NoError)
+				break;
+			else
+			{
+				switch(indx)
+				{
+					case 0:
+						(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_WRAP : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_WRAP;
+						break;
+					case 1:
+						(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_CONT : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_CONT;
+						break;
+					case 2: //Not implemented
+						//(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_CENTER : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_CENTER;
+						break;
+					case 3: //Not implemented
+						//(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_RIGHT : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_RIGHT;
+						break;
+					case 4:
+						(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_FULLTILE : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_FULLTILE;
+						break;
+					case 5:
+						(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_TRANS_BG : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_TRANS_BG;
+						break;
+					case 6:
+						(value) ? (MsgStrings[ID].stringflags)|=STRINGFLAG_TRANS_FG : (MsgStrings[ID].stringflags)&= ~STRINGFLAG_TRANS_FG;
+						break;
+					default:
+						Z_scripterrlog("Invalid index supplied to messagedata->Flags[]: %d\n", indx);
+						break;
+				}
+			}
+			break;
+		}
+
+
 
 
 	///----------------------------------------------------------------------------------------------------//
