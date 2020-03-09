@@ -28,6 +28,7 @@ void yyerror(const char* s);
 string curfilename;
 string headerguards;
 string headerguardsPPC;
+extern bool includesfirst;
 extern YYLTYPE noloc;
 
 #define LOGLEVEL 0
@@ -676,7 +677,7 @@ int go(const char *f)
 									
 						std::size_t found = f2.find_last_of("/");
 						std::string fileonly = f2.substr(found+1);
-						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
@@ -685,7 +686,7 @@ int go(const char *f)
 						
 						//search header guard string substrings for it
 						
-						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						std::string tkn2 = "$";
 						tkn2 += fileonly;
@@ -723,7 +724,7 @@ int go(const char *f)
 					
 					//use fileonly instead of tkn to match the filename, not the quoted string. -Z
 					
-					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					//search header guard string substrings for it
 					//if no match, append it
@@ -738,7 +739,7 @@ int go(const char *f)
 						//headerguards += "$";
 						//headerguards += tkn;
 						headerguards += tkn2;
-						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
 					}
 					else /*if ( strcmp(f, "tmp") )*/
 					{
@@ -754,13 +755,13 @@ int go(const char *f)
 					
 				std::size_t found = pth_headers.find_last_of("/");
 				std::string fileonly = pth_headers.substr(found+1);
-				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				
 				//search header guard string substrings for it
 				//if no match, append it
@@ -792,13 +793,13 @@ int go(const char *f)
 					
 			std::size_t found = pth_include.find_last_of("/");
 			std::string fileonly = pth_include.substr(found+1);
-			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
 			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 			//tempname should now match the true filename
-			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			//search header guard string substrings for it
 			//if no match, append it
 			std::string tkn2 = "$";
@@ -861,7 +862,7 @@ int go(const char *f)
 						
 						//use fileonly instead of tkn to match the filename, not the quoted string. -Z
 						
-						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						//search header guard string substrings for it
 						//if no match, append it
@@ -890,13 +891,13 @@ int go(const char *f)
 						
 					std::size_t found = pth_headers.find_last_of("/");
 					std::string fileonly = pth_headers.substr(found+1);
-					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					//search header guard string substrings for it
 					//if no match, append it
@@ -926,13 +927,13 @@ int go(const char *f)
 						
 				std::size_t found = pth_include.find_last_of("/");
 				std::string fileonly = pth_include.substr(found+1);
-				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
 				std::string tkn2 = "$";
@@ -962,7 +963,7 @@ int go(const char *f)
 						
 			std::size_t found = f2.find_last_of("/");
 			std::string fileonly = f2.substr(found+1);
-			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
@@ -971,7 +972,7 @@ int go(const char *f)
 			
 			//search header guard string substrings for it
 			
-			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			
 			//if no match, append it
 			std::string tkn2 = "$";
@@ -1050,7 +1051,7 @@ int goPPC(const char *f)
 	
 	if(includesfirst)
 	{
-		/*if ( LOGLEVEL > 0 )*/  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
+		if ( LOGLEVEL > 0 )  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -1076,7 +1077,7 @@ int goPPC(const char *f)
 									
 						std::size_t found = f2.find_last_of("/");
 						std::string fileonly = f2.substr(found+1);
-						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
@@ -1086,7 +1087,7 @@ int goPPC(const char *f)
 						
 						//search header guard string substrings for it
 						
-						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						//if no match, append it
 						std::string tkn2 = "$";
@@ -1115,13 +1116,13 @@ int goPPC(const char *f)
 					
 					std::size_t found = pth_user.find_last_of("/");
 					std::string fileonly = pth_user.substr(found+1);
-					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					
 					
 					//search header guard string substrings for it
@@ -1151,13 +1152,13 @@ int goPPC(const char *f)
 					
 				std::size_t found = pth_headers.find_last_of("/");
 				std::string fileonly = pth_headers.substr(found+1);
-				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
 				std::string tkn2 = "$";
@@ -1186,13 +1187,13 @@ int goPPC(const char *f)
 					
 			std::size_t found = pth_include.find_last_of("/");
 			std::string fileonly = pth_include.substr(found+1);
-			if ( LOGLEVEL > 0 )  { box_out(fileonly.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 )  { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
 			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 			//tempname should now match the true filename
-			if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 			//search header guard string substrings for it
 			//if no match, append it
 			std::string tkn2 = "$";
@@ -1221,7 +1222,7 @@ int goPPC(const char *f)
 	}
 	else
 	{
-		/*if ( LOGLEVEL > 0 )*/ { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
 		yyin = fopen(f, "r");
 		if(!yyin) 
 		{
@@ -1245,13 +1246,13 @@ int goPPC(const char *f)
 						
 						std::size_t found = pth_user.find_last_of("/");
 						std::string fileonly = pth_user.substr(found+1);
-						if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 						
 						std::string tkn = "$";
 						tkn += f;
 						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 						//tempname should now match the true filename
-						if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 						
 						
 						//search header guard string substrings for it
@@ -1281,13 +1282,13 @@ int goPPC(const char *f)
 						
 					std::size_t found = pth_headers.find_last_of("/");
 					std::string fileonly = pth_headers.substr(found+1);
-					if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 					
 					std::string tkn = "$";
 					tkn += f;
 					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 					//tempname should now match the true filename
-					if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 					//search header guard string substrings for it
 					//if no match, append it
 					std::string tkn2 = "$";
@@ -1316,13 +1317,13 @@ int goPPC(const char *f)
 						
 				std::size_t found = pth_include.find_last_of("/");
 				std::string fileonly = pth_include.substr(found+1);
-				if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 				
 				std::string tkn = "$";
 				tkn += f;
 				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
 				//tempname should now match the true filename
-				if ( LOGLEVEL > 0 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
 				//search header guard string substrings for it
 				//if no match, append it
 				std::string tkn2 = "$";
@@ -1352,7 +1353,7 @@ int goPPC(const char *f)
 						
 			std::size_t found = f2.find_last_of("/");
 			std::string fileonly = f2.substr(found+1);
-			if ( LOGLEVEL > 0 ) { box_out(fileonly.c_str());box_eol(); }
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
 			
 			std::string tkn = "$";
 			tkn += f;
@@ -1362,7 +1363,7 @@ int goPPC(const char *f)
 			
 			//search header guard string substrings for it
 			
-			if ( LOGLEVEL > 0 )
+			if ( LOGLEVEL > 1 )
 			{
 				box_out("token: "); box_out(tkn.c_str());box_eol();
 			}

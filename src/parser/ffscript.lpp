@@ -21,6 +21,7 @@ WS	[ \t\n\r]
 #include "y.tab.hpp"
 
 std::ostringstream qstr;
+extern bool includesfirst;
 
 YYLTYPE noloc = {0,0,0,0};
 void doLines();
