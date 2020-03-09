@@ -3031,6 +3031,12 @@ struct MsgStr
     byte hspace;
     byte stringflags;
 	short margins[4];
+	int portrait_tile;
+	byte portrait_cset;
+	byte portrait_x;
+	byte portrait_y;
+	byte portrait_tw;
+	byte portrait_th;
     
     // Copy everything except listpos
     MsgStr& operator=(MsgStr &other)
@@ -3060,6 +3066,12 @@ struct MsgStr
 		{
 			margins[q] = other.margins[q];
 		}
+		portrait_tile=other.portrait_tile;
+		portrait_cset=other.portrait_cset;
+		portrait_x=other.portrait_x;
+		portrait_y=other.portrait_y;
+		portrait_tw=other.portrait_tw;
+		portrait_th=other.portrait_th;
     }
 };
 

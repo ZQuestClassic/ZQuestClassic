@@ -3435,6 +3435,12 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
     }
     
+    if(!(msg_portrait_display_buf->clip))
+    {
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
+    }
+    
     if(!(msg_txt_display_buf->clip))
     {
 		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);

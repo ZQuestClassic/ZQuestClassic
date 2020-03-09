@@ -158,8 +158,10 @@ void clearmsgnext(int str);
 void donewmsg(int str);
 int donew_shop_msg(int itmstr, int shopstr);
 void msg_bg(MsgStr const& msg);
+void msg_prt();
 void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
 void blit_msgstr_fg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
+void blit_msgstr_prt(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
 void dismissmsg();
 void dointro();
 void init_dmap();
@@ -275,7 +277,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf, *f6_menu_buf;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
@@ -336,6 +338,8 @@ extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,m
        cursor_x,
        cursor_y;
 extern byte msg_margins[4];
+extern int prt_tile;
+extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th;
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;
 extern word     door_combo_set_count;

@@ -18345,8 +18345,10 @@ void FFScript::AlloffLimited(int flagset)
 {
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
+	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
 	set_clip_state(msg_bg_display_buf, 1);
+	set_clip_state(msg_portrait_display_buf, 1);
 	
 	
 	clear_bitmap(pricesdisplaybuf);
