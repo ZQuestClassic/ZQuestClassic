@@ -3185,6 +3185,16 @@ void init_msgstr(MsgStr *str)
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
+	str->margins[up] = 8;
+	str->margins[down] = 0;
+	str->margins[left] = 8;
+	str->margins[right] = 0;
+	str->portrait_tile = 0;
+	str->portrait_cset = 0;
+	str->portrait_x = 0;
+	str->portrait_y = 0;
+	str->portrait_tw = 1;
+	str->portrait_th = 1;
 }
 
 void init_msgstrings(int start, int end)
@@ -3281,6 +3291,16 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             tempMsgString.hspace=0;
             tempMsgString.vspace=0;
             tempMsgString.stringflags=0;
+			tempMsgString.margins[up] = 8;
+			tempMsgString.margins[down] = 0;
+			tempMsgString.margins[left] = 8;
+			tempMsgString.margins[right] = 0;
+			tempMsgString.portrait_tile = 0;
+			tempMsgString.portrait_cset = 0;
+			tempMsgString.portrait_x = 0;
+			tempMsgString.portrait_y = 0;
+			tempMsgString.portrait_tw = 1;
+			tempMsgString.portrait_th = 1;
             
             if(!pfread(&tempMsgString.s,73,f,true))
             {
@@ -3396,6 +3416,16 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             tempMsgString.hspace=0;
             tempMsgString.vspace=0;
             tempMsgString.stringflags=0;
+			tempMsgString.margins[up] = 8;
+			tempMsgString.margins[down] = 0;
+			tempMsgString.margins[left] = 8;
+			tempMsgString.margins[right] = 0;
+			tempMsgString.portrait_tile = 0;
+			tempMsgString.portrait_cset = 0;
+			tempMsgString.portrait_x = 0;
+			tempMsgString.portrait_y = 0;
+			tempMsgString.portrait_tw = 1;
+			tempMsgString.portrait_th = 1;
             
             if(!pfread(&tempMsgString.s,string_length,f,true))
             {
@@ -3506,6 +3536,48 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
                 }
+				
+				if(s_version >= 7)
+				{
+					for(int q = 0; q < 4; ++q)
+					{
+						if(!p_getc(&tempMsgString.margins[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					
+					if(!p_igetl(&tempMsgString.portrait_tile,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.portrait_cset,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.portrait_x,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.portrait_y,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.portrait_tw,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.portrait_th,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
                 
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {

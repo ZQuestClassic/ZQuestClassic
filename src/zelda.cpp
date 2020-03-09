@@ -242,7 +242,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -298,8 +298,11 @@ word     msgclk, msgstr,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+byte msg_margins[4];
+int prt_tile=0;
+byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
-BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL;
+BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
 FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk, intropos, dmapmsgclk, linkedmsgclk;
@@ -848,12 +851,15 @@ int donew_shop_msg(int itmstr, int shopstr)
         clear_bitmap(msg_txt_display_buf);
 	}
         
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     clear_bitmap(msg_txt_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
+    clear_bitmap(msg_portrait_bmp_buf);
     
 	msg_bg(MsgStrings[msgstr]);
     
@@ -863,8 +869,12 @@ int donew_shop_msg(int itmstr, int shopstr)
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
     return tempmsgnext;
 }
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
@@ -886,12 +896,21 @@ void msg_bg(MsgStr const& msg)
 	if(msg.stringflags & STRINGFLAG_FULLTILE)
 	{
 		draw_block_flip(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
-			(int)ceil(msg.w/16.0),(int)ceil(msg.h/16.0),0,false,false);
+			(int)ceil(msg.w/16.0),(int)ceil(msg.h/16.0),0,true,false);
 	}
 	else
 	{
         frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
                  (msg.w>>3)+2,(msg.h>>3)+2,0,true,0);
+	}
+}
+void msg_prt()
+{
+	clear_bitmap(msg_portrait_bmp_buf);
+	if(prt_tile > 0 && prt_th > 0 && prt_tw > 0)
+	{
+		draw_block_flip(msg_portrait_bmp_buf,0,0,prt_tile,prt_cset,
+			prt_tw, prt_th, 0, true, false);
 	}
 }
 void blit_msgstr_bg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
@@ -936,6 +955,10 @@ void blit_msgstr_fg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
 		masked_blit(msg_txt_display_buf, dest, sx, sy, dx, dy, w, h);
 	}
 }
+void blit_msgstr_prt(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	masked_blit(msg_portrait_display_buf, dest, sx, sy, dx, dy, w, h);
+}
 
 void clearmsgnext(int str)
 {
@@ -967,22 +990,36 @@ void donewmsg(int str)
         
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     clear_bitmap(msg_txt_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
-    
-    //transparency needs to occur here. -Z
-    msg_bg(MsgStrings[msgstr]);
-    
+    clear_bitmap(msg_portrait_bmp_buf);
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	prt_tile=MsgStrings[msgstr].portrait_tile;
+	prt_cset=MsgStrings[msgstr].portrait_cset;
+	prt_x=MsgStrings[msgstr].portrait_x;
+	prt_y=MsgStrings[msgstr].portrait_y;
+	prt_tw=MsgStrings[msgstr].portrait_tw;
+	prt_th=MsgStrings[msgstr].portrait_th;
+    
+    //transparency needs to occur here. -Z
+    msg_bg(MsgStrings[msgstr]);
+    msg_prt();
+    
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
 }
 
 // Called to make a message disappear
@@ -992,12 +1029,15 @@ void dismissmsg()
     msgstr = msgclk=msgpos=msgptr=0;
     cursor_x=0;
     cursor_y=0;
+	prt_tile=0;
     msg_onscreen = msg_active = false;
     //Link.finishedmsg(); //Not possible?
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
 }
 
 void dointro()
@@ -1309,6 +1349,8 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         set_clip_state(msg_bg_display_buf, 1);
         clear_bitmap(msg_txt_display_buf);
         set_clip_state(msg_txt_display_buf, 1);
+        clear_bitmap(msg_portrait_display_buf);
+        set_clip_state(msg_portrait_display_buf, 1);
     }
     
     clear_bitmap(pricesdisplaybuf);
@@ -3384,6 +3426,8 @@ void game_loop()
         set_clip_state(msg_bg_display_buf, 1);
         clear_bitmap(msg_txt_display_buf);
         set_clip_state(msg_txt_display_buf, 1);
+        clear_bitmap(msg_portrait_display_buf);
+        set_clip_state(msg_portrait_display_buf, 1);
         //    clear_bitmap(pricesdisplaybuf);
     }
     
@@ -3398,8 +3442,17 @@ void game_loop()
                 set_clip_state(msg_bg_display_buf, 0);
                 blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
                 set_clip_state(msg_txt_display_buf, 0);
-                blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-            }
+				if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+				}
+				else
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+				}
+				set_clip_state(msg_portrait_display_buf, 0);
+				blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+			}
         }
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
@@ -4429,6 +4482,8 @@ int main(int argc, char* argv[])
     msg_txt_display_buf = create_bitmap_ex(8,256, 176);
     msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
     msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+    msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
+    msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
@@ -4447,6 +4502,8 @@ int main(int argc, char* argv[])
     set_clip_state(msg_bg_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     Z_message("OK\n");
@@ -5286,6 +5343,11 @@ void quit_game()
     destroy_bitmap(msg_bg_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     destroy_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
+    destroy_bitmap(msg_portrait_display_buf);
+    destroy_bitmap(msg_txt_bmp_buf);
+    destroy_bitmap(msg_bg_bmp_buf);
+    destroy_bitmap(msg_portrait_bmp_buf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);

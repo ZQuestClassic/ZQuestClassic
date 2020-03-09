@@ -4231,18 +4231,71 @@ int Next;
  * Next message in list.
 
 int Tile;
+ * The tile for the background
+
 int CSet;
+ * The CSet for the background
+
 int Font;
+ * The message font
+
 int X;
+ * The messagebox X position
+
 int Y;
+ * The messagebox Y position
+
 int Width;
+ * The messagebox Width
+
 int Height;
+ * The messagebox Height
+
 int Sound;
+ * The text advancing SFX
+
 int ListPosition;
+ * The position in the list
+
 int VSpace;
+ * The space vertically between lines, in pixels
+
 int HSpace;
-int Flags;
-bool Transparent; (unused at this time).
+ * The space horizontally between characters, in pixels
+
+bool Flag[7];
+ * A set of flags
+ * MSGFLAG_WRAP         - If the text wraps around the bounding box
+ * MSGFLAG_CONT         - If the message is the continuation of a previous one
+ * MSGFLAG_CENTER       - Reserved
+ * MSGFLAG_RIGHT        - Reserved
+ * MSGFLAG_FULLTILE     - If the background tile should be treated as the UL of a tile block,
+ *                        instead of the UL of a 2x2 adjustable frame
+ * MSGFLAG_TRANS_BG     - If the background should be translucent
+ * MSGFLAG_TRANS_FG     - If the text should be translucent
+
+int PortraitTile;
+ * The upper-left corner tile of the portrait.
+ * If 0, no portrait will be displayed.
+
+int PortraitCSet;
+ * The CSet of the portrait
+
+int PortraitX;
+ * The X position of the portrait
+
+int PortraitY;
+ * The Y position of the portrait
+
+int PortraitTileWidth;
+ * The Tile Width of the portrait.
+ * If 0, no portrait will be displayed.
+ * Max value 16
+
+int PortraitTileHeight;
+ * The Tile Width of the portrait.
+ * If 0, no portrait will be displayed.
+ * Max value 14
 	
 //////////////////
 ///  dmapdata  ///

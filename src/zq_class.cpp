@@ -9376,6 +9376,44 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
             {
                 return qe_invalid;
             }
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_putc(MsgStrings[i].margins[q],f))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_iputl(MsgStrings[i].portrait_tile,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].portrait_cset,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].portrait_x,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].portrait_y,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].portrait_tw,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].portrait_th,f))
+			{
+				return qe_invalid;
+			}
             
             if(!p_putc(MsgStrings[i].sfx,f))
             {

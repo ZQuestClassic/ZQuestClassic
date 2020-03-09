@@ -185,7 +185,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           5
 #define V_RULES           15
-#define V_STRINGS          6
+#define V_STRINGS          7
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           15
@@ -934,7 +934,7 @@ enum
 	qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, qr_SHORTDGNWALK, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS,
 	qr_MIRRORS_USE_WEAPON_CENTRE, qr_CUSTOMCOMBOSLAYERS1AND2, qr_BUSHESONLAYERS1AND2, qr_NEW_HERO_MOVEMENT,
 	//26
-	qr_DISABLE_4WAY_GRIDLOCK, qr_NEW_COMBO_ANIMATION,
+	qr_DISABLE_4WAY_GRIDLOCK, qr_NEW_COMBO_ANIMATION, qr_OLD_STRING_EDITOR_MARGINS,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3030,6 +3030,13 @@ struct MsgStr
     byte vspace;
     byte hspace;
     byte stringflags;
+	short margins[4];
+	int portrait_tile;
+	byte portrait_cset;
+	byte portrait_x;
+	byte portrait_y;
+	byte portrait_tw;
+	byte portrait_th;
     
     // Copy everything except listpos
     MsgStr& operator=(MsgStr &other)
@@ -3055,6 +3062,16 @@ struct MsgStr
         vspace=other.vspace;
         hspace=other.hspace;
         stringflags=other.stringflags;
+		for(int q = 0; q < 4; ++q)
+		{
+			margins[q] = other.margins[q];
+		}
+		portrait_tile=other.portrait_tile;
+		portrait_cset=other.portrait_cset;
+		portrait_x=other.portrait_x;
+		portrait_y=other.portrait_y;
+		portrait_tw=other.portrait_tw;
+		portrait_th=other.portrait_th;
     }
 };
 

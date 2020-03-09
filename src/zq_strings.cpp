@@ -50,13 +50,17 @@ static int editmsg_string_list[] =
 { 2, 3, 4, 5, 8, 17, 18, 29, 32, -1 };
 
 static int editmsg_attributes_list[] =
-{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 33, 34, 35, -1 };
+{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, -1 };
+
+static int editmsg_portrait_list[] =
+{ 45, 46, 47, 48, 49, 50, 51, 52, 53, -1 };
 
 static TABPANEL editmsg_tabs[] =
 {
     // (text)
     { (char*)"String",      D_SELECTED,  editmsg_string_list,      0,  NULL },
     { (char*)"Attributes",     0,        editmsg_attributes_list,     0,  NULL },
+    { (char*)"Portrait",     0,        editmsg_portrait_list,     0,  NULL },
     { NULL,             0,           NULL,                         0,  NULL }
 };
 
@@ -120,7 +124,7 @@ DIALOG editmsg_dlg[] =
     { jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
     { jwin_text_proc,       52,   140,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "String font:", NULL, NULL },
     { jwin_droplist_proc,      110,  136,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     // 20
     { jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Width:", NULL, NULL },
     { jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
@@ -142,6 +146,26 @@ DIALOG editmsg_dlg[] =
     // 35
 	{ jwin_check_proc,     56,  166,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent FG", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_edit_proc,      232,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "T. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    // 40
+	{ jwin_ctext_proc,     208,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "B. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "L. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  102,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   106,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "R. Margin:", NULL, NULL },
+    // 45
+    { jwin_edit_proc,      80,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     64,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Y:", NULL, NULL },
+    { jwin_edit_proc,      80,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
+	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    // 50
+    { jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Width:", NULL, NULL },
+    { jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     136,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Height:", NULL, NULL },
+	{ d_cstile_proc,      60,  104,    16,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -554,6 +578,17 @@ int onStrings()
             MsgStrings[msg_count].vspace=0;
             MsgStrings[msg_count].stringflags=0;
             MsgStrings[msg_count].listpos=msg_count;
+            MsgStrings[msg_count].margins[up] = 8;
+            MsgStrings[msg_count].margins[down] = 0;
+            MsgStrings[msg_count].margins[left] = 8;
+            MsgStrings[msg_count].margins[right] = 0;
+            MsgStrings[msg_count].margins[right] = 0;
+			MsgStrings[msg_count].portrait_tile = 0;
+			MsgStrings[msg_count].portrait_cset = 0;
+			MsgStrings[msg_count].portrait_x = 0;
+			MsgStrings[msg_count].portrait_y = 0;
+			MsgStrings[msg_count].portrait_tw = 1;
+			MsgStrings[msg_count].portrait_th = 1;
         }
         
         strlist_dlg[7].dp=msgmore_xstring;
@@ -865,24 +900,47 @@ void editmsg(int index, int addAfter)
     editmsg_dlg[9].flags = MsgStrings[index].trans ? D_SELECTED : 0;
     editmsg_dlg[12].d1 = MsgStrings[index].tile;
     editmsg_dlg[12].fg = MsgStrings[index].cset;
+    editmsg_dlg[53].d1 = MsgStrings[index].portrait_tile;
+    editmsg_dlg[53].d2 = MsgStrings[index].portrait_cset&15;
     char msg_ybuf[5];
     char msg_xbuf[5];
     char msg_wbuf[5];
     char msg_hbuf[5];
     char msg_hsbuf[5];
     char msg_vsbuf[5];
+	char msg_margins_bufs[4][5];
+	char prt_xbuf[5];
+	char prt_ybuf[5];
+	char prt_twbuf[5];
+	char prt_thbuf[5];
     sprintf(msg_ybuf,"%d",MsgStrings[index].y);
     sprintf(msg_xbuf,"%d",MsgStrings[index].x);
     sprintf(msg_wbuf,"%d",MsgStrings[index].w);
     sprintf(msg_hbuf,"%d",MsgStrings[index].h);
     sprintf(msg_hsbuf,"%d",MsgStrings[index].hspace);
     sprintf(msg_vsbuf,"%d",MsgStrings[index].vspace);
+    sprintf(prt_xbuf,"%d",MsgStrings[index].portrait_x);
+    sprintf(prt_ybuf,"%d",MsgStrings[index].portrait_y);
+    sprintf(prt_twbuf,"%d",MsgStrings[index].portrait_tw);
+    sprintf(prt_thbuf,"%d",MsgStrings[index].portrait_th);
+	for(int q = 0; q < 4; ++q)
+	{
+		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
+	}
     editmsg_dlg[9].dp = msg_ybuf;
     editmsg_dlg[15].dp = msg_xbuf;
     editmsg_dlg[19].dp = msg_wbuf;
     editmsg_dlg[21].dp = msg_hbuf;
     editmsg_dlg[23].dp = msg_hsbuf;
     editmsg_dlg[25].dp = msg_vsbuf;
+	for(int q = 0; q < 4; ++q)
+	{
+		editmsg_dlg[37+(2*q)].dp = msg_margins_bufs[q];
+	}
+    editmsg_dlg[45].dp = prt_ybuf;
+    editmsg_dlg[47].dp = prt_xbuf;
+    editmsg_dlg[49].dp = prt_twbuf;
+    editmsg_dlg[51].dp = prt_thbuf;
     char msg_sfxbuf[5];
     sprintf(msg_sfxbuf,"%d",MsgStrings[index].sfx);
     editmsg_dlg[13].dp = msg_sfxbuf;
@@ -971,10 +1029,20 @@ void editmsg(int index, int addAfter)
         MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
         MsgStrings[index].tile = editmsg_dlg[12].d1;
         MsgStrings[index].cset = editmsg_dlg[12].fg;
+        MsgStrings[index].portrait_tile = editmsg_dlg[53].d1;
+        MsgStrings[index].portrait_cset = editmsg_dlg[53].d2;
         MsgStrings[index].x = vbound((int)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].y = vbound((int)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].w = vbound((int)strtol(msg_wbuf, (char **)NULL, 10),8,512);
         MsgStrings[index].h = vbound((int)strtol(msg_hbuf, (char **)NULL, 10),8,512);
+		for(int q = 0; q < 4; ++q)
+		{
+			MsgStrings[index].margins[q] = vbound((byte)strtol(msg_margins_bufs[q], (char **)NULL, 10),0,255);
+		}
+        MsgStrings[index].portrait_x = vbound((int)strtol(prt_xbuf, (char **)NULL, 10),0,255);
+        MsgStrings[index].portrait_y = vbound((int)strtol(prt_ybuf, (char **)NULL, 10),0,255);
+        MsgStrings[index].portrait_tw = vbound((int)strtol(prt_twbuf, (char **)NULL, 10),0,16);
+        MsgStrings[index].portrait_th = vbound((int)strtol(prt_thbuf, (char **)NULL, 10),0,14);
         MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
@@ -1183,8 +1251,7 @@ char *parse_msg_str(char *s)
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
-    int cursor_x = 0;
-    int cursor_y = 0;
+	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
     int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
     int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
     int fonta = editmsg_dlg[18].d1;
@@ -1197,6 +1264,13 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
     int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
     int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
     int nextstring = addtomsglist(editmsg_dlg[5].d1);
+	byte msg_margins[4];
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = oldmargin ? 0 : vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
+	}
+    int cursor_x = msg_margins[left];
+    int cursor_y = msg_margins[up];
     
     int i=0;
     int msgcolour=misc.colors.msgtext;
@@ -1297,10 +1371,12 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                 
                 tlength = text_length(workfont, s3);
                 
-                if(cursor_x+tlength+hjump > w  && ((cursor_x > w || !(flags & STRINGFLAG_WRAP)) ? 1 : strcmp(s3," ")!=0))
+                if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
+				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
+				        ? 1 : strcmp(s3," ")!=0))
                 {
                     cursor_y += text_height(workfont) + vspace;
-                    cursor_x=0;
+                    cursor_x=msg_margins[left];
                     //if(space) s3[0]=0;
                 }
                 
@@ -1312,10 +1388,10 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     {
                     case MSGC_NEWLINE:
                     {
-                        if(cursor_x>0 || (cursor_y==0 && cursor_x==0)) // If the newline's already at the end of a line, ignore it
+                        if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
                         {
                             cursor_y += text_height(workfont) + vspace;
-                            cursor_x=0;
+                            cursor_x=msg_margins[left];
                         }
                         
                         //No i++ here - s3 terminates at newlines.
@@ -1334,7 +1410,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     default:
                         if(s3[k] >= 32 && s3[k] <= 126)
                         {
-                            textprintf_ex(buf,workfont,cursor_x+8,cursor_y+8,msgcolour,-1,"%c",s3[k]);
+                            textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
                             cursor_x += workfont->vtable->char_length(workfont, s3[k]);
                             cursor_x += hspace;
                         }
