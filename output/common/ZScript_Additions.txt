@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 52
-Document Revision: 8th March, 2020
+Document Revision: 10th March, 2020
 
 
  __           _   _                 
@@ -2085,7 +2085,38 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 	and any constant expression, or constant value that is three to represent 'warn'.
 	The options 'inherit', and 'default' are specific, and not bound to any literal value. 
 	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
-	
+
+/////////////////////////////
+//       Annotations       //
+/////////////////////////////
+
+Annotations allow for metadata to be set in specific circumstances.
+
+An annotation is specified as follows:
+	@Key("Value")
+Annotations can be listed together to use multiple on the same target, as follows:
+	@Key("Value"), @Key2("Value2")
+
+Presently, annotations are only allowed on scripts.
+
+	[example--
+		
+		@Author("Venrob") //This sets the 'Author' metadata of 'script foo' to read 'Venrob'
+		ffc script foo
+		{
+			void run()
+			{
+				TraceS("Test");
+			}
+		}
+		
+	--end example]
+
+Available annotations:
+
+	@Author -
+		Valid on: Scripts
+		Function: Sets the author name metadata field
 
 /////////////////////////////
 ///  Registration System  ///
