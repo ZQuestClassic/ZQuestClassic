@@ -86,6 +86,8 @@ extern int mix_value(int c1,int c2,int pos,int max);
 extern unsigned int col_diff[3*128];
 extern int last_droplist_sel;
 
+int get_selected_tab(TABPANEL* panel);
+
 /* you should call this before using the other procedures */
 void jwin_set_colors(int *colors);
 
@@ -154,6 +156,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
                  int src_color1, int src_color2, unsigned char dest_color1,
                  unsigned char dest_color2);
 void jwin_center_dialog(DIALOG *dialog);
+void jwin_ulalign_dialog(DIALOG *dialog);
 
 void _calc_scroll_bar(int h, int height, int listsize, int offset,
                       int *bh, int *len, int *pos);

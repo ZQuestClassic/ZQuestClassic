@@ -651,6 +651,8 @@ CConsoleLoggerEx zscript_coloured_console;
 #endif
 
 #include "zqscale.h"
+#include "util.h"
+using namespace util;
 
 using std::vector;
 
@@ -23977,14 +23979,14 @@ static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
 
 static ListData assigncombo_list(assigncombolist, &font);
 static ListData assigncomboscript_list(assigncomboscriptlist, &font);
-	
+
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		  0,	0,		330,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
+    { jwin_win_proc,		  0,	0,		330,	236,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
     { jwin_tab_proc,		  6,	25,		330-12,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
-    { jwin_button_proc,	  251,	191,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
+    { jwin_button_proc,	  251,	207,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,	  182,	207,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
     //6
@@ -23998,11 +24000,11 @@ static DIALOG assignscript_dlg[] =
     //12
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //13
-    { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
-    { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked with '--' were not found", NULL, NULL },
-    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "and will not function. Scripts marked with '++' were not found, but were preserved as", NULL, NULL },
+    { jwin_check_proc,      22,  211,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
+    { jwin_text_proc,       22,  174,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked with '--' were not found", NULL, NULL },
+    { jwin_text_proc,       22,  184,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "and will not function. Scripts marked with '++' were not found, but were preserved as", NULL, NULL },
     //16
-    { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "ZASM. Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
+    { jwin_text_proc,       22,  194,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "ZASM. Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //npc scripts
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
@@ -24044,12 +24046,175 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncombo_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigncomboscript_list, NULL, NULL },
     //41
-    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	     154+5,   93,     15,     10,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "<<", NULL, NULL },
+    { jwin_button_proc,      78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
+    { jwin_button_proc,  174+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
 };
+
+int txtout(BITMAP* dest, char* txt, int x, int y, bool disabled)
+{
+	if(disabled)
+	{
+		gui_textout_ln(dest, font, (unsigned char*)txt, x+1, y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
+		return gui_textout_ln(dest, font, (unsigned char*)txt, x, y, palette_color[scheme[jcMEDDARK]], -1, 0);
+	}
+	else
+	{
+		return gui_textout_ln(dest, font, (unsigned char*)txt, x, y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+	}
+}
+
+int jwin_zmeta_proc(int msg, DIALOG *d, int )
+{
+	int ret = D_O_K;
+    ASSERT(d);
+    
+	BITMAP* target = (msg==MSG_START ? NULL : screen);
+    switch(msg)
+    {
+		case MSG_START:
+		case MSG_DRAW:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			
+			bool disabled = (d->flags & D_DISABLED) != 0;
+			if(d->dp)
+			{
+				zasm_meta const& meta = *((zasm_meta*)d->dp);
+				int ind = -1;
+				d->w = 0;
+				if(!meta.valid())
+				{
+					d->w = txtout(target, "Invalid ZASM metadata found!", d->x, d->y, disabled);
+					++ind;
+				}
+				
+				int t_w = 0;
+				char buf[1024];
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "ZASM Version: %d", meta.zasm_v);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Metadata Version: %d", meta.meta_v);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "FFScript Version: %d", meta.ffscript_v);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				bool indentrun = false;
+				int run_indent = txtout(NULL, "void run(", 0, 0, false);
+				std::ostringstream oss;
+				oss << "void run(";
+				for(int q = 0; q < 8; ++q)
+				{
+					if(meta.run_idens[q][0] == 0 || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
+					if(q > 0)
+						oss << ", ";
+					string type_name = ZScript::getTypeName(meta.run_types[q]);
+					lowerstr(type_name); //all lowercase for this output
+					if(oss.str().size() > (indentrun ? 41 : 50))
+					{
+						memset(buf, 0, sizeof(buf));
+						sprintf(buf, "%s", oss.str().c_str());
+						t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
+						d->w = zc_max(d->w, t_w);
+						oss.str("");
+						indentrun = true;
+					}
+					oss << type_name.c_str() << " " << meta.run_idens[q];
+				}
+				oss << ");";
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "%s", oss.str().c_str());
+				t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Compiler Version: %d.%d.%d.%d", meta.compiler_v1, meta.compiler_v2, meta.compiler_v3, meta.compiler_v4);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Parser-generated: %s", (meta.flags & ZMETA_AUTOGEN)!=0 ? "TRUE" : "FALSE");
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				d->h = (++ind) * (text_height(font) + 3) -3;
+			}
+			else
+			{
+				d->w = txtout(target, "No ZASM metadata found!", d->x, d->y, disabled);
+				d->h = text_height(font);
+			}
+			
+			if(d->dp3) //function trigger
+			{
+				typedef void (*funcType)(void);
+				funcType func=reinterpret_cast<funcType>(d->dp3);
+				func();
+			}
+			
+			font = oldfont;
+			break;
+		}
+    }
+    
+    return ret;
+}
+
+void resize_scriptinfo_dlg();
+
+static DIALOG scriptinfo_dlg[] =
+{
+	//                    x     y       w       h        fg       bg   key    flags    d1    d2    dp
+	{ jwin_win_proc,      0,    0,    200,    150,    vc(14),  vc(1),    0,  D_EXIT,    0,    0,   (void *) "Script Metadata", NULL, NULL },
+	{ d_dummy_proc,       6,   25, 330-12,    130,         0,      0,    0,       0,    0,    0,   assignscript_tabs, NULL, NULL },
+	{ jwin_button_proc,  70,  120,     60,     20,    vc(14),  vc(1),  'k',  D_EXIT,    0,    0,   (void *) "Done", NULL, NULL },
+	{ jwin_zmeta_proc,   50,   30,    100,    100,    vc(14),  vc(1),    0,       0,    0,    0,   NULL, NULL, (void*)resize_scriptinfo_dlg },
+	
+	{ NULL,               0,    0,      0,      0,         0,      0,    0,       0,    0,    0,   NULL, NULL, NULL }
+};
+
+void resize_scriptinfo_dlg()
+{
+	DIALOG *meta_proc = &scriptinfo_dlg[3], *window = &scriptinfo_dlg[0], *ok_button = &scriptinfo_dlg[2];
+	int bmargin = 10, hmargins = 20;
+	if(is_large)
+	{
+		bmargin *= 1.5;
+		hmargins *= 1.5;
+	}
+	jwin_ulalign_dialog(scriptinfo_dlg);
+	window->w = hmargins*2 + meta_proc->w;
+	meta_proc->x = hmargins;
+	window->h = meta_proc->y + meta_proc->h + ok_button->h + bmargin*2;
+	ok_button->x = (window->w/2)-(ok_button->w/2);
+	ok_button->y = meta_proc->y + meta_proc->h + bmargin;
+	jwin_center_dialog(scriptinfo_dlg);
+}
+
+void showScriptInfo(zasm_meta const* meta)
+{
+	scriptinfo_dlg[3].dp = (void*)meta;
+	scriptinfo_dlg[0].dp2 = lfont;
+	if(is_large)
+		large_dialog(scriptinfo_dlg);
+	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
+	jwin_center_dialog(scriptinfo_dlg);
+	zc_popup_dialog(scriptinfo_dlg,2);
+}
 
 static int zscript_settings_scripts_list[] =
 {
@@ -25585,6 +25750,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 
 bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
+	int ret = 3;
 	while(true)
 	{
 		//{
@@ -25629,7 +25795,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			{
 				if(globalmap[i].isDisassembled())
 				{}
-				else if(scripts.find(globalmap[i].scriptname) != scripts.end())
+				else if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
 					globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
 				else // Unloaded
 					globalmap[i].format = SCRIPT_FORMAT_INVALID;
@@ -25796,10 +25962,11 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 		if(is_large)
 			large_dialog(assignscript_dlg);
 	
-		int ret2 = zc_popup_dialog(assignscript_dlg,3);
+		ret = zc_popup_dialog(assignscript_dlg,ret);
+		
 		
 		FILE* tempfile;
-		switch(ret2)
+		switch(ret)
 		{
 			case 0:
 			case 2:
@@ -26639,6 +26806,208 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						comboscriptmap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				
+				break;
+			}
+		
+			case 42:
+				//i, information
+			{
+				zasm_meta* target = NULL;
+				switch(get_selected_tab((TABPANEL*)assignscript_dlg[1].dp))
+				{
+					default:
+					case 0: //FFC
+					{
+						int id = assignscript_dlg[4].d1;
+						if(id > -1 && ffcmap[id].hasScriptData())
+						{
+							target = &(scripts[ffcmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 1: //Global
+					{
+						int id = assignscript_dlg[7].d1;
+						if(id > -1 && globalmap[id].hasScriptData())
+						{
+							target = &(scripts[globalmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 2: //Item
+					{
+						int id = assignscript_dlg[10].d1;
+						if(id > -1 && itemmap[id].hasScriptData())
+						{
+							target = &(scripts[itemmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 3: //npc
+					{
+						int id = assignscript_dlg[19].d1;
+						if(id > -1 && npcmap[id].hasScriptData())
+						{
+							target = &(scripts[npcmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 4: //lweapon
+					{
+						int id = assignscript_dlg[21].d1;
+						if(id > -1 && lwpnmap[id].hasScriptData())
+						{
+							target = &(scripts[lwpnmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 5: //eweapon
+					{
+						int id = assignscript_dlg[24].d1;
+						if(id > -1 && ewpnmap[id].hasScriptData())
+						{
+							target = &(scripts[ewpnmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 6: //hero
+					{
+						int id = assignscript_dlg[27].d1;
+						if(id > -1 && linkmap[id].hasScriptData())
+						{
+							target = &(scripts[linkmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 7: //dmap
+					{
+						int id = assignscript_dlg[33].d1;
+						if(id > -1 && dmapmap[id].hasScriptData())
+						{
+							target = &(scripts[dmapmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 8: //screen
+					{
+						int id = assignscript_dlg[30].d1;
+						if(id > -1 && screenmap[id].hasScriptData())
+						{
+							target = &(scripts[screenmap[id].scriptname].first);
+						}
+						break;
+					}
+					case 9: //itemsprite
+					{
+						int id = assignscript_dlg[36].d1;
+						if(id > -1 && itemspritemap[id].hasScriptData())
+						{
+							target = &(scripts[itemspritemap[id].scriptname].first);
+						}
+						break;
+					}
+					case 10: //combo
+					{
+						int id = assignscript_dlg[39].d1;
+						if(id > -1 && comboscriptmap[id].hasScriptData())
+						{
+							target = &(scripts[comboscriptmap[id].scriptname].first);
+						}
+						break;
+					}
+				}
+				if(target)
+					showScriptInfo(target);
+				break;
+			}
+		
+			case 43:
+				//i, information
+			{
+				zasm_meta* target = NULL;
+				switch(assignscript_dlg[1].d1)
+				{
+					default:
+					case 0: //FFC
+					{
+						int id = assignscript_dlg[5].d1;
+						if(id < 0 || asffcscripts[id] == "<none>" || asffcscripts[id].at(0) == '-') break;
+						target = &(scripts[asffcscripts[id]].first);
+						break;
+					}
+					case 1: //Global
+					{
+						int id = assignscript_dlg[8].d1;
+						if(id < 0 || asglobalscripts[id] == "<none>" || asglobalscripts[id].at(0) == '-') break;
+						target = &(scripts[asglobalscripts[id]].first);
+						break;
+					}
+					case 2: //Item
+					{
+						int id = assignscript_dlg[11].d1;
+						if(id < 0 || asitemscripts[id] == "<none>" || asitemscripts[id].at(0) == '-') break;
+						target = &(scripts[asitemscripts[id]].first);
+						break;
+					}
+					case 3: //npc
+					{
+						int id = assignscript_dlg[20].d1;
+						if(id < 0 || asnpcscripts[id] == "<none>" || asnpcscripts[id].at(0) == '-') break;
+						target = &(scripts[asnpcscripts[id]].first);
+						break;
+					}
+					case 4: //lweapon
+					{
+						int id = assignscript_dlg[22].d1;
+						if(id < 0 || aslweaponscripts[id] == "<none>" || aslweaponscripts[id].at(0) == '-') break;
+						target = &(scripts[aslweaponscripts[id]].first);
+						break;
+					}
+					case 5: //eweapon
+					{
+						int id = assignscript_dlg[25].d1;
+						if(id < 0 || aseweaponscripts[id] == "<none>" || aseweaponscripts[id].at(0) == '-') break;
+						target = &(scripts[aseweaponscripts[id]].first);
+						break;
+					}
+					case 6: //hero
+					{
+						int id = assignscript_dlg[28].d1;
+						if(id < 0 || aslinkscripts[id] == "<none>" || aslinkscripts[id].at(0) == '-') break;
+						target = &(scripts[aslinkscripts[id]].first);
+						break;
+					}
+					case 7: //dmap
+					{
+						int id = assignscript_dlg[34].d1;
+						if(id < 0 || asdmapscripts[id] == "<none>" || asdmapscripts[id].at(0) == '-') break;
+						target = &(scripts[asdmapscripts[id]].first);
+						break;
+					}
+					case 8: //screen
+					{
+						int id = assignscript_dlg[31].d1;
+						if(id < 0 || asscreenscripts[id] == "<none>" || asscreenscripts[id].at(0) == '-') break;
+						target = &(scripts[asscreenscripts[id]].first);
+						break;
+					}
+					case 9: //itemsprite
+					{
+						int id = assignscript_dlg[37].d1;
+						if(id < 0 || asitemspritescripts[id] == "<none>" || asitemspritescripts[id].at(0) == '-') break;
+						target = &(scripts[asitemspritescripts[id]].first);
+						break;
+					}
+					case 10: //combo
+					{
+						int id = assignscript_dlg[40].d1;
+						if(id < 0 || ascomboscripts[id] == "<none>" || ascomboscripts[id].at(0) == '-') break;
+						target = &(scripts[ascomboscripts[id]].first);
+						break;
+					}
+				}
+				if(target)
+					showScriptInfo(target);
 				break;
 			}
 		}

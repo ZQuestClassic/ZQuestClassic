@@ -2472,6 +2472,11 @@ struct zasm_meta
 	byte flags;
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
 	
+	
+	bool valid() const
+	{
+		return zasm_v >= 2 && meta_v >= 1 && ffscript_v >= 16;
+	}
 	void zero()
 	{
 		zasm_v = 0;

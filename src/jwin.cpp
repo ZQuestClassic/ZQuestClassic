@@ -75,6 +75,16 @@ int bound(int x,int low,int high)
   }
   */
 
+int get_selected_tab(TABPANEL* panel)
+{
+	for(int i=0; panel[i].text; ++i)
+	{
+		if((panel[i].flags&D_SELECTED)!=0)
+			return i;
+	}
+	return -1;
+}
+
 /* these are provided for external use */
 int jwin_colors[jcMAX] =
 {
@@ -5181,6 +5191,24 @@ void jwin_center_dialog(DIALOG *dialog)
     {
         dialog[c].x += xc;
         dialog[c].y += yc;
+    }
+}
+//up-left aligns dialog based on first object, which should be the containing window
+void jwin_ulalign_dialog(DIALOG *dialog)
+{
+    int xc, yc;
+    int c;
+    ASSERT(dialog);
+    
+    /* how much to move by? */
+    xc = dialog[0].x;
+    yc = dialog[0].y;
+    
+    /* move it */
+    for(c=0; dialog[c].proc; c++)
+    {
+        dialog[c].x -= xc;
+        dialog[c].y -= yc;
     }
 }
 

@@ -22,6 +22,7 @@ int parse_script(script_data **script);
 int parse_script_file(script_data **script, const char *path, bool report_success);
 long ffparse(char *string);
 std::string get_meta(zasm_meta const& meta);
+std::string get_script_name(int type);
 
 #endif
 

@@ -17,6 +17,8 @@
 //#include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
+#include "util.h"
+using namespace util;
 
 #include <sstream>
 
@@ -2259,12 +2261,6 @@ string get_meta(zasm_meta const& meta)
 		<< "\n#PARAM_NAME_8 = " << meta.run_idens[7]
 		<< "\n";
 	return oss.str();
-}
-
-void upperstr(string& str)
-{
-	for(int q = str.size() - 1; q >= 0; --q)
-		str[q] = toupper(str[q]);
 }
 
 //Parse a single line of metadata
