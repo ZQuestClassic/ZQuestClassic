@@ -142,7 +142,7 @@ ScriptType UserScript::getType() const
 }
 
 // ZScript::BuiltinScript
-
+const string BuiltinScript::builtin_author = "ZQ_PARSER";
 BuiltinScript::BuiltinScript(
 		Program& program, ScriptType type, string const& name)
 	: Script(program), type(type), name(name)

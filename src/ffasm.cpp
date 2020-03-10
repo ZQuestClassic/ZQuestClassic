@@ -2237,6 +2237,8 @@ string get_meta(zasm_meta const& meta)
 	oss << "#ZASM_VERSION = " << meta.zasm_v
 		<< "\n#METADATA_VERSION = " << meta.meta_v
 		<< "\n#FFSCRIPT_VERSION = " << meta.ffscript_v
+		<< "\n#SCRIPT_NAME = " << meta.script_name
+		<< "\n#AUTHOR = " << meta.author
 		<< "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type)
 		<< "\n#AUTO_GEN = " << ((meta.flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
 		<< "\n#COMPILER_V1 = " << meta.compiler_v1
@@ -2272,7 +2274,14 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	string cmd = line.substr(0, space_pos); //The command portion
 	size_t end_space_pos = line.find_first_not_of(" \t=", space_pos);
 	if(end_space_pos == string::npos) return false;
-	string val = line.substr(end_space_pos); //The value portion
+	size_t semi = line.find_first_of(";",end_space_pos);
+	string val = line.substr(end_space_pos, (semi == string::npos ? semi : semi-end_space_pos-1)); //The value portion
+	val = val.substr(0, val.find_last_not_of(" \t\r\n\0")); //trim trailing whitespace
+	
+	if(val.size() > 32)
+	{
+		val = val.substr(0,32); //Limit to 32 chars, so doesn't overflow
+	}
 	
 	if(cmd == "#ZASM_VERSION")
 	{
@@ -2290,6 +2299,15 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	{
 		upperstr(val);
 		meta.script_type = get_script_type(val);
+	}
+	else if(cmd == "#SCRIPT_NAME")
+	{
+		replchar(val, ' ', '_');
+		strcpy(meta.script_name, val.c_str());
+	}
+	else if(cmd == "#AUTHOR")
+	{
+		strcpy(meta.author, val.c_str());
 	}
 	else if(cmd == "#AUTO_GEN")
 	{
@@ -2325,76 +2343,43 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if(cmd == "#PARAM_NAME_1")
 	{
+		replchar(val, ' ', '_');
 		strcpy(meta.run_idens[0], val.c_str());
-		/*int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[0][ind] = val.at(ind);
-		}
-		meta.run_idens[0][ind] = 0;*/
 	}
 	else if(cmd == "#PARAM_NAME_2")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[1][ind] = val.at(ind);
-		}
-		meta.run_idens[1][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[1], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_3")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[2][ind] = val.at(ind);
-		}
-		meta.run_idens[2][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[2], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_4")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[3][ind] = val.at(ind);
-		}
-		meta.run_idens[3][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[3], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_5")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[4][ind] = val.at(ind);
-		}
-		meta.run_idens[4][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[4], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_6")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[5][ind] = val.at(ind);
-		}
-		meta.run_idens[5][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[5], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_7")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[6][ind] = val.at(ind);
-		}
-		meta.run_idens[6][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[6], val.c_str());
 	}
 	else if(cmd == "#PARAM_NAME_8")
 	{
-		int ind = 0;
-		for(; ind < val.size() && ind < 33; ++ind)
-		{
-			meta.run_idens[7][ind] = val.at(ind);
-		}
-		meta.run_idens[7][ind] = 0;
+		replchar(val, ' ', '_');
+		strcpy(meta.run_idens[7], val.c_str());
 	}
 	else if(cmd == "#PARAM_TYPE_1")
 	{

@@ -35,7 +35,6 @@ void yymsg(string const& message, int row = yyrow, int col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
 
-
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
 // stands in for '$' and 'a' stands in for '@'.
@@ -247,6 +246,7 @@ Global_Statement :
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
+	| Annotated_Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| AlwaysUsing SEMICOLON {$$ = $1;}
@@ -360,6 +360,7 @@ Namespace_Statement :
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
+	| Annotated_Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
@@ -637,27 +638,49 @@ Function_Parameters_Element :
 ////////////////////////////////////////////////////////////////
 // Script Declaration
 
-Script : Script_Type SCRIPT IDENTIFIER Script_Block {
-	ASTScriptType* type = (ASTScriptType*)$1;
-	ASTString* name = (ASTString*)$3;
-	ASTScript* script = (ASTScript*)$4;
-	script->type = type;
-	script->name = name->getValue();
-	script->location = @$;
-	$$ = script;
-	delete name;}
+Annotated_Script :
+	Annotation_List Script {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		owning_vector<ASTAnnotation>& set = list->set;
+		ASTScript* script = (ASTScript*)$2;
+		for(int q = 0; q < set.size(); ++q)
+		{
+			ASTAnnotation* a = set[q];
+			std::string key = a->first->getValue();
+			std::string val = a->second->getValue();
+			if(key == "Author")
+			{
+				script->author = val;
+			}
+			else
+			{
+				yymsg("WARNING: Bad Annotation: \"" + key + "\"");
+			}
+		}
+		delete list;
+		$$ = script;}
+	;
+
+Script : 
+	Script_Type SCRIPT IDENTIFIER Script_Block {
+		ASTScriptType* type = (ASTScriptType*)$1;
+		ASTString* name = (ASTString*)$3;
+		ASTScript* script = (ASTScript*)$4;
+		script->type = type;
+		script->name = name->getValue();
+		script->location = @$;
+		$$ = script;
+		delete name;}
 	
-	|
-	
-	SCRIPTSTRUCT IDENTIFIER Script_Block {
-	ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
-	ASTString* name = (ASTString*)$2;
-	ASTScript* script = (ASTScript*)$3;
-	script->type = type;
-	script->name = name->getValue();
-	script->location = @$;
-	$$ = script;
-	delete name;}
+	| SCRIPTSTRUCT IDENTIFIER Script_Block {
+		ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
+		ASTString* name = (ASTString*)$2;
+		ASTScript* script = (ASTScript*)$3;
+		script->type = type;
+		script->name = name->getValue();
+		script->location = @$;
+		$$ = script;
+		delete name;}
 	;
 
 
@@ -726,6 +749,25 @@ Script_Block_Element :
 		ASTDecl* declaration = (ASTDecl*)$5;
 		declaration->compileErrorCatches.push_back(errorId);
 		$$ = declaration;}
+	;
+	
+Annotation_List :
+	Annotation_List COMMA Annotation {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		list->set.push_back((ASTAnnotation*)$3);
+		$$ = list;}
+	| Annotation {
+		ASTAnnotationList* list = new ASTAnnotationList(@$);
+		list->set.push_back((ASTAnnotation*)$1);
+		$$ = list;}
+	;
+
+Annotation :
+	HANDLE IDENTIFIER LPAREN QUOTEDSTRING RPAREN {
+		ASTString* key = (ASTString*)$2;
+		ASTString* val = (ASTString*)$4;
+		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		$$ = a;}
 	;
 
 ////////////////////////////////////////////////////////////////

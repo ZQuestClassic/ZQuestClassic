@@ -263,6 +263,28 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 	visitor.caseString(*this, param);
 }
 
+// ASTAnnotation
+
+ASTAnnotation::ASTAnnotation(ASTString* first, ASTString* second, LocationData const& location)
+	: AST(location), first(first), second(second)
+{}
+
+void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
+{
+	
+}
+
+// ASTAnnotationList
+
+ASTAnnotationList::ASTAnnotationList(LocationData const& location)
+	: AST(location)
+{}
+
+void ASTAnnotationList::execute(ASTVisitor& visitor, void* param)
+{
+	
+}
+
 // ASTSetOption
 
 ASTSetOption::ASTSetOption(
@@ -502,7 +524,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name(""), script(NULL) {}
+	: ASTDecl(location), type(NULL), name(""), author(""), script(NULL) {}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {

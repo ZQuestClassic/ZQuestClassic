@@ -219,7 +219,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata);
 int read_one_subscreen(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion);
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
-int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion, script_data **script);
+int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion, script_data **script, word zmeta_version);
 int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readitemdropsets(PACKFILE *f, word version, word build, bool keepdata);
 int readfavorites(PACKFILE *f, int, word, bool keepdata);
