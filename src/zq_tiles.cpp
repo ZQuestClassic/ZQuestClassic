@@ -3313,11 +3313,11 @@ void load_imagebuf()
 {
     PACKFILE *f;
 	//cache QRS
-	byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
-	for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	{ 
-		cached_rules[q] = quest_rules[q];
-	}
+	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ 
+	//	cached_rules[q] = quest_rules[q];
+	//}
     bool compressed=false;
     bool encrypted=false;
     tiledata *hold=newtilebuf;
@@ -3518,10 +3518,10 @@ error2:
     rgb_map = &zq_rgb_table;
     //restore cashed QRs / rules
 	
-	for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	{ 
-		quest_rules[q] = cached_rules[q];
-	}
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ 
+	//	quest_rules[q] = cached_rules[q];
+	//}
 }
 
 static char bitstrbuf[32];

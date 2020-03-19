@@ -16981,13 +16981,13 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     word old_map_count=map_count;
     for(int i=0; i<qr_MAX; i++)
                 set_bit(quest_rules,i,0);
-    byte old_quest_rules[QUESTRULES_SIZE];
+    byte old_quest_rules[QUESTRULES_NEW_SIZE];
     byte old_extra_rules[EXTRARULES_SIZE];
     byte old_midi_flags[MIDIFLAGS_SIZE];
     
     if(keepall==false||get_bit(skip_flags, skip_rules))
     {
-        memcpy(old_quest_rules, quest_rules, QUESTRULES_SIZE);
+        memcpy(old_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
     }
     
@@ -17782,7 +17782,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     if(!keepall||get_bit(skip_flags, skip_rules))
     {
-        memcpy(quest_rules, old_quest_rules, QUESTRULES_SIZE);
+        memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
     }
     
