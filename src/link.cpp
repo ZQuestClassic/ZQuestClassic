@@ -71,7 +71,6 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 static int isNextType(int type)
 {
 	//return true here, if an emulation bit says to use buggy code
-	if (emulation_patches[emuBUGGYNEXTCOMBOS]) return false; 
 	switch(type)
 	{
 		case cSLASHNEXT:
@@ -2369,7 +2368,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
-    if (isNextType(type))
+    if ( (!(emulation_patches[emuBUGGYNEXTCOMBOS]) ) && isNextType(type))
     {
 	    skipsecrets = 1;
     }
