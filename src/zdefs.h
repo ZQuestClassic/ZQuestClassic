@@ -2927,6 +2927,8 @@ enum { msLINKED };
 #define MSGC_SFX	20 // 1 arg
 #define MSGC_MIDI	21 // 1 arg
 #define MSGC_NAME	22 // 0 args, disabled
+#define MSGC_GOTOIFCREEND	23 // 5 args
+#define MSGC_CHANGEPORTRAIT	24 // 5 args, //not implemented
 #define MSGC_NEWLINE	25 // 0 args
 #define MSGC_GOTOIFYN   30 // 0 args, disabled
 
