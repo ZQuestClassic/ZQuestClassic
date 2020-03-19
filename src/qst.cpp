@@ -16980,9 +16980,9 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     byte tempbyte;
     word old_map_count=map_count;
     
-    byte old_quest_rules[QUESTRULES_NEW_SIZE];
-    byte old_extra_rules[EXTRARULES_SIZE];
-    byte old_midi_flags[MIDIFLAGS_SIZE];
+    byte old_quest_rules[QUESTRULES_NEW_SIZE] = {0};
+    byte old_extra_rules[EXTRARULES_SIZE] = {0};
+    byte old_midi_flags[MIDIFLAGS_SIZE] = {0};
     
     if(keepall==false||get_bit(skip_flags, skip_rules))
     {
@@ -16990,9 +16990,9 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
     }
     
-    for(int i=0; i<qr_MAX; i++)
-                set_bit(quest_rules,i,0);
-    
+    memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
+   // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
+   
     if(keepall==false||get_bit(skip_flags, skip_midis))
     {
         memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
