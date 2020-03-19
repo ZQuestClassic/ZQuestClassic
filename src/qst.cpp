@@ -133,7 +133,7 @@ enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERP
        ssiQUAKESCROLL2, ssiAGONY, ssiSTOMPBOOTS, ssiWHIMSICALRING, ssiPERILRING, ssiMAX
      };
 
-static byte deprecated_rules[QUESTRULES_SIZE];
+static byte deprecated_rules[QUESTRULES_NEW_SIZE];
 
 
 void delete_combo_aliases()
@@ -2779,7 +2779,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //al_trace("Rules version %d\n", s_version);
     
-    memcpy(deprecated_rules, quest_rules, QUESTRULES_SIZE);
+    memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
     
     if(s_version<2)
     {
