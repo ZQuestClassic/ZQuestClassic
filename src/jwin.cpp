@@ -3924,6 +3924,9 @@ dropit:
 /************  ABC list proc  ************/
 /*****************************************/
 
+char abc_keypresses[1024] = {0};
+void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
+
 int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
     ListData *data = (ListData *)d->dp;
@@ -3934,6 +3937,15 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
         
         h = (d->h-3) / text_height(*data->font);
         c = toupper(c&0xFF);
+	for ( int q = 0; q < 1023; ++q ) 
+	{ 
+		if ( !(abc_keypresses[q]) )
+		{
+			abc_keypresses[q] = (char)c;
+			break;
+		}
+	}
+	al_trace("keypresses: %s\n", abc_keypresses);
         
         (*data->listFunc)(-1, &max);
         
@@ -3953,9 +3965,22 @@ gotit:
         scare_mouse();
         jwin_list_proc(MSG_DRAW,d,0);
         unscare_mouse();
+	//wipe_abc_keypresses();
         return D_USED_CHAR;
     }
-    
+	
+    else if(msg==MSG_CHAR && ( (c&0xFF) == 8) )//backspace
+    {
+	for ( int q = 1023; q >= 0; --q )
+	{
+		if ( abc_keypresses[q] ) 
+		{
+			abc_keypresses[q] = '\0'; break;
+		}
+	}
+	al_trace("keypresses: %s\n", abc_keypresses);
+    }
+    //wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
     return jwin_list_proc(msg,d,c);
 }
 
