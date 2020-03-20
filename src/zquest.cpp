@@ -3459,9 +3459,14 @@ int onH()
 
 int onPaste()
 {
-	if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL])  return onPasteAll();
-	else if ((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) && !key[KEY_LSHIFT] && !key[KEY_RSHIFT] ) return onPasteToAll();
-	else if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) ) return onPasteAllToAll();
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			return onPasteAllToAll();
+		else return onPasteAll();
+	}
+	else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		return onPasteToAll();
 	else
 	{
 		Map.Paste();
@@ -3472,23 +3477,29 @@ int onPaste()
 
 int onPasteAll()
 {
-    Map.PasteAll();
-    refresh(rALL);
-    return D_O_K;
+	Map.PasteAll();
+	refresh(rALL);
+	return D_O_K;
 }
 
 int onPasteToAll()
 {
-    Map.PasteToAll();
-    refresh(rALL);
-    return D_O_K;
+	if(confirmBox("You are about to paste to all screens on the current map."))
+	{
+		Map.PasteToAll();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteAllToAll()
 {
-    Map.PasteAllToAll();
-    refresh(rALL);
-    return D_O_K;
+	if(confirmBox("You are about to paste to all screens on the current map."))
+	{
+		Map.PasteAllToAll();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteUnderCombo()
@@ -27828,6 +27839,16 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
         sfx1->data = zc_malloc(len);
         memcpy(sfx1->data, sfx2->data, len);
     }
+}
+
+bool confirmBox(const char *m1, const char *m2, const char *m3)
+{
+	if(!m3)
+	{
+		if(!m2) m2 = "Are you sure?";
+		else m3 = "Are you sure?";
+	}
+	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', lfont) == 1;
 }
 
 int onSelectSFX()

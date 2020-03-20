@@ -298,6 +298,7 @@ int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
 
+bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int onSelectSFX();
 int onOptions();
 void fix_drawing_mode_menu();
