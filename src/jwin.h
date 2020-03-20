@@ -132,6 +132,7 @@ int jwin_radiofont_proc(int msg, DIALOG *d, int c);
 int jwin_tab_proc(int msg, DIALOG *d, int c);
 int jwin_hline_proc(int msg, DIALOG *d, int c);
 int jwin_vline_proc(int msg, DIALOG *d, int c);
+void wipe_abc_keypresses();
 
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);
