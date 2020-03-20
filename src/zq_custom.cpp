@@ -7515,8 +7515,14 @@ void edit_enemydata(int index)
             test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
             
         if(enedata_dlg[143].flags & D_SELECTED)
+	{
             test.cset = 14;
-            
+	}
+	//if we disable the box, revert to cset 8 -Z.
+	else if(guysbuf[index].cset == 14 || test.cset == 14)
+	{
+		test.cset = 8;
+	}
 	test.defense[edefSCRIPT01] = enedata_dlg[203].d1;
 	test.defense[edefSCRIPT02] = enedata_dlg[204].d1;
 	test.defense[edefSCRIPT03] = enedata_dlg[205].d1;
