@@ -3937,8 +3937,10 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
         
         (*data->listFunc)(-1, &max);
         
-        for(i=0; i<max; i++)
+		int cur = d->d1;
+        for(i=cur+1; i!=cur; ++i)
         {
+			if(i>=max) i=0;
             if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
             {
                 d->d1 = i;
