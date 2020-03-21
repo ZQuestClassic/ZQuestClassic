@@ -1905,7 +1905,7 @@ void _jwin_draw_listbox(DIALOG *d)
     _allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
-	al_trace("Drawing %s\n", abc_keypresses);
+	//al_trace("Drawing %s\n", abc_keypresses);
     rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
     textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
     //d->flags|=D_DIRTY;
@@ -3950,21 +3950,76 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 			break; 
 		}
 	}
-	al_trace("keypresses: %s\n", abc_keypresses);
-        
+	//al_trace("keypresses: %s\n", abc_keypresses);
+        //the lister string is (((*data->listFunc)(i,&dummy)))
+	//al_trace("lister: %s\n", (((*data->listFunc)(i,&dummy))));
         (*data->listFunc)(-1, &max);
         
 		int cur = d->d1;
-        for(i=cur+1; i!=cur; ++i)
+	int charpos = 0; int listpos = 0; int lastmatch = -1;
+	char tmp[1024] = { 0 };
+	char lsttmp[1024] = { 0 };
+	
+		
+	for ( int listpos = 0; listpos < max; ++listpos )
+	{
+		memset(tmp, 0, 1024);
+		memset(lsttmp, 0, 1024);
+		strcpy(tmp, abc_keypresses);
+		strcpy(lsttmp, (((*data->listFunc)(listpos,&dummy))));
+		for ( int w = 0; w < 1024; ++w ) 
+		{
+			if ( isalpha(tmp[w]) )
+			{
+				tmp[w] = toupper(tmp[w]);
+				//al_trace("tmp is: %s\n",tmp);
+			}
+		}
+		for ( int e = 0; e < 1024; ++e ) 
+		{
+			if ( isalpha(lsttmp[e]) )
+			{
+				lsttmp[e] = toupper(lsttmp[e]);
+				//al_trace("lsttmp is: %s\n",lsttmp);
+			}
+		}
+		
+		//al_trace("tmp is: %s\n", tmp);
+		//al_trace("lsttmp is: %s\n", lsttmp);
+		
+		//al_trace("strlen(lsttmp) is: %d\n", strlen(tmp));
+		if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
+		{
+			//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
+			//al_trace("strncmp charpos was: %d\n", charpos);
+			lastmatch = listpos;
+		}
+		else
+		{
+			
+		}
+	}
+	
+	if ( lastmatch > -1 )
+	{
+		d->d1 = lastmatch;
+		d->d2 = zc_max(zc_min(lastmatch-(h>>1), max-h), 0);
+		goto gotit;
+	}
+		
+	/*
+	for(i=cur+1; i!=cur; ++i)
         {
 			if(i>=max) i=0;
             if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
             {
                 d->d1 = i;
                 d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
+		
                 goto gotit;
             }
         }
+	*/
         
 gotit:
         scare_mouse();
@@ -3984,7 +4039,7 @@ gotit:
 			abc_keypresses[q] = '\0'; break;
 		}
 	}
-	al_trace("keypresses: %s\n", abc_keypresses);
+	//al_trace("keypresses: %s\n", abc_keypresses);
 	jwin_list_proc(MSG_DRAW,d,0);
 	return D_USED_CHAR;
     }
