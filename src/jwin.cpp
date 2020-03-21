@@ -3942,7 +3942,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 		if ( !(abc_keypresses[q]) )
 		{
 			abc_keypresses[q] = (char)c;
-			break;
+			break; 
 		}
 	}
 	al_trace("keypresses: %s\n", abc_keypresses);
@@ -3965,6 +3965,7 @@ gotit:
         scare_mouse();
         jwin_list_proc(MSG_DRAW,d,0);
         unscare_mouse();
+	if ( gui_mouse_b() ) { wipe_abc_keypresses(); /*al_trace("keypresses: %s\n", abc_keypresses);*/ }
 	//wipe_abc_keypresses();
         return D_USED_CHAR;
     }
@@ -3980,6 +3981,7 @@ gotit:
 	}
 	al_trace("keypresses: %s\n", abc_keypresses);
     }
+    if ( gui_mouse_b() ) { wipe_abc_keypresses(); /*al_trace("keypresses: %s\n", abc_keypresses);*/ }
     //wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
     return jwin_list_proc(msg,d,c);
 }
