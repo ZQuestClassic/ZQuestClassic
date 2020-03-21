@@ -51,6 +51,8 @@ extern int joystick_index;
 
 extern bool is_zquest();
 
+char abc_keypresses[1024] = {0};
+void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
 /* ... Included in jwin.h ...
 
   enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
@@ -1903,6 +1905,10 @@ void _jwin_draw_listbox(DIALOG *d)
     _allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
+	al_trace("Drawing %s\n", abc_keypresses);
+    rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
+    textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
+    //d->flags|=D_DIRTY;
     
     /* draw box contents */
     for(i=0; i<height; i++)
@@ -3924,8 +3930,7 @@ dropit:
 /************  ABC list proc  ************/
 /*****************************************/
 
-char abc_keypresses[1024] = {0};
-void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
+
 
 int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
@@ -3980,6 +3985,8 @@ gotit:
 		}
 	}
 	al_trace("keypresses: %s\n", abc_keypresses);
+	jwin_list_proc(MSG_DRAW,d,0);
+	return D_USED_CHAR;
     }
     if ( gui_mouse_b() ) { wipe_abc_keypresses(); /*al_trace("keypresses: %s\n", abc_keypresses);*/ }
     //wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
