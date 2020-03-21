@@ -3959,12 +3959,16 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 	int charpos = 0; int listpos = 0; int lastmatch = -1;
 	char tmp[1024] = { 0 };
 	char lsttmp[1024] = { 0 };
+	int lastmatches[32768] = {0};
+	for ( int a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
+	int lmindx = 0;
 	
 		
 	for ( int listpos = 0; listpos < max; ++listpos )
 	{
 		memset(tmp, 0, 1024);
 		memset(lsttmp, 0, 1024);
+		
 		strcpy(tmp, abc_keypresses);
 		strcpy(lsttmp, (((*data->listFunc)(listpos,&dummy))));
 		for ( int w = 0; w < 1024; ++w ) 
@@ -3993,6 +3997,9 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 			//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
 			//al_trace("strncmp charpos was: %d\n", charpos);
 			lastmatch = listpos;
+			lastmatches[lmindx] = lastmatch;
+			al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
+			++lmindx;
 		}
 		else
 		{
@@ -4000,10 +4007,26 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 		}
 	}
 	
-	if ( lastmatch > -1 )
+	int the_lowest = 65537; 
+	//al_trace("Lowest starts at: %d\n", the_lowest);
+		
+	--lmindx; // start at the last used.
+	for (; lmindx >= 0; --lmindx )
 	{
-		d->d1 = lastmatch;
-		d->d2 = zc_max(zc_min(lastmatch-(h>>1), max-h), 0);
+		if ( lastmatches[lmindx] < the_lowest ) 
+		{
+			//al_trace("lastmatches[%d]: %d\n", lmindx, lastmatches[lmindx]);
+			the_lowest = lastmatches[lmindx];
+			//al_trace("lowest is: %d\n", the_lowest);
+		}
+	}
+	
+	if ( the_lowest > -1 )
+	{
+		//sort lastmatches to find th lowest number
+		
+		d->d1 = the_lowest;
+		d->d2 = zc_max(zc_min(the_lowest-(h>>1), max-h), 0);
 		goto gotit;
 	}
 		
