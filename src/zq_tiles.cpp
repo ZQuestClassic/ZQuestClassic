@@ -4933,6 +4933,13 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 				}
 				else
 				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc(0);
+						}
+					}
 					rect(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
 					line(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
 					line(dest, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
