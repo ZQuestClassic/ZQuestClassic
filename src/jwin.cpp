@@ -3936,12 +3936,12 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
     ListData *data = (ListData *)d->dp;
     
-    if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
+    if(msg==MSG_CHAR && ((c&0xFF) > 31) && ((c&0xFF) < 127)) //(isalpha(c&0xFF) || isdigit(c&0xFF)))
     {
         int max,dummy,h,i;
         
         h = (d->h-3) / text_height(*data->font);
-        c = toupper(c&0xFF);
+        if ( isalpha(c&0xFF) ) c = toupper(c&0xFF);
 	for ( int q = 0; q < 1023; ++q ) 
 	{ 
 		if ( !(abc_keypresses[q]) )
@@ -3970,7 +3970,7 @@ gotit:
         scare_mouse();
         jwin_list_proc(MSG_DRAW,d,0);
         unscare_mouse();
-	if ( gui_mouse_b() ) { wipe_abc_keypresses(); /*al_trace("keypresses: %s\n", abc_keypresses);*/ }
+	if ( gui_mouse_b() ) { wipe_abc_keypresses();} // al_trace("keypresses: %s\n", abc_keypresses); }
 	//wipe_abc_keypresses();
         return D_USED_CHAR;
     }
@@ -3988,7 +3988,7 @@ gotit:
 	jwin_list_proc(MSG_DRAW,d,0);
 	return D_USED_CHAR;
     }
-    if ( gui_mouse_b() ) { wipe_abc_keypresses(); /*al_trace("keypresses: %s\n", abc_keypresses);*/ }
+    if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
     //wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
     return jwin_list_proc(msg,d,c);
 }
