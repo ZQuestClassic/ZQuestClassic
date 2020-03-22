@@ -1841,6 +1841,7 @@ int main(int argc, char **argv)
     
 #ifndef ALLEGRO_DOS
     zq_scale = get_config_int("romview","scale",1);
+	abc_patternmatch = get_config_int("romview", "lister_pattern_matching", 1);
     scale_arg = used_switch(argc,argv,"-scale");
     scale_arg = false; // What!?
     

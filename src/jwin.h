@@ -77,6 +77,8 @@ enum
 	jcMAX
 };
 
+extern int abc_patternmatch;
+
 /* a copy of the default color scheme; do what you want with this */
 extern int jwin_colors[jcMAX];
 

@@ -51,6 +51,8 @@ extern int joystick_index;
 
 extern bool is_zquest();
 
+int abc_patternmatch;
+
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
 /* ... Included in jwin.h ...
@@ -1906,8 +1908,11 @@ void _jwin_draw_listbox(DIALOG *d)
     _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
-    rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
-    textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
+	if(abc_patternmatch)
+	{
+		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
+		textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
+	}
     //d->flags|=D_DIRTY;
     
     /* draw box contents */
@@ -3936,144 +3941,163 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
     ListData *data = (ListData *)d->dp;
     
-    if(msg==MSG_CHAR && ((c&0xFF) > 31) && ((c&0xFF) < 127)) //(isalpha(c&0xFF) || isdigit(c&0xFF)))
-    {
-        int max,dummy,h;
-        
-        h = (d->h-3) / text_height(*data->font);
-        if ( isalpha(c&0xFF) ) c = toupper(c&0xFF);
-	for ( int q = 0; q < 1023; ++q ) 
-	{ 
-		if ( !(abc_keypresses[q]) )
-		{
-			abc_keypresses[q] = (char)c;
-			break; 
-		}
-	}
-	//al_trace("keypresses: %s\n", abc_keypresses);
-        //the lister string is (((*data->listFunc)(i,&dummy)))
-	//al_trace("lister: %s\n", (((*data->listFunc)(i,&dummy))));
-        (*data->listFunc)(-1, &max);
-        
-		int cur = d->d1;
-	int charpos = 0; int listpos = 0; int lastmatch = -1;
-	char tmp[1024] = { 0 };
-	char lsttmp[1024] = { 0 };
-	int lastmatches[32768] = {0};
-	for ( int a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
-	int lmindx = 0;
-	
-		
-	for ( int listpos = 0; listpos < max; ++listpos )
+	if(abc_patternmatch) //Zoria's fancy pattern-matching
 	{
-		memset(tmp, 0, 1024);
-		memset(lsttmp, 0, 1024);
-		
-		strcpy(tmp, abc_keypresses);
-		strcpy(lsttmp, (((*data->listFunc)(listpos,&dummy))));
-		for ( int w = 0; w < 1024; ++w ) 
+		if(msg==MSG_CHAR && ((c&0xFF) > 31) && ((c&0xFF) < 127)) //(isalpha(c&0xFF) || isdigit(c&0xFF)))
 		{
-			if ( isalpha(tmp[w]) )
-			{
-				tmp[w] = toupper(tmp[w]);
-				//al_trace("tmp is: %s\n",tmp);
+			int max,dummy,h;
+			
+			h = (d->h-3) / text_height(*data->font);
+			if ( isalpha(c&0xFF) ) c = toupper(c&0xFF);
+			for ( int q = 0; q < 1023; ++q ) 
+			{ 
+				if ( !(abc_keypresses[q]) )
+				{
+					abc_keypresses[q] = (char)c;
+					break; 
+				}
 			}
-		}
-		for ( int e = 0; e < 1024; ++e ) 
-		{
-			if ( isalpha(lsttmp[e]) )
+			//al_trace("keypresses: %s\n", abc_keypresses);
+			//the lister string is (((*data->listFunc)(i,&dummy)))
+			//al_trace("lister: %s\n", (((*data->listFunc)(i,&dummy))));
+			(*data->listFunc)(-1, &max);
+			
+			int cur = d->d1;
+			int charpos = 0; int listpos = 0; int lastmatch = -1;
+			char tmp[1024] = { 0 };
+			char lsttmp[1024] = { 0 };
+			int lastmatches[32768] = {0};
+			for ( int a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
+			int lmindx = 0;
+			
+			
+			for ( int listpos = 0; listpos < max; ++listpos )
 			{
-				lsttmp[e] = toupper(lsttmp[e]);
-				//al_trace("lsttmp is: %s\n",lsttmp);
+				memset(tmp, 0, 1024);
+				memset(lsttmp, 0, 1024);
+				
+				strcpy(tmp, abc_keypresses);
+				strcpy(lsttmp, (((*data->listFunc)(listpos,&dummy))));
+				for ( int w = 0; w < 1024; ++w ) 
+				{
+					if ( isalpha(tmp[w]) )
+					{
+						tmp[w] = toupper(tmp[w]);
+						//al_trace("tmp is: %s\n",tmp);
+					}
+				}
+				for ( int e = 0; e < 1024; ++e ) 
+				{
+					if ( isalpha(lsttmp[e]) )
+					{
+						lsttmp[e] = toupper(lsttmp[e]);
+						//al_trace("lsttmp is: %s\n",lsttmp);
+					}
+				}
+				
+				//al_trace("tmp is: %s\n", tmp);
+				//al_trace("lsttmp is: %s\n", lsttmp);
+				
+				//al_trace("strlen(lsttmp) is: %d\n", strlen(tmp));
+				if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
+				{
+					//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
+					//al_trace("strncmp charpos was: %d\n", charpos);
+					
+					d->d1 = listpos;
+					d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+					goto gotit_match;
+					
+					//lastmatch = listpos;
+					//lastmatches[lmindx] = lastmatch;
+					//al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
+					//++lmindx;
+				}
+				else
+				{
+					
+				}
 			}
-		}
-		
-		//al_trace("tmp is: %s\n", tmp);
-		//al_trace("lsttmp is: %s\n", lsttmp);
-		
-		//al_trace("strlen(lsttmp) is: %d\n", strlen(tmp));
-		if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
-		{
-			//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
-			//al_trace("strncmp charpos was: %d\n", charpos);
+			/*
+			int the_lowest = 65537; 
+			//al_trace("Lowest starts at: %d\n", the_lowest);
+				
+			--lmindx; // start at the last used.
+			for (; lmindx >= 0; --lmindx )
+			{
+				if ( lastmatches[lmindx] < the_lowest ) 
+				{
+					//al_trace("lastmatches[%d]: %d\n", lmindx, lastmatches[lmindx]);
+					the_lowest = lastmatches[lmindx];
+					//al_trace("lowest is: %d\n", the_lowest);
+				}
+			}
 			
-			d->d1 = listpos;
-			d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
-			goto gotit;
+			if ( the_lowest > -1 )
+			{
+				//sort lastmatches to find th lowest number
+				
+				d->d1 = the_lowest;
+				d->d2 = zc_max(zc_min(the_lowest-(h>>1), max-h), 0);
+				goto gotit_match;
+			}
+			*/
+				
+gotit_match:
+			scare_mouse();
+			jwin_list_proc(MSG_DRAW,d,0);
+			unscare_mouse();
+			if ( gui_mouse_b() ) { wipe_abc_keypresses();} // al_trace("keypresses: %s\n", abc_keypresses); }
+			//wipe_abc_keypresses();
+			return D_USED_CHAR;
+		}
+		else if(msg==MSG_CHAR && ( (c&0xFF) == 8) )//backspace
+		{
+			for ( int q = 1023; q >= 0; --q )
+			{
+				if ( abc_keypresses[q] ) 
+				{
+					abc_keypresses[q] = '\0'; break;
+				}
+			}
+			//al_trace("keypresses: %s\n", abc_keypresses);
+			jwin_list_proc(MSG_DRAW,d,0);
+			return D_USED_CHAR;
+		}
+		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
+		//wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
+	}
+	else //Windows-style jumping
+	{
+		if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
+		{
+			int max,dummy,h,i;
 			
-			//lastmatch = listpos;
-			//lastmatches[lmindx] = lastmatch;
-			//al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
-			//++lmindx;
-		}
-		else
-		{
+			h = (d->h-3) / text_height(*data->font);
+			c = toupper(c&0xFF);
 			
+			(*data->listFunc)(-1, &max);
+			
+			int cur = d->d1;
+			for(i=cur+1; i!=cur; ++i)
+			{
+				if(i>=max) i=0;
+				if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
+				{
+					d->d1 = i;
+					d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
+					goto gotit_nomatch;
+				}
+			}
+			
+gotit_nomatch:
+			scare_mouse();
+			jwin_list_proc(MSG_DRAW,d,0);
+			unscare_mouse();
+			return D_USED_CHAR;
 		}
 	}
-	/*
-	int the_lowest = 65537; 
-	//al_trace("Lowest starts at: %d\n", the_lowest);
-		
-	--lmindx; // start at the last used.
-	for (; lmindx >= 0; --lmindx )
-	{
-		if ( lastmatches[lmindx] < the_lowest ) 
-		{
-			//al_trace("lastmatches[%d]: %d\n", lmindx, lastmatches[lmindx]);
-			the_lowest = lastmatches[lmindx];
-			//al_trace("lowest is: %d\n", the_lowest);
-		}
-	}
-	
-	if ( the_lowest > -1 )
-	{
-		//sort lastmatches to find th lowest number
-		
-		d->d1 = the_lowest;
-		d->d2 = zc_max(zc_min(the_lowest-(h>>1), max-h), 0);
-		goto gotit;
-	}
-	*/	
-	/*
-	for(i=cur+1; i!=cur; ++i)
-        {
-			if(i>=max) i=0;
-            if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
-            {
-                d->d1 = i;
-                d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
-		
-                goto gotit;
-            }
-        }
-	*/
-        
-gotit:
-        scare_mouse();
-        jwin_list_proc(MSG_DRAW,d,0);
-        unscare_mouse();
-	if ( gui_mouse_b() ) { wipe_abc_keypresses();} // al_trace("keypresses: %s\n", abc_keypresses); }
-	//wipe_abc_keypresses();
-        return D_USED_CHAR;
-    }
-	
-    else if(msg==MSG_CHAR && ( (c&0xFF) == 8) )//backspace
-    {
-	for ( int q = 1023; q >= 0; --q )
-	{
-		if ( abc_keypresses[q] ) 
-		{
-			abc_keypresses[q] = '\0'; break;
-		}
-	}
-	//al_trace("keypresses: %s\n", abc_keypresses);
-	jwin_list_proc(MSG_DRAW,d,0);
-	return D_USED_CHAR;
-    }
-    if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
-    //wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
-    return jwin_list_proc(msg,d,c);
+	return jwin_list_proc(msg,d,c);
 }
 
 int jwin_checkfont_proc(int msg, DIALOG *d, int c)

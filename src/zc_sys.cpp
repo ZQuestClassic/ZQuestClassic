@@ -330,6 +330,7 @@ void load_game_configs()
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
+	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
    
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);

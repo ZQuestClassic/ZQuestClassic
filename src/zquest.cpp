@@ -30208,6 +30208,8 @@ int main(int argc,char **argv)
     strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
     
     midi_volume                    = get_config_int("zquest", "midi", 255);
+	
+	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
