@@ -497,6 +497,9 @@ void save_game_configs()
     set_config_int(cfg_sect,"fastquit",(int)NESquit);
     set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
+    //set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
+   
+    
    
     set_config_int(cfg_sect,"resx",resx);
     set_config_int(cfg_sect,"resy",resy);

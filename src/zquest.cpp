@@ -32837,6 +32837,7 @@ int save_config_file()
     set_config_int("zquest","leech_update_tiles",LeechUpdateTiles);
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
+    //set_config_int("zquest","lister_pattern_matching",abc_patternmatch); //Enable once there is a GUI way to toggle this. 
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
