@@ -4383,7 +4383,7 @@ gotit_match:
 		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
 		//wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
 	}
-	else // Windows Eplorer jumping
+	else // Windows Explorer style jumping
 	{
 		if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
 		{
@@ -4395,8 +4395,10 @@ gotit_match:
 			(*data->listFunc)(-1, &max);
 			
 			int cur = d->d1;
-			for(i=cur+1; i!=cur; ++i)
+			//al_trace("cur: %d\n", cur);
+			for(i=cur+1; (cur ? (i != cur) : (cur < max)); ++i) //don't infinite loop this. 
 			{
+				//al_trace("loop running\n");
 				if(i>=max) i=0;
 				if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
 				{
@@ -4413,6 +4415,7 @@ gotit_nomatch:
 			return D_USED_CHAR;
 		}
 	}
+	if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
 	return ((abc_patternmatch) ? jwin_do_abclist_proc(msg,d,c) : jwin_list_proc(msg,d,0));
 }
 
