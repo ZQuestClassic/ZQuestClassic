@@ -51,7 +51,7 @@ extern int joystick_index;
 
 extern bool is_zquest();
 
-int abc_patternmatch;
+int abc_patternmatch = 1;
 
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
@@ -1884,6 +1884,88 @@ void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height
         _dotted_rect(d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, scheme[jcTEXTFG], scheme[jcTEXTBG]);
 }
 
+/*
+	Effectively an overload of _jwin_draw_listbox that is used eclusively for file/abc listers.
+*/
+void _jwin_draw_abclistbox(DIALOG *d)
+{
+    int height, listsize, i, len, bar, x, y, w;
+    int fg_color, bg_color, fg, bg;
+    char *sel = (char*)d->dp2;
+    char s[1024];
+    ListData *data = (ListData *)d->dp;
+    
+    (*data->listFunc)(-1, &listsize);
+    height = (d->h-3) / text_height(*data->font);
+    bar = (listsize > height);
+    w = (bar ? d->w-21 : d->w-5);
+    fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
+    bg_color = (d->flags & D_DISABLED) ? scheme[jcBOX] : (d->bg ? d->bg : scheme[jcTEXTBG]);
+    
+    rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
+    _allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
+    _allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
+    _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
+    _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
+	//al_trace("Drawing %s\n", abc_keypresses);
+     rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
+     textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
+    //d->flags|=D_DIRTY;
+    
+    /* draw box contents */
+    for(i=0; i<height; i++)
+    {
+        if(d->d2+i < listsize)
+        {
+            if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
+            {
+                fg = scheme[jcSELFG];
+                bg = scheme[jcSELBG];
+            }
+            else if((sel) && (sel[d->d2+i]))
+            {
+                fg = scheme[jcMEDDARK];
+                bg = scheme[jcSELBG];
+            }
+            else
+            {
+                fg = fg_color;
+                bg = bg_color;
+            }
+            
+            strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
+            x = d->x + 4;
+            y = d->y + 4 + i*text_height(*data->font);
+            //         text_mode(bg);
+            rectfill(screen, x, y, x+7, y+text_height(*data->font)-1, bg);
+            x += 8;
+            len = (int)strlen(s);
+            
+            while(text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
+            {
+                len--;
+                s[len] = 0;
+            }
+            
+            textout_ex(screen, *data->font, s, x, y, fg,bg);
+            x += text_length(*data->font, s);
+            
+            if(x <= d->x+w)
+                rectfill(screen, x, y, d->x+w, y+text_height(*data->font)-1, bg);
+        }
+        else
+            rectfill(screen, d->x+2,  d->y+4+i*text_height(*data->font),
+                     d->x+w+2, d->y+3+(i+1)*text_height(*data->font), bg_color);
+    }
+    
+    if(d->y+4+i*text_height(font) <= d->y+d->h-3)
+        rectfill(screen, d->x+2, d->y+4+i*text_height(*data->font),
+                 d->x+w+2, d->y+d->h-3, bg_color);
+                 
+    /* draw frame, maybe with scrollbar */
+    _jwin_draw_scrollable_frame(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
+}
+
 /* _jwin_draw_listbox:
   *  Helper function to draw a listbox object.
   */
@@ -1908,11 +1990,6 @@ void _jwin_draw_listbox(DIALOG *d)
     _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
     _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
-	if(abc_patternmatch)
-	{
-		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
-		textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
-	}
     //d->flags|=D_DIRTY;
     
     /* draw box contents */
@@ -2001,6 +2078,245 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         
     case MSG_DRAW:
         _jwin_draw_listbox(d);
+        break;
+        
+    case MSG_CLICK:
+        (*data->listFunc)(-1, &listsize);
+        height = (d->h-3) / text_height(*data->font);
+        bar = (listsize > height);
+        
+        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        {
+            if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+            {
+                for(i=0; i<listsize; i++)
+                {
+                    if(sel[i])
+                    {
+                        redraw = TRUE;
+                        sel[i] = FALSE;
+                    }
+                }
+                
+                if(redraw)
+                {
+                    scare_mouse();
+                    object_message(d, MSG_DRAW, 0);
+                    unscare_mouse();
+                }
+            }
+            
+            _handle_jwin_listbox_click(d);
+            
+            bool rightClicked=(gui_mouse_b()&2)!=0;
+            while(gui_mouse_b())
+            {
+                broadcast_dialog_message(MSG_IDLE, 0);
+                d->flags |= D_INTERNAL;
+                _handle_jwin_listbox_click(d);
+                d->flags &= ~D_INTERNAL;
+                
+                //	#ifdef _ZQUEST_SCALE_
+                if(is_zquest())
+                {
+                    if(myvsync)
+                    {
+                        if(zqwin_scale > 1)
+                        {
+                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                        }
+                        else
+                        {
+                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                        }
+                        
+                        myvsync=0;
+                    }
+                }
+                
+                //	#endif
+            }
+            
+            if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+            {
+                typedef void (*funcType)(int /* index */, int /* x */, int /* y */);
+                funcType func=reinterpret_cast<funcType>(d->dp3);
+                func(d->d1, gui_mouse_x(), gui_mouse_y());
+            }
+            
+            if(d->flags & D_USER)
+            {
+                if(listsize)
+                {
+                    clear_keybuf();
+                    return D_CLOSE;
+                }
+            }
+        }
+        else
+        {
+            _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+        }
+        
+        break;
+        
+    case MSG_DCLICK:
+        // Ignore double right-click
+        if((gui_mouse_b()&2)!=0)
+            break;
+        
+        (*data->listFunc)(-1, &listsize);
+        height = (d->h-3) / text_height(*data->font);
+        bar = (listsize > height);
+        
+        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        {
+            if(d->flags & D_EXIT)
+            {
+                if(listsize)
+                {
+                    i = d->d1;
+                    object_message(d, MSG_CLICK, 0);
+                    
+                    if(i == d->d1)
+                        return D_CLOSE;
+                }
+            }
+        }
+        
+        break;
+        
+    case MSG_KEY:
+        (*data->listFunc)(-1, &listsize);
+        
+        if((listsize) && (d->flags & D_EXIT))
+            return D_CLOSE;
+            
+        break;
+        
+    case MSG_WANTFOCUS:
+        return D_WANTFOCUS;
+        
+    case MSG_WHEEL:
+        (*data->listFunc)(-1, &listsize);
+        height = (d->h-4) / text_height(*data->font);
+        
+        if(height < listsize)
+        {
+            int delta = (height > 3) ? 3 : 1;
+            
+            if(c > 0)
+            {
+                i = MAX(0, d->d2-delta);
+            }
+            else
+            {
+                i = MIN(listsize-height, d->d2+delta);
+            }
+            
+            if(i != d->d2)
+            {
+                d->d2 = i;
+                object_message(d, MSG_DRAW, 0);
+            }
+        }
+        
+        break;
+        
+    case MSG_CHAR:
+        (*data->listFunc)(-1,&listsize);
+        
+        if(listsize)
+        {
+            c >>= 8;
+            
+            bottom = d->d2 + (d->h-3)/text_height(*data->font) - 1;
+            
+            if(bottom >= listsize-1)
+                bottom = listsize-1;
+                
+            orig = d->d1;
+            
+            if(c == KEY_UP)
+                d->d1--;
+            else if(c == KEY_DOWN)
+                d->d1++;
+            else if(c == KEY_HOME)
+                d->d1 = 0;
+            else if(c == KEY_END)
+                d->d1 = listsize-1;
+            else if(c == KEY_PGUP)
+            {
+                if(d->d1 > d->d2)
+                    d->d1 = d->d2;
+                else
+                    d->d1 -= (bottom - d->d2);
+            }
+            else if(c == KEY_PGDN)
+            {
+                if(d->d1 < bottom)
+                    d->d1 = bottom;
+                else
+                    d->d1 += (bottom - d->d2);
+            }
+            else
+                return D_O_K;
+                
+            if(sel)
+            {
+                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG)))
+                {
+                    for(i=0; i<listsize; i++)
+                        sel[i] = FALSE;
+                }
+                else if(key_shifts & KB_SHIFT_FLAG)
+                {
+                    for(i=MIN(orig, d->d1); i<=MAX(orig, d->d1); i++)
+                    {
+                        if(key_shifts & KB_CTRL_FLAG)
+                            sel[i] = (i != d->d1);
+                        else
+                            sel[i] = TRUE;
+                    }
+                }
+            }
+            
+            /* if we changed something, better redraw... */
+            _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
+            scare_mouse();
+            object_message(d, MSG_DRAW, 0);
+            unscare_mouse();
+            return D_USED_CHAR;
+        }
+        
+        break;
+    }
+    
+    return D_O_K;
+}
+
+
+/* 
+	Effectively an overload of jwin_list_proc that i used eclusively for abc lists. 
+	This calls the appropriate form of drawing for those listers. 
+*/
+int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
+{
+    ListData *data = (ListData *)d->dp;
+    int listsize, i, bottom, height, bar, orig;
+    char *sel = (char *)d->dp2;
+    int redraw = FALSE;
+    
+    switch(msg)
+    {
+    
+    case MSG_START:
+        (*data->listFunc)(-1, &listsize);
+        _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
+        break;
+        
+    case MSG_DRAW:
+        _jwin_draw_abclistbox(d);
         break;
         
     case MSG_CLICK:
@@ -3941,7 +4257,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
     ListData *data = (ListData *)d->dp;
     
-	if(abc_patternmatch) //Zoria's fancy pattern-matching
+	if(abc_patternmatch) // Search style pattern match. 
 	{
 		if(msg==MSG_CHAR && ((c&0xFF) > 31) && ((c&0xFF) < 127)) //(isalpha(c&0xFF) || isdigit(c&0xFF)))
 		{
@@ -4045,7 +4361,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 				
 gotit_match:
 			scare_mouse();
-			jwin_list_proc(MSG_DRAW,d,0);
+			jwin_do_abclist_proc(MSG_DRAW,d,0);
 			unscare_mouse();
 			if ( gui_mouse_b() ) { wipe_abc_keypresses();} // al_trace("keypresses: %s\n", abc_keypresses); }
 			//wipe_abc_keypresses();
@@ -4061,13 +4377,13 @@ gotit_match:
 				}
 			}
 			//al_trace("keypresses: %s\n", abc_keypresses);
-			jwin_list_proc(MSG_DRAW,d,0);
+			jwin_do_abclist_proc(MSG_DRAW,d,0);
 			return D_USED_CHAR;
 		}
 		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
 		//wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
 	}
-	else //Windows-style jumping
+	else // Windows Eplorer jumping
 	{
 		if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
 		{
@@ -4097,7 +4413,7 @@ gotit_nomatch:
 			return D_USED_CHAR;
 		}
 	}
-	return jwin_list_proc(msg,d,c);
+	return ((abc_patternmatch) ? jwin_do_abclist_proc(msg,d,c) : jwin_list_proc(msg,d,0));
 }
 
 int jwin_checkfont_proc(int msg, DIALOG *d, int c)
