@@ -764,14 +764,14 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 		BEGIN( INITIAL ); //Don't stay in STRING on next compile!
 		return 0;
 	}
-	[^\"\n\\]*		qstr << yytext;
-	[^\"\n\\]*\n	qstr << yytext;
-	[^\"\n\\]*\"	{
+	[^\"\n]*		qstr << yytext;
+	[^\"\n]*\n		qstr << yytext;
+	[^\"\n]*\"		{
 		qstr << yytext;
 		doLines();
 		BEGIN( INITIAL );
 		yylval = new ASTString(qstr.str().c_str(), yylloc);
-		return QUOTEDSTRING;
+		return IMPORTSTRING;
 	}
  }
 

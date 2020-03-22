@@ -96,6 +96,7 @@ extern YYLTYPE noloc;
 %token RSHIFTASSIGN
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token IMPORTSTRING
 %token SINGLECHAR
 
 %left LSHIFT RSHIFT
@@ -223,7 +224,7 @@ ScriptType : Type {$$ = $1;}
 		   | GLOBAL {$$ = new ASTTypeGlobal(@1);}
 		   ;
 
-Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;
+Import : IMPORT IMPORTSTRING	{ASTString *str = (ASTString *)$2;
 								 $$ = new ASTImportDecl(str->getValue(),@1);
 								 delete str;}
 	;
