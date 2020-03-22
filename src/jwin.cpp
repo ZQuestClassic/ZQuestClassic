@@ -3823,17 +3823,22 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 		{
 			//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
 			//al_trace("strncmp charpos was: %d\n", charpos);
-			lastmatch = listpos;
-			lastmatches[lmindx] = lastmatch;
-			al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
-			++lmindx;
+			
+			d->d1 = listpos;
+			d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+			goto gotit;
+			
+			//lastmatch = listpos;
+			//lastmatches[lmindx] = lastmatch;
+			//al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
+			//++lmindx;
 		}
 		else
 		{
 			
 		}
 	}
-	
+	/*
 	int the_lowest = 65537; 
 	//al_trace("Lowest starts at: %d\n", the_lowest);
 		
@@ -3856,7 +3861,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 		d->d2 = zc_max(zc_min(the_lowest-(h>>1), max-h), 0);
 		goto gotit;
 	}
-		
+	*/	
 	/*
 	for(i=cur+1; i!=cur; ++i)
         {
