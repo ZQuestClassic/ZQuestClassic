@@ -55,6 +55,7 @@ int abc_patternmatch = 1;
 
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
+
 /* ... Included in jwin.h ...
 
   enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
@@ -4256,6 +4257,7 @@ dropit:
 int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
     ListData *data = (ListData *)d->dp;
+    if(msg == MSG_START) wipe_abc_keypresses();
     
 	if(abc_patternmatch) // Search style pattern match. 
 	{
@@ -4416,7 +4418,7 @@ gotit_nomatch:
 		}
 	}
 	if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
-	return ((abc_patternmatch) ? jwin_do_abclist_proc(msg,d,c) : jwin_list_proc(msg,d,0));
+	return ((abc_patternmatch) ? jwin_do_abclist_proc(msg,d,c) : jwin_list_proc(msg,d,c));
 }
 
 int jwin_checkfont_proc(int msg, DIALOG *d, int c)
