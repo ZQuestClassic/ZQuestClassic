@@ -1890,81 +1890,91 @@ void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height
 */
 void _jwin_draw_abclistbox(DIALOG *d)
 {
-    int height, listsize, i, len, bar, x, y, w;
-    int fg_color, bg_color, fg, bg;
-    char *sel = (char*)d->dp2;
-    char s[1024];
-    ListData *data = (ListData *)d->dp;
-    
-    (*data->listFunc)(-1, &listsize);
-    height = (d->h-3) / text_height(*data->font);
-    bar = (listsize > height);
-    w = (bar ? d->w-21 : d->w-5);
-    fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
-    bg_color = (d->flags & D_DISABLED) ? scheme[jcBOX] : (d->bg ? d->bg : scheme[jcTEXTBG]);
-    
-    rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
-    _allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
+	int height, listsize, i, len, bar, x, y, w;
+	int fg_color, bg_color, fg, bg;
+	char *sel = (char*)d->dp2;
+	char s[1024];
+	ListData *data = (ListData *)d->dp;
+	
+	(*data->listFunc)(-1, &listsize);
+	height = (d->h-3) / text_height(*data->font);
+	bar = (listsize > height);
+	w = (bar ? d->w-21 : d->w-5);
+	rectfill(screen, d->x,  d->y, d->x+d->w-1, d->y+d->h+9, scheme[jcBOX]);
+	fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
+	bg_color = (d->flags & D_DISABLED) ? scheme[jcBOX] : (d->bg ? d->bg : scheme[jcTEXTBG]);
+	
+	rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
+	_allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
+	_allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
+	_allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
+	_allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
-     rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
-     textout_ex(screen, font, abc_keypresses, d->x+1, d->y+d->h+2,fg_color, bg_color);
-    //d->flags|=D_DIRTY;
-    
-    /* draw box contents */
-    for(i=0; i<height; i++)
-    {
-        if(d->d2+i < listsize)
-        {
-            if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
-            {
-                fg = scheme[jcSELFG];
-                bg = scheme[jcSELBG];
-            }
-            else if((sel) && (sel[d->d2+i]))
-            {
-                fg = scheme[jcMEDDARK];
-                bg = scheme[jcSELBG];
-            }
-            else
-            {
-                fg = fg_color;
-                bg = bg_color;
-            }
-            
-            strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
-            x = d->x + 4;
-            y = d->y + 4 + i*text_height(*data->font);
-            //         text_mode(bg);
-            rectfill(screen, x, y, x+7, y+text_height(*data->font)-1, bg);
-            x += 8;
-            len = (int)strlen(s);
-            
-            while(text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
-            {
-                len--;
-                s[len] = 0;
-            }
-            
-            textout_ex(screen, *data->font, s, x, y, fg,bg);
-            x += text_length(*data->font, s);
-            
-            if(x <= d->x+w)
-                rectfill(screen, x, y, d->x+w, y+text_height(*data->font)-1, bg);
-        }
-        else
-            rectfill(screen, d->x+2,  d->y+4+i*text_height(*data->font),
-                     d->x+w+2, d->y+3+(i+1)*text_height(*data->font), bg_color);
-    }
-    
-    if(d->y+4+i*text_height(font) <= d->y+d->h-3)
-        rectfill(screen, d->x+2, d->y+4+i*text_height(*data->font),
-                 d->x+w+2, d->y+d->h-3, bg_color);
-                 
-    /* draw frame, maybe with scrollbar */
-    _jwin_draw_scrollable_frame(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
+	{
+		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
+		strncpy(s, abc_keypresses, 1023);
+		char* s2 = s;
+		int tw = (d->w-1);
+		while(text_length(font, s2) >= tw)
+		{
+			++s2;
+		}
+		textout_ex(screen, font, s2, d->x+1, d->y+d->h+2,fg_color, bg_color);
+	}
+	//d->flags|=D_DIRTY;
+	
+	/* draw box contents */
+	for(i=0; i<height; i++)
+	{
+	    if(d->d2+i < listsize)
+	    {
+	        if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
+	        {
+	            fg = scheme[jcSELFG];
+	            bg = scheme[jcSELBG];
+	        }
+	        else if((sel) && (sel[d->d2+i]))
+	        {
+	            fg = scheme[jcMEDDARK];
+	            bg = scheme[jcSELBG];
+	        }
+	        else
+	        {
+	            fg = fg_color;
+	            bg = bg_color;
+	        }
+	        
+	        strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
+	        x = d->x + 4;
+	        y = d->y + 4 + i*text_height(*data->font);
+	        //         text_mode(bg);
+	        rectfill(screen, x, y, x+7, y+text_height(*data->font)-1, bg);
+	        x += 8;
+	        len = (int)strlen(s);
+	        
+	        while(text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
+	        {
+	            len--;
+	            s[len] = 0;
+	        }
+	        
+	        textout_ex(screen, *data->font, s, x, y, fg,bg);
+	        x += text_length(*data->font, s);
+	        
+	        if(x <= d->x+w)
+	            rectfill(screen, x, y, d->x+w, y+text_height(*data->font)-1, bg);
+	    }
+	    else
+	        rectfill(screen, d->x+2,  d->y+4+i*text_height(*data->font),
+	                 d->x+w+2, d->y+3+(i+1)*text_height(*data->font), bg_color);
+	}
+	
+	if(d->y+4+i*text_height(font) <= d->y+d->h-3)
+	    rectfill(screen, d->x+2, d->y+4+i*text_height(*data->font),
+	             d->x+w+2, d->y+d->h-3, bg_color);
+	             
+	/* draw frame, maybe with scrollbar */
+	_jwin_draw_scrollable_frame(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
 }
 
 /* _jwin_draw_listbox:
@@ -2304,8 +2314,17 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
 int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 {
     ListData *data = (ListData *)d->dp;
-    int listsize, i, bottom, height, bar, orig;
-    char *sel = (char *)d->dp2;
+    int listsize, i, bottom, height, bar, orig, h;
+	int ret = D_O_K;
+	bool revert_size = false;
+	if((d->flags & D_RESIZED) == 0)
+	{
+		h = d->h;
+		d->h -= text_height(*data->font);
+		d->flags |= D_RESIZED;
+		revert_size = true;
+    }
+	char *sel = (char *)d->dp2;
     int redraw = FALSE;
     
     switch(msg)
@@ -2321,121 +2340,142 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_CLICK:
-        (*data->listFunc)(-1, &listsize);
-        height = (d->h-3) / text_height(*data->font);
-        bar = (listsize > height);
-        
-        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
-        {
-            if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
-            {
-                for(i=0; i<listsize; i++)
-                {
-                    if(sel[i])
-                    {
-                        redraw = TRUE;
-                        sel[i] = FALSE;
-                    }
-                }
-                
-                if(redraw)
-                {
-                    scare_mouse();
-                    object_message(d, MSG_DRAW, 0);
-                    unscare_mouse();
-                }
-            }
-            
-            _handle_jwin_listbox_click(d);
-            
-            bool rightClicked=(gui_mouse_b()&2)!=0;
-            while(gui_mouse_b())
-            {
-                broadcast_dialog_message(MSG_IDLE, 0);
-                d->flags |= D_INTERNAL;
-                _handle_jwin_listbox_click(d);
-                d->flags &= ~D_INTERNAL;
-                
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
-            }
-            
-            if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
-            {
-                typedef void (*funcType)(int /* index */, int /* x */, int /* y */);
-                funcType func=reinterpret_cast<funcType>(d->dp3);
-                func(d->d1, gui_mouse_x(), gui_mouse_y());
-            }
-            
-            if(d->flags & D_USER)
-            {
-                if(listsize)
-                {
-                    clear_keybuf();
-                    return D_CLOSE;
-                }
-            }
-        }
-        else
-        {
-            _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
-        }
-        
+		if(gui_mouse_y() > (d->y+d->h-1))
+		{
+			if(gui_mouse_y() > (d->y+d->h+2))
+			{
+				//Clicked on the box displaying the patternmatch
+			}
+			else {} //Clicked between the lister and patternmatch
+		}
+		else //Clicked the lister
+		{
+			(*data->listFunc)(-1, &listsize);
+			height = (d->h-3) / text_height(*data->font);
+			bar = (listsize > height);
+			
+			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+			{
+				if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+				{
+					for(i=0; i<listsize; i++)
+					{
+						if(sel[i])
+						{
+							redraw = TRUE;
+							sel[i] = FALSE;
+						}
+					}
+					
+					if(redraw)
+					{
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+					}
+				}
+				
+				_handle_jwin_listbox_click(d);
+				
+				bool rightClicked=(gui_mouse_b()&2)!=0;
+				while(gui_mouse_b())
+				{
+					broadcast_dialog_message(MSG_IDLE, 0);
+					d->flags |= D_INTERNAL;
+					_handle_jwin_listbox_click(d);
+					d->flags &= ~D_INTERNAL;
+					
+					//	#ifdef _ZQUEST_SCALE_
+					if(is_zquest())
+					{
+						if(myvsync)
+						{
+							if(zqwin_scale > 1)
+							{
+								stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+							}
+							else
+							{
+								blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+							}
+							
+							myvsync=0;
+						}
+					}
+					
+					//	#endif
+				}
+				
+				if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+				{
+					typedef void (*funcType)(int /* index */, int /* x */, int /* y */);
+					funcType func=reinterpret_cast<funcType>(d->dp3);
+					func(d->d1, gui_mouse_x(), gui_mouse_y());
+				}
+				
+				if(d->flags & D_USER)
+				{
+					if(listsize)
+					{
+						clear_keybuf();
+						ret = D_CLOSE;
+					}
+				}
+			}
+			else
+			{
+				_handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+			}
+		}
         break;
         
     case MSG_DCLICK:
         // Ignore double right-click
         if((gui_mouse_b()&2)!=0)
             break;
-        
-        (*data->listFunc)(-1, &listsize);
-        height = (d->h-3) / text_height(*data->font);
-        bar = (listsize > height);
-        
-        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
-        {
-            if(d->flags & D_EXIT)
-            {
-                if(listsize)
-                {
-                    i = d->d1;
-                    object_message(d, MSG_CLICK, 0);
-                    
-                    if(i == d->d1)
-                        return D_CLOSE;
-                }
-            }
-        }
-        
+		
+        if(gui_mouse_y() > (d->y+d->h-1))
+		{
+			if(gui_mouse_y() > (d->y+d->h+2))
+			{
+				//Clicked on the box displaying the patternmatch
+			}
+			else {} //Clicked between the lister and patternmatch
+		}
+		else //Clicked the lister
+		{
+			(*data->listFunc)(-1, &listsize);
+			height = (d->h-3) / text_height(*data->font);
+			bar = (listsize > height);
+			
+			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+			{
+				if(d->flags & D_EXIT)
+				{
+					if(listsize)
+					{
+						i = d->d1;
+						object_message(d, MSG_CLICK, 0);
+						
+						if(i == d->d1)
+							ret = D_CLOSE;
+					}
+				}
+			}
+		}
         break;
         
     case MSG_KEY:
         (*data->listFunc)(-1, &listsize);
         
         if((listsize) && (d->flags & D_EXIT))
-            return D_CLOSE;
+            ret = D_CLOSE;
             
         break;
         
     case MSG_WANTFOCUS:
-        return D_WANTFOCUS;
+        ret = D_WANTFOCUS;
+		break;
         
     case MSG_WHEEL:
         (*data->listFunc)(-1, &listsize);
@@ -2500,7 +2540,7 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
                     d->d1 += (bottom - d->d2);
             }
             else
-                return D_O_K;
+                break; //return D_O_K;
                 
             if(sel)
             {
@@ -2526,13 +2566,17 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
             scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
-            return D_USED_CHAR;
+            ret = D_USED_CHAR;
         }
         
         break;
     }
-    
-    return D_O_K;
+    if(revert_size)
+	{
+		d->h = h;
+		d->flags &= ~D_RESIZED;
+    }
+	return ret;
 }
 
 /* _jwin_draw_textbox:
@@ -4265,7 +4309,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 		{
 			int max,dummy,h;
 			
-			h = (d->h-3) / text_height(*data->font);
+			h = ((d->h-3) / text_height(*data->font))-1;
 			if ( isalpha(c&0xFF) ) c = toupper(c&0xFF);
 			for ( int q = 0; q < 1023; ++q ) 
 			{ 

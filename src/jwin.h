@@ -61,6 +61,8 @@ extern "C"
 /* Disable click to select combo for d_combo_proc */
 #define D_NOCLICK       D_USER
 
+#define D_RESIZED		(D_USER<<1)
+
 /* frame styles */
 enum {
     FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK
