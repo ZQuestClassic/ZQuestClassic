@@ -25739,6 +25739,7 @@ int main(int argc,char **argv)
     headerguard = get_config_int("Compiler","HEADER_GUARD",1);	
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
+    MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
     skipLayerWarning               = get_config_int("zquest","skip_layer_warning",0);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
