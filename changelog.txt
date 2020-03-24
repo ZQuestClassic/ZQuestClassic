@@ -1,5 +1,254 @@
 //2.55 Changes
 
+//Alpha 52
+NOTE: From here onward, only 10 changes max per Alpha; and 
+	NO MORE THAN TWO _LARGE_ CHANGES will be acceptable.
+		Bump the alpha so that we know what builds introduced
+		any new issues! -Z
+	
+
+Don't save configs that cannot be changed in the GUI!
+Fix brace misaligns.
+	( ZoriaRPG, 23rd March, 2020 )
+
+Finish up abclister pattern matching
+Fix abclist scroll bug
+	( Venrob, 23rd march, 2020 )
+
+std.zh v1.7049: Added bool inRoom() to std_extension.zh
+	This returns if the player is fully inside dungeon DMap
+	screen (i.e., not in a doorway).
+Fixed an infinite loop condition in Windows Explorer style abclist jumping.
+Segregate drawing abslist and other lists.
+	( ZoriaRPG, 22nd March, 2020 )
+	
+Config: Allow choosing lister behavior
+	lister_pattern_matching = 1 -- ( full pattern-match, like MacOS System 7 )
+	lister_pattern_matching = 0 -- ( Windows Executive styled jumps )
+	( Venrob, 21st march, 2020 )
+	
+Fix crash in filelisters and optimise abclist_proc.
+	( ZoriaRPG, 21st March, 2020 )
+	
+No-matter what colour you set as trans, the unused tile spots in
+	the tile editor are now always black with a grey X. They no longer
+	use the colour assigned to the 0th index of their cset.
+	InvalidStatic mode is unchanged.
+ZVersion 0.7.3: Fixed missing lessthan token.
+ZVersion 0.7.2: Fixed a compile error. How long has this been there?
+Fix: Sort lowest match in ABC List Search and jump to it, not highest.
+Feat: Can now type more than one character to jump to an abc list item.
+Make all ANSI chars legal for the pattern string.
+Show what the user types in abclists.
+Clicking in an abc_proc now clears the proc's char buffer.
+The Save Palette dialogue no longer adds two dots to the file
+	extension, and the dialogue title is now correct.
+Add void wipe_abc_keypresses() to jwin.h
+Add caching letters to abclist_proc. This is unused and not cleared.
+Allow Disabling the 'Use Pal CSet' Box in Enemy Editor
+	Prior to this change, if the user were to set the 'Use Pal CSet'
+	tickbox in the Enemy Editor, they could not un-set it without mucking
+	about with the CSet on the tile. This change fixes this issue, and
+	un-ticking the box will now revert rhe CSet of the enemy from '14' to '8'.
+	( ZoriaRPG, 20th March, 2020 )
+	
+Instead of jumping to the first entry starting with the
+	pressed letter, ABC listers will now jump to the
+	NEXT instance, after the current index (wrapping around).	
+Add confirmation before pasting to all screens
+	( Venrob, 20th March, 2020 )
+	
+Help Rob with his OCD.	
+Fixed another QR related array size issue.
+Fix Improper location for zero QRs on loadquest()
+Fix Size of QR Cache in loadquest()
+Cache QRs and Restore them when ripping/grabbing tiles from .qst filetypes.
+Update metadata to Alpha 52
+	( ZoriaRPG, 19th March, 2020 )
+	
+Feat: View ZASM Metadata in Assign Slots
+	( Venrob, 10th March, 2020 )
+	
+Add SCCs GOTOIFSCREEND, CHANGEPORTRAIT as 23 and 24
+	( ZoriaRPG, 9th March, 2020 )
+	
+Docs: messagedata vars
+std.zh: messagedata->Flags[] constants
+Feat: ZScript access to new messagedata vars
+Added proper portraits to the String Editor.
+Fix: Backwards-compatibility QR 
+	This was needed for old quests' strings to
+	not have margin issues with the new margins.
+Feat: String editor Margins. May break old quests; compat QR coming up next.
+	( Venrob, 9th March, 2020 )	
+	
+Make GlobalSymbols.cpp's opcodes more consistent,
+	and labelling opcodes more convenient.
+Merge pull request #533 from ArmageddonGames/2.55-runscript-wrapper
+	This adds runscript to the sprite:: class. 
+Chore: Requested change (use 0 instead of false for byte)
+Fix: Missed line in merge conflict
+Added ZASM Metadata and label revisions to go with it. 
+	( Venrob, 8th March, 2020 )	
+
+Feat: Add type `zstruct` as a variation of untyped script.
+ZSA.txt: Fix documented args list for DSrawPlane (Mode7)
+	( ZoriaRPG, 8th March, 2020 )
+
+Missed in prior commit about scriptmenu-style script slots
+Feat: Game->Scrolling[5]. 
+	This gives data to scripts which is useful for drawing during scrolling.
+	( Venrob, 7th March, 2020 )
+
+Fix GUI error in 'Quest >> Misc[]' 
+	TABPANEL was covering 'OK'/'Cancel' buttons.
+Fix F6 and other scriptmenu-system scripts
+Fix: SFX now pause for scriptmenu-system scripts.
+	They are killed in the case of `onDeath`.
+Fix: F6 script can now run from other scriptmenu-system scripts.
+	( Venrob, 6th March, 2020 )
+
+Added a new token `zstruct` as an alternative to
+	`untyped script` + script typedef. This allows using the script
+	'struct-like' syntax, without a misleading 'script' token such
+	as STRUCT script.
+ZSA.txt: Fix documented args list for DSrawPlane (Mode7)
+	( ZoriaRPG, 6th March, 2020 )
+
+Parser MAJOR Optimization 
+	POPREF() -- new Macro. This will carry out logic to pop the refVar.
+		If refVar==NUL, this sets the flag to skip the
+		refVar, instead of popping.
+
+	ASSERT_NUL() -- new Macro. If `POPREF()` won't work, this can be
+		used instead, if `refVar==NUL`, to assert that it must
+		be NUL, and set the flag to skip it.
+
+	RETURN() -- new Macro. This will push a new OReturn(), returning from
+		the function. It automatically skips this if FUNCFLAG_INLINE
+		is set.
+
+	IFUNCFLAG_SKIPPOINTER -- new Internal Func Flag. If this flag is set,
+		the parser will skip PUSHing the reference pointer.
+
+	Compiling scripts for MM2D, these optimizations saved ~20k instructions.
+		This is a MASSIVE optimization!
+Fix: ZASM debugger wrong register names
+	( Venrob, 5th March, 2020 )
+	
+Inline numerous functions which give 'straight-gain'.
+	This means scripts will generally just be faster.	
+Fix: Inline missing check
+Error on duplicate labels; cleanup
+Allow labels on their own line, ARM style
+Optimize special case arithmetic
+Inline several zscript internal functions
+Optimize multiplying by constant 0
+	( Venrob, 3rd March, 2020 )
+
+Docs: Updated cset.txt
+Docs: Added cset.txt
+	( ZoriaRPG, 3rd March, 2020 )
+	
+std.zh, v1.7048: Correct limits.zh max/min int
+Updated ZScript.txt
+Always dereference PC in the interpreter.
+Feat: Add ASM PC and Debug->PC
+Added the .zdoors file type.
+	Added Import Doorsets: You can set a desired first destination,
+	first source, and count fro the first source. This will load
+	doorsets starting at src, ending at src+count, to dest, ending at
+	dest+count-1.
+		Overflow beyond the current doorcount is skipped, displaying
+		a dialogue that it overflowed.
+	Added Export Doorsets: You can specify a starting doorset, and a
+	count (min 1), exporting doorset 'first' through 'first+count-1'.
+	Added a contextual menu to the Edit Door Set list dialogue with
+	the options 'Save' and 'Load'.
+		Saving will save that doorset only; while loading loads
+		the first doorset from a .zdoors file to the selected index
+		of the lister.
+	( ZoriaRPG, 2nd March, 2020 )	
+	
+Feat: Major adjustments to slot assignment 
+	Bugfix - scripts can no longer be auto-assigned to a same-name slot
+		of the wrong type. Instead, the bad slot will have a number
+		appended/incremented at the end of it to separate them.
+	Feat - ZASM scripts will now not be deleted on compiling ZScript
+	Feat - Lost ZScript scripts will be preserved as ZASM scripts
+		on compiling ZScript with missing scripts.
+Now metadata is read on import ZASM, and written on
+	'output ZASM to allegro.log'.
+	Also now stores run() types
+	Metadata is now saved/loaded in the .qst
+	( Venrob, 2nd March, 2020 )
+	
+Add metadata to ZASM
+	Still WIP; needs import/export, and .qst save/load.
+Include 'zdefs.h' in parser files
+	#undef's to prevent conflicts
+	( Venrob, 1st March, 2020 )
+	
+Fix Crash: Long Filenames overflow buf[80], now supports 255-char filename lengths.
+	( ZoriaRPG, 1st March, 2020 )
+	
+Fixed isSubmerged in zsa.txt; the identifier is `Submerged`.
+	( ZoriaRPG, 25th February, 2020 )
+	
+Redo the Palette Editor	
+Feat: New Palette Editor options	
+	Can now type values, and view 8-bit color values.
+Finish converting old palette editor; Now all using DIALOG.
+Work: Finish HSL proc Further work towards a new palette editor
+	( Venrob, 24th February, 2020 )	
+	
+Created new error system, removing the `syncDisable` slow as hell bullshit.
+	Now, NO_ERROR_HALT is ingrained in the standard `failure` system, which has been expanded.
+	With NO_ERROR_HALT set to Do Not Halt, once an error is reached, it will temporarily
+	halt until it reaches the next block-level recursion, where it will resume. This should prevent
+	any of the crashes that the old system was causing from ever occurring.	
+	( Venrob, 22nd February, 2020 )	
+	
+Begin remaking the Palette Editor/CSet dlg
+	( Venrob, 21st February, 2020 )	
+		
+Update ZScript Manual
+	( ZoriaRPG, 19th February, 2020 )
+	
+Update ZScript Manual
+Begin conversion of te GNU C Manual to ZScript Manual
+	( ZoriaRPG, 17th February, 2020 )	
+	
+Remove ZShark Quest Memory Obfustification
+	Disable anti-cheating memory obfustification to see if it
+	is the cause of virus scanner red flags.
+Added ASCII Art Logo to Console
+Quest [METADATA] is now shown again in the console, and I added
+	logging for older formats (back to 1.80) along with build, gamma,
+	and beta metadata, as much as possible with known variables and the
+	available source allows.
+Added zprint2(). This ALWAYS prints, with no regard to log level settings, to
+	be used for critical metadata displays and special system messages
+	such as holiday greetings (e.g. terminal motd).
+	( ZoriaRPG, 15th February, 2020 )
+	
+Fix: Figured out the transparency issue
+2.55 new messagedata	
+	( Venrob, 15th February, 2020 )	
+	
+Feat: Fulltile BGs and transparency for strings 
+	Flag: Full Tile Backgrounds-
+	Do not use the `tile` as part of a 2x2 frame, but
+	as the upper-left of a full tile block BG
+	Flag: Transparent BG-
+		Draw the string background transparently to the screen
+	Flag: Transparent FG-
+		Draw the string foreground (text) transparently to the screen
+	( Venrob, 14th February, 2020 )	
+	
+Split messagebuf bitmaps into txt and bg
+	( Venrob, 13th February, 2020 )	
+
 //Alpha 51
 Copied Screen->Combo*[] Sanity Bounds to mapdata->Combo*[]
 Added sanity bounds and error logging to Screen->Combo*[pos].
