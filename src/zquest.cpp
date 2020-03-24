@@ -6259,17 +6259,20 @@ void refresh(int flags)
         //  text_mode(vc(0));
         rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
         // The frame.
-        jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
-        // The black bar covering screens 88-8F.
-        rectfill(menu1, minimap.x+2+24*BMM, minimap.y+12+24*BMM,minimap.x+(27+22)*BMM,minimap.y+11+27*BMM,vc(0));
-        // Some lines.
-        /*
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+11,    minimap.x+3+48*BMM,  vc(0));
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+12+27*BMM, minimap.x+3+48*BMM,  vc(0));
-            _allegro_vline(menu1, minimap.x+2,    minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-            _allegro_vline(menu1, minimap.x+3+48*BMM, minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-        */
-        safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
+        jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
+		
+	    
+	//jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
+		// The black bar covering screens 88-8F.
+        //rectfill(menu1, minimap.x+2+24*BMM, minimap.y+12+24*BMM,minimap.x+(27+22)*BMM,minimap.y+11+27*BMM,vc(0));
+		// Some lines.
+		/*
+		    _allegro_hline(menu1, minimap.x+2,    minimap.y+11,    minimap.x+3+48*BMM,  vc(0));
+		    _allegro_hline(menu1, minimap.x+2,    minimap.y+12+27*BMM, minimap.x+3+48*BMM,  vc(0));
+		    _allegro_vline(menu1, minimap.x+2,    minimap.y+12,    minimap.y+12+26*BMM, vc(0));
+		    _allegro_vline(menu1, minimap.x+3+48*BMM, minimap.y+12,    minimap.y+12+26*BMM, vc(0));
+		*/
+        //safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
         
         if(Map.getCurrMap()<Map.getMapCount())
         {
