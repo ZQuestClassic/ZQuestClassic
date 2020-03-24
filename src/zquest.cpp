@@ -6267,11 +6267,11 @@ void refresh(int flags)
         }
     }
     
-    if(flags&rSCRMAP)
-    {
-        //  text_mode(vc(0));
-        rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
-        // The frame.
+	if(flags&rSCRMAP)
+	{
+		//  text_mode(vc(0));
+		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
+		// The frame.
 		jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
 		/*
 		if(is_large)
@@ -6377,7 +6377,7 @@ void refresh(int flags)
 				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
 			}
 		}
-    }
+	}
     
     if(flags&rCOMBOS)
     {
@@ -30141,7 +30141,7 @@ int main(int argc,char **argv)
     
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
-	MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
+    MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
