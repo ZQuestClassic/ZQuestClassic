@@ -1,5 +1,66 @@
 ChangeLog for 2.53.1
 
+//Beta 36
+Backport ZQ Minimap Enhancements from 2.55
+Backported non-rect minimap frame from 2.55.
+Backport ZQuest ABCList Options in Settings Dialogue from 2.55
+Backport all JWin Enhancements to this date and time from 2.55.
+	( ZoriaRPG, 23rd March, 2020 )
+
+Backported updates to JWin abclist procs.
+	( Venrob, 23rd March, 2020 )
+	
+Fix crash in filelisters and optimise abclist_proc.
+	( ZoriaRPG, 22nd March, 2020 )
+
+Fix backslash in IMPORTSTRING
+	( Venrob, 22nd March, 2020 )
+
+No-matter what colour you set as trans, the unused tile spots in
+	the tile editor are now always black with a grey X. They no longer
+	use the colour assigned to the 0th index of their cset.
+	InvalidStatic mode is unchanged.
+ZVersion 0.7.3: Fixed missing lessthan token.
+Sort lowest match in ABC List Search and jump to it, not highest.
+You can now type more than one character in any alphabetic
+	droplist, including file listers. You can press backspace to change
+	the current text, and the search term is displayed on the dialogue UI
+	panel.
+Prior to this change, if the user were to set the 'Use Pal CSet'
+	tickbox in the Enemy Editor, they could not un-set it without mucking
+	about with the CSet on the tile. This change fixes this issue, and
+	un-ticking the box will now revert rhe CSet of the enemy from '14' to '8'.
+	( ZoriaRPG, 20th March, 2020 )
+	
+The emulation option for Old / Bugged Bush->Next+Flag is on by default for 2.50.3 or earlier.
+	( ZoriaRPG, 19th March, 2020 )
+
+Add H, S, L Hotkeys (Shift or Control) to Colour Picker
+Fix include paths ordering grabbing incorrect files.
+File: Unimplemented AST Expressions
+	( ZoriaRPG, 9th March, 2020 )
+
+File: Import/Export Hero Sprites
+	( ZoriaRPG, 6th March, 2020 )
+
+Updated cset.txt
+	( ZoriaRPG, 5th March, 2020 )
+
+Optimize arithmetic in 2.53 parser
+	( Venrob, 4th March, 2020 )
+	
+Optimize comparisons to '0' in 2.53 parser
+	( Venrob, 3rd March, 2020 )
+	
+Updated ZScript.txt
+Update Linux Build Requirements List
+Added additional PC < 0 check.
+Prevent crash, and log issue, on ZASM overflow.
+	( ZoriaRPG, 2nd March, 2020 )
+	
+We now have a viable Linux build environment and preliminary 2.53.1 Linux builds thanks to the trio of 
+	Peter Hull, roracle, and ZoriaRPG. Teamwork. 
+
 //Beta 35
 Added the .zdoors file type.
 	Added Import Doorsets: You can set a desired first destination,
