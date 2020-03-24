@@ -1235,7 +1235,7 @@ static int do_NewQuest()
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
+int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 bool Vsync, ShowFPS;
 int ComboBrush;                                             //show the brush instead of the normal mouse
@@ -6275,76 +6275,81 @@ void refresh(int flags)
         //safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
         
         if(Map.getCurrMap()<Map.getMapCount())
-        {
-            for(int i=0; i<MAPSCRS; i++)
-            {
-                if(Map.Scr(i)->valid&mVALID)
-                {
-                   
-		    /* Level palettes ending in 0 can display in screen grid as pure black*/
+		{
+			for(int i=0; i<MAPSCRS; i++)
+			{
+				if(Map.Scr(i)->valid&mVALID)
+				{
+					if(((Map.Scr(i)->color)&15)>0)
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+						if(!is_large)
+							putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
+						else
+							rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
+					}
+					else
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+					}
+					if(!(is_large || InvalidStatic))
+					{
+						/*Level palettes which display close to black get a white border*/
+						RGB* col = &RAMpal[lc1(Map.Scr(i)->color&15)];
+						RGB* col2 = &RAMpal[lc2(Map.Scr(i)->color&15)];
+						if(col->r <= 10 && col->b <= 10 && col->g <= 10 && (!(((Map.Scr(i)->color)&15)>0) || (col2->r <= 10 && col2->b <= 10 && col2->g <= 10)))
+							safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+					}
+				}
+				else
+				{
+					if(InvalidStatic)
+					{
+						for(int dy=0; dy<3*BMM; dy++)
+						{
+							for(int dx=0; dx<3*BMM; dx++)
+							{
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+							}
+						}
+					}
+					else
+					{
+						if(is_large)
+						{
+							int offs = 2;
+							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
+						}
+						else
+						{
+							rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
+									 (i&15)*3*BMM+minimap.x+2+(BMM*BMM), (i/16)*3*BMM+minimap.y+11+(BMM*BMM), vc(0));
+						}
+					}
+				}
+			}
 			
-		    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-		    }
-		    else
-		    {
+			int s=Map.getCurrScr();
+			// The white marker rect
+			int cursor_color = 0;
+			switch(MMapCursorStyle)
+			{
+				case 0:
+					cursor_color = vc(15);
+					break;
+				case 1:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
+					break;
+				case 2:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
+					break;
+			}
+			if(cursor_color)
+				safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),cursor_color);
 			
-			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-//                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
-		        if(InvalidStatic) safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
-		        else safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-			    
-		    }
-			
-		    //vc(0)
-			
-		/*
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-                       */      
-                    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                        if(!is_large)
-                            putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
-                        else
-                            rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
-                    }
-                }
-                else
-                {
-                    if(InvalidStatic)
-                    {
-                        for(int dy=0; dy<3*BMM; dy++)
-                        {
-                            for(int dx=0; dx<3*BMM; dx++)
-                            {
-                                menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
-                                 (i&15)*3*BMM+minimap.x+3+(1+BMM*BMM), (i/16)*3*BMM+minimap.y+12+(1+BMM*BMM), vc(0));
-                    }
-                }
-            }
-            
-            int s=Map.getCurrScr();
-            // The white marker rect
-	    if(((Map.Scr(s)->color)&15)>0)
-	    {
-		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-            }
-	    else
-	    {
-		if(InvalidStatic) safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
-		else safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
-            }
-	    
 			if(is_large)
 			{
 				int space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
@@ -6362,7 +6367,7 @@ void refresh(int flags)
 				textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
 				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
 			}
-        }
+		}
     }
     
     if(flags&rCOMBOS)
