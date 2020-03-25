@@ -1,5 +1,22 @@
 ChangeLog for 2.53.1
 
+//Beta 37
+If the user config for ZC Player speifies a custom SAVEFILE
+	filename, and that file is absent, create it. (Don't try creating
+	a .sav with a different filename!)
+Values set when writing Link->Equipment now write to
+	gamedata->forced_awpn and gamedata->forced_bwpn.
+	These values are saved with the quest, and restored on load, so
+	that the items set to the A/B slots remain corret.
+	Witing -1 to an item with Link-Equipment sets gamedata->fored_
+		to -1, and if the gamedata strut value is -1, then nothing
+		special happens.
+	If the values of these gamedata (signed short) variables != -1,
+		then calls to update A/B weapon (speific to the non -1 value)
+		return early.
+	If a forced item is removed from inventory (with a script, or with
+		a string), then its forced value is set to -1.
+
 //Beta 36
 Backport ZQ Minimap Enhancements from 2.55
 Backported non-rect minimap frame from 2.55.
