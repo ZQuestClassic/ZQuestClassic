@@ -14146,7 +14146,7 @@ void verifyAWpn()
     }
     else
     {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn);
+        game->awpn = (game->forced_awpn == -1) ?  selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn) : vbound(game->forced_awpn, 0, 255);
         Awpn = Bweapon(game->awpn);
         directItemA = directItem;
     }
@@ -14154,7 +14154,7 @@ void verifyAWpn()
 
 void verifyBWpn()
 {
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
+    game->bwpn = (game->forced_bwpn == -1) ?  selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn) : vbound(game->forced_bwpn, 0, 255);
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;
 }

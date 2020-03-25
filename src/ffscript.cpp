@@ -6078,12 +6078,16 @@ void set_register(const long arg, const long value)
         	
 			Awpn = seta;
 			game->awpn = seta;
+			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			//directItemA = directItem;
         	
 			Bwpn = setb;
 			game->bwpn = setb;
+			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
+			directItemA = seta;
+			directItemB = setb;
 			//directItemB = directItem;
         	
 	}

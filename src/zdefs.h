@@ -2341,7 +2341,7 @@ struct gamedata
     long  global_d[256];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
     
-    byte awpn, bwpn;											// Currently selected weapon slots
+    byte awpn, bwpn, forced_awpn, forced_bwpn;											// Currently selected weapon slots
     
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
@@ -2356,7 +2356,11 @@ struct gamedata
     ~gamedata()
     {}
     
-    void Clear();
+    void Clear()
+    {
+	   forced_awpn = -1; 
+	   forced_bwpn = -1; 
+    }
     void Copy(const gamedata& g);
     
     gamedata &operator = (const gamedata& data)
