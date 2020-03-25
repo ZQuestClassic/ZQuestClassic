@@ -290,11 +290,11 @@ static void make_combos(int startTile, int endTile, int cs)
         return;
     
     int temp=combobuf[startCombo].tile;
-    combobuf[startCombo].tile=startTile;
+    combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
     {
-        combobuf[startCombo].tile=temp;
+        combobuf[startCombo].set_tile(temp);
         return;
     }
     
@@ -303,7 +303,7 @@ static void make_combos(int startTile, int endTile, int cs)
     for(int i=0; i<=endTile-startTile; i++)
     {
         combobuf[startCombo+i]=combobuf[startCombo];
-        combobuf[startCombo+i].tile=startTile+i;
+        combobuf[startCombo+i].set_tile(startTile+i);
     }
     
     setup_combo_animations();
@@ -320,12 +320,12 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
     
     int startTile=top*TILES_PER_ROW+left;
     int temp=combobuf[startCombo].tile;
-    combobuf[startCombo].tile=startTile;
+    combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
     {
 	    al_trace("make_combos_rect() early return\n");
-        combobuf[startCombo].tile=temp;
+        combobuf[startCombo].set_tile(temp);
         return;
     }
     
@@ -358,7 +358,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
                 combo++;
             
             combobuf[combo]=combobuf[startCombo];
-            combobuf[combo].tile=tile;
+            combobuf[combo].set_tile(tile);
         }
     }
     
@@ -10726,6 +10726,7 @@ int advpaste(int tile, int tile2, int copy)
         if(advpaste_dlg[3].flags & D_SELECTED)   // tile
         {
             combobuf[i].tile=combo.tile;
+            combobuf[i].o_tile=combo.o_tile;
             combobuf[i].flip=combo.flip;
             setup_combo_animations();
             setup_combo_animations2();
@@ -10890,8 +10891,8 @@ int combo_screen(int pg, int tl)
                 {
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].tile = wrap(combobuf[i].tile + ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
-                                                0, NEWMAXTILES-1);
+                        combobuf[i].set_tile(wrap(combobuf[i].tile + ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                                                0, NEWMAXTILES-1));
                     }
                     
                     setup_combo_animations();
@@ -10911,8 +10912,8 @@ int combo_screen(int pg, int tl)
                 {
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].tile = wrap(combobuf[i].tile - ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
-                                                0, NEWMAXTILES-1);
+                        combobuf[i].set_tile(wrap(combobuf[i].tile - ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                                                0, NEWMAXTILES-1));
                     }
                     
                     setup_combo_animations();

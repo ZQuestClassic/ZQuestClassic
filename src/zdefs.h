@@ -2807,6 +2807,12 @@ struct newcombo
 	int o_tile;
 	byte cur_frame;
 	byte aclk;
+	
+	void set_tile(int newtile)
+	{
+		o_tile = newtile;
+		tile = newtile;
+	}
 };
 
 #define AF_FRESH 1
