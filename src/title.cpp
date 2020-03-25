@@ -1967,7 +1967,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
     if(readsaves(saves,f)!=0)
         goto reset;
         
-    strcpy(iname, SAVE_FILE);
+        strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
     
     for(int i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
     {
