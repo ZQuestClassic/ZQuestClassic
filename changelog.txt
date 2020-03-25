@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 53
+Clear forced_wpn if setting an item slot from the real subscreen.
 If the user config for ZC Player speifies a custom SAVEFILE
 	filename, and that file is absent, create it. (Don't try creating
 	a .sav with a different filename!)
