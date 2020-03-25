@@ -1432,14 +1432,14 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         {
             if(!p_igetw(&tempword, f, true))
             {
-                return 50;
+                return 56;
             }
             
             savedata[i].forced_awpn = tempword;
             
             if(!p_igetw(&tempword, f, true))
             {
-                return 51;
+                return 57;
             }
             
             savedata[i].forced_bwpn = tempword;
