@@ -9139,6 +9139,17 @@ void set_register(const long arg, const long value)
 				ringcolor(false);
 				//refreshpal=true;
 			}
+			if ( !value ) //setting the item false clears the state of forced ->Equipment writes.
+			{
+				if ( game->forced_bwpn == itemID ) 
+				{
+					game->forced_bwpn = -1;
+				} //not else if! -Z
+				if ( game->forced_awpn == itemID ) 
+				{
+					game->forced_awpn = -1;
+				}
+			}
 		}
 		break;
 			
@@ -9150,16 +9161,20 @@ void set_register(const long arg, const long value)
 			}
 			//int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
 			int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
+			seta = vbound(seta,-1,255);
+			setb = vbound(setb,-1,255);
 			//Z_scripterrlog("A is: %d\n", seta);
 			//Z_scripterrlog("A is: %d\n", setb);
 				
 			Awpn = seta;
 			game->awpn = seta;
+			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			//directItemA = directItem;
 			
 			Bwpn = setb;
 			game->bwpn = setb;
+			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
 			//directItemB = directItem;
 			break;
@@ -9173,6 +9188,7 @@ void set_register(const long arg, const long value)
 			//value = third arg
 			//int item, int slot, int force
 			int itm = ri->d[0]/10000;
+			itm = vbound(itm, -1, 255);
 			
 			int slot = ri->d[1]/10000;
 			int force = ri->d[2]/10000;
@@ -9198,6 +9214,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else 
@@ -9205,6 +9222,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9215,6 +9233,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 					
 				}
@@ -9223,6 +9242,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9233,6 +9253,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else 
@@ -9240,6 +9261,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9250,6 +9272,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else if(game->item[itm])
@@ -9257,6 +9280,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9412,7 +9436,7 @@ void set_register(const long arg, const long value)
 		
 		case LINKITEMB:
 		{
-			if ( value/10000 < 0 ) 
+			if ( value/10000 < -1 ) 
 			{
 				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
 				break;
@@ -9427,6 +9451,7 @@ void set_register(const long arg, const long value)
 			
 			Bwpn = value/10000;
 			game->bwpn = value/10000;
+			game->forced_bwpn = value/10000;
 			game->items_off[value/10000] = 0;
 			//directItemB = directItem;
 			break;
@@ -9435,7 +9460,7 @@ void set_register(const long arg, const long value)
 		
 		case LINKITEMA:
 		{
-			if ( value/10000 < 0 ) 
+			if ( value/10000 < -1 ) 
 			{
 				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
 				break;
@@ -9450,6 +9475,7 @@ void set_register(const long arg, const long value)
 			Awpn = value/10000;
 			game->awpn = value/10000;
 			game->items_off[value/10000] = 0;
+			game->forced_awpn = value/10000;
 			//directItemB = directItem;
 			break;
 		}

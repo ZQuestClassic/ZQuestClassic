@@ -8481,12 +8481,14 @@ bool LinkClass::startwpn(int itemid)
         if(Bwpn == itemid)
         {
             Bwpn = 0;
+	    game->forced_bwpn = -1;
             verifyBWpn();
         }
         
         if(Awpn == itemid)
         {
             Awpn = 0;
+	    game->forced_awpn = -1;
             verifyAWpn();
         }
     }
@@ -20232,6 +20234,11 @@ void selectNextBWpn(int type)
 
 void verifyAWpn()
 {
+	if ( (game->forced_awpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
     if(!get_bit(quest_rules,qr_SELECTAWPN))
     {
         Awpn = selectSword();
@@ -20247,6 +20254,11 @@ void verifyAWpn()
 
 void verifyBWpn()
 {
+	if ( (game->forced_bwpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
     game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;

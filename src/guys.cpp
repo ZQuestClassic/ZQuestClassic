@@ -17007,6 +17007,15 @@ bool parsemsgcode()
 		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
 	}
         takeitem(itemID);
+	if ( game->forced_bwpn == itemID ) 
+	{
+		game->forced_bwpn = -1;
+	} //not else if! -Z
+	if ( game->forced_awpn == itemID ) 
+	{
+		game->forced_awpn = -1;
+	}
+	verifyBothWeapons();
         return true;
     }
         

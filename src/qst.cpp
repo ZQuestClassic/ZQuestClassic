@@ -16973,7 +16973,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     }
     
     //  show_progress=true;
-    char tmpfilename[32];
+    char tmpfilename[32] = {0};
     temp_name(tmpfilename);
 //  char percent_done[30];
     bool catchup=false;

@@ -88,7 +88,12 @@ void dosubscr(miscQdata *misc)
             Bpos = zc_max(game->bwpn,0);
     }
     else
+    {
         Bpos = zc_max(game->bwpn,0);
+	//set the position for the sword
+	//Apos = game->awpn(game->awpn,0); 
+        
+    }
         
     for(int y=176-2; y>=6; y-=3)
     {

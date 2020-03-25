@@ -67,6 +67,8 @@ void gamedata::Clear()
     globalRAM.clear();
     awpn=0;
     bwpn=0;
+    forced_awpn = -1; 
+    forced_bwpn = -1;
     isclearing=false;
 }
 
@@ -144,6 +146,9 @@ void gamedata::Copy(const gamedata& g)
         
     awpn = g.awpn;
     bwpn = g.bwpn;
+    
+    forced_awpn = g.forced_awpn; 
+    forced_bwpn = g.forced_bwpn;
 }
 
 char *gamedata::get_name()
