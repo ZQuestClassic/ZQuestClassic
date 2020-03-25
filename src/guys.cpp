@@ -13305,7 +13305,23 @@ bool parsemsgcode()
         return true;
         
     case MSGC_TAKEITEM:
-        takeitem(grab_next_argument());
+    {
+	int theitem = grab_next_argument();
+        takeitem(theitem);
+	zprint2("String is removing item: %d\n", theitem);
+	    //If Link-Equipment was forced, unset it if it was set to this item.
+	if ( game->forced_bwpn == theitem ) 
+	{
+		zprint2("forced weapon mathed on guys.cpp removal.\n");
+		game->forced_bwpn = -1;
+	} //not else if! -Z
+	if ( game->forced_awpn == theitem ) 
+	{
+		game->forced_awpn = -1;
+	}
+	verifyBothWeapons();
+	    
+    }
         return true;
         
     case MSGC_SFX:

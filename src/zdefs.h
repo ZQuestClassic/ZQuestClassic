@@ -190,7 +190,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            24
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        11
+#define V_SAVEGAME        12
 #define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
@@ -2341,8 +2341,8 @@ struct gamedata
     long  global_d[256];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
     
-    byte awpn, bwpn, forced_awpn, forced_bwpn;											// Currently selected weapon slots
-    
+    byte awpn, bwpn;											// Currently selected weapon slots
+    signed short forced_awpn, forced_bwpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     
@@ -2356,11 +2356,7 @@ struct gamedata
     ~gamedata()
     {}
     
-    void Clear()
-    {
-	   forced_awpn = -1; 
-	   forced_bwpn = -1; 
-    }
+    void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
     void Copy(const gamedata& g);
     
     gamedata &operator = (const gamedata& data)
