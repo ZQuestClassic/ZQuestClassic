@@ -5199,6 +5199,23 @@ bool LinkClass::startwpn(int itemid)
             //    putscr(scrollbuf,0,0,tmpscr);
             setmapflag();
             removeItemsOfFamily(game,itemsbuf,itype_bait);
+	    //if the forced awpn or the forced bwpn is of the family, remove it
+	    /*for(int i=0; i<MAXITEMS; i++)
+	    {
+		if(items[i].family == itype_bait)
+		{
+		    if ( game->forced_bwpn == i ) 
+		    {
+			game->forced_bwpn = -1;
+		    } //not else if! -Z
+		    if ( game->forced_awpn == i ) 
+		    {
+			game->forced_awpn = -1;
+		    }
+		}
+	    }
+	    */
+	    
             verifyBothWeapons();
             sfx(tmpscr->secretsfx);
             return false;
@@ -5402,12 +5419,14 @@ bool LinkClass::startwpn(int itemid)
         if(Bwpn == itemid)
         {
             Bwpn = 0;
+	    game->forced_bwpn = -1;
             verifyBWpn();
         }
         
         if(Awpn == itemid)
         {
             Awpn = 0;
+	    game->forced_awpn = -1;
             verifyAWpn();
         }
     }
@@ -14139,6 +14158,8 @@ void selectNextBWpn(int type)
 
 void verifyAWpn()
 {
+	zprint2("verifyAWpn()\n");
+	if ( (game->forced_awpn != -1) ) { zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); return;}
     if(!get_bit(quest_rules,qr_SELECTAWPN))
     {
         Awpn = selectSword();
@@ -14154,7 +14175,9 @@ void verifyAWpn()
 
 void verifyBWpn()
 {
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
+	zprint2("verifyBWpn()\n");
+	if ( (game->forced_bwpn != -1) ) { zprint2("verifyBWpn(); returning early. game->forced_bwpn is: %d \n",game->forced_bwpn); return;}
+    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);;
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;
 }

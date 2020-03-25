@@ -17,6 +17,10 @@
 FFScript FFCore;
 #include "zelda.h"
 #include "link.h"
+
+extern int directItemA;
+extern int directItemB;
+
 #include "guys.h"
 #include "gamedata.h"
 #include "zc_init.h"
@@ -6059,6 +6063,17 @@ void set_register(const long arg, const long value)
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
 	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
+	    if ( !value ) //setting the item false
+	    {
+		if ( game->forced_bwpn == itemID ) 
+		{
+			game->forced_bwpn = -1;
+		} //not else if! -Z
+		if ( game->forced_awpn == itemID ) 
+		{
+			game->forced_awpn = -1;
+		}
+	    }
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
@@ -6073,17 +6088,23 @@ void set_register(const long arg, const long value)
 		}
 		  //int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
+		seta = vbound(seta,-1,255);
+		setb = vbound(setb,-1,255);
 		//Z_scripterrlog("A is: %d\n", seta);
 		//Z_scripterrlog("A is: %d\n", setb);
         	
 			Awpn = seta;
 			game->awpn = seta;
+			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			//directItemA = directItem;
         	
 			Bwpn = setb;
 			game->bwpn = setb;
+			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
+			//directItemA = seta;
+			//directItemB = setb;
 			//directItemB = directItem;
         	
 	}

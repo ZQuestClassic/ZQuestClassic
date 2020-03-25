@@ -1427,6 +1427,29 @@ int readsaves(gamedata *savedata, PACKFILE *f)
                         return 55;
             }
         }
+	
+	if(section_version>11)
+        {
+            if(!p_igetw(&tempword, f, true))
+            {
+                return 50;
+            }
+            
+            savedata[i].forced_awpn = tempword;
+            
+            if(!p_igetw(&tempword, f, true))
+            {
+                return 51;
+            }
+            
+            savedata[i].forced_bwpn = tempword;
+        }
+        else
+        {
+            savedata[i].forced_awpn = -1;
+            savedata[i].forced_bwpn = -1;
+        }
+	
     }
     
     return 0;
@@ -1511,7 +1534,7 @@ int load_savedgames()
     if(readsaves(saves,f)!=0)
         goto reset;
         
-    strcpy(iname, SAVE_FILE);
+    strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
     
     for(int i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
     {
@@ -1871,6 +1894,16 @@ int writesaves(gamedata *savedata, PACKFILE *f)
                 if(!p_iputl(a[k], f))
                     return 53;
         }
+	
+	if(!p_iputw(savedata[i].forced_awpn, f))
+        {
+            return 54;
+        }
+        
+        if(!p_iputw(savedata[i].forced_bwpn, f))
+        {
+            return 55;
+        }
     }
     
     return 0;
@@ -2071,7 +2104,7 @@ static void selectscreen()
     init_NES_mode();
     //  loadfullpal();
     loadlvlpal(1);
-    Bwpn = 0, Awpn = 0;
+    Bwpn = 0, Awpn = 0; //the subsreen values
     clear_bitmap(scrollbuf);
     QMisc.colors.blueframe_tile = 237;
     QMisc.colors.blueframe_cset = 0;
