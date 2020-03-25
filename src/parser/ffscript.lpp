@@ -8,12 +8,21 @@ command: flex -B -olex.yy.cpp ffscript.lpp
 %option never-interactive
 WS	[ \t\n\r]
 %x COMMENT
+%x STRING
+%x IMPORTING
+%x IMPORTING2
+%x IMPORTSTR
 
 %{
 #include <stdlib.h>
+#include <sstream>
 #include "AST.h"
 #include "../zsyssimple.h"
 #include "y.tab.hpp"
+
+std::ostringstream qstr;
+extern bool includesfirst;
+
 YYLTYPE noloc = {0,0,0,0};
 void doLines();
 %}
@@ -30,8 +39,8 @@ void				  { doLines();return ZVOID; }
 if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
 return			  { doLines();return RETURN; }
-import			  { doLines();return IMPORT; }
-"#include"			  { doLines();return IMPORT; }
+import			  { doLines(); BEGIN( IMPORTING ); return IMPORT; }
+"#include"			  { doLines(); BEGIN( IMPORTING2 ); return IMPORT; }
 true				  { doLines();return ZTRUE; }
 false				  { doLines();return ZFALSE; }
 while				{doLines(); return WHILE;}
@@ -353,7 +362,7 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 			}
 ":"			{
 				char temp[512], temp2[512];
-				sprintf(temp, "Ternary expressions '?' require ZScript v14 and higher.");
+				sprintf(temp, "Ternary expressions ':' require ZScript v14 and higher.");
 				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
 				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
 				box_eol();
@@ -548,6 +557,22 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 				box_eol();
 				return 0;
 			}
+"particlesprite"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'particlesprite' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
+"decorationsprite"		{
+				char temp[512], temp2[512];
+				sprintf(temp, "The datatype 'decorationsprite' keyword is reserved for ZScript v14 and higher.");
+				sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+				box_eol();box_out(temp); box_eol(); box_out(temp2);box_eol();
+				box_eol();
+				return 0;
+			}
 "itemsprite"		{
 				char temp[512], temp2[512];
 				sprintf(temp, "The datatype 'itemsprite' keyword is exclusive to ZScript v14 and higher.");
@@ -675,9 +700,217 @@ or_equal		{ doLines(); return  BITORASSIGN; }
 ([0-1]+b)				{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc); return NUMBER; }
 
 
-\"[^\"]+\"				{ doLines();yylval = new ASTString(yytext, yylloc); return QUOTEDSTRING; }
+<INITIAL>\"		{
+	BEGIN( STRING );
+	qstr.str("");
+	qstr << yytext;
+}
+<IMPORTING>{
+	<<EOF>>		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	}
+	[^\"\n]*\n		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	} 
+	\" {
+		includesfirst = false;
+		BEGIN( IMPORTSTR );
+		qstr.str(""); /* Clear qstr */
+		qstr << yytext;
+	}
+}
+
+<IMPORTING2>{
+	<<EOF>>		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	}
+	[^\"\n]*\n		{
+		char temp[512];
+		sprintf(temp, "ERROR: Import/include without string. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in IMPORTING on next compile!
+		return 0;
+	} 
+	\" {
+		includesfirst = true;
+		BEGIN( IMPORTSTR );
+		qstr.str(""); /* Clear qstr */
+		qstr << yytext;
+	}
+}
+
+ <IMPORTSTR>{
+	<<EOF>>			{
+		char temp[512];
+		sprintf(temp, "ERROR: String does not end. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in STRING on next compile!
+		return 0;
+	}
+	[^\"\n]*		qstr << yytext;
+	[^\"\n]*\n		qstr << yytext;
+	[^\"\n]*\"		{
+		qstr << yytext;
+		doLines();
+		BEGIN( INITIAL );
+		yylval = new ASTString(qstr.str().c_str(), yylloc);
+		return IMPORTSTRING;
+	}
+ }
+
+<STRING>{
+	<<EOF>>		{
+		char temp[512];
+		sprintf(temp, "ERROR: String does not end. LINE %d", yylineno);
+		box_eol();box_out(temp); box_eol();
+		box_eol();
+		BEGIN( INITIAL ); //Don't stay in STRING on next compile!
+		return 0;
+	}
+	[^\"\n\\]*		qstr << yytext;
+	[^\"\n\\]*\n	qstr << yytext;
+	[^\"\n\\]*\\	{
+		yytext[yyleng-1] = 0; //Remove '\'
+		qstr << yytext;
+		
+		register int c = yyinput();
+		switch(c)
+		{
+			case 'a': qstr << '\a'; break;
+			case 'b': qstr << '\b'; break;
+			case 'f': qstr << '\f'; break;
+			case 'n': qstr << '\n'; break;
+			case 'r': qstr << '\r'; break;
+			case 't': qstr << '\t'; break;
+			case 'v': qstr << '\v'; break;
+			case '\n': ++yylineno; break;
+			case 'x':
+			{
+				std::stringstream escstr;
+				escstr.str("");
+				int ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					char temp[512];
+					sprintf(temp, "ERROR: Hex-insert escape code '\\x' has no value. LINE %d", yylineno);
+					box_eol();box_out(temp); box_eol();
+					box_eol();
+					BEGIN( INITIAL ); //Don't stay in STRING on next compile!
+					return 0;
+				}
+				ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					unput(ch);
+				}
+				std::stringstream buf;
+				int tmp;
+				buf << std::hex << escstr.str();
+				buf >> tmp;
+				qstr << (char)tmp;
+				break;
+			}
+			case EOF:
+			{
+				char temp[512];
+				sprintf(temp, "ERROR: String does not end. LINE %d", yylineno);
+				box_eol();box_out(temp); box_eol();
+				box_eol();
+				BEGIN( INITIAL ); //Don't stay in STRING on next compile!
+				return 0;
+			}
+			case '\'':
+			case '\\':
+			case '\"':
+			case '\?':
+				qstr << (char)c;
+				break;
+			default:
+			{
+				char temp[512];
+				sprintf(temp, "ERROR: Unknown escape character. LINE %d", yylineno);
+				box_eol();box_out(temp); box_eol();
+				box_eol();
+				BEGIN( INITIAL ); //Don't stay in STRING on next compile!
+				return 0;
+			}
+		}
+	}
+	[^\"\n\\]*\"	{
+		doLines();
+		qstr << yytext;
+		BEGIN( INITIAL );
+		yylval = new ASTString(qstr.str().c_str(), yylloc);
+		return QUOTEDSTRING;
+	}
+}
 
 \'[^\']?\'				{ doLines();yylval = new ASTString(yytext, yylloc); return SINGLECHAR; }
+
+\'\\[^\n]\'	{
+	switch(yytext[yyleng-2])
+	{
+		case 'a':
+			yytext[yyleng-3] = '\a';
+			break;
+		case 'b':
+			yytext[yyleng-3] = '\b';
+			break;
+		case 'f':
+			yytext[yyleng-3] = '\f';
+			break;
+		case 'n':
+			yytext[yyleng-3] = '\n';
+			break;
+		case 'r':
+			yytext[yyleng-3] = '\r';
+			break;
+		case 't':
+			yytext[yyleng-3] = '\t';
+			break;
+		case 'v':
+			yytext[yyleng-3] = '\v';
+			break;
+		case '\'':
+		case '\\':
+		case '\"':
+		case '\?':
+			yytext[yyleng-3] = yytext[yyleng-2];
+			break;
+		default:
+			char temp[512];
+			sprintf(temp, "ERROR: Unknown escape character. LINE %d", yylineno);
+			box_eol();box_out(temp); box_eol();
+			box_eol();
+			return 0;
+	}
+	yytext[yyleng-2] = yytext[yyleng-1];
+	yytext[yyleng-1] = 0;
+	doLines();
+	yylval = new ASTString(yytext, yylloc);
+	return SINGLECHAR;
+}
 
 {WS}					{ ; }
 

@@ -1,5 +1,5 @@
 //std_functions.zh
-//6th November, 2019 for ZC 2.53.1
+//22nd January, 2020 for ZC 2.53.1
 
 //A
 
@@ -733,14 +733,14 @@ float CrossProduct( float x1, float y1, float x2, float y2 )
 //Add to a drain counter without rollover.
 void DCounterAdd(int counter, int amount)
 {
-	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
+	if ( amount + Game->DCounter[counter] > DCOUNTER_MAX ) Game->DCounter[counter] = DCOUNTER_MAX;
 	else Game->MCounter[counter] += amount;
 }
 
 //Reduce a drain counter without rollvoer. 
 void DCounterReduce(int counter, int amount)
 {
-	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
+	if ( Game->DCounter[counter] - amount < DCOUNTER_MIN ) Game->DCounter[counter] = DCOUNTER_MIN;
 	else Game->DCounter[counter] -= amount;
 }
 

@@ -17,6 +17,10 @@
 FFScript FFCore;
 #include "zelda.h"
 #include "link.h"
+
+extern int directItemA;
+extern int directItemB;
+
 #include "guys.h"
 #include "gamedata.h"
 #include "zc_init.h"
@@ -38,6 +42,8 @@ extern std::map<int, pair<string,string> > ffcmap;
 extern std::map<int, pair<string,string> > globalmap;
 extern std::map<int, pair<string, string> > itemmap;
 
+int hangcount = 0; 
+
 #ifdef _FFDEBUG
 //#include "ffdebug.h"
 #endif
@@ -45,11 +51,186 @@ extern std::map<int, pair<string, string> > itemmap;
 #include "ffdebug.h"
 
 #ifdef _WIN32
+#include "ConsoleLogger.h"
+#else
+//unix
+
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	// create a logger: starts a pipe+create the child process
+	long Create(const char *lpszWindowTitle=NULL,
+				int buffer_size_x=-1,int buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+
+	// close everything
+	long Close(void);
+	
+	// output functions
+	inline int print(const char *lpszText,int iSize=-1);
+	int printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int SetAsDefaultOutput(void);
+	static int ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile long m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0;
+#else
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
+
+#endif
+
+	// you can extend this class by overriding the function
+	virtual long	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int _print(const char *lpszText,int iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ long hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	long lpBuffer,
+		/*__in        */ long nNumberOfBytesToWrite,
+		/*__out_opt   */ long lpNumberOfBytesWritten,
+		/*__inout_opt */ long lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	long	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE,
+		COLOR_GREEN,
+		COLOR_RED,
+		COLOR_WHITE,
+		COLOR_INTENSITY,
+		COLOR_BACKGROUND_BLACK,
+		COLOR_BACKGROUND_BLUE,
+		COLOR_BACKGROUND_GREEN,
+		COLOR_BACKGROUND_RED,
+		COLOR_BACKGROUND_WHITE,
+		COLOR_BACKGROUND_INTENSITY,
+		COLOR_COMMON_LVB_LEADING_BYTE,
+		COLOR_COMMON_LVB_TRAILING_BYTE,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL,
+		COLOR_COMMON_LVB_GRID_LVERTICAL,
+		COLOR_COMMON_LVB_GRID_RVERTICAL,
+		COLOR_COMMON_LVB_REVERSE_VIDEO,
+		COLOR_COMMON_LVB_UNDERSCORE
+	};
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(word color);
+	
+	// write string , use specified color
+	int cprintf(int attributes,const char *format,...);
+	
+	// write string , use current color
+	int cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int x,int y);
+
+
+
+	word	GetCurrentColor(void)
+	{  }
+	
+	void	SetCurrentColor(word dwColor)
+	{ }
+	
+
+protected:
+	virtual long AddHeaders(void)
+	{
+		return  0;
+	}
+	
+	virtual int _print(const char *lpszText,int iSize);
+	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+
+
+};
+#endif
+
+#ifdef _WIN32
 // ConsoleLogger.cpp: implementation of the CConsoleLogger class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#include "ConsoleLogger.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -544,16 +725,201 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 	return iRet;
 }
 
+#else
+//Unix
 
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	return 0;
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(word color)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(word color)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	return 0;
+}
 
 #endif
 
-
-#ifdef _WIN32
+//no ifdef here
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-#endif
-
 
 const char script_types[11][16]=
 {
@@ -1770,7 +2136,662 @@ script_command command_list[NUMCOMMANDS+1]=
     { "GETTILEWARPSCR",      1,   0,   0,   0},
     { "GETTILEWARPTYPE",     1,   0,   0,   0},
     { "GETFFCSCRIPT",        1,   0,   0,   0},
-    { "",                    0,   0,   0,   0}
+    //added belo so that addin instrs cannot offset 2.54 and above
+    { "BITMAPEXR",          0,   0,   0,   0},
+	{ "__RESERVED_FOR_QUAD2R",                0,   0,   0,   0},
+	{ "WAVYIN",			   0,   0,   0,   0},
+	{ "WAVYOUT",			   0,   0,   0,   0},
+	{ "ZAPIN",			   0,   0,   0,   0},
+	{ "ZAPOUT",			   0,   0,   0,   0},
+	{ "OPENWIPE",			   0,   0,   0,   0},
+	{ "FREE0x00F1",			   0,   0,   0, 0  },
+	{ "FREE0x00F2",			   0,   0,   0, 0},  
+	{ "FREE0x00F3",			   0,   0,   0,0},  
+	{ "SETMESSAGE",          2,   0,   0,   0},
+	{ "SETDMAPNAME",          2,   0,   0,   0},
+	{ "SETDMAPTITLE",          2,   0,   0,   0},
+	{ "SETDMAPINTRO",          2,   0,   0,   0},
+	{ "GREYSCALEON",			   0,   0,   0,   0},
+	{ "GREYSCALEOFF",			   0,   0,   0,   0},
+	{ "ENDSOUNDR",          1,   0,   0,   0},
+	{ "ENDSOUNDV",          1,   1,   0,   0},
+	{ "PAUSESOUNDR",          1,   0,   0,   0},
+	{ "PAUSESOUNDV",          1,   1,   0,   0},
+	{ "RESUMESOUNDR",          1,   0,   0,   0},
+	{ "RESUMESOUNDV",          1,   1,   0,   0},
+	{ "PAUSEMUSIC",			   0,   0,   0,   0},
+	{ "RESUMEMUSIC",			   0,   0,   0,   0},
+	{ "LWPNARRPTR",                1,   0,   0,   0},
+	{ "EWPNARRPTR",                1,   0,   0,   0},
+	{ "EWPNARRPTR",                1,   0,   0,   0},
+	{ "IDATAARRPTR",                1,   0,   0,   0},
+	{ "FFCARRPTR",                1,   0,   0,   0},
+	{ "BOOLARRPTR",                1,   0,   0,   0},
+	{ "BOOLARRPTR",                1,   0,   0,   0},
+	{ "LWPNARRPTR2",                1,   0,   0,   0},
+	{ "EWPNARRPTR2",                1,   0,   0,   0},
+	{ "ITEMARRPTR2",                1,   0,   0,   0},
+	{ "IDATAARRPTR2",                1,   0,   0,   0},
+	{ "FFCARRPTR2",                1,   0,   0,   0},
+	{ "BOOLARRPTR2",                1,   0,   0,   0},
+	{ "NPCARRPTR2",                1,   0,   0,   0},
+	{ "ARRAYSIZEB",                1,   0,   0,   0},
+	{ "ARRAYSIZEF",                1,   0,   0,   0},
+	{ "ARRAYSIZEN",                1,   0,   0,   0},
+	{ "ARRAYSIZEL",                1,   0,   0,   0},
+	{ "ARRAYSIZEE",                1,   0,   0,   0},
+	{ "ARRAYSIZEI",                1,   0,   0,   0},
+	{ "ARRAYSIZEID",                1,   0,   0,   0},
+	{ "POLYGONR",                0,   0,   0,   0},
+	{ "__RESERVED_FOR_POLYGON3DR",                0,   0,   0,   0},
+	{ "__RESERVED_FOR_SETRENDERSOURCE",                0,   0,   0,   0},
+	{ "LINESARRAY",                0,   0,   0,   0},
+	{ "PIXELARRAYR",                0,   0,   0,   0},
+	{ "TILEARRAYR",                0,   0,   0,   0},
+	{ "COMBOARRAYR",                0,   0,   0,   0},
+	{ "RES0000",			   0,   0,   0,   0},
+	{ "RES0001",			   0,   0,   0,   0},
+	{ "RES0002",			   0,   0,   0,   0},
+	{ "RES0003",			   0,   0,   0,   0},
+	{ "RES0004",			   0,   0,   0,   0},
+	{ "RES0005",			   0,   0,   0,   0},
+	{ "RES0006",			   0,   0,   0,   0},
+	{ "RES0007",			   0,   0,   0,   0},
+	{ "RES0008",			   0,   0,   0,   0},
+	{ "RES0009",			   0,   0,   0,   0},
+	{ "RES000A",			   0,   0,   0,   0},
+	{ "RES000B",			   0,   0,   0,   0},
+	{ "RES000C",			   0,   0,   0,   0},
+	{ "RES000D",			   0,   0,   0,   0},
+	{ "RES000E",			   0,   0,   0,   0},
+	{ "RES000F",			   0,   0,   0,   0},
+	{ "__RESERVED_FOR_CREATELWPN2VV",          2,   1,   1,   0},
+	{ "__RESERVED_FOR_CREATELWPN2VR",          2,   1,   0,   0},
+	{ "__RESERVED_FOR_CREATELWPN2RV",          2,   0,   1,   0},
+	{ "__RESERVED_FOR_CREATELWPN2RR",          2,   0,   0,   0},
+	{ "GETSCREENDOOR",      1,   0,   0,   0},
+	{ "GETSCREENENEMY",      1,   0,   0,   0},
+	{ "PAUSESFX",         1,   0,   0,   0},
+	{ "RESUMESFX",         1,   0,   0,   0},
+	{ "CONTINUESFX",         1,   0,   0,   0},
+	{ "ADJUSTSFX",         3,   0,   0,   0},
+	{ "GETITEMSCRIPT",        1,   0,   0,   0},
+	{ "GETSCREENLAYOP",      1,   0,   0,   0},
+	{ "GETSCREENSECCMB",      1,   0,   0,   0},
+	{ "GETSCREENSECCST",      1,   0,   0,   0},
+	{ "GETSCREENSECFLG",      1,   0,   0,   0},
+	{ "GETSCREENLAYMAP",      1,   0,   0,   0},
+	{ "GETSCREENLAYSCR",      1,   0,   0,   0},
+	{ "GETSCREENPATH",      1,   0,   0,   0},
+	{ "GETSCREENWARPRX",      1,   0,   0,   0},
+	{ "GETSCREENWARPRY",      1,   0,   0,   0},
+	{ "TRIGGERSECRETR",          1,   0,   0,   0},
+	{ "TRIGGERSECRETV",          1,   1,   0,   0},
+	{ "CHANGEFFSCRIPTR",          1,   0,   0,   0},
+	{ "CHANGEFFSCRIPTV",          1,   1,   0,   0},
+	//NPCData
+	//one input, one return
+	{ "GETNPCDATAFLAGS",           2,   0,   0,   0},
+	{ "GETNPCDATAFLAGS2",           2,   0,   0,   0},
+	{ "GETNPCDATAWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATASTILE",           2,   0,   0,   0},
+	{ "GETNPCDATASWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATASHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAETILE",           2,   0,   0,   0},
+	{ "GETNPCDATAEWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHP",           2,   0,   0,   0},
+	{ "GETNPCDATAFAMILY",           2,   0,   0,   0},
+	{ "GETNPCDATACSET",           2,   0,   0,   0},
+	{ "GETNPCDATAANIM",           2,   0,   0,   0},
+	{ "GETNPCDATAEANIM",           2,   0,   0,   0},
+	{ "GETNPCDATAFRAMERATE",           2,   0,   0,   0},
+	{ "GETNPCDATAEFRAMERATE",           2,   0,   0,   0},
+	{ "GETNPCDATATOUCHDMG",           2,   0,   0,   0},
+	{ "GETNPCDATAWPNDAMAGE",           2,   0,   0,   0},
+	{ "GETNPCDATAWEAPON",           2,   0,   0,   0},
+	{ "GETNPCDATARANDOM",           2,   0,   0,   0},
+	{ "GETNPCDATAHALT",           2,   0,   0,   0},
+	{ "GETNPCDATASTEP",           2,   0,   0,   0},
+	{ "GETNPCDATAHOMING",           2,   0,   0,   0},
+	{ "GETNPCDATAHUNGER",           2,   0,   0,   0},
+	{ "GETNPCDATADROPSET",           2,   0,   0,   0},
+	{ "GETNPCDATABGSFX",           2,   0,   0,   0},
+	{ "GETNPCDATADEATHSFX",           2,   0,   0,   0},
+	{ "GETNPCDATAXOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAYOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAZOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHXOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHYOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHITWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHITHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAHITZ",           2,   0,   0,   0},
+	{ "GETNPCDATATILEWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATATILEHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAWPNSPRITE",           2,   0,   0,   0},
+	//two inputs one return
+	{ "GETNPCDATASCRIPTDEF",             1,   0,   0,   0},
+	{ "GETNPCDATADEFENSE",             1,   0,   0,   0},
+	{ "GETNPCDATASIZEFLAG",             1,   0,   0,   0},
+	{ "GETNPCDATAATTRIBUTE",             1,   0,   0,   0},
+	//two inputs no return
+	{ "SETNPCDATAFLAGS",        2,   0,   0,   0},
+	{ "SETNPCDATAFLAGS2",        2,   0,   0,   0},
+	{ "SETNPCDATAWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATASTILE",        2,   0,   0,   0},
+	{ "SETNPCDATASWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATASHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAETILE",        2,   0,   0,   0},
+	{ "SETNPCDATAEWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHP",        2,   0,   0,   0},
+	{ "SETNPCDATAFAMILY",        2,   0,   0,   0},
+	{ "SETNPCDATACSET",        2,   0,   0,   0},
+	{ "SETNPCDATAANIM",        2,   0,   0,   0},
+	{ "SETNPCDATAEANIM",        2,   0,   0,   0},
+	{ "SETNPCDATAFRAMERATE",        2,   0,   0,   0},
+	{ "SETNPCDATAEFRAMERATE",        2,   0,   0,   0},
+	{ "SETNPCDATATOUCHDMG",        2,   0,   0,   0},
+	{ "SETNPCDATAWPNDAMAGE",        2,   0,   0,   0},
+	{ "SETNPCDATAWEAPON",        2,   0,   0,   0},
+	{ "SETNPCDATARANDOM",        2,   0,   0,   0},
+	{ "SETNPCDATAHALT",        2,   0,   0,   0},
+	{ "SETNPCDATASTEP",        2,   0,   0,   0},
+	{ "SETNPCDATAHOMING",        2,   0,   0,   0},
+	{ "SETNPCDATAHUNGER",        2,   0,   0,   0},
+	{ "SETNPCDATADROPSET",        2,   0,   0,   0},
+	{ "SETNPCDATABGSFX",        2,   0,   0,   0},
+	{ "SETNPCDATADEATHSFX",        2,   0,   0,   0},
+	{ "SETNPCDATAXOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAYOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAZOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHXOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHYOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHITWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHITHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAHITZ",        2,   0,   0,   0},
+	{ "SETNPCDATATILEWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATATILEHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAWPNSPRITE",        2,   0,   0,   0},
+	{ "SETNPCDATAHITSFX",        2,   0,   0,   0},
+	{ "GETNPCDATAHITSFX",        2,   0,   0,   0},
+	//Combodata, one input no return
+	{ "GCDBLOCKENEM",           2,   0,   0,   0},
+	{ "GCDBLOCKHOLE",           2,   0,   0,   0},
+	{ "GCDBLOCKTRIG",           2,   0,   0,   0},
+	{ "GCDCONVEYSPDX",           2,   0,   0,   0},
+	{ "GCDCONVEYSPDY",           2,   0,   0,   0},
+	{ "GCDCREATEENEM",           2,   0,   0,   0},  
+	{ "GCDCREATEENEMWH",           2,   0,   0,   0},  
+	{ "GCDCREATEENEMCH",           2,   0,   0,   0},  
+	{ "GCDDIRCHTYPE",           2,   0,   0,   0},  
+	{ "GCDDISTCHTILES",           2,   0,   0,   0},  
+	{ "GCDDIVEITEM",           2,   0,   0,   0},  
+	{ "GCDDOCK",           2,   0,   0,   0},  
+	{ "GCDFAIRY",           2,   0,   0,   0},  
+	{ "GCDFFCOMBOATTRIB",           2,   0,   0,   0},  
+	{ "GCDFOOTDECOTILE",           2,   0,   0,   0},  
+	{ "GCDFOOTDECOTYPE",           2,   0,   0,   0},  
+	{ "GCDHOOKSHOTGRAB",           2,   0,   0,   0},  
+	{ "GCDLADDERPASS",           2,   0,   0,   0},  
+	{ "GCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
+	{ "GCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
+	{ "GCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPDELAY",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPTYPE",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPDELAY",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPTYPE",           2,   0,   0,   0},  
+	{ "GCDNOPUSHBLOCKS",           2,   0,   0,   0},  
+	{ "GCDOVERHEAD",           2,   0,   0,   0},  
+	{ "GCDPLACEENEMY",           2,   0,   0,   0},  
+	{ "GCDPUSHDIR",           2,   0,   0,   0},  
+	{ "GCDPUSHWEIGHT",           2,   0,   0,   0},  
+	{ "GCDPUSHWAIT",           2,   0,   0,   0},  
+	{ "GCDPUSHED",           2,   0,   0,   0},  
+	{ "GCDRAFT",           2,   0,   0,   0},  
+	{ "GCDRESETROOM",           2,   0,   0,   0},  
+	{ "GCDSAVEPOINT",           2,   0,   0,   0},  
+	{ "GCDSCREENFREEZE",           2,   0,   0,   0},  
+	{ "GCDSECRETCOMBO",           2,   0,   0,   0},  
+	{ "GCDSINGULAR",           2,   0,   0,   0},  
+	{ "GCDSLOWMOVE",           2,   0,   0,   0},  
+	{ "GCDSTATUE",           2,   0,   0,   0},  
+	{ "GCDSTEPTYPE",           2,   0,   0,   0},  
+	{ "GCDSTEPCHANGETO",           2,   0,   0,   0},  
+	{ "GCDSTRIKEREMNANTS",           2,   0,   0,   0},  
+	{ "GCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
+	{ "GCDSTRIKECHANGE",           2,   0,   0,   0},  
+	{ "GCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
+	{ "GCDTOUCHITEM",           2,   0,   0,   0},  
+	{ "GCDTOUCHSTAIRS",           2,   0,   0,   0},  
+	{ "GCDTRIGGERTYPE",           2,   0,   0,   0},  
+	{ "GCDTRIGGERSENS",           2,   0,   0,   0},  
+	{ "GCDWARPTYPE",           2,   0,   0,   0},  
+	{ "GCDWARPSENS",           2,   0,   0,   0},  
+	{ "GCDWARPDIRECT",           2,   0,   0,   0},  
+	{ "GCDWARPLOCATION",           2,   0,   0,   0},  
+	{ "GCDWATER",           2,   0,   0,   0},  
+	{ "GCDWHISTLE",           2,   0,   0,   0},  
+	{ "GCDWINGAME",           2,   0,   0,   0},  
+	{ "GCDBLOCKWEAPLVL",           2,   0,   0,   0},  
+	{ "GCDTILE",           2,   0,   0,   0},  
+	{ "GCDFLIP",           2,   0,   0,   0},  
+	{ "GCDWALK",           2,   0,   0,   0},  
+	{ "GCDTYPE",           2,   0,   0,   0},  
+	{ "GCDCSETS",           2,   0,   0,   0},  
+	{ "GCDFOO",           2,   0,   0,   0},  
+	{ "GCDFRAMES",           2,   0,   0,   0},  
+	{ "GCDSPEED",           2,   0,   0,   0},  
+	{ "GCDNEXTCOMBO",           2,   0,   0,   0},  
+	{ "GCDNEXTCSET",           2,   0,   0,   0},  
+	{ "GCDFLAG",           2,   0,   0,   0},  
+	{ "GCDSKIPANIM",           2,   0,   0,   0},  
+	{ "GCDNEXTTIMER",           2,   0,   0,   0},  
+	{ "GCDSKIPANIMY",           2,   0,   0,   0},  
+	{ "GCDANIMFLAGS",           2,   0,   0,   0},  
+	//combodata two input, one return
+	{ "GCDBLOCKWEAPON",             1,   0,   0,   0},
+	{ "GCDEXPANSION",             1,   0,   0,   0},
+	{ "GCDSTRIKEWEAPONS",             1,   0,   0,   0},
+	//combodata two input, one return
+	{ "SCDBLOCKENEM",           2,   0,   0,   0},
+	{ "SCDBLOCKHOLE",           2,   0,   0,   0},
+	{ "SCDBLOCKTRIG",           2,   0,   0,   0},
+	{ "SCDCONVEYSPDX",           2,   0,   0,   0},
+	{ "SCDCONVEYSPDY",           2,   0,   0,   0},
+	{ "SCDCREATEENEM",           2,   0,   0,   0},  
+	{ "SCDCREATEENEMWH",           2,   0,   0,   0},  
+	{ "SCDCREATEENEMCH",           2,   0,   0,   0},  
+	{ "SCDDIRCHTYPE",           2,   0,   0,   0},  
+	{ "SCDDISTCHTILES",           2,   0,   0,   0},  
+	{ "SCDDIVEITEM",           2,   0,   0,   0},  
+	{ "SCDDOCK",           2,   0,   0,   0},  
+	{ "SCDFAIRY",           2,   0,   0,   0},  
+	{ "SCDFFCOMBOATTRIB",           2,   0,   0,   0},  
+	{ "SCDFOOTDECOTILE",           2,   0,   0,   0},  
+	{ "SCDFOOTDECOTYPE",           2,   0,   0,   0},  
+	{ "SCDHOOKSHOTGRAB",           2,   0,   0,   0},  
+	{ "SCDLADDERPASS",           2,   0,   0,   0},  
+	{ "SCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
+	{ "SCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
+	{ "SCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPDELAY",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPTYPE",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPDELAY",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPTYPE",           2,   0,   0,   0},  
+	{ "SCDNOPUSHBLOCKS",           2,   0,   0,   0},  
+	{ "SCDOVERHEAD",           2,   0,   0,   0},  
+	{ "SCDPLACEENEMY",           2,   0,   0,   0},  
+	{ "SCDPUSHDIR",           2,   0,   0,   0},  
+	{ "SCDPUSHWEIGHT",           2,   0,   0,   0},  
+	{ "SCDPUSHWAIT",           2,   0,   0,   0},  
+	{ "SCDPUSHED",           2,   0,   0,   0},  
+	{ "SCDRAFT",           2,   0,   0,   0},  
+	{ "SCDRESETROOM",           2,   0,   0,   0},  
+	{ "SCDSAVEPOINT",           2,   0,   0,   0},  
+	{ "SCDSCREENFREEZE",           2,   0,   0,   0},  
+	{ "SCDSECRETCOMBO",           2,   0,   0,   0},  
+	{ "SCDSINGULAR",           2,   0,   0,   0},  
+	{ "SCDSLOWMOVE",           2,   0,   0,   0},  
+	{ "SCDSTATUE",           2,   0,   0,   0},  
+	{ "SCDSTEPTYPE",           2,   0,   0,   0},  
+	{ "SCDSTEPCHANGETO",           2,   0,   0,   0},  
+	{ "SCDSTRIKEREMNANTS",           2,   0,   0,   0},  
+	{ "SCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
+	{ "SCDSTRIKECHANGE",           2,   0,   0,   0},  
+	{ "SCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
+	{ "SCDTOUCHITEM",           2,   0,   0,   0},  
+	{ "SCDTOUCHSTAIRS",           2,   0,   0,   0},  
+	{ "SCDTRIGGERTYPE",           2,   0,   0,   0},  
+	{ "SCDTRIGGERSENS",           2,   0,   0,   0},  
+	{ "SCDWARPTYPE",           2,   0,   0,   0},  
+	{ "SCDWARPSENS",           2,   0,   0,   0},  
+	{ "SCDWARPDIRECT",           2,   0,   0,   0},  
+	{ "SCDWARPLOCATION",           2,   0,   0,   0},  
+	{ "SCDWATER",           2,   0,   0,   0},  
+	{ "SCDWHISTLE",           2,   0,   0,   0},  
+	{ "SCDWINGAME",           2,   0,   0,   0},  
+	{ "SCDBLOCKWEAPLVL",           2,   0,   0,   0},  
+	{ "SCDTILE",           2,   0,   0,   0},  
+	{ "SCDFLIP",           2,   0,   0,   0},  
+	{ "SCDWALK",           2,   0,   0,   0},  
+	{ "SCDTYPE",           2,   0,   0,   0},  
+	{ "SCDCSETS",           2,   0,   0,   0},  
+	{ "SCDFOO",           2,   0,   0,   0},  
+	{ "SCDFRAMES",           2,   0,   0,   0},  
+	{ "SCDSPEED",           2,   0,   0,   0},  
+	{ "SCDNEXTCOMBO",           2,   0,   0,   0},  
+	{ "SCDNEXTCSET",           2,   0,   0,   0},  
+	{ "SCDFLAG",           2,   0,   0,   0},  
+	{ "SCDSKIPANIM",           2,   0,   0,   0},  
+	{ "SCDNEXTTIMER",           2,   0,   0,   0},  
+	{ "SCDSKIPANIMY",           2,   0,   0,   0},  
+	{ "SCDANIMFLAGS",           2,   0,   0,   0},  
+	{ "GETNPCDATATILE",           2,   0,   0,   0},
+	{ "GETNPCDATAEHEIGHT",           2,   0,   0,   0},
+	{ "SETNPCDATATILE",        2,   0,   0,   0},
+	{ "SETNPCDATAEHEIGHT",        2,   0,   0,   0},
+	{ "GETSPRITEDATASTRING",        2,   0,   0,   0},
+	//SpriteData
+	{ "GETSPRITEDATATILE",           2,   0,   0,   0},  
+	{ "GETSPRITEDATAMISC",           2,   0,   0,   0},  
+	{ "GETSPRITEDATACGETS",           2,   0,   0,   0},  
+	{ "GETSPRITEDATAFRAMES",           2,   0,   0,   0},  
+	{ "GETSPRITEDATASPEED",           2,   0,   0,   0},  
+	{ "GETSPRITEDATATYPE",           2,   0,   0,   0},  
+	{ "SETSPRITEDATASTRING",           2,   0,   0,   0},  
+	{ "SETSPRITEDATATILE",           2,   0,   0,   0},  
+	{ "SETSPRITEDATAMISC",           2,   0,   0,   0},  
+	{ "SETSPRITEDATACSETS",           2,   0,   0,   0},  
+	{ "SETSPRITEDATAFRAMES",           2,   0,   0,   0},  
+	{ "SETSPRITEDATASPEED",           2,   0,   0,   0},  
+	{ "SETSPRITEDATATYPE",           2,   0,   0,   0},  
+	//Game->SetContinueScreenSetting
+	{ "SETCONTINUESCREEN",           2,   0,   0,   0}, 
+	//Game->SetContinueScreenString
+	{ "SETCONTINUESTRING",           2,   0,   0,   0}, 
+	
+	{ "LOADNPCDATAR",       1,   0,   0,   0},
+	{ "LOADNPCDATAV",       1,   1,   0,   0},
+	
+	{ "LOADCOMBODATAR",       1,   0,   0,   0},
+	{ "LOADCOMBODATAV",       1,   1,   0,   0},
+	
+	{ "LOADMAPDATAR",       1,   0,   0,   0},
+	{ "LOADMAPDATAV",       1,   1,   0,   0},
+	
+	{ "LOADSPRITEDATAR",       1,   0,   0,   0},
+	{ "LOADSPRITEDATAV",       1,   1,   0,   0},
+   
+	{ "LOADSCREENDATAR",       1,   0,   0,   0},
+	{ "LOADSCREENDATAV",       1,   1,   0,   0},
+
+	{ "LOADBITMAPDATAR",       1,   0,   0,   0},
+	{ "LOADBITMAPDATAV",       1,   1,   0,   0},
+	
+	{ "LOADSHOPR",       1,   0,   0,   0},
+	{ "LOADSHOPV",       1,   1,   0,   0},
+
+	{ "LOADINFOSHOPR",       1,   0,   0,   0},
+	{ "LOADINFOSHOPV",       1,   1,   0,   0},
+	
+	{ "LOADMESSAGEDATAR",       1,   0,   0,   0},
+	{ "LOADMESSAGEDATAV",       1,   1,   0,   0},
+	{ "MESSAGEDATASETSTRINGR",       1,   0,   0,   0},
+	{ "MESSAGEDATASETSTRINGV",       1,   1,   0,   0},
+	{ "MESSAGEDATAGETSTRINGR",       1,   0,   0,   0},
+	{ "MESSAGEDATAGETSTRINGV",       1,   1,   0,   0},
+	
+	{ "LOADDMAPDATAR",       1,   0,   0,   0},
+	{ "LOADDMAPDATAV",       1,   1,   0,   0},
+	{ "DMAPDATAGETNAMER",       1,   0,   0,   0},
+	{ "DMAPDATAGETNAMEV",       1,   1,   0,   0},
+	{ "DMAPDATASETNAMER",       1,   0,   0,   0},
+	{ "DMAPDATASETNAMEV",       1,   1,   0,   0},
+	{ "DMAPDATAGETTITLER",       1,   0,   0,   0},
+	{ "DMAPDATAGETTITLEV",       1,   1,   0,   0},
+	{ "DMAPDATASETTITLER",       1,   0,   0,   0},
+	{ "DMAPDATASETTITLEV",       1,   1,   0,   0},
+	
+	{ "DMAPDATAGETINTROR",       1,   0,   0,   0},
+	{ "DMAPDATAGETINTROV",       1,   1,   0,   0},
+	{ "DMAPDATANSETITROR",       1,   0,   0,   0},
+	{ "DMAPDATASETINTROV",       1,   1,   0,   0},
+	{ "DMAPDATAGETMUSICR",       1,   0,   0,   0},
+	{ "DMAPDATAGETMUSICV",       1,   1,   0,   0},
+	{ "DMAPDATASETMUSICR",       1,   0,   0,   0},
+	{ "DMAPDATASETMUSICV",       1,   1,   0,   0},
+	
+	{ "ADJUSTSFXVOLUMER",          1,   0,   0,   0},
+	{ "ADJUSTSFXVOLUMEV",          1,   1,   0,   0},
+	
+	{ "ADJUSTVOLUMER",          1,   0,   0,   0},
+	{ "ADJUSTVOLUMEV",          1,   1,   0,   0},
+	
+	{ "FXWAVYR",             1,   0,   0,   0},
+	{ "FXWAVYV",             1,   1,   0,   0},
+	
+	{ "FXZAPR",             1,   0,   0,   0},
+	{ "FXZAPV",             1,   1,   0,   0},
+	
+	{ "GREYSCALER",             1,   0,   0,   0},
+	{ "GREYSCALEV",             1,   1,   0,   0},
+	{ "RETURN",			0,	0,	0,	0},
+	{ "MONOCHROMER",             1,   0,   0,   0},
+	{ "MONOCHROMEV",             1,   1,   0,   0},
+	{ "CLEARTINT",              0,   0,   0,   0},
+	{ "TINT",         0,   0,   0,   0},
+	{ "MONOHUE",         0,   0,   0,   0},
+	
+	{ "BMPRECTR",                0,   0,   0,   0},
+	{ "BMPCIRCLER",                0,   0,   0,   0},
+	{ "BMPARCR",                0,   0,   0,   0},
+	{ "BMPELLIPSER",                0,   0,   0,   0},
+	{ "BMPLINER",                0,   0,   0,   0},
+	{ "BMPSPLINER",                0,   0,   0,   0},
+	{ "BMPPUTPIXELR",                0,   0,   0,   0},
+	{ "BMPDRAWTILER",                0,   0,   0,   0},
+	{ "BMPDRAWCOMBOR",                0,   0,   0,   0},
+	{ "BMPFASTTILER",                0,   0,   0,   0},
+	{ "BMPFASTCOMBOR",                0,   0,   0,   0},
+	{ "BMPDRAWCHARR",                0,   0,   0,   0},
+	{ "BMPDRAWINTR",                0,   0,   0,   0},
+	{ "BMPDRAWSTRINGR",                0,   0,   0,   0},
+	{ "BMPQUADR",                0,   0,   0,   0},
+	{ "BMPQUAD3DR",                0,   0,   0,   0},
+	{ "BMPTRIANGLER",                0,   0,   0,   0},
+	{ "BMPTRIANGLE3DR",                0,   0,   0,   0},
+	{ "BMPPOLYGONR",                0,   0,   0,   0},
+	{ "BMPDRAWLAYERR",                0,   0,   0,   0},
+	{ "BMPDRAWSCREENR",                0,   0,   0,   0},
+	{ "BMPBLIT",                0,   0,   0,   0},
+	
+	{ "LINKWARPEXR",             1,   0,   0,   0},
+	{ "LINKWARPEXV",             1,   1,   0,   0},
+	{ "LINKEXPLODER",             1,   0,   0,   0},
+	{ "LINKEXPLODEV",             1,   1,   0,   0},
+	{ "NPCEXPLODER",             1,   0,   0,   0},
+	{ "NPCEXPLODEV",             1,   1,   0,   0},
+	
+	{ "ITEMEXPLODER",             1,   0,   0,   0},
+	{ "ITEMEXPLODEV",             1,   1,   0,   0},
+	{ "LWEAPONEXPLODER",             1,   0,   0,   0},
+	{ "LWEAPONEXPLODEV",             1,   1,   0,   0},
+	{ "EWEAPONEXPLODER",             1,   0,   0,   0},
+	{ "EWEAPONEXPLODEV",             1,   1,   0,   0},
+	{ "RUNITEMSCRIPT",			   1,   0,   0,   0},
+	{ "GETRTCTIMER",             1,   0,   0,   0},
+	{ "GETRTCTIMEV",             1,   1,   0,   0},
+	
+	//new npc functions for npc scripts
+	{ "NPCDEAD",                1,   0,   0,   0},
+	{ "NPCKICKBUCKET",                0,   0,   0,   0},
+	{ "NPCSTOPBGSFX",                0,   0,   0,   0},
+	{ "NPCCANMOVE",                1,   0,   0,   0},
+	{ "NPCNEWDIR8",                0,   0,   0,   0},
+	{ "NPCNEWDIR",                0,   0,   0,   0},
+	{ "NPCCONSTWALK",                0,   0,   0,   0},
+	{ "NPCCONSTWALK8",                0,   0,   0,   0},
+	{ "NPCVARWALK",                0,   0,   0,   0},
+	{ "NPCVARWALK8",                0,   0,   0,   0},
+	{ "NPCHALTWALK",                0,   0,   0,   0},
+	{ "NPCHALTWALK8",                0,   0,   0,   0},
+	{ "NPCFLOATWALK",                0,   0,   0,   0},
+	// moved to a var: { "NPCLINEDUP",                0,   0,   0,   0},
+	{ "NPCLINKINRANGE",                1,   0,   0,   0},
+	{ "NPCATTACK",                0,   0,   0,   0},
+	{ "NPCPLACEONAXIS",                0,   0,   0,   0},
+	{ "NPCADD",                1,   0,   0,   0},
+	{ "NPCFIREBREATH",                0,   0,   0,   0},
+	{ "NPCCANSLIDE",                1,   0,   0,   0},
+	{ "NPCSLIDE",                1,   0,   0,   0},
+	{ "NPCHITWITH",                1,   0,   0,   0},
+	{ "NPCGETINITDLABEL",                0,   0,   0,   0},
+	// moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
+	{ "GAMECONTINUE",             0,   0,   0,   0},
+	{ "MAPDATAISSOLID",             1,   0,   0,   0},
+	{ "SHOWF6SCREEN",             0,   0,   0,   0},
+	{ "NPCDATAGETNAME",             1,   0,   0,   0},
+	{ "PLAYENHMUSICEX",        2,   0,   0,   0},
+	{ "GETENHMUSICPOS",          1,   0,   0,   0},
+	{ "SETENHMUSICPOS",        1,   0,   0,   0},
+	{ "SETENHMUSICSPEED",        1,   0,   0,   0},
+	{ "ISVALIDBITMAP",         1,   0,   0,   0},
+	{ "READBITMAP",        0,   0,   0,   0},
+	{ "WRITEBITMAP",        0,   0,   0,   0},
+	{ "ALLOCATEBITMAP",        1,   0,   0,   0},
+	{ "CLEARBITMAP",        0,   0,   0,   0},
+	{ "REGENERATEBITMAP",        0,   0,   0,   0},
+	{ "BMPBLITTO",                0,   0,   0,   0},
+	
+	{ "BMPDRAWSCREENSOLIDR",                0,   0,   0,   0},
+	{ "BMPDRAWSCREENCOMBOFR",                0,   0,   0,   0},
+	{ "BMPDRAWSCREENCOMBOIR",                0,   0,   0,   0},
+	{ "BMPDRAWSCREENCOMBOTR",                0,   0,   0,   0},
+	{ "BMPDRAWSCREENSOLID2R",                0,   0,   0,   0},
+	{ "GRAPHICSGETPIXEL",     1,   0,   0,   0},
+	
+	{ "BMPDRAWLAYERSOLIDR",     0,   0,   0,   0},
+	{ "BMPDRAWLAYERCFLAGR",     0,   0,   0,   0},
+	{ "BMPDRAWLAYERCTYPER",     0,   0,   0,   0},
+	{ "BMPDRAWLAYERCIFLAGR",     0,   0,   0,   0},
+	{ "BMPDRAWLAYERSOLIDITYR",     0,   0,   0,   0},
+	{ "BMPMODE7",     0,   0,   0,   0},
+	{ "BITMAPGETPIXEL",     0,   0,   0,   0},
+	{ "NOP",                 0,   0,   0,   0},
+	{ "STRINGCOMPARE",		       1,   0,   0,   0},
+	{ "STRINGNCOMPARE",		       1,   0,   0,   0},
+	{ "STRINGLENGTH",                2,   0,   0,   0},
+	{ "STRINGCOPY",          2,   0,   0,   0},
+	{ "CASTBOOLI",          1,   0,   0,   0},
+	{ "CASTBOOLF",          1,   0,   0,   0},
+	{ "SETTRUEI",             1,   0,   0,   0},
+	{ "SETFALSEI",            1,   0,   0,   0},
+	{ "SETMOREI",             1,   0,   0,   0},
+	{ "SETLESSI",             1,   0,   0,   0},
+	
+	{ "ARRAYCOPY",          2,   0,   0,   0},
+	{ "ARRAYNCOPY",		       1,   0,   0,   0},
+	
+	//1 INPUT, NO RETURN 
+	{ "REMCHR",                2,   0,   0,   0},
+	{ "STRINGUPPERLOWER",                2,   0,   0,   0},
+	{ "STRINGLOWERUPPER",                2,   0,   0,   0},
+	{ "STRINGCONVERTCASE",                2,   0,   0,   0},
+	
+	//1 input, 1 ret
+	{ "XLEN",                2,   0,   0,   0},
+	{ "XTOI",                2,   0,   0,   0},
+	{ "ILEN",                2,   0,   0,   0},
+	{ "ATOI",                2,   0,   0,   0},
+   
+	//2 INPUT, 1 RET, based on strcmp
+	{ "STRCSPN",                1,   0,   0,   0},
+	{ "STRSTR",                1,   0,   0,   0},
+	{ "XTOA",                1,   0,   0,   0},
+	{ "ITOA",                1,   0,   0,   0},
+	{ "STRCAT",                1,   0,   0,   0},
+	{ "STRSPN",                1,   0,   0,   0},
+	{ "STRCHR",                1,   0,   0,   0},
+	{ "STRRCHR",                1,   0,   0,   0},
+	//2 INP, 1 RET OVERLOADS
+	{ "XLEN2",                1,   0,   0,   0},
+	{ "XTOI2",                1,   0,   0,   0},
+	{ "ILEN2",                1,   0,   0,   0},
+	{ "ATOI2",                1,   0,   0,   0},
+	{ "REMCHR2",                1,   0,   0,   0},
+	
+	//3 INPUT 1 RET 
+	{ "XTOA3",		       1,   0,   0,   0},
+	{ "STRCATF",		       1,   0,   0,   0},
+	{ "ITOA3",		       1,   0,   0,   0},
+	{ "STRSTR3",		       1,   0,   0,   0},
+	{ "REMNCHR3",		       1,   0,   0,   0},
+	{ "STRCAT3",		       1,   0,   0,   0},
+	{ "STRNCAT3",		       1,   0,   0,   0},
+	{ "STRCHR3",		       1,   0,   0,   0},
+	{ "STRRCHR3",		       1,   0,   0,   0},
+	{ "STRSPN3",		       1,   0,   0,   0},
+	{ "STRCSPN3",		       1,   0,   0,   0},
+	
+	{ "UPPERTOLOWER",                2,   0,   0,   0},
+	{ "LOWERTOUPPER",                2,   0,   0,   0},
+	{ "CONVERTCASE",                2,   0,   0,   0},
+	//Game->Get
+	{ "GETNPCSCRIPT",                1,   0,   0,   0},
+	{ "GETLWEAPONSCRIPT",                1,   0,   0,   0},
+	{ "GETEWEAPONSCRIPT",                1,   0,   0,   0},
+	{ "GETHEROSCRIPT",                1,   0,   0,   0},
+	{ "GETGLOBALSCRIPT",                1,   0,   0,   0},
+	{ "GETDMAPSCRIPT",                1,   0,   0,   0},
+	{ "GETSCREENSCRIPT",                1,   0,   0,   0},
+	{ "GETSPRITESCRIPT",                1,   0,   0,   0},
+	{ "GETUNTYPEDSCRIPT",                1,   0,   0,   0},
+	{ "GETSUBSCREENSCRIPT",                1,   0,   0,   0},
+	{ "GETNPCBYNAME",                1,  0,   0,   0},
+	{ "GETITEMBYNAME",                1,   0,   0,   0},
+	{ "GETCOMBOBYNAME",                1,   0,   0,   0},
+	{ "GETDMAPBYNAME",                1,   0,   0,   0},
+	
+	{ "SRNDR",                1,   0,   0,   0},
+	{ "SRNDV",                1,   1,   0,   0},
+	{ "SRNDRND",              1,   0,   0,   0},
+	{ "SAVEGAMESTRUCTS",                2,   0,   0,   0},
+	{ "READGAMESTRUCTS",                2,   0,   0,   0},
+	{ "ANDR32",                2,   0,   0,   0},
+	{ "ANDV32",                2,   0,   1,   0},
+	{ "ORR32",                 2,   0,   0,   0},
+	{ "ORV32",                 2,   0,   1,   0},
+	{ "XORR32",                2,   0,   0,   0},
+	{ "XORV32",                2,   0,   1,   0},
+	{ "BITNOT32",                 1,   0,   0,   0},
+	{ "LSHIFTR32",             2,   0,   0,   0},
+	{ "LSHIFTV32",             2,   0,   1,   0},
+	{ "RSHIFTR32",             2,   0,   0,   0},
+	{ "RSHIFTV32",             2,   0,   1,   0},
+	{ "ISALLOCATEDBITMAP",         1,   0,   0,   0},
+	{ "FONTHEIGHTR",            1,   0,   0,   0},
+	{ "STRINGWIDTHR",           2,   0,   0,   0},
+	{ "CHARWIDTHR",             2,   0,   0,   0},
+	{ "MESSAGEWIDTHR",          1,   0,   0,   0},
+	{ "MESSAGEHEIGHTR",         1,   0,   0,   0},
+	{ "ISVALIDARRAY",         1,   0,   0,   0},
+	{ "DIREXISTS",         1,   0,   0,   0},
+	{ "GAMESAVEQUIT",         0,   0,   0,   0},
+	{ "GAMESAVECONTINUE",         0,   0,   0,   0},
+	{ "DRAWTILECLOAKEDR",                0,   0,   0,   0},
+	{ "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
+	{ "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+	{ "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+	{ "NPCKNOCKBACK",                2,   0,   0,   0},
+	{ "CLOSEWIPE",                0,   0,   0,   0},
+	{ "OPENWIPESHAPE",                1,   0,   0,   0},
+	{ "CLOSEWIPESHAPE",                1,   0,   0,   0},
+	{ "FILEEXISTS",                1,   0,   0,   0},
+	{ "BITMAPCLEARTOCOLOR",                0,   0,   0,   0},
+	{ "LOADNPCBYSUID",        1,   0,   0,   0},
+	{ "LOADLWEAPONBYSUID",        1,   0,   0,   0},
+	{ "LOADWEAPONCBYSUID",        1,   0,   0,   0},
+	{ "LOADDROPSETR",       1,   0,   0,   0},
+	{ "LOADTMPSCR",             1,   0,   0,   0},
+	{ "LOADSCROLLSCR",             1,   0,   0,   0},
+	{ "MAPDATAISSOLIDLYR",             1,   0,   0,   0},
+	{ "ISSOLIDLAYER",             1,   0,   0,   0},
+	{ "BREAKPOINT",             1,   0,   0,   0},
+	{ "TOBYTE",           1,   0,   0,   0},
+	{ "TOWORD",           1,   0,   0,   0},
+	{ "TOSHORT",           1,   0,   0,   0},
+	{ "TOSIGNEDBYTE",           1,   0,   0,   0},
+	{ "TOINTEGER",           1,   0,   0,   0},
+	{ "FLOOR",           1,   0,   0,   0},
+	{ "CEILING",           1,   0,   0,   0},
+//	{ "GETCONFIGINT",                2,   0,   0,   0},
+//	{ "SETCONFIGINT",                2,   0,   0,   0},
+	{ "",                    0,   0,   0,   0}
 };
 
 
@@ -2092,22 +3113,22 @@ public:
     
     static INLINE int checkGuyIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, guys.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
     }
     
     static INLINE int checkItemIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, items.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
     }
     
     static INLINE int checkEWeaponIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, Ewpns.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
     }
     
     static INLINE int checkLWeaponIndex(const long index, const char * const str)
     {
-        return checkBounds(index, 0, Lwpns.Count()-1, str);
+        return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
     }
     
     static INLINE int checkGuyID(const long ID, const char * const str)
@@ -2144,6 +3165,17 @@ public:
         }
         
         return _NoError;
+    }
+    
+    static INLINE int checkBoundsOneIndexed(const long n, const long boundlow, const long boundup, const char * const funcvar)
+    {
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
     }
     
     static INLINE int checkUserArrayIndex(const long index, const dword size)
@@ -3054,6 +4086,10 @@ long get_register(const long arg)
     case LINKDRUNK:
         ret = (int)(Link.DrunkClock())*10000;
         break;
+    
+    case LINKEATEN:
+			ret=(int)Link.getEaten()*10000;
+			break;
         
     case LINKMISCD:
         ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]); //DO NOT multiply by 10000. Causes Incompatibility (-Z, 12Feb19) //Why was this not multiplied by 10000 before? -Z
@@ -4453,7 +5489,10 @@ long get_register(const long arg)
 { \
 int pos = ri->d[0] / 10000; \
 if(BC::checkComboPos(pos, str) != SH::_NoError) \
+{ \
+    Z_scripterrlog("Inalid pos used to read %s\n"); \
     ret = -10000; \
+} \
 else \
     ret = tmpscr->member[pos]*10000; \
 }
@@ -4471,7 +5510,10 @@ else \
 { \
     int pos = ri->d[0] / 10000; \
     if(BC::checkComboPos(pos, str) != SH::_NoError) \
+    { \
+        Z_scripterrlog("Inalid pos used to read %s\n"); \
         ret = -10000; \
+    } \
     else \
         ret = combobuf[tmpscr->data[pos]].member * 10000; \
 }
@@ -5021,6 +6063,17 @@ void set_register(const long arg, const long value)
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
 	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
+	    if ( !value ) //setting the item false
+	    {
+		if ( game->forced_bwpn == itemID ) 
+		{
+			game->forced_bwpn = -1;
+		} //not else if! -Z
+		if ( game->forced_awpn == itemID ) 
+		{
+			game->forced_awpn = -1;
+		}
+	    }
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
@@ -5035,17 +6088,23 @@ void set_register(const long arg, const long value)
 		}
 		  //int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
+		seta = vbound(seta,-1,255);
+		setb = vbound(setb,-1,255);
 		//Z_scripterrlog("A is: %d\n", seta);
 		//Z_scripterrlog("A is: %d\n", setb);
         	
 			Awpn = seta;
 			game->awpn = seta;
+			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			//directItemA = directItem;
         	
 			Bwpn = setb;
 			game->bwpn = setb;
+			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
+			//directItemA = seta;
+			//directItemB = setb;
 			//directItemB = directItem;
         	
 	}
@@ -5094,6 +6153,10 @@ void set_register(const long arg, const long value)
     case LINKZOFS:
         (Link.zofs)=(fix)(value/10000);
         break;
+    
+    case LINKEATEN:
+			Link.setEaten(value/10000);
+			break;
         
     case LINKHXSZ:
         (Link.hxsz)=(fix)(value/10000);
@@ -5525,13 +6588,23 @@ void set_register(const long arg, const long value)
         {
             int newpickup = value/10000;
             // Values that the questmaker should not use, ever
-            newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+            // Allowing it, for now, until something breaks. -Z 21-Jan-2020
+            //newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+            if (( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 33 )
+		    || ( quest_header_zelda_version < 0x250  ))
+	    {
+		newpickup &= ~(ipBIGRANGE | ipCHECK | ipMONEY | ipBIGTRI | ipNODRAW | ipFADE);
+	    }
             
             // If making an item timeout, set its timer
             if(newpickup & ipFADE)
             {
                 (((item*)(s))->clk2) = 512;
             }
+	    //else if(newpickup & ~ipFADE)
+            //{
+            //    (((item*)(s))->clk2) = 0;
+            //}
             
             // If making it a carried item,
             // alter hasitem and set an itemguy.
@@ -6546,11 +7619,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBODD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+	int val = (value/10000);
+        if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= MAXCOMBOS )
+	{
+		Z_scripterrlog("Inalid combo ID %d used to write to Screen->ComboD[]\n", val);
+	}
+        else
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(value/10000);
+            tmpscr->data[pos]=(val);
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -6559,11 +7640,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOCD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+        int val = (value/10000); //cset
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 15 )
+	{
+		Z_scripterrlog("Inalid CSet ID %d used to write to Screen->ComboC[]\n", val);
+	}
+        else
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->cset[pos]=(value/10000)&15;
+            tmpscr->cset[pos]=(val)&15;
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -6572,17 +7661,34 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOFD:
     {
         int pos = (ri->d[0])/10000;
+        int val = (value/10000); //flag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboF[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboF[]\n", val);
+	}
         
-        if(pos >= 0 && pos < 176)
-            tmpscr->sflag[pos]=(value/10000);
+        else
+            tmpscr->sflag[pos]=(val);
     }
     break;
     
     case COMBOTD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
+        int val = (value/10000); //type
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+	}
+        else
         {
             // Preprocess each instance of the combo on the screen
             for(int i = 0; i < 176; i++)
@@ -6593,7 +7699,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
                 }
             }
             
-            combobuf[tmpscr->data[pos]].type=value/10000;
+            combobuf[tmpscr->data[pos]].type=val;
             
             for(int i = 0; i < 176; i++)
             {
@@ -6609,18 +7715,35 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOID:
     {
         int pos = (ri->d[0])/10000;
+        int val = (value/10000); //iflag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboI[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboI[]\n", val);
+	}
         
-        if(pos >= 0 && pos < 176)
-            combobuf[tmpscr->data[pos]].flag=value/10000;
+        else
+            combobuf[tmpscr->data[pos]].flag=val;
     }
     break;
     
     case COMBOSD:
     {
         int pos = (ri->d[0])/10000;
-        
-        if(pos >= 0 && pos < 176)
-            combobuf[tmpscr->data[pos]].walk=(value/10000)&15;
+        int val = (value/10000); //iflag
+	if ( ((unsigned) pos) > 175 )
+	{
+		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+	{
+		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+	}
+        else
+            combobuf[tmpscr->data[pos]].walk=(val)&15;
     }
     break;
     
@@ -7649,6 +8772,34 @@ void do_getscreeneflags()
 
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
+
+void do_isvalidarray()
+{
+	long ptr = get_register(sarg1)/10000;
+	
+	
+	if(ptr <= 0) //invalid pointer
+	{
+			set_register(sarg1,0); return;
+	}
+			
+		if(ptr >= MAX_ZCARRAY_SIZE) //check global
+		{
+			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			
+			if(gptr > game->globalRAM.size())
+		{
+			set_register(sarg1,0); return;
+		}
+		else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
+	}
+		
+		else
+		{
+		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+	}
+}
+
 
 void do_isvaliditem()
 {
@@ -8695,7 +9846,7 @@ int run_script(const byte type, const word script, const byte i)
     while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
     {
         numInstructions++;
-        if(numInstructions==100000) // No need to check frequently
+        if(numInstructions==hangcount) // No need to check frequently
         {
             numInstructions=0;
             checkQuitKeys();
@@ -8714,17 +9865,67 @@ int run_script(const byte type, const word script, const byte i)
         
         switch(scommand)
         {
+	case 0xFFFF:  //invalid command
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].second.c_str()); break;
+			default: break;					
+		}
+		break;
+	}
         case QUIT:
             scommand = 0xFFFF;
             break;
             
         case GOTO:
+	{
+	    unsigned char invalid = 0;
+	    if(sarg1 < 0 )
+	    {
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+			
+			default: break;
+		}
+		invalid = 1; scommand = 0xFFFF;
+	    }
+	    if ( invalid ) break;
             pc = sarg1;
             increment = false;
             break;
+	}
             
         case GOTOR:
         {
+	    unsigned char invalid = 0;
+	    if( get_register(sarg1) < 0 )
+	    {
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], ffcmap[i].second.c_str()); break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], itemmap[i].second.c_str()); break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", (get_register(sarg1) / 10000), script_types[type], globalmap[i].second.c_str()); break;
+			
+			default: break;
+		}
+		invalid = 1; scommand = 0xFFFF;
+	    }
+	    if ( invalid ) break;
             pc = (get_register(sarg1) / 10000) - 1;
             increment = false;
         }
@@ -8733,6 +9934,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOTRUE:
             if(ri->scriptflag & TRUEFLAG)
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -8742,6 +9960,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOFALSE:
             if(!(ri->scriptflag & TRUEFLAG))
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -8751,6 +9986,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOMORE:
             if(ri->scriptflag & MOREFLAG)
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -8760,6 +10012,23 @@ int run_script(const byte type, const word script, const byte i)
         case GOTOLESS:
             if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
             {
+		unsigned char invalid = 0;
+		if( sarg1 < 0 )
+		{
+			switch(type)
+			{
+				case SCRIPT_FFC:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].second.c_str()); break;
+				case SCRIPT_ITEM:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].second.c_str()); break;
+				case SCRIPT_GLOBAL:
+					Z_scripterrlog("%s Script %s attempted o GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].second.c_str()); break;
+				
+				default: break;
+			}
+			invalid = 1; scommand = 0xFFFF;
+		}
+		if ( invalid ) break;
                 pc = sarg1;
                 increment = false;
             }
@@ -9303,6 +10572,10 @@ int run_script(const byte type, const word script, const byte i)
         case CREATENPCV:
             do_createnpc(true);
             break;
+	
+	case ISVALIDARRAY:
+		do_isvalidarray();
+		break;
             
         case ISVALIDITEM:
             do_isvaliditem();
@@ -9582,7 +10855,7 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         default:
-            Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+            Z_scripterrlog("Invalid ZASM command %lu reached\n", scommand);
             break;
         }
                
@@ -9593,7 +10866,23 @@ int run_script(const byte type, const word script, const byte i)
 #endif
         
         if(increment)	pc++;
-        else			increment = true;
+        else	increment = true;
+	if ( pc < 0 ) //rolled over from overflow
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			default: pc = 1; scommand = 0xFFFF; break;				
+		}
+	}
         
         if(scommand != 0xFFFF)
         {
@@ -9637,7 +10926,25 @@ int run_script(const byte type, const word script, const byte i)
         }
     }
     else
+    {
         pc++;
+	if ( pc < 0 ) //rolled over from overflow
+	{
+		switch(type)
+		{
+			case SCRIPT_FFC:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_ITEM:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			case SCRIPT_GLOBAL:
+				Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].second.c_str()); 
+				pc = 1; scommand = 0xFFFF; break;
+			default: pc = 1; scommand = 0xFFFF; break;				
+		}
+	}
+    }
         
     ri->pc = pc; //Put it back where we got it from
     
@@ -9693,8 +11000,19 @@ void FFScript::ZScriptConsole(bool open)
 		zscript_coloured_console.Create("ZScript Debug Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\n       _____   ____                  __ \n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /__  /  / __ \\__  _____  _____/ /_\n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"        / /  / / / / / / / _ \\/ ___/ __/\n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"       / /__/ /_/ / /_/ /  __(__  ) /_ \n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
+	
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
 		if ( quest_header_zelda_version > 0 )
 		{
 			zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |

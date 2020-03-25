@@ -28,6 +28,9 @@ bool show_subscreen_items=true;
 bool show_subscreen_life=true;
 bool new_sel=false;
 
+extern word quest_header_zelda_version;
+extern word quest_header_zelda_build;
+
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern LinkClass   Link;
 
@@ -3954,6 +3957,11 @@ bool is_counter_item(int itemtype, int countertype)
     return false;
 }
 
+// itemtype1, itemtype2, itemtype3: Only itemtype1 is used. I'm unsure who made these, who disabled the code
+// for them, and when each occurred. They should probably be hidden, but some very old 2.11/2.50b quests
+// may have used this and we'd need to edit the uest to fix it as-is, so perrhaps hide them only conditionally?
+// or make them flipping work?
+// It seems that the original intent was to be able  to display a sum of multipe counters as one value. -Z (26th Jan, 2020).
 void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, int infiniteitem, bool onlyselected)
 {
     int value=0;
@@ -3966,6 +3974,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     
     char valstring[80];
     char formatstring[80];
+    int itemtypes[3]={itemtype1, itemtype2, itemtype3};
     sprintf(valstring,"01234567890123456789");
     sprintf(formatstring, "%%0%dd", digits);
     
@@ -4097,12 +4106,194 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     case sscSCRIPT24:
     case sscSCRIPT25:
         value += game->get_counter(itemtype-3);
+	break;
         
     default:
         break;
     }
     
+    //Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
+	if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build >= 33 ) //this ishowit looks in 2.53.1, Beta 25
+	{
+		//add item2 and item3 values to item1 values
+		for (int i=1; i<3; ++i)
+		{
+		    
+			switch (i)
+			{
+				case 1:
+				{
+					if ( itemtypes[i] == itemtypes[i-1] )
+					{
+						itemtype = -2;
+						break;
+					}
+					else
+					{
+						itemtype=itemtype2;
+						break;
+					}
+				}
+				case 2:
+				{
+					if ( ( itemtypes[i] == itemtypes[i-1] ) || ( itemtypes[i] == itemtypes[i-2] ) )
+					{
+						itemtype = -3;
+						break;
+					}
+					else
+					{
+						itemtype=itemtype3;
+						break;
+					}
+				  
+				}
+			}
+		      
+			switch(itemtype)
+			{
+				case -3:
+				case -2:
+				//case 0:
+				case sscRUPEES:
+				{
+					//do nothing if any of these three. -Z
+					//value+=game->get_life(); Life cannot stack. It's NULL. :/
+					break;
+				}
+				//case sscRUPEES:
+				//{
+				//	if(current_item_power(itype_wallet))
+				//	infinite=true;
+				//	value+=game->get_rupies();
+				//	break;
+				//}
+				case sscBOMBS:
+				{
+					if(current_item_power(itype_bombbag))
+					infinite=true;
+					value+=game->get_bombs();
+					break;
+				}
+				case sscSBOMBS:
+				{
+					int itemid = current_item_id(itype_bombbag);
+					if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
+					infinite=true;
+					value+=game->get_sbombs();
+					break;
+				}
+				//case 4: /*sscMAGIC:*/
+				//{
+				//	value+=game->get_magic();
+				//	break;
+				//}
+				//case sscMAXHP:
+				//{
+				//	value+=game->get_maxlife();
+				//	break;
+				//}
+				//case sscMAXMP:
+				//{
+				//	value+=game->get_maxmagic();
+				//	break;
+				//}
+				case sscARROWS:
+					if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
+					infinite=true;
+			    
+					// If Link somehow got ammunition before getting the arrow,
+					// or if the arrow was disabled in a DMap,
+					// we shouldn't put the value as zero.
+					//        if(/*current_item_id(itype_arrow)>-1*/ true)
+				{
+					if(get_bit(quest_rules,qr_TRUEARROWS))
+					{
+						value+=game->get_arrows();
+					}
+					else
+					{
+						value+=game->get_rupies();
+					}
+				}
+				break;
+
+				case sscGENKEYMAGIC:
+				case sscLEVKEYMAGIC:
+				case sscANYKEYMAGIC:
+				{
+					int itemid = current_item_id(itype_magickey);	
+					if(itemid>-1 && !infinite)
+					{
+						if(itemsbuf[itemid].flags&ITEM_FLAG1)
+						{
+							infinite = itemsbuf[itemid].power>=get_dlevel();
+						}
+						else
+						{
+							infinite = itemsbuf[itemid].power==get_dlevel();
+						}
+					}
+				}
+		    
+				//fall through
+				case sscANYKEYNOMAGIC:
+				case sscLEVKEYNOMAGIC:
+				case sscGENKEYNOMAGIC:
+					if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
+						|| itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
+					{
+						value += game->get_keys();
+					}
+			    
+					if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
+						|| itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
+					{
+						value += game->get_lkeys();
+					}
+				break;
+			
+				case sscSCRIPT1:
+				case sscSCRIPT2:
+				case sscSCRIPT3:
+				case sscSCRIPT4:
+				case sscSCRIPT5:
+				case sscSCRIPT6:
+				case sscSCRIPT7:
+				case sscSCRIPT8:
+				case sscSCRIPT9:
+				case sscSCRIPT10:
+				case sscSCRIPT11:
+				case sscSCRIPT12:
+				case sscSCRIPT13:
+				case sscSCRIPT14:
+				case sscSCRIPT15:
+				case sscSCRIPT16:
+				case sscSCRIPT17:
+				case sscSCRIPT18:
+				case sscSCRIPT19:
+				case sscSCRIPT20:
+				case sscSCRIPT21:
+				case sscSCRIPT22:
+				case sscSCRIPT23:
+				case sscSCRIPT24:
+				case sscSCRIPT25:
+				{
+					value += game->get_counter(itemtype-3);
+					break;
+				}
+			
+				default:
+				{
+					break;
+				}
+			}
+	      
+		}
+	}
+    
     // (for loop) }
+    
     if(!showzero&&!value&&!infinite)
     {
         return;

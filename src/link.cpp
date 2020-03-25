@@ -68,6 +68,24 @@ void playLevelMusic();
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+static int isNextType(int type)
+{
+	//return true here, if an emulation bit says to use buggy code
+	switch(type)
+	{
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
 
 static inline bool isSideview()
 {
@@ -2349,8 +2367,12 @@ void LinkClass::check_slash_block(int bx, int by)
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
-    
-    if(!ignorescreen)
+    byte skipsecrets = 0;
+    if ( (!(emulation_patches[emuBUGGYNEXTCOMBOS]) ) && isNextType(type))
+    {
+	    skipsecrets = 1;
+    }
+    if(!ignorescreen && !skipsecrets)
     {
         if((flag >= 16)&&(flag <= 31))
         {
@@ -2411,6 +2433,20 @@ void LinkClass::check_slash_block(int bx, int by)
             
             //pausenow=true;
         }
+    }
+    
+    else if(!ignorescreen && skipsecrets)
+    {
+	    if(isCuttableNextType(type))
+            {
+                s->data[i]++;
+            }
+            else
+            {
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
+                s->sflag[i] = 0;
+            }
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -4765,8 +4801,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
                 advanceframe(true);
+		    //refill sfx kill and resume need to be here. -ZZ
             }
-            
+	
             //add a quest rule or an item option that lets you specify whether or not to pause music during refilling
             //music_resume();
             ret = false;
@@ -5162,6 +5199,23 @@ bool LinkClass::startwpn(int itemid)
             //    putscr(scrollbuf,0,0,tmpscr);
             setmapflag();
             removeItemsOfFamily(game,itemsbuf,itype_bait);
+	    //if the forced awpn or the forced bwpn is of the family, remove it
+	    /*for(int i=0; i<MAXITEMS; i++)
+	    {
+		if(items[i].family == itype_bait)
+		{
+		    if ( game->forced_bwpn == i ) 
+		    {
+			game->forced_bwpn = -1;
+		    } //not else if! -Z
+		    if ( game->forced_awpn == i ) 
+		    {
+			game->forced_awpn = -1;
+		    }
+		}
+	    }
+	    */
+	    
             verifyBothWeapons();
             sfx(tmpscr->secretsfx);
             return false;
@@ -5365,12 +5419,14 @@ bool LinkClass::startwpn(int itemid)
         if(Bwpn == itemid)
         {
             Bwpn = 0;
+	    game->forced_bwpn = -1;
             verifyBWpn();
         }
         
         if(Awpn == itemid)
         {
             Awpn = 0;
+	    game->forced_awpn = -1;
             verifyAWpn();
         }
     }
@@ -9788,7 +9844,7 @@ void LinkClass::checkspecial()
         for(int i=0; i<eMAXGUYS; i++)
         {
             if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-                if(guys.idCount(i))
+                if(guys.idCount(i) && !getmapflag(mTMPNORET))
                     setmapflag(mTMPNORET);
         }
         
@@ -14102,6 +14158,8 @@ void selectNextBWpn(int type)
 
 void verifyAWpn()
 {
+	zprint2("verifyAWpn()\n");
+	if ( (game->forced_awpn != -1) ) { zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); return;}
     if(!get_bit(quest_rules,qr_SELECTAWPN))
     {
         Awpn = selectSword();
@@ -14117,7 +14175,9 @@ void verifyAWpn()
 
 void verifyBWpn()
 {
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
+	zprint2("verifyBWpn()\n");
+	if ( (game->forced_bwpn != -1) ) { zprint2("verifyBWpn(); returning early. game->forced_bwpn is: %d \n",game->forced_bwpn); return;}
+    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);;
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;
 }
@@ -15047,8 +15107,10 @@ void LinkClass::StartRefill(int refillWhat)
 bool LinkClass::refill()
 {
     if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
+    {
         return false;
-        
+    }
+
     ++refillclk;
     int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
     int refill_heart_stop=game->get_maxlife();
@@ -15071,9 +15133,18 @@ bool LinkClass::refill()
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+		for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//Z_scripterrlog("Refill done.\n");	 
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             
@@ -15085,9 +15156,18 @@ bool LinkClass::refill()
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
+		//kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             
@@ -15101,9 +15181,18 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
-                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                sfx(WAV_MSG);
+                //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
+                for ( int q = 0; q < WAV_COUNT; q++ )
+		{
+			if ( q == (int)tmpscr->oceansfx ) continue;
+			if ( q == (int)tmpscr->bosssfx ) continue;
+			stop_sfx(q);
+		}
+		sfx(WAV_MSG);
                 refilling=REFILL_NONE;
+		//Z_scripterrlog("Refill done.\n");
+		//resume mambient sfx
+		//if ( (unsigned int)tmpscr->oceansfx < WAV_COUNT ) sfx((int)tmpscr->oceansfx);
                 return false;
             }
             

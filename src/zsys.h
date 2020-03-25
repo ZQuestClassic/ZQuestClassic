@@ -70,7 +70,7 @@ int bound(int &x,int low,int high);
 enum {ssfmtBMP, ssfmtGIF, ssfmtJPG, ssfmtPNG, ssfmtPCX, ssfmtTGA, ssfmtMAX };
 extern char *snapshotformat_str[ssfmtMAX][2];
 extern const char *snapshotformatlist(int index, int *list_size);
-
+extern bool includesfirst;
 
 /*0=normal, 1=jwin*/
 void box_start(int style , const char *title, FONT *title_font, FONT *message_font, bool log);
@@ -79,6 +79,7 @@ void box_out(const char *msg);
 void box_save_x();
 void box_load_x();
 void box_eol();
+void box_end(bool pause);
 void box_end(bool pause);
 void box_pause();
 void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,

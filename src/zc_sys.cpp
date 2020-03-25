@@ -324,6 +324,7 @@ void load_game_configs()
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
+	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
     
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -5208,44 +5209,44 @@ int d_jbutton_proc(int msg,DIALOG *d,int c)
 //shnarf
 const char *key_str[] =
 {
-    "(none)",         "a",              "b",              "c",
-    "d",              "e",              "f",              "g",
-    "h",              "i",              "j",              "k",
-    "l",              "m",              "n",              "o",
-    "p",              "q",              "r",              "s",
-    "t",              "u",              "v",              "w",
-    "x",              "y",              "z",              "0",
-    "1",              "2",              "3",              "4",
-    "5",              "6",              "7",              "8",
-    "9",              "num 0",          "num 1",          "num 2",
-    "num 3",          "num 4",          "num 5",          "num 6",
-    "num 7",          "num 8",          "num 9",          "f1",
-    "f2",             "f3",             "f4",             "f5",
-    "f6",             "f7",             "f8",             "f9",
-    "f10",            "f11",            "f12",            "esc",
-    "~",              "-",              "=",              "backspace",
-    "tab",            "{",              "}",              "enter",
-    ":",              "quote",          "\\",             "\\ (2)",
-    ",",              ".",              "/",              "space",
-    "insert",         "delete",         "home",           "end",
-    "page up",        "page down",      "left",           "right",
-    "up",             "down",           "num /",          "num *",
-    "num -",          "num +",          "num delete",     "num enter",
-    "print screen",   "pause",          "abnt c1",        "yen",
-    "kana",           "convert",        "no convert",     "at",
-    "circumflex",     ": (2)",          "kanji",          "num =",
-    "back quote",     ";",              "command",        "unknown (0)",
-    "unknown (1)",    "unknown (2)",    "unknown (3)",    "unknown (4)",
-    "unknown (5)",    "unknown (6)",    "unknown (7)",    "left shift",
-    "right shift",    "left control",   "right control",  "alt",
-    "alt gr",         "left win",       "right win",      "menu",
-    "scroll lock",    "number lock",    "caps lock",      "MAX"
+    "(none)       ",         	  "a            ",              "b            ",              "c            ",
+    "d            ",              "e            ",              "f            ",              "g            ",
+    "h            ",              "i            ",              "j            ",              "k            ",
+    "l            ",              "m            ",              "n            ",              "o            ",
+    "p            ",              "q            ",              "r            ",              "s            ",
+    "t            ",              "u            ",              "v            ",              "w            ",
+    "x            ",              "y            ",              "z            ",              "0            ",
+    "1            ",              "2            ",              "3            ",              "4            ",
+    "5            ",              "6            ",              "7            ",              "8            ",
+    "9            ",              "num 0        ",              "num 1        ",              "num 2        ",
+    "num 3        ",              "num 4        ",              "num 5        ",              "num 6        ",
+    "num 7        ",              "num 8        ",              "num 9        ",       	      "f1           ",
+    "f2           ",              "f3           ",              "f4           ",              "f5           ",
+    "f6           ",              "f7           ",              "f8           ",              "f9           ",
+    "f10          ",              "f11          ",              "f12          ",              "esc          ",
+    "~            ",              "-            ",              "=            ",              "backspace    ",
+    "tab          ",              "{            ",              "}            ",              "enter        ",
+    ":            ",              "quote        ",              "\\           ",              "\\ (2)       ",
+    ",            ",              ".            ",              "/            ",              "space        ",
+    "insert       ",              "delete       ",              "home         ",              "end          ",
+    "page up      ",              "page down    ",              "left         ",              "right        ",
+    "up           ",              "down         ",              "num /        ",              "num *        ",
+    "num -        ",              "num +        ",              "num delete   ",              "num enter    ",
+    "print screen ",              "pause        ",              "abnt c1      ",              "yen          ",
+    "kana         ",              "convert      ",              "no convert   ",              "at           ",
+    "circumflex   ",              ": (2)        ",              "kanji        ",              "num =        ",
+    "back quote   ",              ";            ",              "command      ",              "unknown (0)  ",
+    "unknown (1)  ",              "unknown (2)  ",              "unknown (3)  ",              "unknown (4)  ",
+    "unknown (5)  ",              "unknown (6)  ",              "unknown (7)  ",              "left shift   ",
+    "right shift  ",              "left control ",              "right control",              "alt          ",
+    "alt gr       ",              "left win     ",              "right win    ",              "menu         ",
+    "scroll lock  ",              "number lock  ",              "caps lock    ",      "MAX"
 };
 
 const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int zcmusic_bufsz;
 
-static char str_a[80],str_b[80],str_s[80],str_m[16],str_l[16],str_r[16],str_p[16],str_ex1[16],str_ex2[16],str_ex3[16],str_ex4[16],
+static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
 	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80];
 
 int d_stringloader(int msg,DIALOG *d,int c)
@@ -5258,46 +5259,46 @@ int d_stringloader(int msg,DIALOG *d,int c)
 		switch(d->w)
 		{
 			case 0:
-				sprintf(str_a,"%d\n%s",Akey,key_str[Akey]);
-				sprintf(str_b,"%d\n%s",Bkey,key_str[Bkey]);
-				sprintf(str_s,"%d\n%s",Skey,key_str[Skey]);
-				sprintf(str_l,"%d\n%s",Lkey,key_str[Lkey]);
-				sprintf(str_r,"%d\n%s",Rkey,key_str[Rkey]);
-				sprintf(str_p,"%d\n%s",Pkey,key_str[Pkey]);
-				sprintf(str_ex1,"%d\n%s",Exkey1,key_str[Exkey1]);
-				sprintf(str_ex2,"%d\n%s",Exkey2,key_str[Exkey2]);
-				sprintf(str_ex3,"%d\n%s",Exkey3,key_str[Exkey3]);
-				sprintf(str_ex4,"%d\n%s",Exkey4,key_str[Exkey4]);
-				sprintf(str_up,"%d\n%s",DUkey,key_str[DUkey]);
-				sprintf(str_down,"%d\n%s",DDkey,key_str[DDkey]);
-				sprintf(str_left,"%d\n%s",DLkey,key_str[DLkey]);
-				sprintf(str_right,"%d\n%s",DRkey,key_str[DRkey]);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_a,"%03d\n%s",Akey,key_str[Akey]);
+				sprintf(str_b,"%03d\n%s",Bkey,key_str[Bkey]);
+				sprintf(str_s,"%03d\n%s",Skey,key_str[Skey]);
+				sprintf(str_l,"%03d\n%s",Lkey,key_str[Lkey]);
+				sprintf(str_r,"%03d\n%s",Rkey,key_str[Rkey]);
+				sprintf(str_p,"%03d\n%s",Pkey,key_str[Pkey]);
+				sprintf(str_ex1,"%03d\n%s",Exkey1,key_str[Exkey1]);
+				sprintf(str_ex2,"%03d\n%s",Exkey2,key_str[Exkey2]);
+				sprintf(str_ex3,"%03d\n%s",Exkey3,key_str[Exkey3]);
+				sprintf(str_ex4,"%03d\n%s",Exkey4,key_str[Exkey4]);
+				sprintf(str_up,"%03d\n%s",DUkey,key_str[DUkey]);
+				sprintf(str_down,"%03d\n%s",DDkey,key_str[DDkey]);
+				sprintf(str_left,"%03d\n%s",DLkey,key_str[DLkey]);
+				sprintf(str_right,"%03d\n%s",DRkey,key_str[DRkey]);
+				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 				
 			case 1:
-				sprintf(str_a,"%d",Abtn);
-				sprintf(str_b,"%d",Bbtn);
-				sprintf(str_s,"%d",Sbtn);
-				sprintf(str_l,"%d",Lbtn);
-				sprintf(str_r,"%d",Rbtn);
-				sprintf(str_m,"%d",Mbtn);
-				sprintf(str_p,"%d",Pbtn);
-				sprintf(str_ex1,"%d",Exbtn1);
-				sprintf(str_ex2,"%d",Exbtn2);
-				sprintf(str_ex3,"%d",Exbtn3);
-				sprintf(str_ex4,"%d",Exbtn4);
-				sprintf(str_up,"%d",DUbtn);
-				sprintf(str_down,"%d",DDbtn);
-				sprintf(str_left,"%d",DLbtn);
-				sprintf(str_right,"%d",DRbtn);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_a,"%03d",Abtn);
+				sprintf(str_b,"%03d",Bbtn);
+				sprintf(str_s,"%03d",Sbtn);
+				sprintf(str_l,"%03d",Lbtn);
+				sprintf(str_r,"%03d",Rbtn);
+				sprintf(str_m,"%03d",Mbtn);
+				sprintf(str_p,"%03d",Pbtn);
+				sprintf(str_ex1,"%03d",Exbtn1);
+				sprintf(str_ex2,"%03d",Exbtn2);
+				sprintf(str_ex3,"%03d",Exbtn3);
+				sprintf(str_ex4,"%03d",Exbtn4);
+				sprintf(str_up,"%03d",DUbtn);
+				sprintf(str_down,"%03d",DDbtn);
+				sprintf(str_left,"%03d",DLbtn);
+				sprintf(str_right,"%03d",DRbtn);
+				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 				
 			case 2:
@@ -5307,10 +5308,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
 				sprintf(str_m,"%3dKB",zcmusic_bufsz);
 				sprintf(str_r,"%3d",sfx_volume);
 				strcpy(str_s,pan_str[pan_style]);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%3d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%3d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 		}
 	}
@@ -6097,7 +6098,8 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         int  sel=0;
         //struct ffblk f;
         char title[40] = "Save MIDI: ";
-        static char fname[2048] = "";
+        char fname[2048];
+	memset(fname,0,2048);
         static EXT_LIST list[] =
         {
             { (char *)"MIDI files (*.mid)", (char *)"mid" },
@@ -6106,6 +6108,7 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         };
         
         strcpy(title+11, tunes[i].title);
+	title[39] = '\0';
         
         if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, lfont)==0)
             goto done;
@@ -7243,6 +7246,27 @@ int onMIDIPatch()
     return D_O_K;
 }
 
+int buggy_next_combo_secrets_emulation()
+{
+	if(jwin_alert3(
+			"EMULATION: Buggy ->Next Combos", 
+			"This action will change if ->Next Combos Trigger Secrets.",
+			"If enabled, some ->Next combos will immediately trigger secrets.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuBUGGYNEXTCOMBOS] ) emulation_patches[emuBUGGYNEXTCOMBOS] = 0;
+	    else emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
+	}
+    return D_O_K;
+	
+}
 
 int v250_dmap_intro_repeat()
 {
@@ -7554,6 +7578,7 @@ static MENU compat_patch_menu[] =
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
+    { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8816,6 +8841,7 @@ void System()
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
+	compat_patch_menu[11].flags = ((emulation_patches[emuBUGGYNEXTCOMBOS])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

@@ -30,6 +30,10 @@
 #include "mem_debug.h"
 void setZScriptVersion(int) { } //bleh...
 
+char headerguard = 0;
+
+char __isZQuest = 1; //Shared functionscan reference this. -Z
+
 #include <png.h>
 #include <pngconf.h>
 
@@ -139,6 +143,872 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
+
+#ifdef _WIN32
+#include "ConsoleLogger.h"
+#else
+//unix
+
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	// create a logger: starts a pipe+create the child process
+	long Create(const char *lpszWindowTitle=NULL,
+				int buffer_size_x=-1,int buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+
+	// close everything
+	long Close(void);
+	
+	// output functions
+	inline int print(const char *lpszText,int iSize=-1);
+	int printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int SetAsDefaultOutput(void);
+	static int ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile long m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0;
+#else
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
+
+#endif
+
+	// you can extend this class by overriding the function
+	virtual long	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int _print(const char *lpszText,int iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ long hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	long lpBuffer,
+		/*__in        */ long nNumberOfBytesToWrite,
+		/*__out_opt   */ long lpNumberOfBytesWritten,
+		/*__inout_opt */ long lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	long	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE,
+		COLOR_GREEN,
+		COLOR_RED,
+		COLOR_WHITE,
+		COLOR_INTENSITY,
+		COLOR_BACKGROUND_BLACK,
+		COLOR_BACKGROUND_BLUE,
+		COLOR_BACKGROUND_GREEN,
+		COLOR_BACKGROUND_RED,
+		COLOR_BACKGROUND_WHITE,
+		COLOR_BACKGROUND_INTENSITY,
+		COLOR_COMMON_LVB_LEADING_BYTE,
+		COLOR_COMMON_LVB_TRAILING_BYTE,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL,
+		COLOR_COMMON_LVB_GRID_LVERTICAL,
+		COLOR_COMMON_LVB_GRID_RVERTICAL,
+		COLOR_COMMON_LVB_REVERSE_VIDEO,
+		COLOR_COMMON_LVB_UNDERSCORE
+	};
+	
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(word color);
+	
+	// write string , use specified color
+	int cprintf(int attributes,const char *format,...);
+	
+	// write string , use current color
+	int cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int x,int y);
+
+
+
+	word	GetCurrentColor(void)
+	{  }
+	
+	void	SetCurrentColor(word dwColor)
+	{ }
+	
+
+protected:
+	virtual long	AddHeaders(void)
+	{	
+		return  0;
+	}
+	
+	virtual int _print(const char *lpszText,int iSize);
+	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+
+
+};
+#endif
+
+
+#ifdef _WIN32
+//////////////////////////////////////////////////////////////////////
+// ConsoleLogger.cpp: implementation of the CConsoleLogger class.
+//////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+	InitializeCriticalSection();
+	m_name[0]=0;
+	m_hPipe = INVALID_HANDLE_VALUE;
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+	DeleteCriticalSection();
+	
+	// Notice: Because we want the pipe to stay alive until all data is passed,
+	//         it's better to avoid closing the pipe here....
+	//Close();
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	// Ensure there's no pipe connected
+	if (m_hPipe != INVALID_HANDLE_VALUE)
+	{
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+	}
+	strcpy(m_name,"\\\\.\\pipe\\");
+
+	
+	if (!logger_name)
+	{	// no name was give , create name based on the current address+time
+		// (you can modify it to use PID , rand() ,...
+		unsigned long now = GetTickCount();
+		logger_name = m_name+ strlen(m_name);
+		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
+	}
+	else
+	{	// just use the given name
+		strcat(m_name,logger_name);
+	}
+
+	
+	// Create the pipe
+	m_hPipe = CreateNamedPipe( 
+		  m_name,					// pipe name 
+		  PIPE_ACCESS_OUTBOUND,		// read/write access, we're only writing...
+		  PIPE_TYPE_MESSAGE |       // message type pipe 
+		  PIPE_READMODE_BYTE|		// message-read mode 
+		  PIPE_WAIT,                // blocking mode 
+		  1,						// max. instances  
+		  32768,						// output buffer size 
+		  0,						// input buffer size (we don't read data, so 0 is fine)
+		  1,						// client time-out 
+		  NULL);                    // no security attribute 
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+	{	// failure
+		MessageBox(NULL,"CreateNamedPipe failed","ConsoleLogger failed",MB_OK);
+		return -1;
+	}
+
+	// Extra console : create another process , it's role is to display the pipe's output
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	GetStartupInfo(&si);
+	
+	char cmdline[MAX_PATH];;
+	if (!helper_executable)
+		helper_executable=
+			( get_config_int("CONSOLE","console_on_top",0) ) 
+			? "ZConsole_OnTop.exe"
+			: "ZConsole.exe"; //DEFAULT_HELPER_EXE
+	sprintf(cmdline,"%s %s",helper_executable,logger_name);
+	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+	if (!bRet)
+	{	// on failure - try to get the path from the environment
+		char *path = getenv("ConsoleLoggerHelper");
+		if (path)
+		{
+			sprintf(cmdline,"%s %s",path,logger_name);
+			bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+		}
+		if (!bRet)
+		{
+			MessageBox(NULL,"Helper executable not found","ConsoleLogger failed",MB_OK);
+			CloseHandle(m_hPipe);
+			m_hPipe = INVALID_HANDLE_VALUE;
+			return -1;
+		}
+	}
+	
+	
+	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
+					  TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
+	if (!bConnected)
+	{
+		MessageBox(NULL,"ConnectNamedPipe failed","ConsoleLogger failed",MB_OK);
+		
+		CloseHandle(m_hPipe);
+		m_hPipe = INVALID_HANDLE_VALUE;
+		return -1;
+	}
+	
+	DWORD cbWritten;
+
+	//////////////////////////////////////////////////////////////////////////
+	// In order to easily add new future-features , i've chosen to pass the "extra"
+	// parameters just the HTTP protocol - via textual "headers" .
+	// the last header should end with NULL
+	//////////////////////////////////////////////////////////////////////////
+	
+
+	char buffer[128];
+	// Send title
+	if (!lpszWindowTitle)	lpszWindowTitle=m_name+9;
+	sprintf(buffer,"TITLE: %s\r\n",lpszWindowTitle);
+	WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
+	if (cbWritten!=strlen(buffer))
+	{
+		MessageBox(NULL,"WriteFile failed(1)","ConsoleLogger failed",MB_OK);
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+
+	
+	if (buffer_size_x!=-1 && buffer_size_y!=-1)
+	{	// Send buffer-size
+		sprintf(buffer,"BUFFER-SIZE: %dx%d\r\n",buffer_size_x,buffer_size_y);
+		WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
+		if (cbWritten!=strlen(buffer))
+		{
+			MessageBox(NULL,"WriteFile failed(2)","ConsoleLogger failed",MB_OK);
+			DisconnectNamedPipe(m_hPipe);
+			CloseHandle(m_hPipe);
+			m_hPipe=INVALID_HANDLE_VALUE;
+			return -1;
+		}
+	}
+
+	// Send more headers. you can override the AddHeaders() function to 
+	// extend this class
+	if (AddHeaders())
+	{	
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+
+
+
+	// send NULL as "end of header"
+	buffer[0]=0;
+	WriteFile(m_hPipe,buffer,1,&cbWritten,NULL);
+	if (cbWritten!=1)
+	{
+		MessageBox(NULL,"WriteFile failed(3)","ConsoleLogger failed",MB_OK);
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE || m_hPipe==NULL)
+		return -1;
+	else
+		return DisconnectNamedPipe( m_hPipe );
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	return _print(lpszText,(iSize==-1) ? strlen(lpszText) : iSize);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+	va_end(argList);
+
+	return _print(tmp,ret);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	int hConHandle = _open_osfhandle(/*lStdHandle*/ (long)m_hPipe, _O_TEXT);
+	if (hConHandle==-1)
+		return -2;
+	FILE *fp = _fdopen( hConHandle, "w" );
+	if (!fp)
+		return -3;
+	*stdout = *fp;
+	return setvbuf( stdout, NULL, _IONBF, 0 );
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	long lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+	if (lStdHandle ==  (long)INVALID_HANDLE_VALUE)
+		return -1;
+	int hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	if (hConHandle==-1)
+		return -2;
+	FILE *fp = _fdopen( hConHandle, "w" );
+	if (!fp)
+		return -3;
+	*stdout = *fp;
+	return setvbuf( stdout, NULL, _IONBF, 0 );
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	DWORD dwWritten=(DWORD)-1;
+	
+	return (!SafeWriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+	m_dwCurrentAttributes = COLOR_WHITE | COLOR_BACKGROUND_BLACK;
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	
+	DWORD command_plus_size = (COMMAND_PRINT <<24)| iSize;
+	EnterCriticalSection();
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	LeaveCriticalSection();
+	return iRet;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_CLEAR_SCREEN<<24;
+	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(DWORD color)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_COLORED_CLEAR_SCREEN<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_CLEAR_EOL<<24;
+	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(DWORD color)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_COLORED_CLEAR_EOL<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_GOTOXY<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	command = (x<<16)  | y;
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+	va_end(argList);
+
+	return _cprint(attributes,tmp,ret);
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+	va_end(argList);
+
+	return _cprint(m_dwCurrentAttributes,tmp,ret);
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_CPRINT) , and 3 bytes for size
+	DWORD command_plus_size = (COMMAND_CPRINT <<24)| iSize;
+	EnterCriticalSection();
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	command_plus_size = attributes;	// reuse of the prev variable
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	LeaveCriticalSection();
+	return iRet;
+}
+
+#else
+//Unix
+
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	return 0;
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(word color)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(word color)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+#endif
+byte console_is_open = 0;
+
+//#ifdef _WIN32
+CConsoleLoggerEx coloured_console;
+CConsoleLoggerEx zscript_coloured_console;
+//#endif
 
 byte emulation_patches[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -322,7 +1192,6 @@ zinitdata zinit;
 int onImport_ComboAlias();
 int onExport_ComboAlias();
 
-
 typedef struct map_and_screen
 {
     int map;
@@ -340,10 +1209,33 @@ typedef struct command_pair
 extern command_pair commands[cmdMAX];
 
 map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+
+static int do_OpenQuest()
+{
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 0;
+	map_page[q].screen = 0;
+    }
+    return onOpen();
+}
+
+static int do_NewQuest()
+{
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 0;
+	map_page[q].screen = 0;
+    }
+    return onNew();
+}
+
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo;
+int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 bool Vsync, ShowFPS;
 int ComboBrush;                                             //show the brush instead of the normal mouse
@@ -401,8 +1293,8 @@ int fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf;
-string helpstr;
+char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf, *zstringshelpbuf;
+string helpstr, shieldblockhelpstr, zscripthelpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int midi_volume = 255;
@@ -555,6 +1447,10 @@ static MENU import_graphics[]=
     
     { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
     { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Doorsets",           	    onImport_Doorset,   NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -591,7 +1487,19 @@ static MENU export_graphics[]=
 	{ (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Doorsets",           	    onExport_Doorset,   NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU zq_help_menu[] =
+{
+    { (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
+    { (char *)"&Shield Help",                     onshieldblockhelp,            NULL,                     0,            NULL   },
+    { (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
+    { (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
+    
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU export_250_menu[] =
@@ -653,8 +1561,8 @@ static MENU export_menu[] =
 
 static MENU file_menu[] =
 {
-    { (char *)"&New",                       onNew,                     NULL,                     0,            NULL   },
-    { (char *)"&Open\tF3",                  onOpen,                    NULL,                     0,            NULL   },
+    { (char *)"&New",                       do_NewQuest,                     NULL,                     0,            NULL   },
+    { (char *)"&Open\tF3",                  do_OpenQuest,                    NULL,                     0,            NULL   },
     { (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
     { (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
     { (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
@@ -853,6 +1761,74 @@ static MENU quest_reports_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+const char *zcompiler_guardlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,3);
+        
+	switch(index)
+        {
+        case 0:
+            return "Disable";
+            
+        case 1:
+            return "Enable";
+        }
+	
+    }
+    
+    *list_size = 2;
+    return NULL;
+}
+
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+static DIALOG zscript_parser_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    // { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    // 2
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    { jwin_text_proc,           86,     28,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Header Guard",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     22,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+int onZScriptCompilerSettings()
+{
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    zscript_parser_dlg[6].d1 = get_config_int("Compiler", "HEADER_GUARD", 1);;
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==3)
+    {
+        headerguard = zscript_parser_dlg[6].d1;
+	//set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[6].d1);
+	set_config_int("Compiler", "HEADER_GUARD", headerguard);
+	save_config_file();
+    }
+    
+    return D_O_K;
+}
+
+static MENU zscript_menu[] =
+{
+	{ (char *)"&Compiler",                      onZScriptCompilerSettings,                    NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU tool_menu[] =
 {
     { (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
@@ -865,6 +1841,7 @@ static MENU tool_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
     { (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
+    { (char *)"&ZScript Settings\t ",          NULL,                      zscript_menu,       0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -936,7 +1913,7 @@ static MENU tunes_menu[] =
 
 static MENU etc_menu[] =
 {
-	{ (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+	{ (char *)"&Help",                      NULL,                    zq_help_menu,                     0,            NULL   },
 	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
 	{ (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
 	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
@@ -944,7 +1921,7 @@ static MENU etc_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"Ambient Music",        NULL,                      tunes_menu,               0,            NULL   },
 	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
 	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
 	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
@@ -955,6 +1932,10 @@ static MENU etc_menu[] =
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
+
+
+
+
 
 static MENU the_menu[] =
 {
@@ -1161,7 +2142,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0, (void *) onDecreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,         0, (void *) onHelp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,         0, (void *) onSave, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) onOpen, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) do_OpenQuest, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F4,         0, (void *) onScreenPalette, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F5,         0, (void *) onSecretCombo, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,         0, (void *) onDoors, NULL, NULL },
@@ -2025,6 +3006,169 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 }
 
 
+
+//Doorsets
+
+static DIALOG save_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Doorset", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void do_exportdoorset(const char *prompt,int initialval)
+{
+	char firstdoor[8], doorct[8];
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	//int ret;
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	
+	save_doorset_dlg[5].dp = firstdoor;
+	save_doorset_dlg[7].dp = doorct;
+	
+	if(is_large)
+		large_dialog(save_doorset_dlg);
+	
+	int ret = zc_popup_dialog(save_doorset_dlg,-1);
+	jwin_center_dialog(save_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		/* sanity bounds
+		first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
+		the_doorset_count = vbound(atoi(doorct), 1, (MAXCOMBOS-1)-first_doorset_id);
+		*/
+		if(getname("Save ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving doorsets %d to %d: %d\n", first_doorset_id, first_doorset_id+(the_doorset_count-1));
+				writezdoorsets(f,first_doorset_id,the_doorset_count);
+				pack_fclose(f);
+				char tmpbuf[512]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+static DIALOG load_doorset_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      0,   0,   120,  124,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Set (Range)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   92,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  92,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //10
+    {  jwin_text_proc,        10,    64,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Dest",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     63,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    
+    //{ jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void do_importdoorset(const char *prompt,int initialval)
+{
+	
+	char firstdoor[8], doorct[8], destid[8];
+	int first_doorset_id = 0; int the_doorset_count = 1;
+	int the_dest_id = 0;
+	sprintf(firstdoor,"%d",0);
+	sprintf(doorct,"%d",1);
+	sprintf(destid,"%d",0);
+		//int ret;
+	
+	save_doorset_dlg[0].dp2 = lfont;
+	
+	load_doorset_dlg[5].dp = firstdoor;
+	load_doorset_dlg[7].dp = doorct;
+	load_doorset_dlg[11].dp = destid;
+	
+	byte nooverwrite = 0;
+	
+	if(is_large)
+		large_dialog(load_doorset_dlg);
+	
+	int ret = zc_popup_dialog(load_doorset_dlg,-1);
+	jwin_center_dialog(load_doorset_dlg);
+	
+	if(ret == 8) //OK
+	{
+		//if (load_doorset_dlg[10].flags & D_SELECTED) nooverwrite = 1;
+	
+		//al_trace("Nooverwrite is: %d\n", nooverwrite);
+		//sanity bound
+		first_doorset_id = vbound(atoi(firstdoor), 0, door_combo_set_count);
+		the_doorset_count = vbound(atoi(doorct), 1, door_combo_set_count);
+		the_dest_id = vbound(atoi(destid), 0, door_combo_set_count);
+		if(getname("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				int ret = readzdoorsets(f,first_doorset_id,the_doorset_count, the_dest_id);
+				
+				if (!ret)
+				{
+					al_trace("Could not read from .zdoors packfile %s\n", name);
+					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else if ( ret == 1 )
+				{
+					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				else if ( ret == 2 )
+				{
+					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
+
+
+
 int gettilepagenumber(const char *prompt, int initialval)
 {
     char buf[20];
@@ -2190,7 +3334,13 @@ static int options_1_list[] =
 static int options_2_list[] =
 {
     // dialog control number
-    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, -1
+	50, -1
+};
+
+static int options_3_list[] =
+{
+    // dialog control number
+    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
 
 static TABPANEL options_tabs[] =
@@ -2198,6 +3348,7 @@ static TABPANEL options_tabs[] =
     // (text)
     { (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
     { (char *)" 2 ",       0,            options_2_list,  0, NULL },
+    { (char *)" 3 ",       0,            options_3_list,  0, NULL },
     { NULL,                0,            NULL, 0, NULL }
 };
 
@@ -2221,12 +3372,14 @@ static DIALOG options_dlg[] =
     { jwin_check_proc,         12,     74,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Vsync",                                                       NULL,   NULL                },
     { jwin_check_proc,         12,     84,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Frames Per Second",                                      NULL,   NULL                },
     { jwin_check_proc,         12,     94,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Combo Brush",                                                 NULL,   NULL                },
-    { jwin_check_proc,         12,    104,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Floating Brush",                                              NULL,   NULL                },
+    // 10
+	{ jwin_check_proc,         12,    104,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Floating Brush",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    114,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Reload Last Quest",                                                 NULL,   NULL                },
     { jwin_check_proc,         12,    124,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Misaligns",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    134,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Animate Combos",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    144,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Overwrite Protection",                                        NULL,   NULL                },
-    { jwin_check_proc,         12,    154,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Tile Protection",                                             NULL,   NULL                },
+    // 15
+	{ jwin_check_proc,         12,    154,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Tile Protection",                                             NULL,   NULL                },
     { jwin_check_proc,         12,    164,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Static for Invalid Data",                                 NULL,   NULL                },
     { jwin_check_proc,         12,    174,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Small Mode",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    184,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Ruleset Dialog When Creating New Quests",                NULL,   NULL                },
@@ -2238,41 +3391,48 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 25
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 30
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     
     // 31
     { jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-backup Retention:",                                      NULL,   NULL                },
     { jwin_droplist_proc,     120,     44,     73,     16,    0,          0,           0,    0,          0,    0, (void *) &autobackup_list,                                              NULL,   NULL                },
     { jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Interval:",                                         NULL,   NULL                },
     { jwin_droplist_proc,     105,     62,     86,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list,                                                NULL,   NULL                },
-    { jwin_text_proc,          12,     84,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Retention:",                                        NULL,   NULL                },
+    // 35
+	{ jwin_text_proc,          12,     84,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Retention:",                                        NULL,   NULL                },
     { jwin_droplist_proc,     111,     80,     49,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list2,                                               NULL,   NULL                },
     { jwin_check_proc,         12,     98,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Uncompressed Auto-saves",                                     NULL,   NULL                },
     { jwin_text_proc,          12,    112,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Grid Color:",                                                 NULL,   NULL                },
     { jwin_droplist_proc,      64,    108,    100,     16,    0,          0,           0,    0,          0,    0, (void *) &color_list,                                                   NULL,   NULL                },
-    { jwin_text_proc,          12,    130,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Snapshot Format:",                                            NULL,   NULL                },
+    // 40
+	{ jwin_text_proc,          12,    130,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Snapshot Format:",                                            NULL,   NULL                },
     { jwin_droplist_proc,      93,    126,     55,     16,    0,          0,           0,    0,          0,    0, (void *) &snapshotformat_list,                                          NULL,   NULL                },
     
     // 42
     { jwin_text_proc,          12,    148,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Delay:",                                      NULL,   NULL                },
     { jwin_edit_proc,         121,    144,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
     { jwin_text_proc,          12,    166,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Rate:",                                       NULL,   NULL                },
-    { jwin_edit_proc,         121,    162,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
+    // 45
+	{ jwin_edit_proc,         121,    162,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 50
+    { jwin_check_proc,         12,     44,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Listers use Pattern-Matching Search",                          NULL,   NULL                },
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 55
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     
     { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
@@ -2312,6 +3472,7 @@ int onOptions()
     options_dlg[41].d1 = SnapshotFormat;
     options_dlg[43].dp = kbdelay;
     options_dlg[45].dp = kbrate;
+    options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -2342,6 +3503,7 @@ int onOptions()
         SnapshotFormat             = options_dlg[41].d1;
         KeyboardRepeatDelay        = atoi(kbdelay);
         KeyboardRepeatRate         = atoi(kbrate);
+		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
         
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
@@ -2358,6 +3520,7 @@ int onOptions()
     comeback();
     return D_O_K;
 }
+
 
 enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_max};
 const char *dm_names[dm_max]=
@@ -5096,96 +6259,115 @@ void refresh(int flags)
         //  text_mode(vc(0));
         rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
         // The frame.
-        jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
-        // The black bar covering screens 88-8F.
-        rectfill(menu1, minimap.x+2+24*BMM, minimap.y+12+24*BMM,minimap.x+(27+22)*BMM,minimap.y+11+27*BMM,vc(0));
-        // Some lines.
-        /*
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+11,    minimap.x+3+48*BMM,  vc(0));
-            _allegro_hline(menu1, minimap.x+2,    minimap.y+12+27*BMM, minimap.x+3+48*BMM,  vc(0));
-            _allegro_vline(menu1, minimap.x+2,    minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-            _allegro_vline(menu1, minimap.x+3+48*BMM, minimap.y+12,    minimap.y+12+26*BMM, vc(0));
-        */
-        safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
+        jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
+		
+	    
+	//jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
+		// The black bar covering screens 88-8F.
+        //rectfill(menu1, minimap.x+2+24*BMM, minimap.y+12+24*BMM,minimap.x+(27+22)*BMM,minimap.y+11+27*BMM,vc(0));
+		// Some lines.
+		/*
+		    _allegro_hline(menu1, minimap.x+2,    minimap.y+11,    minimap.x+3+48*BMM,  vc(0));
+		    _allegro_hline(menu1, minimap.x+2,    minimap.y+12+27*BMM, minimap.x+3+48*BMM,  vc(0));
+		    _allegro_vline(menu1, minimap.x+2,    minimap.y+12,    minimap.y+12+26*BMM, vc(0));
+		    _allegro_vline(menu1, minimap.x+3+48*BMM, minimap.y+12,    minimap.y+12+26*BMM, vc(0));
+		*/
+        //safe_rect(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
         
         if(Map.getCurrMap()<Map.getMapCount())
-        {
-            for(int i=0; i<MAPSCRS; i++)
-            {
-                if(Map.Scr(i)->valid&mVALID)
-                {
-                   
-		    /* Level palettes ending in 0 can display in screen grid as pure black*/
+		{
+			for(int i=0; i<MAPSCRS; i++)
+			{
+				if(Map.Scr(i)->valid&mVALID)
+				{
+					if(((Map.Scr(i)->color)&15)>0)
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+						if(!is_large)
+							putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
+						else
+							rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
+					}
+					else
+					{
+						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+					}
+					if(!(is_large || InvalidStatic))
+					{
+						/*Level palettes which display close to black get a white border*/
+						RGB* col = &RAMpal[lc1(Map.Scr(i)->color&15)];
+						RGB* col2 = &RAMpal[lc2(Map.Scr(i)->color&15)];
+						if(col->r <= 10 && col->b <= 10 && col->g <= 10 && (!(((Map.Scr(i)->color)&15)>0) || (col2->r <= 10 && col2->b <= 10 && col2->g <= 10)))
+							safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+					}
+				}
+				else
+				{
+					if(InvalidStatic)
+					{
+						for(int dy=0; dy<3*BMM; dy++)
+						{
+							for(int dx=0; dx<3*BMM; dx++)
+							{
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+							}
+						}
+					}
+					else
+					{
+						if(is_large)
+						{
+							int offs = 2;
+							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
+						}
+						else
+						{
+							rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
+									 (i&15)*3*BMM+minimap.x+2+(BMM*BMM), (i/16)*3*BMM+minimap.y+11+(BMM*BMM), vc(0));
+						}
+					}
+				}
+			}
 			
-		    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-		    }
-		    else
-		    {
+			int s=Map.getCurrScr();
+			// The white marker rect
+			int cursor_color = 0;
+			switch(MMapCursorStyle)
+			{
+				case 0:
+					cursor_color = vc(15);
+					break;
+				case 1:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
+					break;
+				case 2:
+					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
+					break;
+			}
+			if(cursor_color)
+				safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),cursor_color);
 			
-			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-//                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
-		        if(InvalidStatic) safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
-		        else safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-			    
-		    }
-			
-		    //vc(0)
-			
-		/*
-                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-                       */      
-                    if(((Map.Scr(i)->color)&15)>0)
-                    {
-                        if(!is_large)
-                            putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
-                        else
-                            rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
-                    }
-                }
-                else
-                {
-                    if(InvalidStatic)
-                    {
-                        for(int dy=0; dy<3*BMM; dy++)
-                        {
-                            for(int dx=0; dx<3*BMM; dx++)
-                            {
-                                menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
-                                 (i&15)*3*BMM+minimap.x+3+(1+BMM*BMM), (i/16)*3*BMM+minimap.y+12+(1+BMM*BMM), vc(0));
-                    }
-                }
-            }
-            
-            int s=Map.getCurrScr();
-            // The white marker rect
-	    if(((Map.Scr(s)->color)&15)>0)
-	    {
-		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-            }
-	    else
-	    {
-		if(InvalidStatic) safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
-		else safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
-            }
-	    
-	    
-            textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-            textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
-            
-            textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-            textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
-        }
+			if(is_large)
+			{
+				int space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
+				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(menu1,font,minimap.x+spc_m,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				
+				textprintf_disabled(menu1,font,minimap.x+spc_m+space,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(menu1,font,minimap.x+spc_m+space+spc_s,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
+			}
+			else
+			{
+				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				
+				textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
+			}
+		}
     }
     
     if(flags&rCOMBOS)
@@ -7092,10 +8274,10 @@ void doflags()
             else
             {
                 // Notify if they are using a flag that doesn't work on this layer.
-                if((Flag >= mfTRAP_H && Flag <= mfNOBLOCKS) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
+                if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag <= mfNOBLOCKS) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
                         || (Flag == mfALLFAIRY) || (Flag == mfRAFT) || (Flag == mfRAFT_BRANCH)
                         || (Flag == mfDIVE_ITEM) || (Flag == mfARMOS_SECRET) || (Flag == mfNOENEMY)
-                        || (Flag == mfBLOCKHOLE) || (Flag == mfZELDA))
+                        || (Flag == mfBLOCKHOLE) || (Flag == mfZELDA)))
                 {
                     char buf[38];
                     sprintf(buf, "You are currently working on layer %d.", CurrentLayer);
@@ -13280,7 +14462,8 @@ int d_dmaplist_proc(int msg,DIALOG *d,int c)
     if(msg==MSG_DRAW)
     {
         int dmap = d->d1;
-        int *xy = (int*)(d->dp3);
+	int xy[6] = {44,92,128,100,128,110};
+        //int *xy = (int*)(d->dp3);
         float temp_scale = 1;
         
         if(is_large)
@@ -15967,6 +17150,26 @@ static int warp4_list[] =
     41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
 };
 
+static int warpring_warp1_list[] =
+{
+    2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
+};
+
+static int warpring_warp2_list[] =
+{
+    17,18,19,20,21,22,23,24,25,26,27,28,55,56,64,68,-1
+};
+
+static int warpring_warp3_list[] =
+{
+    29,30,31,32,33,34,35,36,37,38,39,40,57,58,65,69,-1
+};
+
+static int warpring_warp4_list[] =
+{
+    41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
+};
+
 static TABPANEL warp_tabs[] =
 {
     // (text)
@@ -15974,6 +17177,16 @@ static TABPANEL warp_tabs[] =
     { (char *)"B",     0,          warp2_list, 0, NULL },
     { (char *)"C",     0,          warp3_list, 0, NULL },
     { (char *)"D",     0,          warp4_list, 0, NULL },
+    { NULL,            0,          NULL,       0, NULL }
+};
+
+static TABPANEL warpring_warp_tabs[] =
+{
+    // (text)
+    { (char *)"A",     D_SELECTED, warpring_warp1_list, 0, NULL },
+    { (char *)"B",     0,          warpring_warp2_list, 0, NULL },
+    { (char *)"C",     0,          warpring_warp3_list, 0, NULL },
+    { (char *)"D",     0,          warpring_warp4_list, 0, NULL },
     { NULL,            0,          NULL,       0, NULL }
 };
 
@@ -16131,6 +17344,126 @@ static DIALOG warp_dlg[] =
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warp_dlg  },
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warp_dlg  },
     { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warp_dlg  },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    { NULL,                      0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              }
+};
+
+
+static DIALOG warpring_warp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,             0,      0,    302,    188,    vc(14),                 vc(1),                   0,       D_EXIT,     0,             0,  NULL,                          NULL,   NULL              },
+    { jwin_tab_proc,             6,     24,    290,    135,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) warpring_warp_tabs,            NULL, (void *)warpring_warp_dlg  },
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 7
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 10
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    // 14
+    { jwin_button_proc,         61,    163,     41,     21,    vc(14),                 vc(1),                   'k',     D_EXIT,     0,             0, (void *) "O&K",                NULL,   NULL              },
+    { jwin_button_proc,        121,    163,     41,     21,    vc(14),                 vc(1),                   'g',     D_EXIT,     0,             0, (void *) "&Go",                NULL,   NULL              },
+    { jwin_button_proc,        181,    163,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,             0, (void *) "Cancel",             NULL,   NULL              },
+    // 17
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 22
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 25
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    // 29
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 34
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 37
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    //41
+    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
+    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
+    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
+    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
+    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
+    // 46
+    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
+    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
+    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
+    // 49
+    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
+    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
+    { d_keyboard_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,        0, (void *) onHelp,               NULL,   NULL              },
+    { d_timer_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
+    // 63
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
+    // 67
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,          8,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
+    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
     { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
@@ -17988,115 +19321,115 @@ int onItemDropSets()
 /********* onWarpRings **********/
 /********************************/
 
-int curr_ring;
+int curr_ring = 0;
 
 void EditWarpRingScr(int ring,int index)
 {
     char caption[40],buf[10];
     restore_mouse();
-    int tempx5=warp_dlg[5].x;
-    int tempx6=warp_dlg[6].x;
-    int tempx10=warp_dlg[10].x;
-    int tempx11=warp_dlg[11].x;
-    int tempx12=warp_dlg[12].x;
-    int tempx13=warp_dlg[13].x;
+    int tempx5=warpring_warp_dlg[5].x;
+    int tempx6=warpring_warp_dlg[6].x;
+    int tempx10=warpring_warp_dlg[10].x;
+    int tempx11=warpring_warp_dlg[11].x;
+    int tempx12=warpring_warp_dlg[12].x;
+    int tempx13=warpring_warp_dlg[13].x;
     
     int tempx[100];
     
     for(int m=17; m<100; m++)
     {
-        tempx[m-17]=warp_dlg[m].x;
+        tempx[m-17]=warpring_warp_dlg[m].x;
         
         if(m!=67)
         {
-            warp_dlg[m].x = SCREEN_W+10;
+            warpring_warp_dlg[m].x = SCREEN_W+10;
         }
     }
     
-    /*int tempx20=warp_dlg[20].x;
-      int tempx21=warp_dlg[21].x;
-      int tempx25=warp_dlg[25].x;
-      int tempx26=warp_dlg[26].x;
-      int tempx27=warp_dlg[27].x;
-      int tempx28=warp_dlg[28].x;
+    /*int tempx20=warpring_warp_dlg[20].x;
+      int tempx21=warpring_warp_dlg[21].x;
+      int tempx25=warpring_warp_dlg[25].x;
+      int tempx26=warpring_warp_dlg[26].x;
+      int tempx27=warpring_warp_dlg[27].x;
+      int tempx28=warpring_warp_dlg[28].x;
     
-      int tempx32=warp_dlg[32].x;
-      int tempx33=warp_dlg[33].x;
-      int tempx37=warp_dlg[37].x;
-      int tempx38=warp_dlg[38].x;
-      int tempx39=warp_dlg[39].x;
-      int tempx40=warp_dlg[40].x;
+      int tempx32=warpring_warp_dlg[32].x;
+      int tempx33=warpring_warp_dlg[33].x;
+      int tempx37=warpring_warp_dlg[37].x;
+      int tempx38=warpring_warp_dlg[38].x;
+      int tempx39=warpring_warp_dlg[39].x;
+      int tempx40=warpring_warp_dlg[40].x;
     
-      int tempx44=warp_dlg[44].x;
-      int tempx45=warp_dlg[45].x;
-      int tempx49=warp_dlg[49].x;
-      int tempx50=warp_dlg[50].x;
-      int tempx51=warp_dlg[51].x;
-      int tempx52=warp_dlg[52].x;*/
+      int tempx44=warpring_warp_dlg[44].x;
+      int tempx45=warpring_warp_dlg[45].x;
+      int tempx49=warpring_warp_dlg[49].x;
+      int tempx50=warpring_warp_dlg[50].x;
+      int tempx51=warpring_warp_dlg[51].x;
+      int tempx52=warpring_warp_dlg[52].x;*/
     
-    warp_dlg[5].x = SCREEN_W+10;
-    warp_dlg[6].x = SCREEN_W+10;
-    warp_dlg[10].x = SCREEN_W+10;
-    warp_dlg[11].x = SCREEN_W+10;
-    warp_dlg[12].x = SCREEN_W+10;
-    warp_dlg[13].x = SCREEN_W+10;
+    warpring_warp_dlg[5].x = SCREEN_W+10;
+    warpring_warp_dlg[6].x = SCREEN_W+10;
+    warpring_warp_dlg[10].x = SCREEN_W+10;
+    warpring_warp_dlg[11].x = SCREEN_W+10;
+    warpring_warp_dlg[12].x = SCREEN_W+10;
+    warpring_warp_dlg[13].x = SCREEN_W+10;
     
-    /*warp_dlg[20].x = SCREEN_W+10;
-      warp_dlg[21].x = SCREEN_W+10;
-      warp_dlg[25].x = SCREEN_W+10;
-      warp_dlg[26].x = SCREEN_W+10;
-      warp_dlg[27].x = SCREEN_W+10;
-      warp_dlg[28].x = SCREEN_W+10;
-      warp_dlg[32].x = SCREEN_W+10;
-      warp_dlg[33].x = SCREEN_W+10;
-      warp_dlg[37].x = SCREEN_W+10;
-      warp_dlg[38].x = SCREEN_W+10;
-      warp_dlg[39].x = SCREEN_W+10;
-      warp_dlg[40].x = SCREEN_W+10;
-      warp_dlg[44].x = SCREEN_W+10;
-      warp_dlg[45].x = SCREEN_W+10;
-      warp_dlg[49].x = SCREEN_W+10;
-      warp_dlg[50].x = SCREEN_W+10;
-      warp_dlg[51].x = SCREEN_W+10;
-      warp_dlg[52].x = SCREEN_W+10;*/
+    /*warpring_warp_dlg[20].x = SCREEN_W+10;
+      warpring_warp_dlg[21].x = SCREEN_W+10;
+      warpring_warp_dlg[25].x = SCREEN_W+10;
+      warpring_warp_dlg[26].x = SCREEN_W+10;
+      warpring_warp_dlg[27].x = SCREEN_W+10;
+      warpring_warp_dlg[28].x = SCREEN_W+10;
+      warpring_warp_dlg[32].x = SCREEN_W+10;
+      warpring_warp_dlg[33].x = SCREEN_W+10;
+      warpring_warp_dlg[37].x = SCREEN_W+10;
+      warpring_warp_dlg[38].x = SCREEN_W+10;
+      warpring_warp_dlg[39].x = SCREEN_W+10;
+      warpring_warp_dlg[40].x = SCREEN_W+10;
+      warpring_warp_dlg[44].x = SCREEN_W+10;
+      warpring_warp_dlg[45].x = SCREEN_W+10;
+      warpring_warp_dlg[49].x = SCREEN_W+10;
+      warpring_warp_dlg[50].x = SCREEN_W+10;
+      warpring_warp_dlg[51].x = SCREEN_W+10;
+      warpring_warp_dlg[52].x = SCREEN_W+10;*/
     for(int i=0; i<4; i++)
     {
-        warp_dlg[10+i].d2 = 0;
-        warp_dlg[25+i].d2 = 0;
-        warp_dlg[37+i].d2 = 0;
-        warp_dlg[49+i].d2 = 0;
+        warpring_warp_dlg[10+i].d2 = 0;
+        warpring_warp_dlg[25+i].d2 = 0;
+        warpring_warp_dlg[37+i].d2 = 0;
+        warpring_warp_dlg[49+i].d2 = 0;
     }
     
     sprintf(caption,"Ring %d  Warp %d",ring,index+1);
-    warp_dlg[0].dp = (void *)caption;
-    warp_dlg[0].dp2=lfont;
+    warpring_warp_dlg[0].dp = (void *)caption;
+    warpring_warp_dlg[0].dp2=lfont;
     
-    warp_dlg[1].dp = NULL;
-    warp_dlg[1].dp3 = NULL;
+    warpring_warp_dlg[1].dp = NULL;
+    warpring_warp_dlg[1].dp3 = NULL;
     
     sprintf(buf,"%02X",misc.warp[ring].scr[index]);
-    warp_dlg[8].d1=misc.warp[ring].dmap[index];
-    warp_dlg[9].dp=buf;
-    warp_dlg[24].dp=buf;
-    warp_dlg[36].dp=buf;
-    warp_dlg[48].dp=buf;
-    warp_dlg[2].fg=warp_dlg[5].fg=vc(7);
+    warpring_warp_dlg[8].d1=misc.warp[ring].dmap[index];
+    warpring_warp_dlg[9].dp=buf;
+    warpring_warp_dlg[24].dp=buf;
+    warpring_warp_dlg[36].dp=buf;
+    warpring_warp_dlg[48].dp=buf;
+    warpring_warp_dlg[2].fg=warpring_warp_dlg[5].fg=vc(7);
     
     for(int i=0; i<4; i++)
-        warp_dlg[10+i].d2 = 0;
+        warpring_warp_dlg[10+i].d2 = 0;
         
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
     
     if(is_large)
-        large_dialog(warp_dlg);
+        large_dialog(warpring_warp_dlg);
         
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int ret=zc_popup_dialog(warpring_warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
         saved=false;
-        misc.warp[ring].dmap[index] = warp_dlg[8].d1;
+        misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
         misc.warp[ring].scr[index] = xtoi(buf);
     }
     
@@ -18106,48 +19439,48 @@ void EditWarpRingScr(int ring,int index)
         refresh(rALL);
     }
     
-    warp_dlg[5].x = tempx5;
-    warp_dlg[6].x = tempx6;
-    warp_dlg[10].x = tempx10;
-    warp_dlg[11].x = tempx11;
-    warp_dlg[12].x = tempx12;
-    warp_dlg[13].x = tempx13;
+    warpring_warp_dlg[5].x = tempx5;
+    warpring_warp_dlg[6].x = tempx6;
+    warpring_warp_dlg[10].x = tempx10;
+    warpring_warp_dlg[11].x = tempx11;
+    warpring_warp_dlg[12].x = tempx12;
+    warpring_warp_dlg[13].x = tempx13;
     
     for(int m=17; m<100; m++)
     {
-        warp_dlg[m].x=tempx[m-17];
+        warpring_warp_dlg[m].x=tempx[m-17];
     }
     
-    /*warp_dlg[20].x = tempx20;
-      warp_dlg[21].x = tempx21;
-      warp_dlg[25].x = tempx25;
-      warp_dlg[26].x = tempx26;
-      warp_dlg[27].x = tempx27;
-      warp_dlg[28].x = tempx28;
+    /*warpring_warp_dlg[20].x = tempx20;
+      warpring_warp_dlg[21].x = tempx21;
+      warpring_warp_dlg[25].x = tempx25;
+      warpring_warp_dlg[26].x = tempx26;
+      warpring_warp_dlg[27].x = tempx27;
+      warpring_warp_dlg[28].x = tempx28;
     
-      warp_dlg[32].x = tempx32;
-      warp_dlg[33].x = tempx33;
-      warp_dlg[37].x = tempx37;
-      warp_dlg[38].x = tempx38;
-      warp_dlg[39].x = tempx39;
-      warp_dlg[40].x = tempx40;
+      warpring_warp_dlg[32].x = tempx32;
+      warpring_warp_dlg[33].x = tempx33;
+      warpring_warp_dlg[37].x = tempx37;
+      warpring_warp_dlg[38].x = tempx38;
+      warpring_warp_dlg[39].x = tempx39;
+      warpring_warp_dlg[40].x = tempx40;
     
-      warp_dlg[44].x = tempx44;
-      warp_dlg[45].x = tempx45;
-      warp_dlg[49].x = tempx49;
-      warp_dlg[50].x = tempx50;
-      warp_dlg[51].x = tempx51;
-      warp_dlg[52].x = tempx52;*/
+      warpring_warp_dlg[44].x = tempx44;
+      warpring_warp_dlg[45].x = tempx45;
+      warpring_warp_dlg[49].x = tempx49;
+      warpring_warp_dlg[50].x = tempx50;
+      warpring_warp_dlg[51].x = tempx51;
+      warpring_warp_dlg[52].x = tempx52;*/
     for(int i=0; i<4; i++)
     {
-        warp_dlg[10+i].d2 = 0x80;
-        warp_dlg[25+i].d2 = 0x80;
-        warp_dlg[37+i].d2 = 0x80;
-        warp_dlg[49+i].d2 = 0x80;
+        warpring_warp_dlg[10+i].d2 = 0x80;
+        warpring_warp_dlg[25+i].d2 = 0x80;
+        warpring_warp_dlg[37+i].d2 = 0x80;
+        warpring_warp_dlg[49+i].d2 = 0x80;
     }
     
-    warp_dlg[1].dp = (void *) warp_tabs;
-    warp_dlg[1].dp3 = (void *)warp_dlg;
+    warpring_warp_dlg[1].dp = (void *) warpring_warp_tabs;
+    warpring_warp_dlg[1].dp3 = (void *)warpring_warp_dlg;
     
 }
 
@@ -21206,7 +22539,7 @@ static DIALOG compile_dlg[] =
     { jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
     { jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
     { jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'i',	D_EXIT,	0,	0,	(void *) "&Import", NULL, NULL },
+    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
     { jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
     { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
     { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
@@ -21404,7 +22737,7 @@ static DIALOG gscript_sel_dlg[] =
 int onCompileScript()
 {
     compile_dlg[0].dp2 = lfont;
-    
+	
     if(is_large)
         large_dialog(compile_dlg);
         
@@ -21491,6 +22824,10 @@ int onCompileScript()
         
         case 5:
             //Compile!
+		
+	    
+	
+	
             FILE *tempfile = fopen("tmp","w");
             
             if(!tempfile)
@@ -21503,7 +22840,10 @@ int onCompileScript()
             fclose(tempfile);
             box_start(1, "Compile Progress", lfont, sfont,true);
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-            ScriptsData *result = compile("tmp");
+            al_trace("HEADER_GUARD: %d\n", headerguard);
+	    ScriptsData *result = ( headerguard ) ? compile_headerguards("tmp") : compile("tmp");
+	    //ScriptsData *result = compile_headerguards("tmp");
+	   
             unlink("tmp");
 	    
 	    if ( result )
@@ -23014,6 +24354,93 @@ int onHelp()
     return D_O_K;
 }
 
+static DIALOG shieldblockhelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Shield Block Flags Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void doshieldblockhelp(int bg,int fg)
+{
+    shieldblockhelp_dlg[0].dp2= lfont;
+    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    shieldblockhelp_dlg[2].bg = bg;
+    zc_popup_dialog(shieldblockhelp_dlg,2);
+    delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
+}
+
+int onshieldblockhelp()
+{
+    restore_mouse();
+    doshieldblockhelp(vc(15),vc(0));
+    return D_O_K;
+}
+
+static DIALOG zscripthelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZScript Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void dozscripthelp(int bg,int fg)
+{
+    zscripthelp_dlg[0].dp2= lfont;
+    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    zscripthelp_dlg[2].bg = bg;
+    zc_popup_dialog(zscripthelp_dlg,2);
+    delete(EditboxModel*)(zscripthelp_dlg[2].dp);
+}
+
+int onZScripthelp()
+{
+    restore_mouse();
+    dozscripthelp(vc(15),vc(0));
+    return D_O_K;
+}
+
+static DIALOG Zstringshelp_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Zstrings Help", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void doZstringshelp(int bg,int fg)
+{
+    Zstringshelp_dlg[0].dp2= lfont;
+    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    Zstringshelp_dlg[2].bg = bg;
+    zc_popup_dialog(Zstringshelp_dlg,2);
+    delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
+}
+
+int onZstringshelp()
+{
+    restore_mouse();
+    doZstringshelp(vc(15),vc(0));
+    return D_O_K;
+}
+
 static DIALOG layerdata_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -24094,12 +25521,16 @@ int main(int argc,char **argv)
         }
     }
     
-    int helpsize = file_size_ex_password("zquest.txt","");
+    int helpsize = file_size_ex_password("docs/zquest.txt","");
     
     if(helpsize==0)
     {
-        Z_error("Error: zquest.txt not found.");
-        quit_game();
+	helpsize = file_size_ex_password("zquest.txt","");
+	if(helpsize==0)
+	{
+		Z_error("Error: zquest.txt not found.");
+		quit_game();
+	}
     }
     
     helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
@@ -24111,12 +25542,16 @@ int main(int argc,char **argv)
     }
     
     //if(!readfile("zquest.txt",helpbuf,helpsize))
-    FILE *hb = fopen("zquest.txt", "r");
+    FILE *hb = fopen("docs/zquest.txt", "r");
     
     if(!hb)
     {
-        Z_error("Error loading zquest.txt.");
-        quit_game();
+	hb = fopen("zquest.txt", "r");
+	if(!hb)
+	{
+		Z_error("Error loading zquest.txt.");
+		quit_game();
+	}
     }
     
     char c = fgetc(hb);
@@ -24133,7 +25568,152 @@ int main(int argc,char **argv)
     
     helpbuf[helpsize]=0;
     helpstr = helpbuf;
-    Z_message("OK\n");                                      // loading data files...
+    Z_message("Found zquest.txt\n");                                      // loading data files...
+    
+    int shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
+    
+    if(shieldblockhelpsize==0)
+    {
+	shieldblockhelpsize = file_size_ex_password("shield_block_flags.txt","");
+	if(shieldblockhelpsize==0)
+	{
+		Z_error("Error: shield_block_flags.txt not found.");
+		quit_game();
+	}
+    }
+    
+    shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
+    
+    if(!shieldblockhelpbuf)
+    {
+        Z_error("Error allocating shieldblockhelp buffer.");
+        quit_game();
+    }
+    
+    FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
+    
+    if(!shieldhb)
+    {
+	shieldhb = fopen("shield_block_flags.txt", "r");
+	if(!shieldhb)
+	{
+		Z_error("Error loading shield_block_flags.txt.");
+		quit_game();
+	}
+    }
+    
+    char shieldc = fgetc(shieldhb);
+    int shieldhelpindex=0;
+    
+    while(!feof(shieldhb))
+    {
+        shieldblockhelpbuf[shieldhelpindex] = shieldc;
+        shieldhelpindex++;
+        shieldc = fgetc(shieldhb);
+    }
+    
+    fclose(shieldhb);
+    
+    shieldblockhelpbuf[shieldblockhelpsize]=0;
+    shieldblockhelpstr = shieldblockhelpbuf;
+    Z_message("Found shield_block_flags.txt\n");    
+    
+    int zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
+    
+    if(zscripthelpsz==0)
+    {
+	zscripthelpsz = file_size_ex_password("zscript.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
+	if(zscripthelpsz==0)
+	{
+		Z_error("Error: zscript.txt not found.");
+		quit_game();
+	}
+    }
+    
+    zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
+    
+    if(!zscripthelpbuf)
+    {
+        Z_error("Error allocating ZScript Help buffer.");
+        quit_game();
+    }
+    
+    FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
+    
+    if(!zscripthelphb)
+    {
+	zscripthelphb = fopen("zscript.txt", "r");
+	if(!zscripthelphb)
+	{
+		Z_error("Error loading zscript.txt.");
+		quit_game();
+	}
+    }
+    
+    char zscripthelpc = fgetc(zscripthelphb);
+    int zscripthelpindex=0;
+    
+    while(!feof(zscripthelphb))
+    {
+        zscripthelpbuf[zscripthelpindex] = zscripthelpc;
+        zscripthelpindex++;
+        zscripthelpc = fgetc(zscripthelphb);
+    }
+    
+    fclose(zscripthelphb);
+    
+    zscripthelpbuf[zscripthelpsz]=0;
+    zscripthelpstr = zscripthelpbuf;
+    Z_message("Found zscript.txt\n");                                         // loading data files...
+    
+    int zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
+    
+    if(zstringshelpsz==0)
+    {
+	zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
+	if(zstringshelpsz==0)
+	{
+		Z_error("Error: zstrings.txt not found.");
+		quit_game();
+	}
+    }
+    
+    zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
+    
+    if(!zstringshelpbuf)
+    {
+        Z_error("Error allocating zstrings Help buffer.");
+        quit_game();
+    }
+    
+    FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
+    
+    if(!zstringshelphb)
+    {
+	zstringshelphb = fopen("zstrings.txt", "r");
+	if(!zstringshelphb)
+	{
+		Z_error("Error loading zstrings.txt.");
+		quit_game();
+	}
+    }
+    
+    char zstringshelpc = fgetc(zstringshelphb);
+    int zstringshelpindex=0;
+    
+    while(!feof(zstringshelphb))
+    {
+        zstringshelpbuf[zstringshelpindex] = zstringshelpc;
+        zstringshelpindex++;
+        zstringshelpc = fgetc(zstringshelphb);
+    }
+    
+    fclose(zstringshelphb);
+    
+    zstringshelpbuf[zstringshelpsz]=0;
+    zstringshelpstr = zstringshelpbuf;
+    Z_message("Found zstrings.txt\n");                               
+    // loading data files...
     
     init_qts();
     
@@ -24156,8 +25736,11 @@ int main(int argc,char **argv)
     chop_path(imagepath);
     chop_path(tmusicpath);
     
+    headerguard = get_config_int("Compiler","HEADER_GUARD",1);	
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
+    MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
+    skipLayerWarning               = get_config_int("zquest","skip_layer_warning",0);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
@@ -24241,6 +25824,8 @@ int main(int argc,char **argv)
     strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
     
     midi_volume                    = get_config_int("zquest", "midi", 255);
+	
+	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -24385,12 +25970,35 @@ int main(int argc,char **argv)
         commands_list.h=4;
         
         
+        //Help Dialogue Sizing
         help_dlg[0].w=800;
         help_dlg[0].h=600;
         help_dlg[1].w=800-8;
         help_dlg[1].h=600-27;
         help_dlg[2].w=800-8-4;
         help_dlg[2].h=600-27-4;
+	
+	
+	zscripthelp_dlg[0].w=800;
+        zscripthelp_dlg[0].h=600;
+        zscripthelp_dlg[1].w=800-8;
+        zscripthelp_dlg[1].h=600-27;
+        zscripthelp_dlg[2].w=800-8-4;
+        zscripthelp_dlg[2].h=600-27-4;
+	
+	Zstringshelp_dlg[0].w=800;
+        Zstringshelp_dlg[0].h=600;
+        Zstringshelp_dlg[1].w=800-8;
+        Zstringshelp_dlg[1].h=600-27;
+        Zstringshelp_dlg[2].w=800-8-4;
+        Zstringshelp_dlg[2].h=600-27-4;
+	
+	shieldblockhelp_dlg[0].w=800;
+        shieldblockhelp_dlg[0].h=600;
+        shieldblockhelp_dlg[1].w=800-8;
+        shieldblockhelp_dlg[1].h=600-27;
+        shieldblockhelp_dlg[2].w=800-8-4;
+        shieldblockhelp_dlg[2].h=600-27-4;
         
         edit_zscript_dlg[0].w=800;
         edit_zscript_dlg[0].h=600;
@@ -25247,6 +26855,13 @@ int main(int argc,char **argv)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    //clear the panel recent screen buttons to prevent crashes from invalid maps
+    for ( int q = 0; q < 9; q++ )
+    {
+	map_page[q].map = 1;
+	map_page[q].screen = 0;
     }
     
     zScript = std::string();
@@ -26420,6 +28035,7 @@ int save_config_file()
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
     set_config_int("zquest","invalid_static",InvalidStatic);
+    set_config_int("zquest","skip_layer_warning",skipLayerWarning);
     set_config_int("zquest","tile_protection",TileProtection);
     set_config_int("zquest","showinfo",ShowInfo);
     set_config_int("zquest","show_grid",ShowGrid);
@@ -26439,6 +28055,7 @@ int save_config_file()
     set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
     set_config_int("zquest","showffscripts",ShowFFScripts);
     set_config_int("zquest","showsquares",ShowSquares);
+    set_config_int("Compiler","HEADER_GUARD",headerguard);
     
     set_config_int("zquest","animation_on",AnimationOn);
     set_config_int("zquest","auto_backup_retention",AutoBackupRetention);
@@ -26471,6 +28088,7 @@ int save_config_file()
     set_config_int("zquest","leech_update_tiles",LeechUpdateTiles);
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
+    set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
@@ -26718,9 +28336,9 @@ command_pair commands[cmdMAX]=
     { "Message String",                     0, (intF) onString                                         },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
-    { "New",                                0, (intF) onNew                                            },
+    { "New",                                0, (intF) do_NewQuest                                            },
     { "Normal Mode",                        0, (intF) onDrawingModeNormal                              },
-    { "Open",                               0, (intF) onOpen                                           },
+    { "Open",                               0, (intF) do_OpenQuest                                           },
     { "Options",                            0, (intF) onOptions                                        },
     { "Palette",                            0, (intF) onScreenPalette                                  },
     { "Default Palettes",                   0, (intF) onDefault_Pals                                   },
@@ -26753,7 +28371,7 @@ command_pair commands[cmdMAX]=
     { "Strings",                            0, (intF) onStrings                                        },
     { "Subscreens",                         0, (intF) onEditSubscreens                                 },
     { "Take Snapshot",                      0, (intF) onSnapshot                                       },
-    { "The Travels of Link",                0, (intF) playTune1                                        },
+    { "Ambient Music",                0, (intF) playTune1                                        },
     { "NES Dungeon Template",               0, (intF) onTemplate                                       },
     { "Edit Templates",                     0, (intF) onTemplates                                      },
     { "Tile Warp",                          0, (intF) onTileWarp                                       },
@@ -27108,7 +28726,48 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
     }
 }
 
+void zprint(const char * const format,...)
+{
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+	#ifdef _WIN32
+	if ( console_is_open )
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	#endif
+	
+    }
+}
 
+//Always prints
+void zprint2(const char * const format,...)
+{
+    //if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+	#ifdef _WIN32
+	if ( console_is_open )
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	#endif
+	
+    }
+}
 
 /* end */
 

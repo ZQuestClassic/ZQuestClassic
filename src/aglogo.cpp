@@ -121,6 +121,19 @@ static void CopyAvg(BITMAP* fire)
     }
 }
 
+static int vbound(int x,int low,int high)
+{
+    assert(low <= high);
+    
+    if(x<low) return low;
+    
+    if(x>high) return high;
+    
+    return x;
+}
+
+COLOR_MAP aglogo_trans_table;
+
 int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 {
     // frame should be 320x200, firebuf at least 340x206
@@ -142,23 +155,37 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     bool blackout=false;
     logovolume = get_config_int("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
+    blit((BITMAP*)data[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
+    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
     
+    BITMAP* interm = create_bitmap_ex(8, 256, 224);
+    BITMAP* overla = create_bitmap_ex(8, 256, 224);
+    create_trans_table(&aglogo_trans_table, pal, 128, 128, 128, NULL);
+    clear_bitmap(interm);
+    clear_bitmap(overla);
+    blit((BITMAP*)data[RLE_AGTEXT].dat,overla, 0,0,0,0, 256,224);
     do
     {
         AddFire(firebuf,17);
         CopyAvg(firebuf);
 
-        blit(firebuf,frame,8,0,0,0,320,198);
-        draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
-	textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
-	    
+	stretch_blit(firebuf,interm, 0,0,255,223, -10,50+64+36,400, 120-36);
+	; 
+        color_map = &aglogo_trans_table;
+	draw_trans_sprite(interm, overla, 0, 0);
+	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
+	
+	stretch_blit(interm,frame, 0,0,255,223, 0,0,256, 224);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
         vsync();
+	stretch_blit(frame,screen, 0,0,255,223, 0,0,SCREEN_W, SCREEN_H);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
         
-        if(sbig)
-            stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
-        else
-            blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
-            
+	//else
+        //    blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+	
+	
+        
         poll_joystick();
         
         if((keypressed()||joy[joystick_index].button[0].b||joy[joystick_index].button[1].b)&&fadecnt>=32)

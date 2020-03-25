@@ -1362,11 +1362,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
             
             if(newtilebuf[tile].format<=tf4Bit)
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si,*si);
             }
             else
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si,*si);
             }
         }
     }
@@ -3303,6 +3303,12 @@ extern void return_RAMpal_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 void load_imagebuf()
 {
     PACKFILE *f;
+	//cache QRS
+	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ 
+	//	cached_rules[q] = quest_rules[q];
+	//}
     bool compressed=false;
     bool encrypted=false;
     tiledata *hold=newtilebuf;
@@ -3499,6 +3505,12 @@ error2:
     }
     
     rgb_map = &zq_rgb_table;
+    //restore cashed QRs / rules
+	
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ //
+	//	quest_rules[q] = cached_rules[q];
+	//}
 }
 
 static char bitstrbuf[32];
@@ -4921,6 +4933,13 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 				}
 				else
 				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc(0);
+						}
+					}
 					rect(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
 					line(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
 					line(dest, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
@@ -12753,7 +12772,8 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		return 0;
 	}
 	al_trace("Reading combo: count(%d)\n", count);
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
 
@@ -12945,7 +12965,8 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 	}
 	al_trace("Reading tile: count(%d)\n", count);
 	
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
 	
@@ -13117,7 +13138,8 @@ int writecombofile(PACKFILE *f, int index, int count)
 	{
 		return 0;
 	}
-	
+	reset_combo_animations();
+	reset_combo_animations2();
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	

@@ -2359,6 +2359,10 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	emulation_patches[emu210BOMBCHU] = 1;
     }
+    if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 33 )
+    {
+	emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
+    }
         
     
     return 0;
@@ -14469,6 +14473,146 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     {
         delete_file(deletefilename);
     }
+    
+    //Quest Header Metadata
+    zprint2("\n[ZQUEST CREATOR METADATA]\n");
+		
+	switch(quest_header_zelda_version)
+	{
+		case 0x250:
+		{
+			switch(quest_header_zelda_build)
+			{
+				case 19:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 1\n"); break;
+				case 20:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 2\n"); break;
+				case 21:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 3\n"); break;
+				case 22:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 4\n"); break;
+				case 23:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 5\n"); break;
+				case 24:
+					zprint2("Last saved in ZC Editor Version: 2.50.0, Release\n"); break;
+				case 25:
+					zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 1\n"); break;
+				case 26:
+					zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 2\n"); break;
+				case 27: 
+					zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 3\n"); break;
+				case 28:
+					zprint2("Last saved in ZC Editor Version: 2.50.1, Release\n"); break;
+				case 29:
+					zprint2("Last saved in ZC Editor Version: 2.50.2, Release\n"); break;
+				case 30:
+					zprint2("Last saved in ZC Editor Version: 2.50.3, Gamma 1\n"); break;
+				case 31:
+					zprint2("Last saved in ZC Editor Version: 2.53.0, Prior to Gamma 3\n"); break;
+				case 32:
+					zprint2("Last saved in ZC Editor Version: 2.53.0\n"); break;
+				case 33:
+					zprint2("Last saved in ZC Editor Version: 2.53.1\n"); break;
+				default:
+					zprint2("Last saved in ZC Editor Version: %x, Build %d\n", quest_header_zelda_version,quest_header_zelda_build); break;
+	
+			}
+			break;
+		}
+		
+		case 0x211:
+		{
+			zprint2("Last saved in ZC Editor Version: 2.11, Beta %d\n", quest_header_zelda_build); break;
+		}
+		case 0x210:
+		{
+			zprint2("Last saved in ZC Editor Version: 2.10.x\n"); 
+			if ( quest_header_zelda_build ) zprint2("Beta/Build %d\n", quest_header_zelda_build); 
+			break;
+		}
+		case 0x193:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.93, Beta %d\n", quest_header_zelda_build); break;
+		}
+		case 0x192:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.92, Beta %d\n", quest_header_zelda_build); break;
+		}
+		case 0x190:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.90"); 
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x188:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.88");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x187:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.87");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x186:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.86");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x185:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.85");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x184:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.84");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x183:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.83");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x182:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.82");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x181:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.81");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		case 0x180:
+		{
+			zprint2("Last saved in ZC Editor Version: 1.80");
+			if ( quest_header_zelda_build ) zprint2(", Beta/Build %d\n", quest_header_zelda_build); 
+			else zprint2("\n");
+			break;
+		}
+		default:
+		{
+			zprint2("Last saved in ZC Editor Version: %x, Beta %d\n", quest_header_zelda_version,quest_header_zelda_build); break;
+		}
+	}
     
     return qe_OK;
     

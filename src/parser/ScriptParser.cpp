@@ -42,7 +42,7 @@ ScriptsData * compile(const char *filename)
     box_eol();
 #endif
     
-    if(go(filename) != 0 || !resAST)
+    if(go_noguard(filename) != 0 || !resAST)
     {
         printErrorMsg(NULL, CANTOPENSOURCE);
         return NULL;
@@ -232,6 +232,237 @@ ScriptsData * compile(const char *filename)
     return final;
 }
 
+ScriptsData * compile_headerguards(const char *filename)
+{
+    ScriptParser::resetState();
+    headerguards.clear();
+    headerguardsPPC.clear();	
+	
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 1: Parsing");
+    box_eol();
+#endif
+    
+    int resultGo = go(filename);	
+    if( resultGo == -99 )  
+	{
+		printErrorMsg(NULL,WARNHEADER);
+		
+		return NULL;
+		//header guard issues need a unique return and to skip
+		//this process
+	}
+    else if(resultGo != 0 || !resAST)
+    {
+        printErrorMsg(NULL, CANTOPENSOURCE);
+        return NULL;
+    }
+    
+    AST *theAST = resAST;
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 2: Preprocessing");
+    box_eol();
+    //headerguardsPPC.clear();
+#endif
+    map<string, long> *consts = new map<string,long>();
+    /*if ( !(strcmp(filename, "tmp") )
+    {
+	    box_out("tmp"); box_eol();
+	    if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT,consts))
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;
+	    }
+    }*/
+    //else
+    {
+	    if(!ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts))
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;
+	    }
+	    else if (ScriptParser::preprocess_headerguard(theAST, RECURSIONLIMIT,consts) == 2 )
+	    {
+		delete theAST;
+		delete consts;
+		return NULL;    
+	    }
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 3: Building symbol tables");
+    box_eol();
+#endif
+    SymbolData *d = ScriptParser::buildSymbolTable(theAST,consts);
+    
+    if(d==NULL)
+    {
+        //delete theAST;
+        delete consts;
+        return NULL;
+    }
+    
+    //d->symbols->printDiagnostics();
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
+    box_eol();
+#endif
+    FunctionData *fd = ScriptParser::typeCheck(d);
+    
+    if(fd == NULL)
+    {
+        //delete theAST;
+        delete consts;
+        /*if(d->symbols) delete d->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete d;*/
+        return NULL;
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 5: Generating object code");
+    box_eol();
+#endif
+    
+    IntermediateData *id = ScriptParser::generateOCode(fd);
+    
+    if(id == NULL)
+    {
+        //delete theAST;
+        delete consts;
+        /*if(d->symbols) delete d->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete d;*/
+        /*if(fd->symbols) delete fd->symbols;
+        for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
+        {
+        	delete *it2;
+        }
+        for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
+        {
+        	delete *it2;
+        }
+        delete fd;*/
+        return NULL;
+    }
+    
+#ifndef SCRIPTPARSER_COMPILE
+    box_out("Pass 6: Assembling");
+    box_eol();
+#endif
+    ScriptsData *final = ScriptParser::assemble(id);
+    box_out("Success!");
+    box_eol();
+    
+    //delete theAST;
+    delete consts;
+    /*if(d->symbols) delete d->symbols;
+    for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
+    {
+    	delete *it2;
+    }
+    delete d;
+    if(fd->symbols) delete fd->symbols;
+    for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
+    {
+    	delete *it2;
+    }
+    for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
+    {
+    	delete *it2;
+    }
+    delete fd;*/
+    /*for(map<int, vector<Opcode *> >::iterator it = id->funcs.begin(); it != id->funcs.end(); it++)
+    {
+    	for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+    	{
+    		delete *it2;
+    	}
+    }
+    for(vector<Opcode *>::iterator it = id->globalsInit.begin(); it != id->globalsInit.end(); it++)
+    {
+    	delete *it;
+    }
+    for(vector<Opcode *>::iterator it = id->globalasInit.begin(); it != id->globalasInit.end(); it++)
+    {
+    	delete *it;
+    }
+    delete id;*/
+    
+    return final;
+}
+
+
+
 int ScriptParser::vid = 0;
 int ScriptParser::fid = 0;
 int ScriptParser::gid = 1;
@@ -260,6 +491,176 @@ string ScriptParser::trimQuotes(string quoteds)
     string rval = quoteds.substr(1,quoteds.size()-2);
     return rval;
 }
+
+int ScriptParser::preprocess_headerguard(AST *theAST, int reclimit, map<string,long> *constants)
+{
+    //headerguards.clear();
+    if(reclimit == 0)
+    {
+        printErrorMsg(NULL, IMPORTRECURSION);
+        return 0;
+    }
+    
+    //Repeat parsing process for each of import files
+    GetImports gi;
+    theAST->execute(gi, NULL);
+    vector<ASTImportDecl *> imports = gi.getResult();
+    
+    for(vector<ASTImportDecl *>::iterator it = imports.begin(); it != imports.end(); it++)
+    {
+	    //the filename
+	    //Plan:
+	    /*
+		Add an iterator for number of imports
+		If iterator < 1:
+			Store it in a vector of strings
+			Incr iterator
+		else
+		scan vector for a match
+		if it matches, issue a warning in box_out
+			AND skip it
+			else incr iterator and try to import the file
+
+		if importing, scan include paths
+		this needs to be done in go()?
+	    
+		No
+		before callong go(fn)
+		std::str tmpfn = "@@" +fn;
+		//if registerednames has no substring matching tempfn
+		    registerednames += tempfn;
+		//else, warn and skip
+		
+		We need a string that is global to the parser
+		As the parser INVOKES, clear it, and start tacking on delim+filename
+		string.find("substr")
+			if that returns string::npos, then we add it
+			if it returns anything else, then we warn and skip
+			    
+				if(string::npos == foundImports.find(name))
+				{
+				    foundImports += "@@" + name;
+				    //GO
+				}
+				else
+				{
+				    //WARN
+				}
+	    
+	    */
+        string fn = trimQuotes((*it)->getFilename());
+        //this handles correcting the path for the host OS
+        for(int i=0; fn[i]; i++)
+        {
+#ifdef _ALLEGRO_WINDOWS
+        
+            if(fn[i]=='/')
+                fn[i]='\\';
+                
+#else
+                
+            if(fn[i]=='\\')
+                fn[i]='/';
+                
+#endif
+        }
+        
+	
+        int PPCresult = goPPC(fn.c_str());
+	if (PPCresult == -99 )
+	{
+		printErrorMsg(*it,WARNHEADER, fn);
+		return 2;
+		
+	}
+        else if( PPCresult != 0 || !resAST ) 
+		
+        {
+	    
+            printErrorMsg(*it,CANTOPENIMPORT, fn);
+            
+            for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+            {
+                delete *it2;
+            }
+            
+            return 0;
+        }
+        
+        AST *recAST = resAST;
+        
+	int ppcresult = preprocess_headerguard(recAST, reclimit-1,constants);
+	if (ppcresult == 2) //duplicate include
+	{
+		return 1;
+	}
+        if(ppcresult == 0)
+        {
+            for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+            {
+                delete *it2;
+            }
+            
+            delete recAST;
+            return 0;
+        }
+        
+        //Put the imported code into theAST
+        MergeASTs temp;
+        theAST->execute(temp, recAST);
+    }
+    
+    for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+    {
+        delete *it2;
+    }
+    
+    //check that there are no more stupidly placed imports in the file
+    CheckForExtraneousImports c;
+    theAST->execute(c, NULL);
+    
+    if(!c.isOK())
+        return 0;
+        
+    //get the constants
+    GetConsts gc;
+    theAST->execute(gc,NULL);
+    vector<ASTConstDecl *> consts = gc.getResult();
+    bool failure = false;
+    
+    for(vector<ASTConstDecl *>::iterator it = consts.begin(); it != consts.end(); it++)
+    {
+        map<string, long>::iterator find = constants->find((*it)->getName());
+        
+        if(find != constants->end())
+        {
+            printErrorMsg(*it, CONSTREDEF, (*it)->getName());
+            failure=true;
+        }
+        else
+        {
+            pair<string,string> parts = (*it)->getValue()->parseValue();
+            pair<long,bool> val = ScriptParser::parseLong(parts);
+            
+            if(!val.second)
+            {
+                printErrorMsg(*it, CONSTTRUNC, (*it)->getValue()->getValue());
+            }
+            
+            (*constants)[(*it)->getName()] = val.first;
+        }
+        
+        delete *it;
+    }
+    
+    if(failure)
+    {
+        return 0;
+    }
+    
+    return 1;
+}
+
 
 bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
 {
@@ -333,7 +734,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
 #endif
         }
         
-        if(go(fn.c_str()) != 0 || !resAST)
+        if(go_noguard(fn.c_str()) != 0 || !resAST)
         {
             printErrorMsg(*it,CANTOPENIMPORT, fn);
             
@@ -413,6 +814,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
     
     return true;
 }
+
 
 SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *constants)
 {

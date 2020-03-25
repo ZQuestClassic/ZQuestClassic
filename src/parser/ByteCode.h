@@ -359,6 +359,8 @@ using namespace std;
 #define UNDERCSET			331
 #define DMAPOFFSET			332 //512 of these
 #define DMAPMAP				333 //512 of these
+
+#define LINKEATEN 391
 //#define FFDD			    309 //8 of these
 #define GETRENDERTARGET		1083 //From 2.55, ported to 2.53R3/2.53.1
 
@@ -462,6 +464,7 @@ class LabelArgument : public Argument
 public:
     LabelArgument(int id) : ID(id), haslineno(false) {}
     string toString();
+    string toStringSetV();
     void execute(ArgumentVisitor &host, void *param)
     {
         host.caseLabel(*this,param);
@@ -793,6 +796,17 @@ public:
         return new OPushRegister(a->clone());
     }
 };
+
+class OPushImmediate : public UnaryOpcode
+	{
+	public:
+		OPushImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPushImmediate(a->clone());
+		}
+	};
 
 class OPopRegister : public UnaryOpcode
 {
@@ -2281,6 +2295,17 @@ public:
     {
         return new OGetFFCScript(a->clone());
     }
+};
+
+class OIsValidArray : public UnaryOpcode
+{
+public:
+	OIsValidArray(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone()
+	{
+		return new OIsValidArray(a->clone());
+	}
 };
 
 #endif

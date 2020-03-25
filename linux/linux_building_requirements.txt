@@ -1,0 +1,33 @@
+This VirtualBox image is already set up properly, but for people setting it up to compile themselves.
+
+This machine will automatically log you in to the account name "zeldaclassic".
+The password for the user AND root is ZQuest (case sensitive).
+
+Requires gcc 5.4, nothing higher, nothing else. Must be 32-bit.
+'gcc-5 (Ubuntu 5.4.0-6ubuntu1-16.04.12) 5.4.0 20160609'
+	is known to be compliant.
+	
+Ubuntu 16.04.6 LTS n(x86, 32b) is known to be compatible.
+
+The following needs to be installed (package name for apt):
+   git
+   build-essential
+   cmake
+	^ Required to fetch repos and create makefiles.
+   flex
+   bison
+	^ Required to build ZScript
+	
+   libasound2-dev
+	^ ALSA is required, for sound. 
+
+Packages installed for Allegro 4.4.3.1 to compile:
+   xorg-dev
+   libgl1-mesa-dev
+   libglu-dev
+   cmake-curses-gui
+
+cd ~
+cd zc/ZeldaClassic
+make clean
+make

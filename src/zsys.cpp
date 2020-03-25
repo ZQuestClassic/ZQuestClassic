@@ -41,6 +41,7 @@ extern BITMAP *hw_screen;
 
 extern bool is_zquest();
 bool zconsole = false;
+bool includesfirst = false;
 
 char *time_str_long(dword time)
 {
@@ -1029,6 +1030,11 @@ void box_start(int style, const char *title, FONT *title_font, FONT *message_fon
     memset(box_log_msg, 0, 480);
     box_msg_pos=0;
     box_store_pos=0;
+}
+
+void setincludesfirst()
+{
+	includesfirst = true;	
 }
 
 /* outputs text to the progress message */

@@ -38,6 +38,7 @@
 extern int midi_strict; //L
 #endif
 extern bool cancelgetnum;
+extern char headerguard;
 
 extern bool is_large;
 extern int RulesetDialog;
@@ -261,6 +262,8 @@ void writesomecombos(const char *prompt,int initialval);
 void loadcombopack(const char *prompt,int initialval);
 void savesomecomboaliases(const char *prompt,int initialval);
 void writesomecomboaliases_to(const char *prompt,int initialval);
+void do_importdoorset(const char *prompt,int initialval);
+void do_exportdoorset(const char *prompt,int initialval);
 int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
@@ -1073,7 +1076,10 @@ void cycle_palette();
 /********************/
 
 void doHelp(int bg,int fg);
+int onshieldblockhelp();
 int onHelp();
+int onZstringshelp();
+int onZScripthelp();
 int edit_layers(mapscr* tempscr);
 void autolayer(mapscr* tempscr, int layer, int al[6][3]);
 int findblankcombo();
@@ -1099,6 +1105,8 @@ void switch_out();
 void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
+void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
 int get_currdmap();
 int current_item(int item_type);
 int current_item_power(int item_type);

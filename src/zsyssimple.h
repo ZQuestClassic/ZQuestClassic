@@ -10,6 +10,8 @@ void box_eol();
 void Z_message(char *format,...);
 
 extern bool gotoless_not_equal; // Used by BuildVisitors.cpp
+extern bool includesfirst;
+void setincludesfirst();
 
 #endif
  

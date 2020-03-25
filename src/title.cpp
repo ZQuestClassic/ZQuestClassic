@@ -36,6 +36,12 @@ extern ZModule zcm;
 #include "mem_debug.h"
 #include <fstream>
 
+static char *itoa(int i)
+{
+    static char itoaret[500];
+    sprintf(itoaret, "%d", i);
+    return itoaret;
+}
 
 inline bool quest_exists(const char *filename) 
 {
@@ -176,11 +182,20 @@ static void mainscreen(int f)
         blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
         char tbuf[80];
+	char copyrbuf[80] = { NULL };
         sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+	sprintf(copyrbuf, "%c", 0xBB);
+	
         textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-        sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+	char t_year[5];
+	sprintf(t_year, "%d", BUILDTM_YEAR);
+	strcat(copyrbuf,t_year);
+	strcat(copyrbuf," AG");
+	
+	
+        //sprintf(tbuf, "%c" (char)t_year " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
-        textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
+        textout_ex(framebuf,zfont,copyrbuf,104,136,13,-1);
     }
     
     if(f<554+192+10)
@@ -245,7 +260,7 @@ void putstring(int x,int y,const char* str,int cset)
 //#define ii    11
 #define ii    14
 //static byte vine[5] = { 2,3,6,7,10 };
-static byte vine[5] = { 3,6,7,10,11 };
+static byte vine[5] = { 23,6,7,10,11 };
 
 static void storyscreen(int f)
 {
@@ -592,6 +607,16 @@ static void DX_mainscreen(int f)
     memset(emulation_patches,0,sizeof(emulation_patches));
     static int pic=0;
     char tbuf[80];
+	 sprintf(tbuf, "%c1986 Nintendo",0xBB);
+        //tbuf[0]=0xBB;
+	    
+	char copyrbuf2[80] = { NULL };
+	sprintf(copyrbuf2, "%c", 0xBB);
+	
+	char t_year[5];
+	sprintf(t_year, "%d", BUILDTM_YEAR);
+	strcat(copyrbuf2,t_year);
+	strcat(copyrbuf2," Armageddon Games");
     
     if(f>=1010)
         return;
@@ -611,12 +636,16 @@ static void DX_mainscreen(int f)
         pic = (pic+1)%6;
         blit(bmp,framebuf, 0,0, 0,0, 256,224);
         //    text_mode(-1);
-        sprintf(tbuf, "%c1986 Nintendo",0xBB);
-        //tbuf[0]=0xBB;
+       
+	
+	
+        //sprintf(tbuf, "%c" (char)t_year " AG", 0xBC);
+        //tbuf[0]=(char)0xBC;
+        //textout_ex(framebuf,zfont,copyrbuf2,104,136,13,-1);
         textout_ex(framebuf,font,tbuf,46,138,255,-1);
-        sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
+        //sprintf(tbuf, "%c" BUILDTM_YEAR " Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
-        textout_ex(framebuf,font,tbuf,46,146,255,-1);
+        textout_ex(framebuf,font,copyrbuf2,46,146,255,-1);
         //    text_mode(0);
     }
     
@@ -703,7 +732,14 @@ static void v25_mainscreen(int f)
     memset(emulation_patches,0,sizeof(emulation_patches));
     static int pic=0;
     char tbuf[80];
-    
+    char copyrbuf[80] = { NULL };
+        
+	sprintf(copyrbuf, "%c", 0xBB);
+	
+	char t_year[5];
+	sprintf(t_year, "%d", BUILDTM_YEAR);
+	strcat(copyrbuf,t_year);
+	strcat(copyrbuf," Armageddon Games");
     if(f>=1010)
         return;
         
@@ -725,9 +761,9 @@ static void v25_mainscreen(int f)
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,80,134,255,-1);
-        sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
+        
         //tbuf[0]=0xBC;
-        textout_ex(framebuf,font,tbuf,80,142,255,-1);
+        textout_ex(framebuf,font,copyrbuf,80,142,255,-1);
         //    text_mode(0);
     }
     
@@ -1391,6 +1427,29 @@ int readsaves(gamedata *savedata, PACKFILE *f)
                         return 55;
             }
         }
+	
+	if(section_version>11)
+        {
+            if(!p_igetw(&tempword, f, true))
+            {
+                return 50;
+            }
+            
+            savedata[i].forced_awpn = tempword;
+            
+            if(!p_igetw(&tempword, f, true))
+            {
+                return 51;
+            }
+            
+            savedata[i].forced_bwpn = tempword;
+        }
+        else
+        {
+            savedata[i].forced_awpn = -1;
+            savedata[i].forced_bwpn = -1;
+        }
+	
     }
     
     return 0;
@@ -1475,7 +1534,7 @@ int load_savedgames()
     if(readsaves(saves,f)!=0)
         goto reset;
         
-    strcpy(iname, SAVE_FILE);
+    strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
     
     for(int i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
     {
@@ -1835,6 +1894,16 @@ int writesaves(gamedata *savedata, PACKFILE *f)
                 if(!p_iputl(a[k], f))
                     return 53;
         }
+	
+	if(!p_iputw(savedata[i].forced_awpn, f))
+        {
+            return 54;
+        }
+        
+        if(!p_iputw(savedata[i].forced_bwpn, f))
+        {
+            return 55;
+        }
     }
     
     return 0;
@@ -2035,6 +2104,7 @@ static void selectscreen()
     init_NES_mode();
     //  loadfullpal();
     loadlvlpal(1);
+    Bwpn = 0, Awpn = 0; //the subsreen values
     clear_bitmap(scrollbuf);
     QMisc.colors.blueframe_tile = 237;
     QMisc.colors.blueframe_cset = 0;

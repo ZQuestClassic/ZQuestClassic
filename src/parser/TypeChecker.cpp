@@ -698,6 +698,11 @@ void TypeCheck::caseExprTimes(ASTExprTimes &host, void *param)
         double temp = ((double)secondval)/10000.0;
         host.setIntValue((long)(firstval*temp));
     }
+	else if((host.getFirstOperand()->hasIntValue() && host.getFirstOperand()->getIntValue() == 0)
+		|| (host.getSecondOperand()->hasIntValue() && host.getSecondOperand()->getIntValue() == 0))
+	{
+		host.setIntValue(0);
+	}
 }
 
 void TypeCheck::caseExprDivide(ASTExprDivide &host, void *param)

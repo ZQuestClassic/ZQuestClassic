@@ -14,6 +14,7 @@ command: bison -b y -v -d ffscript.ypp
 #include <cassert>
 #include "AST.h"
 #include "UtilVisitors.h"
+#include <algorithm>
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
@@ -25,7 +26,12 @@ extern AST *resAST;
 extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
+string headerguards;
+string headerguardsPPC;
+extern bool includesfirst;
 extern YYLTYPE noloc;
+
+#define LOGLEVEL 0
 
 #define SHORTCUT(x,d1,d3,dd,l1,l2) ASTExpr *lval = (ASTExpr *)d1; \
 					Clone c; \
@@ -90,6 +96,7 @@ extern YYLTYPE noloc;
 %token RSHIFTASSIGN
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token IMPORTSTRING
 %token SINGLECHAR
 
 %left LSHIFT RSHIFT
@@ -217,7 +224,7 @@ ScriptType : Type {$$ = $1;}
 		   | GLOBAL {$$ = new ASTTypeGlobal(@1);}
 		   ;
 
-Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;
+Import : IMPORT IMPORTSTRING	{ASTString *str = (ASTString *)$2;
 								 $$ = new ASTImportDecl(str->getValue(),@1);
 								 delete str;}
 	;
@@ -643,10 +650,10 @@ int go(const char *f)
 	yyin = NULL;
 	resetLexer();
 	
-	
-	yyin = fopen(f, "r");
-	if(!yyin) 
+	if(includesfirst)
 	{
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
+						
 		yyin = fopen(pth_include.c_str(), "r");
 		if(!yyin) 
 		{
@@ -656,32 +663,885 @@ int go(const char *f)
 				yyin = fopen(pth_user.c_str(), "r");
 				if(!yyin) 
 				{
-					box_out("Can't open input file: "); box_out(f);
-					box_eol();
-					return -1;
+					yyin = fopen(f, "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						std::string f2 = f;
+									
+									
+						std::size_t found = f2.find_last_of("/");
+						std::string fileonly = f2.substr(found+1);
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						//tempname should now match the true filename
+						
+						//search header guard string substrings for it
+						
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if no match, append it
+						//if ( headerguards.find (tkn,0) == string::npos )
+						if ( headerguards.find (tkn2,0) == string::npos )
+						{
+							//headerguards += "$";
+							//headerguards += tkn;
+							headerguards += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
+						}
+						else /* if ( strcmp(f, "tmp") )*/
+						{
+							box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+							box_eol();
+							return -99;
+						}
+					}
 				}
 				else
 				{
-					box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+					//put name in string
+					
+					
+					std::size_t found = pth_user.find_last_of("/");
+					std::string fileonly = pth_user.substr(found+1);
+					
+					
+					std::string tkn = "$";
+					tkn += f;
+					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+					//tempname should now match the true filename
+					
+					//use fileonly instead of tkn to match the filename, not the quoted string. -Z
+					
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					
+					//search header guard string substrings for it
+					//if no match, append it
+					
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					
+					//if ( headerguards.find (tkn,0) == string::npos )
+					if ( headerguards.find (tkn2,0) == string::npos )
+					{
+						//headerguards += "$";
+						//headerguards += tkn;
+						headerguards += tkn2;
+						if ( LOGLEVEL > 1 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
+					}
+					else /*if ( strcmp(f, "tmp") )*/
+					{
+						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
+						return -99;
+					}
 				}
 			}
 			else
 			{
-				box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+				//put name in string
+
+					
+				std::size_t found = pth_headers.find_last_of("/");
+				std::string fileonly = pth_headers.substr(found+1);
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+				
+				std::string tkn = "$";
+				tkn += f;
+				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+				//tempname should now match the true filename
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				
+				//search header guard string substrings for it
+				//if no match, append it
+				
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				
+				//if ( headerguards.find (tkn,0) == string::npos )
+				if ( headerguards.find (tkn2,0) == string::npos )
+				{
+					//headerguards += "$";
+					//headerguards += tkn;
+					headerguards += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();  }
+				}
+				else /*if ( strcmp(f, "tmp") )*/
+				{
+					box_out("File already included, ignoring duplicate include: "); 
+					box_eol();box_out(pth_headers.c_str());box_eol();
+					return -99;
+				}
 			}
 		}
 		else
 		{
-			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+			//put name in string
+					
+					
+			std::size_t found = pth_include.find_last_of("/");
+			std::string fileonly = pth_include.substr(found+1);
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+			
+			std::string tkn = "$";
+			tkn += f;
+			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+			//tempname should now match the true filename
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			//search header guard string substrings for it
+			//if no match, append it
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguards.find (tkn,0) == string::npos )
+			if ( headerguards.find (tkn2,0) == string::npos )
+			{
+				//headerguards += "$";
+				//headerguards += tkn;
+				headerguards += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
+			}
+			else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
+			{
+				box_out("File already included, ignoring duplicate include: "); box_eol();
+				box_out(pth_include.c_str());box_eol();
+				return -99;
+			}
 		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Include Paths Scanned First"); box_eol(); }
 	}
 	else
 	{
-		box_out("Appending file: "); box_out(f);box_eol();
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
+		yyin = fopen(f, "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_include.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_headers.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(pth_user.c_str(), "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						
+						
+						std::size_t found = pth_user.find_last_of("/");
+						std::string fileonly = pth_user.substr(found+1);
+						
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						//tempname should now match the true filename
+						
+						//use fileonly instead of tkn to match the filename, not the quoted string. -Z
+						
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						
+						//search header guard string substrings for it
+						//if no match, append it
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguards.find (tkn,0) == string::npos )
+						if ( headerguards.find (tkn2,0) == string::npos )
+						{
+							//headerguards += "$";
+							//headerguards += tkn;
+							headerguards += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_user.c_str());box_eol(); }
+						}
+						else /*if ( strcmp(f, "tmp") )*/
+						{
+							box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
+							return -99;
+						}
+					}
+				}
+				else
+				{
+					//put name in string
+
+						
+					std::size_t found = pth_headers.find_last_of("/");
+					std::string fileonly = pth_headers.substr(found+1);
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+					
+					std::string tkn = "$";
+					tkn += f;
+					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+					//tempname should now match the true filename
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					
+					//search header guard string substrings for it
+					//if no match, append it
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguards.find (tkn,0) == string::npos )
+					if ( headerguards.find (tkn2,0) == string::npos )
+					{
+						//headerguards += "$";
+						//headerguards += tkn;
+						headerguards += tkn2;
+						if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_headers.c_str());box_eol(); }
+					}
+					else /*if ( strcmp(f, "tmp") )*/
+					{
+						box_out("File already included, ignoring duplicate include: "); 
+						box_eol();box_out(pth_headers.c_str());box_eol();
+						return -99;
+					}
+				}
+			}
+			else
+			{
+				//put name in string
+						
+						
+				std::size_t found = pth_include.find_last_of("/");
+				std::string fileonly = pth_include.substr(found+1);
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+				
+				std::string tkn = "$";
+				tkn += f;
+				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+				//tempname should now match the true filename
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				//search header guard string substrings for it
+				//if no match, append it
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguards.find (tkn,0) == string::npos )
+				if ( headerguards.find (tkn2,0) == string::npos )
+				{
+					//headerguards += "$";
+					//headerguards += tkn;
+					headerguards += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(pth_include.c_str());box_eol(); }
+				}
+				else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
+				{
+					box_out("File already included, ignoring duplicate include: "); box_eol();
+					box_out(pth_include.c_str());box_eol();
+					return -99;
+				}
+			}
+		}
+		else
+		{
+			//put name in string
+			std::string f2 = f;
+						
+						
+			std::size_t found = f2.find_last_of("/");
+			std::string fileonly = f2.substr(found+1);
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+			
+			std::string tkn = "$";
+			tkn += f;
+			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+			//tempname should now match the true filename
+			
+			//search header guard string substrings for it
+			
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			
+			//if no match, append it
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguards.find (tkn,0) == string::npos )
+			if ( headerguards.find (tkn2,0) == string::npos )
+			{
+				//headerguards += "$";
+				//headerguards += tkn;
+				headerguards += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("Appending file: "); box_out(f);box_eol(); }
+			}
+			else /*if ( strcmp(f, "tmp") )*/
+			{
+				box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+				box_eol();
+				return -99;
+			}
+		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		box_eol(); box_out("Standard Import Order"); box_eol();
 	}
-		
-	curfilename = string(f);
-	int result = yyparse();
-	fclose(yyin);
-	return result;
+	
+	
+}
+
+int goPPC(const char *f)
+{
+	//include
+	//headers
+	//scripts
+	//root
+	
+	string pth_include = "include";// + char_to_string(f);
+	
+	string pth_headers = "headers";// + char_to_string(f);
+	
+	string pth_user = "scripts";// + char_to_string(f);
+	
+	string pth_root;
+	/*
+	#ifdef WIN32
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_WIN32)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_MSC_VER)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#else
+	*/
+		pth_include += "/";
+		pth_headers += "/";
+		pth_user += "/";
+	/*#endif*/
+	
+	pth_include += f;
+	pth_headers += f;
+	pth_user += f;
+	pth_root += f;
+        
+	
+
+
+	yyin = NULL;
+	resetLexer();
+	
+	if(includesfirst)
+	{
+		if ( LOGLEVEL > 0 )  { box_eol(); box_out("Scanning Include Paths First");  box_eol(); }
+		yyin = fopen(pth_include.c_str(), "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_headers.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_user.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(f, "r");
+					
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						std::string f2 = f;
+									
+									
+						std::size_t found = f2.find_last_of("/");
+						std::string fileonly = f2.substr(found+1);
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						
+						//tempname should now match the true filename
+						
+						//search header guard string substrings for it
+						
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						
+						//if no match, append it
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguardsPPC.find (tkn,0) == string::npos )
+						if ( headerguardsPPC.find (tkn2,0) == string::npos )
+						{
+							//headerguards += "$";
+							//headerguardsPPC += tkn;
+							headerguardsPPC += tkn2;
+							if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(f);box_eol(); }
+						}
+						else /*if ( strcmp(f, "tmp") )*/
+						{
+							box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+							box_eol();
+							return -99;
+						}
+					}
+				}
+				else
+				{
+					//put name in string
+					
+					
+					std::size_t found = pth_user.find_last_of("/");
+					std::string fileonly = pth_user.substr(found+1);
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+					
+					std::string tkn = "$";
+					tkn += f;
+					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+					//tempname should now match the true filename
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					
+					
+					//search header guard string substrings for it
+					//if no match, append it
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguardsPPC.find (tkn,0) == string::npos )
+					if ( headerguardsPPC.find (tkn2,0) == string::npos )
+					{
+						//headerguards += "$";
+						if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol(); }
+						//headerguardsPPC += tkn;
+						headerguardsPPC += tkn2;
+					}
+					else /*if ( strcmp(pth_user.c_str(), "tmp") )*/
+					{
+						box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
+						return -99;
+					}
+				}
+			}
+			else
+			{
+				//put name in string
+
+					
+				std::size_t found = pth_headers.find_last_of("/");
+				std::string fileonly = pth_headers.substr(found+1);
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+				
+				std::string tkn = "$";
+				tkn += f;
+				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+				//tempname should now match the true filename
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				//search header guard string substrings for it
+				//if no match, append it
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguardsPPC.find (tkn,0) == string::npos )
+				if ( headerguardsPPC.find (tkn2,0) == string::npos )
+				{
+					//headerguards += "$";
+					//headerguardsPPC += tkn;
+					headerguardsPPC += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
+				}
+				else /*if ( strcmp(pth_headers.c_str(), "tmp") )*/
+				{
+					box_out("File already included, ignoring duplicate include: "); 
+					box_eol();box_out(pth_headers.c_str());box_eol();
+					return -99;
+				}
+			}
+		}
+		else
+		{
+			//put name in string
+					
+					
+			std::size_t found = pth_include.find_last_of("/");
+			std::string fileonly = pth_include.substr(found+1);
+			if ( LOGLEVEL > 1 )  { box_out(fileonly.c_str());box_eol(); }
+			
+			std::string tkn = "$";
+			tkn += f;
+			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+			//tempname should now match the true filename
+			if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+			//search header guard string substrings for it
+			//if no match, append it
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguardsPPC.find (tkn,0) == string::npos )
+			if ( headerguardsPPC.find (tkn2,0) == string::npos )
+			{
+				//headerguards += "$";
+				//headerguardsPPC += tkn;
+				headerguardsPPC += tkn2;
+				if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
+			}
+			else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
+			{
+				box_out("File already included, ignoring duplicate include: "); box_eol();
+				box_out(pth_include.c_str());box_eol();
+				return -99;
+			}
+		}
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Include Paths Scanned First"); box_eol(); }
+	}
+	else
+	{
+		if ( LOGLEVEL > 0 ) { box_eol(); box_out("Standard 2.50 Import Order"); box_eol(); }
+		yyin = fopen(f, "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_include.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_headers.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(pth_user.c_str(), "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else
+					{
+						//put name in string
+						
+						
+						std::size_t found = pth_user.find_last_of("/");
+						std::string fileonly = pth_user.substr(found+1);
+						if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+						
+						std::string tkn = "$";
+						tkn += f;
+						std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+						//tempname should now match the true filename
+						if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+						
+						
+						//search header guard string substrings for it
+						//if no match, append it
+						std::string tkn2 = "$";
+						tkn2 += fileonly;
+						std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+						//if ( headerguardsPPC.find (tkn,0) == string::npos )
+						if ( headerguardsPPC.find (tkn2,0) == string::npos )
+						{
+							//headerguards += "$";
+							if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_user.c_str());box_eol(); }
+							//headerguardsPPC += tkn;
+							headerguardsPPC += tkn2;
+						}
+						else /*if ( strcmp(pth_user.c_str(), "tmp") )*/
+						{
+							box_out("File already included, ignoring duplicate include: "); box_eol(); box_out(pth_user.c_str());box_eol();
+							return -99;
+						}
+					}
+				}
+				else
+				{
+					//put name in string
+
+						
+					std::size_t found = pth_headers.find_last_of("/");
+					std::string fileonly = pth_headers.substr(found+1);
+					if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+					
+					std::string tkn = "$";
+					tkn += f;
+					std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+					//tempname should now match the true filename
+					if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+					//search header guard string substrings for it
+					//if no match, append it
+					std::string tkn2 = "$";
+					tkn2 += fileonly;
+					std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+					//if ( headerguardsPPC.find (tkn,0) == string::npos )
+					if ( headerguardsPPC.find (tkn2,0) == string::npos )
+					{
+						//headerguards += "$";
+						//headerguardsPPC += tkn;
+						headerguardsPPC += tkn2;
+						if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_headers.c_str());box_eol(); }
+					}
+					else /*if ( strcmp(pth_headers.c_str(), "tmp") )*/
+					{
+						box_out("File already included, ignoring duplicate include: "); 
+						box_eol();box_out(pth_headers.c_str());box_eol();
+						return -99;
+					}
+				}
+			}
+			else
+			{
+				//put name in string
+						
+						
+				std::size_t found = pth_include.find_last_of("/");
+				std::string fileonly = pth_include.substr(found+1);
+				if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+				
+				std::string tkn = "$";
+				tkn += f;
+				std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+				//tempname should now match the true filename
+				if ( LOGLEVEL > 1 ) { box_out("token: "); box_out(tkn.c_str());box_eol(); }
+				//search header guard string substrings for it
+				//if no match, append it
+				std::string tkn2 = "$";
+				tkn2 += fileonly;
+				std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+				//if ( headerguardsPPC.find (tkn,0) == string::npos )
+				if ( headerguardsPPC.find (tkn2,0) == string::npos )
+				{
+					//headerguards += "$";
+					//headerguardsPPC += tkn;
+					headerguardsPPC += tkn2;
+					if ( LOGLEVEL > 0 ) { box_out("PPC Appending file: "); box_out(pth_include.c_str());box_eol(); }
+				}
+				else /*if ( strcmp(pth_include.c_str(), "tmp") )*/
+				{
+					box_out("File already included, ignoring duplicate include: "); box_eol();
+					box_out(pth_include.c_str());box_eol();
+					return -99;
+				}
+			}
+		}
+		else
+		{
+			//put name in string
+			std::string f2 = f;
+						
+						
+			std::size_t found = f2.find_last_of("/");
+			std::string fileonly = f2.substr(found+1);
+			if ( LOGLEVEL > 1 ) { box_out(fileonly.c_str());box_eol(); }
+			
+			std::string tkn = "$";
+			tkn += f;
+			std::transform(tkn.begin(), tkn.end(), tkn.begin(), ::tolower); 
+			
+			//tempname should now match the true filename
+			
+			//search header guard string substrings for it
+			
+			if ( LOGLEVEL > 1 )
+			{
+				box_out("token: "); box_out(tkn.c_str());box_eol();
+			}
+			
+			//if no match, append it
+			std::string tkn2 = "$";
+			tkn2 += fileonly;
+			std::transform(tkn2.begin(), tkn2.end(), tkn2.begin(), ::tolower); 
+			//if ( headerguardsPPC.find (tkn,0) == string::npos )
+			if ( headerguardsPPC.find (tkn2,0) == string::npos )
+			{
+				//headerguards += "$";
+				//headerguardsPPC += tkn;
+				headerguardsPPC += tkn2;
+				if ( LOGLEVEL > 0 )
+				{
+					box_out("PPC Appending file: "); box_out(f);box_eol();
+				}
+			}
+			else /*if ( strcmp(f, "tmp") )*/
+			{
+				box_out("File already included, ignoring duplicate include: ");box_eol(); box_out(f);
+				box_eol();
+				return -99;
+			}
+		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+		box_eol(); box_out("Standard Import Order"); box_eol();
+	}
+	
+	
+}
+
+int go_noguard(const char *f)
+{
+	//include
+	//headers
+	//scripts
+	//root
+	
+	string pth_include = "include";// + char_to_string(f);
+	
+	string pth_headers = "headers";// + char_to_string(f);
+	
+	string pth_user = "scripts";// + char_to_string(f);
+	
+	string pth_root;
+	/*
+	#ifdef WIN32
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_WIN32)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#elif defined (_MSC_VER)
+		pth_include.push_back('\\');
+		pth_headers.push_back('\\');
+		pth_user.push_back('\\');
+	#else
+	*/
+		pth_include += "/";
+		pth_headers += "/";
+		pth_user += "/";
+	/*#endif*/
+	
+	pth_include += f;
+	pth_headers += f;
+	pth_user += f;
+	pth_root += f;
+        
+	
+
+
+	yyin = NULL;
+	resetLexer();
+	
+	if(includesfirst)
+	{
+		if ( LOGLEVEL > 0 )
+		{
+			box_eol(); box_out("Scanning Include Paths First");  box_eol();
+		}
+		yyin = fopen(pth_include.c_str(), "r");
+
+		if(!yyin) 
+		{
+			yyin = fopen(pth_headers.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_user.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(f, "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else if ( LOGLEVEL > 0 )
+					{
+						box_out("Appending file: "); box_out(f);box_eol();
+					}
+				}
+				else if ( LOGLEVEL > 0 )
+				{
+					box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+				}
+			}
+			else if ( LOGLEVEL > 0 )
+			{
+				box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+			}
+		}
+		else if ( LOGLEVEL > 0 )
+		{
+			box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+	}
+	else
+	{
+		if ( LOGLEVEL > 0 ) 
+		{
+			box_eol(); box_out("Standard 2.50 Import Order"); box_eol();
+		}
+		yyin = fopen(f, "r");
+		if(!yyin) 
+		{
+			yyin = fopen(pth_include.c_str(), "r");
+			if(!yyin) 
+			{
+				yyin = fopen(pth_headers.c_str(), "r");
+				if(!yyin) 
+				{
+					yyin = fopen(pth_user.c_str(), "r");
+					if(!yyin) 
+					{
+						box_out("Can't open input file: "); box_out(f);
+						box_eol();
+						return -1;
+					}
+					else if ( LOGLEVEL > 0 )
+					{
+						if ( LOGLEVEL > 0 ) box_out("Appending file: "); box_out(pth_user.c_str());box_eol();
+					}
+				}
+				else if ( LOGLEVEL > 0 )
+				{
+					box_out("Appending file: "); box_out(pth_headers.c_str());box_eol();
+				}
+			}
+			else if ( LOGLEVEL > 0 )
+			{
+				box_out("Appending file: "); box_out(pth_include.c_str());box_eol();
+			}
+		}
+		else if ( LOGLEVEL > 0 )
+		{
+			box_out("Appending file: "); box_out(f);box_eol();
+		}
+			
+		curfilename = string(f);
+		int result = yyparse();
+		fclose(yyin);
+		return result;
+	}
+	
+	
 }

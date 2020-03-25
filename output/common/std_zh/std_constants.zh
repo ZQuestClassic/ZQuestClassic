@@ -1,5 +1,5 @@
-// std_constants.zh for ZC v2.53.0 and later.
-// 21st September, 2019
+// std_constants.zh for ZC v2.53.1 and later.
+// 22nd January, 2020
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -34,8 +34,10 @@ const int MAX_INT 			= 214747;
 const int MIN_INT 			= -214747;
 const int MIN_FLOAT 			= -214747.9999;
 
-const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
-const int MIN_COUNTER 			= -32768; //" -32767
+const int MAX_COUNTER 			= 65535; 
+const int MIN_COUNTER 			= 0; 
+const int DCOUNTER_MAX			= 32767; 
+const int DCOUNTER_MIN 			= -32768; 
 
 const int MIN_LWEAPON 			= 1; //Lowest numbered objects.
 const int MIN_EWEAPON 			= 1;

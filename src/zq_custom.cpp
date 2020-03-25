@@ -3681,7 +3681,7 @@ void edit_enemydata(int index)
         
         enedata_dlg[189].dp = ms[10];
         enedata_dlg[190].dp = ms[11];
-        
+    
         ret = zc_popup_dialog(enedata_dlg,3);
         
         test.tile  = enedata_dlg[2].d1;
@@ -3750,7 +3750,14 @@ void edit_enemydata(int index)
             test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
             
         if(enedata_dlg[143].flags & D_SELECTED)
+	{
             test.cset = 14;
+	}
+	//if we disable the box, revert to cset 8 -Z.
+	else if(guysbuf[index].cset == 14 || test.cset == 14)
+	{
+		test.cset = 8;
+	}
             
         if(ret==5)
         {

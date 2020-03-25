@@ -9,6 +9,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#ifdef _WIN32
+
+#include <windows.h>
 #include "windows.h"
 #include <time.h>
 #include <stdio.h>
@@ -225,5 +228,9 @@ protected:
 
 
 };
+
+#endif
+
+
 
 #endif

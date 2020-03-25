@@ -55,7 +55,11 @@ ZModule zcm;
 #include "ffscript.h"
 #include "ConsoleLogger.h"
 extern FFScript FFCore;
+
+#ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+#endif
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -116,7 +120,9 @@ extern int directItem;
 extern int directItemA;
 extern int directItemB;
 extern byte emulation_patches[emuLAST];
+extern int hangcount;
 bool is_large=false;
+char __isZQuest = 0; //Shared functionscan reference this. -Z
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -302,7 +308,7 @@ byte zc_color_depth=8;
 byte use_debug_console=0, use_win32_proc=1, zscript_debugger = 0; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
-int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
+int lastentrance=0,lastentrance_dmap=0,prices[3]={0},loadside, Bwpn = 0, Awpn = 0;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
@@ -731,6 +737,62 @@ void hit_close_button()
 {
     close_button_quit=true;
     return;
+}
+
+void zprint(const char * const format,...)
+{
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+        if(zconsole)
+	{
+            printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#endif
+	}
+	
+    }
+}
+
+//Always prints
+void zprint2(const char * const format,...)
+{
+    {
+        
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+        if(zconsole)
+	{
+            printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#endif
+	}
+	
+    }
 }
 
 void Z_eventlog(const char *format,...)
@@ -1307,7 +1369,7 @@ int init_game()
         lens_hint_weapon[x][1]=0;
     }
     
-    
+    /* Disabling to see if this is causing virus scanner redflags. -Z
 //Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
@@ -1317,7 +1379,7 @@ int init_game()
     game->Clear();
     
     zc_free(dummy);
-    
+    */
 //Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
@@ -3833,6 +3895,8 @@ int main(int argc, char* argv[])
     // set up an initial game save slot (for the list_saves function)
     game = new gamedata;
     game->Clear();
+    
+    hangcount = get_config_int("ZSCRIPT","ZASM_Hangcount",1000);
     
 #ifdef _WIN32
     
