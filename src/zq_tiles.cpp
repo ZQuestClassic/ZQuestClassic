@@ -10889,9 +10889,13 @@ int combo_screen(int pg, int tl)
             case KEY_PLUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
+					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
+							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
+					
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].set_tile(wrap(combobuf[i].tile + ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                        combobuf[i].set_tile(wrap(combobuf[i].tile + amnt,
                                                 0, NEWMAXTILES-1));
                     }
                     
@@ -10910,9 +10914,13 @@ int combo_screen(int pg, int tl)
             case KEY_MINUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
+					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
+							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
+					
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].set_tile(wrap(combobuf[i].tile - ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                        combobuf[i].set_tile(wrap(combobuf[i].tile - amnt,
                                                 0, NEWMAXTILES-1));
                     }
                     
