@@ -144,13 +144,14 @@ void dosubscr(miscQdata *misc)
                 {
                     Awpn = Bwpn;
                     game->awpn = game->bwpn;
-                    directItemA = directItemB;
+		    directItemA = directItemB;
                 }
                 
                 Bwpn = Bweapon(Bpos);
                 sfx(WAV_PLACE);
                 
                 game->bwpn = Bpos;
+		game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
                 directItemB = directItem;
             }
             else if(rAbtn())
@@ -165,6 +166,7 @@ void dosubscr(miscQdata *misc)
                 Awpn = Bweapon(Bpos);
                 sfx(WAV_PLACE);
                 game->awpn = Bpos;
+		game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
                 directItemA = directItem;
             }
         }
@@ -172,6 +174,7 @@ void dosubscr(miscQdata *misc)
         {
             Bwpn = Bweapon(Bpos);
             game->bwpn = Bpos;
+	    game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
             directItemB = directItem;
         }
         
