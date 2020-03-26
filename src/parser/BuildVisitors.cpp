@@ -755,15 +755,6 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		next->setLabel(returnlabel);
 		addOpcode(next);
 	}
-	if(host.readFunction->internal_flags & IFUNCFLAG_REASSIGNPTR)
-	{
-		addOpcode(new OPushRegister(new VarArgument(EXP1)));
-		addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-		LValBOHelper helper(scope);
-		host.left->execute(helper, param);
-		addOpcodes(helper.getResult());
-		addOpcode(new OPopRegister(new VarArgument(EXP1)));
-	}
 }
 
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
@@ -827,7 +818,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 			if(host.left->isTypeArrow())
 			{
-				if(host.left->getWriteType(scope, this) && !host.left->isConstant())
+				ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
+				if(arr->left->getWriteType(scope, this) && !host.left->isConstant())
 				{
 					if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
 					{
@@ -835,7 +827,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 						if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 						addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 						LValBOHelper helper(scope);
-						host.left->execute(helper, param);
+						arr->left->execute(helper, param);
 						addOpcodes(helper.getResult());
 						if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 					}
@@ -925,7 +917,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		if(host.left->isTypeArrow())
 		{
-			if(host.left->getWriteType(scope, this) && !host.left->isConstant())
+			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
+			if(arr->left->getWriteType(scope, this) && !host.left->isConstant())
 			{
 				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
@@ -933,7 +926,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
-					host.left->execute(helper, param);
+					arr->left->execute(helper, param);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}

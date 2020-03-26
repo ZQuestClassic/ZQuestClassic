@@ -6869,7 +6869,7 @@ void NPCSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCAdd(new VarArgument(EXP1)));
-		REASSIGN_PTR(REFNPC);
+		REASSIGN_PTR(EXP2); //The value from ONPCAdd is placed in REFNPC, EXP1, and EXP2.
 		RETURN();
 		function->giveCode(code);
 	}

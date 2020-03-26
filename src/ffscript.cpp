@@ -27768,6 +27768,7 @@ void FFScript::do_npc_add(const bool v)
 			((enemy*)guys.spr(index))->script_spawned=true;
 		
 		ri->d[2] = ri->guyref;
+		ri->d[3] = ri->guyref;
 		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
 	}
 }
