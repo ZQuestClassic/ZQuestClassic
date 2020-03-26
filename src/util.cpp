@@ -72,5 +72,14 @@ namespace util
 		}
 		return q < 2048;
 	}
+	
+	char* zc_itoa(int value, char* str, int base)
+	{
+#ifdef ALLEGRO_WINDOWS
+		return _itoa(value, str, base);
+#else
+		return itoa(value, str, base);
+#endif
+	}
 }
 
