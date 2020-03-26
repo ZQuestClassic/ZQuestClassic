@@ -56,6 +56,8 @@
 #include "ffscript.h"
 #include "ffasm.h"
 #include "qst.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
@@ -1708,6 +1710,7 @@ int load_quest(gamedata *g, bool report)
     }
     
     int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
+	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
     //setPackfilePassword(NULL);
     
     if(!g->title[0] || g->get_hasplayed() == 0)
@@ -2005,7 +2008,20 @@ int init_game()
     }
     
     skip_keycheats:
-    
+    //Calculate the quest's script-file-storage path -V
+	{
+		memset(qst_files_path, sizeof(qst_files_path), 0);
+		string str(qstpath);
+		size_t pos = str.find_last_of("/\\");
+		if(pos==string::npos) pos=0;
+		else ++pos;
+		size_t dotpos = str.find_last_of(".");
+		sprintf(qst_files_path,"%sFiles/%s/",get_config_string("zeldadx", qst_dir_name, "./"),str.substr(pos, dotpos-pos).c_str());
+		regulate_path(qst_files_path);
+		zprint2("Calculated path: '%s'\n",qst_files_path);
+		zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
+	}
+	
     bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;

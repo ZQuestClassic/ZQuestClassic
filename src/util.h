@@ -10,6 +10,8 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	std::string get_ext(std::string const& path);
+	void regulate_path(char* buf);
+	bool create_path(const char* path);
 }
 
 #endif
