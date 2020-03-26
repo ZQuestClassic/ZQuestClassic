@@ -12,6 +12,7 @@
 #define FUNCFLAG_INVALID			0x02
 
 #define IFUNCFLAG_SKIPPOINTER		0x01
+#define IFUNCFLAG_REASSIGNPTR		0x02
 
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0

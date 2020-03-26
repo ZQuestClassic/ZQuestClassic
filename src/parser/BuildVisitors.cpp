@@ -755,6 +755,15 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		next->setLabel(returnlabel);
 		addOpcode(next);
 	}
+	if(host.readFunction->internal_flags & IFUNCFLAG_REASSIGNPTR)
+	{
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		LValBOHelper helper(scope);
+		host.left->execute(helper, param);
+		addOpcodes(helper.getResult());
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
+	}
 }
 
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
@@ -814,6 +823,23 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				it != funcCode.end(); ++it)
 			{
 				addOpcode((*it)->makeClone());
+			}
+		
+			if(host.left->isTypeArrow())
+			{
+				if(host.left->getWriteType(scope, this) && !host.left->isConstant())
+				{
+					if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+					{
+						bool isVoid = host.binding->returnType->isVoid();
+						if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
+						addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+						LValBOHelper helper(scope);
+						host.left->execute(helper, param);
+						addOpcodes(helper.getResult());
+						if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
+					}
+				}
 			}
 			//Deallocate string/array literals from within the parameters
 			deallocateRefsUntilCount(startRefCount);
@@ -896,6 +922,24 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
 		addOpcode(next);
+		
+		if(host.left->isTypeArrow())
+		{
+			if(host.left->getWriteType(scope, this) && !host.left->isConstant())
+			{
+				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+				{
+					bool isVoid = host.binding->returnType->isVoid();
+					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
+					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+					LValBOHelper helper(scope);
+					host.left->execute(helper, param);
+					addOpcodes(helper.getResult());
+					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
+				}
+			}
+		}
+		
 		//Deallocate string/array literals from within the parameters
 		deallocateRefsUntilCount(startRefCount);
 		while ((int)arrayRefs.size() > startRefCount)

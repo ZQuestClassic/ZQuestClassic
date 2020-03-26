@@ -71,6 +71,13 @@ if(!(function->getFlag(FUNCFLAG_INLINE))) \
 #define LABELBACK(LBL) \
 code.back()->setLabel(LBL)
 
+/*
+	Reassigns the pointer that was referenced to the passed register.
+*/
+#define REASSIGN_PTR(reg) \
+if(reg!=EXP2) code.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(reg))); \
+function->internal_flags |= IFUNCFLAG_REASSIGNPTR;
+
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
 	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
@@ -6862,7 +6869,7 @@ void NPCSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new ONPCAdd(new VarArgument(EXP1)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPC)));
+		REASSIGN_PTR(REFNPC);
 		RETURN();
 		function->giveCode(code);
 	}
