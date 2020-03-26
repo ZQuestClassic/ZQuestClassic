@@ -29,6 +29,8 @@ extern byte use_dwm_flush;
 #include <time.h>
 //#include "zc_sys.h"
 #include "script_drawing.h"
+#include "util.h"
+using namespace util;
 
 //Define this register, so it can be treated specially
 #define NUL		5
@@ -44,6 +46,7 @@ zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
+user_file script_files[MAX_USER_FILES];
 
 FONT *get_zc_font(int index);
 
@@ -2265,6 +2268,21 @@ weapon *checkEWpn(long eid, const char *what)
 	return s;
 }
 
+user_file *checkFile(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_FILES)
+	{
+		user_file* f = &script_files[ref-1];
+		if(f->reserved)
+		{
+			return f;
+		}
+	}
+	if(skipError) return NULL;
+	Z_eventlog("Script attempted to reference a nonexistent File!\n");
+	Z_eventlog("You were trying to reference the %s of an File with UID = %ld\n", what, ref);
+	return NULL;
+}
 
 int get_screen_d(long index1, long index2)
 {
@@ -22870,6 +22888,102 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
+void FFScript::user_files_init()
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].clear();
+	}
+}
+
+int FFScript::get_free_file()
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		if(!script_files[q].reserved)
+		{
+			script_files[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+
+bool validate_userfile_extension(string const& path)
+{
+	string ext = get_ext(path);
+	if(ext == ".zs") return true; //ZScript ext
+	if(ext == ".zh") return true; //ZScript Header ext
+	if(ext == ".txt") return true; //Text file
+	if(ext == ".cfg") return true; //Config file
+	if(ext == ".zdata") return true; //Generic ZScript Data File
+	return false; //Any other extension, including no extension, is disallowed
+}
+
+void FFScript::do_fopen(const bool v, const bool create)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	string filename_str;
+	ArrayH::getString(arrayptr, filename_str, 512);
+	if(!validate_userfile_extension(filename_str))
+	{
+		Z_scripterrlog("Cannot open file with extension '%s'.\nAllowed extensions: %s\n",
+			get_ext(filename_str), "'.zs', '.zh', '.txt', '.cfg', '.zdata'");
+		return;
+	}
+	
+	user_file* f = checkFile(ri->fileref, "Open()");
+	if(f)
+	{
+		f->close(); //Close the old FILE* before overwriting it!
+		f->file = fopen(filename_str.c_str(), create ? "w+" : "r+");
+		//r+; read-write, will not create if does not exist, will not delete content if does exist.
+		//w+; read-write, will create if does not exist, will delete all content if does exist.
+		if(f->file)
+		{
+			ri->d[2] = 10000L; //Success
+			return;
+		}
+	}
+	ri->d[2] = 0L; //Failure
+}
+
+void FFScript::do_fclose()
+{
+	if(user_file* f = checkFile(ri->fileref, "Close()", true))
+	{
+		f->close();
+	}
+	//No else. If invalid, no error is thrown.
+}
+
+void FFScript::do_allocate_file()
+{
+	//Get a file and return it
+	ri->d[2] = get_free_file();
+}
+
+void FFScript::do_deallocate_file()
+{
+	user_file* f = checkFile(ri->fileref, "Free()", true);
+	if(f) f->clear();
+}
+
+void FFScript::do_file_isallocated() //Returns true if file is allocated
+{
+	user_file* f = checkFile(ri->fileref, "isAllocated()", true);
+	ri->d[2] = (f) ? 10000L : 0L;
+}
+
+void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
+{
+	user_file* f = checkFile(ri->fileref, "isValid()", true);
+	ri->d[2] = (f && f->file) ? 10000L : 0L;
+}
+
+///----------------------------------------------------------------------------------------------------
+
 
 void FFScript::do_write_bitmap()
 {
@@ -23184,6 +23298,8 @@ bool FFScript::destroy_user_bitmap(int id)
 	}
 	return false;
 }
+
+///----------------------------------------------------------------------------------------------------
 
 void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
 {

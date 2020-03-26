@@ -59,6 +59,13 @@ assert(refVar == NUL); \
 function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
 
 /*
+	Assert that the refVar is NON-NUL.
+	Set the IFUNCFLAG_SKIPPOINTER.
+*/
+#define ASSERT_NON_NUL() \
+assert(refVar != NUL);
+
+/*
 	Return from the function. Automatically skips OReturn() on inline functions.
 */
 #define RETURN() \
@@ -12349,6 +12356,22 @@ void FileSystemSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
+	/* Incomplete io stuff
+	//bool Allocate(FileSystem)
+	{
+		Function* function = getFunction("Allocate", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new OAllocateFile(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	*/
 }
 
 FileSymbols FileSymbols::singleton = FileSymbols();
@@ -12369,7 +12392,89 @@ FileSymbols::FileSymbols()
 
 void FileSymbols::generateCode()
 {
-	//
+	/*
+	//bool Open(file, char32*)
+	{
+		Function* function = getFunction("Open", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		//code.push_back(new OFileOpen(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Create(file, char32*)
+	{
+		Function* function = getFunction("Create", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		//code.push_back(new OFileCreate(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Close(file)
+	{
+		Function* function = getFunction("Close", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		//code.push_back(new OFileClose(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Free(file)
+	{
+		Function* function = getFunction("Free", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		//code.push_back(new OFileFree(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool isAllocated(file)
+	{
+		Function* function = getFunction("isAllocated", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		//code.push_back(new OFileIsAllocated(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool isValid(file)
+	{
+		Function* function = getFunction("isValid", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		//code.push_back(new OFileIsValid(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	*/
 }
 
 SubscreenDataSymbols SubscreenDataSymbols::singleton = SubscreenDataSymbols();

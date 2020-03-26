@@ -9,6 +9,7 @@ namespace util
 {
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
+	std::string get_ext(std::string const& path);
 }
 
 #endif

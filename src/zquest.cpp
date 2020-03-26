@@ -35305,6 +35305,8 @@ void FFScript::user_bitmaps_init()
 	}
 }
 
+void FFScript::user_files_init(){}
+
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways){}
 
 void FFScript::deallocateAllArrays(){}

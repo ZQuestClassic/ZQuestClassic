@@ -15,5 +15,14 @@ namespace util
 		for(int q = str.size() - 1; q >= 0; --q)
 			str[q] = tolower(str[q]);
 	}
+	
+	string get_ext(string const& path)
+	{
+		size_t pos = path.find_last_of(".");
+		if(pos == string::npos) return "";
+		string ext = path.substr(pos);
+		lowerstr(ext);
+		return ext;
+	}
 }
 

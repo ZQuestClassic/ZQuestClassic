@@ -1800,6 +1800,7 @@ int init_game()
     gofast=false;
     FFCore.init();
     FFCore.user_bitmaps_init();
+    FFCore.user_files_init();
     cheat=0;
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;

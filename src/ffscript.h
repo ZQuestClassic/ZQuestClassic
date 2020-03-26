@@ -231,6 +231,29 @@ struct user_rgb
 	int current_active;
 };
 
+#define MAX_USER_FILES 256
+struct user_file
+{
+	FILE* file;
+	bool reserved;
+	
+	user_file() : file(NULL), reserved(false) {}
+	
+	void clear()
+	{
+		if(file) fclose(file); //Never leave a hanging FILE*!
+		file = NULL;
+		reserved = false;
+	}
+	
+	void close()
+	{
+		if(file) fclose(file);
+		file = NULL;
+	}
+};
+
+
 //Module System.
 //Putting this here for now.
 
@@ -401,6 +424,15 @@ long getQuestHeaderInfo(int type)
 //Script-only Warp, Link->WarpEx(int array[])
 //{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
+
+void user_files_init();
+int get_free_file();
+void do_fopen(const bool v, const bool create = false);
+void do_fclose();
+void do_allocate_file();
+void do_deallocate_file();
+void do_file_isallocated();
+void do_file_isvalid();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();
