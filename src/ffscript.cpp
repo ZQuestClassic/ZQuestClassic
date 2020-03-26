@@ -9456,12 +9456,12 @@ void set_register(const long arg, const long value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}
 			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -11858,7 +11858,7 @@ void set_register(const long arg, const long value)
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
 					}
-					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
+					default: al_trace("Invalid index used with npc->hitBy[%ld]. /n", indx); break;
 				}
 			}
 			break;
@@ -13308,7 +13308,7 @@ void set_register(const long arg, const long value)
 			int index = ri->d[0]/10000;
 			index = vbound(index,0,11);
 			al_trace("GameOverScreen Index: %d/n",index);
-			al_trace("GameOverScreen Value: %d/n",colour);
+			al_trace("GameOverScreen Value: %ld/n",colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -18437,7 +18437,7 @@ void do_drawing_command(const int script_command)
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		Z_scripterrlog("READBITMAP string is %s\n", cptr);
 		
@@ -18454,7 +18454,7 @@ void do_drawing_command(const int script_command)
 		
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
@@ -21969,7 +21969,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+				al_trace("Called npc->Explode(%d), for enemy index %ld\n", mode, ri->guyref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
@@ -21995,7 +21995,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+				al_trace("Called item->Explode(%d), for item index %ld\n", mode, ri->itemref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
@@ -22013,7 +22013,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+				al_trace("Called lweapon->Explode(%d), for lweapon index %ld\n", mode, ri->lwpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
@@ -22031,7 +22031,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+				al_trace("Called eweapon->Explode(%d), for eweapon index %ld\n", mode, ri->ewpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
@@ -23860,8 +23860,8 @@ void FFScript::do_triggersecret(const bool v)
 				Z_message("checkflag is: %d\n", checkflag);
 				al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("ID is: %d\n", ID);
-				al_trace("ID is: %d\n", ID);
+				Z_message("ID is: %ld\n", ID);
+				al_trace("ID is: %ld\n", ID);
 				//cmbx = COMBOX(q);
 				////cmby = COMBOY(q);
 				
@@ -24611,7 +24611,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %ld /n", index);
 		return;
 	}
 
