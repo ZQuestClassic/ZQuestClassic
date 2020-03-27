@@ -40,6 +40,7 @@ using namespace util;
 
 //Define this register, so it can be treated specially
 #define NUL		5
+#define MAX_ZC_ARRAY_SIZE 214748
 
 extern zinitdata zinit;
 int hangcount = 0;
@@ -2289,9 +2290,9 @@ public:
 		if(ptr <= 0)
 			return InvalidError(ptr);
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 				return InvalidError(ptr);
@@ -2333,7 +2334,7 @@ public:
 	}
 	
 	//Returns values of a zscript array as an std::string.
-	static void getString(const long ptr, string &str, word num_chars = 256)
+	static void getString(const long ptr, string &str, word num_chars = 256, word offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2345,7 +2346,7 @@ public:
 		
 		str.clear();
 		
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
 		{
 			str += char(a[i] / 10000);
 			num_chars--;
@@ -2355,14 +2356,14 @@ public:
 	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
 	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const long ptr, long* arrayPtr, word num_values) //a hack -Z
+	static void getValues2(const long ptr, long* arrayPtr, word num_values, word offset = 0) //a hack -Z
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -2370,14 +2371,14 @@ public:
 	}
 	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const long ptr, long* arrayPtr, word num_values)
+	static void getValues(const long ptr, long* arrayPtr, word num_values, word offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -2524,7 +2525,7 @@ public:
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -2558,7 +2559,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 		}
 	}
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
@@ -2571,7 +2572,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 void FFScript::deallocateAllArrays()
 {
 	//No QR check here- always deallocate on quest exit.
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(localRAM[i].Size() > 0)
 		{
@@ -16179,9 +16180,9 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
 		for(ptrval = 1; localRAM[ptrval].Size() != 0; ptrval++) ;
 		
-		if(ptrval >= MAX_ZCARRAY_SIZE)
+		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
-			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", MAX_ZCARRAY_SIZE-1);
+			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
 		}
 		else
@@ -16217,7 +16218,7 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
 			
-		ptrval += MAX_ZCARRAY_SIZE; //so each pointer has a unique value
+		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
 	
 	
@@ -17618,9 +17619,9 @@ void do_isvalidarray()
 			set_register(sarg1,0); return;
 	}
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //check global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 		{
@@ -23541,6 +23542,7 @@ int FFScript::get_free_file(bool skipError)
 }
 #ifdef _WIN32
 static string windows_exe_extensions[] = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk",""};
+// Gotten from 'https://fileinfo.com/filetypes/executable'
 #endif
 bool validate_userfile_extension(string const& path)
 {
@@ -23665,13 +23667,154 @@ void FFScript::do_fflush()
 }
 
 void FFScript::do_file_readchars()
-{}
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
+		int limit = pos+count;
+		char c;
+		word q;
+		ri->d[2] = 0;
+		for(q = pos; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			a[q] = c;
+			if(!c)
+				break;
+			++ri->d[2]; //Don't count nullchar towards length
+		}
+		if(c) //Not null-terminated
+		{
+			if(q > a.Size())
+			{
+				--q;
+				--ri->d[2];
+				ungetc(a[q], f->file); //Put the character back before overwriting it
+			}
+			a[q] = 0; //Force null-termination
+		}
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_readstring()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		int limit = a.Size();
+		char c;
+		word q;
+		ri->d[2] = 0;
+		for(q = pos; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			a[q] = c;
+			if(!c)
+				break;
+			if(feof(f->file) || ferror(f->file))
+				break;
+			++ri->d[2]; //Don't count nullchar towards length
+		}
+		if(c) //Not null-terminated
+		{
+			if(q > a.Size())
+			{
+				--q;
+				--ri->d[2];
+				ungetc(a[q], f->file); //Put the character back before overwriting it
+			}
+			a[q] = 0; //Force null-termination
+		}
+		return;
+	}
+	ri->d[2] = 0L;
+}
 void FFScript::do_file_readints()
-{}
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadInts()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
+		ri->d[2] = fread((const void*)(&a[pos]), sizeof(long), count, f->file);
+		return;
+	}
+	ri->d[2] = 0L;
+}
 void FFScript::do_file_writechars()
-{}
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteChars()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, count, pos);
+		const char* out = output.c_str();
+		ri->d[2] = 10000L * fwrite((const void*)out, sizeof(char), output.length(), f->file);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writestring()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteString()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
+		const char* out = output.c_str();
+		ri->d[2] = 10000L * fwrite((const void*)out, sizeof(char), output.length(), f->file);
+		return;
+	}
+	ri->d[2] = 0L;
+}
 void FFScript::do_file_writeints()
-{}
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteInts()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
+		ri->d[2] = fwrite((const void*)(&a[pos]), sizeof(long), count, f->file);
+		return;
+	}
+	ri->d[2] = 0L;
+}
 
 ///----------------------------------------------------------------------------------------------------
 
@@ -24322,7 +24465,7 @@ long FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -24591,7 +24734,7 @@ void FFScript::do_changeffcscript(const bool v)
 {
 	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
 	/*
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i]==ri->ffcref)
 		FFScript::deallocateZScriptArray(i);

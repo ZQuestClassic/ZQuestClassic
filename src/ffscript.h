@@ -435,8 +435,10 @@ void do_file_isallocated();
 void do_file_isvalid();
 void do_fflush();
 void do_file_readchars();
+void do_file_readstring();
 void do_file_readints();
 void do_file_writechars();
+void do_file_writestring();
 void do_file_writeints();
 
 void user_bitmaps_init();
@@ -1320,9 +1322,9 @@ enum __Error
         if(ptr <= 0)
             return InvalidError(ptr);
             
-        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
-            long gptr = ptr - MAX_ZCARRAY_SIZE;
+            long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
             
             if(gptr > (long)game->globalRAM.size())
                 return InvalidError(ptr);

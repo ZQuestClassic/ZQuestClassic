@@ -12494,6 +12494,92 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//bool ReadChars(file, char32*, int, int)
+	{
+		Function* function = getFunction("ReadChars", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileReadChars(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool ReadString(file, char32*)
+	{
+		Function* function = getFunction("ReadString", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileReadString(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool ReadInts(file, char32*, int, int)
+	{
+		Function* function = getFunction("ReadInts", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileReadInts(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool WriteChars(file, char32*, int, int)
+	{
+		Function* function = getFunction("WriteChars", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileWriteChars(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool WriteString(file, char32*)
+	{
+		Function* function = getFunction("WriteString", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileWriteString(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool WriteInts(file, char32*, int, int)
+	{
+		Function* function = getFunction("WriteInts", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileWriteInts(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 	*/
 }
 

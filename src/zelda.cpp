@@ -435,8 +435,8 @@ void ScriptOwner::clear()
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
-ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
+ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -452,7 +452,7 @@ void setZScriptVersion(int s_version)
 
 void initZScriptArrayRAM(bool firstplay)
 {
-    for(word i = 0; i < MAX_ZCARRAY_SIZE; i++)
+    for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
     {
         localRAM[i].Clear();
         arrayOwner[i].clear();
