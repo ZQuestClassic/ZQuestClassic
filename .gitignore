@@ -11,17 +11,17 @@
 *.pch
 
 # Compiled dynamic libraries
-*.so
-*.so.*
-*.dylib
+#.so
+#.so*
+#*.dylib
 
 
 # Compiled static libraries
-*.lai
-*.la
-*.a
-*.lib
-*.lo
+#*.lai
+#*.la
+#*.lib
+#*.lo
+#*.a
 
 # Generated executables
 *.out
