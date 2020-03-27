@@ -2020,8 +2020,8 @@ int init_game()
 		size_t dotpos = str.find_last_of(".");
 		sprintf(qst_files_path,"%sFiles/%s/",get_config_string("zeldadx", qst_dir_name, "./"),str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
-		zprint2("Calculated path: '%s'\n",qst_files_path);
-		zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
+		// zprint2("Calculated path: '%s'\n",qst_files_path);
+		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
 	}
 	
     bool firstplay = (game->get_hasplayed() == 0);
