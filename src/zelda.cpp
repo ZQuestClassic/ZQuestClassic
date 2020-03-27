@@ -108,7 +108,7 @@ int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
-byte __isZQuest = 0; //shared functions can use this. -
+unsigned char __isZQuest = 0; //shared functions can use this. -
 int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
@@ -1099,7 +1099,9 @@ void hit_close_button()
 extern byte curScriptType;
 extern word curScriptNum;
 
+#ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+#endif
 
 void Z_eventlog(const char *format,...)
 {
