@@ -2795,8 +2795,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	Z_message("HitHeight: %d\n",hysz);
 	Z_message("HitZHeight: %d\n",hzsz);
 	Z_message("HitXOffset: %d\n",hxofs);
-	Z_message("HitYOffset: %d\n",xofs);
-	Z_message("DrawYOffset: %d\n",yofs);
+	Z_message("HitYOffset: %d\n",(int)xofs);
+	Z_message("DrawYOffset: %d\n",(int)yofs);
 	
 	
         if(itemid >-1)
