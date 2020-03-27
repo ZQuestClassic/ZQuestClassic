@@ -29,6 +29,8 @@ extern byte use_dwm_flush;
 #include <time.h>
 //#include "zc_sys.h"
 #include "script_drawing.h"
+#include "util.h"
+using namespace util;
 
 //Define this register, so it can be treated specially
 #define NUL		5
@@ -44,6 +46,7 @@ zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
+user_file script_files[MAX_USER_FILES];
 
 FONT *get_zc_font(int index);
 
@@ -2265,6 +2268,21 @@ weapon *checkEWpn(long eid, const char *what)
 	return s;
 }
 
+user_file *checkFile(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_FILES)
+	{
+		user_file* f = &script_files[ref-1];
+		if(f->reserved)
+		{
+			return f;
+		}
+	}
+	if(skipError) return NULL;
+	Z_eventlog("Script attempted to reference a nonexistent File!\n");
+	Z_eventlog("You were trying to reference the %s of an File with UID = %ld\n", what, ref);
+	return NULL;
+}
 
 int get_screen_d(long index1, long index2)
 {
@@ -9438,12 +9456,12 @@ void set_register(const long arg, const long value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}
 			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -11840,7 +11858,7 @@ void set_register(const long arg, const long value)
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
 					}
-					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
+					default: al_trace("Invalid index used with npc->hitBy[%ld]. /n", indx); break;
 				}
 			}
 			break;
@@ -13290,7 +13308,7 @@ void set_register(const long arg, const long value)
 			int index = ri->d[0]/10000;
 			index = vbound(index,0,11);
 			al_trace("GameOverScreen Index: %d/n",index);
-			al_trace("GameOverScreen Value: %d/n",colour);
+			al_trace("GameOverScreen Value: %ld/n",colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -18419,7 +18437,7 @@ void do_drawing_command(const int script_command)
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		Z_scripterrlog("READBITMAP string is %s\n", cptr);
 		
@@ -18436,7 +18454,7 @@ void do_drawing_command(const int script_command)
 		
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
@@ -21951,7 +21969,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+				al_trace("Called npc->Explode(%d), for enemy index %ld\n", mode, ri->guyref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
@@ -21977,7 +21995,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+				al_trace("Called item->Explode(%d), for item index %ld\n", mode, ri->itemref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
@@ -21995,7 +22013,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+				al_trace("Called lweapon->Explode(%d), for lweapon index %ld\n", mode, ri->lwpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
@@ -22013,7 +22031,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+				al_trace("Called eweapon->Explode(%d), for eweapon index %ld\n", mode, ri->ewpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
@@ -22870,6 +22888,102 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
+void FFScript::user_files_init()
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].clear();
+	}
+}
+
+int FFScript::get_free_file()
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		if(!script_files[q].reserved)
+		{
+			script_files[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+
+bool validate_userfile_extension(string const& path)
+{
+	string ext = get_ext(path);
+	if(ext == ".zs") return true; //ZScript ext
+	if(ext == ".zh") return true; //ZScript Header ext
+	if(ext == ".txt") return true; //Text file
+	if(ext == ".cfg") return true; //Config file
+	if(ext == ".zdata") return true; //Generic ZScript Data File
+	return false; //Any other extension, including no extension, is disallowed
+}
+
+void FFScript::do_fopen(const bool v, const bool create)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	string filename_str;
+	ArrayH::getString(arrayptr, filename_str, 512);
+	if(!validate_userfile_extension(filename_str))
+	{
+		Z_scripterrlog("Cannot open file with extension '%s'.\nAllowed extensions: %s\n",
+			get_ext(filename_str), "'.zs', '.zh', '.txt', '.cfg', '.zdata'");
+		return;
+	}
+	
+	user_file* f = checkFile(ri->fileref, "Open()");
+	if(f)
+	{
+		f->close(); //Close the old FILE* before overwriting it!
+		f->file = fopen(filename_str.c_str(), create ? "w+" : "r+");
+		//r+; read-write, will not create if does not exist, will not delete content if does exist.
+		//w+; read-write, will create if does not exist, will delete all content if does exist.
+		if(f->file)
+		{
+			ri->d[2] = 10000L; //Success
+			return;
+		}
+	}
+	ri->d[2] = 0L; //Failure
+}
+
+void FFScript::do_fclose()
+{
+	if(user_file* f = checkFile(ri->fileref, "Close()", true))
+	{
+		f->close();
+	}
+	//No else. If invalid, no error is thrown.
+}
+
+void FFScript::do_allocate_file()
+{
+	//Get a file and return it
+	ri->d[2] = get_free_file();
+}
+
+void FFScript::do_deallocate_file()
+{
+	user_file* f = checkFile(ri->fileref, "Free()", true);
+	if(f) f->clear();
+}
+
+void FFScript::do_file_isallocated() //Returns true if file is allocated
+{
+	user_file* f = checkFile(ri->fileref, "isAllocated()", true);
+	ri->d[2] = (f) ? 10000L : 0L;
+}
+
+void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
+{
+	user_file* f = checkFile(ri->fileref, "isValid()", true);
+	ri->d[2] = (f && f->file) ? 10000L : 0L;
+}
+
+///----------------------------------------------------------------------------------------------------
+
 
 void FFScript::do_write_bitmap()
 {
@@ -23184,6 +23298,8 @@ bool FFScript::destroy_user_bitmap(int id)
 	}
 	return false;
 }
+
+///----------------------------------------------------------------------------------------------------
 
 void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
 {
@@ -23744,8 +23860,8 @@ void FFScript::do_triggersecret(const bool v)
 				Z_message("checkflag is: %d\n", checkflag);
 				al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("ID is: %d\n", ID);
-				al_trace("ID is: %d\n", ID);
+				Z_message("ID is: %ld\n", ID);
+				al_trace("ID is: %ld\n", ID);
 				//cmbx = COMBOX(q);
 				////cmby = COMBOY(q);
 				
@@ -24495,7 +24611,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %ld /n", index);
 		return;
 	}
 
@@ -28421,7 +28537,7 @@ void FFScript::do_itoa()
 	int value = ri->d[0]/10000;
 	char the_string[13];
 	char* chrptr = NULL;
-	chrptr = _itoa(value, the_string, 10);
+	chrptr = zc_itoa(value, the_string, 10);
 	//Returns the number of characters used. 
 	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
