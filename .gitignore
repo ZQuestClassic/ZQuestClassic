@@ -12,7 +12,7 @@
 
 # Compiled dynamic libraries
 #.so
-#.so*
+#.so.*
 #*.dylib
 
 
