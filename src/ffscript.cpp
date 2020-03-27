@@ -20293,7 +20293,7 @@ int run_script(const byte type, const word script, const long i)
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
 						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
-					//case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
 					
 					default: break;					
 				}
@@ -22543,6 +22543,39 @@ int run_script(const byte type, const word script, const long i)
 		
 		if(increment)	ri->pc++;
 		else			increment = true;
+		if ( pc < 0 ) //rolled over from overflow
+		{
+			switch(type)
+			{
+			
+				case SCRIPT_FFC:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
+					case SCRIPT_NPC:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
+					case SCRIPT_LWPN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
+					case SCRIPT_EWPN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
+					case SCRIPT_ITEMSPRITE:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
+					case SCRIPT_ITEM:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
+					case SCRIPT_GLOBAL:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
+					case SCRIPT_LINK:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
+					case SCRIPT_SCREEN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_DMAP:
+					case SCRIPT_ACTIVESUBSCREEN:
+					case SCRIPT_PASSIVESUBSCREEN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+					default:
+						pc = 1; scommand = 0xFFFF; break;
+				
+			}
+		}
 		
 		if(scommand != 0xFFFF)
 		{
