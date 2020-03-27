@@ -2348,7 +2348,13 @@ public:
 		
 		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
 		{
-			str += char(a[i] / 10000);
+			int c = a[i] / 10000;
+			if(char(c) != c)
+			{
+				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
+				Z_scripterrlog("Value of invalid char will overflow.\n");
+			}
+			str += char(c);
 			num_chars--;
 		}
 	}
@@ -23814,6 +23820,46 @@ void FFScript::do_file_writeints()
 		return;
 	}
 	ri->d[2] = 0L;
+}
+
+void FFScript::do_file_getchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetChar()", true))
+	{
+		ri->d[2] = fgetc(f->file) * 10000L;
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_putchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "PutChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.", c);
+			c = char(c);
+		}
+		ri->d[2] = fputc(c, f->file) * 10000L;
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_ungetchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "UngetChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
+			c = char(c);
+		
+		ri->d[2] = ungetc(c,f->file) * 10000L;
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
 }
 
 ///----------------------------------------------------------------------------------------------------

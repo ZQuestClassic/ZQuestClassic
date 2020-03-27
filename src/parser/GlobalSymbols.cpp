@@ -12580,6 +12580,45 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//char32 GetChar(file)
+	{
+		Function* function = getFunction("GetChar", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OFileGetChar());
+		RETURN();
+		function->giveCode(code);
+	}
+	//char32 PutChar(file, char32 c)
+	{
+		Function* function = getFunction("PutChar", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new OFilePutChar(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//char32 UngetChar(file, char32 c)
+	{
+		Function* function = getFunction("UngetChar", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileUngetChar(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	*/
 }
 

@@ -440,6 +440,9 @@ void do_file_readints();
 void do_file_writechars();
 void do_file_writestring();
 void do_file_writeints();
+void do_file_getchar();
+void do_file_putchar();
+void do_file_ungetchar();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();
