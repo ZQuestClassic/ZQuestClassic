@@ -44,7 +44,7 @@
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern byte __isZQuest;
+extern unsigned char __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 //FFSCript   FFEngine;
 
