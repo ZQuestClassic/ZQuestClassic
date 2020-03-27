@@ -1016,11 +1016,6 @@ CConsoleLoggerEx zscript_coloured_console;
 unsigned char console_is_open = 0;
 unsigned char __isZQuest = 1; //Shared functionscan reference this. -Z
 
-#ifdef _WIN32
-CConsoleLoggerEx coloured_console;
-CConsoleLoggerEx zscript_coloured_console;
-#endif
-
 #include "zqscale.h"
 #include "util.h"
 using namespace util;

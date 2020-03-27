@@ -23125,7 +23125,7 @@ int run_script(const byte type, const word script, const long i)
 		
 		if(increment)	ri->pc++;
 		else			increment = true;
-		if ( pc < 0 ) //rolled over from overflow
+		if ( ri->pc < 0 ) //rolled over from overflow
 		{
 			switch(type)
 			{
@@ -23154,7 +23154,7 @@ int run_script(const byte type, const word script, const long i)
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
 					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
 					default:
-						pc = 1; scommand = 0xFFFF; break;
+						ri->pc = 1; scommand = 0xFFFF; break;
 				
 			}
 		}
