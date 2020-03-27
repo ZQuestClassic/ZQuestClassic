@@ -4,7 +4,10 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 #include "zdefs.h"
-
+#include <string>
+#ifndef _WIN32
+#include <stdlib.h>
+#endif
 namespace util
 {
 	void upperstr(std::string& str);
