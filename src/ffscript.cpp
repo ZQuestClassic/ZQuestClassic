@@ -31039,7 +31039,9 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 0 )
 	{
 		if(!zasm_debugger && zasm_console) return;
+		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
+		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		switch(curScriptType)
 		{
