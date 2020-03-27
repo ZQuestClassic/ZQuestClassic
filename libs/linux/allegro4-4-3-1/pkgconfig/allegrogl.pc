@@ -1,0 +1,14 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+version=4.4.3
+suffix=
+
+Name: allegrogl
+Description: OpenGL addon for Allegro game programming library
+Version: ${version}
+# always statically linked
+Libs: -L${libdir} -lalleggl${suffix}  -lGL -lGLU
+Requires: allegro${suffix} >= ${version}
+Cflags: -I${includedir}
