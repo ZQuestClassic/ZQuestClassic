@@ -23694,7 +23694,7 @@ void FFScript::do_file_readchars()
 		for(q = pos; q < limit; ++q)
 		{
 			c = fgetc(f->file);
-			a[q] = c;
+			a[q] = c * 10000L;
 			if(!c)
 				break;
 			++ri->d[2]; //Don't count nullchar towards length
@@ -23715,7 +23715,7 @@ void FFScript::do_file_readchars()
 }
 void FFScript::do_file_readstring()
 {
-	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	if(user_file* f = checkFile(ri->fileref, "ReadString()", true))
 	{
 		long arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
@@ -23730,7 +23730,7 @@ void FFScript::do_file_readstring()
 		for(q = pos; q < limit; ++q)
 		{
 			c = fgetc(f->file);
-			a[q] = c;
+			a[q] = c * 10000L;
 			if(!c)
 				break;
 			if(feof(f->file) || ferror(f->file))
@@ -23855,7 +23855,7 @@ void FFScript::do_file_ungetchar()
 		{
 			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
 			c = char(c);
-		
+		}
 		ri->d[2] = ungetc(c,f->file) * 10000L;
 		return;
 	}

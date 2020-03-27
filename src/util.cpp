@@ -36,7 +36,7 @@ namespace util
 		size_t nonslash_pos = path.find_last_not_of("/\\");
 		if(nonslash_pos == string::npos) return false; //blank or all slashes
 		if(path[0] == '/' || path[0] == '\\') return false; //multiple consecutive slashes
-		if(path.find_first_not_of(".") == string::npos) return false; //empty dirname
+		if(path.find_first_not_of("./\\") == string::npos) return false; //empty dirname
 		if(path.find("..") == 0) return false; //cannot begin with >1 dot
 		if(path.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
 	}
@@ -44,12 +44,13 @@ namespace util
 	bool valid_dir(string const& path)
 	{
 		size_t pos = path.find_first_not_of("/\\");
-		while(pos != string::npos)
+		if(pos == string::npos) return false;
+		while(pos < path.length())
 		{
 			size_t next_slash = path.find_first_of("/\\",pos);
+			if(next_slash == string::npos) break;
 			if(!valid_single_dir(path.substr(pos,next_slash-pos))) return false;
 			pos = next_slash+1;
-			if(pos >= path.length()) break;
 		}
 		return true;
 	}
@@ -110,7 +111,7 @@ namespace util
 		while((path[0] == '/' || path[0] == '\\') && path[0]) ++path; //trim leading slashes
 		char buf[2048] = {0};
 		int q = 0;
-		int last_slash = 0;
+		int last_slash = -1;
 		for(; path[q] && q < 2048; ++q)
 		{
 			buf[q] = path[q];
