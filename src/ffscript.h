@@ -426,13 +426,18 @@ long getQuestHeaderInfo(int type)
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_files_init();
-int get_free_file();
+int get_free_file(bool skipError = false);
 void do_fopen(const bool v, const bool create = false);
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();
 void do_file_isallocated();
 void do_file_isvalid();
+void do_fflush();
+void do_file_readchars();
+void do_file_readints();
+void do_file_writechars();
+void do_file_writeints();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();

@@ -56,21 +56,21 @@ else \
 */
 #define ASSERT_NUL() \
 assert(refVar == NUL); \
-function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
+function->internal_flags |= IFUNCFLAG_SKIPPOINTER
 
 /*
 	Assert that the refVar is NON-NUL.
 	Set the IFUNCFLAG_SKIPPOINTER.
 */
 #define ASSERT_NON_NUL() \
-assert(refVar != NUL);
+assert(refVar != NUL)
 
 /*
 	Return from the function. Automatically skips OReturn() on inline functions.
 */
 #define RETURN() \
 if(!(function->getFlag(FUNCFLAG_INLINE))) \
-	code.push_back(new OReturn());
+	code.push_back(new OReturn())
 
 /*
 	Adds the label passed to the back of the 'code' vector<Opcode*>
@@ -82,8 +82,9 @@ code.back()->setLabel(LBL)
 	Reassigns the pointer that was referenced to the passed register.
 */
 #define REASSIGN_PTR(reg) \
+ASSERT_NON_NUL(); \
 if(reg!=EXP2) code.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(reg))); \
-function->internal_flags |= IFUNCFLAG_REASSIGNPTR;
+function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
@@ -12363,22 +12364,6 @@ void FileSystemSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	/* Incomplete io stuff
-	//bool Allocate(FileSystem)
-	{
-		Function* function = getFunction("Allocate", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		//pop off the params
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		//pop pointer
-		POPREF();
-		code.push_back(new OAllocateFile(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-	*/
 }
 
 FileSymbols FileSymbols::singleton = FileSymbols();
@@ -12410,7 +12395,8 @@ void FileSymbols::generateCode()
 		LABELBACK(label);
 		//pop pointer
 		POPREF();
-		//code.push_back(new OFileOpen(new VarArgument(EXP1)));
+		code.push_back(new OFileOpen(new VarArgument(EXP1)));
+		REASSIGN_PTR(EXP2);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12424,7 +12410,8 @@ void FileSymbols::generateCode()
 		LABELBACK(label);
 		//pop pointer
 		POPREF();
-		//code.push_back(new OFileCreate(new VarArgument(EXP1)));
+		code.push_back(new OFileCreate(new VarArgument(EXP1)));
+		REASSIGN_PTR(EXP2);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12437,7 +12424,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		//code.push_back(new OFileClose(new VarArgument(EXP1)));
+		code.push_back(new OFileClose(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12450,7 +12437,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		//code.push_back(new OFileFree(new VarArgument(EXP1)));
+		code.push_back(new OFileFree(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12463,7 +12450,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		//code.push_back(new OFileIsAllocated(new VarArgument(EXP1)));
+		code.push_back(new OFileIsAllocated(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12476,11 +12463,37 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		//code.push_back(new OFileIsValid(new VarArgument(EXP1)));
+		code.push_back(new OFileIsValid(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
-	
+	//bool Allocate(file)
+	{
+		Function* function = getFunction("Allocate", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OAllocateFile(new VarArgument(EXP1)));
+		REASSIGN_PTR(EXP2);
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Flush(file)
+	{
+		Function* function = getFunction("Flush", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OFileFlush(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	*/
 }
 

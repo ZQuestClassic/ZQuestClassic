@@ -4185,26 +4185,7 @@ int main(int argc, char* argv[])
             exit(1);
         }
         
-        int len=strlen(standalone_quest);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(standalone_quest[i]=='/')
-            {
-                standalone_quest[i]='\\';
-            }
-            
-#else
-            
-            if(standalone_quest[i]=='\\')
-            {
-                standalone_quest[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(standalone_quest);
     }
     
     //turn on MSVC memory checks
@@ -4597,26 +4578,7 @@ int main(int argc, char* argv[])
         SAVE_FILE = (char *)zc_malloc(2048);
         sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
         
-        int len=strlen(SAVE_FILE);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(SAVE_FILE[i]=='/')
-            {
-                SAVE_FILE[i]='\\';
-            }
-            
-#else
-            
-            if(SAVE_FILE[i]=='\\')
-            {
-                SAVE_FILE[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(SAVE_FILE);
     }
     
     

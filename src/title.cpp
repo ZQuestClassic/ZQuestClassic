@@ -1651,24 +1651,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         }
         
         // Convert path separators so save files work across platforms (hopefully)
-        for(int j=0; j<qstpath_len; j++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(savedata[i].qstpath[j]=='/')
-            {
-                savedata[i].qstpath[j]='\\';
-            }
-            
-#else
-            
-            if(savedata[i].qstpath[j]=='\\')
-            {
-                savedata[i].qstpath[j]='/';
-            }
-            
-#endif
-        }
+		regulate_path(savedata[i].qstpath);
         
         savedata[i].qstpath[qstpath_len]=0;
         

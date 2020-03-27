@@ -32,6 +32,12 @@ extern byte use_dwm_flush;
 #include "util.h"
 using namespace util;
 
+#ifdef _WIN32
+#define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
+#else
+#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#endif
+
 //Define this register, so it can be treated specially
 #define NUL		5
 
@@ -53,7 +59,8 @@ FONT *get_zc_font(int index);
 static inline bool fileexists(const char *filename) 
 {
 	std::ifstream ifile(filename);
-	return (bool)ifile;
+	if(ifile) return true;
+	return false;
 }
 
 const char scripttypenames[11][40]=
@@ -1119,7 +1126,7 @@ int FFScript::UpperToLower(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		{
@@ -1136,7 +1143,7 @@ int FFScript::LowerToUpper(std::string *s)
 		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -1153,7 +1160,7 @@ int FFScript::ConvertCase(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -2639,13 +2646,21 @@ weapon *checkEWpn(long eid, const char *what)
 	return s;
 }
 
-user_file *checkFile(long ref, const char *what, bool skipError = false)
+user_file *checkFile(long ref, const char *what, bool req_file = false, bool skipError = false)
 {
 	if(ref > 0 && ref <= MAX_USER_FILES)
 	{
 		user_file* f = &script_files[ref-1];
 		if(f->reserved)
 		{
+			if(req_file && !f->file)
+			{
+				if(skipError) return NULL;
+				Z_scripterrlog("Script attempted to reference an invalid file!\n");
+				Z_scripterrlog("File with UID = %ld does not have an open file connection!\n",ref);
+				Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+				return NULL;
+			}
 			return f;
 		}
 	}
@@ -23511,7 +23526,7 @@ void FFScript::user_files_init()
 	}
 }
 
-int FFScript::get_free_file()
+int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
 	{
@@ -23521,19 +23536,32 @@ int FFScript::get_free_file()
 			return q+1; //1-indexed; 0 is null value
 		}
 	}
-	Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
 	return 0;
 }
-
+#ifdef _WIN32
+static string windows_exe_extensions[] = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk",""};
+#endif
 bool validate_userfile_extension(string const& path)
 {
+#ifdef _WIN32
 	string ext = get_ext(path);
-	if(ext == ".zs") return true; //ZScript ext
-	if(ext == ".zh") return true; //ZScript Header ext
-	if(ext == ".txt") return true; //Text file
-	if(ext == ".cfg") return true; //Config file
-	if(ext == ".zdata") return true; //Generic ZScript Data File
-	return false; //Any other extension, including no extension, is disallowed
+	for(int q = 0; windows_exe_extensions[q].length()>1; ++q)
+	{
+		if(ext == windows_exe_extensions[q]) return false;
+	}
+	return true; //Any other extension, including no extension, is allowed
+#else
+	return true; //All extensions valid
+#endif
+}
+
+bool get_scriptfile_path(char* buf, const char* path)
+{
+	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
+	if(!path[0]) return false;
+	sprintf(buf, "%s%s", qst_files_path, path);
+	return true;
 }
 
 void FFScript::do_fopen(const bool v, const bool create)
@@ -23541,32 +23569,59 @@ void FFScript::do_fopen(const bool v, const bool create)
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	string filename_str;
 	ArrayH::getString(arrayptr, filename_str, 512);
-	if(!validate_userfile_extension(filename_str))
+	regulate_path(filename_str);
+	ri->d[2] = 0L; //Presume failure; update to 10000L on success
+	if(!valid_file(filename_str))
 	{
-		Z_scripterrlog("Cannot open file with extension '%s'.\nAllowed extensions: %s\n",
-			get_ext(filename_str), "'.zs', '.zh', '.txt', '.cfg', '.zdata'");
+		Z_scripterrlog("Path '%s' empty or points to a directory; must point to a file!\n",filename_str.c_str());
 		return;
 	}
-	
-	user_file* f = checkFile(ri->fileref, "Open()");
+	if(!validate_userfile_extension(filename_str))
+	{
+		Z_scripterrlog("Cannot open/create file with extension '%s'.\n", get_ext(filename_str).c_str());
+		return;
+	}
+	if(filename_str.find("../") != string::npos
+		|| filename_str.find("..\\") != string::npos)
+	{
+		Z_scripterrlog("Error: Script attempted to go up a directory in file load '%s'\n", filename_str.c_str());
+		return;
+	}
+	char buf[2048] = {0};
+	get_scriptfile_path(buf, filename_str.c_str());
+	user_file* f = checkFile(ri->fileref, "Open()", false, true);
+	if(!f) //auto-allocate
+	{
+		ri->fileref = get_free_file();
+		f = checkFile(ri->fileref, "Open()", false, true);
+	}
+	ri->d[3] = ri->fileref; //Returns to the variable!
 	if(f)
 	{
 		f->close(); //Close the old FILE* before overwriting it!
-		f->file = fopen(filename_str.c_str(), create ? "w+" : "r+");
-		//r+; read-write, will not create if does not exist, will not delete content if does exist.
-		//w+; read-write, will create if does not exist, will delete all content if does exist.
-		if(f->file)
+		if(create_path(buf))
 		{
-			ri->d[2] = 10000L; //Success
+			f->file = fopen(buf, create ? "w+" : "r+");
+			zc_chmod(buf, SCRIPT_FILE_MODE);
+			//r+; read-write, will not create if does not exist, will not delete content if does exist.
+			//w+; read-write, will create if does not exist, will delete all content if does exist.
+			if(f->file)
+			{
+				ri->d[2] = 10000L; //Success
+				return;
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Script failed to create directories for file path '%s'.", filename_str.c_str());
 			return;
 		}
 	}
-	ri->d[2] = 0L; //Failure
 }
 
 void FFScript::do_fclose()
 {
-	if(user_file* f = checkFile(ri->fileref, "Close()", true))
+	if(user_file* f = checkFile(ri->fileref, "Close()", false, true))
 	{
 		f->close();
 	}
@@ -23576,26 +23631,47 @@ void FFScript::do_fclose()
 void FFScript::do_allocate_file()
 {
 	//Get a file and return it
-	ri->d[2] = get_free_file();
+	ri->fileref = get_free_file();
+	ri->d[3] = ri->fileref; //Return to ptr
+	ri->d[2] = (ri->d[3] == 0 ? 0L : 10000L);
 }
 
 void FFScript::do_deallocate_file()
 {
-	user_file* f = checkFile(ri->fileref, "Free()", true);
+	user_file* f = checkFile(ri->fileref, "Free()", false, true);
 	if(f) f->clear();
 }
 
 void FFScript::do_file_isallocated() //Returns true if file is allocated
 {
-	user_file* f = checkFile(ri->fileref, "isAllocated()", true);
+	user_file* f = checkFile(ri->fileref, "isAllocated()", false, true);
 	ri->d[2] = (f) ? 10000L : 0L;
 }
 
 void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
 {
-	user_file* f = checkFile(ri->fileref, "isValid()", true);
-	ri->d[2] = (f && f->file) ? 10000L : 0L;
+	user_file* f = checkFile(ri->fileref, "isValid()", true, true);
+	ri->d[2] = (f) ? 10000L : 0L;
 }
+
+void FFScript::do_fflush()
+{
+	ri->d[2] = 0L;
+	if(user_file* f = checkFile(ri->fileref, "Flush()", true))
+	{
+		if(!fflush(f->file))
+			ri->d[2] = 10000L;
+	}
+}
+
+void FFScript::do_file_readchars()
+{}
+void FFScript::do_file_readints()
+{}
+void FFScript::do_file_writechars()
+{}
+void FFScript::do_file_writeints()
+{}
 
 ///----------------------------------------------------------------------------------------------------
 
@@ -28640,7 +28716,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -28674,7 +28750,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -28950,7 +29026,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
