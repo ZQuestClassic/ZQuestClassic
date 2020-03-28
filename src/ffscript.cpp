@@ -2334,7 +2334,7 @@ public:
 	}
 	
 	//Returns values of a zscript array as an std::string.
-	static void getString(const long ptr, string &str, word num_chars = 256, word offset = 0)
+	static void getString(const long ptr, string &str, dword num_chars = 256, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2362,7 +2362,7 @@ public:
 	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
 	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const long ptr, long* arrayPtr, word num_values, word offset = 0) //a hack -Z
+	static void getValues2(const long ptr, long* arrayPtr, dword num_values, dword offset = 0) //a hack -Z
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2377,7 +2377,7 @@ public:
 	}
 	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const long ptr, long* arrayPtr, word num_values, word offset = 0)
+	static void getValues(const long ptr, long* arrayPtr, dword num_values, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2673,7 +2673,7 @@ user_file *checkFile(long ref, const char *what, bool req_file = false, bool ski
 	}
 	if(skipError) return NULL;
 	Z_eventlog("Script attempted to reference a nonexistent File!\n");
-	Z_eventlog("You were trying to reference the %s of an File with UID = %ld\n", what, ref);
+	Z_eventlog("You were trying to reference the '%s' of an File with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -9113,6 +9113,36 @@ long get_register(const long arg)
 			ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
 			break;
 		}
+		///----------------------------------------------------------------------------------------------------//
+		
+		case FILEPOS:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Pos", true))
+			{
+				ret = ftell(f->file); //NOT *10000 -V
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEEOF:
+		{
+			if(user_file* f = checkFile(ri->fileref, "EOF", true))
+			{
+				ret = feof(f->file) * 10000L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEERR:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Error", true))
+			{
+				ret = ferror(f->file) * 10000L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Misc./Internal
 		case REFFFC:
@@ -23129,6 +23159,110 @@ int run_script(const byte type, const word script, const long i)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			
+			case FILECLOSE:
+			{
+				FFCore.do_fclose();
+				break;
+			}
+			case FILEFREE:
+			{
+				FFCore.do_deallocate_file();
+				break;
+			}
+			case FILEISALLOCATED:
+			{
+				FFCore.do_file_isallocated();
+				break;
+			}
+			case FILEISVALID:
+			{
+				FFCore.do_file_isvalid();
+				break;
+			}
+			case FILEALLOCATE:
+			{
+				FFCore.do_allocate_file();
+				break;
+			}
+			case FILEFLUSH:
+			{
+				FFCore.do_fflush();
+				break;
+			}
+			case FILEGETCHAR:
+			{
+				FFCore.do_file_getchar();
+				break;
+			}
+			case FILEREWIND:
+			{
+				FFCore.do_file_rewind();
+				break;
+			}
+			case FILECLEARERR:
+			{
+				FFCore.do_file_clearerr();
+				break;
+			}
+			
+			case FILEOPEN:
+			{
+				FFCore.do_fopen(false, false);
+				break;
+			}
+			case FILECREATE:
+			{
+				FFCore.do_fopen(false, true);
+				break;
+			}
+			case FILEREADSTR:
+			{
+				FFCore.do_file_readstring();
+				break;
+			}
+			case FILEWRITESTR:
+			{
+				FFCore.do_file_writestring();
+				break;
+			}
+			case FILEPUTCHAR:
+			{
+				FFCore.do_file_putchar();
+				break;
+			}
+			case FILEUNGETCHAR:
+			{
+				FFCore.do_file_ungetchar();
+				break;
+			}
+			
+			case FILEREADCHARS:
+			{
+				FFCore.do_file_readchars();
+				break;
+			}
+			case FILEREADINTS:
+			{
+				FFCore.do_file_readints();
+				break;
+			}
+			case FILEWRITECHARS:
+			{
+				FFCore.do_file_writechars();
+				break;
+			}
+			case FILEWRITEINTS:
+			{
+				FFCore.do_file_writeints();
+				break;
+			}
+			case FILESEEK:
+			{
+				FFCore.do_file_seek();
+				break;
+			}
+			
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -23676,7 +23810,7 @@ void FFScript::do_file_readchars()
 {
 	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
 	{
-		int pos = zc_max(ri->d[0] / 10000,0);
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
 		int count = get_register(sarg2) / 10000;
 		if(count == 0) return;
 		long arrayptr = get_register(sarg1) / 10000;
@@ -23686,7 +23820,7 @@ void FFScript::do_file_readchars()
 			return;
 		}
 		if(pos >= a.Size()) return;
-		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		int limit = pos+count;
 		char c;
 		word q;
@@ -23727,7 +23861,7 @@ void FFScript::do_file_readstring()
 		char c;
 		word q;
 		ri->d[2] = 0;
-		for(q = pos; q < limit; ++q)
+		for(q = 0; q < limit; ++q)
 		{
 			c = fgetc(f->file);
 			a[q] = c * 10000L;
@@ -23755,7 +23889,7 @@ void FFScript::do_file_readints()
 {
 	if(user_file* f = checkFile(ri->fileref, "ReadInts()", true))
 	{
-		int pos = zc_max(ri->d[0] / 10000,0);
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
 		int count = get_register(sarg2) / 10000;
 		if(count == 0) return;
 		long arrayptr = get_register(sarg1) / 10000;
@@ -23765,8 +23899,8 @@ void FFScript::do_file_readints()
 			return;
 		}
 		if(pos >= a.Size()) return;
-		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
-		ri->d[2] = fread((const void*)(&a[pos]), sizeof(long), count, f->file);
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		ri->d[2] = fread((void*)(&a[pos]), sizeof(long), count, f->file);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23805,7 +23939,7 @@ void FFScript::do_file_writeints()
 {
 	if(user_file* f = checkFile(ri->fileref, "WriteInts()", true))
 	{
-		int pos = zc_max(ri->d[0] / 10000,0);
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
 		int count = get_register(sarg2) / 10000;
 		if(count == 0) return;
 		long arrayptr = get_register(sarg1) / 10000;
@@ -23815,7 +23949,7 @@ void FFScript::do_file_writeints()
 			return;
 		}
 		if(pos >= a.Size()) return;
-		if(count == -1 || count > a.Size()-pos) count = a.Size()-pos;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		ri->d[2] = fwrite((const void*)(&a[pos]), sizeof(long), count, f->file);
 		return;
 	}
@@ -23871,7 +24005,7 @@ void FFScript::do_file_seek()
 		ri->d[2] = fseek(f->file, pos, origin) ? 0L : 10000L;
 		return;
 	}
-	r->d[2] = 0;
+	ri->d[2] = 0;
 }
 void FFScript::do_file_rewind()
 {
@@ -30472,6 +30606,30 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TOINTEGER",           1,   0,   0,   0},
 	{ "FLOOR",           1,   0,   0,   0},
 	{ "CEILING",           1,   0,   0,   0},
+	
+	{ "FILECLOSE",           0,   0,   0,   0},
+	{ "FILEFREE",           0,   0,   0,   0},
+	{ "FILEISALLOCATED",           0,   0,   0,   0},
+	{ "FILEISVALID",           0,   0,   0,   0},
+	{ "FILEALLOCATE",           0,   0,   0,   0},
+	{ "FILEFLUSH",           0,   0,   0,   0},
+	{ "FILEGETCHAR",           0,   0,   0,   0},
+	{ "FILEREWIND",           0,   0,   0,   0},
+	{ "FILECLEARERR",           0,   0,   0,   0},
+	
+	{ "FILEOPEN",           1,   0,   0,   0},
+	{ "FILECREATE",           1,   0,   0,   0},
+	{ "FILEREADSTR",           1,   0,   0,   0},
+	{ "FILEWRITESTR",           1,   0,   0,   0},
+	{ "FILEPUTCHAR",           1,   0,   0,   0},
+	{ "FILEUNGETCHAR",           1,   0,   0,   0},
+	
+	{ "FILEREADCHARS",           2,   0,   0,   0},
+	{ "FILEREADINTS",           2,   0,   0,   0},
+	{ "FILEWRITECHARS",           2,   0,   0,   0},
+	{ "FILEWRITEINTS",           2,   0,   0,   0},
+	{ "FILESEEK",           2,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35066,7 +35224,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -35081,7 +35239,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -35096,7 +35254,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -35667,7 +35825,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -35682,7 +35840,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -35697,7 +35855,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}

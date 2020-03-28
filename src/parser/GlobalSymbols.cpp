@@ -750,7 +750,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
 	
-    //int SRand(int seed)
+    //int_full SRand(int_full seed)
     {
 	    Function* function = getFunction("SRand", 1);
         int label = function->getLabel();
@@ -763,7 +763,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
 	
-    //int SRand()
+    //int_full SRand()
     {
 	    Function* function = getFunction("SRand", 0);
         int label = function->getLabel();
@@ -12372,6 +12372,28 @@ static AccessorTable FileTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 //	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Open",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Create",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Close",                  ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "isAllocated",            ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Flush",                  ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ReadChars",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ReadInts",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "WriteChars",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "WriteInts",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ReadString",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "WriteString",            ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetChar",                ZVARTYPEID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "PutChar",                ZVARTYPEID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "UngetChar",              ZVARTYPEID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Seek",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_FILE,                ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rewind",                 ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ClearError",             ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getPos",                 ZVARTYPEID_FLOAT,         GETTER,       FILEPOS,          1,             0,                                    1,           {  ZVARTYPEID_FILE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getEOF",                 ZVARTYPEID_FLOAT,         GETTER,       FILEEOF,          1,             0,                                    1,           {  ZVARTYPEID_FILE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getError",               ZVARTYPEID_FLOAT,         GETTER,       FILEERR,          1,             0,                                    1,           {  ZVARTYPEID_FILE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -12384,7 +12406,6 @@ FileSymbols::FileSymbols()
 
 void FileSymbols::generateCode()
 {
-	/*
 	//bool Open(file, char32*)
 	{
 		Function* function = getFunction("Open", 2);
@@ -12424,7 +12445,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OFileClose(new VarArgument(EXP1)));
+		code.push_back(new OFileClose());
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12437,7 +12458,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OFileFree(new VarArgument(EXP1)));
+		code.push_back(new OFileFree());
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12450,7 +12471,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OFileIsAllocated(new VarArgument(EXP1)));
+		code.push_back(new OFileIsAllocated());
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12463,7 +12484,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OFileIsValid(new VarArgument(EXP1)));
+		code.push_back(new OFileIsValid());
 		RETURN();
 		function->giveCode(code);
 	}
@@ -12476,7 +12497,7 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OAllocateFile(new VarArgument(EXP1)));
+		code.push_back(new OAllocateFile());
 		REASSIGN_PTR(EXP2);
 		RETURN();
 		function->giveCode(code);
@@ -12490,11 +12511,11 @@ void FileSymbols::generateCode()
 		ASSERT_NON_NUL();
 		POPREF();
 		LABELBACK(label);
-		code.push_back(new OFileFlush(new VarArgument(EXP1)));
+		code.push_back(new OFileFlush());
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool ReadChars(file, char32*, int, int)
+	//int ReadChars(file, char32*, int, int)
 	{
 		Function* function = getFunction("ReadChars", 4);
 		int label = function->getLabel();
@@ -12509,7 +12530,7 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool ReadString(file, char32*)
+	//int ReadString(file, char32*)
 	{
 		Function* function = getFunction("ReadString", 2);
 		int label = function->getLabel();
@@ -12522,7 +12543,7 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool ReadInts(file, char32*, int, int)
+	//int ReadInts(file, char32*, int, int)
 	{
 		Function* function = getFunction("ReadInts", 4);
 		int label = function->getLabel();
@@ -12537,7 +12558,7 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool WriteChars(file, char32*, int, int)
+	//int WriteChars(file, char32*, int, int)
 	{
 		Function* function = getFunction("WriteChars", 4);
 		int label = function->getLabel();
@@ -12552,7 +12573,7 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool WriteString(file, char32*)
+	//int WriteString(file, char32*)
 	{
 		Function* function = getFunction("WriteString", 2);
 		int label = function->getLabel();
@@ -12565,7 +12586,7 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//bool WriteInts(file, char32*, int, int)
+	//int WriteInts(file, char32*, int, int)
 	{
 		Function* function = getFunction("WriteInts", 4);
 		int label = function->getLabel();
@@ -12659,7 +12680,6 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	*/
 }
 
 SubscreenDataSymbols SubscreenDataSymbols::singleton = SubscreenDataSymbols();

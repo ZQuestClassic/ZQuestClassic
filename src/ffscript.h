@@ -427,7 +427,7 @@ bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY
 
 void user_files_init();
 int get_free_file(bool skipError = false);
-void do_fopen(const bool v, const bool create = false);
+void do_fopen(const bool v, const bool create);
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();
@@ -2514,9 +2514,32 @@ enum ASM_DEFINE
 	TOINTEGER,
 	FLOOR,
 	CEILING,
+	
+	FILECLOSE,
+	FILEFREE,
+	FILEISALLOCATED,
+	FILEISVALID,
+	FILEALLOCATE,
+	FILEFLUSH,
+	FILEGETCHAR,
+	FILEREWIND,
+	FILECLEARERR,
+	
+	FILEOPEN,
+	FILECREATE,
+	FILEREADSTR,
+	FILEWRITESTR,
+	FILEPUTCHAR,
+	FILEUNGETCHAR,
+	
+	FILEREADCHARS,
+	FILEREADINTS,
+	FILEWRITECHARS,
+	FILEWRITEINTS,
+	FILESEEK,
 
 
-	NUMCOMMANDS           //0x016E
+	NUMCOMMANDS           //0x0182
 };
 
 
@@ -3801,8 +3824,11 @@ enum ASM_DEFINE
 #define MESSAGEDATAPORTWID		0x13A1
 #define MESSAGEDATAPORTHEI		0x13A2
 #define MESSAGEDATAFLAGSARR		0x13A3
+#define FILEPOS					0x13A4
+#define FILEEOF					0x13A5
+#define FILEERR					0x13A6
 
-#define NUMVARIABLES         	0x13A4
+#define NUMVARIABLES         	0x13A7
 
 //} End variables
 

@@ -39,6 +39,7 @@ namespace util
 		if(path.find_first_not_of("./\\") == string::npos) return false; //empty dirname
 		if(path.find("..") == 0) return false; //cannot begin with >1 dot
 		if(path.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
+		return true;
 	}
 	
 	bool valid_dir(string const& path)
