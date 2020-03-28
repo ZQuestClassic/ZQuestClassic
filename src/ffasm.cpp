@@ -955,6 +955,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEWRITECHARS",           2,   0,   0,   0},
 	{ "FILEWRITEINTS",           2,   0,   0,   0},
 	{ "FILESEEK",           2,   0,   0,   0},
+	{ "FILEOPENMODE",           2,   0,   0,   0},
+	{ "FILEGETERROR",           1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

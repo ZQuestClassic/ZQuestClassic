@@ -32,7 +32,7 @@ namespace util
 	
 	static bool valid_single_dir(string const& path)
 	{
-		if(path.find_first_of("<>:|?*&^$#\"") != string::npos) return false; //Contains invalid chars
+		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
 		size_t nonslash_pos = path.find_last_not_of("/\\");
 		if(nonslash_pos == string::npos) return false; //blank or all slashes
 		if(path[0] == '/' || path[0] == '\\') return false; //multiple consecutive slashes
@@ -58,7 +58,7 @@ namespace util
 	
 	bool valid_file(string const& path)
 	{
-		if(path.find_first_of("<>:|?*&^$#\"") != string::npos) return false; //Contains invalid chars
+		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
 		size_t last_slash_pos = path.find_last_of("/\\");
 		if(last_slash_pos == string::npos) last_slash_pos = 0;
 		else
@@ -68,6 +68,7 @@ namespace util
 		}
 		if(last_slash_pos == path.length() - 1) return false; //Ends in slash; empty filename
 		string fname = path.substr(last_slash_pos);
+		if(fname.find_first_of(":") != string::npos) return false; //invalid char
 		if(fname.find_first_not_of(".") == string::npos) return false; //empty filename
 		if(fname.find("..") == 0) return false; //cannot begin with >1 dot
 		if(fname.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
@@ -124,6 +125,7 @@ namespace util
 					return false; //Failure; invalid path
 				}
 				last_slash = q;
+				if(strpath.find_first_of(":") != string::npos) continue; //Non-creatable; ex "C:\"
 				struct stat info;
 				if(stat( buf, &info ) != 0)
 				{

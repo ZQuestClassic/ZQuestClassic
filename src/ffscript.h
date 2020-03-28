@@ -446,6 +446,7 @@ void do_file_ungetchar();
 void do_file_clearerr();
 void do_file_rewind();
 void do_file_seek();
+void do_file_geterr();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();
@@ -2537,9 +2538,11 @@ enum ASM_DEFINE
 	FILEWRITECHARS,
 	FILEWRITEINTS,
 	FILESEEK,
+	FILEOPENMODE,
+	FILEGETERROR,
 
 
-	NUMCOMMANDS           //0x0182
+	NUMCOMMANDS           //0x0184
 };
 
 

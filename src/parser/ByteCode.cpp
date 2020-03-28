@@ -5148,6 +5148,11 @@ string OFileUngetChar::toString()
 {
 	return "FILEUNGETCHAR " + getArgument()->toString();
 };
+
+string OFileGetError::toString()
+{
+	return "FILEGETERROR " + getArgument()->toString();
+};
 //
 string OFileReadChars::toString()
 {
@@ -5172,6 +5177,11 @@ string OFileWriteInts::toString()
 string OFileSeek::toString()
 {
 	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileOpenMode::toString()
+{
+	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
 
 

@@ -5210,6 +5210,7 @@ int main(int argc, char* argv[])
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
+			FFCore.user_files_init(); //Clear open FILE*!
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

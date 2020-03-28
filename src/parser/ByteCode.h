@@ -8826,6 +8826,17 @@ namespace ZScript
 		}
 	};
 	
+	class OFileGetError : public UnaryOpcode
+	{
+	public:
+		OFileGetError(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileGetError(a->clone());
+		}
+	};
+	
 	class OFileReadChars : public BinaryOpcode
 	{
 	public:
@@ -8878,6 +8889,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileSeek(a->clone(), b->clone());
+		}
+	};
+	
+	class OFileOpenMode : public BinaryOpcode
+	{
+	public:
+		OFileOpenMode(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileOpenMode(a->clone(), b->clone());
 		}
 	};
 }

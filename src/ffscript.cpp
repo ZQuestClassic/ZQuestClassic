@@ -9128,7 +9128,7 @@ long get_register(const long arg)
 		{
 			if(user_file* f = checkFile(ri->fileref, "EOF", true))
 			{
-				ret = feof(f->file) * 10000L;
+				ret = feof(f->file) ? 10000L : 0L; //Boolean
 			}
 			else ret = -10000L;
 			break;
@@ -23208,12 +23208,20 @@ int run_script(const byte type, const word script, const long i)
 			
 			case FILEOPEN:
 			{
-				FFCore.do_fopen(false, false);
+				FFCore.do_fopen(false, "rb+");
 				break;
 			}
 			case FILECREATE:
 			{
-				FFCore.do_fopen(false, true);
+				FFCore.do_fopen(false, "wb+");
+				break;
+			}
+			case FILEOPENMODE:
+			{
+				long arrayptr = get_register(sarg2) / 10000;
+				string mode;
+				ArrayH::getString(arrayptr, mode, 16);
+				FFCore.do_fopen(false, mode.c_str());
 				break;
 			}
 			case FILEREADSTR:
@@ -23262,7 +23270,11 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_file_seek();
 				break;
 			}
-			
+			case FILEGETERROR:
+			{
+				FFCore.do_file_geterr();
+				break;
+			}
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -23706,6 +23718,20 @@ bool get_scriptfile_path(char* buf, const char* path)
 	return true;
 }
 
+void check_file_error(long ref)
+{
+	Z_scripterrlog("File error: %s\n", strerror(32));
+	if(user_file* f = checkFile(ref, "", true, true))
+	{
+		int err = ferror(f->file);
+		if(err != 0)
+		{
+			Z_scripterrlog("File with UID '%ld' encountered an error.\n", ref);
+			Z_scripterrlog("File error: %s\n", strerror(err));
+		}
+	}
+}
+
 void FFScript::do_fopen(const bool v, const bool create)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
@@ -23741,9 +23767,10 @@ void FFScript::do_fopen(const bool v, const bool create)
 	if(f)
 	{
 		f->close(); //Close the old FILE* before overwriting it!
-		if(create_path(buf))
+		if(!create || create_path(buf))
 		{
-			f->file = fopen(buf, create ? "w+" : "r+");
+			f->file = fopen(buf, create ? "wb+" : "rb+");
+			fflush(f->file);
 			zc_chmod(buf, SCRIPT_FILE_MODE);
 			//r+; read-write, will not create if does not exist, will not delete content if does exist.
 			//w+; read-write, will create if does not exist, will delete all content if does exist.
@@ -23755,7 +23782,7 @@ void FFScript::do_fopen(const bool v, const bool create)
 		}
 		else
 		{
-			Z_scripterrlog("Script failed to create directories for file path '%s'.", filename_str.c_str());
+			Z_scripterrlog("Script failed to create directories for file path '%s'.\n", filename_str.c_str());
 			return;
 		}
 	}
@@ -23803,6 +23830,7 @@ void FFScript::do_fflush()
 	{
 		if(!fflush(f->file))
 			ri->d[2] = 10000L;
+		check_file_error(ri->fileref);
 	}
 }
 
@@ -23828,21 +23856,21 @@ void FFScript::do_file_readchars()
 		for(q = pos; q < limit; ++q)
 		{
 			c = fgetc(f->file);
-			a[q] = c * 10000L;
-			if(!c)
+			if(feof(f->file) || ferror(f->file))
 				break;
+			if(c <= 0)
+				break;
+			a[q] = c * 10000L;
 			++ri->d[2]; //Don't count nullchar towards length
 		}
-		if(c) //Not null-terminated
+		if(q >= limit)
 		{
-			if(q > a.Size())
-			{
-				--q;
-				--ri->d[2];
-				ungetc(a[q], f->file); //Put the character back before overwriting it
-			}
-			a[q] = 0; //Force null-termination
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
 		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23858,29 +23886,27 @@ void FFScript::do_file_readstring()
 			return;
 		}
 		int limit = a.Size();
-		char c;
+		int c;
 		word q;
 		ri->d[2] = 0;
 		for(q = 0; q < limit; ++q)
 		{
 			c = fgetc(f->file);
-			a[q] = c * 10000L;
-			if(!c)
-				break;
 			if(feof(f->file) || ferror(f->file))
 				break;
+			if(c <= 0 || c == '\n')
+				break;
+			a[q] = c * 10000L;
 			++ri->d[2]; //Don't count nullchar towards length
 		}
-		if(c) //Not null-terminated
+		if(q >= limit)
 		{
-			if(q > a.Size())
-			{
-				--q;
-				--ri->d[2];
-				ungetc(a[q], f->file); //Put the character back before overwriting it
-			}
-			a[q] = 0; //Force null-termination
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
 		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23900,7 +23926,21 @@ void FFScript::do_file_readints()
 		}
 		if(pos >= a.Size()) return;
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
-		ri->d[2] = fread((void*)(&a[pos]), sizeof(long), count, f->file);
+		
+		/*
+		fseek(f->file, 0L, SEEK_END);
+		int foo = ftell(f->file);
+		Z_scripterrlog("File size: %ld\n", foo);
+		rewind(f->file);
+		//*/
+		
+		std::vector<long> data(count);
+		ri->d[2] = 10000L * fread((void*)&(data[0]), 4, count, f->file);
+		for(int q = 0; q < count; ++q)
+		{
+			a[q+pos] = data[q];
+		}
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23916,8 +23956,16 @@ void FFScript::do_file_writechars()
 		long arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ArrayH::getString(arrayptr, output, count, pos);
-		const char* out = output.c_str();
-		ri->d[2] = 10000L * fwrite((const void*)out, sizeof(char), output.length(), f->file);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.c_str(), 1, output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23929,8 +23977,16 @@ void FFScript::do_file_writestring()
 		long arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
-		const char* out = output.c_str();
-		ri->d[2] = 10000L * fwrite((const void*)out, sizeof(char), output.length(), f->file);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.data, sizeof(char), output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23950,7 +24006,13 @@ void FFScript::do_file_writeints()
 		}
 		if(pos >= a.Size()) return;
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
-		ri->d[2] = fwrite((const void*)(&a[pos]), sizeof(long), count, f->file);
+		std::vector<long> data(count);
+		for(int q = 0; q < count; ++q)
+		{
+			data[q] = a[q+pos];
+		}
+		ri->d[2] = 10000L * fwrite((const void*)&(data[0]), 4, count, f->file);
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0L;
@@ -23961,6 +24023,7 @@ void FFScript::do_file_getchar()
 	if(user_file* f = checkFile(ri->fileref, "GetChar()", true))
 	{
 		ri->d[2] = fgetc(f->file) * 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = -10000L; //-1 == EOF; error value
@@ -23976,6 +24039,7 @@ void FFScript::do_file_putchar()
 			c = char(c);
 		}
 		ri->d[2] = fputc(c, f->file) * 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = -10000L; //-1 == EOF; error value
@@ -23991,6 +24055,7 @@ void FFScript::do_file_ungetchar()
 			c = char(c);
 		}
 		ri->d[2] = ungetc(c,f->file) * 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = -10000L; //-1 == EOF; error value
@@ -24003,6 +24068,7 @@ void FFScript::do_file_seek()
 		int pos = get_register(sarg1); //NOT /10000 -V
 		int origin = get_register(sarg2) ? SEEK_CUR : SEEK_SET;
 		ri->d[2] = fseek(f->file, pos, origin) ? 0L : 10000L;
+		check_file_error(ri->fileref);
 		return;
 	}
 	ri->d[2] = 0;
@@ -24011,7 +24077,9 @@ void FFScript::do_file_rewind()
 {
 	if(user_file* f = checkFile(ri->fileref, "Rewind()", true))
 	{
+		//fseek(f->file, 0L, SEEK_END);
 		rewind(f->file);
+		check_file_error(ri->fileref);
 	}
 }
 void FFScript::do_file_clearerr()
@@ -24022,6 +24090,23 @@ void FFScript::do_file_clearerr()
 	}
 }
 
+void FFScript::do_file_geterr()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetError()", true))
+	{
+		int err = ferror(f->file);
+		long arrayptr = get_register(sarg1) / 10000;
+		if(err)
+		{
+			string error = strerror(err);
+			ArrayH::setArray(arrayptr, error);
+		}
+		else
+		{
+			ArrayH::setArray(arrayptr, "\0");
+		}
+	}
+}
 ///----------------------------------------------------------------------------------------------------
 
 
@@ -30629,6 +30714,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEWRITECHARS",           2,   0,   0,   0},
 	{ "FILEWRITEINTS",           2,   0,   0,   0},
 	{ "FILESEEK",           2,   0,   0,   0},
+	{ "FILEOPENMODE",           2,   0,   0,   0},
+	{ "FILEGETERROR",           1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
