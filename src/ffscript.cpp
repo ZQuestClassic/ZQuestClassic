@@ -23862,6 +23862,32 @@ void FFScript::do_file_ungetchar()
 	ri->d[2] = -10000L; //-1 == EOF; error value
 }
 
+void FFScript::do_file_seek()
+{
+	if(user_file* f = checkFile(ri->fileref, "Seek()", true))
+	{
+		int pos = get_register(sarg1); //NOT /10000 -V
+		int origin = get_register(sarg2) ? SEEK_CUR : SEEK_SET;
+		ri->d[2] = fseek(f->file, pos, origin) ? 0L : 10000L;
+		return;
+	}
+	r->d[2] = 0;
+}
+void FFScript::do_file_rewind()
+{
+	if(user_file* f = checkFile(ri->fileref, "Rewind()", true))
+	{
+		rewind(f->file);
+	}
+}
+void FFScript::do_file_clearerr()
+{
+	if(user_file* f = checkFile(ri->fileref, "ClearError()", true))
+	{
+		clearerr(f->file);
+	}
+}
+
 ///----------------------------------------------------------------------------------------------------
 
 

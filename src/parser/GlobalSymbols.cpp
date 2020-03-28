@@ -12619,6 +12619,46 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//bool Seek(file, int_full, bool)
+	{
+		Function* function = getFunction("Seek", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileSeek(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Rewind(file)
+	{
+		Function* function = getFunction("Rewind", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OFileRewind());
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ClearError(file)
+	{
+		Function* function = getFunction("ClearError", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OFileClearError());
+		RETURN();
+		function->giveCode(code);
+	}
 	*/
 }
 

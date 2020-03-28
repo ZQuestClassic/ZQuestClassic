@@ -443,6 +443,9 @@ void do_file_writeints();
 void do_file_getchar();
 void do_file_putchar();
 void do_file_ungetchar();
+void do_file_clearerr();
+void do_file_rewind();
+void do_file_seek();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();
