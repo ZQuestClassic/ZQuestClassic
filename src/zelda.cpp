@@ -63,6 +63,9 @@ extern FFScript FFCore; //the core script engine.
 	#include "ConsoleLogger.h"
 #else //Unix
 	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
 	int pt = 0;
 	char* ptname = NULL;
 	std::ostringstream lxconsole_oss;
