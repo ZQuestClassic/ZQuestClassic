@@ -279,8 +279,8 @@ appx_equal	TOKEN( APPXEQUAL );
  /* Hash Commands */
 <HASH>{
 	\\\n			NEWLINE;
-	\n			NEWLINE; BEGIN( INITIAL ); TOKEN ( NEWLINE ); 
-	\r\n 			TOKEN( ENDLINE );
+	\n			NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE ); 
+	\r\n 			NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE );
 	"option"		TOKEN( OPTION );
 	"ignore error"		TOKEN( EXPECTERROR );
 	"IGNORE ERROR"		TOKEN( EXPECTERROR );
