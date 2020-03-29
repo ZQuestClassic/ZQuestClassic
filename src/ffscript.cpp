@@ -35,7 +35,11 @@ using namespace util;
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
 #else
-#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
+	#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #endif
 
 //Define this register, so it can be treated specially
