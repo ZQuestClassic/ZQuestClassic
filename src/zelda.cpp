@@ -62,10 +62,10 @@ extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
 #else //Unix
-int pt = 0;
-char* ptname = NULL;
-std::ostringstream lxconsole_oss;
-
+	#include <fcntl.h>
+	int pt = 0;
+	char* ptname = NULL;
+	std::ostringstream lxconsole_oss;
 #endif
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
