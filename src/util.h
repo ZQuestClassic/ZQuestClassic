@@ -24,6 +24,7 @@ namespace util
 	bool create_path(const char* path);
 	char* zc_itoa(int value, char* str, int base);
 	int zc_chmod(const char* path, mode_t mode);
+	bool checkPath(const char* path, const bool is_dir);
 }
 
 #endif

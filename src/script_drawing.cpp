@@ -13,6 +13,8 @@
 #include "tiles.h"
 #include "zelda.h"
 #include "ffscript.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern refInfo *ri;
@@ -49,12 +51,6 @@ template<class T> inline
 fixed radians_to_fixed(T d)
 {
     return ftofix(RadtoFix(d));
-}
-
-inline bool file_exists(const char *filename) 
-{
-	std::ifstream ifile(filename);
-	return (bool)ifile;
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
@@ -5608,12 +5604,11 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	//Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
-	return;
+		Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
     }
 	int bitid = sdci[17] - 10; 
-	if ( scb.script_created_bitmaps[bitid].u_bmp )
-		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	scb.script_created_bitmaps[bitid].destroy();
     
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
     
@@ -5631,7 +5626,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     PALETTE tempPal;
     get_palette(tempPal);
-    if ( file_exists(str->c_str()) )
+    if ( checkPath(str->c_str(), false) )
     {
 	    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), tempPal);
 	    scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
@@ -5644,7 +5639,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    }
 	    else 
 	    {
-		    Z_scripterrlog("Read image file %s\n",str->c_str());
+		    zprint("Read image file %s\n",str->c_str());
 	    }
     }
     else
@@ -5681,6 +5676,7 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if ( !scb.script_created_bitmaps[bitid].u_bmp ) 
     {
 	    Z_scripterrlog("Tried to write from an invalid bitmap pointer %d. Aborting. \n", sdci[17]);
+		return;
     }
     
     bool overwrite = (sdci[3] != 0);
@@ -5705,10 +5701,10 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	{
 		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());
 	}
-	else if ( overwrite || (!file_exists(str->c_str())) )
+	else if ( overwrite || (!checkPath(str->c_str(), false)) )
 	{
 		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+		zprint("Wrote image file %s\n",str->c_str());
 	}
 	else Z_scripterrlog("Cannot write file %s because the file already exists in the specified path.\n", str->c_str());
 }
@@ -10806,5 +10802,18 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
     
     
     color_map=&trans_table;
+}
+
+void CScriptDrawingCommands::Clear()
+{
+	scb.update();
+	if(commands.empty())
+		return;
+	
+	//only clear what was used.
+	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
+	count = 0;
+	
+	draw_container.Clear();
 }
 

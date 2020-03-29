@@ -35657,18 +35657,7 @@ script_bitmaps scb;
 //script_bitmaps scb;
 void FFScript::user_bitmaps_init()
 {
-	scb.num_active = 0;
-	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
-	{
-		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
-		{
-			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
-		}
-		scb.script_created_bitmaps[q].width = 0;
-		scb.script_created_bitmaps[q].height = 0;
-		scb.script_created_bitmaps[q].depth = 0;
-		scb.script_created_bitmaps[q].u_bmp = NULL;
-	}
+	scb.clear();
 }
 
 void FFScript::user_files_init(){}
