@@ -207,6 +207,7 @@ extern YYLTYPE noloc;
  // Hash Only
 %token HASH
 %token ENDLINE
+%token NEWLINE
 %token OPTION
 %token INHERIT
 
@@ -406,7 +407,18 @@ Option :
 		ASTExprConst* expr = (ASTExprConst*)$4;
 		$$ = new ASTSetOption(name->getValue(), expr, @$);
 		delete name;}
+	|
+	HASH OPTION IDENTIFIER Expression_Constant NEWLINE {
+		ASTString* name = (ASTString*)$3;
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption(name->getValue(), expr, @$);
+		delete name;}
 	| HASH OPTION IDENTIFIER INHERIT ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Inherit, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER INHERIT NEWLINE {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Inherit, @$);
@@ -416,13 +428,27 @@ Option :
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
 		delete name;}
+	| HASH OPTION IDENTIFIER DEFAULT NEWLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Default, @$);
+		delete name;}
 	| HASH OPTION DEFAULT Expression_Constant ENDLINE {
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption("default", expr, @$);}
+	| HASH OPTION DEFAULT Expression_Constant NEWLINE {
 		ASTExprConst* expr = (ASTExprConst*)$4;
 		$$ = new ASTSetOption("default", expr, @$);}
 	| HASH OPTION DEFAULT INHERIT ENDLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Inherit, @$);}
+	| HASH OPTION DEFAULT INHERIT NEWLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Inherit, @$);}
 	| HASH OPTION DEFAULT DEFAULT ENDLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Default, @$);}
+	| HASH OPTION DEFAULT DEFAULT NEWLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Default, @$);}
 	;

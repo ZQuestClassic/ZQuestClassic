@@ -154,8 +154,8 @@ decorationsprite	TOKEN( DECORATION );
 ","		TOKEN( COMMA );
 "."		TOKEN( DOT );
 ";"		TOKEN( SEMICOLON );
-"::"	TOKEN( SCOPERES );
-".."	TOKEN( SCOPERES );
+"::"		TOKEN( SCOPERES );
+".."		TOKEN( SCOPERES );
 ":"		TOKEN( COLON );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
@@ -164,9 +164,10 @@ decorationsprite	TOKEN( DECORATION );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
 "?"		TOKEN( QMARK ); //for ternary
+
 "#"		{
-	BEGIN( HASH ); //Handle the string following 'import' specially
-	TOKEN( HASH );
+		BEGIN( HASH ); //Handle the string following 'import' specially
+		TOKEN( HASH );
 }
 
  /* Operators (in order of operations) */
@@ -194,7 +195,7 @@ bitnot		TOKEN( BITNOT );
 "!="		TOKEN( NE );
 not_eq		TOKEN( NE );
 "<>"		TOKEN( NE );
-not_equal		TOKEN( NE );
+not_equal	TOKEN( NE );
 "&"		TOKEN( BITAND );
 bitand		TOKEN( BITAND );
 "^"		TOKEN( BITXOR );
@@ -216,33 +217,33 @@ or		TOKEN( OR );
 ">>="		TOKEN( RSHIFTASSIGN );
 "&="		TOKEN( BITANDASSIGN );
 and_eq		TOKEN( BITANDASSIGN );
-and_equal		TOKEN( BITANDASSIGN );
+and_equal	TOKEN( BITANDASSIGN );
 "^="		TOKEN( BITXORASSIGN );
 xor_eq		TOKEN( BITXORASSIGN );
-xor_equal		TOKEN( BITXORASSIGN );
+xor_equal	TOKEN( BITXORASSIGN );
 "|="		TOKEN( BITORASSIGN );
 or_eq		TOKEN( BITORASSIGN );
-or_equal		TOKEN( BITORASSIGN );
+or_equal	TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
 "^^"		TOKEN( XOR );
 "xor"		TOKEN( XOR );
-"..."			TOKEN( RANGE );
-"~~"			TOKEN (APPXEQUAL);
+"..."		TOKEN( RANGE );
+"~~"		TOKEN (APPXEQUAL);
 appx_eq		TOKEN( APPXEQUAL );
-appx_equal		TOKEN( APPXEQUAL );
-"!!"			TOKEN (DOUBLEBANG);
-"%%"			TOKEN (PERCENT);
-"~="			TOKEN (BITNOTASSIGN);
-"bitnot_eq"			TOKEN (BITNOTASSIGN);
-"bitnot_equal"			TOKEN (BITNOTASSIGN);
-"!%"			TOKEN (INVMOD);
-"$$"			TOKEN (DOUBLEADDR);
-"**"			TOKEN (DOUBLESTAR);
-"@"			TOKEN (HANDLE);
-"@@"			TOKEN (HANDLETOHANDLE);
-"$"			TOKEN (ADDR);
- /*	cast		TOKEN( CAST );	*/
+appx_equal	TOKEN( APPXEQUAL );
+"!!"		TOKEN (DOUBLEBANG);
+"%%"		TOKEN (PERCENT);
+"~="		TOKEN (BITNOTASSIGN);
+"bitnot_eq"	TOKEN (BITNOTASSIGN);
+"bitnot_equal"	TOKEN (BITNOTASSIGN);
+"!%"		TOKEN (INVMOD);
+"$$"		TOKEN (DOUBLEADDR);
+"**"		TOKEN (DOUBLESTAR);
+"@"		TOKEN (HANDLE);
+"@@"		TOKEN (HANDLETOHANDLE);
+"$"		TOKEN (ADDR);
+ /*	cast	TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
  /* "*"+IDENTIFIER how do we segregate from multiply? */
  /* "&"+IDENTIFIER how do we segregate from bitand? */
@@ -262,7 +263,7 @@ appx_equal		TOKEN( APPXEQUAL );
 	scol = yycol;
 	ADVANCE; 
 	BEGIN( COMMENT );
-}
+} 
 <COMMENT>{
 	[^*\n]*			ADVANCE;
 	[^*\n]*\n		NEWLINE;
@@ -277,20 +278,21 @@ appx_equal		TOKEN( APPXEQUAL );
 
  /* Hash Commands */
 <HASH>{
-	\\\n		NEWLINE;
-	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
-	option		TOKEN( OPTION );
+	\\\n			NEWLINE;
+	\n			NEWLINE; BEGIN( INITIAL ); TOKEN ( NEWLINE ); 
+	\r\n 			TOKEN( ENDLINE );
+	"option"		TOKEN( OPTION );
 	"ignore error"		TOKEN( EXPECTERROR );
 	"IGNORE ERROR"		TOKEN( EXPECTERROR );
 	"ignore warning"	TOKEN( EXPECTERROR );
 	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
-	include		BEGIN( IMPORTING ); TOKEN( INCLUDE );
-	inherit		TOKEN( INHERIT );
+	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
+	inherit			TOKEN( INHERIT );
 	on			TOKEN( ZTRUE );
 	off			TOKEN( ZFALSE );
-	error		VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
-	warn		VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
+	error			VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
+	warn			VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
 
  /* Strings */
