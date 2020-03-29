@@ -62,55 +62,10 @@ extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
 #else //Unix
-{ // Let's try making a console for Linux -Z
-	int pt = posix_openpt(O_RDWR);
-	if (pt == -1)
-	{
-		std::cerr << "Could not open pseudo terminal.\n";
-		use_debug_console = 0;
-	}
-	char* ptname = ptsname(pt);
-	if (!ptname)
-	{
-		std::cerr << "Could not get pseudo terminal device name.\n";
-		close(pt);
-		use_debug_console = 0;
-	}
+int pt = 0;
+char* ptname = NULL;
+std::ostringstream lxconsole_oss;
 
-	if (unlockpt(pt) == -1)
-	{
-		std::cerr << "Could not get pseudo terminal device name.\n";
-		close(pt);
-		use_debug_console = 0;
-	}
-
-	std::ostringstream lxconsole_oss;
-	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-	system(lxconsole_oss.str().c_str());
-
-	int xterm_fd = open(ptname,O_RDWR);
-	{
-		char c = 0; int tries = 10000; 
-		do 
-		{
-			read(xterm_fd, &c, 1); 
-			--tries;
-		} while (c!='\n' && tries > 0);
-	}
-
-	if (dup2(pt, 1) <0)
-	{
-		std::cerr << "Could not redirect standard output.\n";
-		close(pt);
-		use_debug_console = 0;
-	}
-	if (dup2(pt, 2) <0)
-	{
-		std::cerr << "Could not redirect standard error output.\n";
-		close(pt);
-		use_debug_console = 0;
-	}
-} //this is in a block because I want it in a block. -Z
 #endif
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
@@ -4277,6 +4232,56 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
+#else //Unix
+
+    { // Let's try making a console for Linux -Z
+	pt = posix_openpt(O_RDWR);
+	if (pt == -1)
+	{
+		std::cerr << "Could not open pseudo terminal.\n";
+		use_debug_console = 0;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		std::cerr << "Could not get pseudo terminal device name.\n";
+		close(pt);
+		use_debug_console = 0;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		std::cerr << "Could not get pseudo terminal device name.\n";
+		close(pt);
+		use_debug_console = 0;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,O_RDWR);
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		std::cerr << "Could not redirect standard output.\n";
+		close(pt);
+		use_debug_console = 0;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		std::cerr << "Could not redirect standard error output.\n";
+		close(pt);
+		use_debug_console = 0;
+	}
+    } //this is in a block because I want it in a block. -Z
 #endif
     
     PopulateInitDialog();
