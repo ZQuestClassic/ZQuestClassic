@@ -2895,7 +2895,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ORectangleRegister());
         LABELBACK(label);
-        POP_ARGS(12, EXP2);
+        POP_ARGS(12, NUL);
         //pop pointer, and ignore it
         POPREF();
         RETURN();
@@ -2909,7 +2909,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OCircleRegister());
         LABELBACK(label);
-        POP_ARGS(11, EXP2);
+        POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2923,7 +2923,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OArcRegister());
         LABELBACK(label);
-        POP_ARGS(14, EXP2);
+        POP_ARGS(14, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2937,7 +2937,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OEllipseRegister());
         LABELBACK(label);
-        POP_ARGS(12, EXP2);
+        POP_ARGS(12, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2951,7 +2951,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OLineRegister());
         LABELBACK(label);
-        POP_ARGS(11, EXP2);
+        POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2965,7 +2965,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OSplineRegister());
         LABELBACK(label);
-        POP_ARGS(11, EXP2);
+        POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2979,7 +2979,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OPutPixelRegister());
         LABELBACK(label);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -2993,7 +2993,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OPutPixelArrayRegister());
         LABELBACK(label);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(5, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3007,7 +3007,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OPutTileArrayRegister());
         LABELBACK(label);
-        POP_ARGS(2, EXP2);
+        POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3021,7 +3021,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OFastComboArrayRegister());
         LABELBACK(label);
-        POP_ARGS(2, EXP2);
+        POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3035,7 +3035,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OPutLinesArrayRegister());
         LABELBACK(label);
-        POP_ARGS(2, EXP2);
+        POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3049,7 +3049,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawCharRegister());
         LABELBACK(label);
-        POP_ARGS(10, EXP2);
+        POP_ARGS(10, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3063,7 +3063,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawIntRegister());
         LABELBACK(label);
-        POP_ARGS(11, EXP2);
+        POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3077,7 +3077,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawTileRegister());
         LABELBACK(label);
-        POP_ARGS(15, EXP2);
+        POP_ARGS(15, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3091,7 +3091,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawTileCloakedRegister());
         LABELBACK(label);
-        POP_ARGS(7, EXP2);
+        POP_ARGS(7, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3105,7 +3105,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawComboRegister());
         LABELBACK(label);
-        POP_ARGS(16, EXP2);
+        POP_ARGS(16, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3119,7 +3119,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawComboCloakedRegister());
         LABELBACK(label);
-        POP_ARGS(7, EXP2);
+        POP_ARGS(7, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3133,7 +3133,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OQuadRegister());
         LABELBACK(label);
-        POP_ARGS(15, EXP2);
+        POP_ARGS(15, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3148,7 +3148,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OPolygonRegister());
         LABELBACK(label);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(5, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3163,7 +3163,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OTriangleRegister());
         LABELBACK(label);
-        POP_ARGS(13, EXP2);
+        POP_ARGS(13, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3178,7 +3178,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OQuad3DRegister());
         LABELBACK(label);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3192,7 +3192,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OTriangle3DRegister());
         LABELBACK(label);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3207,7 +3207,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OFastTileRegister());
         LABELBACK(label);
-        POP_ARGS(6, EXP2);
+        POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3221,7 +3221,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new OFastComboRegister());
         LABELBACK(label);
-        POP_ARGS(6, EXP2);
+        POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3235,7 +3235,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawStringRegister());
         LABELBACK(label);
-        POP_ARGS(9, EXP2);
+        POP_ARGS(9, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3249,7 +3249,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawLayerRegister());
         LABELBACK(label);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3263,7 +3263,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawScreenRegister());
         LABELBACK(label);
-        POP_ARGS(6, EXP2);
+        POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3277,7 +3277,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawBitmapRegister());
         LABELBACK(label);
-        POP_ARGS(12, EXP2);
+        POP_ARGS(12, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -3292,7 +3292,7 @@ void ScreenSymbols::generateCode()
         vector<Opcode *> code;
         code.push_back(new ODrawBitmapExRegister());
         LABELBACK(label);
-        POP_ARGS(16, EXP2);
+        POP_ARGS(16, NUL);
         //pop pointer, and ignore it
         POPREF();
         
@@ -8381,6 +8381,7 @@ static AccessorTable BitmapTable[] =
 	{ "Create",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Polygon",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    6,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
 	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_BITMAP,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -8433,7 +8434,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPRectangleRegister());
 		LABELBACK(label);
-		POP_ARGS(12, EXP2);
+		POP_ARGS(12, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
@@ -8447,11 +8448,11 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		code.push_back(new OReadBitmap());
+		REASSIGN_PTR(EXP2);
 		LABELBACK(label);
-		POP_ARGS(2, EXP2);
+		POP_ARGS(2, NUL);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		
+		POPREF();
 		RETURN();
 		function->giveCode(code);
 
@@ -8464,7 +8465,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OClearBitmap());
 		LABELBACK(label);
-		POP_ARGS(1, EXP2);
+		POP_ARGS(1, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		
@@ -8479,10 +8480,11 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		code.push_back(new ORegenerateBitmap());
+		REASSIGN_PTR(EXP2);
 		LABELBACK(label);
-		POP_ARGS(3, EXP2);
+		POP_ARGS(3, NUL);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
 		
 		RETURN();
 		function->giveCode(code);
@@ -8495,7 +8497,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OWriteBitmap());
 		LABELBACK(label);
-		POP_ARGS(3, EXP2);
+		POP_ARGS(3, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
@@ -8509,7 +8511,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPCircleRegister());
 		LABELBACK(label);
-		POP_ARGS(11, EXP2);
+		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8523,7 +8525,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPArcRegister());
 		LABELBACK(label);
-		POP_ARGS(14, EXP2);
+		POP_ARGS(14, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8537,7 +8539,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPEllipseRegister());
 		LABELBACK(label);
-		POP_ARGS(12, EXP2);
+		POP_ARGS(12, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8551,7 +8553,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPLineRegister());
 		LABELBACK(label);
-		POP_ARGS(11, EXP2);
+		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8565,7 +8567,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPSplineRegister());
 		LABELBACK(label);
-		POP_ARGS(11, EXP2);
+		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8579,7 +8581,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPPutPixelRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8593,7 +8595,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawCharRegister());
 		LABELBACK(label);
-		POP_ARGS(10, EXP2);
+		POP_ARGS(10, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8607,7 +8609,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawIntRegister());
 		LABELBACK(label);
-		POP_ARGS(11, EXP2);
+		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8621,7 +8623,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawTileRegister());
 		LABELBACK(label);
-		POP_ARGS(15, EXP2);
+		POP_ARGS(15, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8635,7 +8637,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawTileCloakedRegister());
 		LABELBACK(label);
-		POP_ARGS(7, EXP2);
+		POP_ARGS(7, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8649,7 +8651,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawComboRegister());
 		LABELBACK(label);
-		POP_ARGS(16, EXP2);
+		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8663,7 +8665,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawComboCloakedRegister());
 		LABELBACK(label);
-		POP_ARGS(7, EXP2);
+		POP_ARGS(7, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8677,7 +8679,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPQuadRegister());
 		LABELBACK(label);
-		POP_ARGS(16, EXP2);
+		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8692,7 +8694,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPPolygonRegister());
 		LABELBACK(label);
-		POP_ARGS(5, EXP2);
+		POP_ARGS(5, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8707,7 +8709,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPTriangleRegister());
 		LABELBACK(label);
-		POP_ARGS(14, EXP2);
+		POP_ARGS(14, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8722,7 +8724,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPQuad3DRegister());
 		LABELBACK(label);
-		POP_ARGS(9, EXP2);
+		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8736,7 +8738,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPTriangle3DRegister());
 		LABELBACK(label);
-		POP_ARGS(9, EXP2);
+		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8751,7 +8753,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPFastTileRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8765,7 +8767,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPFastComboRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8779,7 +8781,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawStringRegister());
 		LABELBACK(label);
-		POP_ARGS(9, EXP2);
+		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8793,7 +8795,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawLayerRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8807,7 +8809,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenCIFlagRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8821,7 +8823,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenCFlagRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8835,7 +8837,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenSolidMaskRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8849,7 +8851,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenCTypeRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8864,7 +8866,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenSolidityRegister());
 		LABELBACK(label);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8878,7 +8880,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8893,7 +8895,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenSolidRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8908,7 +8910,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenSolid2Register());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8922,7 +8924,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenComboTRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8936,7 +8938,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenComboFRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8950,7 +8952,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawScreenComboIRegister());
 		LABELBACK(label);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
@@ -8966,7 +8968,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPDrawBitmapExRegister());
 		LABELBACK(label);
-		POP_ARGS(16, EXP2);
+		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
         
@@ -8980,7 +8982,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPMode7());
 		LABELBACK(label);
-		POP_ARGS(13, EXP2);
+		POP_ARGS(13, NUL);
 		//pop pointer, and ignore it
 		POPREF();
         
@@ -8994,7 +8996,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPBlitTO());
 		LABELBACK(label);
-		POP_ARGS(16, EXP2);
+		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
         
@@ -9008,7 +9010,7 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBMPBlitTO());
 		LABELBACK(label);
-		POP_ARGS(16, EXP2);
+		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
         
@@ -9048,13 +9050,26 @@ void BitmapSymbols::generateCode()
 		vector<Opcode *> code;
 		code.push_back(new OBitmapClearToColor());
 		LABELBACK(label);
-		POP_ARGS(2, EXP2);
+		POP_ARGS(2, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		
 		RETURN();
 		function->giveCode(code);
 
+	}
+	//void Free(bitmap)
+	{
+		Function* function = getFunction("Free", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OBitmapFree());
+		RETURN();
+		function->giveCode(code);
 	}
 }
 

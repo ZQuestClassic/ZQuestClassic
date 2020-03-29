@@ -185,5 +185,14 @@ namespace util
 		return chmod(path,mode);
 #endif
 	}
+
+	bool checkPath(const char* path, const bool is_dir)
+	{
+		struct stat info;
+
+		if(stat( path, &info ) != 0)
+			return false;
+		else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+	}
 }
 

@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 56
-Document Revision: 28th March, 2020
+Document Revision: 29th March, 2020
 
 
  __           _   _                 
@@ -5763,6 +5763,15 @@ int Height;
  * Returns the height of the bitmap, in pixels. 
  * READ-ONLY. Bitmaps cannot be resized by writing to this. 
 
+void Free();
+ * If the bitmap is allocated, frees the bitmap.
+ *     This means that this bitmap ID is able to be returned by subsequent
+ *     calls to 'Game->AllocateBitmap()' and such.
+ * Note: The bitmap will remain allocated until script draws are next cleared.
+ *       This generally occurs at the end of each frame, unless 'Game->Suspend[]'
+ *       is used to prevent it.
+ * Once the bitmap is freed, any image data on it is deleted.
+
 bool isValid();
  * Returns true if the bitmap points to a valid bitmap
  * A bitmap is valid when it has been created, and can be written to
@@ -5777,10 +5786,12 @@ float GetPixel(int x, int y);
  * Returns the palette index value of a pixel on the current bitmap pointer.
 
 void Create(int layer, int width, int height);
- * Creates a bitmap on an already-initialised bitmap pointer, with a size of height, width.
- * Destroys any existing bitmap ont hat pointer before creating a new one. 
- * You can use this in conjunction with Game->AllocateBitmap(), or to destroy an existing bitmap and 
- * create a new one.
+ * Creates a bitmap on a bitmap pointer, with a size of height, width.
+ * Destroys any existing bitmap on that pointer before creating a new one.
+ * You can use this on an initialized bitmap pointer; either one allocated with 'Game->AllocateBitmap()', or
+ *     a bitmap pointer that has a valid bitmap on it.
+ * You can ALSO use this on an uninitialised pointer, and it will attempt to initialize it.
+ *     The layer arg will be ignored when this is used on an uninitialised pointer.
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT clear a specific 'layer' of a bitmap. 
  *       Layers in ZC are only an expression of drawing order/sequence!
@@ -5799,7 +5810,8 @@ void ClearToColor(int layer, int color);
  
 void Read(int layer, "filename");
  * Reads a valid graphic file into a bitmap pointer.
- * Use Game->AllocateBitmap() to prime the pointer first, if it is uninitialised.
+ * If used on an uninitialised pointer, it will first attempt to allocate it.
+ *     If it fails to allocate the pointer, it will not attempt the read operation.
  * If the filename provided is invalid (e.g., the file is missing), the pointer
  * will be initialised with a blank bitmap at a size of 256x176.
  

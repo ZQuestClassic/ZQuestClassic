@@ -182,12 +182,49 @@ enum //ScrollingData indexes
 };
 
 //User-generated / Script-Generated bitmap object
+#define UBMPFLAG_RESERVED		0x01
+#define UBMPFLAG_FREEING		0x02
 struct user_bitmap
 {
 	BITMAP* u_bmp;
 	int width;
 	int height;
 	int depth;
+	byte flags;
+	
+	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0) {}
+	
+	void destroy()
+	{
+		if(u_bmp != NULL)
+			destroy_bitmap(u_bmp);
+		width = 0;
+		height = 0;
+		depth = 0;
+		u_bmp = NULL;
+	}
+	void clear()
+	{
+		destroy();
+		flags = 0;
+	}
+	void reserve()
+	{
+		flags |= UBMPFLAG_RESERVED;
+	}
+	bool reserved()
+	{
+		return (flags & UBMPFLAG_RESERVED) ? true : false;
+	}
+	void free()
+	{
+		flags |= UBMPFLAG_FREEING;
+	}
+	void update()
+	{
+		if(flags & UBMPFLAG_FREEING)
+			clear();
+	}
 };
 
 
@@ -205,8 +242,21 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
-	int num_active;
 	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
+	void update()
+	{
+		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		{
+			script_created_bitmaps[q].update();
+		}
+	}
+	void clear()
+	{
+		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		{
+			script_created_bitmaps[q].clear();
+		}
+	}
 };
 
 #define MAX_USER_PALETTES 256
@@ -316,7 +366,6 @@ void initIncludePaths();
 void initRunString();
 void updateRunString();
 void updateIncludePaths();
-bool file_exists(const char *filename);
 bool checkExtension(std::string &filename, const std::string &extension);
 //String.h functions for ffscript - 2.55 Alpha 23
 void do_strcmp();
@@ -449,9 +498,10 @@ void do_file_seek();
 void do_file_geterr();
 
 void user_bitmaps_init();
-void user_bitmaps_destroy();
 
-int get_free_bitmap();
+int get_free_bitmap(bool skipError = false);
+void do_deallocate_bitmap();
+bool isSystemBitref(long ref);
 
 long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
@@ -463,13 +513,8 @@ void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
 void do_set_oggex_speed(const bool v);
 
-BITMAP* get_user_bitmap(int id);
-
 BITMAP* GetScriptBitmap(int id);
 
-bool cleanup_user_bitmaps();
-
-bool destroy_user_bitmap(int id);
 int highest_valid_user_bitmap();
 long do_create_bitmap();
 
@@ -1256,7 +1301,6 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static void do_readbitmap(const bool v);
 	static long do_allocate_bitmap();
 	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
@@ -1288,7 +1332,6 @@ static void setLinkBigHitbox(bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
 	
-	static bool checkPath(const char* path, const bool is_dir);
 	static void do_checkdir(const bool is_dir);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
@@ -2540,9 +2583,10 @@ enum ASM_DEFINE
 	FILESEEK,
 	FILEOPENMODE,
 	FILEGETERROR,
+	
+	BITMAPFREE,
 
-
-	NUMCOMMANDS           //0x0184
+	NUMCOMMANDS           //0x0185
 };
 
 

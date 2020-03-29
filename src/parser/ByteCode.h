@@ -7975,6 +7975,16 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapFree : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapFree();
+		}
+	};
+	
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:
