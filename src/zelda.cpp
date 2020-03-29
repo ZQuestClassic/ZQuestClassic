@@ -4285,9 +4285,13 @@ int main(int argc, char* argv[])
 		use_debug_console = 0; goto no_lx_console;
 	}
     } //this is in a block because I want it in a block. -Z
-#endif
     
     no_lx_console:
+    {
+    } //empty block for the skip. -Z 
+#endif
+    
+    
     
     PopulateInitDialog();
     //FFScript::init();
