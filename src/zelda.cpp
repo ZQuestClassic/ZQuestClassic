@@ -1130,8 +1130,8 @@ void Z_eventlog(const char *format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;33m%s\033[0m", buf);	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s", buf);	
 		#endif
     }
 }
@@ -1149,8 +1149,8 @@ void Z_scripterrlog(const char * const format,...)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
 			curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mGlobal script %u (%s): \n\033[0m", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Global script %u (%s): \n", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
 		#endif
             break;
 	
@@ -1160,8 +1160,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mLink script %u (%s): \n\033[0m", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
 		#endif 
 	break;
 	
@@ -1171,8 +1171,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mLWeapon script %u (%s): \n\033[0m", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
 		#endif     
 	break;
 	
@@ -1182,8 +1182,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mEWeapon script %u (%s): \n\033[0m", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
 		#endif        
 	break;
 	
@@ -1193,8 +1193,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mNPC script %u (%s): \n\033[0m", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());	
 		#endif       
 	break;
             
@@ -1205,8 +1205,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mFFC script %u (%s): \n\033[0m", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("FFC script %u (%s): \n", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());	
 		#endif    
 	break;
             
@@ -1216,8 +1216,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mItemdata script %u (%s): \n\033[0m", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Itemdata script %u (%s): \n", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());	
 		#endif    
 	break;
         
@@ -1228,8 +1228,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mDMap script %u (%s): \n\033[0m", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("DMap script %u (%s): \n", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());	
 		#endif    
 	break;
 	
@@ -1239,8 +1239,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mitemsprite script %u (%s): \n\033[0m", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("itemsprite script %u (%s): \n", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());	
 		#endif    
 	break;
         
@@ -1250,8 +1250,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mScreen script %u (%s): \n\033[0m", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Screen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
 		#endif   
 	break;
 	
@@ -1261,8 +1261,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mSubscreen script %u (%s): \n\033[0m", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Subscreen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
 		#endif   
 	break;
 	
@@ -1272,8 +1272,8 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
 		#else //Unix
-			std::cout << "\033[1;35mZ_scripterrlog Test\033[0m\n" << std::endl;
-			printf("\033[1;32mCombo script %u (%s): \n\033[0m", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());	
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Combo script %u (%s): \n", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());	
 		#endif   
 	break;
         }
@@ -1326,8 +1326,8 @@ void zprint(const char * const format,...)
 		#else //Unix
 		{
 			
-			std::cout << "\033[1;35mZPrint Test\033[0m\n" << std::endl;
-			printf("\033[1;35m%s\033[0m", buf);
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
 			
 		}
 	
@@ -1360,8 +1360,8 @@ void zprint2(const char * const format,...)
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 		#else //Unix
-			std::cout << "\033[1;35mZPrint Test\033[0m\n" << std::endl;
-			printf("\033[1;35m%s\033[0m", buf);
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
 		#endif
 	}
 	
@@ -4322,8 +4322,8 @@ int main(int argc, char* argv[])
 	    //Z_error("Could not open Linux console.\n");
     }
     
-	std::cout << "\033[1;35mZConsole for Linux\033[0m\n" << std::endl;
-	std::cerr << "\033[1;35mTest cerr\033[0m\n\n";
+	std::cout << "ZConsole for Linux\n" << std::endl;
+	std::cerr << "Test cerr\n\n";
 	std::cin.ignore(1);
 #endif
     
