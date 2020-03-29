@@ -4241,7 +4241,7 @@ int main(int argc, char* argv[])
 	pt = posix_openpt(O_RDWR);
 	if (pt == -1)
 	{
-		Z_error("Could not open pseudo terminal.\n");
+		Z_error("Could not open pseudo terminal; pt: %d.\n", pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
 	ptname = ptsname(pt);
