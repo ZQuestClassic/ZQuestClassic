@@ -4239,21 +4239,21 @@ int main(int argc, char* argv[])
 	if (pt == -1)
 	{
 		std::cerr << "Could not open pseudo terminal.\n";
-		use_debug_console = 0;
+		use_debug_console = 0; goto no_lx_console;
 	}
 	ptname = ptsname(pt);
 	if (!ptname)
 	{
 		std::cerr << "Could not get pseudo terminal device name.\n";
 		close(pt);
-		use_debug_console = 0;
+		use_debug_console = 0; goto no_lx_console;
 	}
 
 	if (unlockpt(pt) == -1)
 	{
 		std::cerr << "Could not get pseudo terminal device name.\n";
 		close(pt);
-		use_debug_console = 0;
+		use_debug_console = 0; goto no_lx_console;
 	}
 
 	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
@@ -4273,16 +4273,18 @@ int main(int argc, char* argv[])
 	{
 		std::cerr << "Could not redirect standard output.\n";
 		close(pt);
-		use_debug_console = 0;
+		use_debug_console = 0; goto no_lx_console;
 	}
 	if (dup2(pt, 2) <0)
 	{
 		std::cerr << "Could not redirect standard error output.\n";
 		close(pt);
-		use_debug_console = 0;
+		use_debug_console = 0; goto no_lx_console;
 	}
     } //this is in a block because I want it in a block. -Z
 #endif
+    
+    no_lx_console:
     
     PopulateInitDialog();
     //FFScript::init();
