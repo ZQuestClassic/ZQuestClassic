@@ -4291,8 +4291,8 @@ int main(int argc, char* argv[])
 	    //Z_error("Could not open Linux console.\n");
     }
     
-	std::cout << "ZConsole for Linux" << std::endl;
-	std::cerr << "Test cerr\n";
+	std::cout << "\033[1;35mZConsole for Linux\033[0m\n" << std::endl;
+	std::cerr << "\033[1;35mTest cerr\033[0m\n\n";
 	std::cin.ignore(1);
 #endif
     
