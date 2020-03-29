@@ -4322,8 +4322,25 @@ int main(int argc, char* argv[])
 	    //Z_error("Could not open Linux console.\n");
     }
     
+    
+	std::cout << "\n       _____   ____                  __ \n" << std::endl;
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n" << std::endl;
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n" << std::endl;
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n" << std::endl;
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n" << std::endl;
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n" << std::endl;
 	std::cout << "ZConsole for Linux\n" << std::endl;
-	std::cerr << "Test cerr\n\n";
+    
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
+	//std::cerr << "Test cerr\n\n";
 	std::cin.ignore(1);
 #endif
     
