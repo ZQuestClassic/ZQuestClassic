@@ -29,9 +29,22 @@ extern byte use_dwm_flush;
 #include <time.h>
 //#include "zc_sys.h"
 #include "script_drawing.h"
+#include "util.h"
+using namespace util;
+
+#ifdef _WIN32
+#define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
+#else
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
+	#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#endif
 
 //Define this register, so it can be treated specially
 #define NUL		5
+#define MAX_ZC_ARRAY_SIZE 214748
 
 extern zinitdata zinit;
 int hangcount = 0;
@@ -44,13 +57,15 @@ zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
+user_file script_files[MAX_USER_FILES];
 
 FONT *get_zc_font(int index);
 
 static inline bool fileexists(const char *filename) 
 {
 	std::ifstream ifile(filename);
-	return (bool)ifile;
+	if(ifile) return true;
+	return false;
 }
 
 const char scripttypenames[11][40]=
@@ -228,12 +243,188 @@ long getScreen(long ref)
 	}
 }
 
-#ifdef _WIN32
-//////////////////////////////////////////////////////////////////////
-// ConsoleLogger.cpp: implementation of the CConsoleLogger class.
-//////////////////////////////////////////////////////////////////////
 
+#ifdef _WIN32
 #include "ConsoleLogger.h"
+#else
+//unix
+
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	// create a logger: starts a pipe+create the child process
+	long Create(const char *lpszWindowTitle=NULL,
+				int buffer_size_x=-1,int buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+
+	// close everything
+	long Close(void);
+	
+	// output functions
+	inline int print(const char *lpszText,int iSize=-1);
+	int printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int SetAsDefaultOutput(void);
+	static int ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile long m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0;
+#else
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
+
+#endif
+
+	// you can extend this class by overriding the function
+	virtual long	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int _print(const char *lpszText,int iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ long hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	long lpBuffer,
+		/*__in        */ long nNumberOfBytesToWrite,
+		/*__out_opt   */ long lpNumberOfBytesWritten,
+		/*__inout_opt */ long lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	long	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE,
+		COLOR_GREEN,
+		COLOR_RED,
+		COLOR_WHITE,
+		COLOR_INTENSITY,
+		COLOR_BACKGROUND_BLACK,
+		COLOR_BACKGROUND_BLUE,
+		COLOR_BACKGROUND_GREEN,
+		COLOR_BACKGROUND_RED,
+		COLOR_BACKGROUND_WHITE,
+		COLOR_BACKGROUND_INTENSITY,
+		COLOR_COMMON_LVB_LEADING_BYTE,
+		COLOR_COMMON_LVB_TRAILING_BYTE,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL,
+		COLOR_COMMON_LVB_GRID_LVERTICAL,
+		COLOR_COMMON_LVB_GRID_RVERTICAL,
+		COLOR_COMMON_LVB_REVERSE_VIDEO,
+		COLOR_COMMON_LVB_UNDERSCORE
+	};
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(word color);
+	
+	// write string , use specified color
+	int cprintf(int attributes,const char *format,...);
+	
+	// write string , use current color
+	int cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int x,int y);
+
+
+
+	word	GetCurrentColor(void)
+	{  }
+	
+	void	SetCurrentColor(word dwColor)
+	{ }
+	
+
+protected:
+	virtual long AddHeaders(void)
+	{
+		return  0;
+	}
+	
+	virtual int _print(const char *lpszText,int iSize);
+	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+
+
+};
+#endif
+
+#ifdef _WIN32
+// ConsoleLogger.cpp: implementation of the CConsoleLogger class.
+//
+//////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -275,6 +466,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
+	
 	// Ensure there's no pipe connected
 	if (m_hPipe != INVALID_HANDLE_VALUE)
 	{
@@ -348,7 +540,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	
 	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
-					  TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
+		 TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
 	if (!bConnected)
 	{
 		MessageBox(NULL,"ConnectNamedPipe failed","ConsoleLogger failed",MB_OK);
@@ -453,6 +645,7 @@ int CConsoleLogger::printf(const char *format,...)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
+
 	int ret;
 	char tmp[1024];
 
@@ -465,9 +658,12 @@ int CConsoleLogger::printf(const char *format,...)
 	#endif
 	tmp[ret]=0;
 
+
 	va_end(argList);
 
+
 	return _print(tmp,ret);
+
 }
 
 
@@ -640,6 +836,7 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
+
 	int ret;
 	char tmp[1024];
 
@@ -651,6 +848,7 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[ret]=0;
+
 
 	va_end(argList);
 
@@ -680,6 +878,7 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 	#endif
 	tmp[ret]=0;
 
+
 	va_end(argList);
 
 	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
@@ -693,6 +892,7 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 {
+	
 	DWORD dwWritten=(DWORD)-1;
 	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
 	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_CPRINT) , and 3 bytes for size
@@ -719,15 +919,201 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 	return iRet;
 }
 
+#else
+//Unix
 
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	return 0;
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(word color)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(word color)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	return 0;
+}
 
 #endif
 
-
-#ifdef _WIN32
+//no ifdef here
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-#endif
 
 
 const char script_types[14][16]=
@@ -745,7 +1131,7 @@ int FFScript::UpperToLower(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		{
@@ -762,7 +1148,7 @@ int FFScript::LowerToUpper(std::string *s)
 		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -779,7 +1165,7 @@ int FFScript::ConvertCase(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -1908,9 +2294,9 @@ public:
 		if(ptr <= 0)
 			return InvalidError(ptr);
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 				return InvalidError(ptr);
@@ -1952,7 +2338,7 @@ public:
 	}
 	
 	//Returns values of a zscript array as an std::string.
-	static void getString(const long ptr, string &str, word num_chars = 256)
+	static void getString(const long ptr, string &str, dword num_chars = 256, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -1964,9 +2350,15 @@ public:
 		
 		str.clear();
 		
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
 		{
-			str += char(a[i] / 10000);
+			int c = a[i] / 10000;
+			if(char(c) != c)
+			{
+				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
+				Z_scripterrlog("Value of invalid char will overflow.\n");
+			}
+			str += char(c);
 			num_chars--;
 		}
 	}
@@ -1974,14 +2366,14 @@ public:
 	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
 	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const long ptr, long* arrayPtr, word num_values) //a hack -Z
+	static void getValues2(const long ptr, long* arrayPtr, dword num_values, dword offset = 0) //a hack -Z
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -1989,14 +2381,14 @@ public:
 	}
 	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const long ptr, long* arrayPtr, word num_values)
+	static void getValues(const long ptr, long* arrayPtr, dword num_values, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -2143,7 +2535,7 @@ public:
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -2177,7 +2569,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 		}
 	}
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
@@ -2190,7 +2582,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 void FFScript::deallocateAllArrays()
 {
 	//No QR check here- always deallocate on quest exit.
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(localRAM[i].Size() > 0)
 		{
@@ -2265,6 +2657,29 @@ weapon *checkEWpn(long eid, const char *what)
 	return s;
 }
 
+user_file *checkFile(long ref, const char *what, bool req_file = false, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_FILES)
+	{
+		user_file* f = &script_files[ref-1];
+		if(f->reserved)
+		{
+			if(req_file && !f->file)
+			{
+				if(skipError) return NULL;
+				Z_scripterrlog("Script attempted to reference an invalid file!\n");
+				Z_scripterrlog("File with UID = %ld does not have an open file connection!\n",ref);
+				Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+				return NULL;
+			}
+			return f;
+		}
+	}
+	if(skipError) return NULL;
+	Z_eventlog("Script attempted to reference a nonexistent File!\n");
+	Z_eventlog("You were trying to reference the '%s' of an File with UID = %ld\n", what, ref);
+	return NULL;
+}
 
 int get_screen_d(long index1, long index2)
 {
@@ -8703,6 +9118,36 @@ long get_register(const long arg)
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
+		
+		case FILEPOS:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Pos", true))
+			{
+				ret = ftell(f->file); //NOT *10000 -V
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEEOF:
+		{
+			if(user_file* f = checkFile(ri->fileref, "EOF", true))
+			{
+				ret = feof(f->file) ? 10000L : 0L; //Boolean
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEERR:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Error", true))
+			{
+				ret = ferror(f->file) * 10000L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
 		//Misc./Internal
 		case REFFFC:
 			ret = ri->ffcref * 10000;
@@ -9139,6 +9584,17 @@ void set_register(const long arg, const long value)
 				ringcolor(false);
 				//refreshpal=true;
 			}
+			if ( !value ) //setting the item false clears the state of forced ->Equipment writes.
+			{
+				if ( game->forced_bwpn == itemID ) 
+				{
+					game->forced_bwpn = -1;
+				} //not else if! -Z
+				if ( game->forced_awpn == itemID ) 
+				{
+					game->forced_awpn = -1;
+				}
+			}
 		}
 		break;
 			
@@ -9150,16 +9606,20 @@ void set_register(const long arg, const long value)
 			}
 			//int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
 			int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
+			seta = vbound(seta,-1,255);
+			setb = vbound(setb,-1,255);
 			//Z_scripterrlog("A is: %d\n", seta);
 			//Z_scripterrlog("A is: %d\n", setb);
 				
 			Awpn = seta;
 			game->awpn = seta;
+			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			//directItemA = directItem;
 			
 			Bwpn = setb;
 			game->bwpn = setb;
+			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
 			//directItemB = directItem;
 			break;
@@ -9173,6 +9633,7 @@ void set_register(const long arg, const long value)
 			//value = third arg
 			//int item, int slot, int force
 			int itm = ri->d[0]/10000;
+			itm = vbound(itm, -1, 255);
 			
 			int slot = ri->d[1]/10000;
 			int force = ri->d[2]/10000;
@@ -9198,6 +9659,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else 
@@ -9205,6 +9667,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9215,6 +9678,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 					
 				}
@@ -9223,6 +9687,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9233,6 +9698,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else 
@@ -9240,6 +9706,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9250,6 +9717,7 @@ void set_register(const long arg, const long value)
 					Awpn = itm;
 					game->items_off[itm] = 0;
 					game->awpn = itm;
+					game->forced_awpn = itm;
 					//directItemA = directItem;
 				}
 				else if(game->item[itm])
@@ -9257,6 +9725,7 @@ void set_register(const long arg, const long value)
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
+					game->forced_bwpn = itm;
 					//directItemB = directItem;
 				}
 			}
@@ -9412,14 +9881,14 @@ void set_register(const long arg, const long value)
 		
 		case LINKITEMB:
 		{
-			if ( value/10000 < 0 ) 
+			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
 				break;
 			}
 			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -9427,6 +9896,7 @@ void set_register(const long arg, const long value)
 			
 			Bwpn = value/10000;
 			game->bwpn = value/10000;
+			game->forced_bwpn = value/10000;
 			game->items_off[value/10000] = 0;
 			//directItemB = directItem;
 			break;
@@ -9435,7 +9905,7 @@ void set_register(const long arg, const long value)
 		
 		case LINKITEMA:
 		{
-			if ( value/10000 < 0 ) 
+			if ( value/10000 < -1 ) 
 			{
 				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
 				break;
@@ -9450,6 +9920,7 @@ void set_register(const long arg, const long value)
 			Awpn = value/10000;
 			game->awpn = value/10000;
 			game->items_off[value/10000] = 0;
+			game->forced_awpn = value/10000;
 			//directItemB = directItem;
 			break;
 		}
@@ -11814,7 +12285,7 @@ void set_register(const long arg, const long value)
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
 					}
-					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
+					default: al_trace("Invalid index used with npc->hitBy[%ld]. /n", indx); break;
 				}
 			}
 			break;
@@ -13264,7 +13735,7 @@ void set_register(const long arg, const long value)
 			int index = ri->d[0]/10000;
 			index = vbound(index,0,11);
 			al_trace("GameOverScreen Index: %d/n",index);
-			al_trace("GameOverScreen Value: %d/n",colour);
+			al_trace("GameOverScreen Value: %ld/n",colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -15749,9 +16220,9 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
 		for(ptrval = 1; localRAM[ptrval].Size() != 0; ptrval++) ;
 		
-		if(ptrval >= MAX_ZCARRAY_SIZE)
+		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
-			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", MAX_ZCARRAY_SIZE-1);
+			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
 		}
 		else
@@ -15787,7 +16258,7 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
 			
-		ptrval += MAX_ZCARRAY_SIZE; //so each pointer has a unique value
+		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
 	
 	
@@ -17188,9 +17659,9 @@ void do_isvalidarray()
 			set_register(sarg1,0); return;
 	}
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //check global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 		{
@@ -18393,7 +18864,7 @@ void do_drawing_command(const int script_command)
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		Z_scripterrlog("READBITMAP string is %s\n", cptr);
 		
@@ -18410,7 +18881,7 @@ void do_drawing_command(const int script_command)
 		
 		
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		std::strncpy(cptr, str->c_str(), str->size());
+		strncpy(cptr, str->c_str(), str->size());
 		
 		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
@@ -20249,7 +20720,7 @@ int run_script(const byte type, const word script, const long i)
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
 						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
-					//case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
 					
 					default: break;					
 				}
@@ -20260,12 +20731,83 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case GOTO:
+			{
+				unsigned char invalid = 0;
+				if(sarg1 < 0 )
+				{
+					switch(type)
+					{
+						
+						case SCRIPT_FFC:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+						case SCRIPT_NPC:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+						case SCRIPT_LWPN:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+						case SCRIPT_EWPN:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+						case SCRIPT_ITEMSPRITE:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+						case SCRIPT_ITEM:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+						case SCRIPT_GLOBAL:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+						case SCRIPT_LINK:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+						case SCRIPT_SCREEN:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+						case SCRIPT_DMAP:
+						case SCRIPT_ACTIVESUBSCREEN:
+						case SCRIPT_PASSIVESUBSCREEN:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+						case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+						
+						default: break;						
+					}
+					invalid = 1; scommand = 0xFFFF;
+				}
+				if ( invalid ) break;
 				ri->pc = sarg1;
 				increment = false;
 				break;
-				
+			}
 			case GOTOR:
 			{
+				unsigned char invalid = 0;
+				if(sarg1 < 0 )
+				{
+					switch(type)
+					{
+						
+						case SCRIPT_FFC:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+						case SCRIPT_NPC:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+						case SCRIPT_LWPN:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+						case SCRIPT_EWPN:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+						case SCRIPT_ITEMSPRITE:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+						case SCRIPT_ITEM:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+						case SCRIPT_GLOBAL:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+						case SCRIPT_LINK:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+						case SCRIPT_SCREEN:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+						case SCRIPT_DMAP:
+						case SCRIPT_ACTIVESUBSCREEN:
+						case SCRIPT_PASSIVESUBSCREEN:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+						case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOR an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+						
+						default: break;						
+					}
+					invalid = 1; scommand = 0xFFFF;
+				}
+				if ( invalid ) break;
 				ri->pc = (get_register(sarg1) / 10000) - 1;
 				increment = false;
 			}
@@ -20274,8 +20816,43 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOTRUE:
 				if(ri->scriptflag & TRUEFLAG)
 				{
-				ri->pc = sarg1;
-				increment = false;
+					unsigned char invalid = 0;
+					if(sarg1 < 0 )
+					{
+						switch(type)
+						{
+							
+							case SCRIPT_FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+							case SCRIPT_NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+							case SCRIPT_LWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_EWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEMSPRITE:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEM:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+							case SCRIPT_GLOBAL:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+							case SCRIPT_LINK:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+							case SCRIPT_SCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+							case SCRIPT_DMAP:
+							case SCRIPT_ACTIVESUBSCREEN:
+							case SCRIPT_PASSIVESUBSCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+							
+							default: break;						
+						}
+						invalid = 1; scommand = 0xFFFF;
+					}
+					if ( invalid ) break;
+					ri->pc = sarg1;
+					increment = false;
 				}
 				
 				break;
@@ -20283,6 +20860,41 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOFALSE:
 				if(!(ri->scriptflag & TRUEFLAG))
 				{
+					unsigned char invalid = 0;
+					if(sarg1 < 0 )
+					{
+						switch(type)
+						{
+							
+							case SCRIPT_FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+							case SCRIPT_NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+							case SCRIPT_LWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_EWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEMSPRITE:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEM:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+							case SCRIPT_GLOBAL:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+							case SCRIPT_LINK:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+							case SCRIPT_SCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+							case SCRIPT_DMAP:
+							case SCRIPT_ACTIVESUBSCREEN:
+							case SCRIPT_PASSIVESUBSCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+							
+							default: break;						
+						}
+						invalid = 1; scommand = 0xFFFF;
+					}
+					if ( invalid ) break;
 					ri->pc = sarg1;
 					increment = false;
 				}
@@ -20292,6 +20904,41 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOMORE:
 				if(ri->scriptflag & MOREFLAG)
 				{
+					unsigned char invalid = 0;
+					if(sarg1 < 0 )
+					{
+						switch(type)
+						{
+							
+							case SCRIPT_FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+							case SCRIPT_NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+							case SCRIPT_LWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_EWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEMSPRITE:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEM:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+							case SCRIPT_GLOBAL:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+							case SCRIPT_LINK:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+							case SCRIPT_SCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+							case SCRIPT_DMAP:
+							case SCRIPT_ACTIVESUBSCREEN:
+							case SCRIPT_PASSIVESUBSCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+							
+							default: break;						
+						}
+						invalid = 1; scommand = 0xFFFF;
+					}
+					if ( invalid ) break;
 					ri->pc = sarg1;
 					increment = false;
 				}
@@ -20301,6 +20948,41 @@ int run_script(const byte type, const word script, const long i)
 			case GOTOLESS:
 				if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
 				{
+					unsigned char invalid = 0;
+					if(sarg1 < 0 )
+					{
+						switch(type)
+						{
+							
+							case SCRIPT_FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], ffcmap[i].scriptname.c_str()); break;
+							case SCRIPT_NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], npcmap[i].scriptname.c_str()); break;
+							case SCRIPT_LWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], lwpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_EWPN:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], ewpnmap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEMSPRITE:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], itemspritemap[i].scriptname.c_str()); break;
+							case SCRIPT_ITEM:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], itemmap[i].scriptname.c_str()); break;
+							case SCRIPT_GLOBAL:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], globalmap[i].scriptname.c_str()); break;
+							case SCRIPT_LINK:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], linkmap[i].scriptname.c_str()); break;
+							case SCRIPT_SCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], screenmap[i].scriptname.c_str()); break;
+							case SCRIPT_DMAP:
+							case SCRIPT_ACTIVESUBSCREEN:
+							case SCRIPT_PASSIVESUBSCREEN:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], dmapmap[i].scriptname.c_str()); break;
+							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid instruction (%d).\n", sarg1, script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+							
+							default: break;						
+						}
+						invalid = 1; scommand = 0xFFFF;
+					}
+					if ( invalid ) break;
 					ri->pc = sarg1;
 					increment = false;
 				}
@@ -21925,7 +22607,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+				al_trace("Called npc->Explode(%d), for enemy index %ld\n", mode, ri->guyref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
@@ -21951,7 +22633,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+				al_trace("Called item->Explode(%d), for item index %ld\n", mode, ri->itemref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
@@ -21969,7 +22651,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+				al_trace("Called lweapon->Explode(%d), for lweapon index %ld\n", mode, ri->lwpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
@@ -21987,7 +22669,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				int mode = get_register(sarg1) / 10000;
-				al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+				al_trace("Called eweapon->Explode(%d), for eweapon index %ld\n", mode, ri->ewpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
@@ -22481,6 +23163,122 @@ int run_script(const byte type, const word script, const long i)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			
+			case FILECLOSE:
+			{
+				FFCore.do_fclose();
+				break;
+			}
+			case FILEFREE:
+			{
+				FFCore.do_deallocate_file();
+				break;
+			}
+			case FILEISALLOCATED:
+			{
+				FFCore.do_file_isallocated();
+				break;
+			}
+			case FILEISVALID:
+			{
+				FFCore.do_file_isvalid();
+				break;
+			}
+			case FILEALLOCATE:
+			{
+				FFCore.do_allocate_file();
+				break;
+			}
+			case FILEFLUSH:
+			{
+				FFCore.do_fflush();
+				break;
+			}
+			case FILEGETCHAR:
+			{
+				FFCore.do_file_getchar();
+				break;
+			}
+			case FILEREWIND:
+			{
+				FFCore.do_file_rewind();
+				break;
+			}
+			case FILECLEARERR:
+			{
+				FFCore.do_file_clearerr();
+				break;
+			}
+			
+			case FILEOPEN:
+			{
+				FFCore.do_fopen(false, "rb+");
+				break;
+			}
+			case FILECREATE:
+			{
+				FFCore.do_fopen(false, "wb+");
+				break;
+			}
+			case FILEOPENMODE:
+			{
+				long arrayptr = get_register(sarg2) / 10000;
+				string mode;
+				ArrayH::getString(arrayptr, mode, 16);
+				FFCore.do_fopen(false, mode.c_str());
+				break;
+			}
+			case FILEREADSTR:
+			{
+				FFCore.do_file_readstring();
+				break;
+			}
+			case FILEWRITESTR:
+			{
+				FFCore.do_file_writestring();
+				break;
+			}
+			case FILEPUTCHAR:
+			{
+				FFCore.do_file_putchar();
+				break;
+			}
+			case FILEUNGETCHAR:
+			{
+				FFCore.do_file_ungetchar();
+				break;
+			}
+			
+			case FILEREADCHARS:
+			{
+				FFCore.do_file_readchars();
+				break;
+			}
+			case FILEREADINTS:
+			{
+				FFCore.do_file_readints();
+				break;
+			}
+			case FILEWRITECHARS:
+			{
+				FFCore.do_file_writechars();
+				break;
+			}
+			case FILEWRITEINTS:
+			{
+				FFCore.do_file_writeints();
+				break;
+			}
+			case FILESEEK:
+			{
+				FFCore.do_file_seek();
+				break;
+			}
+			case FILEGETERROR:
+			{
+				FFCore.do_file_geterr();
+				break;
+			}
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -22499,6 +23297,39 @@ int run_script(const byte type, const word script, const long i)
 		
 		if(increment)	ri->pc++;
 		else			increment = true;
+		if ( ri->pc < 0 ) //rolled over from overflow
+		{
+			switch(type)
+			{
+			
+				case SCRIPT_FFC:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
+					case SCRIPT_NPC:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
+					case SCRIPT_LWPN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
+					case SCRIPT_EWPN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
+					case SCRIPT_ITEMSPRITE:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
+					case SCRIPT_ITEM:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
+					case SCRIPT_GLOBAL:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
+					case SCRIPT_LINK:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
+					case SCRIPT_SCREEN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_DMAP:
+					case SCRIPT_ACTIVESUBSCREEN:
+					case SCRIPT_PASSIVESUBSCREEN:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+					default:
+						ri->pc = 1; scommand = 0xFFFF; break;
+				
+			}
+		}
 		
 		if(scommand != 0xFFFF)
 		{
@@ -22844,6 +23675,458 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
+void FFScript::user_files_init()
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].clear();
+	}
+}
+
+int FFScript::get_free_file(bool skipError)
+{
+	for(int q = 0; q < MAX_USER_FILES; ++q)
+	{
+		if(!script_files[q].reserved)
+		{
+			script_files[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+#ifdef _WIN32
+static string windows_exe_extensions[] = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk",""};
+// Gotten from 'https://fileinfo.com/filetypes/executable'
+#endif
+bool validate_userfile_extension(string const& path)
+{
+#ifdef _WIN32
+	string ext = get_ext(path);
+	for(int q = 0; windows_exe_extensions[q].length()>1; ++q)
+	{
+		if(ext == windows_exe_extensions[q]) return false;
+	}
+	return true; //Any other extension, including no extension, is allowed
+#else
+	return true; //All extensions valid
+#endif
+}
+
+bool get_scriptfile_path(char* buf, const char* path)
+{
+	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
+	if(!path[0]) return false;
+	sprintf(buf, "%s%s", qst_files_path, path);
+	return true;
+}
+
+void check_file_error(long ref)
+{
+	Z_scripterrlog("File error: %s\n", strerror(32));
+	if(user_file* f = checkFile(ref, "", true, true))
+	{
+		int err = ferror(f->file);
+		if(err != 0)
+		{
+			Z_scripterrlog("File with UID '%ld' encountered an error.\n", ref);
+			Z_scripterrlog("File error: %s\n", strerror(err));
+		}
+	}
+}
+
+void FFScript::do_fopen(const bool v, const char* f_mode)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	string filename_str;
+	ArrayH::getString(arrayptr, filename_str, 512);
+	regulate_path(filename_str);
+	ri->d[2] = 0L; //Presume failure; update to 10000L on success
+	if(!valid_file(filename_str))
+	{
+		Z_scripterrlog("Path '%s' empty or points to a directory; must point to a file!\n",filename_str.c_str());
+		return;
+	}
+	if(!validate_userfile_extension(filename_str))
+	{
+		Z_scripterrlog("Cannot open/create file with extension '%s'.\n", get_ext(filename_str).c_str());
+		return;
+	}
+	if(filename_str.find("../") != string::npos
+		|| filename_str.find("..\\") != string::npos)
+	{
+		Z_scripterrlog("Error: Script attempted to go up a directory in file load '%s'\n", filename_str.c_str());
+		return;
+	}
+	char buf[2048] = {0};
+	get_scriptfile_path(buf, filename_str.c_str());
+	user_file* f = checkFile(ri->fileref, "Open()", false, true);
+	if(!f) //auto-allocate
+	{
+		ri->fileref = get_free_file();
+		f = checkFile(ri->fileref, "Open()", false, true);
+	}
+	ri->d[3] = ri->fileref; //Returns to the variable!
+	if(f)
+	{
+		f->close(); //Close the old FILE* before overwriting it!
+		bool create = false;
+		for(int q = 0; f_mode[q]; ++q)
+		{
+			if(f_mode[q] == 'w')
+			{
+				create = true;
+				break;
+			}
+		}
+		if(!create || create_path(buf))
+		{
+			f->file = fopen(buf, f_mode);
+			fflush(f->file);
+			zc_chmod(buf, SCRIPT_FILE_MODE);
+			//r+; read-write, will not create if does not exist, will not delete content if does exist.
+			//w+; read-write, will create if does not exist, will delete all content if does exist.
+			if(f->file)
+			{
+				ri->d[2] = 10000L; //Success
+				return;
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Script failed to create directories for file path '%s'.\n", filename_str.c_str());
+			return;
+		}
+	}
+}
+
+void FFScript::do_fclose()
+{
+	if(user_file* f = checkFile(ri->fileref, "Close()", false, true))
+	{
+		f->close();
+	}
+	//No else. If invalid, no error is thrown.
+}
+
+void FFScript::do_allocate_file()
+{
+	//Get a file and return it
+	ri->fileref = get_free_file();
+	ri->d[3] = ri->fileref; //Return to ptr
+	ri->d[2] = (ri->d[3] == 0 ? 0L : 10000L);
+}
+
+void FFScript::do_deallocate_file()
+{
+	user_file* f = checkFile(ri->fileref, "Free()", false, true);
+	if(f) f->clear();
+}
+
+void FFScript::do_file_isallocated() //Returns true if file is allocated
+{
+	user_file* f = checkFile(ri->fileref, "isAllocated()", false, true);
+	ri->d[2] = (f) ? 10000L : 0L;
+}
+
+void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
+{
+	user_file* f = checkFile(ri->fileref, "isValid()", true, true);
+	ri->d[2] = (f) ? 10000L : 0L;
+}
+
+void FFScript::do_fflush()
+{
+	ri->d[2] = 0L;
+	if(user_file* f = checkFile(ri->fileref, "Flush()", true))
+	{
+		if(!fflush(f->file))
+			ri->d[2] = 10000L;
+		check_file_error(ri->fileref);
+	}
+}
+
+void FFScript::do_file_readchars()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		int limit = pos+count;
+		char c;
+		word q;
+		ri->d[2] = 0;
+		for(q = pos; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			if(feof(f->file) || ferror(f->file))
+				break;
+			if(c <= 0)
+				break;
+			a[q] = c * 10000L;
+			++ri->d[2]; //Don't count nullchar towards length
+		}
+		if(q >= limit)
+		{
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
+		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_readstring()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadString()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		int limit = a.Size();
+		int c;
+		word q;
+		ri->d[2] = 0;
+		for(q = 0; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			if(feof(f->file) || ferror(f->file))
+				break;
+			if(c <= 0)
+				break;
+			a[q] = c * 10000L;
+			++ri->d[2]; //Don't count nullchar towards length
+			if(c == '\n')
+			{
+				++q;
+				break;
+			}
+		}
+		if(q >= limit)
+		{
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
+		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_readints()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadInts()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		
+		/*
+		fseek(f->file, 0L, SEEK_END);
+		int foo = ftell(f->file);
+		Z_scripterrlog("File size: %ld\n", foo);
+		rewind(f->file);
+		//*/
+		
+		std::vector<long> data(count);
+		ri->d[2] = 10000L * fread((void*)&(data[0]), 4, count, f->file);
+		for(int q = 0; q < count; ++q)
+		{
+			a[q+pos] = data[q];
+		}
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writechars()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteChars()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, count, pos);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.c_str(), 1, output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writestring()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteString()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.data, sizeof(char), output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writeints()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteInts()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		std::vector<long> data(count);
+		for(int q = 0; q < count; ++q)
+		{
+			data[q] = a[q+pos];
+		}
+		ri->d[2] = 10000L * fwrite((const void*)&(data[0]), 4, count, f->file);
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+
+void FFScript::do_file_getchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetChar()", true))
+	{
+		ri->d[2] = fgetc(f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_putchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "PutChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.", c);
+			c = char(c);
+		}
+		ri->d[2] = fputc(c, f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_ungetchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "UngetChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
+			c = char(c);
+		}
+		ri->d[2] = ungetc(c,f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+
+void FFScript::do_file_seek()
+{
+	if(user_file* f = checkFile(ri->fileref, "Seek()", true))
+	{
+		int pos = get_register(sarg1); //NOT /10000 -V
+		int origin = get_register(sarg2) ? SEEK_CUR : SEEK_SET;
+		ri->d[2] = fseek(f->file, pos, origin) ? 0L : 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0;
+}
+void FFScript::do_file_rewind()
+{
+	if(user_file* f = checkFile(ri->fileref, "Rewind()", true))
+	{
+		//fseek(f->file, 0L, SEEK_END);
+		rewind(f->file);
+		check_file_error(ri->fileref);
+	}
+}
+void FFScript::do_file_clearerr()
+{
+	if(user_file* f = checkFile(ri->fileref, "ClearError()", true))
+	{
+		clearerr(f->file);
+	}
+}
+
+void FFScript::do_file_geterr()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetError()", true))
+	{
+		int err = ferror(f->file);
+		long arrayptr = get_register(sarg1) / 10000;
+		if(err)
+		{
+			string error = strerror(err);
+			ArrayH::setArray(arrayptr, error);
+		}
+		else
+		{
+			ArrayH::setArray(arrayptr, "\0");
+		}
+	}
+}
+///----------------------------------------------------------------------------------------------------
+
 
 void FFScript::do_write_bitmap()
 {
@@ -23158,6 +24441,8 @@ bool FFScript::destroy_user_bitmap(int id)
 	}
 	return false;
 }
+
+///----------------------------------------------------------------------------------------------------
 
 void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
 {
@@ -23489,7 +24774,7 @@ long FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -23718,8 +25003,8 @@ void FFScript::do_triggersecret(const bool v)
 				Z_message("checkflag is: %d\n", checkflag);
 				al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("ID is: %d\n", ID);
-				al_trace("ID is: %d\n", ID);
+				Z_message("ID is: %ld\n", ID);
+				al_trace("ID is: %ld\n", ID);
 				//cmbx = COMBOX(q);
 				////cmby = COMBOY(q);
 				
@@ -23758,7 +25043,7 @@ void FFScript::do_changeffcscript(const bool v)
 {
 	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
 	/*
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i]==ri->ffcref)
 		FFScript::deallocateZScriptArray(i);
@@ -24469,7 +25754,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %ld /n", index);
 		return;
 	}
 
@@ -27740,7 +29025,9 @@ void FFScript::do_npc_add(const bool v)
 		
 		for(; index<guys.Count(); index++)
 			((enemy*)guys.spr(index))->script_spawned=true;
-			
+		
+		ri->d[2] = ri->guyref;
+		ri->d[3] = ri->guyref;
 		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
 	}
 }
@@ -27881,7 +29168,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -27915,7 +29202,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -28191,7 +29478,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
@@ -28393,7 +29680,7 @@ void FFScript::do_itoa()
 	int value = ri->d[0]/10000;
 	char the_string[13];
 	char* chrptr = NULL;
-	chrptr = _itoa(value, the_string, 10);
+	chrptr = zc_itoa(value, the_string, 10);
 	//Returns the number of characters used. 
 	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
@@ -29422,6 +30709,32 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TOINTEGER",           1,   0,   0,   0},
 	{ "FLOOR",           1,   0,   0,   0},
 	{ "CEILING",           1,   0,   0,   0},
+	
+	{ "FILECLOSE",           0,   0,   0,   0},
+	{ "FILEFREE",           0,   0,   0,   0},
+	{ "FILEISALLOCATED",           0,   0,   0,   0},
+	{ "FILEISVALID",           0,   0,   0,   0},
+	{ "FILEALLOCATE",           0,   0,   0,   0},
+	{ "FILEFLUSH",           0,   0,   0,   0},
+	{ "FILEGETCHAR",           0,   0,   0,   0},
+	{ "FILEREWIND",           0,   0,   0,   0},
+	{ "FILECLEARERR",           0,   0,   0,   0},
+	
+	{ "FILEOPEN",           1,   0,   0,   0},
+	{ "FILECREATE",           1,   0,   0,   0},
+	{ "FILEREADSTR",           1,   0,   0,   0},
+	{ "FILEWRITESTR",           1,   0,   0,   0},
+	{ "FILEPUTCHAR",           1,   0,   0,   0},
+	{ "FILEUNGETCHAR",           1,   0,   0,   0},
+	
+	{ "FILEREADCHARS",           2,   0,   0,   0},
+	{ "FILEREADINTS",           2,   0,   0,   0},
+	{ "FILEWRITECHARS",           2,   0,   0,   0},
+	{ "FILEWRITEINTS",           2,   0,   0,   0},
+	{ "FILESEEK",           2,   0,   0,   0},
+	{ "FILEOPENMODE",           2,   0,   0,   0},
+	{ "FILEGETERROR",           1,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -30797,6 +32110,9 @@ void FFScript::do_trace(bool v)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s\n", s2.c_str());	
 		#endif
 	}
 }
@@ -30815,6 +32131,9 @@ void FFScript::do_tracebool(const bool v)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s\n", temp ? "true": "false");	
 		#endif
 	}
 }
@@ -30832,11 +32151,14 @@ void FFScript::do_tracestring()
 	
 	if ( zscript_debugger ) 
 	{
-	#ifdef _WIN32
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
 
-	#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s", str.c_str());	
+		#endif
 	}
 }
 
@@ -30862,6 +32184,9 @@ void FFScript::do_breakpoint()
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
 
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s", str.c_str());	
 		#endif
 	}
 	if( zasm_debugger )
@@ -30870,6 +32195,9 @@ void FFScript::do_breakpoint()
 		#ifdef _WIN32
 		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s", str.c_str());	
 		#endif
 	}
 }
@@ -30885,6 +32213,9 @@ void FFScript::do_tracenl()
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("\n");	
 		#endif
 	}
 }
@@ -30895,7 +32226,9 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 0 )
 	{
 		if(!zasm_debugger && zasm_console) return;
+		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
+		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		switch(curScriptType)
 		{
@@ -30905,6 +32238,9 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
 					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
 				#endif
 				break;
 			
@@ -30913,6 +32249,9 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
 				#endif    
 			break;
 			
@@ -30921,7 +32260,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				#endif    
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
+				#endif      
 			break;
 			
 			case SCRIPT_EWPN:
@@ -30929,7 +32271,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
-				#endif    
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
+				#endif      
 			break;
 			
 			case SCRIPT_NPC:
@@ -30937,7 +32282,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
-				#endif    
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
+				#endif         
 			break;
 				
 			case SCRIPT_FFC:
@@ -30946,15 +32294,21 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				#endif
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
+				#endif   
 			break;
 				
 			case SCRIPT_ITEM:
-				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
+				al_trace("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-				#endif
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
+				#endif   
 			break;
 			
 			case SCRIPT_ACTIVESUBSCREEN:
@@ -30965,7 +32319,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
-				#endif
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
+				#endif   
 			break;
 			
 			case SCRIPT_ITEMSPRITE:
@@ -30973,7 +32330,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
-				#endif
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
+				#endif   
 			break;
 			
 			case SCRIPT_SCREEN:
@@ -30981,7 +32341,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
-				#endif
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
+				#endif   
 			break;
 			
 			//case SCRIPT_SUBSCREEN:
@@ -30997,7 +32360,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				#endif
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				#endif  
 			break;
 		}
 	}
@@ -31072,7 +32438,10 @@ void FFScript::do_tracetobase()
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("%s\n", s2.c_str());
+		#endif 
 	}
 }
 
@@ -34014,7 +35383,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -34029,7 +35398,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -34044,7 +35413,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -34615,7 +35984,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -34630,7 +35999,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -34645,7 +36014,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}

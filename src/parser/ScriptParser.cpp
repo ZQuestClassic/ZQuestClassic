@@ -120,14 +120,7 @@ string ScriptParser::prepareFilename(string const& filename)
 {
 	string retval = filename;
 
-	for (int i = 0; retval[i]; ++i)
-	{
-#ifdef _ALLEGRO_WINDOWS
-		if (retval[i] == '/') retval[i] = '\\';
-#else
-		if (retval[i] == '\\') retval[i] = '/';
-#endif
-	}
+	regulate_path(retval);
 	return retval;
 }
         

@@ -39,7 +39,7 @@ std::string varToString(long arg)
 string getOpcodeString(ffscript const* line)
 {
 	script_command s_c = command_list[line->command];
-	al_trace("%s - %ld - %ld\n", s_c.name, line->arg1, line->arg2);
+	//al_trace("%s - %ld - %ld\n", s_c.name, line->arg1, line->arg2);
 	char buf[0x100];
 	char a1buf[0x100];
 	char a2buf[0x100];

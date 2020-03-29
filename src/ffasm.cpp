@@ -932,6 +932,31 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "TOINTEGER",           1,   0,   0,   0},
 	{ "FLOOR",           1,   0,   0,   0},
 	{ "CEILING",           1,   0,   0,   0},
+	
+	{ "FILECLOSE",           0,   0,   0,   0},
+	{ "FILEFREE",           0,   0,   0,   0},
+	{ "FILEISALLOCATED",           0,   0,   0,   0},
+	{ "FILEISVALID",           0,   0,   0,   0},
+	{ "FILEALLOCATE",           0,   0,   0,   0},
+	{ "FILEFLUSH",           0,   0,   0,   0},
+	{ "FILEGETCHAR",           0,   0,   0,   0},
+	{ "FILEREWIND",           0,   0,   0,   0},
+	{ "FILECLEARERR",           0,   0,   0,   0},
+	
+	{ "FILEOPEN",           1,   0,   0,   0},
+	{ "FILECREATE",           1,   0,   0,   0},
+	{ "FILEREADSTR",           1,   0,   0,   0},
+	{ "FILEWRITESTR",           1,   0,   0,   0},
+	{ "FILEPUTCHAR",           1,   0,   0,   0},
+	{ "FILEUNGETCHAR",           1,   0,   0,   0},
+	
+	{ "FILEREADCHARS",           2,   0,   0,   0},
+	{ "FILEREADINTS",           2,   0,   0,   0},
+	{ "FILEWRITECHARS",           2,   0,   0,   0},
+	{ "FILEWRITEINTS",           2,   0,   0,   0},
+	{ "FILESEEK",           2,   0,   0,   0},
+	{ "FILEOPENMODE",           2,   0,   0,   0},
+	{ "FILEGETERROR",           1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
@@ -2077,6 +2102,9 @@ script_variable variable_list[]=
 	{ "MESSAGEDATAPORTWID", MESSAGEDATAPORTWID, 0, 0 },
 	{ "MESSAGEDATAPORTHEI", MESSAGEDATAPORTHEI, 0, 0 },
 	{ "MESSAGEDATAFLAGSARR", MESSAGEDATAFLAGSARR, 0, 0 },
+	{ "FILEPOS", FILEPOS, 0, 0 },
+	{ "FILEEOF", FILEEOF, 0, 0 },
+	{ "FILEERR", FILEERR, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

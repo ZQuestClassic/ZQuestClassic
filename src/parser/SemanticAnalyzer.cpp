@@ -94,10 +94,10 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 			case ZVARTYPEID_VOID:
 				break;
 			default:
-				DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
-				DataType const& constType = *thisType.getConstType();
+				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
+				DataType const* constType = thisType->getConstType();
 				function.thisVar =
-					BuiltinVariable::create(functionScope, constType != NULL ? constType : thisType, "this", this);
+					BuiltinVariable::create(functionScope, constType != NULL ? *constType : *thisType, "this", this);
 		}
 	}
 

@@ -44,7 +44,7 @@
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern byte __isZQuest;
+extern unsigned char __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 //FFSCript   FFEngine;
 
@@ -133,7 +133,7 @@ enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERP
        ssiQUAKESCROLL2, ssiAGONY, ssiSTOMPBOOTS, ssiWHIMSICALRING, ssiPERILRING, ssiMAX
      };
 
-static byte deprecated_rules[QUESTRULES_SIZE];
+static byte deprecated_rules[QUESTRULES_NEW_SIZE];
 
 
 void delete_combo_aliases()
@@ -2779,7 +2779,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //al_trace("Rules version %d\n", s_version);
     
-    memcpy(deprecated_rules, quest_rules, QUESTRULES_SIZE);
+    memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
     
     if(s_version<2)
     {
@@ -9656,7 +9656,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     temp_ffscript_version = s_version;
     //miscQdata *the_misc;
     if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
-    al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
+    al_trace("Loaded scripts last compiled in ZScript version: %ld\n", (FFCore.quest_format[vLastCompile]));
     
     //finally...  section data
     for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
@@ -17000,24 +17000,26 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     }
     
     //  show_progress=true;
-    char tmpfilename[32];
+    char tmpfilename[32] = {0};
     temp_name(tmpfilename);
 //  char percent_done[30];
     bool catchup=false;
     byte tempbyte;
     word old_map_count=map_count;
-    for(int i=0; i<qr_MAX; i++)
-                set_bit(quest_rules,i,0);
-    byte old_quest_rules[QUESTRULES_SIZE];
-    byte old_extra_rules[EXTRARULES_SIZE];
-    byte old_midi_flags[MIDIFLAGS_SIZE];
+    
+    byte old_quest_rules[QUESTRULES_NEW_SIZE] = {0};
+    byte old_extra_rules[EXTRARULES_SIZE] = {0};
+    byte old_midi_flags[MIDIFLAGS_SIZE] = {0};
     
     if(keepall==false||get_bit(skip_flags, skip_rules))
     {
-        memcpy(old_quest_rules, quest_rules, QUESTRULES_SIZE);
+        memcpy(old_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
     }
     
+    memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
+   // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
+   
     if(keepall==false||get_bit(skip_flags, skip_midis))
     {
         memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
@@ -17809,7 +17811,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     if(!keepall||get_bit(skip_flags, skip_rules))
     {
-        memcpy(quest_rules, old_quest_rules, QUESTRULES_SIZE);
+        memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
     }
     

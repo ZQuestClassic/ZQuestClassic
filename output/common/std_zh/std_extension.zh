@@ -1,5 +1,5 @@
 //Extended functions for 2.55.0, Alpha 19 and later.
-//2nd January, 2020
+//22nd March, 2020
 
 //A
 
@@ -1577,6 +1577,14 @@ void ImpactVelocity(lweapon a, eweapon b, int massA, int velocityA, int massB, i
 	int accelB = momentumB - momentumA;
 	a->Step += accelA;
 	b->Step += accelB;
+}
+
+//Returns true if the player is inside a dungeon screen room. 
+//If he is still in a doorway, it returns false. 
+bool inRoom()
+{
+	if ( Hero->X < 16 || Hero->X > 239 || Hero->Y < 16 || Hero->Y > 159 ) return false;
+	return true;
 }
 
 //J

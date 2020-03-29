@@ -82,6 +82,8 @@ extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
 extern bool key_truestate[127]; //Internal, used for ZScript 'Input->KeyPress[]'
 extern bool button_press[18];
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
+extern const char *qst_dir_name;
+extern char qst_files_path[2048];
 
 extern bool button_hold[18];
 

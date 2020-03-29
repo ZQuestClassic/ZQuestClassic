@@ -150,11 +150,190 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 
 #ifdef _WIN32
+#include "ConsoleLogger.h"
+#else
+//unix
+
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	// create a logger: starts a pipe+create the child process
+	long Create(const char *lpszWindowTitle=NULL,
+				int buffer_size_x=-1,int buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+
+	// close everything
+	long Close(void);
+	
+	// output functions
+	inline int print(const char *lpszText,int iSize=-1);
+	int printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int SetAsDefaultOutput(void);
+	static int ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile long m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0;
+#else
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
+
+#endif
+
+	// you can extend this class by overriding the function
+	virtual long	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int _print(const char *lpszText,int iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ long hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	long lpBuffer,
+		/*__in        */ long nNumberOfBytesToWrite,
+		/*__out_opt   */ long lpNumberOfBytesWritten,
+		/*__inout_opt */ long lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	long	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE,
+		COLOR_GREEN,
+		COLOR_RED,
+		COLOR_WHITE,
+		COLOR_INTENSITY,
+		COLOR_BACKGROUND_BLACK,
+		COLOR_BACKGROUND_BLUE,
+		COLOR_BACKGROUND_GREEN,
+		COLOR_BACKGROUND_RED,
+		COLOR_BACKGROUND_WHITE,
+		COLOR_BACKGROUND_INTENSITY,
+		COLOR_COMMON_LVB_LEADING_BYTE,
+		COLOR_COMMON_LVB_TRAILING_BYTE,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL,
+		COLOR_COMMON_LVB_GRID_LVERTICAL,
+		COLOR_COMMON_LVB_GRID_RVERTICAL,
+		COLOR_COMMON_LVB_REVERSE_VIDEO,
+		COLOR_COMMON_LVB_UNDERSCORE
+	};
+	
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(word color);
+	
+	// write string , use specified color
+	int cprintf(int attributes,const char *format,...);
+	
+	// write string , use current color
+	int cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int x,int y);
+
+
+
+	word	GetCurrentColor(void)
+	{  }
+	
+	void	SetCurrentColor(word dwColor)
+	{ }
+	
+
+protected:
+	virtual long	AddHeaders(void)
+	{	
+		return  0;
+	}
+	
+	virtual int _print(const char *lpszText,int iSize);
+	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+
+
+};
+#endif
+
+
+#ifdef _WIN32
 //////////////////////////////////////////////////////////////////////
 // ConsoleLogger.cpp: implementation of the CConsoleLogger class.
 //////////////////////////////////////////////////////////////////////
 
-#include "ConsoleLogger.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -638,17 +817,204 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 	return iRet;
 }
 
+#else
+//Unix
 
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	return 0;
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	return 0;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(word color)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(word color)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	return 0;
+}
 
 #endif
 
-byte console_is_open = 0;
-byte __isZQuest = 1; //Shared functionscan reference this. -Z
-
-#ifdef _WIN32
+//#ifdef _WIN32
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-#endif
+//#endif
+unsigned char console_is_open = 0;
+unsigned char __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
 #include "util.h"
@@ -3157,7 +3523,13 @@ static int options_1_list[] =
 static int options_2_list[] =
 {
     // dialog control number
-    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, -1
+	50, -1
+};
+
+static int options_3_list[] =
+{
+    // dialog control number
+    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
 
 static TABPANEL options_tabs[] =
@@ -3165,6 +3537,7 @@ static TABPANEL options_tabs[] =
     // (text)
     { (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
     { (char *)" 2 ",       0,            options_2_list,  0, NULL },
+    { (char *)" 3 ",       0,            options_3_list,  0, NULL },
     { NULL,                0,            NULL, 0, NULL }
 };
 
@@ -3188,12 +3561,14 @@ static DIALOG options_dlg[] =
     { jwin_check_proc,         12,     74,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Vsync",                                                       NULL,   NULL                },
     { jwin_check_proc,         12,     84,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Frames Per Second",                                      NULL,   NULL                },
     { jwin_check_proc,         12,     94,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Combo Brush",                                                 NULL,   NULL                },
-    { jwin_check_proc,         12,    104,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Floating Brush",                                              NULL,   NULL                },
+    // 10
+	{ jwin_check_proc,         12,    104,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Floating Brush",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    114,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Reload Last Quest",                                                 NULL,   NULL                },
     { jwin_check_proc,         12,    124,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Misaligns",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    134,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Animate Combos",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    144,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Overwrite Protection",                                        NULL,   NULL                },
-    { jwin_check_proc,         12,    154,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Tile Protection",                                             NULL,   NULL                },
+    // 15
+	{ jwin_check_proc,         12,    154,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Tile Protection",                                             NULL,   NULL                },
     { jwin_check_proc,         12,    164,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Static for Invalid Data",                                 NULL,   NULL                },
     { jwin_check_proc,         12,    174,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Small Mode",                                              NULL,   NULL                },
     { jwin_check_proc,         12,    184,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Ruleset Dialog When Creating New Quests",                NULL,   NULL                },
@@ -3205,41 +3580,48 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 25
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 30
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     
     // 31
     { jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-backup Retention:",                                      NULL,   NULL                },
     { jwin_droplist_proc,     120,     44,     73,     16,    0,          0,           0,    0,          0,    0, (void *) &autobackup_list,                                              NULL,   NULL                },
     { jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Interval:",                                         NULL,   NULL                },
     { jwin_droplist_proc,     105,     62,     86,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list,                                                NULL,   NULL                },
-    { jwin_text_proc,          12,     84,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Retention:",                                        NULL,   NULL                },
+    // 35
+	{ jwin_text_proc,          12,     84,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Retention:",                                        NULL,   NULL                },
     { jwin_droplist_proc,     111,     80,     49,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list2,                                               NULL,   NULL                },
     { jwin_check_proc,         12,     98,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Uncompressed Auto-saves",                                     NULL,   NULL                },
     { jwin_text_proc,          12,    112,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Grid Color:",                                                 NULL,   NULL                },
     { jwin_droplist_proc,      64,    108,    100,     16,    0,          0,           0,    0,          0,    0, (void *) &color_list,                                                   NULL,   NULL                },
-    { jwin_text_proc,          12,    130,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Snapshot Format:",                                            NULL,   NULL                },
+    // 40
+	{ jwin_text_proc,          12,    130,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Snapshot Format:",                                            NULL,   NULL                },
     { jwin_droplist_proc,      93,    126,     55,     16,    0,          0,           0,    0,          0,    0, (void *) &snapshotformat_list,                                          NULL,   NULL                },
     
     // 42
     { jwin_text_proc,          12,    148,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Delay:",                                      NULL,   NULL                },
     { jwin_edit_proc,         121,    144,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
     { jwin_text_proc,          12,    166,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Rate:",                                       NULL,   NULL                },
-    { jwin_edit_proc,         121,    162,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
+    // 45
+	{ jwin_edit_proc,         121,    162,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 50
+    { jwin_check_proc,         12,     44,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Listers use Pattern-Matching Search",                          NULL,   NULL                },
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    // 55
+	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     
     { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
@@ -3279,6 +3661,7 @@ int onOptions()
     options_dlg[41].d1 = SnapshotFormat;
     options_dlg[43].dp = kbdelay;
     options_dlg[45].dp = kbrate;
+    options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -3309,6 +3692,7 @@ int onOptions()
         SnapshotFormat             = options_dlg[41].d1;
         KeyboardRepeatDelay        = atoi(kbdelay);
         KeyboardRepeatRate         = atoi(kbrate);
+		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
         
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
@@ -3459,9 +3843,14 @@ int onH()
 
 int onPaste()
 {
-	if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL])  return onPasteAll();
-	else if ((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) && !key[KEY_LSHIFT] && !key[KEY_RSHIFT] ) return onPasteToAll();
-	else if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) ) return onPasteAllToAll();
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			return onPasteAllToAll();
+		else return onPasteAll();
+	}
+	else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		return onPasteToAll();
 	else
 	{
 		Map.Paste();
@@ -3472,23 +3861,29 @@ int onPaste()
 
 int onPasteAll()
 {
-    Map.PasteAll();
-    refresh(rALL);
-    return D_O_K;
+	Map.PasteAll();
+	refresh(rALL);
+	return D_O_K;
 }
 
 int onPasteToAll()
 {
-    Map.PasteToAll();
-    refresh(rALL);
-    return D_O_K;
+	if(confirmBox("You are about to paste to all screens on the current map."))
+	{
+		Map.PasteToAll();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteAllToAll()
 {
-    Map.PasteAllToAll();
-    refresh(rALL);
-    return D_O_K;
+	if(confirmBox("You are about to paste to all screens on the current map."))
+	{
+		Map.PasteAllToAll();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteUnderCombo()
@@ -6238,11 +6633,11 @@ void refresh(int flags)
         }
     }
     
-    if(flags&rSCRMAP)
-    {
-        //  text_mode(vc(0));
-        rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
-        // The frame.
+	if(flags&rSCRMAP)
+	{
+		//  text_mode(vc(0));
+		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
+		// The frame.
 		jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
 		/*
 		if(is_large)
@@ -6348,7 +6743,7 @@ void refresh(int flags)
 				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
 			}
 		}
-    }
+	}
     
     if(flags&rCOMBOS)
     {
@@ -11810,7 +12205,7 @@ DIALOG ilist_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
     { jwin_win_proc,     60-12,   40,   200+24+24,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
-    { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
+    { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  90+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
     { jwin_button_proc,     90,   163+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { jwin_button_proc,     170,  163+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
     { jwin_button_proc,     220,   163+20,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
@@ -27838,6 +28233,16 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
     }
 }
 
+bool confirmBox(const char *m1, const char *m2, const char *m3)
+{
+	if(!m3)
+	{
+		if(!m2) m2 = "Are you sure?";
+		else m3 = "Are you sure?";
+	}
+	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', lfont) == 1;
+}
+
 int onSelectSFX()
 {
     int index = select_sfx("Select SFX",0);
@@ -30110,7 +30515,7 @@ int main(int argc,char **argv)
     
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
-	MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
+    MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
@@ -30195,6 +30600,8 @@ int main(int argc,char **argv)
     strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
     
     midi_volume                    = get_config_int("zquest", "midi", 255);
+	
+	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -32769,7 +33176,7 @@ int save_config_file()
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
     set_config_int("zquest","invalid_static",InvalidStatic);
-	set_config_int("zquest","cursorblink_style",MMapCursorStyle);
+//	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
     set_config_int("zquest","skip_layer_warning",skipLayerWarning);
     set_config_int("zquest","tile_protection",TileProtection);
     set_config_int("zquest","showinfo",ShowInfo);
@@ -32822,6 +33229,7 @@ int save_config_file()
     set_config_int("zquest","leech_update_tiles",LeechUpdateTiles);
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
+    set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
@@ -35270,6 +35678,8 @@ void FFScript::user_bitmaps_init()
 		scb.script_created_bitmaps[q].u_bmp = NULL;
 	}
 }
+
+void FFScript::user_files_init(){}
 
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways){}
 

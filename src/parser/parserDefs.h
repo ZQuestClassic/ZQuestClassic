@@ -5,6 +5,9 @@
 #undef TEXT
 #undef VOID
 
+#include "../util.h"
+using namespace util;
+
 #define PARSER_DEBUG 0
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
@@ -12,6 +15,7 @@
 #define FUNCFLAG_INVALID			0x02
 
 #define IFUNCFLAG_SKIPPOINTER		0x01
+#define IFUNCFLAG_REASSIGNPTR		0x02
 
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0

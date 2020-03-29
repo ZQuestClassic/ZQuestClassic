@@ -17007,6 +17007,15 @@ bool parsemsgcode()
 		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
 	}
         takeitem(itemID);
+	if ( game->forced_bwpn == itemID ) 
+	{
+		game->forced_bwpn = -1;
+	} //not else if! -Z
+	if ( game->forced_awpn == itemID ) 
+	{
+		game->forced_awpn = -1;
+	}
+	verifyBothWeapons();
         return true;
     }
         
@@ -17055,6 +17064,24 @@ bool parsemsgcode()
         if(game->screen_d[s][d] >= arg)
             goto switched;
             
+        (void)grab_next_argument();
+        return true;
+    }
+    
+    case MSGC_CHANGEPORTRAIT:
+	    return true; //not implemented
+    
+    case MSGC_GOTOIFCREEND:
+    {
+	int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
+	int screen =     grab_next_argument();
+	int reg =     grab_next_argument();
+	int val =     grab_next_argument();
+	int nxtstr = grab_next_argument();
+	if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
+	{
+		goto switched;
+	}
         (void)grab_next_argument();
         return true;
     }

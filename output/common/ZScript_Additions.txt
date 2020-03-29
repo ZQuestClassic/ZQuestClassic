@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 52
-Document Revision: 10th March, 2020
+Document for: 2.55, Alpha 56
+Document Revision: 28th March, 2020
 
 
  __           _   _                 
@@ -540,8 +540,9 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) Access to all global game data (game->, in source)
 	cheatsdata : t/b/a
 		(Planned) Access to cheat code information.
-	file : t/b/a
-		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
+	file :
+		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
+		These files can contain either text, or raw binary number data, based on which functions you use.
 	subscreendata: t/b/a
 	
 
@@ -2790,6 +2791,227 @@ bool DirExists(char32[] "filepath");
 bool FileExists(char32[] "filepath");
  * Returns true if the string passed to 'filepath' is a valid file path,
  * relative to the current ZC path.
+
+/************************************************************************************************************/
+
+////////////////
+///   File   ///
+////////////////
+
+/*
+ * General info:
+ * Files opened with 'Open()' or 'Create()', as well as some modes passed to
+ *     'OpenMode()', can be Read/Write. In a Read/Write mode, you must call
+ *     one of a few certain functions between a read call and a write call.
+ *     These functions will list this effect in their description.
+ * Writing to files does not write directly to disk, but to a buffer.
+ *     It is guaranteed that the contents of this buffer will be written to disk
+ *     upon a successful call to 'Flush()', or upon the closing of the file.
+ *     Upon exiting the quest, all open files are closed.
+ * There is a limit of 256 file pointers. A pointer does not need to have a file
+ *     open to count against this limit. Any pointer that returns true from
+ *     'isAllocated()' counts against this limit. Calling 'Free()' will deallocate
+ *     a pointer, thus no longer counting against this limit. If you open many files
+ *     without calling 'Free()', you may run out of pointers, and be unable to open
+ *     further files (until you call 'Free()' on some existing pointers).
+ * Files are NOT automatically freed if they fall out of scope. You should be sure to
+ *     manually call 'Free()' before this happens, or you may lose the pointer, and be
+ *     unable to free it later. This could lead to running out of available file pointers.
+ */
+
+bool Open("filepath");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Attempts to open the file at "[zc root]/Files/[questname]/[filepath]"
+ * Returns true if successful, false if not.
+ * File is opened with mode "rb+" (a read/write binary mode)
+ *     If the file does not exist, it will fail.
+ * For an equivalent text file mode, use 'OpenMode("filepath", "r+")'
+
+bool Create("filepath");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Same as 'Open()', but the file is opened with mode "wb+".
+ *     If the file does not exist, it will be created.
+ *     If the file DOES exist, all data in the file will be deleted.
+ * For an equivalent text file mode, use 'OpenMode("filepath", "w+")'
+
+bool OpenMode("filepath", "mode_string");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Same as 'Open()', but the file is opened with the specified mode.
+ * Valid modes (details taken from http://www.cplusplus.com/reference/cstdio/fopen/):
+ *     "r"  | read: Open file for input operations. The file must exist.
+ *     "w"  | write: Create an empty file for output operations. If a file
+ *            with the same name already exists, its contents are discarded
+ *            and the file is treated as a new empty file.
+ *     "a"  | append: Open file for output at the end of a file. Output operations
+ *            always write data at the end of the file, expanding it. Repositioning
+ *            operations ('Seek()', 'Rewind()') are ignored. The file is created if
+ *            it does not exist.
+ *     "r+" | read/update: Open a file for update (both for input and output). The
+ *            file must exist.
+ *     "w+" | write/update: Create an empty file and open it for update (both for
+ *            input and output). If a file with the same name already exists its
+ *            contents are discarded and the file is treated as a new empty file.
+ *     "a+" | append/update: Open a file for update (both for input and output)
+ *            with all output operations writing data at the end of the file.
+ *            Repositioning operations (fseek, fsetpos, rewind) affects the next
+ *            input operations, but output operations move the position back to the
+ *            end of file. The file is created if it does not exist.
+ *
+ * The letter "b" can be added to the end of any of these (or before the "+", for update modes)
+ *     to specify a binary file mode. Not doing this will specify a text file mode.
+ * Text files are files containing sequences of lines of text. Depending on the environment
+ *     where the application runs, some special character conversion may occur in input/output
+ *     operations in text mode to adapt them to a system-specific text file format. Although
+ *     on some environments no conversions occur and both text files and binary files are
+ *     treated the same way, using the appropriate mode improves portability.
+
+void Close();
+ * Closes any open file connected to the file pointer.
+ * This does NOT deallocate the pointer; it is still free to open new files on.
+
+void Free();
+ * Closes any open file connected to the file pointer.
+ * This will deallocate the file pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many file pointers may be allocated at once.
+ * See the 'General Information' at the top of this section for more details.
+
+bool isAllocated();
+ * Returns true if this file pointer is allocated.
+ * This does NOT mean it has a file open; the pointer simply has an ID.
+
+bool isValid();
+ * Returns true if this file pointer has a file open.
+
+bool Allocate();
+ * Attempts to allocate the file pointer. If it was already allocated, this will re-allocate it;
+ *     without deallocating the old pointer! This should not be called on already allocated pointers.
+ * Returns true if it can allocate; false otherwise. A false return indicates that the maximum
+ *     number of allocated files has been reached.
+
+bool Flush();
+ * Flushes the buffer of the file being written to.
+ * Writes to a file do not actually write to the file immediately; they instead go to a buffer.
+ *     Calling this function will force the buffer to be written to disk.
+
+int ReadString(char32[] buf);
+ * Reads a section of characters from the file.
+ * Will read either until 'buf' is full, an error occurs, End of File is reached, or a newline
+ *     character is reached.
+ * If it ends due to reaching a newline character, the newline character will be included at the
+ *     end of the string.
+ * Returns the length of the string read into 'buf'.
+
+int ReadChars(char32[] buf, int count, int pos);
+ * Reads a section of characters from the file.
+ * Starts placing characters at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * Will always add a null character at the end of the read characters.
+ * Returns the number of characters read, excluding the added null character.
+
+int ReadInts(untyped[] buf, int count, int pos);
+ * Reads a section of binary data from the file.
+ * Starts placing data at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * The binary data read will be 32b; such that reading '1' will place '0.0001' into buf.
+ *     This means that the binary data can contain decimal places.
+ * Returns the number of ints read.
+
+int WriteString(char32[] str);
+ * Writes the string stored in 'str' to the file.
+ * Returns the number of characters successfully written.
+
+int WriteChars(char32[] buf, int count, int pos);
+ * Writes characters from 'buf' to file.
+ * Starts at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'buf' until it finds a null character, or reaches the end of 'buf'.
+ * If 'count' is positive, writes 'count' characters from buf.
+ * Returns the number of characters successfully written.
+
+int WriteInts(untyped[] arr, int count, int pos);
+ * Writes 32b binary data from 'arr' to file.
+ * The binary data written will be 32b; such that writing '1' will write '10000' to file.
+ *     This means that the binary data can contain decimal places; writing '0.0001' will write '1' to file.
+ * Starts at 'arr[pos]'.
+ *     If 'pos' is negative, starts at 'arr[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'arr' until it reaches the end of 'arr'.
+ * If 'count' is positive, writes 'count' ints from arr.
+ * Returns the number of 32b integers successfully written.
+
+char32 GetChar();
+ * Reads and returns the next character in the file.
+ * Returns -1 if it fails; check 'EOF' and 'Error' to see why.
+
+char32 PutChar(char32 c);
+ * Writes 'c' to file.
+ * Returns -1 if it fails; otherwise returns 'c'.
+
+char32 UngetChar(char32 c);
+ * Un-reads 'c' to the input stream.
+ * Returns -1 if it fails; otherwise returns 'c'.
+ * This is a READ operation, not a WRITE operation. The file will not actually be modified;
+ *     but further read operations will find this as the next character to be read.
+ * Useful if you read a character, then realize you don't want it.
+
+int Pos;
+ * Read-only.
+ * This represents the current position in the file.
+ * In binary modes ('Open()', 'Create()', or 'OpenMode()' including "b"), this is the number
+ *     of bytes into the file, / 10000. (i.e. 1 byte in == 0.0001).
+ * In text modes ('OpenMode()' not including "b"),
+ *     the numerical value may not be meaningful but can still be used to restore the position
+ *     to the same position later using 'Seek()' (if there are characters put back using
+ *     'UngetChar()' still pending of being read, the behavior is undefined).
+
+bool Seek(int pos, bool from_current);
+ * Moves the current position of the file.
+ * 'pos' is a 32b value, where '0.0001' represents 1 byte; similar to 'Pos'.
+ * If 'from_current' is true, it moves forward from the current position.
+ * Otherwise, it moves so that 'Pos' is equal to 'pos'.
+ * Using 'from_current'==true in a file open in text mode ('OpenMode()' not
+ *     including "b") is undefined.
+ * Returns true if successful, false otherwise.
+ * If successful, this function has the following side-effects:
+ *     All previous calls to 'UngetChar()' are dropped.
+ *     The 'EOF' indicator is set to false.
+ *     Allows switching between reading and writing on a read/write file.
+
+void Rewind();
+ * Rewinds to the beginning of the file.
+ * This function has the following side-effects:
+ *     All previous calls to 'UngetChar()' are dropped.
+ *     The 'EOF' indicator is set to false.
+ *     The 'Error' indicator is set to 0.
+ *     Allows switching between reading and writing on a read/write file.
+
+bool EOF;
+ * Read-Only. Returns true if a read call attempted to read past the end of the file.
+ * If true, no further read calls will succeed until the position has been changed;
+ *     i.e. 'Seek()' or 'Rewind()'.
+
+int Error;
+ * Read-Only. Returns 0 if the file has not enountered an error.
+ * If an error was encountered, returns an error code number.
+
+void ClearError();
+ * Clears the active EOF and Error indicators.
+ * i.e. this writes 'EOF = false;' and 'Error = 0;'.
+
+void GetError(char32[] buf);
+ * Stores a string describing the current error into the buffer provided.
+ * Stores an empty string if 'Error == 0'.
+
 
 /************************************************************************************************************/
 

@@ -1556,7 +1556,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         }
 	if ( ret == 43 )
 	{
-		if(getname("Export Subscreen (.sub)",".png",NULL,datapath,false))
+		if(getname("Save Palette (.png)","png",NULL,datapath,false))
 		{
 			//bool cancel;
 			//char buf[80],buf2[80],

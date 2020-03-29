@@ -1,7 +1,7 @@
 /////////////////////////////
 /// ZC Version Detecting  ///
-///        v0.7.1         ///
-///  10th January, 2018   ///
+///        v0.7.3         ///
+///   21st March, 2020    ///
 ///     By: ZoriaRPG      ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Note: The ZC Dev Staff will *never* support this. Provided as-is, with limited supprort by author. ///
@@ -171,7 +171,7 @@ void Version_Check_Cleanup()
 //In the event that a user changes ZC versions between saves, we reset this, and re-check on continue.
 void CheckVersionOnContinue()
 {
-	for ( int q = 1; q < SizeOfArray(Version); q++ ) __Version[q] = 0;
+	for ( int q = 1; q < 20; ++q ) __Version[q] = 0;
 }
 
 void CheckZCVersion()

@@ -47,6 +47,8 @@
 #include "zq_subscr.h"
 #include "mem_debug.h"
 #include "ffscript.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore;
 
 extern ZModule zcm;
@@ -6328,7 +6330,7 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	char tempcompilerversion[256];
 	memset(tempcompilerversion, 0, 256); 
 	#ifdef _MSC_VER
-		itoa(_MSC_VER,tempcompilerversion,10);
+		zc_itoa(_MSC_VER,tempcompilerversion,10);
 	#else
 		strcpy(tempcompilerversion, COMPILER_VERSION);
 	#endif

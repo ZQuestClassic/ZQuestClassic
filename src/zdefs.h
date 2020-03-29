@@ -202,7 +202,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            41
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        12
+#define V_SAVEGAME        16 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
@@ -2813,6 +2813,12 @@ struct newcombo
 	int o_tile;
 	byte cur_frame;
 	byte aclk;
+	
+	void set_tile(int newtile)
+	{
+		o_tile = newtile;
+		tile = newtile;
+	}
 };
 
 #define AF_FRESH 1
@@ -2933,6 +2939,8 @@ enum { msLINKED };
 #define MSGC_SFX	20 // 1 arg
 #define MSGC_MIDI	21 // 1 arg
 #define MSGC_NAME	22 // 0 args, disabled
+#define MSGC_GOTOIFCREEND	23 // 5 args
+#define MSGC_CHANGEPORTRAIT	24 // 5 args, //not implemented
 #define MSGC_NEWLINE	25 // 0 args
 #define MSGC_GOTOIFYN   30 // 0 args, disabled
 
@@ -3631,7 +3639,7 @@ struct gamedata
     std::vector< ZCArray <long> > globalRAM;
     
     byte awpn, bwpn;											// Currently selected weapon slots
-    
+    signed short forced_awpn, forced_bwpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     
@@ -3645,7 +3653,7 @@ struct gamedata
     ~gamedata()
     {}
     
-    void Clear();
+    void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
     void Copy(const gamedata& g);
     
     gamedata &operator = (const gamedata& data)

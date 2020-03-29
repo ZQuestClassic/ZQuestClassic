@@ -56,9 +56,19 @@
 #include "ffscript.h"
 #include "ffasm.h"
 #include "qst.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
+#else //Unix
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
+	int pt = 0;
+	char* ptname = NULL;
+	std::ostringstream lxconsole_oss;
 #endif
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
@@ -106,7 +116,7 @@ int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
-byte __isZQuest = 0; //shared functions can use this. -
+unsigned char __isZQuest = 0; //shared functions can use this. -
 int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
@@ -433,8 +443,8 @@ void ScriptOwner::clear()
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
-ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
+ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -450,7 +460,7 @@ void setZScriptVersion(int s_version)
 
 void initZScriptArrayRAM(bool firstplay)
 {
-    for(word i = 0; i < MAX_ZCARRAY_SIZE; i++)
+    for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
     {
         localRAM[i].Clear();
         arrayOwner[i].clear();
@@ -1097,7 +1107,9 @@ void hit_close_button()
 extern byte curScriptType;
 extern word curScriptNum;
 
+#ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+#endif
 
 void Z_eventlog(const char *format,...)
 {
@@ -1117,6 +1129,9 @@ void Z_eventlog(const char *format,...)
 	#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n";
+			printf("%s", buf);	
 		#endif
     }
 }
@@ -1133,6 +1148,9 @@ void Z_scripterrlog(const char * const format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
 			curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Global script %u (%s): \n", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
 		#endif
             break;
 	
@@ -1141,7 +1159,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
-		#endif    
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+		#endif 
 	break;
 	
 	case SCRIPT_LWPN:
@@ -1149,7 +1170,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-		#endif    
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
+		#endif     
 	break;
 	
 	case SCRIPT_EWPN:
@@ -1157,7 +1181,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
-		#endif    
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
+		#endif        
 	break;
 	
 	case SCRIPT_NPC:
@@ -1165,7 +1192,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
-		#endif    
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());	
+		#endif       
 	break;
             
         case SCRIPT_FFC:
@@ -1174,15 +1204,21 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("FFC script %u (%s): \n", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
             
         case SCRIPT_ITEM:
             al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Itemdata script %u (%s): \n", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
         
 	case SCRIPT_DMAP:
@@ -1191,7 +1227,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("DMap script %u (%s): \n", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
 	
 	case SCRIPT_ITEMSPRITE:
@@ -1199,7 +1238,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("itemsprite script %u (%s): \n", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
         
 	case SCRIPT_SCREEN:
@@ -1207,7 +1249,10 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Screen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
 	break;
 	
 	case SCRIPT_SUBSCREEN:
@@ -1215,15 +1260,21 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Subscreen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
 	break;
 	
 	case SCRIPT_COMBO:
             al_trace("Subscreen script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Combo script %u (%s): \n", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
 	break;
         }
         
@@ -1272,6 +1323,14 @@ void zprint(const char * const format,...)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+		{
+			
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
+			
+		}
+	
 		#endif
 	}
 	
@@ -1300,6 +1359,9 @@ void zprint2(const char * const format,...)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
 		#endif
 	}
 	
@@ -1708,6 +1770,7 @@ int load_quest(gamedata *g, bool report)
     }
     
     int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
+	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
     //setPackfilePassword(NULL);
     
     if(!g->title[0] || g->get_hasplayed() == 0)
@@ -1800,6 +1863,7 @@ int init_game()
     gofast=false;
     FFCore.init();
     FFCore.user_bitmaps_init();
+    FFCore.user_files_init();
     cheat=0;
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
@@ -2004,7 +2068,20 @@ int init_game()
     }
     
     skip_keycheats:
-    
+    //Calculate the quest's script-file-storage path -V
+	{
+		memset(qst_files_path, sizeof(qst_files_path), 0);
+		string str(qstpath);
+		size_t pos = str.find_last_of("/\\");
+		if(pos==string::npos) pos=0;
+		else ++pos;
+		size_t dotpos = str.find_last_of(".");
+		sprintf(qst_files_path,"%sFiles/%s/",get_config_string("zeldadx", qst_dir_name, "./"),str.substr(pos, dotpos-pos).c_str());
+		regulate_path(qst_files_path);
+		// zprint2("Calculated path: '%s'\n",qst_files_path);
+		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
+	}
+	
     bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
@@ -2025,7 +2102,7 @@ int init_game()
     {
         game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), FFCore.getQuestHeaderInfo(vZelda)); }
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda)); }
     }
     
     previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
@@ -4166,26 +4243,7 @@ int main(int argc, char* argv[])
             exit(1);
         }
         
-        int len=strlen(standalone_quest);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(standalone_quest[i]=='/')
-            {
-                standalone_quest[i]='\\';
-            }
-            
-#else
-            
-            if(standalone_quest[i]=='\\')
-            {
-                standalone_quest[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(standalone_quest);
     }
     
     //turn on MSVC memory checks
@@ -4208,7 +4266,85 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
+#else //Unix
+
+    { // Let's try making a console for Linux -Z
+	pt = posix_openpt(O_RDWR);
+	if (pt == -1)
+	{
+		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,O_RDWR);
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		Z_error("Could not redirect standard output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		Z_error("Could not redirect standard error output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+    } //this is in a block because I want it in a block. -Z
+    
+    no_lx_console:
+    {
+	    //Z_error("Could not open Linux console.\n");
+    }
+    
+    
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
+    
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
+	//std::cerr << "Test cerr\n\n";
+	std::cin.ignore(1);
 #endif
+    
+    
     
     PopulateInitDialog();
     //FFScript::init();
@@ -4578,26 +4714,7 @@ int main(int argc, char* argv[])
         SAVE_FILE = (char *)zc_malloc(2048);
         sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
         
-        int len=strlen(SAVE_FILE);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(SAVE_FILE[i]=='/')
-            {
-                SAVE_FILE[i]='\\';
-            }
-            
-#else
-            
-            if(SAVE_FILE[i]=='\\')
-            {
-                SAVE_FILE[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(SAVE_FILE);
     }
     
     
@@ -5229,6 +5346,7 @@ int main(int argc, char* argv[])
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
+			FFCore.user_files_init(); //Clear open FILE*!
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

@@ -86,20 +86,21 @@ extern int cheat_modifier_keys[4]; //two options each, default either control an
 static const char *ZC_str = "Zelda Classic";
 extern char save_file_name[1024];
 #ifdef ALLEGRO_DOS
-static  const char *qst_dir_name = "dos_qst_dir";
+const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
-static  const char *qst_dir_name = "win_qst_dir";
+const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
-static  const char *qst_dir_name = "linux_qst_dir";
+const char *qst_dir_name = "linux_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_MACOSX)
-static  const char *qst_dir_name = "macosx_qst_dir";
+const char *qst_dir_name = "macosx_qst_dir";
 static  const char *qst_module_name = "current_module";
 #endif
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
+char qst_files_path[2048];
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -330,6 +331,7 @@ void load_game_configs()
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
+	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
    
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -496,6 +498,9 @@ void save_game_configs()
     set_config_int(cfg_sect,"fastquit",(int)NESquit);
     set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
+    //set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
+   
+    
    
     set_config_int(cfg_sect,"resx",resx);
     set_config_int(cfg_sect,"resy",resy);

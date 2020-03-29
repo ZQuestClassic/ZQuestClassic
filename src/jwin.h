@@ -61,6 +61,8 @@ extern "C"
 /* Disable click to select combo for d_combo_proc */
 #define D_NOCLICK       D_USER
 
+#define D_RESIZED		(D_USER<<1)
+
 /* frame styles */
 enum {
     FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK
@@ -76,6 +78,8 @@ enum
 	jcCURSORMISC, jcCURSOROUTLINE, jcCURSORLIGHT, jcCURSORDARK,
 	jcMAX
 };
+
+extern int abc_patternmatch;
 
 /* a copy of the default color scheme; do what you want with this */
 extern int jwin_colors[jcMAX];
@@ -132,6 +136,9 @@ int jwin_radiofont_proc(int msg, DIALOG *d, int c);
 int jwin_tab_proc(int msg, DIALOG *d, int c);
 int jwin_hline_proc(int msg, DIALOG *d, int c);
 int jwin_vline_proc(int msg, DIALOG *d, int c);
+void _jwin_draw_abclistbox(DIALOG *d);
+int jwin_do_abclist_proc(int msg, DIALOG *d, int c);
+void wipe_abc_keypresses();
 
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);

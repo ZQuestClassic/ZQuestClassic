@@ -253,7 +253,7 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern char   fontsdat_sig[52];
 
-extern byte console_is_open;
+extern unsigned char console_is_open;
 
 // qst.cc helpers
 bool bad_version(int ver);
@@ -298,6 +298,7 @@ int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
 
+bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int onSelectSFX();
 int onOptions();
 void fix_drawing_mode_menu();
