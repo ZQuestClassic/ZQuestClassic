@@ -4241,20 +4241,20 @@ int main(int argc, char* argv[])
 	pt = posix_openpt(O_RDWR);
 	if (pt == -1)
 	{
-		std::cerr << "Could not open pseudo terminal.\n";
+		Z_error("Could not open pseudo terminal.\n");
 		use_debug_console = 0; goto no_lx_console;
 	}
 	ptname = ptsname(pt);
 	if (!ptname)
 	{
-		std::cerr << "Could not get pseudo terminal device name.\n";
+		Z_error("Could not get pseudo terminal device name.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
 
 	if (unlockpt(pt) == -1)
 	{
-		std::cerr << "Could not get pseudo terminal device name.\n";
+		Z_error("Could not get pseudo terminal device name.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
@@ -4274,13 +4274,13 @@ int main(int argc, char* argv[])
 
 	if (dup2(pt, 1) <0)
 	{
-		std::cerr << "Could not redirect standard output.\n";
+		Z_error("Could not redirect standard output.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
 	if (dup2(pt, 2) <0)
 	{
-		std::cerr << "Could not redirect standard error output.\n";
+		Z_error("Could not redirect standard error output.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
