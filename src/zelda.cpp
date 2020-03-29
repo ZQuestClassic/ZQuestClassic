@@ -4288,7 +4288,7 @@ int main(int argc, char* argv[])
     
     no_lx_console:
     {
-	    Z_error("Could not open Linu console.\n");
+	    Z_error("Could not open Linux console.\n");
     }
 #endif
     
