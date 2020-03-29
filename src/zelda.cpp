@@ -4288,7 +4288,8 @@ int main(int argc, char* argv[])
     
     no_lx_console:
     {
-    } //empty block for the skip. -Z 
+	    Z_error("Could not open Linu console.\n");
+    }
 #endif
     
     
