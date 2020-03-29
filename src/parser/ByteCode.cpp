@@ -1823,6 +1823,10 @@ string ZScript::VarToString(long ID)
 	case COMBODFRAME: return "COMBODFRAME";
 	case COMBODACLK: return "COMBODACLK";
 	
+	case FILEPOS: return "FILEPOS";
+	case FILEEOF: return "FILEEOF";
+	case FILEERR: return "FILEERR";
+	
 	
 	default:
 	{
@@ -5069,6 +5073,116 @@ string OFileExists::toString()
 {
 	return "FILEEXISTS " + getArgument()->toString();
 }
+
+string OFileClose::toString()
+{
+	return "FILECLOSE";
+};
+
+string OFileFree::toString()
+{
+	return "FILEFREE";
+};
+
+string OFileIsAllocated::toString()
+{
+	return "FILEISALLOCATED";
+};
+
+string OFileIsValid::toString()
+{
+	return "FILEISVALID";
+};
+
+string OAllocateFile::toString()
+{
+	return "FILEALLOCATE";
+};
+
+string OFileFlush::toString()
+{
+	return "FILEFLUSH";
+};
+
+string OFileGetChar::toString()
+{
+	return "FILEGETCHAR";
+};
+
+string OFileRewind::toString()
+{
+	return "FILEREWIND";
+};
+
+string OFileClearError::toString()
+{
+	return "FILECLEARERR";
+};
+//
+string OFileOpen::toString()
+{
+	return "FILEOPEN " + getArgument()->toString();
+};
+
+string OFileCreate::toString()
+{
+	return "FILECREATE " + getArgument()->toString();
+};
+
+string OFileReadString::toString()
+{
+	return "FILEREADSTR " + getArgument()->toString();
+};
+
+string OFileWriteString::toString()
+{
+	return "FILEWRITESTR " + getArgument()->toString();
+};
+
+string OFilePutChar::toString()
+{
+	return "FILEPUTCHAR " + getArgument()->toString();
+};
+
+string OFileUngetChar::toString()
+{
+	return "FILEUNGETCHAR " + getArgument()->toString();
+};
+
+string OFileGetError::toString()
+{
+	return "FILEGETERROR " + getArgument()->toString();
+};
+//
+string OFileReadChars::toString()
+{
+	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileReadInts::toString()
+{
+	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteChars::toString()
+{
+	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteInts::toString()
+{
+	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileSeek::toString()
+{
+	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileOpenMode::toString()
+{
+	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////

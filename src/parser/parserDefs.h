@@ -5,6 +5,9 @@
 #undef TEXT
 #undef VOID
 
+#include "../util.h"
+using namespace util;
+
 #define PARSER_DEBUG 0
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.

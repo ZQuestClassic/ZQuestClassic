@@ -450,10 +450,10 @@ struct ScriptOwner
 	void clear();
 };
 
-#define MAX_ZCARRAY_SIZE	4096
+#define NUM_ZSCRIPT_ARRAYS	4096
 typedef ZCArray<long> ZScriptArray;
-extern ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-extern ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
+extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
 

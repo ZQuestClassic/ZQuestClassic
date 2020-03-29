@@ -426,13 +426,27 @@ long getQuestHeaderInfo(int type)
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_files_init();
-int get_free_file();
-void do_fopen(const bool v, const bool create = false);
+int get_free_file(bool skipError = false);
+void do_fopen(const bool v, const bool create);
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();
 void do_file_isallocated();
 void do_file_isvalid();
+void do_fflush();
+void do_file_readchars();
+void do_file_readstring();
+void do_file_readints();
+void do_file_writechars();
+void do_file_writestring();
+void do_file_writeints();
+void do_file_getchar();
+void do_file_putchar();
+void do_file_ungetchar();
+void do_file_clearerr();
+void do_file_rewind();
+void do_file_seek();
+void do_file_geterr();
 
 void user_bitmaps_init();
 void user_bitmaps_destroy();
@@ -1315,9 +1329,9 @@ enum __Error
         if(ptr <= 0)
             return InvalidError(ptr);
             
-        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
-            long gptr = ptr - MAX_ZCARRAY_SIZE;
+            long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
             
             if(gptr > (long)game->globalRAM.size())
                 return InvalidError(ptr);
@@ -2501,9 +2515,34 @@ enum ASM_DEFINE
 	TOINTEGER,
 	FLOOR,
 	CEILING,
+	
+	FILECLOSE,
+	FILEFREE,
+	FILEISALLOCATED,
+	FILEISVALID,
+	FILEALLOCATE,
+	FILEFLUSH,
+	FILEGETCHAR,
+	FILEREWIND,
+	FILECLEARERR,
+	
+	FILEOPEN,
+	FILECREATE,
+	FILEREADSTR,
+	FILEWRITESTR,
+	FILEPUTCHAR,
+	FILEUNGETCHAR,
+	
+	FILEREADCHARS,
+	FILEREADINTS,
+	FILEWRITECHARS,
+	FILEWRITEINTS,
+	FILESEEK,
+	FILEOPENMODE,
+	FILEGETERROR,
 
 
-	NUMCOMMANDS           //0x016E
+	NUMCOMMANDS           //0x0184
 };
 
 
@@ -3788,8 +3827,11 @@ enum ASM_DEFINE
 #define MESSAGEDATAPORTWID		0x13A1
 #define MESSAGEDATAPORTHEI		0x13A2
 #define MESSAGEDATAFLAGSARR		0x13A3
+#define FILEPOS					0x13A4
+#define FILEEOF					0x13A5
+#define FILEERR					0x13A6
 
-#define NUMVARIABLES         	0x13A4
+#define NUMVARIABLES         	0x13A7
 
 //} End variables
 

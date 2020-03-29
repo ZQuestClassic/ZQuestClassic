@@ -32,8 +32,15 @@ extern byte use_dwm_flush;
 #include "util.h"
 using namespace util;
 
+#ifdef _WIN32
+#define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
+#else
+#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#endif
+
 //Define this register, so it can be treated specially
 #define NUL		5
+#define MAX_ZC_ARRAY_SIZE 214748
 
 extern zinitdata zinit;
 int hangcount = 0;
@@ -53,7 +60,8 @@ FONT *get_zc_font(int index);
 static inline bool fileexists(const char *filename) 
 {
 	std::ifstream ifile(filename);
-	return (bool)ifile;
+	if(ifile) return true;
+	return false;
 }
 
 const char scripttypenames[11][40]=
@@ -1119,7 +1127,7 @@ int FFScript::UpperToLower(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		{
@@ -1136,7 +1144,7 @@ int FFScript::LowerToUpper(std::string *s)
 		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -1153,7 +1161,7 @@ int FFScript::ConvertCase(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( int q = 0; q < s->size(); ++q )
+	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -2282,9 +2290,9 @@ public:
 		if(ptr <= 0)
 			return InvalidError(ptr);
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 				return InvalidError(ptr);
@@ -2326,7 +2334,7 @@ public:
 	}
 	
 	//Returns values of a zscript array as an std::string.
-	static void getString(const long ptr, string &str, word num_chars = 256)
+	static void getString(const long ptr, string &str, dword num_chars = 256, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2338,9 +2346,15 @@ public:
 		
 		str.clear();
 		
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
 		{
-			str += char(a[i] / 10000);
+			int c = a[i] / 10000;
+			if(char(c) != c)
+			{
+				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
+				Z_scripterrlog("Value of invalid char will overflow.\n");
+			}
+			str += char(c);
 			num_chars--;
 		}
 	}
@@ -2348,14 +2362,14 @@ public:
 	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
 	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const long ptr, long* arrayPtr, word num_values) //a hack -Z
+	static void getValues2(const long ptr, long* arrayPtr, dword num_values, dword offset = 0) //a hack -Z
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -2363,14 +2377,14 @@ public:
 	}
 	
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const long ptr, long* arrayPtr, word num_values)
+	static void getValues(const long ptr, long* arrayPtr, dword num_values, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if(a == INVALIDARRAY)
 			return;
 			
-		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
 		{
 			arrayPtr[i] = (a[i] / 10000);
 			num_values--;
@@ -2517,7 +2531,7 @@ public:
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -2551,7 +2565,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 		}
 	}
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
@@ -2564,7 +2578,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 void FFScript::deallocateAllArrays()
 {
 	//No QR check here- always deallocate on quest exit.
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(localRAM[i].Size() > 0)
 		{
@@ -2639,19 +2653,27 @@ weapon *checkEWpn(long eid, const char *what)
 	return s;
 }
 
-user_file *checkFile(long ref, const char *what, bool skipError = false)
+user_file *checkFile(long ref, const char *what, bool req_file = false, bool skipError = false)
 {
 	if(ref > 0 && ref <= MAX_USER_FILES)
 	{
 		user_file* f = &script_files[ref-1];
 		if(f->reserved)
 		{
+			if(req_file && !f->file)
+			{
+				if(skipError) return NULL;
+				Z_scripterrlog("Script attempted to reference an invalid file!\n");
+				Z_scripterrlog("File with UID = %ld does not have an open file connection!\n",ref);
+				Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+				return NULL;
+			}
 			return f;
 		}
 	}
 	if(skipError) return NULL;
 	Z_eventlog("Script attempted to reference a nonexistent File!\n");
-	Z_eventlog("You were trying to reference the %s of an File with UID = %ld\n", what, ref);
+	Z_eventlog("You were trying to reference the '%s' of an File with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -9091,6 +9113,36 @@ long get_register(const long arg)
 			ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
 			break;
 		}
+		///----------------------------------------------------------------------------------------------------//
+		
+		case FILEPOS:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Pos", true))
+			{
+				ret = ftell(f->file); //NOT *10000 -V
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEEOF:
+		{
+			if(user_file* f = checkFile(ri->fileref, "EOF", true))
+			{
+				ret = feof(f->file) ? 10000L : 0L; //Boolean
+			}
+			else ret = -10000L;
+			break;
+		}
+		case FILEERR:
+		{
+			if(user_file* f = checkFile(ri->fileref, "Error", true))
+			{
+				ret = ferror(f->file) * 10000L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Misc./Internal
 		case REFFFC:
@@ -16164,9 +16216,9 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
 		for(ptrval = 1; localRAM[ptrval].Size() != 0; ptrval++) ;
 		
-		if(ptrval >= MAX_ZCARRAY_SIZE)
+		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
-			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", MAX_ZCARRAY_SIZE-1);
+			Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
 			ptrval = 0;
 		}
 		else
@@ -16202,7 +16254,7 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
 			
-		ptrval += MAX_ZCARRAY_SIZE; //so each pointer has a unique value
+		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
 	
 	
@@ -17603,9 +17655,9 @@ void do_isvalidarray()
 			set_register(sarg1,0); return;
 	}
 			
-		if(ptr >= MAX_ZCARRAY_SIZE) //check global
+		if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
 		{
-			dword gptr = ptr - MAX_ZCARRAY_SIZE;
+			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
 			if(gptr > game->globalRAM.size())
 		{
@@ -23107,6 +23159,122 @@ int run_script(const byte type, const word script, const long i)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			
+			case FILECLOSE:
+			{
+				FFCore.do_fclose();
+				break;
+			}
+			case FILEFREE:
+			{
+				FFCore.do_deallocate_file();
+				break;
+			}
+			case FILEISALLOCATED:
+			{
+				FFCore.do_file_isallocated();
+				break;
+			}
+			case FILEISVALID:
+			{
+				FFCore.do_file_isvalid();
+				break;
+			}
+			case FILEALLOCATE:
+			{
+				FFCore.do_allocate_file();
+				break;
+			}
+			case FILEFLUSH:
+			{
+				FFCore.do_fflush();
+				break;
+			}
+			case FILEGETCHAR:
+			{
+				FFCore.do_file_getchar();
+				break;
+			}
+			case FILEREWIND:
+			{
+				FFCore.do_file_rewind();
+				break;
+			}
+			case FILECLEARERR:
+			{
+				FFCore.do_file_clearerr();
+				break;
+			}
+			
+			case FILEOPEN:
+			{
+				FFCore.do_fopen(false, "rb+");
+				break;
+			}
+			case FILECREATE:
+			{
+				FFCore.do_fopen(false, "wb+");
+				break;
+			}
+			case FILEOPENMODE:
+			{
+				long arrayptr = get_register(sarg2) / 10000;
+				string mode;
+				ArrayH::getString(arrayptr, mode, 16);
+				FFCore.do_fopen(false, mode.c_str());
+				break;
+			}
+			case FILEREADSTR:
+			{
+				FFCore.do_file_readstring();
+				break;
+			}
+			case FILEWRITESTR:
+			{
+				FFCore.do_file_writestring();
+				break;
+			}
+			case FILEPUTCHAR:
+			{
+				FFCore.do_file_putchar();
+				break;
+			}
+			case FILEUNGETCHAR:
+			{
+				FFCore.do_file_ungetchar();
+				break;
+			}
+			
+			case FILEREADCHARS:
+			{
+				FFCore.do_file_readchars();
+				break;
+			}
+			case FILEREADINTS:
+			{
+				FFCore.do_file_readints();
+				break;
+			}
+			case FILEWRITECHARS:
+			{
+				FFCore.do_file_writechars();
+				break;
+			}
+			case FILEWRITEINTS:
+			{
+				FFCore.do_file_writeints();
+				break;
+			}
+			case FILESEEK:
+			{
+				FFCore.do_file_seek();
+				break;
+			}
+			case FILEGETERROR:
+			{
+				FFCore.do_file_geterr();
+				break;
+			}
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -23511,7 +23679,7 @@ void FFScript::user_files_init()
 	}
 }
 
-int FFScript::get_free_file()
+int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
 	{
@@ -23521,19 +23689,47 @@ int FFScript::get_free_file()
 			return q+1; //1-indexed; 0 is null value
 		}
 	}
-	Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
 	return 0;
 }
-
+#ifdef _WIN32
+static string windows_exe_extensions[] = {".xlm",".caction",".8ck", ".actc",".a6p", ".m3g",".run",".workflow",".otm",".apk",".fxp",".73k",".0xe",".exe",".cmd",".jsx",".scar",".wcm",".jar",".ebs2",".ipa",".xap",".ba_",".ac",".bin",".vlx",".icd",".elf",".xbap",".89k",".widget",".a7r",".ex_",".zl9",".cgi",".scr",".coffee",".ahk",".plsc",".air",".ear",".app",".scptd",".xys",".hms",".cyw",".ebm",".pwc",".xqt",".msl",".seed",".vexe",".ebs",".mcr",".gpu",".celx",".wsh",".frs",".vxp",".action",".com",".out",".gadget",".command",".script",".rfu",".tcp",".widget",".ex4",".bat",".cof",".phar",".rxe",".scb",".ms",".isu",".fas",".mlx",".gpe",".mcr",".mrp",".u3p",".js",".acr",".epk",".exe1",".jsf",".rbf",".rgs",".vpm",".ecf",".hta",".dld",".applescript",".prg",".pyc",".spr",".nexe",".server",".appimage",".pyo",".dek",".mrc",".fpi",".rpj",".iim",".vbs",".pif",".mel",".scpt",".csh",".paf",".ws",".mm",".acc",".ex5",".mac",".plx",".snap",".ps1",".vdo",".mxe",".gs",".osx",".sct",".wiz",".x86",".e_e",".fky",".prg",".fas",".azw2",".actm",".cel",".tiapp",".thm",".kix",".wsf",".vbe",".lo",".ls",".tms",".ezs",".ds",".n",".esh",".vbscript",".arscript",".qit",".pex",".dxl",".wpm",".s2a",".sca",".prc",".shb",".rbx",".jse",".beam",".udf",".mem",".kx",".ksh",".rox",".upx",".ms",".mam",".btm",".es",".asb",".ipf",".mio",".sbs",".hpf",".ita",".eham",".ezt",".dmc",".qpx",".ore",".ncl",".exopc",".smm",".pvd",".ham",".wpk",""};
+// Gotten from 'https://fileinfo.com/filetypes/executable'
+#endif
 bool validate_userfile_extension(string const& path)
 {
+#ifdef _WIN32
 	string ext = get_ext(path);
-	if(ext == ".zs") return true; //ZScript ext
-	if(ext == ".zh") return true; //ZScript Header ext
-	if(ext == ".txt") return true; //Text file
-	if(ext == ".cfg") return true; //Config file
-	if(ext == ".zdata") return true; //Generic ZScript Data File
-	return false; //Any other extension, including no extension, is disallowed
+	for(int q = 0; windows_exe_extensions[q].length()>1; ++q)
+	{
+		if(ext == windows_exe_extensions[q]) return false;
+	}
+	return true; //Any other extension, including no extension, is allowed
+#else
+	return true; //All extensions valid
+#endif
+}
+
+bool get_scriptfile_path(char* buf, const char* path)
+{
+	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
+	if(!path[0]) return false;
+	sprintf(buf, "%s%s", qst_files_path, path);
+	return true;
+}
+
+void check_file_error(long ref)
+{
+	Z_scripterrlog("File error: %s\n", strerror(32));
+	if(user_file* f = checkFile(ref, "", true, true))
+	{
+		int err = ferror(f->file);
+		if(err != 0)
+		{
+			Z_scripterrlog("File with UID '%ld' encountered an error.\n", ref);
+			Z_scripterrlog("File error: %s\n", strerror(err));
+		}
+	}
 }
 
 void FFScript::do_fopen(const bool v, const bool create)
@@ -23541,32 +23737,60 @@ void FFScript::do_fopen(const bool v, const bool create)
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	string filename_str;
 	ArrayH::getString(arrayptr, filename_str, 512);
-	if(!validate_userfile_extension(filename_str))
+	regulate_path(filename_str);
+	ri->d[2] = 0L; //Presume failure; update to 10000L on success
+	if(!valid_file(filename_str))
 	{
-		Z_scripterrlog("Cannot open file with extension '%s'.\nAllowed extensions: %s\n",
-			get_ext(filename_str), "'.zs', '.zh', '.txt', '.cfg', '.zdata'");
+		Z_scripterrlog("Path '%s' empty or points to a directory; must point to a file!\n",filename_str.c_str());
 		return;
 	}
-	
-	user_file* f = checkFile(ri->fileref, "Open()");
+	if(!validate_userfile_extension(filename_str))
+	{
+		Z_scripterrlog("Cannot open/create file with extension '%s'.\n", get_ext(filename_str).c_str());
+		return;
+	}
+	if(filename_str.find("../") != string::npos
+		|| filename_str.find("..\\") != string::npos)
+	{
+		Z_scripterrlog("Error: Script attempted to go up a directory in file load '%s'\n", filename_str.c_str());
+		return;
+	}
+	char buf[2048] = {0};
+	get_scriptfile_path(buf, filename_str.c_str());
+	user_file* f = checkFile(ri->fileref, "Open()", false, true);
+	if(!f) //auto-allocate
+	{
+		ri->fileref = get_free_file();
+		f = checkFile(ri->fileref, "Open()", false, true);
+	}
+	ri->d[3] = ri->fileref; //Returns to the variable!
 	if(f)
 	{
 		f->close(); //Close the old FILE* before overwriting it!
-		f->file = fopen(filename_str.c_str(), create ? "w+" : "r+");
-		//r+; read-write, will not create if does not exist, will not delete content if does exist.
-		//w+; read-write, will create if does not exist, will delete all content if does exist.
-		if(f->file)
+		if(!create || create_path(buf))
 		{
-			ri->d[2] = 10000L; //Success
+			f->file = fopen(buf, create ? "wb+" : "rb+");
+			fflush(f->file);
+			zc_chmod(buf, SCRIPT_FILE_MODE);
+			//r+; read-write, will not create if does not exist, will not delete content if does exist.
+			//w+; read-write, will create if does not exist, will delete all content if does exist.
+			if(f->file)
+			{
+				ri->d[2] = 10000L; //Success
+				return;
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Script failed to create directories for file path '%s'.\n", filename_str.c_str());
 			return;
 		}
 	}
-	ri->d[2] = 0L; //Failure
 }
 
 void FFScript::do_fclose()
 {
-	if(user_file* f = checkFile(ri->fileref, "Close()", true))
+	if(user_file* f = checkFile(ri->fileref, "Close()", false, true))
 	{
 		f->close();
 	}
@@ -23576,27 +23800,313 @@ void FFScript::do_fclose()
 void FFScript::do_allocate_file()
 {
 	//Get a file and return it
-	ri->d[2] = get_free_file();
+	ri->fileref = get_free_file();
+	ri->d[3] = ri->fileref; //Return to ptr
+	ri->d[2] = (ri->d[3] == 0 ? 0L : 10000L);
 }
 
 void FFScript::do_deallocate_file()
 {
-	user_file* f = checkFile(ri->fileref, "Free()", true);
+	user_file* f = checkFile(ri->fileref, "Free()", false, true);
 	if(f) f->clear();
 }
 
 void FFScript::do_file_isallocated() //Returns true if file is allocated
 {
-	user_file* f = checkFile(ri->fileref, "isAllocated()", true);
+	user_file* f = checkFile(ri->fileref, "isAllocated()", false, true);
 	ri->d[2] = (f) ? 10000L : 0L;
 }
 
 void FFScript::do_file_isvalid() //Returns true if file is allocated and has an open FILE*
 {
-	user_file* f = checkFile(ri->fileref, "isValid()", true);
-	ri->d[2] = (f && f->file) ? 10000L : 0L;
+	user_file* f = checkFile(ri->fileref, "isValid()", true, true);
+	ri->d[2] = (f) ? 10000L : 0L;
 }
 
+void FFScript::do_fflush()
+{
+	ri->d[2] = 0L;
+	if(user_file* f = checkFile(ri->fileref, "Flush()", true))
+	{
+		if(!fflush(f->file))
+			ri->d[2] = 10000L;
+		check_file_error(ri->fileref);
+	}
+}
+
+void FFScript::do_file_readchars()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadChars()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		int limit = pos+count;
+		char c;
+		word q;
+		ri->d[2] = 0;
+		for(q = pos; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			if(feof(f->file) || ferror(f->file))
+				break;
+			if(c <= 0)
+				break;
+			a[q] = c * 10000L;
+			++ri->d[2]; //Don't count nullchar towards length
+		}
+		if(q >= limit)
+		{
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
+		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_readstring()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadString()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		int limit = a.Size();
+		int c;
+		word q;
+		ri->d[2] = 0;
+		for(q = 0; q < limit; ++q)
+		{
+			c = fgetc(f->file);
+			if(feof(f->file) || ferror(f->file))
+				break;
+			if(c <= 0 || c == '\n')
+				break;
+			a[q] = c * 10000L;
+			++ri->d[2]; //Don't count nullchar towards length
+		}
+		if(q >= limit)
+		{
+			--q;
+			--ri->d[2];
+			ungetc(a[q], f->file); //Put the character back before overwriting it
+		}
+		a[q] = 0; //Force null-termination
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_readints()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadInts()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		
+		/*
+		fseek(f->file, 0L, SEEK_END);
+		int foo = ftell(f->file);
+		Z_scripterrlog("File size: %ld\n", foo);
+		rewind(f->file);
+		//*/
+		
+		std::vector<long> data(count);
+		ri->d[2] = 10000L * fread((void*)&(data[0]), 4, count, f->file);
+		for(int q = 0; q < count; ++q)
+		{
+			a[q+pos] = data[q];
+		}
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writechars()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteChars()", true))
+	{
+		int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, count, pos);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.c_str(), 1, output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writestring()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteString()", true))
+	{
+		long arrayptr = get_register(sarg1) / 10000;
+		string output;
+		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
+		//const char* out = output.c_str();
+		//ri->d[2] = 10000L * fwrite((const void*)output.data, sizeof(char), output.length(), f->file);
+		int q = 0;
+		for(; q < output.length(); ++q)
+		{
+			if(fputc(output[q], f->file)<0)
+				break;
+		}
+		ri->d[2] = q * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+void FFScript::do_file_writeints()
+{
+	if(user_file* f = checkFile(ri->fileref, "WriteInts()", true))
+	{
+		unsigned int pos = zc_max(ri->d[0] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) return;
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		std::vector<long> data(count);
+		for(int q = 0; q < count; ++q)
+		{
+			data[q] = a[q+pos];
+		}
+		ri->d[2] = 10000L * fwrite((const void*)&(data[0]), 4, count, f->file);
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0L;
+}
+
+void FFScript::do_file_getchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetChar()", true))
+	{
+		ri->d[2] = fgetc(f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_putchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "PutChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.", c);
+			c = char(c);
+		}
+		ri->d[2] = fputc(c, f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+void FFScript::do_file_ungetchar()
+{
+	if(user_file* f = checkFile(ri->fileref, "UngetChar()", true))
+	{
+		int c = get_register(sarg1) / 10000;
+		if(char(c) != c)
+		{
+			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
+			c = char(c);
+		}
+		ri->d[2] = ungetc(c,f->file) * 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = -10000L; //-1 == EOF; error value
+}
+
+void FFScript::do_file_seek()
+{
+	if(user_file* f = checkFile(ri->fileref, "Seek()", true))
+	{
+		int pos = get_register(sarg1); //NOT /10000 -V
+		int origin = get_register(sarg2) ? SEEK_CUR : SEEK_SET;
+		ri->d[2] = fseek(f->file, pos, origin) ? 0L : 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[2] = 0;
+}
+void FFScript::do_file_rewind()
+{
+	if(user_file* f = checkFile(ri->fileref, "Rewind()", true))
+	{
+		//fseek(f->file, 0L, SEEK_END);
+		rewind(f->file);
+		check_file_error(ri->fileref);
+	}
+}
+void FFScript::do_file_clearerr()
+{
+	if(user_file* f = checkFile(ri->fileref, "ClearError()", true))
+	{
+		clearerr(f->file);
+	}
+}
+
+void FFScript::do_file_geterr()
+{
+	if(user_file* f = checkFile(ri->fileref, "GetError()", true))
+	{
+		int err = ferror(f->file);
+		long arrayptr = get_register(sarg1) / 10000;
+		if(err)
+		{
+			string error = strerror(err);
+			ArrayH::setArray(arrayptr, error);
+		}
+		else
+		{
+			ArrayH::setArray(arrayptr, "\0");
+		}
+	}
+}
 ///----------------------------------------------------------------------------------------------------
 
 
@@ -24246,7 +24756,7 @@ long FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const long ptrval)
 {
-	if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
@@ -24515,7 +25025,7 @@ void FFScript::do_changeffcscript(const bool v)
 {
 	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
 	/*
-	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	for(long i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i]==ri->ffcref)
 		FFScript::deallocateZScriptArray(i);
@@ -28640,7 +29150,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -28674,7 +29184,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		{
@@ -28950,7 +29460,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
@@ -30181,6 +30691,32 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TOINTEGER",           1,   0,   0,   0},
 	{ "FLOOR",           1,   0,   0,   0},
 	{ "CEILING",           1,   0,   0,   0},
+	
+	{ "FILECLOSE",           0,   0,   0,   0},
+	{ "FILEFREE",           0,   0,   0,   0},
+	{ "FILEISALLOCATED",           0,   0,   0,   0},
+	{ "FILEISVALID",           0,   0,   0,   0},
+	{ "FILEALLOCATE",           0,   0,   0,   0},
+	{ "FILEFLUSH",           0,   0,   0,   0},
+	{ "FILEGETCHAR",           0,   0,   0,   0},
+	{ "FILEREWIND",           0,   0,   0,   0},
+	{ "FILECLEARERR",           0,   0,   0,   0},
+	
+	{ "FILEOPEN",           1,   0,   0,   0},
+	{ "FILECREATE",           1,   0,   0,   0},
+	{ "FILEREADSTR",           1,   0,   0,   0},
+	{ "FILEWRITESTR",           1,   0,   0,   0},
+	{ "FILEPUTCHAR",           1,   0,   0,   0},
+	{ "FILEUNGETCHAR",           1,   0,   0,   0},
+	
+	{ "FILEREADCHARS",           2,   0,   0,   0},
+	{ "FILEREADINTS",           2,   0,   0,   0},
+	{ "FILEWRITECHARS",           2,   0,   0,   0},
+	{ "FILEWRITEINTS",           2,   0,   0,   0},
+	{ "FILESEEK",           2,   0,   0,   0},
+	{ "FILEOPENMODE",           2,   0,   0,   0},
+	{ "FILEGETERROR",           1,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34775,7 +35311,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -34790,7 +35326,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -34805,7 +35341,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -35376,7 +35912,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -35391,7 +35927,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -35406,7 +35942,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range& )
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
