@@ -1130,7 +1130,7 @@ void Z_eventlog(const char *format,...)
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
 		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			std::cout << "Z_scripterrlog Test\n";
 			printf("%s", buf);	
 		#endif
     }
@@ -4323,14 +4323,14 @@ int main(int argc, char* argv[])
     }
     
     
-	std::cout << "\n       _____   ____                  __ \n" << std::endl;
-	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n" << std::endl;
-	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n" << std::endl;
-	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n" << std::endl;
-	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n" << std::endl;
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
 	
-	std::cout << "Quest Data Logging & ZScript Debug Console\n" << std::endl;
-	std::cout << "ZConsole for Linux\n" << std::endl;
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
     
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
