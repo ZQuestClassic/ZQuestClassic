@@ -84,13 +84,9 @@ continue	TOKEN( CONTINUE );
 const		TOKEN( ZCONST );
 do		TOKEN( DO );
 typedef		TOKEN( TYPEDEF );
-"#ignore error"		TOKEN( EXPECTERROR );
-"#IGNORE ERROR"		TOKEN( EXPECTERROR );
-"#ignore warning"	TOKEN( EXPECTERROR );
-"#IGNORE WARNING"	TOKEN( EXPECTERROR );
+
 catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
-"#define"		TOKEN( DEFINE );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
@@ -168,6 +164,10 @@ decorationsprite	TOKEN( DECORATION );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
 "?"		TOKEN( QMARK ); //for ternary
+"#"		{
+	BEGIN( HASH ); //Handle the string following 'import' specially
+	TOKEN( HASH );
+}
 
  /* Operators (in order of operations) */
 "->"		TOKEN( ARROW );
@@ -276,11 +276,15 @@ appx_equal		TOKEN( APPXEQUAL );
 }
 
  /* Hash Commands */
-<INITIAL>"#"		BEGIN( HASH ); TOKEN( HASH );
 <HASH>{
 	\\\n		NEWLINE;
 	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
 	option		TOKEN( OPTION );
+	"ignore error"		TOKEN( EXPECTERROR );
+	"IGNORE ERROR"		TOKEN( EXPECTERROR );
+	"ignore warning"	TOKEN( EXPECTERROR );
+	"IGNORE WARNING"	TOKEN( EXPECTERROR );
+	"define"		TOKEN( DEFINE );
 	include		BEGIN( IMPORTING ); TOKEN( INCLUDE );
 	inherit		TOKEN( INHERIT );
 	on			TOKEN( ZTRUE );
