@@ -427,7 +427,7 @@ bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY
 
 void user_files_init();
 int get_free_file(bool skipError = false);
-void do_fopen(const bool v, const bool create);
+void do_fopen(const bool v, const char* f_mode);
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();

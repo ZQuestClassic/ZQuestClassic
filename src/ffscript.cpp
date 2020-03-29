@@ -23736,7 +23736,7 @@ void check_file_error(long ref)
 	}
 }
 
-void FFScript::do_fopen(const bool v, const bool create)
+void FFScript::do_fopen(const bool v, const char* f_mode)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	string filename_str;
@@ -23771,9 +23771,18 @@ void FFScript::do_fopen(const bool v, const bool create)
 	if(f)
 	{
 		f->close(); //Close the old FILE* before overwriting it!
+		bool create = false;
+		for(int q = 0; f_mode[q]; ++q)
+		{
+			if(f_mode[q] == 'w')
+			{
+				create = true;
+				break;
+			}
+		}
 		if(!create || create_path(buf))
 		{
-			f->file = fopen(buf, create ? "wb+" : "rb+");
+			f->file = fopen(buf, f_mode);
 			fflush(f->file);
 			zc_chmod(buf, SCRIPT_FILE_MODE);
 			//r+; read-write, will not create if does not exist, will not delete content if does exist.
@@ -23898,10 +23907,15 @@ void FFScript::do_file_readstring()
 			c = fgetc(f->file);
 			if(feof(f->file) || ferror(f->file))
 				break;
-			if(c <= 0 || c == '\n')
+			if(c <= 0)
 				break;
 			a[q] = c * 10000L;
 			++ri->d[2]; //Don't count nullchar towards length
+			if(c == '\n')
+			{
+				++q;
+				break;
+			}
 		}
 		if(q >= limit)
 		{
