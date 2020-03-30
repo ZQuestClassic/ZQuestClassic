@@ -1913,12 +1913,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	case wIce:
     {
 	    #if DEVLEVEL > 0
-		Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
+		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
 	    #endif
 	if(parentitem >-1)
 	{
 		#if DEVLEVEL > 0
-		Z_scripterrlog("LW_SCRIPT parent item is: %d\n",parentitem);
+		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT parent item is: %d\n",parentitem);
 		#endif 
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
@@ -3746,7 +3746,7 @@ void weapon::runscript(int index)
 	    case wScript10:
 	    {
 		#if DEVLEVEL > 0
-		Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
+		if(DEVDEBUG) Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 		#endif
 		    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
 		/*
@@ -8980,7 +8980,7 @@ offscreenCheck:
             clk2=256;
             int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
 		#if DEVLEVEL > 0
-		Z_scripterrlog("weapons.cpp, line %d\n", 7314);
+		if(DEVDEBUG) Z_scripterrlog("weapons.cpp, line %d\n", 7314);
                 #endif
 	    if(clipped)
             {

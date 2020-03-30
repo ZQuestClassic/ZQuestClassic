@@ -18,6 +18,14 @@
 //DEVLEVEL 1: Ignore passwd
 //DEVLEVEL 2: +More verbose logging. 
 
+#if DEVLEVEL > 0
+#define DEVLOGGING	dev_logging
+#define DEVDEBUG	dev_debug
+#else
+#define DEVLOGGING	false
+#endif
+
+
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG

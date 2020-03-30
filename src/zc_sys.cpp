@@ -7704,7 +7704,7 @@ static DIALOG cheat_dlg[] =
 
 int onCheat()
 {
-    if(!zcheats.flags && !get_debug())
+    if(!zcheats.flags && !get_debug() && DEVLEVEL < 2)
         return D_O_K;
         
     str_a[0]=0;
@@ -8367,16 +8367,55 @@ static MENU fixes_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+#if DEVLEVEL > 0
+int devLogging();
+int devDebug();
+#if DEVLEVEL > 1
+int setCheat();
+#endif //DEVLEVEL > 1
+static MENU dev_menu[] =
+{
+	{ (char *)"&Force Error Log",           devLogging,              NULL,             D_SELECTED, NULL },
+	{ (char *)"&Extra Debug Log",           devDebug,                NULL,             D_SELECTED, NULL },
+	#if DEVLEVEL > 1
+	{ (char *)"",                           NULL,                    NULL,             0,          NULL },
+	{ (char *)"Set &Cheat",                 setCheat,                NULL,             0,          NULL },
+	#endif //DEVLEVEL > 1
+	{ NULL,                                 NULL,                    NULL,             0,          NULL }
+};
+int devLogging()
+{
+	dev_logging = !dev_logging;
+	dev_menu[0].flags = dev_logging ? D_SELECTED : 0;
+	return D_O_K;
+}
+int devDebug()
+{
+	dev_debug = !dev_debug;
+	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
+	return D_O_K;
+}
+#if DEVLEVEL > 1
+int setCheat()
+{
+	cheat = (vbound(getnumber("Cheat Level",cheat), 0, 4));
+	return D_O_K;
+}
+#endif //DEVLEVEL > 1
+#endif //DEVLEVEL > 0
 
 MENU the_menu[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
-    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
-    { (char *)"&Fixes",                      NULL,                    fixes_menu,                 0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+	#if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+	#endif
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8409,10 +8448,13 @@ MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
-    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
-    { (char *)"&Fixes",                      NULL,                    fixes_menu,                 0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+	#if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+	#endif
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -9424,6 +9466,9 @@ void System()
     misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
+	#if DEVLEVEL > 1
+	dev_menu[3].flags = Playing ? 0 : D_DISABLED;
+	#endif
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
@@ -9433,7 +9478,7 @@ void System()
     
     DIALOG_PLAYER *p;
     
-    if(!Playing || (!zcheats.flags && !get_debug()))
+    if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2))
     {
         p = init_dialog(system_dlg2,-1);
     }

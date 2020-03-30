@@ -32183,7 +32183,7 @@ void FFScript::do_tracenl()
 
 void FFScript::TraceScriptIDs(bool zasm_console)
 {
-	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 0 )
+	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;
 		#ifdef _WIN32
