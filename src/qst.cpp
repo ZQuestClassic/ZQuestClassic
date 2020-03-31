@@ -9735,6 +9735,11 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				delete globalscripts[GLOBAL_SCRIPT_F6];
 				
 			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
 		else
 		{
@@ -9749,6 +9754,26 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
 				
 			globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+				
+			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+				
+			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_F6];
+				
+			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
