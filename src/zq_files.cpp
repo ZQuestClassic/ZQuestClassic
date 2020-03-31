@@ -582,317 +582,315 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
 int PickRuleset()
 {
 	zprint("Running int PickRuleset()\n");
-    ruleset_dlg[0].dp2=lfont;
-    
-    // Large Mode conversion
-    if(!is_large)
-        ruleset_dlg[2].proc = d_dummy_proc;
-        
-    int start = (is_large?14:9);
-    int end = (is_large?17:13);
-    
-    for(int i = start; i <= end; i++)
-    {
-        ruleset_dlg[i].proc = d_dummy_proc;
-    }
-    
-    //18-19 or 20-21
-    
-    int infostart = (is_large?21:18);
-    int infoend = (is_large?22:19);
-    
-    for(int i = infostart; i <= infoend; i++)
-    {
-        ruleset_dlg[i].proc = d_dummy_proc;
-    }
-    
-    if(is_large)
-        large_dialog(ruleset_dlg);
-        
-    int ret = zc_popup_dialog(ruleset_dlg,1);
-    //List of all NES Fixes as one set.
-    int fixesrules[] =
-            {
-                qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
-                qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
-                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
-                qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
-                qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
-                qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
-            };
-	    
-    if(ret==1)
-    {
-        if(ruleset>0)
-        {
-            for(int i=0; i<qr_MAX; i++)
-                set_bit(quest_rules,i,0);
-        }
-        
-        // ZC engine fixes
-        // These should always be on.
-        set_bit(quest_rules, qr_DMGCOMBOLAYERFIX, 1);
-        set_bit(quest_rules, qr_WARPSIGNOREARRIVALPOINT, 1);
-        set_bit(quest_rules, qr_NOARRIVALPOINT, 1);
-        set_bit(quest_rules, qr_CMBCYCLELAYERS, 1);
-        set_bit(quest_rules, qr_KILLALL, 1);
-        set_bit(quest_rules, qr_ITEMBUBBLE, 1);
-        set_bit(quest_rules, qr_RINGAFFECTDAMAGE, 1);
-        //Script errors on by default
-        set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
-        set_bit(quest_rules, qr_LOG, 1);
-       // set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
-	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
-	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
-        
-        
-        switch(ruleset)
-        {
-        case rulesetNES: // Original NES
-            set_bit(quest_rules, qr_OLDPICKUP, 1);
-            set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
-	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-            break;
-            
-        case rulesetZ3: // Zelda 3-esque
-        
-            // Make the water combos drownable
-            for(int i=0; i < MAXCOMBOS; i++)
-            {
-                if(combo_class_buf[combobuf[i].type].water!=0)
-                {
-                    combobuf[i].walk = 0;
-                }
-            }
-            
-            set_bit(quest_rules, qr_DROWN, 1);
-            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-            set_bit(quest_rules, qr_MSGFREEZE, 1);
-            
-            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-            set_bit(quest_rules, qr_NOWANDMELEE, 1);
-            set_bit(quest_rules, qr_TRUEARROWS, 1);
-            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-            set_bit(quest_rules, qr_SHADOWS, 1);
-            set_bit(quest_rules, qr_LTTPWALK, 1);
-            set_bit(quest_rules, qr_MORESOUNDS, 1);
-	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-	    break;
-            
-        case rulesetBSZ: // BS Zelda
-	    // Make the water combos drownable
-            for(int i=0; i < MAXCOMBOS; i++)
-            {
-                if(combo_class_buf[combobuf[i].type].water!=0)
-                {
-                    combobuf[i].walk = 0;
-                }
-            }
-            
-            set_bit(quest_rules, qr_DROWN, 1);
-            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-            set_bit(quest_rules, qr_MSGFREEZE, 1);
-            
-            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-            set_bit(quest_rules, qr_NOWANDMELEE, 1);
-            set_bit(quest_rules, qr_TRUEARROWS, 1);
-            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-            set_bit(quest_rules, qr_SHADOWS, 1);
-            set_bit(quest_rules, qr_LTTPWALK, 1);
-            set_bit(quest_rules, qr_MORESOUNDS, 1);
-            set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
-            set_bit(quest_rules, qr_TIME, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
-            set_bit(quest_rules, qr_FASTDNGN, 1);
-            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
-            set_bit(quest_rules, qr_COOLSCROLL, 1);
-            set_bit(quest_rules, qr_BSZELDA, 1);
-            set_bit(quest_rules, qr_SOLIDBLK, 1);
-            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
-            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
-            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
-            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-            
-            break;
-	    
-        case rulesetFixedNES: // Fixed NES
-            // Copied from zq_rules.cpp
+	ruleset_dlg[0].dp2=lfont;
 	
-	    for(int i=0; i < MAXCOMBOS; i++)
-            {
-                if(combo_class_buf[combobuf[i].type].water!=0)
-                {
-                    combobuf[i].walk = 0;
-                }
-            }
-            
-            set_bit(quest_rules, qr_DROWN, 1);
-            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-            set_bit(quest_rules, qr_MSGFREEZE, 1);
-            
-            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-            set_bit(quest_rules, qr_NOWANDMELEE, 1);
-            set_bit(quest_rules, qr_TRUEARROWS, 1);
-            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-            set_bit(quest_rules, qr_SHADOWS, 1);
-            set_bit(quest_rules, qr_LTTPWALK, 1);
-            set_bit(quest_rules, qr_MORESOUNDS, 1);
-            set_bit(quest_rules, qr_TIME, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
-            set_bit(quest_rules, qr_FASTDNGN, 1);
-            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
-            set_bit(quest_rules, qr_COOLSCROLL, 1);
-            set_bit(quest_rules, qr_BSZELDA, 1);
-            set_bit(quest_rules, qr_SOLIDBLK, 1);
-            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
-            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
-            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
-            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-	    set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-            
-            for(int i=0; fixesrules[i]!=-1; i++)
-            {
-                if(i!=qr_OLDPICKUP)
-                    set_bit(quest_rules, fixesrules[i], 1);
-            }
-            
-            break;
-	    
-	    case rulesetModern:
-		for(int i=0; i < MAXCOMBOS; i++)
-            {
-                if(combo_class_buf[combobuf[i].type].water!=0)
-                {
-                    combobuf[i].walk = 0;
-                }
-            }
-            
-            set_bit(quest_rules, qr_DROWN, 1);
-            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-            set_bit(quest_rules, qr_MSGFREEZE, 1);
-            
-            //set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-            set_bit(quest_rules, qr_NOWANDMELEE, 1);
-            set_bit(quest_rules, qr_TRUEARROWS, 1);
-            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-            set_bit(quest_rules, qr_SHADOWS, 1);
-            set_bit(quest_rules, qr_LTTPWALK, 1);
-            set_bit(quest_rules, qr_MORESOUNDS, 1);
-            set_bit(quest_rules, qr_TIME, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
-            set_bit(quest_rules, qr_FASTDNGN, 1);
-            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
-            set_bit(quest_rules, qr_COOLSCROLL, 1);
-            set_bit(quest_rules, qr_BSZELDA, 1);
-            set_bit(quest_rules, qr_SOLIDBLK, 1);
-            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
-            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
-            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
-            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            
-            for(int i=0; fixesrules[i]!=-1; i++)
-            {
-                if(i!=qr_OLDPICKUP)
-                    set_bit(quest_rules, fixesrules[i], 1);
-            }
-	    
-	    set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
-        set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
-        set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1);
-        
-        set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
-        set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
-        
-        
-        /*bugged set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1); */
-        
-        /* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
-	    set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
-        
-        
-        set_bit(quest_rules, qr_ITEMSHADOWS, 1);
-        set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
-        set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
-        set_bit(quest_rules, qr_OLDSPRITEDRAWS, 0); //User can manually disable.
-	set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-	set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1); //Give Script 1 to 10 weapons, generated by ZScript unique sprites. 
+	// Large Mode conversion
+	if(!is_large)
+		ruleset_dlg[2].proc = d_dummy_proc;
+		
+	int start = (is_large?14:9);
+	int end = (is_large?17:13);
 	
-	set_bit(quest_rules, qr_NEW_COMBO_ANIMATION, 1);
-	set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
-	set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
-	set_bit(quest_rules, qr_BUSHESONLAYERS1AND2, 1);
-	set_bit(quest_rules, qr_CUSTOMCOMBOSLAYERS1AND2, 1);
-            
-            break;
-            
-        }
+	for(int i = start; i <= end; i++)
+	{
+		ruleset_dlg[i].proc = d_dummy_proc;
+	}
 	
-	if ( ruleset == rulesetZ3 ) set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-    }
-    
-    return D_O_K;
+	//18-19 or 20-21
+	
+	int infostart = (is_large?21:18);
+	int infoend = (is_large?22:19);
+	
+	for(int i = infostart; i <= infoend; i++)
+	{
+		ruleset_dlg[i].proc = d_dummy_proc;
+	}
+	
+	if(is_large)
+		large_dialog(ruleset_dlg);
+		
+	int ret = zc_popup_dialog(ruleset_dlg,1);
+	//List of all NES Fixes as one set.
+	int fixesrules[] =
+	{
+		qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
+		qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
+		qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
+		qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
+		qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
+		qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
+	};
+		
+	if(ret==1)
+	{
+		if(ruleset>0)
+		{
+			for(int i=0; i<qr_MAX; i++)
+				set_bit(quest_rules,i,0);
+		}
+		
+		// ZC engine fixes
+		// These should always be on.
+		set_bit(quest_rules, qr_DMGCOMBOLAYERFIX, 1);
+		set_bit(quest_rules, qr_WARPSIGNOREARRIVALPOINT, 1);
+		set_bit(quest_rules, qr_NOARRIVALPOINT, 1);
+		set_bit(quest_rules, qr_CMBCYCLELAYERS, 1);
+		set_bit(quest_rules, qr_KILLALL, 1);
+		set_bit(quest_rules, qr_ITEMBUBBLE, 1);
+		set_bit(quest_rules, qr_RINGAFFECTDAMAGE, 1);
+		//Script errors on by default
+		set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
+		set_bit(quest_rules, qr_LOG, 1);
+		//set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1);
+		set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
+		set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
+		
+		
+		switch(ruleset)
+		{
+			case rulesetNES: // Original NES
+				set_bit(quest_rules, qr_OLDPICKUP, 1);
+				set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				break;
+			
+			case rulesetZ3: // Zelda 3-esque
+				
+				// Make the water combos drownable
+				for(int i=0; i < MAXCOMBOS; i++)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				
+				set_bit(quest_rules, qr_DROWN, 1);
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				break;
+			
+			case rulesetBSZ: // BS Zelda
+				// Make the water combos drownable
+				for(int i=0; i < MAXCOMBOS; i++)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				
+				set_bit(quest_rules, qr_DROWN, 1);
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				
+				break;
+		
+			case rulesetFixedNES: // Fixed NES
+				// Copied from zq_rules.cpp
+				
+				for(int i=0; i < MAXCOMBOS; i++)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				
+				set_bit(quest_rules, qr_DROWN, 1);
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				
+				for(int i=0; fixesrules[i]!=-1; i++)
+				{
+					if(i!=qr_OLDPICKUP)
+						set_bit(quest_rules, fixesrules[i], 1);
+				}
+				
+				break;
+		
+			case rulesetModern:
+				for(int i=0; i < MAXCOMBOS; i++)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				
+				set_bit(quest_rules, qr_DROWN, 1);
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				
+				for(int i=0; fixesrules[i]!=-1; i++)
+				{
+					if(i!=qr_OLDPICKUP)
+						set_bit(quest_rules, fixesrules[i], 1);
+				}
+				
+				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
+				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+				set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1);
+				
+				set_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS, 1);
+				set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+				
+				
+				/*bugged set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 1); */
+				
+				/* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
+				set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
+				
+				
+				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
+				set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
+				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 0); //User can manually disable.
+				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+				set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1); //Give Script 1 to 10 weapons, generated by ZScript unique sprites. 
+				
+				set_bit(quest_rules, qr_NEW_COMBO_ANIMATION, 1);
+				set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
+				set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
+				set_bit(quest_rules, qr_BUSHESONLAYERS1AND2, 1);
+				set_bit(quest_rules, qr_CUSTOMCOMBOSLAYERS1AND2, 1);
+				
+				break;
+		}
+		if ( ruleset == rulesetZ3 ) set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+	}
+	
+	return D_O_K;
 }
 
 int onNew()
 {
-    if(checksave()==0)
-        return D_O_K;
-        
-    /*
-      int ret=ListQTs(false);
-      if (ret==-2)
-      {
-        return D_O_K;
-      }
-    */
-    int ret=0;
-    NewQuestFile(ret);
-    set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
-        set_bit(quest_rules, qr_EPILEPSY, 1);
-        set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
-        set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
-        set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
-        set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
-        set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
+	if(checksave()==0)
+		return D_O_K;
+		
+	/*
+	int ret=ListQTs(false);
+	if (ret==-2)
+	{
+		return D_O_K;
+	}
+	*/
+	int ret=0;
+	NewQuestFile(ret);
+	set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
+	set_bit(quest_rules, qr_EPILEPSY, 1);
+	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
+	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 1);
+	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
+	set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);
+	set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 1);
 	set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
-        set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
-        set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+	set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+	set_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
 	set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
-        set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
 	set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
-        set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
+	set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
 	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
-    if(RulesetDialog > 0)
-        PickRuleset();
-        
-    return D_O_K;
+	if(RulesetDialog > 0)
+		PickRuleset();
+		
+	return D_O_K;
 }
 
 int onSave()
