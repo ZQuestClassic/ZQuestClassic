@@ -24620,7 +24620,7 @@ static int zscript_settings_scripts_list[] =
 
 static int zscript_settings_instructions_list[] =
 {
-	7, 8, 15, 16, 19, 20, 23, 27, 28, 29, 30, -1
+	7, 8, 15, 16, 19, 20, 23, 27, 28, 29, 30, 40, -1
 };
 
 static int zscript_settings_objects_list[] =
@@ -24701,6 +24701,8 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
 	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
+	//40
+	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -24717,7 +24719,7 @@ static int zscriptrules[] =
 	qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
 	qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2, qr_combos_run_scripts_layer_3,
 	qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6, qr_OLD_INIT_SCRIPT_TIMING, 
-	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
+	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
     -1
 };
 

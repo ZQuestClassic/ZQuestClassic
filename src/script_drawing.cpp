@@ -5703,10 +5703,24 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	}
 	else if ( overwrite || (!checkPath(str->c_str(), false)) )
 	{
-		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-		zprint("Wrote image file %s\n",str->c_str());
+		if(create_path(str->c_str()))
+		{
+			save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
+			if(checkPath(str->c_str(), false))
+			{
+				zprint("Wrote image file %s\n",str->c_str());
+			}
+			else
+			{
+				Z_scripterrlog("Failed to create file '%s'\n",str->c_str());
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Cannot write file '%s' because the directory does not exist, and could not be created.\n", str->c_str());
+		}
 	}
-	else Z_scripterrlog("Cannot write file %s because the file already exists in the specified path.\n", str->c_str());
+	else Z_scripterrlog("Cannot write file '%s' because the file already exists in the specified path.\n", str->c_str());
 }
 
 

@@ -18911,6 +18911,14 @@ void do_drawing_command(const int script_command)
 		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
 		//strncpy(cptr, str->c_str(), str->size());
 		
+		if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		{
+			char buf[2048] = {0};
+			if(FFCore.get_scriptfile_path(buf, str->c_str()))
+				(*str) = buf;
+		}
+		regulate_path(*str);
+		
 		//Z_scripterrlog("READBITMAP string is %s\n", cptr);
 		
 		script_drawing_commands[j].SetString(str);
@@ -18925,8 +18933,16 @@ void do_drawing_command(const int script_command)
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
 		
-		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		strncpy(cptr, str->c_str(), str->size());
+		//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		//strncpy(cptr, str->c_str(), str->size());
+		
+		if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		{
+			char buf[2048] = {0};
+			if(FFCore.get_scriptfile_path(buf, str->c_str()))
+				(*str) = buf;
+		}
+		regulate_path(*str);
 		
 		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
@@ -23800,7 +23816,7 @@ bool validate_userfile_extension(string const& path)
 #endif
 }
 
-bool get_scriptfile_path(char* buf, const char* path)
+bool FFScript::get_scriptfile_path(char* buf, const char* path)
 {
 	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
 	if(!path[0]) return false;
@@ -23846,7 +23862,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		return;
 	}
 	char buf[2048] = {0};
-	get_scriptfile_path(buf, filename_str.c_str());
+	FFCore.get_scriptfile_path(buf, filename_str.c_str());
 	user_file* f = checkFile(ri->fileref, "Open()", false, true);
 	if(!f) //auto-allocate
 	{
@@ -26008,6 +26024,12 @@ void FFScript::do_checkdir(const bool is_dir)
 	size_t last = the_string.find_last_not_of('/');
 	if(last!=string::npos)++last;
 	the_string = the_string.substr(0,last); //Kill trailing '/'
+	if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+	{
+		char buf[2048] = {0};
+		if(FFCore.get_scriptfile_path(buf, the_string.c_str()))
+			the_string = buf;
+	}
 	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
 }
 
