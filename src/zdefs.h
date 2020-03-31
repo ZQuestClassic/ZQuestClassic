@@ -950,7 +950,7 @@ enum
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
-	qr_LINKXY_IS_FLOAT,
+	qr_SPRITEXY_IS_FLOAT,
 	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
@@ -962,9 +962,9 @@ enum
 	qr_PARSER_BINARY_32BIT, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
 	//83
 	qr_WEAPONS_EXTRA_FRAME, qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING,
-	qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, qr_combos_run_scripts_layer_0, qr_combos_run_scripts_layer_1, qr_combos_run_scripts_layer_2,
+	qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2,
 	//84
-	qr_combos_run_scripts_layer_3, qr_combos_run_scripts_layer_4, qr_combos_run_scripts_layer_5, qr_combos_run_scripts_layer_6,
+	qr_COMBOSCRIPTS_LAYER_3, qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6,
 	qr_OLD_INIT_SCRIPT_TIMING, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
 	
     qr_MAX

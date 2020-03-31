@@ -98,7 +98,7 @@ void ClearComboScripts()
 		combo_initialised[c] = 0;
 		for ( int l = 0; l < 7; l++)
 		{
-			if ( get_bit(quest_rules, qr_combos_run_scripts_layer_0+l) )
+			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
 			{
 				comboscript_combo_ids[c+(176*l)] = 0;
 				comboScriptData[c+(176*l)].Clear();

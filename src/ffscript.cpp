@@ -2916,7 +2916,7 @@ long get_register(const long arg)
 		//Link's Variables
 		case LINKX:
 		{
-			if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
 				//double lx = (double)Link.getX();
 				//Z_scripterrlog("lx: %f\n", lx);
@@ -2933,7 +2933,7 @@ long get_register(const long arg)
 			
 		case LINKY:
 		{
-			if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
 				ret = (double)Link.getY()*10000;
 			}
@@ -2943,7 +2943,7 @@ long get_register(const long arg)
 		}    
 		case LINKZ:
 		{
-			if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
 				ret = (double)Link.getZ()*10000;
 			}
@@ -3607,7 +3607,7 @@ long get_register(const long arg)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((item*)(s))->x)*10000;    
 				}
@@ -3661,7 +3661,7 @@ long get_register(const long arg)
 		case ITEMY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((item*)(s))->y)*10000;    
 				}
@@ -3673,7 +3673,7 @@ long get_register(const long arg)
 		case ITEMZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((item*)(s))->z)*10000;    
 				}
@@ -4446,7 +4446,7 @@ long get_register(const long arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = (double(GuyH::getNPC()->x) * 10000); 
 				}
@@ -4489,7 +4489,7 @@ long get_register(const long arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = (double(GuyH::getNPC()->y) * 10000); 
 				}
@@ -4511,7 +4511,7 @@ long get_register(const long arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = (double(GuyH::getNPC()->z) * 10000); 
 				}
@@ -4928,7 +4928,7 @@ long get_register(const long arg)
 		case LWPNX:
 			if(0!=(s=checkLWpn(ri->lwpn,"X")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->x)*10000;  
 				}
@@ -4948,7 +4948,7 @@ long get_register(const long arg)
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->y)*10000;  
 				}
@@ -4960,7 +4960,7 @@ long get_register(const long arg)
 		case LWPNZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->z)*10000;  
 				}
@@ -5281,7 +5281,7 @@ long get_register(const long arg)
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn, "X")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->x)*10000;
 				}
@@ -5300,7 +5300,7 @@ long get_register(const long arg)
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Y")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->y)*10000;
 				}
@@ -5312,7 +5312,7 @@ long get_register(const long arg)
 		case EWPNZ:
 			if(0!=(s=checkEWpn(ri->ewpn, "Z")))
 			{
-				if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=((double)((weapon*)(s))->z)*10000;
 				}
@@ -9459,7 +9459,7 @@ void set_register(const long arg, const long value)
 	//Link's Variables
 		case LINKX:
 		{
-			if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
 				Link.setXdbl(value/10000.0);
 			}
@@ -9472,7 +9472,7 @@ void set_register(const long arg, const long value)
 			
 		case LINKY:
 		{
-			if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
 				Link.setYdbl(value/10000.0);
 			}
@@ -9485,7 +9485,7 @@ void set_register(const long arg, const long value)
 			
 		case LINKZ:
 		{
-			if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
 				Link.setZdbl(value/10000.0);
 			}
@@ -10443,7 +10443,7 @@ void set_register(const long arg, const long value)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->x)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				(s->x)=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -10477,7 +10477,7 @@ void set_register(const long arg, const long value)
 		case ITEMY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->y)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				(s->y)=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -11275,7 +11275,7 @@ void set_register(const long arg, const long value)
 		
 		case LWPNX:
 			if(0!=(s=checkLWpn(ri->lwpn,"X")))
-				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 			break;
 		
 		case SPRITEMAXLWPN:
@@ -11287,13 +11287,13 @@ void set_register(const long arg, const long value)
 			
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 			break;
 			
 		case LWPNZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
+				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
 				
 			break;
 			
@@ -11613,7 +11613,7 @@ void set_register(const long arg, const long value)
 		
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn,"X")))
-				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 			break;
 		
@@ -11626,13 +11626,13 @@ void set_register(const long arg, const long value)
 		
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 			break;
 			
 		case EWPNZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
-				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
+				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
 				
 			break;
 			
@@ -11922,10 +11922,10 @@ void set_register(const long arg, const long value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
 			{
-				GuyH::getNPC()->x = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+				GuyH::getNPC()->x = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 				
 				if(GuyH::hasLink())
-					Link.setX(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
+					Link.setX(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
 			}
 		}
 		break;
@@ -11999,11 +11999,11 @@ void set_register(const long arg, const long value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
 			{
 				fix oldy = GuyH::getNPC()->y;
-				GuyH::getNPC()->y = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
-				GuyH::getNPC()->floor_y += ((value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)) - oldy);
+				GuyH::getNPC()->y = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				GuyH::getNPC()->floor_y += ((value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)) - oldy);
 				
 				if(GuyH::hasLink())
-					Link.setY(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
+					Link.setY(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
 			}
 		}
 		break;
@@ -12017,10 +12017,10 @@ void set_register(const long arg, const long value)
 					if(value < 0)
 						GuyH::getNPC()->z = fix(0);
 					else
-						GuyH::getNPC()->z = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+						GuyH::getNPC()->z = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
 						
 					if(GuyH::hasLink())
-						Link.setZ(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
+						Link.setZ(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
 				}
 			}
 		}
@@ -36534,7 +36534,7 @@ void FFScript::ClearComboScripts()
 		combo_initialised[c] = 0;
 		for ( int l = 0; l < 7; l++)
 		{
-			if ( get_bit(quest_rules, qr_combos_run_scripts_layer_0+l) )
+			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
 			{
 				comboscript_combo_ids[c+(176*l)] = 0;
 				comboScriptData[c+(176*l)].Clear();
@@ -36572,7 +36572,7 @@ int FFScript::combo_script_engine(const bool preload)
 			}
 			
 			//run its script
-			if (!get_bit(quest_rules, qr_combos_run_scripts_layer_0+q)) { continue;}
+			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
 			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
 			if ( !q )
 			{

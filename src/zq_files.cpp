@@ -605,7 +605,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
 	// Misc Engine stuff (not really related to any particular ruleset, so, always on)
 	set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
-	set_bit(quest_rules, qr_combos_run_scripts_layer_0, 1);
+	set_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0, 1);
 	set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
 	set_bit(quest_rules, qr_FFCSCROLL, 1);
 	/* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
@@ -766,7 +766,7 @@ int PickRuleset()
 				//Modern
 				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
 				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
-				// set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 1); //Let's not set this by default until we fix 'fix' precision...
+				// set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1); //Let's not set this by default until we fix 'fix' precision...
 				set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
 				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
 				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);

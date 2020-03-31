@@ -3050,7 +3050,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
 	set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
 	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
-	set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 0);
+	set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 0);
     }
     
     
