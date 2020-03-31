@@ -215,7 +215,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         17
+#define V_FFSCRIPT         18
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -2463,10 +2463,10 @@ struct mapscr
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
 
-#define METADATA_V			1
+#define METADATA_V			2
 #define V_COMPILER_FIRST	2020
 #define V_COMPILER_SECOND	3
-#define V_COMPILER_THIRD	2
+#define V_COMPILER_THIRD	10
 #define V_COMPILER_FOURTH	0
 #define ZMETA_NULL_TYPE		1
 struct zasm_meta
@@ -2479,6 +2479,8 @@ struct zasm_meta
 	byte run_types[8];
 	byte flags;
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
+	char script_name[33];
+	char author[33];
 	
 	
 	bool valid() const
@@ -2501,6 +2503,8 @@ struct zasm_meta
 			memset(&run_idens[q], 0, 33);
 			run_types[q] = ZMETA_NULL_TYPE;
 		}
+		memset(&script_name, 0, 33);
+		memset(&author, 0, 33);
 	}
 	void autogen()
 	{
@@ -2533,6 +2537,8 @@ struct zasm_meta
 		compiler_v2 = other.compiler_v2;
 		compiler_v3 = other.compiler_v3;
 		compiler_v4 = other.compiler_v4;
+		memcpy(&script_name, &(other.script_name),33);
+		memcpy(&author, &(other.author),33);
 		return *this;
 	}
 };

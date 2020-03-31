@@ -10889,6 +10889,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     dword section_version  = V_FFSCRIPT;
     dword section_cversion = CV_FFSCRIPT;
     dword section_size     = 0;
+	dword zasmmeta_version = METADATA_V;
     byte numscripts        = 0;
     numscripts = numscripts; //to avoid unused variables warnings
     
@@ -10909,6 +10910,11 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
+    if(!p_iputw(zasmmeta_version,f))
+    {
+        new_return(4);
+    }
+    
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
@@ -10916,7 +10922,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         //section size
         if(!p_iputl(section_size,f))
         {
-            new_return(4);
+            new_return(5);
         }
         
         writesize=0;
@@ -11580,12 +11586,28 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		new_return(17);
 	}
 	
+	for(int c = 0; c < 33; ++c)
+	{
+		if(!p_putc((*script)->meta.script_name[c],f))
+		{
+			new_return(18);
+		}
+	}
+	
+	for(int c = 0; c < 33; ++c)
+	{
+		if(!p_putc((*script)->meta.author[c],f))
+		{
+			new_return(19);
+		}
+	}
+	
     for(int j=0; j<num_commands; j++)
     {
         
         if(!p_iputw((*script)->zasm[j].command,f))
         {
-            new_return(18);
+            new_return(20);
         }
         
         if((*script)->zasm[j].command==0xFFFF)
@@ -11597,12 +11619,12 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
             if(!p_iputl((*script)->zasm[j].arg1,f))
             {
-                new_return(19);
+                new_return(21);
             }
             
             if(!p_iputl((*script)->zasm[j].arg2,f))
             {
-                new_return(20);
+                new_return(22);
             }
         }
     }

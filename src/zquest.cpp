@@ -24510,6 +24510,14 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Script Name: %s", meta.script_name);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
+				sprintf(buf, "Author: %s", meta.author);
+				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+				d->w = zc_max(d->w, t_w);
+				memset(buf, 0, sizeof(buf));
 				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);

@@ -53,6 +53,8 @@ namespace ZScript
 	class ASTFile;
 	class ASTFloat;
 	class ASTString;
+	class ASTAnnotation;
+	class ASTAnnotationList;
 	class ASTSetOption;
 	// Statements
 	class ASTStmt; // virtual
@@ -337,6 +339,29 @@ namespace ZScript
 		std::string str;
 	};
 
+	class ASTAnnotation : public AST
+	{
+	public:
+		ASTAnnotation(ASTString* first, ASTString* second,
+		          LocationData const& location = LocationData::NONE);
+		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTString> first, second;
+	};
+	
+	class ASTAnnotationList : public AST
+	{
+	public:
+		ASTAnnotationList(LocationData const& location = LocationData::NONE);
+		ASTAnnotationList* clone() const {return new ASTAnnotationList(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_vector<ASTAnnotation> set;
+	};
+	
 	class ASTSetOption : public AST
 	{
 	public:
@@ -630,6 +655,7 @@ namespace ZScript
 
 		owning_ptr<ASTScriptType> type;
 		std::string name;
+		std::string author;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
