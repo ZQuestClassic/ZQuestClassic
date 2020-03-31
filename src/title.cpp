@@ -32,6 +32,7 @@
 #include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "ffscript.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -4134,6 +4135,8 @@ void game_over(int type)
         //Quit = pos ? ((standalone_mode && skip_title) ? qRESET : qQUIT) : qCONT;
         if(pos==1&&(!type))
         {
+			//run save scripts
+			FFCore.runOnSaveEngine();
 		setMonochrome(false); //Clear monochrome before drawing the file select.
 		doClearTint();
             game->set_cheat(game->get_cheat() | cheat);
@@ -4161,6 +4164,8 @@ void game_over(int type)
 
 void save_game(bool savepoint)
 {
+	//run save scripts
+	FFCore.runOnSaveEngine();
     if(savepoint)
     {
         game->set_continue_scrn(homescr);
@@ -4292,6 +4297,8 @@ bool save_game(bool savepoint, int type)
             
             if(pos==0)
             {
+				//run save scripts
+				FFCore.runOnSaveEngine();
                 if(savepoint)
                 {
                     game->set_continue_scrn(homescr);

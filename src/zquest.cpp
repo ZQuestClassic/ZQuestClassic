@@ -24051,6 +24051,8 @@ const char *gscriptlist2(int index, int *list_size)
                 sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
             case GLOBAL_SCRIPT_F6:
                 sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVE:
+                sprintf(gscript_str_buf2,"onSave: %s", buf); break;
         }
             
         return gscript_str_buf2;
@@ -26185,6 +26187,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					globalmap[i].slotname="onContGame:"; break;
 				case GLOBAL_SCRIPT_F6:
 					globalmap[i].slotname="onF6Menu:"; break;
+				case GLOBAL_SCRIPT_ONSAVE:
+					globalmap[i].slotname="onSave:"; break;
 			}
 			if(!globalmap[i].isEmpty())
 			{

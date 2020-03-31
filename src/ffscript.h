@@ -362,6 +362,7 @@ void runOnDeathEngine();
 void runOnLaunchEngine();
 bool runActiveSubscreenScriptEngine();
 void doScriptMenuDraws();
+void runOnSaveEngine();
 void initIncludePaths();
 void initRunString();
 void updateRunString();

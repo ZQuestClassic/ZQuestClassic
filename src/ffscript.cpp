@@ -26858,6 +26858,29 @@ void FFScript::doScriptMenuDraws()
 	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
 }
 
+void FFScript::runOnSaveEngine()
+{
+	if(globalscripts[GLOBAL_SCRIPT_ONSAVE]->valid())
+	{
+		long tsarg1 = sarg1;
+		long tsarg2 = sarg2;
+		refInfo *tri = ri;
+		script_data *tcurscript = curscript;
+		//Prevent getting here via Quit from causing a forced-script-quit after 1000 commands!
+		int tQuit = Quit;
+		Quit = 0;
+		//
+		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
+		//
+		sarg1 = tsarg1;
+		sarg2 = tsarg2;
+		ri = tri;
+		curscript = tcurscript;
+		Quit = tQuit;
+	}
+}
+
 void FFScript::lweaponScriptEngine()
 {
 	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
