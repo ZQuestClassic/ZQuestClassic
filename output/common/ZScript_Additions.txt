@@ -2801,11 +2801,15 @@ float Mouse[6];
 
 bool DirExists(char32[] "filepath");
  * Returns true if the string passed to 'filepath' is a valid directory path,
- * relative to the current ZC path.
+ *     relative to the current ZC path.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this is relative to "[zc root]/Files/[quest name]/"
 
 bool FileExists(char32[] "filepath");
  * Returns true if the string passed to 'filepath' is a valid file path,
- * relative to the current ZC path.
+ *     relative to the current ZC path.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this is relative to "[zc root]/Files/[quest name]/"
 
 /************************************************************************************************************/
 
@@ -5860,20 +5864,27 @@ void Read(int layer, "filename");
  *     If it fails to allocate the pointer, it will not attempt the read operation.
  * If the filename provided is invalid (e.g., the file is missing), the pointer
  * will be initialised with a blank bitmap at a size of 256x176.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this will read a file relative to "[zc root]/Files/[quest name]/" instead of relative
+ *     to "[zc root]".
  
 void Write(int layer, "filename", bool allow_overwrite);
  * Writes a bitmap out as a graphic file.
  * This supports the following formats/extensions:
- * .png, .gif, .pcx, .tgx, and .bmp. 
+ *     .png, .gif, .pcx, .tgx, and .bmp. 
  * The provided filename string MUST include one of these extensions, as this
- * both sets the output filetype, and validates the write.
+ *     both sets the output filetype, and validates the write.
  * Any other extension, or a lack of a valid extension will result in
- * logging an error and failing to write the file.
+ *     logging an error and failing to write the file.
  * Will not replace an existing file unless allow_overwrite is true.
- * Will fail on an uninitialised pointer. 
+ * Will fail on an uninitialised pointer.
+ * Will create any missing directories on the path.
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.
  *        Layers in ZC are only an expression of drawing order/sequence!
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this will write a file relative to "[zc root]/Files/[quest name]/" instead of relative
+ *     to "[zc root]".
 
 void Blit	
 	( 
