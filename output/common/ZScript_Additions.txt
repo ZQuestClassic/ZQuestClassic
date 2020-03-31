@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 56
-Document Revision: 29th March, 2020
+Document Revision: 31st March, 2020
 
 
  __           _   _                 
@@ -1455,7 +1455,7 @@ Waitdraw Support:	Yes, based on slot.
 // Slot (4) : Load from Save //
 ///////////////////////////////
 
-*	SLOT NAME: 'onLoadSave'
+*	SLOT NAME: 'onSaveLoad'
 *
 * 	This script runs FOR ONE FRAME, on every load of a quest from the file select 
 * 	screen, AFTER the player has saved the game at least one time.
@@ -1536,7 +1536,22 @@ Waitdraw Support:	Yes, based on slot.
 *	unless the quest rule 'Skip Continue Screen' in 'Quest->Rules->Other' is active. If the player does not chooses
 *	to exit via the standard continue screen, or it is skipped via the aforementioned rule, gameplay will resume
 *	exactly where it left off.
-   
+
+//////////////////////
+// Slot (8) :  Save //
+//////////////////////
+
+*	 SLOT NAME: 'onSave'
+*
+*	 This script runs FOR ONE FRAME, when the game saves the save data.
+*	 This occurs either from F6>>>Save (or GameOver>>>Save), when saving via a Save Point combo type,
+*	 as well as from the ZScript commands 'Game->Save()', 'Game->SaveAndQuit()', and 'Game->SaveAndContinue()'.
+*	 
+*	 This runs AFTER the 'onExit' script, in any condition that would cause both to run.
+*	 
+*	 The main purpose of this script is to allow saving of custom script data that would NOT be saved to the
+*	 save file; such as ZScript files, bitmap images, or SRAM.
+
    
 ////////////////////
 /// Hero Scripts ///
