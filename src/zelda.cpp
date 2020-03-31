@@ -106,6 +106,11 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+#if DEVLEVEL > 0
+bool dev_logging = true;
+bool dev_debug = true;
+#endif
+
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
 int colordepth;
@@ -5347,6 +5352,7 @@ int main(int argc, char* argv[])
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
 			FFCore.user_files_init(); //Clear open FILE*!
+			FFCore.user_bitmaps_init(); //Clear open bitmaps
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

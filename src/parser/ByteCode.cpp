@@ -4713,6 +4713,10 @@ string OWriteBitmap::toString()
 {
     return "WRITEBITMAP";
 }
+string OBitmapFree::toString()
+{
+    return "BITMAPFREE";
+}
 
 string OIsValidBitmap::toString()
 {

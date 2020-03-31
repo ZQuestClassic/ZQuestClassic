@@ -24051,6 +24051,8 @@ const char *gscriptlist2(int index, int *list_size)
                 sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
             case GLOBAL_SCRIPT_F6:
                 sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVE:
+                sprintf(gscript_str_buf2,"onSave: %s", buf); break;
         }
             
         return gscript_str_buf2;
@@ -26193,6 +26195,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					globalmap[i].slotname="onContGame:"; break;
 				case GLOBAL_SCRIPT_F6:
 					globalmap[i].slotname="onF6Menu:"; break;
+				case GLOBAL_SCRIPT_ONSAVE:
+					globalmap[i].slotname="onSave:"; break;
 			}
 			if(!globalmap[i].isEmpty())
 			{
@@ -35665,18 +35669,7 @@ script_bitmaps scb;
 //script_bitmaps scb;
 void FFScript::user_bitmaps_init()
 {
-	scb.num_active = 0;
-	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
-	{
-		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
-		{
-			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
-		}
-		scb.script_created_bitmaps[q].width = 0;
-		scb.script_created_bitmaps[q].height = 0;
-		scb.script_created_bitmaps[q].depth = 0;
-		scb.script_created_bitmaps[q].u_bmp = NULL;
-	}
+	scb.clear();
 }
 
 void FFScript::user_files_init(){}

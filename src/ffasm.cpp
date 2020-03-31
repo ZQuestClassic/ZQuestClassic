@@ -957,6 +957,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILESEEK",           2,   0,   0,   0},
 	{ "FILEOPENMODE",           2,   0,   0,   0},
 	{ "FILEGETERROR",           1,   0,   0,   0},
+	
+	{ "BITMAPFREE",           0,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

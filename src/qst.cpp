@@ -9636,7 +9636,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
 	
-	if(s_version >= 17)
+	if(s_version >= 18)
 	{
 		if(!p_igetw(&zmeta_version,f,true))
 		{
@@ -9697,53 +9697,92 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             if(ret != 0) return qe_invalid;
         }
 	
-        if(s_version > 13)
+		if(s_version > 16)
 		{
-            for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
+			for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+		}
+		else if(s_version > 13)
+		{
+			for(int i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
 		else if(s_version > 4)
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
-            
-            if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
-                delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
-                
-            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
-            
-            if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
-                delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
-                
-            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
-            
-            if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
-                delete globalscripts[GLOBAL_SCRIPT_F6];
-                
-            globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
-        }
-        else
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
-            
-            if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
-                delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
-                
-            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
-        }
+		{
+			for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+				
+			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+				
+			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_F6];
+				
+			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+		}
+		else
+		{
+			for(int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+				
+			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+				
+			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_F6];
+				
+			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			
+			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+				
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+		}
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
         {

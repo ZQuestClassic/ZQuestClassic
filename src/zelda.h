@@ -30,6 +30,10 @@
 int isFullScreen();
 int onFullscreen();
 
+#if DEVLEVEL > 0
+extern bool dev_logging;
+extern bool dev_debug;
+#endif
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 

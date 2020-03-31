@@ -2676,8 +2676,53 @@ user_file *checkFile(long ref, const char *what, bool req_file = false, bool ski
 		}
 	}
 	if(skipError) return NULL;
-	Z_eventlog("Script attempted to reference a nonexistent File!\n");
-	Z_eventlog("You were trying to reference the '%s' of an File with UID = %ld\n", what, ref);
+	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_bitmap *checkBitmap(long ref, const char *what, bool req_valid = false, bool skipError = false)
+{
+	int ind = ref - 10;
+	if(ind >= firstUserGeneratedBitmap && ind < MAX_USER_BITMAPS)
+	{
+		user_bitmap* b = &(scb.script_created_bitmaps[ind]);
+		if(b->reserved())
+		{
+			if(req_valid && !b->u_bmp)
+			{
+				if(skipError) return NULL;
+				Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
+				Z_scripterrlog("Bitmap with UID = %ld does not have a valid memory bitmap!\n",ref);
+				Z_scripterrlog("Use '->Create()' to create a memory bitmap.\n");
+				return NULL;
+			}
+			return b;
+		}
+	}
+	else
+	{
+		switch(ind)
+		{
+			case rtSCREEN:
+			case rtBMP0:
+			case rtBMP1:
+			case rtBMP2:
+			case rtBMP3:
+			case rtBMP4:
+			case rtBMP5:
+			case rtBMP6:
+				zprint2("Internal error: 'checkBitmap()' recieved ref pointing to system bitmap!\n");
+				zprint2("Please report this as a bug!\n");
+				break;
+		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent bitmap!\n");
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -18830,7 +18875,7 @@ void do_drawing_command(const int script_command)
 	{
 		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 3);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
 		break;
 	}
 	case BMPPOLYGONR:
@@ -18859,14 +18904,14 @@ void do_drawing_command(const int script_command)
 	{
 		//Z_scripterrlog("Calling %s\n","READBITMAP");
 		set_user_bitmap_command_args(j, 2);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
 		string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
-		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		strncpy(cptr, str->c_str(), str->size());
+		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		//strncpy(cptr, str->c_str(), str->size());
 		
-		Z_scripterrlog("READBITMAP string is %s\n", cptr);
+		//Z_scripterrlog("READBITMAP string is %s\n", cptr);
 		
 		script_drawing_commands[j].SetString(str);
 		break;
@@ -18887,6 +18932,7 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
+	
 	case BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
 	case BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
 	case BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
@@ -22321,13 +22367,53 @@ int run_script(const byte type, const word script, const long i)
 			case BMPBLIT:
 			case BMPBLITTO:
 			case BMPMODE7:
-			case READBITMAP:
 			case WRITEBITMAP:
 			case CLEARBITMAP:
 			case BITMAPCLEARTOCOLOR:
-			case REGENERATEBITMAP:
 				do_drawing_command(scommand);
 				break;
+			case READBITMAP:
+			{
+				int bitref = SH::read_stack(ri->sp+2);
+				if(user_bitmap* b = checkBitmap(bitref,"Read()",false,true))
+					do_drawing_command(scommand);
+				else //If the pointer isn't allocated, attempt to allocate it first
+				{
+					bitref = FFCore.get_free_bitmap();
+					ri->d[3] = bitref; //Return to ptr
+					if(bitref) SH::write_stack(ri->sp+2,bitref); //Write the ref, for the drawing command to read
+					else break; //No ref allocated; don't enqueue the drawing command.
+					do_drawing_command(scommand);
+				}
+				break;
+			}
+			case REGENERATEBITMAP:
+			{
+				int bitref = SH::read_stack(ri->sp+3);
+				if(user_bitmap* b = checkBitmap(bitref,"Create()",false,true))
+					do_drawing_command(scommand);
+				else //If the pointer isn't allocated
+				{
+					long w = SH::read_stack(ri->sp+1) / 10000;
+					long h = SH::read_stack(ri->sp) / 10000;
+					if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+					{
+						//flip height and width
+						h = h ^ w;
+						w = h ^ w; 
+						h = h ^ w;
+					}
+					
+					ri->d[3] = FFCore.create_user_bitmap_ex(h,w,8); //Return to ptr
+				}
+				break;
+			}
+			
+			case BITMAPFREE:
+			{
+				FFCore.do_deallocate_bitmap();
+				break;
+			}
 				
 			case COPYTILEVV:
 				do_copytile(true, true);
@@ -24182,60 +24268,11 @@ void FFScript::set_sarg1(int v)
 	set_register(sarg1, v);
 }
 
-void FFScript::do_readbitmap(const bool v)
-{	
-	long arrayptr = SH::get_arg(sarg1, v) / 10000;
-
-	string filename_str;
-
-	ArrayH::getString(arrayptr, filename_str, 512);
-	Z_scripterrlog("ReadBitmap() filename is %s\n",filename_str.c_str());
-	int bit_id = 0;
-		do
-		{
-			bit_id = FFCore.get_free_bitmap();
-		} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
-		if ( bit_id > 0 )
-		{
-		int bit_id = FFCore.get_free_bitmap();
-		scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str.c_str(), RAMpal);
-		if ( scb.script_created_bitmaps[bit_id].u_bmp ) 
-		{
-			ri->bitmapref = bit_id+10;  //set_register(sarg1, bit_id);
-			Z_scripterrlog("Read a bitmap to pointer: %d\n",bit_id+10);
-			Z_scripterrlog("Height is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->h);
-			Z_scripterrlog("Width is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->w);
-		}
-		else 
-		{ 
-			ri->bitmapref = 0; 
-			//set_register(sarg1, 0);
-			--scb.num_active; //Free the struct element, because we didn't use it. 
-			Z_scripterrlog("ReadBitmap failed to properly load bitmap filename %s\n", filename_str.c_str());
-		}
-	}
-	else 
-	{ 
-		ri->bitmapref = 0; 
-		//set_register(sarg1, 0);
-		Z_scripterrlog("ReadBitmap failed to acquire a free bitmap.\n");
-	}
-	
-	//Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
-}
-
-
 //script_bitmaps scb;
 
 long FFScript::do_allocate_bitmap()
 {	
-	int bit_id = 0;
-		do
-	{
-		bit_id = FFCore.get_free_bitmap();
-	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
-	if ( bit_id < MAX_USER_BITMAPS ) return bit_id+10;
-	else return 0;
+	return FFCore.get_free_bitmap();
 }
 void FFScript::do_isvalidbitmap()
 {
@@ -24253,45 +24290,25 @@ void FFScript::do_isallocatedbitmap()
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
+		set_register(sarg1, (scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
+		/*
 		UID-=10;
 		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
 			set_register(sarg1, 10000);
 		else set_register(sarg1, 0);
+		*/
+		
 	}
 }
 
 void FFScript::user_bitmaps_init()
 {
-	scb.num_active = 0;
-	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
-	{
-		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
-		{
-			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
-		}
-		scb.script_created_bitmaps[q].width = 0;
-		scb.script_created_bitmaps[q].height = 0;
-		scb.script_created_bitmaps[q].depth = 0;
-		scb.script_created_bitmaps[q].u_bmp = NULL;
-		
-	}
-}
-
-void FFScript::user_bitmaps_destroy()
-{
-	scb.num_active = 0;
-	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
-	{
-		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
-		{
-			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
-		}
-	}
+	scb.clear();
 }
 
 long FFScript::do_create_bitmap()
 {
-	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
+	//Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
 	long w = (ri->d[1] / 10000);
 	long h = (ri->d[0]/10000);
@@ -24303,84 +24320,26 @@ long FFScript::do_create_bitmap()
 		h = h ^ w;
 	}
 	
-	//sanity checks
-	int id = 0;
-	
-	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
-	{
-		//ri->bitmapref = 0;
-		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
-		return id;
-	}
-	else
-	{
-		Z_scripterrlog("do_create_bitmap() is %s\n","getting a bitmap ID with create_user_bitmap_ex()");
-		id = create_user_bitmap_ex(h,w,8);
-		Z_scripterrlog("do_create_bitmap() found a free bitmap ID of: %d\n",id);
-		//if ( id < rtSCREEN || id > (MAX_USER_BITMAPS-1) )
-		//{
-		//	ri->bitmapref = 0;
-		//	Z_scripterrlog("Script attempted to create a bitmap with ID %d, but no bitmaps are available.\n Setting ri->bitmapref to: %d\n", id, ri->bitmapref);
-		//}
-		//else
-		//{	
-			if ( id == 0 )
-			{
-				Z_scripterrlog("FFCore.do_create_bitmap() id is %d\n", id);
-				return -2; //ri->bitmapref = -2;
-			}
-			else
-			{
-				return id+10; //ri->bitmapref = id+10; 
-				
-				Z_eventlog("Script created bitmap ID %d, pointer (%d) with height of %d and width of %d\n", id, ri->bitmapref, h,w);
-	
-			}
-			return id+10;
-		//}
-	}
-}
-
-int FFScript::highest_valid_user_bitmap()
-{
-	return (scb.num_active);
+	return create_user_bitmap_ex(h,w,8);
 }
 
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
-	int id = 0;
-	do
-	{
-		id = get_free_bitmap();
-	} while (id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+	int id = get_free_bitmap();
 	if ( id > 0 )
 	{
-		scb.script_created_bitmaps[id].width = w;
-		scb.script_created_bitmaps[id].height = h;
-		scb.script_created_bitmaps[id].depth = d;
-		scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
-		clear_bitmap(scb.script_created_bitmaps[id].u_bmp);
-	}
-	if ( id == 0 ) 
-	{
-		Z_scripterrlog("FFCore.create_user_bitmap_ex() returned: (%d).\n", id);
+		user_bitmap* bmp = &(scb.script_created_bitmaps[id-10]);
+		bmp->width = w;
+		bmp->height = h;
+		bmp->depth = d;
+		bmp->u_bmp = create_bitmap_ex(d,w,h);
+		clear_bitmap(bmp->u_bmp);
 	}
 	return id;
 }
 
-//Returns the pointer to a user-created bitmap in the struct.
-BITMAP* FFScript::get_user_bitmap(int id)
-{
-	return scb.script_created_bitmaps[id].u_bmp;
-}
-
 BITMAP* FFScript::GetScriptBitmap(int id)
 {
-	//if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
-	//{
-	//	Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
-	//	return NULL;
-	//}
 	switch(id)
 	{
 		case rtSCREEN:
@@ -24396,48 +24355,56 @@ BITMAP* FFScript::GetScriptBitmap(int id)
 		}
 		default: 
 		{
-			if ( id > highest_valid_user_bitmap() )
+			if(user_bitmap* b = checkBitmap(id+10, NULL, true))
 			{
-				Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
-				return NULL;
+				return b->u_bmp;
 			}
-			else return  get_user_bitmap(id);
+			else return NULL;
 		}
 	}
 }
 
-int FFScript::get_free_bitmap()
+int FFScript::get_free_bitmap(bool skipError)
 {
-	int num_free = scb.num_active;
-	if ( num_free < ( MAX_USER_BITMAPS-1 ) )
+	user_bitmap* bmps = scb.script_created_bitmaps;
+	for(int q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
 	{
-		++scb.num_active;
-		//Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
-		return scb.num_active;
+		if(!bmps[q].reserved())
+		{
+			bmps[q].reserve();
+			return q+10;
+		}
 	}
-	Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap!%s\n"," ");
+	if(!skipError) Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap pointer!\n");
 	return 0;
 }
 
-bool FFScript::cleanup_user_bitmaps()
+void FFScript::do_deallocate_bitmap()
 {
-	for ( int q = 0; q < scb.num_active; q++ )
+	if(isSystemBitref(ri->bitmapref))
 	{
-		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
-		{
-			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
-		}
+		return; //Don't attempt to deallocate system bitmaps!
 	}
-	return true; //so that we know when we're done
+	user_bitmap* b = checkBitmap(ri->bitmapref, "Free()", false, true);
+	if(b)
+	{
+		b->free();
+	}
 }
 
-bool FFScript::destroy_user_bitmap(int id)
+bool FFScript::isSystemBitref(long ref)
 {
-	if ( scb.script_created_bitmaps[id].u_bmp != NULL )
+	switch(ref-10)
 	{
-		//destroy it
-		destroy_bitmap(scb.script_created_bitmaps[id].u_bmp);
-		return true;
+		case rtSCREEN:
+		case rtBMP0:
+		case rtBMP1:
+		case rtBMP2:
+		case rtBMP3:
+		case rtBMP4:
+		case rtBMP5:
+		case rtBMP6:
+			return true;
 	}
 	return false;
 }
@@ -26032,15 +25999,6 @@ long FFScript::getQuestHeaderInfo(int type)
 	return quest_format[type];
 }
 
-bool FFScript::checkPath(const char* path, const bool is_dir)
-{
-	struct stat info;
-
-	if(stat( path, &info ) != 0)
-		return false;
-	else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
-}
-
 void FFScript::do_checkdir(const bool is_dir)
 {
 	int strptr = get_register(sarg1)/10000;
@@ -26898,6 +26856,29 @@ void FFScript::doScriptMenuDraws()
 	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
 	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
 	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
+}
+
+void FFScript::runOnSaveEngine()
+{
+	if(globalscripts[GLOBAL_SCRIPT_ONSAVE]->valid())
+	{
+		long tsarg1 = sarg1;
+		long tsarg2 = sarg2;
+		refInfo *tri = ri;
+		script_data *tcurscript = curscript;
+		//Prevent getting here via Quit from causing a forced-script-quit after 1000 commands!
+		int tQuit = Quit;
+		Quit = 0;
+		//
+		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
+		//
+		sarg1 = tsarg1;
+		sarg2 = tsarg2;
+		ri = tri;
+		curscript = tcurscript;
+		Quit = tQuit;
+	}
 }
 
 void FFScript::lweaponScriptEngine()
@@ -30735,6 +30716,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEOPENMODE",           2,   0,   0,   0},
 	{ "FILEGETERROR",           1,   0,   0,   0},
 	
+	{ "BITMAPFREE",           0,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -32223,7 +32206,7 @@ void FFScript::do_tracenl()
 
 void FFScript::TraceScriptIDs(bool zasm_console)
 {
-	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 0 )
+	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;
 		#ifdef _WIN32
