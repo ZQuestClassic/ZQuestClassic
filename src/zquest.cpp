@@ -24932,7 +24932,7 @@ static int zscripparsertrules[] =
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	qr_PARSER_FORCE_INLINE,
-	qr_32BIT_BINARY,
+	qr_PARSER_BINARY_32BIT,
     -1
 };
 

@@ -3069,7 +3069,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
 	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
 	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
-	set_bit(quest_rules,qr_32BIT_BINARY,0);
+	set_bit(quest_rules,qr_PARSER_BINARY_32BIT,0);
 	if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
 	{
 		set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
