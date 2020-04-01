@@ -1,6 +1,84 @@
 //2.55 Changes
 
+//Alpha 56
+Add 'Annotations', to allow specifying special data in ZScript.
+	Presently, there is only the annotation '@Author("Name")', which
+		allows you to specify the author of a script. This will be saved
+		in the ZASM metadata generated for that script.
+Add 'Script Name' and 'Author' to ZASM metadata.
+Some changes to rulesets:
+	Restore some rulesets which were changed wrongly previously
+	Fix an old bug in rulesets present since at least 2.50.2
+	Add new rules to the list of rules to always be on; and standardize that
+		list between rulesets and new quests which ignore ruleset.
+	Make rulesets no longer write to parser compile options at all
+Fixed an issue relating to global script slots in the quest loader.
+	This likely has existed since the last set of slots were added...
+Added 'global script onSave', a 1-frame script that runs when the
+	game saves it's data.
+	This allows for anything such as file IO, bitmap writes, or SRAM
+	saving to occur when normal save-file saving occurs.
+Added a QR which makes 'bitmap->' and 'FileSystem->' functions
+	read/write relatively to the same directory that 'file->'
+	functions do. On by default for new quests.
+	( Venrob 31st March, 2020 )
+	
+New bitmap allocation system. Now, pointers can be re-used after being
+	freed by a call to '->Free()'.
+	Also: '->Create()' and '->Read()' work on non-initialized and invalid
+		pointers, automatically allocating a new pointer. This creation
+		is NOT deferred to draw-time; as it reassigns to the pointer.
+	Fixed crash on trying to '->Read()' from non-existant file.
+	Changed success messages for 'Read()'/'Write()' to debug, from error.
+	Changed 'POP_ARGS()' calls to pop to 'NUL', instead of 'EXP2'.
+	Fixed memory leak in 'bitmap->Read()', and 'bitmap->Write()'.
+	Commented out various traces relating to bitmaps.
+	( Venrob 29th March, 2020 )
+	
+Fix linux flex/bison error relating to '#option' commands
+	( ZoriaRPG and Venrob 29th March, 2020 )
+Feature: ZScript now has the ability to read/write files.
+	Files can be created and read from within the directory
+	"[zc root]/Files/[questname]/". When creating a file,
+	any directories specified which do not exist will
+	be created. This also applies to 'bitmap->Write()'.
+		See 'ZScript_Additions.txt' for more details.
+	( Venrob 28th March, 2020 )
+		
+Attempt a Linux console
+Alpha is now 56
+	( ZoriaRPG 28th March, 2020 )
+
+
+//Alpha 55
+Various fixes for compiling on linux
+Alpha is now 55
+	( ZoriaRPG and Venrob 27th March, 2020 )
+
+
+//Alpha 54
+Various fixes for compiling on Linux
+	( ZoriaRPG and Venrob 27th March, 2020 )
+
+Port PC Overflow Handling from 2.53.1
+	( ZoriaRPG 27th March, 2020 )
+
+Fixed 'npc->Create()' not assigning the npc pointer
+	( Venrob, 26th March, 2020 )
+
+Previously, `Ctrl+Plus/Minus` increment/decremented the
+	tile of selected combos. Shift+Ctrl moved by a tile row.
+	Now, Alt+Ctrl moves by a tile page, while Alt+Shift+Ctrl moves
+	by 10 tile pages.
+Alpha is now 54
+	( Venrob, 25th March, 2020 )
+
+
 //Alpha 53
+Fixed tile bug with Mass Combo Creation, as well as the Ctrl+Shift+PLUS
+	combo editor shortcut.
+	( Venrob, 25th March, 2020 )
+	
 Clear forced_wpn if setting an item slot from the real subscreen.
 If the user config for ZC Player speifies a custom SAVEFILE
 	filename, and that file is absent, create it. (Don't try creating
@@ -19,7 +97,7 @@ Values set when writing Link->Equipment now write to
 		a string), then its forced value is set to -1.
 	This also affects Hero->SetItemSlot(), Hero->ItemA, and Hero->ItemB.
 Alpha is now 53.
-
+	( ZoriaRPG, 25th March, 2020 )
 
 //Alpha 52
 NOTE: From here onward, only 10 changes max per Alpha; and 
