@@ -1744,6 +1744,17 @@ namespace ZScript
 		}
 	};
 
+	class OPopArgsRegister : public BinaryOpcode
+	{
+	public:
+		OPopArgsRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPopArgsRegister(a->clone(),b->clone());
+		}
+	};
+
 	class OLoadIndirect : public BinaryOpcode
 	{
 	public:

@@ -86,6 +86,12 @@ ASSERT_NON_NUL(); \
 if(reg!=EXP2) code.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(reg))); \
 function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 
+/*
+	Pop multiple args to 1 register; mostly used to clear the stack after drawing commands.
+*/
+#define POP_ARGS(num_args, t) \
+	code.push_back(new OPopArgsRegister(new VarArgument(t), new LiteralArgument(num_args)))
+
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
 	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
@@ -341,10 +347,6 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 	function->giveCode(code); \
 } \
 
-#define POP_ARGS(num_args, t) \
-	for(int _i(0); _i < num_args; ++_i) \
-		code.push_back(new OPopRegister(new VarArgument(t)))
-		
 //}
 //}
 

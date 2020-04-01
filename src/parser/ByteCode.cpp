@@ -2062,6 +2062,11 @@ string OPopRegister::toString()
     return "POP " + getArgument()->toString();
 }
 
+string OPopArgsRegister::toString()
+{
+    return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OLoadIndirect::toString()
 {
     return "LOADI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

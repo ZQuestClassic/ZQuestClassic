@@ -16215,6 +16215,14 @@ void do_pop()
 	set_register(sarg1, value);
 }
 
+void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
+{
+	long num = sarg2;
+	ri->sp += num;
+	long value = SH::read_stack(ri->sp-1);
+	set_register(sarg1, value);
+}
+
 void do_loadi()
 {
 	const long stackoffset = get_register(sarg2) / 10000;
@@ -21137,6 +21145,10 @@ int run_script(const byte type, const word script, const long i)
 				
 			case POP:
 				do_pop();
+				break;
+			
+			case POPARGS:
+				do_pops();
 				break;
 				
 			case LOADI:
@@ -30739,6 +30751,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEGETERROR",           1,   0,   0,   0},
 	
 	{ "BITMAPFREE",           0,   0,   0,   0},
+	
+	{ "POPARGS",           2,   0,   1,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
