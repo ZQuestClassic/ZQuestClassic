@@ -411,7 +411,7 @@ void getVariable(int refVar, Function* function, int var)
 	else
 	{
 		//Pop object pointer
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		LABELBACK(label);
 		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
 	}
