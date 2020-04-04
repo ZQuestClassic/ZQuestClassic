@@ -1,12 +1,41 @@
 //2.55 Changes
 
+//Alpha 58
+Fix bitmap->GetPixel for SYSTEM bitmaps not being offset by -10.
+	Loading RT_SCREEN through RT_BITMAP6 via Game->LoadBitmapID now 
+	works as intended with bitmap->GetPixel(x,y).
+Corrected the behaviour of Graphics->GetPixel when working with RT_SCREEN
+	and oter system bitmaps.
+	( ZoriaRPG, 4th April, 2020 )	
+
+
+//Alpha 57
+Added the function `add child` to use when sumoning enemies.
+	When a summoner such as a batrobe creates an enemy, the script UID 
+	(npc->UID) of the summoner is now stored in the parent_script_UID 
+	value (npc->ParentUID) of the summoned enemy.
+	i.e., ZScript can now read the parentUID for the summoner from its spawn.
+ZScript.txt: Fixed a minor docs error and a typo.
+	( ZoriaRPG, 3rd April, 2020 )
+	
+Fix mistaken refVar ommision in variable getters.
+	This was causing a lglitch where loading an npc or other indexed 
+	pointer in a loop would read the same register for each index.
+	( Venrob, 2nd April, 2020 )
+	
+Add POPARGS opcode to optimize drawing commands.
+	Drawing commands now use from 2 to 15 fewer opcodes per call; no joke. 
+	( Venrob, 1st April, 2020 )
+	
+
 //Alpha 56
 Add 'Annotations', to allow specifying special data in ZScript.
 	Presently, there is only the annotation '@Author("Name")', which
 		allows you to specify the author of a script. This will be saved
 		in the ZASM metadata generated for that script.
 Add 'Script Name' and 'Author' to ZASM metadata.
-Some changes to rulesets:
+Some changes to rules.
+	Drawing commands use from 2 to 15 fewer opcodes per call. ets:
 	Restore some rulesets which were changed wrongly previously
 	Fix an old bug in rulesets present since at least 2.50.2
 	Add new rules to the list of rules to always be on; and standardize that
