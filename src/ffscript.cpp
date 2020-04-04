@@ -17218,13 +17218,45 @@ void do_getscreeneflags()
 
 void FFScript::do_graphics_getpixel()
 {
-	long bitmap_pointer     = (ri->d[2])-10;
-	long xpos  = ri->d[1] / 10000;
-	long ypos = ri->d[0] / 10000;
+	int yoffset = 0;
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	
-	if ( scb.script_created_bitmaps[bitmap_pointer].u_bmp )
-	set_register(sarg1, getpixel(scb.script_created_bitmaps[bitmap_pointer].u_bmp, xpos, ypos));
-	else set_register(sarg1, -10000);
+	int ref = (ri->d[2]);
+	if ( ref < 0 || ref >= 10000 ) 
+	{
+		ref /= 10000;
+	}
+	
+	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
+	long xpos  = ri->d[1] / 10000;
+	
+	
+	
+	
+	if(!brokenOffset && ref == -1 )
+	{
+		yoffset = 56; //should this be -56?
+	}
+	else
+	{
+		yoffset = 0;
+	}
+	
+	long ypos = (ri->d[0] / 10000)+yoffset;
+	
+	zprint2("ypos: %d\n", ypos);
+	zprint2("xpos: %d\n", xpos);
+	
+	if(!bitty)
+		{
+		bitty = scrollbuf;
+		//al_trace("Getpixel: Loaded ScrollBuf into bitty /n");
+		//return -10000;
+	}
+	
+	int ret =  getpixel(bitty, xpos, ypos); //This is a palette index value. 
+	
+	set_register(sarg1, ret);
 }
 
 //Some of these need to be reduced to two inputs. -Z
