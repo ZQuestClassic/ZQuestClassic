@@ -1096,6 +1096,8 @@ void enemy::FireWeapon()
         
     case e1tSUMMON: // Bat Wizzrobe
     {
+	    //al_trace("Summon Bats\n");
+	    //zprint2("Summon Bats\n");
         if(dmisc4==0) break;  // Summon 0
         
         int bc=0;
@@ -1115,8 +1117,15 @@ void enemy::FireWeapon()
             
             for(int i=0; i<bats; i++)
             {
-                if(addenemy(x,y,dmisc3,-10))
+		    //zprint2("summon\n");
+		    //al_trace("summon\n");
+                if(addchild(x,y,dmisc3,-10, this->script_UID))
+		{
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
+		    //((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
+			//zprint2("Summoner Script UID: %d\n",this->script_UID);
+			
+		}
             }
             
             sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
@@ -1152,8 +1161,13 @@ void enemy::FireWeapon()
                     
                     if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
                     {
-                        if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
+			    //zprint2("summon\n");
+			    //al_trace("summon\n");
+                        if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+			{
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
+                            //((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
+			}
                             
                         summoned=true;
                         break;
@@ -10759,7 +10773,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
             for(int i=0; i<bats; i++)
             {
                 // Summon bats (or anything)
-                if(addenemy(x,y,dmisc3,-10))
+                if(addchild(x,y,dmisc3,-10, this->script_UID))
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
             }
             
@@ -10793,7 +10807,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
                     
                     if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
                     {
-                        if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
+                        if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
                             
                         summoned=true;
@@ -15017,6 +15031,450 @@ void killfairy(int misc)
 int addenemy(int x,int y,int id,int clk)
 {
     return addenemy(x,y,0,id,clk);
+}
+
+int addchild(int x,int y,int id,int clk, int parent_scriptUID)
+{
+    return addchild(x,y,0,id,clk, parent_scriptUID);
+}
+
+int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
+{
+    if(id <= 0) return 0;
+    
+    int ret = 0;
+    sprite *e=NULL;
+	al_trace("Adding child\n");
+    
+    switch(guysbuf[id&0xFFF].family)
+    {
+        //Fixme: possible enemy memory leak. (minor)
+    case eeWALK:
+        e = new eStalfos((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeLEV:
+        e = new eLeever((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeTEK:
+        e = new eTektite((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eePEAHAT:
+        e = new ePeahat((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeZORA:
+        e = new eZora((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeGHINI:
+        e = new eGhini((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeKEESE:
+        e = new eKeese((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeWIZZ:
+        e = new eWizzrobe((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eePROJECTILE:
+        e = new eProjectile((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeWALLM:
+        e = new eWallM((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeAQUA:
+        e = new eAquamentus((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeMOLD:
+        e = new eMoldorm((fix)x,(fix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+        break;
+        
+    case eeMANHAN:
+        e = new eManhandla((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeGLEEOK:
+        e = new eGleeok((fix)x,(fix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+        break;
+        
+    case eeGHOMA:
+        e = new eGohma((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeLANM:
+        e = new eLanmola((fix)x,(fix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+        break;
+        
+    case eeGANON:
+        e = new eGanon((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeFAIRY:
+        e = new eItemFairy((fix)x,(fix)y,id+0x1000*clk,clk);
+        break;
+        
+    case eeFIRE:
+        e = new eFire((fix)x,(fix)y,id,clk);
+        break;
+        
+    case eeOTHER: 
+        e = new eOther((fix)x,(fix)y,id,clk);
+        break;
+    
+    
+        case eeSCRIPT01: 
+	case eeSCRIPT02: 
+	case eeSCRIPT03: 
+	case eeSCRIPT04: 
+	case eeSCRIPT05: 
+	case eeSCRIPT06: 
+	case eeSCRIPT07: 
+	case eeSCRIPT08: 
+	case eeSCRIPT09: 
+	case eeSCRIPT10: 
+	case eeSCRIPT11: 
+	case eeSCRIPT12: 
+	case eeSCRIPT13: 
+	case eeSCRIPT14: 
+	case eeSCRIPT15: 
+	case eeSCRIPT16: 
+	case eeSCRIPT17: 
+	case eeSCRIPT18: 
+	case eeSCRIPT19: 
+	case eeSCRIPT20: 
+	{
+		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+		{
+			e = new eScript((fix)x,(fix)y,id,clk);
+			break;
+		}
+		else return 0;
+	}
+				
+	case eeFFRIENDLY01:
+	case eeFFRIENDLY02:
+	case eeFFRIENDLY03:
+	case eeFFRIENDLY04:
+	case eeFFRIENDLY05:
+	case eeFFRIENDLY06:
+	case eeFFRIENDLY07:
+	case eeFFRIENDLY08:
+	case eeFFRIENDLY09:
+	case eeFFRIENDLY10:
+	{
+		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+		{
+			e = new eFriendly((fix)x,(fix)y,id,clk); break;
+		}
+		else return 0;
+				
+	}	
+        
+    case eeSPINTILE:
+        e = new eSpinTile((fix)x,(fix)y,id,clk);
+        break;
+        
+        // and these enemies use the misc10/misc2 value
+    case eeROCK:
+    {
+        switch(guysbuf[id&0xFFF].misc10)
+        {
+        case 1:
+            e = new eBoulder((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new eRock((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eeTRAP:
+    {
+        switch(guysbuf[id&0xFFF].misc2)
+        {
+        case 1:
+            e = new eTrap2((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new eTrap((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eeDONGO:
+    {
+        switch(guysbuf[id&0xFFF].misc10)
+        {
+        case 1:
+            e = new eDodongo2((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new eDodongo((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eeDIG:
+    {
+        switch(guysbuf[id&0xFFF].misc10)
+        {
+        case 1:
+            e = new eLilDig((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new eBigDig((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eePATRA:
+    {
+        switch(guysbuf[id&0xFFF].misc10)
+        {
+        case 1:
+            e = new ePatraBS((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new ePatra((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eeGUY:
+    {
+        switch(guysbuf[id&0xFFF].misc10)
+        {
+        case 1:
+            e = new eTrigger((fix)x,(fix)y,id,clk);
+            break;
+            
+        case 0:
+        default:
+            e = new eNPC((fix)x,(fix)y,id,clk);
+            break;
+        }
+        
+        break;
+    }
+    
+    case eeNONE:
+        if(guysbuf[id&0xFFF].misc10 ==1)
+        {
+            e = new eTrigger((fix)x,(fix)y,id,clk);
+            break;
+            break;
+        }
+        
+    default:
+    
+        return 0;
+    }
+    
+    ret++; // Made one enemy.
+    
+    if(z && canfall(id))
+    {
+        e->z = (fix)z;
+    }
+    
+    ((enemy*)e)->ceiling = (z && canfall(id));
+    ((enemy*)e)->parent_script_UID = parent_scriptUID;
+    //al_trace("Child Script UID: %d\n",((enemy*)e)->script_UID);
+    //zprint2("Child Script UID: %d\n",((enemy*)e)->script_UID);
+    //al_trace("Child's Parent UID: %d\n",((enemy*)e)->parent_script_UID);
+    //zprint2("Child's Parent UID: %d\n",((enemy*)e)->parent_script_UID);
+			
+    
+    if(!guys.add(e))
+    {
+        return 0;
+    }
+    
+    // add segments of segmented enemies
+    int c=0;
+    
+    switch(guysbuf[id&0xFFF].family)
+    {
+    case eeMOLD:
+    {
+        byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+        id &= 0xFFF;
+        
+        for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
+        {
+            //christ this is messy -DD
+            int segclk = -i*((int)(8.0/(fix(guysbuf[id&0xFFF].step/100.0))));
+            
+            if(!guys.add(new esMoldorm((fix)x,(fix)y,id+0x1000,segclk)))
+            {
+                al_trace("Moldorm segment %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1; j++)
+                    guys.del(guys.Count()-1);
+                    
+                return 0;
+            }
+            
+            if(i>0)
+                ((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+                
+            ret++;
+        }
+        
+        break;
+    }
+    
+    case eeLANM:
+    {
+        id &= 0xFFF;
+        int shft = guysbuf[id].misc2;
+        byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+        
+        if(!guys.add(new esLanmola((fix)x,(fix)y,id+0x1000,0)))
+        {
+            al_trace("Lanmola segment 1 could not be created!\n");
+            guys.del(guys.Count()-1);
+            return 0;
+        }
+        
+        ret++;
+        
+        for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
+        {
+            if(!guys.add(new esLanmola((fix)x,(fix)y,id+0x2000,-(i<<shft))))
+            {
+                al_trace("Lanmola segment %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1; j++)
+                    guys.del(guys.Count()-1);
+                    
+                return 0;
+            }
+            
+            ((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+            ret++;
+        }
+    }
+    break;
+    
+    case eeMANHAN:
+        id &= 0xFFF;
+        
+        for(int i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
+        {
+            if(!guys.add(new esManhandla((fix)x,(fix)y,id+0x1000,i)))
+            {
+                al_trace("Manhandla head %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1; j++)
+                {
+                    guys.del(guys.Count()-1);
+                }
+                
+                return 0;
+            }
+            
+            ret++;
+            ((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
+        }
+        
+        break;
+        
+    case eeGLEEOK:
+    {
+        id &= 0xFFF;
+        
+        for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
+        {
+            if(!guys.add(new esGleeok((fix)x,(fix)y,id+0x1000,c, e)))
+            {
+                al_trace("Gleeok head %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1; j++)
+                {
+                    guys.del(guys.Count()-1);
+                }
+                
+                return false;
+            }
+            
+            c-=guysbuf[id].misc4;
+            ret++;
+        }
+    }
+    break;
+    
+    
+    case eePATRA:
+    {
+        id &= 0xFFF;
+        int outeyes = 0;
+        
+        for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+        {
+            if(!(guysbuf[id].misc10?guys.add(new esPatraBS((fix)x,(fix)y,id+0x1000,i)):guys.add(new esPatra((fix)x,(fix)y,id+0x1000,i))))
+            {
+                al_trace("Patra outer eye %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1; j++)
+                    guys.del(guys.Count()-1);
+                    
+                return 0;
+            }
+            else
+                outeyes++;
+                
+            ret++;
+        }
+        
+        for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
+        {
+            if(!guys.add(new esPatra((fix)x,(fix)y,id+0x1000,i)))
+            {
+                al_trace("Patra inner eye %d could not be created!\n",i+1);
+                
+                for(int j=0; j<i+1+zc_min(254,outeyes); j++)
+                    guys.del(guys.Count()-1);
+                    
+                return 0;
+            }
+            
+            ret++;
+        }
+        
+        break;
+    }
+    }
+    
+    return ret;
 }
 
 // Returns number of enemies/segments created

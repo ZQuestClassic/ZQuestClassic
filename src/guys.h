@@ -809,6 +809,8 @@ void movefairy2(fix x,fix y,int misc);
 void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
 int addenemy(int x,int y,int z,int id,int clk);
+int addchild(int x,int y,int id,int clk, int parent_scriptUID);
+int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID);
 bool isjumper(int id);
 bool canfall(int id);
 void addfires();
