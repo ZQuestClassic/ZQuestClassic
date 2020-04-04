@@ -17222,10 +17222,16 @@ void FFScript::do_graphics_getpixel()
 	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	
 	int ref = (ri->d[2]);
-	if ( ref < 0 || ref >= 10000 ) 
+	//zprint2("ref is: %d\n", ri->d[2]);
+	
+	
+	
+	if ( ref == -10000 || ref == -20000 || ref >= 10000 ) //Bitmaps Loaded by LoadBitmapID have values of -10000 to 70000
 	{
 		ref /= 10000;
 	}
+	else ref -= 10; //Bitmaps other than those loaded by LoadBitmapID
+	//zprint2("ref is now: %d\n", ref);
 	
 	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
 	long xpos  = ri->d[1] / 10000;
@@ -17244,8 +17250,8 @@ void FFScript::do_graphics_getpixel()
 	
 	long ypos = (ri->d[0] / 10000)+yoffset;
 	
-	zprint2("ypos: %d\n", ypos);
-	zprint2("xpos: %d\n", xpos);
+	//zprint2("ypos: %d\n", ypos);
+	//zprint2("xpos: %d\n", xpos);
 	
 	if(!bitty)
 		{
