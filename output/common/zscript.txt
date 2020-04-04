@@ -5935,7 +5935,7 @@ Error T31: The index of 'foo' must be an integer.
 
 T36: Cannot change the value of constant variable 'foo'.
 
-You cannot assign a CONSTANT to another value.
+You cannot assign another value to a CONSTANT.
 
 T37: Global variables can only be initialized to constants or globals declared in the same script.
 You cannot (directly) simultaneously declare, and initialise a global value using the value of a variable at
@@ -6018,7 +6018,7 @@ YOu attempted to seclare a QUOTEDSTRING of an explicit size, but you didn;t add 
 for the NULL terminator; or you used more chars than you allocated:
 
 int my_string[17]="This is a string.";
-    THis allocates only enough indices for the chars, but not for the NULL terminator. 
+    This allocates only enough indices for the chars, but not for the NULL terminator. 
     The array size here needs to be 18.
 int my_string[12]="THis is a string.";
     You tried to initialise a QUOTEDSTRING that is longer than the array size.
