@@ -24446,7 +24446,9 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	     154+5,   93,     15,     10,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "<<", NULL, NULL },
     { jwin_button_proc,      78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     { jwin_button_proc,  174+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
-    
+    { jwin_button_proc,   87+78-48,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
+    //45
+    { jwin_button_proc,      87+78,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear All",  NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -26155,6 +26157,113 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 	}
 }
 
+void clearAllSlots(int type)
+{
+	switch(type)
+	{
+		case 0: //FFC
+		{
+			for(int q = 0; q < NUMSCRIPTFFC-1; ++q)
+			{
+				ffcmap[q].scriptname = "";
+				ffcmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 1: //Global
+		{
+			//Start at 1 to not clear Init
+			for(int q = 1; q < NUMSCRIPTGLOBAL; ++q)
+			{
+				globalmap[q].scriptname = "";
+				globalmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 2: //Item
+		{
+			for(int q = 0; q < NUMSCRIPTITEM-1; ++q)
+			{
+				itemmap[q].scriptname = "";
+				itemmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 3: //npc
+		{
+			for(int q = 0; q < NUMSCRIPTGUYS-1; ++q)
+			{
+				npcmap[q].scriptname = "";
+				npcmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 4: //lweapon
+		{
+			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
+			{
+				lwpnmap[q].scriptname = "";
+				lwpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 5: //eweapon
+		{
+			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
+			{
+				ewpnmap[q].scriptname = "";
+				ewpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 6: //hero
+		{
+			for(int q = 0; q < NUMSCRIPTLINK-1; ++q)
+			{
+				linkmap[q].scriptname = "";
+				linkmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 7: //dmap
+		{
+			for(int q = 0; q < NUMSCRIPTSDMAP-1; ++q)
+			{
+				dmapmap[q].scriptname = "";
+				dmapmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 8: //screen
+		{
+			for(int q = 0; q < NUMSCRIPTSCREEN-1; ++q)
+			{
+				screenmap[q].scriptname = "";
+				screenmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 9: //itemsprite
+		{
+			for(int q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
+			{
+				itemspritemap[q].scriptname = "";
+				itemspritemap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case 10: //combo
+		{
+			for(int q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
+			{
+				comboscriptmap[q].scriptname = "";
+				comboscriptmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+	}
+}
+
 bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
 	int ret = 3;
@@ -27219,7 +27328,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			}
 		
 			case 42:
-				//i, information
+				//Script Info, information
 			{
 				zasm_meta* target = NULL;
 				switch(get_selected_tab((TABPANEL*)assignscript_dlg[1].dp))
@@ -27331,7 +27440,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			}
 		
 			case 43:
-				//i, information
+				//Script Info, information
 			{
 				zasm_meta* target = NULL;
 				switch(assignscript_dlg[1].d1)
@@ -27417,6 +27526,73 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				if(target)
 					showScriptInfo(target);
+				break;
+			}
+			
+			case 44:
+				//Clear, clear slots of current type- after a confirmation.
+			{
+				char buf[256] = {0};
+				char type_buf[32] = {0};
+				int type = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp);
+				switch(type)
+				{
+					default:
+						type = 0;
+						//fallthrough
+					case 0:
+						strcpy(type_buf, "FFC");
+						break;
+					case 1:
+						strcpy(type_buf, "Global");
+						break;
+					case 2:
+						strcpy(type_buf, "Item");
+						break;
+					case 3:
+						strcpy(type_buf, "NPC");
+						break;
+					case 4:
+						strcpy(type_buf, "LWeapon");
+						break;
+					case 5:
+						strcpy(type_buf, "EWeapon");
+						break;
+					case 6:
+						strcpy(type_buf, "Hero");
+						break;
+					case 7:
+						strcpy(type_buf, "DMap");
+						break;
+					case 8:
+						strcpy(type_buf, "Screen");
+						break;
+					case 9:
+						strcpy(type_buf, "ItemSprite");
+						break;
+					case 10:
+						strcpy(type_buf, "Combo");
+						break;
+				}
+				sprintf(buf, "Clear all '%s' script slots?", type_buf);
+				if(jwin_alert("Clear Slots", buf, NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
+				{
+					clearAllSlots(type);
+				}
+				break;
+			}
+			
+			case 45:
+				//Clear All, clear all slots of all types- after a confirmation.
+			{
+				
+				if(jwin_alert("Clear Slots", "Clear all script slots of all types?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
+				{
+					for(int type = 0; type <= 10; ++type)
+					{
+						clearAllSlots(type);
+					}
+				}
 				break;
 			}
 		}

@@ -1,6 +1,12 @@
 //2.55 Changes
 
 //Alpha 59
+Add 'Clear' and 'Clear All' buttons to slot assign dialog.
+	'Clear' clears all scripts of the current type.
+	'Clear All' clears all scripts, period.
+	This is good for clearing scripts for re-organization,
+		or clearing scripts from a tileset you don't desire.
+	Both clear buttons have a confirmation, to prevent accidental clearing.
 Added automatic inlining for internal functions in GlobalSymbols.cpp
 	( Venrob, 6th April, 2020 )
 
