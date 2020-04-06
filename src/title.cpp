@@ -3687,9 +3687,9 @@ int getsaveslot()
     return saveslot;
 }
 
-static void select_game()
+static void select_game(bool skip = false)
 {
-    if(standalone_mode)
+    if(standalone_mode || skip)
         return;
         
     int pos = zc_max(zc_min(currgame-listpos,3),0);
@@ -3946,7 +3946,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
                 {
                     slot_arg = 0;
                     currgame = 0;
-                    select_game();
+                    select_game(q==qRELOAD);
                 }
                 
                 slot_arg = 0;
@@ -3955,7 +3955,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
             }
             else
             {
-                select_game();
+                select_game(q==qRELOAD);
             }
         }
         else

@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 56
-Document Revision: 31st March, 2020
+Document for: 2.55, Alpha 59
+Document Revision: 6th April, 2020
 
 
  __           _   _                 
@@ -2497,6 +2497,11 @@ void SaveAndQuit();
 
 void ShowContinueScreen();
  * As void ShowSaveScreen(), but it shows the base Save/Retry/Continue screen.
+
+void Reload();
+ * Similar to 'Game->End()', but, instead of going back to the title screen,
+ *     the same save file will be automatically reloaded; allowing a script to quickly
+ *     revert to the prior save, without needing the user to re-select the save file.
 
 bool SkipF6;
  * Disables showing the Continue/Retry/Save menu if the player presses F6.

@@ -961,6 +961,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BITMAPFREE",           0,   0,   0,   0},
 	
 	{ "POPARGS",           2,   0,   1,   0},
+	{ "GAMERELOAD",           0,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}

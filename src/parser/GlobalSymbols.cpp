@@ -4278,6 +4278,7 @@ static AccessorTable gameTable[] =
 	{ "getGravity[]",                  ZVARTYPEID_FLOAT,         GETTER,       GAMEGRAVITY,          3,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setGravity[]",                  ZVARTYPEID_VOID,          SETTER,       GAMEGRAVITY,          3,              0,                                    3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getScrolling[]",                ZVARTYPEID_FLOAT,         GETTER,       GAMESCROLLING,        5,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Reload",                        ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                              -1,                       -1,           -1,                   -1,             0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -6350,6 +6351,19 @@ void GameSymbols::generateCode()
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+	
+	//void Reload(game)
+    {
+	    Function* function = getFunction("Reload", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+		ASSERT_NUL();
+        code.push_back(new OGameReload());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }

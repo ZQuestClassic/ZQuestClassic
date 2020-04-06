@@ -3091,6 +3091,11 @@ string OEnd::toString()
     return "GAMEEND";
 }
 
+string OGameReload::toString()
+{
+    return "GAMERELOAD";
+}
+
 string OGameContinue::toString()
 {
     return "GAMECONTINUE";

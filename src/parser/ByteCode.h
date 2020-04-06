@@ -4025,6 +4025,16 @@ namespace ZScript
 			return new OEnd();
 		}
 	};
+
+	class OGameReload : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGameReload();
+		}
+	};
 	
 	class OGameContinue : public Opcode
 	{

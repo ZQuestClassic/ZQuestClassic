@@ -22594,6 +22594,11 @@ int run_script(const byte type, const word script, const long i)
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMERELOAD:
+				Quit = qRELOAD;
+				skipcont = 1;
+				scommand = 0xFFFF;
+				break;
 			
 			case GAMECONTINUE:
 				reset_combo_animations();
@@ -30791,6 +30796,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BITMAPFREE",           0,   0,   0,   0},
 	
 	{ "POPARGS",           2,   0,   1,   0},
+	{ "GAMERELOAD",           0,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

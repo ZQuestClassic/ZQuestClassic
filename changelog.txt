@@ -1,6 +1,11 @@
 //2.55 Changes
 
 //Alpha 59
+Added 'Game->Reload()' to ZScript
+	Using this command is similar to 'Game->End()', in that it exits the quest
+	without saving. However, instead of going back to the save select screen,
+	it will automatically load the current save slot again; effectively reloading
+	from the previous save.
 Add compile warning for bad reassign calls; the behavior for bad calls
 	has not changed, it is simply ignored; but now it will warn the user.
 Clean up warning format; now functions will appear in errors/warnings as
