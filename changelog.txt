@@ -1,5 +1,9 @@
 //2.55 Changes
 
+//Alpha 60
+Alpha is now 60
+	( Venrob, 6th April, 2020 )
+
 //Alpha 59
 Added 'messagedata->TextHeight' and 'messagedata->TextWidth'
 	These are shortcuts for 'Text->MessageHeight' and 'Width' respectively.
