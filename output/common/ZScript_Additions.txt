@@ -4573,6 +4573,17 @@ int PortraitTileHeight;
  * The Tile Width of the portrait.
  * If 0, no portrait will be displayed.
  * Max value 14
+
+int TextWidth;
+ * Returns the width, in pixels, of the message.
+ * This uses the font and text as set in the 'Strings' editor,
+ * 	and ignores both trailing spaces and line breaks.
+ * Read-Only
+
+int TextHeight;
+ * Returns the height, in pixels, of the message.
+ * This uses the font as set in the 'Strings' editor, and ignores line breaks.
+ * Read-Only
 	
 //////////////////
 ///  dmapdata  ///

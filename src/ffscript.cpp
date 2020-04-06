@@ -2763,6 +2763,10 @@ int whichlayer(long scr)
 sprite *s;
 
 
+//Forward decl
+int do_msgheight(int msg, char const* str);
+int do_msgwidth(int msg, char const* str);
+//
 
 long get_register(const long arg)
 {
@@ -8319,6 +8323,16 @@ long get_register(const long arg)
 				ret = -10000;
 			else
 				ret = ((int)MsgStrings[ID].portrait_th) * 10000;
+			break;
+		}
+		case MESSAGEDATATEXTWID:
+		{
+			ret = do_msgwidth(ri->zmsgref, "messagedata->TextWidth")*10000;
+			break;
+		}
+		case MESSAGEDATATEXTHEI:
+		{
+			ret = do_msgheight(ri->zmsgref, "messagedata->TextHeight")*10000;
 			break;
 		}
 		case MESSAGEDATAFLAGSARR: //BOOL, 7
@@ -16811,12 +16825,11 @@ void do_charwidth()
 	delete[] cstr;
 }
 
-void do_msgwidth(int msg)
+int do_msgwidth(int msg, char const* str)
 {
-	if(BC::checkMessage(msg, "Text->MessageWidth()") != SH::_NoError)
+	if(BC::checkMessage(msg, str) != SH::_NoError)
 	{
-		ri->d[2] = -10000;
-		return;
+		return -1;
 	}
 	char *cstr = new char[MSGSIZE+1];
 	strcpy(cstr,MsgStrings[msg].s);
@@ -16825,18 +16838,18 @@ void do_msgwidth(int msg)
 		if(cstr[q]==' ')cstr[q]=0;
 		else if(cstr[q]!=0) break;
 	}
-	ri->d[2] = text_length(get_zc_font(MsgStrings[msg].font), cstr)*10000;
+	int v = text_length(get_zc_font(MsgStrings[msg].font), cstr);
 	delete[] cstr;
+	return v;
 }
 
-void do_msgheight(int msg)
+int do_msgheight(int msg, char const* str)
 {
-	if(BC::checkMessage(msg, "Text->MessageHeight()") != SH::_NoError)
+	if(BC::checkMessage(msg, str) != SH::_NoError)
 	{
-		ri->d[2] = -10000;
-		return;
+		return -1;
 	}
-	ri->d[2] = text_height(get_zc_font(MsgStrings[msg].font))*10000;
+	return text_height(get_zc_font(MsgStrings[msg].font));
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -21372,10 +21385,10 @@ int run_script(const byte type, const word script, const long i)
 				do_charwidth();
 				break;
 			case MESSAGEWIDTHR:
-				do_msgwidth(get_register(sarg1)/10000);
+				ri->d[2] = 10000* do_msgwidth(get_register(sarg1)/10000, "Text->MessageWidth()");
 				break;
 			case MESSAGEHEIGHTR:
-				do_msgheight(get_register(sarg1)/10000);
+				ri->d[2] = 10000* do_msgheight(get_register(sarg1)/10000, "Text->MessageHeight()");
 				break;
 			//
 			

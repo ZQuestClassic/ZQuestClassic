@@ -3879,8 +3879,10 @@ enum ASM_DEFINE
 #define FILEPOS					0x13A4
 #define FILEEOF					0x13A5
 #define FILEERR					0x13A6
+#define MESSAGEDATATEXTWID					0x13A7
+#define MESSAGEDATATEXTHEI					0x13A8
 
-#define NUMVARIABLES         	0x13A7
+#define NUMVARIABLES         	0x13A9
 
 //} End variables
 

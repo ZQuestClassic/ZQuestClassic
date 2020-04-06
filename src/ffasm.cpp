@@ -2110,6 +2110,8 @@ script_variable variable_list[]=
 	{ "FILEPOS", FILEPOS, 0, 0 },
 	{ "FILEEOF", FILEEOF, 0, 0 },
 	{ "FILEERR", FILEERR, 0, 0 },
+	{ "MESSAGEDATATEXTWID", MESSAGEDATATEXTWID, 0, 0 },
+	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
