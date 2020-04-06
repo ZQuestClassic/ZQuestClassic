@@ -503,10 +503,12 @@ DataTypeClass* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHa
 
 string DataTypeClass::getName() const
 {
+	/* This doesn't look good in errors/warns...
 	string name = className == "" ? "anonymous" : className;
 	char tmp[32];
 	sprintf(tmp, "%d", classId);
-	return name + "[class " + tmp + "]";
+	return name + "[class " + tmp + "]";*/
+	return className;
 }
 
 bool DataTypeClass::canCastTo(DataType const& target) const

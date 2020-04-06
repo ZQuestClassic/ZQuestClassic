@@ -539,7 +539,8 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		else
 			function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 		functions[make_pair(name,function->numParams())] = function;
-
+		if(hasPrefixType)
+			function->hasPrefixType = true; //Print the first type differently in error messages!
 		// Generate function code for getters/setters
 		int label = function->getLabel();
 		if (entry.setorget == GETTER)
@@ -702,6 +703,7 @@ GlobalSymbols::GlobalSymbols()
 {
     table = GlobalTable;
     refVar = NUL;
+	hasPrefixType = false;
 }
 
 void GlobalSymbols::generateCode()
@@ -12088,6 +12090,7 @@ UntypedSymbols::UntypedSymbols()
 {
     table = NilTable;
     refVar = REFNIL;
+	//hasPrefixType = false;
 }
 
 void UntypedSymbols::generateCode()

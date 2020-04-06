@@ -339,6 +339,7 @@ namespace ZScript
 		operator std::string() const {return asString();}
 
 		std::string name;
+		bool prefix;
 		std::vector<DataType const*> parameterTypes;
 	};
 	
@@ -356,6 +357,7 @@ namespace ZScript
 		
 		DataType const* returnType;
 		std::string name;
+		bool hasPrefixType;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
 		int id;

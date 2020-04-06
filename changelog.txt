@@ -1,6 +1,10 @@
 //2.55 Changes
 
 //Alpha 59
+Add compile warning for bad reassign calls; the behavior for bad calls
+	has not changed, it is simply ignored; but now it will warn the user.
+Clean up warning format; now functions will appear in errors/warnings as
+	ex. 'npc->Create(float)', instead of prior 'Create(npc[Class 6], float)'
 Fix combodata->o_tile interaction with tile moving
 Alpha is now 59
 	( Venrob, 5th April, 2020 )

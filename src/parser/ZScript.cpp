@@ -369,11 +369,11 @@ BuiltinConstant::BuiltinConstant(
 
 FunctionSignature::FunctionSignature(
 		string const& name, vector<DataType const*> const& parameterTypes)
-	: name(name), parameterTypes(parameterTypes)
+	: name(name), parameterTypes(parameterTypes), prefix(false)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function)
-	: name(function.name), parameterTypes(function.paramTypes)
+	: name(function.name), parameterTypes(function.paramTypes), prefix(function.hasPrefixType)
 {}
 		
 int FunctionSignature::compare(FunctionSignature const& other) const
@@ -403,11 +403,22 @@ bool FunctionSignature::operator<(FunctionSignature const& other) const
 string FunctionSignature::asString() const
 {
 	ostringstream oss;
-	oss << name << "(";
-	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
-		 it != parameterTypes.end(); ++it)
+	vector<DataType const*>::const_iterator it = parameterTypes.begin();
+	if(prefix)
 	{
-		if (it != parameterTypes.begin()) oss << ", ";
+		oss << (*it)->getName() << "->";
+		++it;
+	}
+	oss << name << "(";
+	if(it != parameterTypes.end())
+	{
+		//Add the first type; the loop adds a comma before it.
+		oss << (*it)->getName();
+		++it;
+	}
+	for (; it != parameterTypes.end(); ++it)
+	{
+		oss << ", ";
 		oss << (*it)->getName();
 	}
 	oss << ")";
@@ -420,7 +431,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id, int flags, int internal_flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
-	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags)
+	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false)
 {}
 
 Function::~Function()

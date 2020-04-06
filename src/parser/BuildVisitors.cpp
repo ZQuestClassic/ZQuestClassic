@@ -819,7 +819,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			if(host.left->isTypeArrow())
 			{
 				ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
-				if(arr->left->getWriteType(scope, this) && !host.left->isConstant())
+				if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 				{
 					if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
 					{
@@ -831,6 +831,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 						addOpcodes(helper.getResult());
 						if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 					}
+				}
+				else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+				{
+					handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
 				}
 			}
 			//Deallocate string/array literals from within the parameters
@@ -918,7 +922,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if(host.left->isTypeArrow())
 		{
 			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
-			if(arr->left->getWriteType(scope, this) && !host.left->isConstant())
+			if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 			{
 				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
@@ -930,6 +934,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
+			}
+			else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+			{
+				handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
 			}
 		}
 		
