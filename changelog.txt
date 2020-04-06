@@ -1,5 +1,10 @@
 //2.55 Changes
 
+//Alpha 59
+Fix combodata->o_tile interaction with tile moving
+Alpha is now 59
+	( Venrob, 5th April, 2020 )
+
 //Alpha 58
 Fix bitmap->GetPixel for SYSTEM bitmaps not being offset by -10.
 	Loading RT_SCREEN through RT_BITMAP6 via Game->LoadBitmapID now 

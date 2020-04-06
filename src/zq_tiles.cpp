@@ -289,7 +289,7 @@ static void make_combos(int startTile, int endTile, int cs)
     if(!select_combo_2(startCombo,cs))
         return;
     
-    int temp=combobuf[startCombo].tile;
+    int temp=combobuf[startCombo].o_tile;
     combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
@@ -319,7 +319,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
         return;
     
     int startTile=top*TILES_PER_ROW+left;
-    int temp=combobuf[startCombo].tile;
+    int temp=combobuf[startCombo].o_tile;
     combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
@@ -5656,7 +5656,7 @@ void register_used_tiles()
     
     for(int u=0; u<MAXCOMBOS; u++)
     {
-        for(int t=zc_max(combobuf[u].tile,0); t<zc_min(combobuf[u].tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
+        for(int t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -6257,14 +6257,14 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(combobuf[u].o_tile, combobuf[u].o_tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
+                        i=move_intersection_ss(combobuf[u].o_tile, combobuf[u].o_tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(combobuf[u].tile!=0))
+                    if((i!=ti_none)&&(combobuf[u].o_tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
@@ -7465,7 +7465,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
             {
                 if(move_combo_list[u])
                 {
-                    combobuf[u].tile+=diff;
+                    combobuf[u].set_tile(combobuf[u].o_tile+diff);
                 }
             }
             
