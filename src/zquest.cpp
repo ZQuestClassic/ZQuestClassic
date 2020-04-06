@@ -27443,7 +27443,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				//Script Info, information
 			{
 				zasm_meta* target = NULL;
-				switch(assignscript_dlg[1].d1)
+				switch(get_selected_tab((TABPANEL*)assignscript_dlg[1].dp))
 				{
 					default:
 					case 0: //FFC

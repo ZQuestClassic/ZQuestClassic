@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 59
+Fix the right 'Script Info' button.
 Add 'Clear' and 'Clear All' buttons to slot assign dialog.
 	'Clear' clears all scripts of the current type.
 	'Clear All' clears all scripts, period.
