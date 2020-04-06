@@ -1,6 +1,9 @@
 //2.55 Changes
 
 //Alpha 59
+Added automatic inlining for internal functions in GlobalSymbols.cpp
+	( Venrob, 6th April, 2020 )
+
 Added 'Game->Reload()' to ZScript
 	Using this command is similar to 'Game->End()', in that it exits the quest
 	without saving. However, instead of going back to the save select screen,

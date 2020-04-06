@@ -66,9 +66,17 @@ function->internal_flags |= IFUNCFLAG_SKIPPOINTER
 assert(refVar != NUL)
 
 /*
+	Forces any function to be inline where inline gives strict gain; i.e. has no negative effects.
+	Presently, this is defined as any function with < 5 opcodes, before adding 'RETURN'.
+*/
+#define INLINE_CHECK() \
+if(code.size() < 5) function->setFlag(FUNCFLAG_INLINE)
+
+/*
 	Return from the function. Automatically skips OReturn() on inline functions.
 */
 #define RETURN() \
+INLINE_CHECK(); \
 if(!(function->getFlag(FUNCFLAG_INLINE))) \
 	code.push_back(new OReturn())
 
