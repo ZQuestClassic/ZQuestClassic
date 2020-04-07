@@ -3047,21 +3047,21 @@ enum
 
 struct MsgStr
 {
-    char s[MSGSIZE+1];
-    word nextstring;
-    int tile;
-    byte cset;
-    bool trans;
-    byte font;
-    short x;
-    short y;   // y position of message boxes.
-    unsigned short w;
-    unsigned short h;
-    byte sfx; // either WAV_MSG or something else.
-    word listpos;
-    byte vspace;
-    byte hspace;
-    byte stringflags;
+	char s[MSGSIZE+1];
+	word nextstring;
+	int tile;
+	byte cset;
+	bool trans;
+	byte font;
+	short x;
+	short y;   // y position of message boxes.
+	unsigned short w;
+	unsigned short h;
+	byte sfx; // either WAV_MSG or something else.
+	word listpos;
+	byte vspace;
+	byte hspace;
+	byte stringflags;
 	short margins[4];
 	int portrait_tile;
 	byte portrait_cset;
@@ -3069,31 +3069,37 @@ struct MsgStr
 	byte portrait_y;
 	byte portrait_tw;
 	byte portrait_th;
-    
-    // Copy everything except listpos
-    MsgStr& operator=(MsgStr &other)
-    {
-        strncpy(s, other.s, MSGSIZE+1);
-        nextstring=other.nextstring;
-        copyStyle(other);
-        return *this;
-    }
-    
-    // Copy style data - everything except s, nextstring, and listpos
-    void copyStyle(MsgStr& other)
-    {
-        tile=other.tile;
-        cset=other.cset;
-        trans=other.trans;
-        font=other.font;
-        x=other.x;
-        y=other.y;
-        w=other.w;
-        h=other.h;
-        sfx=other.sfx;
-        vspace=other.vspace;
-        hspace=other.hspace;
-        stringflags=other.stringflags;
+	
+	// Copy everything except listpos
+	MsgStr& operator=(MsgStr &other)
+	{
+		copyText(other);
+		copyStyle(other);
+		return *this;
+	}
+	
+	// Copy text data - just s and nextstring
+	void copyText(MsgStr& other)
+	{
+		strncpy(s, other.s, MSGSIZE+1);
+		nextstring=other.nextstring;
+	}
+	
+	// Copy style data - everything except s, nextstring, and listpos
+	void copyStyle(MsgStr& other)
+	{
+		tile=other.tile;
+		cset=other.cset;
+		trans=other.trans;
+		font=other.font;
+		x=other.x;
+		y=other.y;
+		w=other.w;
+		h=other.h;
+		sfx=other.sfx;
+		vspace=other.vspace;
+		hspace=other.hspace;
+		stringflags=other.stringflags;
 		for(int q = 0; q < 4; ++q)
 		{
 			margins[q] = other.margins[q];
@@ -3104,7 +3110,7 @@ struct MsgStr
 		portrait_y=other.portrait_y;
 		portrait_tw=other.portrait_tw;
 		portrait_th=other.portrait_th;
-    }
+	}
 };
 
 enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};

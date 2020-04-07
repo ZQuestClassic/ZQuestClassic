@@ -184,42 +184,76 @@ DIALOG editmsg_help_dlg[] =
 
 static MENU strlist_rclick_menu[] =
 {
-    { (char *)"Copy Properties",  NULL,  NULL, 0, NULL },
-    { (char *)"Paste Properties", NULL,  NULL, 0, NULL },
+    { (char *)"Copy",  NULL,  NULL, 0, NULL },
+    { (char *)"",  NULL,  NULL, 0, NULL },
+    { (char *)"Paste Style", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Text", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Both", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Style to All", NULL,  NULL, 0, NULL },
+    { (char *)"",  NULL,  NULL, 0, NULL },
     { (char *)"Set As Template",  NULL,  NULL, 0, NULL },
     { NULL,                       NULL,  NULL, 0, NULL }
 };
 
-static int zqstr_propCopySrc=-1;
+static int zqstr_copysrc=-1;
 void strlist_rclick_func(int index, int x, int y)
 {
-    // Don't do anything on (none) or <New String>
-    if(index==0 || index==msg_count-1)
-        return;
-    
-    // Disable "Paste Properties" if the copy source is invalid
-    if(zqstr_propCopySrc<=0 || zqstr_propCopySrc>=msg_count)
-        strlist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        strlist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(strlist_rclick_menu, x, y);
+	// Don't do anything on (none) or <New String>
+	if(index<=0 || index==msg_count-1)
+		return;
+	
+	// Disable paste options if the copy source is invalid
+	if(zqstr_copysrc<=0 || zqstr_copysrc>=msg_count)
+	{
+		strlist_rclick_menu[2].flags|=D_DISABLED;
+		strlist_rclick_menu[3].flags|=D_DISABLED;
+		strlist_rclick_menu[4].flags|=D_DISABLED;
+		strlist_rclick_menu[5].flags|=D_DISABLED;
+	}
+	else
+	{
+		strlist_rclick_menu[2].flags&=~D_DISABLED;
+		strlist_rclick_menu[3].flags&=~D_DISABLED;
+		strlist_rclick_menu[4].flags&=~D_DISABLED;
+		strlist_rclick_menu[5].flags&=~D_DISABLED;
+	}
+	int ret=popup_menu(strlist_rclick_menu, x, y);
 
-    switch(ret)
-    {
-    case 0: // Copy properties
-        zqstr_propCopySrc=msg_at_pos(index);
-        break;
-        
-    case 1: // Paste properties
-        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_propCopySrc]);
-        break;
-
-    case 2: // Set as template
-        sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
-        strlist_dlg[22].flags|=D_DIRTY;
-        break;
-    }
+	switch(ret)
+	{
+	case 0: // Copy
+		zqstr_copysrc=msg_at_pos(index);
+		break;
+	
+	case 2: // Paste Style
+		MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
+		break;
+	
+	case 3: //Paste Text
+		MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
+		strlist_dlg[2].flags|=D_DIRTY;
+		break;
+	
+	case 4: //Paste Both
+		MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc]; //Overloaded assignment copies both
+		strlist_dlg[2].flags|=D_DIRTY;
+		break;
+	
+	case 5: //Paste Style to All
+		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
+		{
+			for(int q = 0; q < msg_count-1; ++q)
+			{
+				MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
+			}
+		}
+		break;
+	
+	case 7: // Set as template
+		sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
+		strlist_dlg[22].flags|=D_DIRTY;
+		break;
+	}
 }
 
 // Don't actually use this to strip spaces.
@@ -533,7 +567,6 @@ int onStrings()
     int morex=zinit.msg_more_x;
     int morey=zinit.msg_more_y;
     int msgspeed = zinit.msg_speed;
-    word copysrc=0;
     sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
     sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
     sprintf(msgspeed_string, "%d", zinit.msg_speed);
@@ -816,19 +849,19 @@ int onStrings()
             
         case 19: // copy
             if(index==msg_count-1)
-                copysrc=0;
+                zqstr_copysrc=-1;
             else
-                copysrc=index;
+                zqstr_copysrc=index;
                 
             break;
             
         case 20: // paste
-            if(copysrc>0)
+            if(zqstr_copysrc>0 && index>0)
             {
                 if(index==msg_count-1)
-                    msg_count++;
+                    ++msg_count;
                     
-                MsgStrings[index]=MsgStrings[copysrc];
+                MsgStrings[index]=MsgStrings[zqstr_copysrc];
             }
             
             break;

@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 60
+Add more copy/paste options to String Editor
 Fix new combo animation respecting ASkipY
 Fix register_used_tiles not respecting ASkipX/Y
 Fix tile overwrite protection not respecting ASkipX/Y
