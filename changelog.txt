@@ -1,6 +1,12 @@
 //2.55 Changes
 
 //Alpha 60
+Fix new combo animation respecting ASkipY
+Fix register_used_tiles not respecting ASkipX/Y
+Fix tile overwrite protection not respecting ASkipX/Y
+Fix tile move not respecting ASkipX/Y
+	( Venrob, 7th April, 2020 )
+
 Alpha is now 60
 	( Venrob, 6th April, 2020 )
 

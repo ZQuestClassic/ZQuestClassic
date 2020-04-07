@@ -210,6 +210,13 @@ void setup_combo_animations2()
     animated_combos2=y;
 }
 
+void reset_combo_animation(newcombo &cmb)
+{
+	cmb.tile = cmb.o_tile;
+	cmb.cur_frame = 0;
+	cmb.aclk = 0;
+}
+
 void reset_combo_animation(int c)
 {
     for(word x=0; x<animated_combos; ++x)
@@ -288,9 +295,9 @@ bool combocheck(newcombo& cdata)
     return true;
 }
 
-void animate(newcombo& cdata)
+void animate(newcombo& cdata, bool forceNextFrame)
 {
-	if(cdata.aclk>=cdata.speed)      //time to animate
+	if(cdata.aclk>=cdata.speed || forceNextFrame)      //time to animate
 	{
 		if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
 		{
@@ -302,9 +309,9 @@ void animate(newcombo& cdata)
 			else
 			{
 				cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
-				if(cdata.tile/TILES_PER_ROW!=cdata.o_tile/TILES_PER_ROW)
+				if(int rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
 				{
-					cdata.tile += cdata.skipanimy * ((cdata.tile/TILES_PER_ROW) - (cdata.o_tile/TILES_PER_ROW));
+					cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 				}
 			}
 		}
@@ -331,9 +338,9 @@ void animate(newcombo& cdata)
 		if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
 		{
 			cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
-			if(cdata.tile/TILES_PER_ROW!=cdata.o_tile/TILES_PER_ROW)
+			if(int rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
 			{
-				cdata.tile += cdata.skipanimy * ((cdata.tile/TILES_PER_ROW) - (cdata.o_tile/TILES_PER_ROW));
+				cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 			}
 		}
 		++cdata.aclk;                        //increment clock

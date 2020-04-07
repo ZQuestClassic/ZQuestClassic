@@ -1396,22 +1396,22 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
         zc_swap(tile, tile2);
     }
     
-    int left=zc_min(tile_col(tile), tile_col(tile2));
-    int columns=zc_max(tile_col(tile), tile_col(tile2))-left+1;
+    int left=zc_min(TILECOL(tile), TILECOL(tile2));
+    int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
     
     int start=tile;
     int end=tile2;
     
     // Might have top-right and bottom-left corners selected...
-    if(rect_sel && tile_col(tile)>tile_col(tile2))
+    if(rect_sel && TILECOL(tile)>TILECOL(tile2))
     {
-        start=tile-(tile_col(tile)-tile_col(tile2));
-        end=tile2+(tile_col(tile)-tile_col(tile2));
+        start=tile-(TILECOL(tile)-TILECOL(tile2));
+        end=tile2+(TILECOL(tile)-TILECOL(tile2));
     }
     
     for(int temptile=start; temptile<=end; temptile++)
     {
-        if(!rect_sel || ((tile_col(temptile)>=left) && (tile_col(temptile)<=left+columns-1)))
+        if(!rect_sel || ((TILECOL(temptile)>=left) && (TILECOL(temptile)<=left+columns-1)))
         {
             unpack_tile(newtilebuf, temptile, 0, false);
             
@@ -4995,7 +4995,7 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     
     // Copied tile and numbers
     jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-    int coldiff=tile_col(copy)-tile_col(copy+copycnt-1);
+    int coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
     if(copy>=0)
     {
         puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
@@ -5296,33 +5296,45 @@ static MENU select_combo_rc_menu[] =
     { NULL,              NULL,  NULL, 0, NULL }
 };
 
-//returns the column the tile is in
-int tile_col(int tile)
-{
-    return (tile%TILES_PER_ROW);
-}
-
-//returns the row the tile is in
-int tile_row(int tile)
-{
-    return (tile/TILES_PER_ROW);
-}
-
-//returns the page the tile is on
-int tile_page(int tile)
-{
-    return (tile/TILES_PER_PAGE);
-}
-
 //returns the row the tile is in on its page
 int tile_page_row(int tile)
 {
-    return tile_row(tile)-(tile_page(tile)*TILE_ROWS_PER_PAGE);
+    return TILEROW(tile)-(TILEPAGE(tile)*TILE_ROWS_PER_PAGE);
 }
 
 enum {ti_none, ti_encompass, ti_broken};
 
 //striped check and striped selection
+int move_intersection_ss(newcombo &cmb, int selection_first, int selection_last)
+{
+	int cmb_first = cmb.o_tile;
+	int cmb_last = cmb.o_tile;
+	do
+	{
+		cmb_last = cmb.tile;
+		animate(cmb, true);
+	}
+	while(cmb.tile != cmb.o_tile);
+	reset_combo_animation(cmb);
+	
+	if(cmb_first > selection_last || cmb_last < selection_first)
+		return ti_none;
+	if(cmb_first >= selection_first && cmb_last <= selection_last)
+		return ti_encompass;
+	
+	do
+	{
+		if(cmb.tile >= selection_first && cmb.tile <= selection_last)
+		{
+			reset_combo_animation(cmb);
+			return ti_broken; //contained, but non-encompassing.
+		}
+		animate(cmb, true);
+	}
+	while(cmb.tile != cmb.o_tile);
+	reset_combo_animation(cmb);
+	return ti_none;
+}
 int move_intersection_ss(int check_first, int check_last, int selection_first, int selection_last)
 {
     // if selection is before or after check...
@@ -5364,8 +5376,8 @@ int move_intersection_rs(int check_left, int check_top, int check_width, int che
     
     if(ret1==ti_encompass)
     {
-        if((tile_row(selection_first)<=check_top) &&
-                (tile_row(selection_last)>=(check_top+check_height-1)))
+        if((TILEROW(selection_first)<=check_top) &&
+                (TILEROW(selection_last)>=(check_top+check_height-1)))
         {
             return ti_encompass;
         }
@@ -5380,15 +5392,106 @@ int move_intersection_rs(int check_left, int check_top, int check_width, int che
 
 
 //striped check and rectangular selection
+int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, int selection_width, int selection_height)
+{
+	if(selection_width < TILES_PER_ROW)
+	{
+		int cmb_first = cmb.o_tile;
+		int cmb_last = cmb.o_tile;
+		do
+		{
+			cmb_last = cmb.tile;
+			animate(cmb, true);
+		}
+		while(cmb.tile != cmb.o_tile);
+		reset_combo_animation(cmb);
+		
+        if((TILEROW(cmb_first)>=selection_top) &&
+                (TILEROW(cmb_last)<=selection_top+selection_height-1) &&
+                (TILECOL(cmb_first)>=selection_left) &&
+                (TILECOL(cmb_last)<=TILECOL(selection_left+selection_width-1)))
+        {
+            return ti_encompass;
+        }
+        else if((cmb_last<selection_top*TILES_PER_ROW+selection_left) ||
+                (cmb_first>(selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1))
+        {
+            return ti_none;
+        }
+		
+        if(TILEROW(cmb_first) == TILEROW(cmb_last))
+        {
+            int firstcol = TILECOL(cmb_first);
+            int lastcol = TILECOL(cmb_last);
+            
+            if(lastcol < selection_left || firstcol >= selection_left+selection_width)
+                return ti_none;
+            else //handle skip x
+			{
+				do
+				{
+					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width)
+					{
+						reset_combo_animation(cmb);
+						return ti_broken;
+					}
+					animate(cmb, true);
+				}
+				while(cmb.tile != cmb.o_tile);
+				reset_combo_animation(cmb);
+				return ti_none;
+			}
+        }
+		else //multi-row combo...
+		{
+			int row = TILEROW(cmb_first);
+			
+			do
+			{
+				if(row < selection_top || row > selection_top+selection_height-1)
+				{
+					//This row isn't in the selection; skip to next row
+					do
+					{
+						animate(cmb,true);
+						if(cmb.tile == cmb.o_tile) return ti_none; //reached end
+					}
+					while(TILEROW(cmb.tile) == row);
+					row = TILEROW(cmb.tile);
+					continue;
+				}
+				
+				//This row IS in the selection; check each tile.
+				do
+				{
+					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width-1)
+					{
+						reset_combo_animation(cmb);
+						return ti_broken;
+					}
+					animate(cmb, true);
+					if(cmb.tile == cmb.o_tile) return ti_none; //reached end
+				}
+				while(TILEROW(cmb.tile) == row);
+				row = TILEROW(cmb.tile);
+			}
+			while(cmb.tile != cmb.o_tile);
+			
+			return ti_none; //...Theoretically unreachable, but if it DOES get here, it's done.
+		}
+	}
+	
+    return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
+}
 int move_intersection_sr(int check_first, int check_last, int selection_left, int selection_top, int selection_width, int selection_height)
 {
     if(selection_width < TILES_PER_ROW)
     {
         if((check_last-check_first+1<=selection_width) &&
-                (tile_row(check_first)>=selection_top) &&
-                (tile_row(check_last)<=selection_top+selection_height-1) &&
-                (tile_col(check_first)>=selection_left) &&
-                (tile_col(check_last)<=tile_col(selection_left+selection_width-1)))
+                (TILEROW(check_first)>=selection_top) &&
+                (TILEROW(check_last)<=selection_top+selection_height-1) &&
+                (TILECOL(check_first)>=selection_left) &&
+                (TILECOL(check_last)<=TILECOL(selection_left+selection_width-1)))
         {
             return ti_encompass;
         }
@@ -5653,13 +5756,21 @@ void register_used_tiles()
     {
         used_tile_table[t]=false;
     }
-    
+    reset_combo_animations();
+    reset_combo_animations2();
     for(int u=0; u<MAXCOMBOS; u++)
     {
+		/* This doesn't account for ASkipX, or ASkipY... Time to rewrite.
         for(int t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
-        }
+        } */
+		do
+		{
+			used_tile_table[combobuf[u].tile] = true;
+			animate(combobuf[u], true);
+		}
+		while(combobuf[u].tile != combobuf[u].o_tile);
     }
     
     for(int u=0; u<iLast; u++)
@@ -5770,12 +5881,12 @@ void register_used_tiles()
     
     setup_link_sprite_items();
     
-//  i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+//  i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
     for(int u=0; u<41; u++)
     {
-        for(int r=zc_max(tile_row(link_sprite_items[u].tile),0); r<zc_min(tile_row(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int r=zc_max(TILEROW(link_sprite_items[u].tile),0); r<zc_min(TILEROW(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(tile_col(link_sprite_items[u].tile),0); c<zc_min(tile_col(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int c=zc_max(TILECOL(link_sprite_items[u].tile),0); c<zc_min(TILECOL(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
@@ -5797,9 +5908,9 @@ void register_used_tiles()
     
     for(int u=0; u<6; u++)
     {
-        for(int r=zc_max(tile_row(map_styles_items[u].tile),0); r<zc_min(tile_row(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(tile_col(map_styles_items[u].tile),0); c<zc_min(tile_col(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int c=zc_max(TILECOL(map_styles_items[u].tile),0); c<zc_min(TILECOL(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
@@ -5827,9 +5938,9 @@ void register_used_tiles()
         
         for(int u=0; u<4; u++)
         {
-            for(int r=zc_max(tile_row(dmap_map_items[u].tile),0); r<zc_min(tile_row(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+            for(int r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
             {
-                for(int c=zc_max(tile_col(dmap_map_items[u].tile),0); c<zc_min(tile_col(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
+                for(int c=zc_max(TILECOL(dmap_map_items[u].tile),0); c<zc_min(TILECOL(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
                 {
                     used_tile_table[(r*TILES_PER_ROW)+c]=true;
                 }
@@ -5880,9 +5991,9 @@ void register_used_tiles()
             }
             else
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5891,9 +6002,9 @@ void register_used_tiles()
             
             if(darknut)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile+120),0); r<zc_min(tile_row(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile+120),0); c<zc_min(tile_col(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile+120),0); c<zc_min(TILECOL(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5901,9 +6012,9 @@ void register_used_tiles()
             }
             else if(u==eGANON)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5913,17 +6024,17 @@ void register_used_tiles()
             {
                 for(int j=0; j<4; ++j)
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int r=zc_max(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
+                        for(int c=zc_max(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
                     }
                 }
                 
-                int c3=tile_col(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-                int r3=tile_row(guysbuf[u].e_tile)+(gleeok>1?17:8);
+                int c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
+                int r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
                 
                 for(int r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
@@ -5958,9 +6069,9 @@ void register_used_tiles()
             }
             else
             {
-                for(int r=zc_max(tile_row(guysbuf[u].tile),0); r<zc_min(tile_row(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].tile),0); r<zc_min(TILEROW(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].tile),0); c<zc_min(tile_col(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].tile),0); c<zc_min(TILECOL(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5978,9 +6089,9 @@ void register_used_tiles()
                 }
                 else
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].s_tile),0); r<zc_min(tile_row(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int r=zc_max(TILEROW(guysbuf[u].s_tile),0); r<zc_min(TILEROW(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].s_tile),0); c<zc_min(tile_col(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
+                        for(int c=zc_max(TILECOL(guysbuf[u].s_tile),0); c<zc_min(TILECOL(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
@@ -6024,18 +6135,18 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     if(rect)
     {
-        dest_top=tile_row(dest_first);
-        dest_bottom=tile_row(dest_last);
-        src_top=tile_row(src_first);
-        src_bottom=tile_row(src_last);
+        dest_top=TILEROW(dest_first);
+        dest_bottom=TILEROW(dest_last);
+        src_top=TILEROW(src_first);
+        src_bottom=TILEROW(src_last);
         
-        src_left= zc_min(tile_col(src_first),tile_col(src_last));
-        src_right=zc_max(tile_col(src_first),tile_col(src_last));
+        src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
+        src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
         src_first=(src_top  * TILES_PER_ROW)+src_left;
         src_last= (src_bottom*TILES_PER_ROW)+src_right;
         
-        dest_left= zc_min(tile_col(dest_first),tile_col(dest_last));
-        dest_right=zc_max(tile_col(dest_first),tile_col(dest_last));
+        dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
+        dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
         dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
         dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
         
@@ -6257,11 +6368,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(combobuf[u].o_tile, combobuf[u].o_tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u].o_tile, combobuf[u].o_tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
+                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(combobuf[u].o_tile!=0))
@@ -6635,11 +6746,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_rr(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+                        i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
@@ -6748,11 +6859,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_rr(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_rs(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
+                        i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(map_styles_items[u].tile!=0))
@@ -6963,11 +7074,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         
                         if(rect)
                         {
-                            i=move_intersection_rr(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                            i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
                         }
                         else
                         {
-                            i=move_intersection_rs(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
+                            i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
                         }
                         
                         if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
@@ -7095,11 +7206,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
                             }
                         }
                         
@@ -7127,11 +7238,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
@@ -7158,11 +7269,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
@@ -7191,18 +7302,18 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
+                                    i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
                                 }
                             }
                             
                             if(i==ti_none)
                             {
-                                int c=tile_col(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=tile_row(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -7268,11 +7379,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
                             }
                         }
                         
@@ -7313,11 +7424,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
+                                    i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
                                 }
                             }
                             
@@ -7925,9 +8036,9 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
     {
         int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
-        if(rect_sel && tile_col(firsttile)>tile_col(lasttile))
+        if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
-            coldiff=tile_col(firsttile)-tile_col(lasttile);
+            coldiff=TILECOL(firsttile)-TILECOL(lasttile);
             firsttile-=coldiff;
             lasttile+=coldiff;
         }
@@ -7938,8 +8049,8 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
         //otherwise, copy from right to left
         for(int t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
-                    ((tile_col(t)>=tile_col(firsttile)) &&
-                     (tile_col(t)<=tile_col(lasttile))))
+                    ((TILECOL(t)>=TILECOL(firsttile)) &&
+                     (TILECOL(t)<=TILECOL(lasttile))))
                 reset_tile(newtilebuf, t, tf4Bit);
                 
         tile=tile2=zc_min(tile,tile2);
@@ -8042,10 +8153,10 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
     }
     else
     {
-        int rmin=zc_min(tile_row(dest1),tile_row(dest2));
-        int rmax=zc_max(tile_row(dest1),tile_row(dest2));
-        int cmin=zc_min(tile_col(dest1),tile_col(dest2));
-        int cmax=zc_max(tile_col(dest1),tile_col(dest2));
+        int rmin=zc_min(TILEROW(dest1),TILEROW(dest2));
+        int rmax=zc_max(TILEROW(dest1),TILEROW(dest2));
+        int cmin=zc_min(TILECOL(dest1),TILECOL(dest2));
+        int cmax=zc_max(TILECOL(dest1),TILECOL(dest2));
         int d=0;
         
         for(int j=cmin; j<=cmax; ++j)
@@ -8234,17 +8345,17 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
         
         int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
-        if(rect_sel && tile_col(firsttile)>tile_col(lasttile))
+        if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
-            coldiff=tile_col(firsttile)-tile_col(lasttile);
+            coldiff=TILECOL(firsttile)-TILECOL(lasttile);
             firsttile-=coldiff;
             lasttile+=coldiff;
         }
         
         for(int t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
-                    ((tile_col(t)>=tile_col(firsttile)) &&
-                     (tile_col(t)<=tile_col(lasttile))))
+                    ((TILECOL(t)>=TILECOL(firsttile)) &&
+                     (TILECOL(t)<=TILECOL(lasttile))))
                 convert_tile(t, fourbit?tf4Bit:tf8Bit, cs, shift, alt);
                 
         tile=tile2=zc_min(tile,tile2);
@@ -8693,10 +8804,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         { \
             if(is_rect) \
             { \
-                int row=tile_row(_t); \
+                int row=TILEROW(_t); \
                 if(row<top || row>=top+rows) \
                     continue; \
-                int col=tile_col(_t); \
+                int col=TILECOL(_t); \
                 if(col<left || col>=left+columns) \
                     continue; \
             } \
@@ -8708,15 +8819,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
     
     do
     {
-        //int tile_col(int tile)
-        //int tile_row(int tile)
-        //int tile_page(int tile)
-        //int tile_page_row(int tile)
         rest(4);
-        int top=tile_row(zc_min(tile, tile2));
-        int left=zc_min(tile_col(tile), tile_col(tile2));
-        int rows=tile_row(zc_max(tile, tile2))-top+1;
-        int columns=zc_max(tile_col(tile), tile_col(tile2))-left+1;
+        int top=TILEROW(zc_min(tile, tile2));
+        int left=zc_min(TILECOL(tile), TILECOL(tile2));
+        int rows=TILEROW(zc_max(tile, tile2))-top+1;
+        int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
         bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
         bool redraw=false;
         
@@ -8729,10 +8836,6 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         
         if(keypressed())
         {
-            //tile_page=(tile/TILES_PER_PAGE);
-            //tile_row=(tile/TILES_PER_ROW);
-            //tile_col=(tile%TILES_PER_ROW);
-            //tile_page_row=(tile_row/TILE_ROWS_PER_PAGE);
             switch(readkey()>>8)
             {
             case KEY_ENTER_PAD:
@@ -9266,12 +9369,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             break;
             
             case KEY_PGUP:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_row(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
                 redraw=true;
                 break;
                 
             case KEY_PGDN:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-tile_row(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
                 redraw=true;
                 break;
                 
@@ -9290,7 +9393,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 int whatPage = gettilepagenumber("Goto Page", 0);
                 
                 if(whatPage >= 0)
-                    sel_tile(tile,tile2,first,type,((whatPage-tile_page(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
+                    sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
                     
                 break;
             }
@@ -9790,14 +9893,14 @@ REDRAW:
         {
             if(rect_sel)
             {
-                for(int i=zc_min(tile_row(tile),tile_row(tile2))*TILES_PER_ROW+
-                          zc_min(tile_col(tile),tile_col(tile2));
-                        i<=zc_max(tile_row(tile),tile_row(tile2))*TILES_PER_ROW+
-                        zc_max(tile_col(tile),tile_col(tile2)); i++)
+                for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                          zc_min(TILECOL(tile),TILECOL(tile2));
+                        i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                        zc_max(TILECOL(tile),TILECOL(tile2)); i++)
                 {
                     if(i>=first && i<first+TILES_PER_PAGE &&
-                            tile_col(i)>=zc_min(tile_col(tile),tile_col(tile2)) &&
-                            tile_col(i)<=zc_max(tile_col(tile),tile_col(tile2)))
+                            TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
+                            TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
                     {
                         int x=(i%TILES_PER_ROW)<<(4+is_large);
                         int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
@@ -9811,8 +9914,8 @@ REDRAW:
                 {
                     if(i>=first && i<first+TILES_PER_PAGE)
                     {
-                        int x=tile_col(i)<<(4+is_large);
-                        int y=tile_row(i-first)<<(4+is_large);
+                        int x=TILECOL(i)<<(4+is_large);
+                        int y=TILEROW(i-first)<<(4+is_large);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }

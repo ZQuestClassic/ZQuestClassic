@@ -311,6 +311,11 @@ extern bool fake_pack_writing;
 #define TILES_PER_ROW       20
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
+
+#define TILEROW(tile)		(tile/TILES_PER_ROW)
+#define TILECOL(tile)		(tile%TILES_PER_ROW)
+#define TILEPAGE(tile)		(tile/TILES_PER_PAGE)
+
 #define TILE_PAGES          825
 #define TILE_PAGES_ZC250    252 //2.50.x
 
