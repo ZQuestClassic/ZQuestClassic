@@ -1,5 +1,9 @@
 //2.55 Changes
 
+//Alpha 61
+Alpha is now 61
+	( Venrob, 8th April, 2020 )
+
 //Alpha 60
 Add more copy/paste options to String Editor
 Fix new combo animation respecting ASkipY
