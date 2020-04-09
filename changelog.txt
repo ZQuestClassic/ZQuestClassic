@@ -1,6 +1,10 @@
 //2.55 Changes
 
 //Alpha 61
+Add a clear slots dialog to the script assign menu. This replaces the two clear buttons
+	present prior, and allows more specific options. You can clear only missing, only
+	preserved, and only imported ZASM, as well as any type of your choice, or all slots.
+
 Added a config+checkbox to allow toggling recovering missing ZScript scripts.
 	Imported ZASM scripts are unaffected by this option; they're always saved.
 	If off, any scripts that would have been '++' will instead be '--'

@@ -24448,9 +24448,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	     154+5,   93,     15,     10,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "<<", NULL, NULL },
     { jwin_button_proc,      78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     { jwin_button_proc,  174+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
-    { jwin_button_proc,   87+78-48,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
-    //45
-    { jwin_button_proc,      87+78,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear All",  NULL, NULL },
+    { jwin_button_proc,   87+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -25287,7 +25285,6 @@ const char *itemspritescriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-
 
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
 
@@ -26289,14 +26286,35 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 	}
 }
 
-void clearAllSlots(int type)
+#define SLOTMSGFLAG_MISSING		0x01
+#define SLOTMSGFLAG_PRESERVED	0x02
+#define SLOTMSGFLAG_IMPORTED	0x04
+#define SLOTMSG_SIZE			512
+bool checkSkip(int format, byte flags)
 {
+	switch(format)
+	{
+		case SCRIPT_FORMAT_DEFAULT:
+			return (flags != 0);
+		case SCRIPT_FORMAT_INVALID:
+			return ((flags & SLOTMSGFLAG_MISSING)==0);
+		case SCRIPT_FORMAT_DISASSEMBLED:
+			return ((flags & SLOTMSGFLAG_PRESERVED)==0);
+		case SCRIPT_FORMAT_ZASM:
+			return ((flags & SLOTMSGFLAG_IMPORTED)==0);
+		default: return true;
+	}
+}
+void clearAllSlots(int type, byte flags = 0)
+{
+	bound(type,0,10);
 	switch(type)
 	{
 		case 0: //FFC
 		{
 			for(int q = 0; q < NUMSCRIPTFFC-1; ++q)
 			{
+				if(checkSkip(ffcmap[q].format, flags)) continue;
 				ffcmap[q].scriptname = "";
 				ffcmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26307,6 +26325,7 @@ void clearAllSlots(int type)
 			//Start at 1 to not clear Init
 			for(int q = 1; q < NUMSCRIPTGLOBAL; ++q)
 			{
+				if(checkSkip(globalmap[q].format, flags)) continue;
 				globalmap[q].scriptname = "";
 				globalmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26316,6 +26335,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTITEM-1; ++q)
 			{
+				if(checkSkip(itemmap[q].format, flags)) continue;
 				itemmap[q].scriptname = "";
 				itemmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26325,6 +26345,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTGUYS-1; ++q)
 			{
+				if(checkSkip(npcmap[q].format, flags)) continue;
 				npcmap[q].scriptname = "";
 				npcmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26334,6 +26355,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
+				if(checkSkip(lwpnmap[q].format, flags)) continue;
 				lwpnmap[q].scriptname = "";
 				lwpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26343,6 +26365,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
+				if(checkSkip(ewpnmap[q].format, flags)) continue;
 				ewpnmap[q].scriptname = "";
 				ewpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26352,6 +26375,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTLINK-1; ++q)
 			{
+				if(checkSkip(linkmap[q].format, flags)) continue;
 				linkmap[q].scriptname = "";
 				linkmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26361,6 +26385,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSDMAP-1; ++q)
 			{
+				if(checkSkip(dmapmap[q].format, flags)) continue;
 				dmapmap[q].scriptname = "";
 				dmapmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26370,6 +26395,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSCREEN-1; ++q)
 			{
+				if(checkSkip(screenmap[q].format, flags)) continue;
 				screenmap[q].scriptname = "";
 				screenmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26379,6 +26405,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
 			{
+				if(checkSkip(itemspritemap[q].format, flags)) continue;
 				itemspritemap[q].scriptname = "";
 				itemspritemap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26388,6 +26415,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
 			{
+				if(checkSkip(comboscriptmap[q].format, flags)) continue;
 				comboscriptmap[q].scriptname = "";
 				comboscriptmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26395,10 +26423,7 @@ void clearAllSlots(int type)
 		}
 	}
 }
-#define SLOTMSGFLAG_MISSING		0x01
-#define SLOTMSGFLAG_PRESERVED	0x02
-#define SLOTMSGFLAG_IMPORTED	0x04
-#define SLOTMSG_SIZE			512
+
 void setup_scriptslot_dlg(char* buf, byte flags)
 {
 	//{ Set up the textbox at the bottom, and auto-resize height based on it
@@ -26709,6 +26734,8 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 	}
 	return slotflags;
 }
+
+void doClearSlots(byte* flags);
 
 bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
@@ -27705,71 +27732,144 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 44:
 				//Clear, clear slots of current type- after a confirmation.
 			{
-				char buf[256] = {0};
-				char type_buf[32] = {0};
-				int type = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp);
-				switch(type)
-				{
-					default:
-						type = 0;
-						//fallthrough
-					case 0:
-						strcpy(type_buf, "FFC");
-						break;
-					case 1:
-						strcpy(type_buf, "Global");
-						break;
-					case 2:
-						strcpy(type_buf, "Item");
-						break;
-					case 3:
-						strcpy(type_buf, "NPC");
-						break;
-					case 4:
-						strcpy(type_buf, "LWeapon");
-						break;
-					case 5:
-						strcpy(type_buf, "EWeapon");
-						break;
-					case 6:
-						strcpy(type_buf, "Hero");
-						break;
-					case 7:
-						strcpy(type_buf, "DMap");
-						break;
-					case 8:
-						strcpy(type_buf, "Screen");
-						break;
-					case 9:
-						strcpy(type_buf, "ItemSprite");
-						break;
-					case 10:
-						strcpy(type_buf, "Combo");
-						break;
-				}
-				sprintf(buf, "Clear all '%s' script slots?", type_buf);
-				if(jwin_alert("Clear Slots", buf, NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
-				{
-					clearAllSlots(type);
-				}
-				break;
-			}
-			
-			case 45:
-				//Clear All, clear all slots of all types- after a confirmation.
-			{
-				
-				if(jwin_alert("Clear Slots", "Clear all script slots of all types?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
-				{
-					for(int type = 0; type <= 10; ++type)
-					{
-						clearAllSlots(type);
-					}
-				}
+				doClearSlots(&slotflags);
 				break;
 			}
 		}
-		reload_scripts(scripts);
+		slotflags = reload_scripts(scripts);
+	}
+}
+
+static char slottype_str_buf[32];
+
+const char *slottype_list(int index, int *list_size)
+{
+	if(index >= 0)
+	{
+		bound(index,0,10);
+        
+		switch(index)
+		{
+			case 0:
+				strcpy(slottype_str_buf, "FFC");
+				break;
+			case 1:
+				strcpy(slottype_str_buf, "Global");
+				break;
+			case 2:
+				strcpy(slottype_str_buf, "Item");
+				break;
+			case 3:
+				strcpy(slottype_str_buf, "NPC");
+				break;
+			case 4:
+				strcpy(slottype_str_buf, "LWeapon");
+				break;
+			case 5:
+				strcpy(slottype_str_buf, "EWeapon");
+				break;
+			case 6:
+				strcpy(slottype_str_buf, "Hero");
+				break;
+			case 7:
+				strcpy(slottype_str_buf, "DMap");
+				break;
+			case 8:
+				strcpy(slottype_str_buf, "Screen");
+				break;
+			case 9:
+				strcpy(slottype_str_buf, "ItemSprite");
+				break;
+			case 10:
+				strcpy(slottype_str_buf, "Combo");
+				break;
+		}
+        
+        return slottype_str_buf;
+	}
+	*list_size = 11;
+	return NULL;
+}
+static ListData slottype_sel_list(slottype_list, &font);
+
+static DIALOG clearslots_dlg[] =
+{
+    { jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Clear Slots", NULL, NULL },
+    { jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
+    { jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, (void *) &slottype_sel_list, NULL, NULL },
+	{ jwin_radio_proc,      40,      34+00,   81,   9,      vc(14),             vc(1),              0,   D_SELECTED, 0,  0, (void *) "Clear Script Type:", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+32,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Missing (--) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+48,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Preserved (++) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+64,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Imported (==) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+80,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear All", NULL, NULL },
+    { d_timer_proc,         0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL },
+    { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
+};
+
+void doClearSlots(byte* flags)
+{
+	//{ Setup
+	clearslots_dlg[0].dp2=lfont;
+	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
+	clearslots_dlg[4].flags |= D_SELECTED;
+	clearslots_dlg[5].flags &= ~D_SELECTED;
+	clearslots_dlg[6].flags &= ~D_SELECTED;
+	clearslots_dlg[7].flags &= ~D_SELECTED;
+	clearslots_dlg[8].flags &= ~D_SELECTED;
+	if(((*flags) & SLOTMSGFLAG_MISSING) == 0)
+		clearslots_dlg[5].flags |= D_DISABLED;
+	else
+		clearslots_dlg[5].flags &= ~D_DISABLED;
+	if(((*flags) & SLOTMSGFLAG_PRESERVED) == 0)
+		clearslots_dlg[6].flags |= D_DISABLED;
+	else
+		clearslots_dlg[6].flags &= ~D_DISABLED;
+	if(((*flags) & SLOTMSGFLAG_IMPORTED) == 0)
+		clearslots_dlg[7].flags |= D_DISABLED;
+	else
+		clearslots_dlg[7].flags &= ~D_DISABLED;
+	//}
+	
+	if(is_large)
+		large_dialog(clearslots_dlg);
+	
+	if(zc_popup_dialog(clearslots_dlg,1)==1)
+	{
+		int q = 3;
+		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
+		switch(q)
+		{
+			case 4: //Clear type
+			{
+				clearAllSlots(clearslots_dlg[3].d1);
+				break;
+			}
+			case 5: //Clear Missing
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_MISSING);
+				break;
+			}
+			case 6: //Clear Preserved
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_PRESERVED);
+				break;
+			}
+			case 7: //Clear Imported ZASM
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_IMPORTED);
+				break;
+			}
+			case 8: //Clear ALL
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q);
+				break;
+			}
+		}
 	}
 }
 
