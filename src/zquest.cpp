@@ -1340,6 +1340,7 @@ int LayerMaskInt[7];
 int CurrentLayer=0;
 int DuplicateAction[4];
 int OnlyCheckNewTilesForDuplicates;
+int try_recovering_missing_scripts = 0;
 /*
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
@@ -24066,17 +24067,18 @@ const char *gscriptlist2(int index, int *list_size)
 
 static DIALOG compile_dlg[] =
 {
-    //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
-    { jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
-    { jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
-    { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
-    { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-     { jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
+	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp
+	{ jwin_win_proc,		0,		0,		200,	130,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
+	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
+	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
+	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
+	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
+	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
+	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+	{ jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
+	{ jwin_check_proc,      8,  112,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Recover ZASM for scripts missing during compile", NULL, NULL },
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
@@ -25483,6 +25485,15 @@ int onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
 	
+	if(try_recovering_missing_scripts!=0)
+	{
+		compile_dlg[9].flags |= D_SELECTED;
+	}
+	else
+	{
+		compile_dlg[9].flags &= ~D_SELECTED;
+	}
+	
 	if(is_large)
 		large_dialog(compile_dlg);
 		
@@ -25491,7 +25502,7 @@ int onCompileScript()
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 		int ret = zc_popup_dialog(compile_dlg,5);
-		
+		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
 		case 0:
@@ -25584,93 +25595,93 @@ int onCompileScript()
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			ZScript::ScriptsData *result = ZScript::compile("tmp");
 			unlink("tmp");
-		if ( result )
-		{
-		compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
-		//al_trace("Succ, play compiled sfx.\n");
-		//set_volume(255,255);
-		//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
-		//kill_sfx(); //crashes
-		//sfx(20, 128, false,true);//has no volume   
-		//try_zcmusic("compile_success.smc", track, -1000);
-		//if ( (unsigned)compile_tune < 19 ) 
-		// {
-			switch(compile_tune)
+			if ( result )
 			{
-				case 1: playTune1(); break;
-				case 2: playTune2(); break;
-				case 3: playTune3(); break;
-				case 4: playTune4(); break;
-				case 5: playTune5(); break;
-				case 6: playTune6(); break;
-				case 7: playTune7(); break;
-				case 8: playTune8(); break;
-				case 9: playTune9(); break;
-				case 10: playTune10(); break;
-				case 11: playTune11(); break;
-				case 12: playTune12(); break;
-				case 13: playTune13(); break;
-				case 14: playTune14(); break;
-				case 15: playTune15(); break;
-				case 16: playTune16(); break;
-				case 17: playTune17(); break;
-				case 18: playTune18(); break;
-				case 19: playTune12(); break;
-				default: 
+				compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
+				//al_trace("Succ, play compiled sfx.\n");
+				//set_volume(255,255);
+				//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
+				//kill_sfx(); //crashes
+				//sfx(20, 128, false,true);//has no volume   
+				//try_zcmusic("compile_success.smc", track, -1000);
+				//if ( (unsigned)compile_tune < 19 ) 
+				// {
+				switch(compile_tune)
 				{
-					compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
-					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					if ( compile_success_sample > 0 )
+					case 1: playTune1(); break;
+					case 2: playTune2(); break;
+					case 3: playTune3(); break;
+					case 4: playTune4(); break;
+					case 5: playTune5(); break;
+					case 6: playTune6(); break;
+					case 7: playTune7(); break;
+					case 8: playTune8(); break;
+					case 9: playTune9(); break;
+					case 10: playTune10(); break;
+					case 11: playTune11(); break;
+					case 12: playTune12(); break;
+					case 13: playTune13(); break;
+					case 14: playTune14(); break;
+					case 15: playTune15(); break;
+					case 16: playTune16(); break;
+					case 17: playTune17(); break;
+					case 18: playTune18(); break;
+					case 19: playTune12(); break;
+					default: 
 					{
-						if(sfxdat)
-						sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-						else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-						voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-						voice_start(sfx_voice[compile_success_sample]);
+						compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+						compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+						if ( compile_success_sample > 0 )
+						{
+							if(sfxdat)
+							sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+							else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+							voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+							voice_start(sfx_voice[compile_success_sample]);
+						}
+						break;
 					}
-					break;
 				}
 			}
-		}
-		else
-		{
-			if ( compile_error_sample > 0 )
+			else
 			{
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
-				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-				if(sfxdat)
-				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-				else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-				voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-				//set_volume(255,-1);
-				//kill_sfx();
-				voice_start(sfx_voice[compile_error_sample]);
-				//sfx(28, 128, false,true);  
+				if ( compile_error_sample > 0 )
+				{
+					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+					if(sfxdat)
+					sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+					//set_volume(255,-1);
+					//kill_sfx();
+					voice_start(sfx_voice[compile_error_sample]);
+					//sfx(28, 128, false,true);  
+				}
+				
 			}
 			
-		}
-		
-		
+			
 			box_end(true);
-		if ( compile_success_sample > 0 )
-		{
-			if(sfx_voice[compile_success_sample]!=-1)
+			if ( compile_success_sample > 0 )
 			{
-			deallocate_voice(sfx_voice[compile_success_sample]);
-			sfx_voice[compile_success_sample]=-1;
+				if(sfx_voice[compile_success_sample]!=-1)
+				{
+				deallocate_voice(sfx_voice[compile_success_sample]);
+				sfx_voice[compile_success_sample]=-1;
+				}
 			}
-		}
-		if ( compile_error_sample > 0 )
-		{
-			if(sfx_voice[compile_error_sample]!=-1)
+			if ( compile_error_sample > 0 )
 			{
-			deallocate_voice(sfx_voice[compile_error_sample]);
-			sfx_voice[compile_error_sample]=-1;
+				if(sfx_voice[compile_error_sample]!=-1)
+				{
+				deallocate_voice(sfx_voice[compile_error_sample]);
+				sfx_voice[compile_error_sample]=-1;
+				}
 			}
-		}
-			refresh(rALL);
-		if ( compile_tune ) stopMusic();
+				refresh(rALL);
+			if ( compile_tune ) stopMusic();
 			
 			if(result == NULL)
 			{
@@ -25678,8 +25689,7 @@ int onCompileScript()
 				break;
 			}
 			
-			std::map<string, ZScript::ScriptType> stypes =
-				result->scriptTypes;
+			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
 			std::map<string, disassembled_script_data> scripts = result->theScripts;
 			delete result;
 			asffcscripts.clear();
@@ -25850,6 +25860,7 @@ void inc_script_name(string& name)
 
 void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
+	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
 		if(scripts.find(globalmap[i].scriptname) != scripts.end())
@@ -25870,6 +25881,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			default:
 				if(!globalmap[i].isEmpty())
 				{
+					if(skipDisassembled && globalmap[i].format != SCRIPT_FORMAT_ZASM
+					   && (globalscripts[i]->meta.flags & ZMETA_IMPORTED) == 0)
+					{
+						globalmap[i].format = SCRIPT_FORMAT_INVALID;
+						continue;
+					}
 					if(globalscripts[i]->valid())
 					{
 						disassembled_script_data data = disassemble_script(globalscripts[i]);
@@ -25903,6 +25920,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!ffcmap[i].isEmpty())
 		{
+			if(skipDisassembled && ffcmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (ffscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				ffcmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(ffscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(ffscripts[i+1]);
@@ -25935,6 +25958,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!itemmap[i].isEmpty())
 		{
+			if(skipDisassembled && itemmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (itemscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				itemmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(itemscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(itemscripts[i+1]);
@@ -25967,6 +25996,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!npcmap[i].isEmpty())
 		{
+			if(skipDisassembled && npcmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (guyscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				npcmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(guyscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(guyscripts[i+1]);
@@ -25999,6 +26034,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!lwpnmap[i].isEmpty())
 		{
+			if(skipDisassembled && lwpnmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (lwpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(lwpnscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(lwpnscripts[i+1]);
@@ -26031,6 +26072,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!ewpnmap[i].isEmpty())
 		{
+			if(skipDisassembled && ewpnmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (ewpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(ewpnscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(ewpnscripts[i+1]);
@@ -26063,6 +26110,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!linkmap[i].isEmpty())
 		{
+			if(skipDisassembled && linkmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (linkscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				linkmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(linkscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(linkscripts[i+1]);
@@ -26095,6 +26148,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!dmapmap[i].isEmpty())
 		{
+			if(skipDisassembled && dmapmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (dmapscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				dmapmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(dmapscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(dmapscripts[i+1]);
@@ -26127,6 +26186,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!screenmap[i].isEmpty())
 		{
+			if(skipDisassembled && screenmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (screenscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				screenmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(screenscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(screenscripts[i+1]);
@@ -26159,6 +26224,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!itemspritemap[i].isEmpty())
 		{
+			if(skipDisassembled && itemspritemap[i].format != SCRIPT_FORMAT_ZASM
+			   && (itemspritescripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(itemspritescripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(itemspritescripts[i+1]);
@@ -26191,6 +26262,12 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!comboscriptmap[i].isEmpty())
 		{
+			if(skipDisassembled && comboscriptmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (comboscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(comboscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(comboscripts[i+1]);
@@ -30881,6 +30958,7 @@ int main(int argc,char **argv)
     midi_volume                    = get_config_int("zquest", "midi", 255);
 	
 	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
+	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -33509,6 +33587,7 @@ int save_config_file()
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
     set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
+	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
     {

@@ -1,6 +1,11 @@
 //2.55 Changes
 
 //Alpha 61
+Added a config+checkbox to allow toggling recovering missing ZScript scripts.
+	Imported ZASM scripts are unaffected by this option; they're always saved.
+	If off, any scripts that would have been '++' will instead be '--'
+	Config name is 'try_recovering_missing_scripts', under the '[Compiler]' heading.
+
 Assign Slots now differentiates between preserved ZScript, and imported ZASM.
 	The former shows as '++' still, the latter now uses '=='
 Assign slots dlg now only shows the pertinent messages, and resizes to show
