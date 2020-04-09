@@ -647,6 +647,25 @@ int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int b
     return gui_textout_ln(bmp, font, s, x, y, color, bg, pos);
 }
 
+int count_newline(unsigned char *s)
+{
+	int cnt = 0;
+	for(int q = 0; s[q] != 0; ++q)
+	{
+		if(s[q] == '\n') ++cnt;
+	}
+	return cnt;
+}
+
+int gui_textheight(FONT* f, unsigned char *s)
+{
+	return text_height(f) * (count_newline(s) + 1);
+}
+
+int gui_textheight(unsigned char* s)
+{
+	return gui_textheight(font, s);
+}
 
 /*******************************/
 /*****  Misc Dialog Procs  *****/
@@ -746,41 +765,54 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
   */
 int jwin_text_proc(int msg, DIALOG *d, int c)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
-    ASSERT(d);
-    static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
-    
-    switch(msg)
-    {
-    case MSG_START:
-        d->w=gui_textout_ln(dummy, (unsigned char *)d->dp, 0, 0, scheme[jcMEDDARK], -1, 0);
-        break;
-        
-    case MSG_DRAW:
-        FONT *oldfont = font;
-        
-        if(d->dp2)
-        {
-            font = (FONT*)d->dp2;
-        }
-        
-        if(d->flags & D_DISABLED)
-        {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 0);
-        }
-        else
-        {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
-        }
-        
-        font = oldfont;
-        break;
-    }
-    
-    return D_O_K;
+	//these are here to bypass compiler warnings about unused arguments
+	c=c;
+	
+	ASSERT(d);
+	static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
+	
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			
+			d->w=gui_textout_ln(dummy, (unsigned char *)d->dp, 0, 0, scheme[jcMEDDARK], -1, 0);
+			d->h=gui_textheight((unsigned char *)d->dp);
+			
+			font = oldfont;
+			break;
+		}
+		case MSG_DRAW:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			
+			if(d->flags & D_DISABLED)
+			{
+				gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
+				d->w=gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 0);
+			}
+			else
+			{
+				d->w=gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+			}
+			
+			font = oldfont;
+			break;
+		}
+	}
+	
+	return D_O_K;
 }
 
 int jwin_ctext_proc(int msg, DIALOG *d, int c)

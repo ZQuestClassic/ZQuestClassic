@@ -19,9 +19,6 @@
 #include "ffscript.h"
 extern FFScript ffengine;
 
-#define SCRIPT_FORMAT_DEFAULT	0
-#define SCRIPT_FORMAT_INVALID	1
-#define SCRIPT_FORMAT_ZASM		2
 struct script_slot_data
 {
 	std::string slotname;
@@ -35,6 +32,15 @@ struct script_slot_data
 		char temp[128];
 		sprintf(temp, getFormatStr()->c_str(), slotname.c_str(), scriptname.c_str());
 		output = temp;
+	}
+	
+	void updateName(std::string newname)
+	{
+		if(newname.at(0) == '+' || newname.at(0) == '=')
+		{
+			scriptname = newname.substr(2);
+		}
+		else scriptname = newname;
 	}
 	
 	void clear()
@@ -57,7 +63,17 @@ struct script_slot_data
 	
 	bool isDisassembled()
 	{
+		return (format == SCRIPT_FORMAT_DISASSEMBLED);
+	}
+	
+	bool isImportedZASM()
+	{
 		return (format == SCRIPT_FORMAT_ZASM);
+	}
+	
+	bool isZASM()
+	{
+		return (isDisassembled() || isImportedZASM());
 	}
 	
 	std::string const* getFormatStr()
@@ -68,6 +84,8 @@ struct script_slot_data
 				return &DEFAULT_FORMAT;
 			case SCRIPT_FORMAT_INVALID:
 				return &INVALID_FORMAT;
+			case SCRIPT_FORMAT_DISASSEMBLED:
+				return &DISASSEMBLED_FORMAT;
 			case SCRIPT_FORMAT_ZASM:
 				return &ZASM_FORMAT;
 		}
@@ -77,6 +95,7 @@ struct script_slot_data
 	static const std::string DEFAULT_FORMAT;
 	static const std::string INVALID_FORMAT;
 	static const std::string ZASM_FORMAT;
+	static const std::string DISASSEMBLED_FORMAT;
 };
 
 extern std::map<int, script_slot_data > ffcmap;

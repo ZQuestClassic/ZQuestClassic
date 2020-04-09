@@ -2446,7 +2446,7 @@ struct mapscr
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
 // where the scripts are serialized
-#define ZASM_VERSION        2
+#define ZASM_VERSION        3
 
 // Script types
 #define SCRIPT_NONE						0
@@ -2467,6 +2467,12 @@ struct mapscr
 
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
+#define ZMETA_IMPORTED		0x04
+
+#define SCRIPT_FORMAT_DEFAULT		0
+#define SCRIPT_FORMAT_INVALID		1
+#define SCRIPT_FORMAT_DISASSEMBLED	2
+#define SCRIPT_FORMAT_ZASM			3
 
 #define METADATA_V			2
 #define V_COMPILER_FIRST	2020
@@ -2487,7 +2493,22 @@ struct zasm_meta
 	char script_name[33];
 	char author[33];
 	
-	
+	void setFlag(byte flag)
+	{
+		switch(flag)
+		{
+			case ZMETA_DISASSEMBLED:
+				flags &= ~ZMETA_IMPORTED;
+				flags |= ZMETA_DISASSEMBLED;
+				break;
+			case ZMETA_IMPORTED:
+				flags &= ~ZMETA_DISASSEMBLED;
+				flags |= ZMETA_IMPORTED;
+				break;
+			default:
+				flags |= flag;
+		}
+	}
 	bool valid() const
 	{
 		return zasm_v >= 2 && meta_v >= 1 && ffscript_v >= 16;

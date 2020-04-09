@@ -1,6 +1,14 @@
 //2.55 Changes
 
 //Alpha 61
+Assign Slots now differentiates between preserved ZScript, and imported ZASM.
+	The former shows as '++' still, the latter now uses '=='
+Assign slots dlg now only shows the pertinent messages, and resizes to show
+	only what it must.
+Fixed crash on printing metadata >=512 characters.
+Bump ZASM_VERSION to 3
+	( Venrob, 9th April, 2020 )
+
 Alpha is now 61
 	( Venrob, 8th April, 2020 )
 
