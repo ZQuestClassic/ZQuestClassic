@@ -27834,7 +27834,7 @@ void doClearSlots(byte* flags)
 	if(is_large)
 		large_dialog(clearslots_dlg);
 	
-	if(zc_popup_dialog(clearslots_dlg,1)==1)
+	if(zc_popup_dialog(clearslots_dlg,2)==1)
 	{
 		int q = 3;
 		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
