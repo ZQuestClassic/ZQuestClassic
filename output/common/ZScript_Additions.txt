@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 59
-Document Revision: 6th April, 2020
+Document for: 2.55, Alpha 61
+Document Revision: 10th April, 2020
 
 
  __           _   _                 
@@ -516,7 +516,11 @@ untyped : A special datatype that can be cast to and from any other type.
 		Used to access all Item Dropset Editor data.
 		You may load a Item Dropset Type IDs 0 to 255, to a pointer, and edit the values for 
 		the dropset; or read its editor values for other use.
-
+		
+	file :
+		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
+		These files can contain either text, or raw binary number data, based on which functions you use.
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -540,9 +544,6 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) Access to all global game data (game->, in source)
 	cheatsdata : t/b/a
 		(Planned) Access to cheat code information.
-	file :
-		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
-		These files can contain either text, or raw binary number data, based on which functions you use.
 	subscreendata: t/b/a
 	
 
@@ -2828,19 +2829,24 @@ bool FileExists(char32[] "filepath");
  *     'OpenMode()', can be Read/Write. In a Read/Write mode, you must call
  *     one of a few certain functions between a read call and a write call.
  *     These functions will list this effect in their description.
+ *
  * Writing to files does not write directly to disk, but to a buffer.
  *     It is guaranteed that the contents of this buffer will be written to disk
  *     upon a successful call to 'Flush()', or upon the closing of the file.
  *     Upon exiting the quest, all open files are closed.
+ *
  * There is a limit of 256 file pointers. A pointer does not need to have a file
  *     open to count against this limit. Any pointer that returns true from
  *     'isAllocated()' counts against this limit. Calling 'Free()' will deallocate
  *     a pointer, thus no longer counting against this limit. If you open many files
  *     without calling 'Free()', you may run out of pointers, and be unable to open
  *     further files (until you call 'Free()' on some existing pointers).
+ *
  * Files are NOT automatically freed if they fall out of scope. You should be sure to
  *     manually call 'Free()' before this happens, or you may lose the pointer, and be
  *     unable to free it later. This could lead to running out of available file pointers.
+ *
+ * Remember: POSIX filesystems are Case-SenSitive. 
  */
 
 bool Open("filepath");
@@ -5883,6 +5889,12 @@ void Read(int layer, "filename");
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this will read a file relative to "[zc root]/Files/[quest name]/" instead of relative
  *     to "[zc root]".
+ * Read() will fail if:
+ *	The file is corrupt:
+		PNG, JPEG, or other 'compressed' formats may abort if the file is corrupt.
+ * 		Formats such as .BMP or .TGA may read up until missing data, as they are linear.
+ * 	The file is missing.
+ * 	The filename is incorrect. Remember that POSIX filesystems are Case-SenSitive. 
  
 void Write(int layer, "filename", bool allow_overwrite);
  * Writes a bitmap out as a graphic file.
@@ -5901,6 +5913,7 @@ void Write(int layer, "filename", bool allow_overwrite);
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this will write a file relative to "[zc root]/Files/[quest name]/" instead of relative
  *     to "[zc root]".
+ * Remember that POSIX filesystems are Case-SenSitive. 
 
 void Blit	
 	( 
