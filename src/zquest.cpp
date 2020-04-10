@@ -1340,6 +1340,7 @@ int LayerMaskInt[7];
 int CurrentLayer=0;
 int DuplicateAction[4];
 int OnlyCheckNewTilesForDuplicates;
+int try_recovering_missing_scripts = 0;
 /*
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
@@ -24066,17 +24067,18 @@ const char *gscriptlist2(int index, int *list_size)
 
 static DIALOG compile_dlg[] =
 {
-    //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
-    { jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
-    { jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
-    { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
-    { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-     { jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
+	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp
+	{ jwin_win_proc,		0,		0,		200,	130,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
+	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
+	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
+	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
+	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
+	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
+	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+	{ jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
+	{ jwin_check_proc,      8,  112,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Recover ZASM for scripts missing during compile", NULL, NULL },
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
@@ -24398,10 +24400,10 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //13
     { jwin_check_proc,      22,  211,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
-    { jwin_text_proc,       22,  174,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked with '--' were not found", NULL, NULL },
-    { jwin_text_proc,       22,  184,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "and will not function. Scripts marked with '++' were not found, but were preserved as", NULL, NULL },
+    { jwin_text_proc,       22,  178,   90,   24,    vc(14),  vc(1),  0,       0,          0,             0, NULL, NULL, NULL },
+    { d_dummy_proc,       0,  0,  0,   0,    vc(14),  vc(1),  0,       0,          0,             0, NULL, NULL, NULL },
     //16
-    { jwin_text_proc,       22,  194,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "ZASM. Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
+    { d_dummy_proc,       0,  0,  0,   0,    vc(14),  vc(1),  0,       0,          0,             0, NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //npc scripts
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
@@ -24446,9 +24448,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	     154+5,   93,     15,     10,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "<<", NULL, NULL },
     { jwin_button_proc,      78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     { jwin_button_proc,  174+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
-    { jwin_button_proc,   87+78-48,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
-    //45
-    { jwin_button_proc,      87+78,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear All",  NULL, NULL },
+    { jwin_button_proc,   87+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -25286,7 +25286,6 @@ const char *itemspritescriptlist2(int index, int *list_size)
     return NULL;
 }
 
-
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
 
 static DIALOG linkscript_sel_dlg[] =
@@ -25483,6 +25482,15 @@ int onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
 	
+	if(try_recovering_missing_scripts!=0)
+	{
+		compile_dlg[9].flags |= D_SELECTED;
+	}
+	else
+	{
+		compile_dlg[9].flags &= ~D_SELECTED;
+	}
+	
 	if(is_large)
 		large_dialog(compile_dlg);
 		
@@ -25491,7 +25499,7 @@ int onCompileScript()
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 		int ret = zc_popup_dialog(compile_dlg,5);
-		
+		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
 		case 0:
@@ -25584,93 +25592,93 @@ int onCompileScript()
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			ZScript::ScriptsData *result = ZScript::compile("tmp");
 			unlink("tmp");
-		if ( result )
-		{
-		compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
-		//al_trace("Succ, play compiled sfx.\n");
-		//set_volume(255,255);
-		//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
-		//kill_sfx(); //crashes
-		//sfx(20, 128, false,true);//has no volume   
-		//try_zcmusic("compile_success.smc", track, -1000);
-		//if ( (unsigned)compile_tune < 19 ) 
-		// {
-			switch(compile_tune)
+			if ( result )
 			{
-				case 1: playTune1(); break;
-				case 2: playTune2(); break;
-				case 3: playTune3(); break;
-				case 4: playTune4(); break;
-				case 5: playTune5(); break;
-				case 6: playTune6(); break;
-				case 7: playTune7(); break;
-				case 8: playTune8(); break;
-				case 9: playTune9(); break;
-				case 10: playTune10(); break;
-				case 11: playTune11(); break;
-				case 12: playTune12(); break;
-				case 13: playTune13(); break;
-				case 14: playTune14(); break;
-				case 15: playTune15(); break;
-				case 16: playTune16(); break;
-				case 17: playTune17(); break;
-				case 18: playTune18(); break;
-				case 19: playTune12(); break;
-				default: 
+				compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
+				//al_trace("Succ, play compiled sfx.\n");
+				//set_volume(255,255);
+				//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
+				//kill_sfx(); //crashes
+				//sfx(20, 128, false,true);//has no volume   
+				//try_zcmusic("compile_success.smc", track, -1000);
+				//if ( (unsigned)compile_tune < 19 ) 
+				// {
+				switch(compile_tune)
 				{
-					compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
-					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					if ( compile_success_sample > 0 )
+					case 1: playTune1(); break;
+					case 2: playTune2(); break;
+					case 3: playTune3(); break;
+					case 4: playTune4(); break;
+					case 5: playTune5(); break;
+					case 6: playTune6(); break;
+					case 7: playTune7(); break;
+					case 8: playTune8(); break;
+					case 9: playTune9(); break;
+					case 10: playTune10(); break;
+					case 11: playTune11(); break;
+					case 12: playTune12(); break;
+					case 13: playTune13(); break;
+					case 14: playTune14(); break;
+					case 15: playTune15(); break;
+					case 16: playTune16(); break;
+					case 17: playTune17(); break;
+					case 18: playTune18(); break;
+					case 19: playTune12(); break;
+					default: 
 					{
-						if(sfxdat)
-						sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-						else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-						voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-						voice_start(sfx_voice[compile_success_sample]);
+						compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+						compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+						if ( compile_success_sample > 0 )
+						{
+							if(sfxdat)
+							sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+							else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+							voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+							voice_start(sfx_voice[compile_success_sample]);
+						}
+						break;
 					}
-					break;
 				}
 			}
-		}
-		else
-		{
-			if ( compile_error_sample > 0 )
+			else
 			{
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
-				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-				if(sfxdat)
-				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-				else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-				voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-				//set_volume(255,-1);
-				//kill_sfx();
-				voice_start(sfx_voice[compile_error_sample]);
-				//sfx(28, 128, false,true);  
+				if ( compile_error_sample > 0 )
+				{
+					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+					if(sfxdat)
+					sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+					//set_volume(255,-1);
+					//kill_sfx();
+					voice_start(sfx_voice[compile_error_sample]);
+					//sfx(28, 128, false,true);  
+				}
+				
 			}
 			
-		}
-		
-		
+			
 			box_end(true);
-		if ( compile_success_sample > 0 )
-		{
-			if(sfx_voice[compile_success_sample]!=-1)
+			if ( compile_success_sample > 0 )
 			{
-			deallocate_voice(sfx_voice[compile_success_sample]);
-			sfx_voice[compile_success_sample]=-1;
+				if(sfx_voice[compile_success_sample]!=-1)
+				{
+				deallocate_voice(sfx_voice[compile_success_sample]);
+				sfx_voice[compile_success_sample]=-1;
+				}
 			}
-		}
-		if ( compile_error_sample > 0 )
-		{
-			if(sfx_voice[compile_error_sample]!=-1)
+			if ( compile_error_sample > 0 )
 			{
-			deallocate_voice(sfx_voice[compile_error_sample]);
-			sfx_voice[compile_error_sample]=-1;
+				if(sfx_voice[compile_error_sample]!=-1)
+				{
+				deallocate_voice(sfx_voice[compile_error_sample]);
+				sfx_voice[compile_error_sample]=-1;
+				}
 			}
-		}
-			refresh(rALL);
-		if ( compile_tune ) stopMusic();
+				refresh(rALL);
+			if ( compile_tune ) stopMusic();
 			
 			if(result == NULL)
 			{
@@ -25678,8 +25686,7 @@ int onCompileScript()
 				break;
 			}
 			
-			std::map<string, ZScript::ScriptType> stypes =
-				result->scriptTypes;
+			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
 			std::map<string, disassembled_script_data> scripts = result->theScripts;
 			delete result;
 			asffcscripts.clear();
@@ -25850,6 +25857,7 @@ void inc_script_name(string& name)
 
 void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
+	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
 		if(scripts.find(globalmap[i].scriptname) != scripts.end())
@@ -25870,17 +25878,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			default:
 				if(!globalmap[i].isEmpty())
 				{
+					if(skipDisassembled && globalmap[i].format != SCRIPT_FORMAT_ZASM
+					   && (globalscripts[i]->meta.flags & ZMETA_IMPORTED) == 0)
+					{
+						globalmap[i].format = SCRIPT_FORMAT_INVALID;
+						continue;
+					}
 					if(globalscripts[i]->valid())
 					{
 						disassembled_script_data data = disassemble_script(globalscripts[i]);
-						if(fromCompile || (globalscripts[i]->meta.flags & ZMETA_DISASSEMBLED))
+						if((globalscripts[i]->meta.flags & ZMETA_IMPORTED))
 						{
 							globalmap[i].format = SCRIPT_FORMAT_ZASM;
 							globalmap[i].update();
 						}
-						data.disassembled = globalmap[i].isDisassembled();
+						else if(fromCompile || (globalscripts[i]->meta.flags & ZMETA_DISASSEMBLED))
+						{
+							globalmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+							globalmap[i].update();
+						}
+						data.format = globalmap[i].format;
 						scripts[globalmap[i].scriptname] = data;
-						asglobalscripts.push_back((data.disassembled ? "++" : "") + globalmap[i].scriptname);
+						asglobalscripts.push_back(data.formatName(globalmap[i].scriptname));
 					}
 				}
 		}
@@ -25898,17 +25917,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!ffcmap[i].isEmpty())
 		{
+			if(skipDisassembled && ffcmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (ffscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				ffcmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(ffscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(ffscripts[i+1]);
-				if(fromCompile || (ffscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((ffscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					ffcmap[i].format = SCRIPT_FORMAT_ZASM;
 					ffcmap[i].update();
 				}
-				data.disassembled = ffcmap[i].isDisassembled();
+				else if(fromCompile || (ffscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					ffcmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					ffcmap[i].update();
+				}
+				data.format = ffcmap[i].format;
 				scripts[ffcmap[i].scriptname] = data;
-				asffcscripts.push_back((data.disassembled ? "++" : "") + ffcmap[i].scriptname);
+				asffcscripts.push_back(data.formatName(ffcmap[i].scriptname));
 			}
 		}
 	}
@@ -25925,17 +25955,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!itemmap[i].isEmpty())
 		{
+			if(skipDisassembled && itemmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (itemscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				itemmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(itemscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(itemscripts[i+1]);
-				if(fromCompile || (itemscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((itemscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					itemmap[i].format = SCRIPT_FORMAT_ZASM;
 					itemmap[i].update();
 				}
-				data.disassembled = itemmap[i].isDisassembled();
+				else if(fromCompile || (itemscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					itemmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					itemmap[i].update();
+				}
+				data.format = itemmap[i].format;
 				scripts[itemmap[i].scriptname] = data;
-				asitemscripts.push_back((data.disassembled ? "++" : "") + itemmap[i].scriptname);
+				asitemscripts.push_back(data.formatName(itemmap[i].scriptname));
 			}
 		}
 	}
@@ -25952,17 +25993,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!npcmap[i].isEmpty())
 		{
+			if(skipDisassembled && npcmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (guyscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				npcmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(guyscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(guyscripts[i+1]);
-				if(fromCompile || (guyscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((guyscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					npcmap[i].format = SCRIPT_FORMAT_ZASM;
 					npcmap[i].update();
 				}
-				data.disassembled = npcmap[i].isDisassembled();
+				else if(fromCompile || (guyscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					npcmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					npcmap[i].update();
+				}
+				data.format = npcmap[i].format;
 				scripts[npcmap[i].scriptname] = data;
-				asnpcscripts.push_back((data.disassembled ? "++" : "") + npcmap[i].scriptname);
+				asnpcscripts.push_back(data.formatName(npcmap[i].scriptname));
 			}
 		}
 	}
@@ -25979,17 +26031,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!lwpnmap[i].isEmpty())
 		{
+			if(skipDisassembled && lwpnmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (lwpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(lwpnscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(lwpnscripts[i+1]);
-				if(fromCompile || (lwpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((lwpnscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					lwpnmap[i].format = SCRIPT_FORMAT_ZASM;
 					lwpnmap[i].update();
 				}
-				data.disassembled = lwpnmap[i].isDisassembled();
+				else if(fromCompile || (lwpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					lwpnmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					lwpnmap[i].update();
+				}
+				data.format = lwpnmap[i].format;
 				scripts[lwpnmap[i].scriptname] = data;
-				aslweaponscripts.push_back((data.disassembled ? "++" : "") + lwpnmap[i].scriptname);
+				aslweaponscripts.push_back(data.formatName(lwpnmap[i].scriptname));
 			}
 		}
 	}
@@ -26006,17 +26069,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!ewpnmap[i].isEmpty())
 		{
+			if(skipDisassembled && ewpnmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (ewpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(ewpnscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(ewpnscripts[i+1]);
-				if(fromCompile || (ewpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((ewpnscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					ewpnmap[i].format = SCRIPT_FORMAT_ZASM;
 					ewpnmap[i].update();
 				}
-				data.disassembled = ewpnmap[i].isDisassembled();
+				else if(fromCompile || (ewpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					ewpnmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					ewpnmap[i].update();
+				}
+				data.format = ewpnmap[i].format;
 				scripts[ewpnmap[i].scriptname] = data;
-				aseweaponscripts.push_back((data.disassembled ? "++" : "") + ewpnmap[i].scriptname);
+				aseweaponscripts.push_back(data.formatName(ewpnmap[i].scriptname));
 			}
 		}
 	}
@@ -26033,17 +26107,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!linkmap[i].isEmpty())
 		{
+			if(skipDisassembled && linkmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (linkscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				linkmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(linkscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(linkscripts[i+1]);
-				if(fromCompile || (linkscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((linkscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					linkmap[i].format = SCRIPT_FORMAT_ZASM;
 					linkmap[i].update();
 				}
-				data.disassembled = linkmap[i].isDisassembled();
+				else if(fromCompile || (linkscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					linkmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					linkmap[i].update();
+				}
+				data.format = linkmap[i].format;
 				scripts[linkmap[i].scriptname] = data;
-				aslinkscripts.push_back((data.disassembled ? "++" : "") + linkmap[i].scriptname);
+				aslinkscripts.push_back(data.formatName(linkmap[i].scriptname));
 			}
 		}
 	}
@@ -26060,17 +26145,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!dmapmap[i].isEmpty())
 		{
+			if(skipDisassembled && dmapmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (dmapscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				dmapmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(dmapscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(dmapscripts[i+1]);
-				if(fromCompile || (dmapscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((dmapscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					dmapmap[i].format = SCRIPT_FORMAT_ZASM;
 					dmapmap[i].update();
 				}
-				data.disassembled = dmapmap[i].isDisassembled();
+				else if(fromCompile || (dmapscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					dmapmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					dmapmap[i].update();
+				}
+				data.format = dmapmap[i].format;
 				scripts[dmapmap[i].scriptname] = data;
-				asdmapscripts.push_back((data.disassembled ? "++" : "") + dmapmap[i].scriptname);
+				asdmapscripts.push_back(data.formatName(dmapmap[i].scriptname));
 			}
 		}
 	}
@@ -26087,17 +26183,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!screenmap[i].isEmpty())
 		{
+			if(skipDisassembled && screenmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (screenscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				screenmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(screenscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(screenscripts[i+1]);
-				if(fromCompile || (screenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((screenscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					screenmap[i].format = SCRIPT_FORMAT_ZASM;
 					screenmap[i].update();
 				}
-				data.disassembled = screenmap[i].isDisassembled();
+				else if(fromCompile || (screenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					screenmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					screenmap[i].update();
+				}
+				data.format = screenmap[i].format;
 				scripts[screenmap[i].scriptname] = data;
-				asscreenscripts.push_back((data.disassembled ? "++" : "") + screenmap[i].scriptname);
+				asscreenscripts.push_back(data.formatName(screenmap[i].scriptname));
 			}
 		}
 	}
@@ -26114,17 +26221,28 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!itemspritemap[i].isEmpty())
 		{
+			if(skipDisassembled && itemspritemap[i].format != SCRIPT_FORMAT_ZASM
+			   && (itemspritescripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(itemspritescripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(itemspritescripts[i+1]);
-				if(fromCompile || (itemspritescripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((itemspritescripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					itemspritemap[i].format = SCRIPT_FORMAT_ZASM;
 					itemspritemap[i].update();
 				}
-				data.disassembled = itemspritemap[i].isDisassembled();
+				else if(fromCompile || (itemspritescripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					itemspritemap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					itemspritemap[i].update();
+				}
+				data.format = itemspritemap[i].format;
 				scripts[itemspritemap[i].scriptname] = data;
-				asitemspritescripts.push_back((data.disassembled ? "++" : "") + itemspritemap[i].scriptname);
+				asitemspritescripts.push_back(data.formatName(itemspritemap[i].scriptname));
 			}
 		}
 	}
@@ -26141,30 +26259,62 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 		}
 		if(!comboscriptmap[i].isEmpty())
 		{
+			if(skipDisassembled && comboscriptmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (comboscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
 			if(comboscripts[i+1]->valid())
 			{
 				disassembled_script_data data = disassemble_script(comboscripts[i+1]);
-				if(fromCompile || (comboscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				if((comboscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
 					comboscriptmap[i].format = SCRIPT_FORMAT_ZASM;
 					comboscriptmap[i].update();
 				}
-				data.disassembled = comboscriptmap[i].isDisassembled();
+				else if(fromCompile || (comboscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					comboscriptmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					comboscriptmap[i].update();
+				}
+				data.format = comboscriptmap[i].format;
 				scripts[comboscriptmap[i].scriptname] = data;
-				ascomboscripts.push_back((data.disassembled ? "++" : "") + comboscriptmap[i].scriptname);
+				ascomboscripts.push_back(data.formatName(comboscriptmap[i].scriptname));
 			}
 		}
 	}
 }
 
-void clearAllSlots(int type)
+#define SLOTMSGFLAG_MISSING		0x01
+#define SLOTMSGFLAG_PRESERVED	0x02
+#define SLOTMSGFLAG_IMPORTED	0x04
+#define SLOTMSG_SIZE			512
+bool checkSkip(int format, byte flags)
 {
+	switch(format)
+	{
+		case SCRIPT_FORMAT_DEFAULT:
+			return (flags != 0);
+		case SCRIPT_FORMAT_INVALID:
+			return ((flags & SLOTMSGFLAG_MISSING)==0);
+		case SCRIPT_FORMAT_DISASSEMBLED:
+			return ((flags & SLOTMSGFLAG_PRESERVED)==0);
+		case SCRIPT_FORMAT_ZASM:
+			return ((flags & SLOTMSGFLAG_IMPORTED)==0);
+		default: return true;
+	}
+}
+void clearAllSlots(int type, byte flags = 0)
+{
+	bound(type,0,10);
 	switch(type)
 	{
 		case 0: //FFC
 		{
 			for(int q = 0; q < NUMSCRIPTFFC-1; ++q)
 			{
+				if(checkSkip(ffcmap[q].format, flags)) continue;
 				ffcmap[q].scriptname = "";
 				ffcmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26175,6 +26325,7 @@ void clearAllSlots(int type)
 			//Start at 1 to not clear Init
 			for(int q = 1; q < NUMSCRIPTGLOBAL; ++q)
 			{
+				if(checkSkip(globalmap[q].format, flags)) continue;
 				globalmap[q].scriptname = "";
 				globalmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26184,6 +26335,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTITEM-1; ++q)
 			{
+				if(checkSkip(itemmap[q].format, flags)) continue;
 				itemmap[q].scriptname = "";
 				itemmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26193,6 +26345,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTGUYS-1; ++q)
 			{
+				if(checkSkip(npcmap[q].format, flags)) continue;
 				npcmap[q].scriptname = "";
 				npcmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26202,6 +26355,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
+				if(checkSkip(lwpnmap[q].format, flags)) continue;
 				lwpnmap[q].scriptname = "";
 				lwpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26211,6 +26365,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
+				if(checkSkip(ewpnmap[q].format, flags)) continue;
 				ewpnmap[q].scriptname = "";
 				ewpnmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26220,6 +26375,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTLINK-1; ++q)
 			{
+				if(checkSkip(linkmap[q].format, flags)) continue;
 				linkmap[q].scriptname = "";
 				linkmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26229,6 +26385,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSDMAP-1; ++q)
 			{
+				if(checkSkip(dmapmap[q].format, flags)) continue;
 				dmapmap[q].scriptname = "";
 				dmapmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26238,6 +26395,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSCREEN-1; ++q)
 			{
+				if(checkSkip(screenmap[q].format, flags)) continue;
 				screenmap[q].scriptname = "";
 				screenmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26247,6 +26405,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
 			{
+				if(checkSkip(itemspritemap[q].format, flags)) continue;
 				itemspritemap[q].scriptname = "";
 				itemspritemap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26256,6 +26415,7 @@ void clearAllSlots(int type)
 		{
 			for(int q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
 			{
+				if(checkSkip(comboscriptmap[q].format, flags)) continue;
 				comboscriptmap[q].scriptname = "";
 				comboscriptmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
@@ -26264,224 +26424,330 @@ void clearAllSlots(int type)
 	}
 }
 
+void setup_scriptslot_dlg(char* buf, byte flags)
+{
+	//{ Set up the textbox at the bottom, and auto-resize height based on it
+	int prev_height = assignscript_dlg[14].h;
+	memset(buf, 0, SLOTMSG_SIZE);
+	//
+	strcpy(buf, "Slots with matching names have been updated.\n");
+	if(flags & SLOTMSGFLAG_MISSING)
+		strcat(buf,"Scripts prefixed with '--' were not found, and will not function.\n");
+	if(flags & SLOTMSGFLAG_PRESERVED)
+		strcat(buf,	"Scripts prefixed with '++' were not found, but have been preserved.\n"
+		            "    These scripts may not function correctly if they use global variables.\n");
+	if(flags & SLOTMSGFLAG_IMPORTED)
+		strcat(buf,"Scripts prefixed with '==' are imported ZASM scripts.\n");
+	strcat(buf,"Global scripts named 'Init' will be appended to '~Init'");
+	//
+	assignscript_dlg[14].dp = buf;
+	object_message(&assignscript_dlg[14], MSG_START, 0); //Set the width/height
+	if(int diff = assignscript_dlg[14].h - prev_height) //resize dlg
+	{
+		int prev_bottom = assignscript_dlg[14].y + prev_height;
+		for(int q = 1; assignscript_dlg[q].proc; ++q)
+		{
+			if(q==14) continue; //Don't change self
+			if(assignscript_dlg[q].y < prev_bottom) continue; //above proc
+			assignscript_dlg[q].y += diff;
+		}
+		assignscript_dlg[0].h += diff;
+		jwin_center_dialog(assignscript_dlg);
+	}
+	//}
+}
+
+byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
+{
+	byte slotflags = 0;
+	char temp[100];
+	for(int i = 0; i < NUMSCRIPTFFC-1; i++)
+	{
+		if(ffcmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(ffcmap[i].isZASM())
+			{
+				if(ffcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(ffcmap[i].scriptname) != scripts.end())
+				ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				ffcmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		ffcmap[i].slotname = temp;
+		ffcmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+	{
+		switch(i)
+		{
+			case GLOBAL_SCRIPT_INIT:
+				globalmap[i].slotname="Init:"; break;
+			case GLOBAL_SCRIPT_GAME:
+				globalmap[i].slotname="Active:"; break;
+			case GLOBAL_SCRIPT_END:
+				globalmap[i].slotname="onExit:"; break;
+			case GLOBAL_SCRIPT_ONSAVELOAD:
+				globalmap[i].slotname="onSaveLoad:"; break;
+			case GLOBAL_SCRIPT_ONLAUNCH:
+				globalmap[i].slotname="onLaunch:"; break;
+			case GLOBAL_SCRIPT_ONCONTGAME:
+				globalmap[i].slotname="onContGame:"; break;
+			case GLOBAL_SCRIPT_F6:
+				globalmap[i].slotname="onF6Menu:"; break;
+			case GLOBAL_SCRIPT_ONSAVE:
+				globalmap[i].slotname="onSave:"; break;
+		}
+		if(!globalmap[i].isEmpty())
+		{
+			if(globalmap[i].isZASM())
+			{
+				if(globalmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
+				globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Unloaded
+			{
+				globalmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		globalmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTITEM-1; i++)
+	{
+		if(itemmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(itemmap[i].isZASM())
+			{
+				if(itemmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(itemmap[i].scriptname) != scripts.end())
+				itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				itemmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		itemmap[i].slotname = temp;
+		itemmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
+	{
+		if(npcmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(npcmap[i].isZASM())
+			{
+				if(npcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(npcmap[i].scriptname) != scripts.end())
+				npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				npcmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		npcmap[i].slotname = temp;
+		npcmap[i].update();
+	} 
+	for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+	{
+		if(ewpnmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(ewpnmap[i].isZASM())
+			{
+				if(ewpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
+				ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		ewpnmap[i].slotname = temp;
+		ewpnmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+	{
+		if(lwpnmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(lwpnmap[i].isZASM())
+			{
+				if(lwpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
+				lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		lwpnmap[i].slotname = temp;
+		lwpnmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTLINK-1; i++)
+	{
+		switch(i)
+		{
+			case 0: linkmap[i].slotname="Init:"; break;
+			case 1: linkmap[i].slotname="Active:"; break;
+			case 2: linkmap[i].slotname="onDeath:"; break;
+			case 3: linkmap[i].slotname="onWin:"; break;
+		}
+		if(!linkmap[i].isEmpty())
+		{
+			if(linkmap[i].isZASM())
+			{
+				if(linkmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(linkmap[i].scriptname) != scripts.end())
+				linkmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Unloaded
+			{
+				linkmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		linkmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
+	{
+		if(screenmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(screenmap[i].isZASM())
+			{
+				if(screenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(screenmap[i].scriptname) != scripts.end())
+				screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				screenmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		screenmap[i].slotname = temp;
+		screenmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
+	{
+		if(dmapmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(dmapmap[i].isZASM())
+			{
+				if(dmapmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(dmapmap[i].scriptname) != scripts.end())
+				dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				dmapmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		dmapmap[i].slotname = temp;
+		dmapmap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
+	{
+		if(itemspritemap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(itemspritemap[i].isZASM())
+			{
+				if(itemspritemap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
+				itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		itemspritemap[i].slotname = temp;
+		itemspritemap[i].update();
+	}
+	for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
+	{
+		if(comboscriptmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(comboscriptmap[i].isZASM())
+			{
+				if(comboscriptmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+				comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		comboscriptmap[i].slotname = temp;
+		comboscriptmap[i].update();
+	}
+	return slotflags;
+}
+
+void doClearSlots(byte* flags);
+
 bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
+	if(is_large)
+		large_dialog(assignscript_dlg);
 	int ret = 3;
+	char slots_msg[SLOTMSG_SIZE] = {0};
+	byte slotflags = reload_scripts(scripts);
+	setup_scriptslot_dlg(slots_msg, slotflags);
 	while(true)
 	{
-		//{
-		char temp[100];
-		for(int i = 0; i < NUMSCRIPTFFC-1; i++)
-		{
-			if(ffcmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(ffcmap[i].isDisassembled())
-				{}
-				else if(scripts.find(ffcmap[i].scriptname) != scripts.end())
-					ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					ffcmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			ffcmap[i].slotname = temp;
-			ffcmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
-		{
-			switch(i)
-			{
-				case GLOBAL_SCRIPT_INIT:
-					globalmap[i].slotname="Init:"; break;
-				case GLOBAL_SCRIPT_GAME:
-					globalmap[i].slotname="Active:"; break;
-				case GLOBAL_SCRIPT_END:
-					globalmap[i].slotname="onExit:"; break;
-				case GLOBAL_SCRIPT_ONSAVELOAD:
-					globalmap[i].slotname="onSaveLoad:"; break;
-				case GLOBAL_SCRIPT_ONLAUNCH:
-					globalmap[i].slotname="onLaunch:"; break;
-				case GLOBAL_SCRIPT_ONCONTGAME:
-					globalmap[i].slotname="onContGame:"; break;
-				case GLOBAL_SCRIPT_F6:
-					globalmap[i].slotname="onF6Menu:"; break;
-				case GLOBAL_SCRIPT_ONSAVE:
-					globalmap[i].slotname="onSave:"; break;
-			}
-			if(!globalmap[i].isEmpty())
-			{
-				if(globalmap[i].isDisassembled())
-				{}
-				else if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
-					globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Unloaded
-					globalmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			globalmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTITEM-1; i++)
-		{
-			if(itemmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(itemmap[i].isDisassembled())
-				{}
-				else if(scripts.find(itemmap[i].scriptname) != scripts.end())
-					itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					itemmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			itemmap[i].slotname = temp;
-			itemmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
-		{
-			if(npcmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(npcmap[i].isDisassembled())
-				{}
-				else if(scripts.find(npcmap[i].scriptname) != scripts.end())
-					npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					npcmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			npcmap[i].slotname = temp;
-			npcmap[i].update();
-		} 
-		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
-		{
-			if(ewpnmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(ewpnmap[i].isDisassembled())
-				{}
-				else if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
-					ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			ewpnmap[i].slotname = temp;
-			ewpnmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
-		{
-			if(lwpnmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(lwpnmap[i].isDisassembled())
-				{}
-				else if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
-					lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			lwpnmap[i].slotname = temp;
-			lwpnmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTLINK-1; i++)
-		{
-			switch(i)
-			{
-				case 0: linkmap[i].slotname="Init:"; break;
-				case 1: linkmap[i].slotname="Active:"; break;
-				case 2: linkmap[i].slotname="onDeath:"; break;
-				case 3: linkmap[i].slotname="onWin:"; break;
-			}
-			if(!linkmap[i].isEmpty())
-			{
-				if(linkmap[i].isDisassembled())
-				{}
-				else if(scripts.find(linkmap[i].scriptname) != scripts.end())
-					linkmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Unloaded
-					linkmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			linkmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
-		{
-			if(screenmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(screenmap[i].isDisassembled())
-				{}
-				else if(scripts.find(screenmap[i].scriptname) != scripts.end())
-					screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					screenmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			screenmap[i].slotname = temp;
-			screenmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
-		{
-			if(dmapmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(dmapmap[i].isDisassembled())
-				{}
-				else if(scripts.find(dmapmap[i].scriptname) != scripts.end())
-					dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					dmapmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			dmapmap[i].slotname = temp;
-			dmapmap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
-		{
-			if(itemspritemap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(itemspritemap[i].isDisassembled())
-				{}
-				else if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
-					itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			itemspritemap[i].slotname = temp;
-			itemspritemap[i].update();
-		}
-		for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
-		{
-			if(comboscriptmap[i].isEmpty())
-				sprintf(temp, "Slot %d:", i+1);
-			else
-			{
-				sprintf(temp, "Slot %d:", i+1);
-				if(comboscriptmap[i].isDisassembled())
-				{}
-				else if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
-					comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
-				else // Previously loaded script not found
-					comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
-			}
-			comboscriptmap[i].slotname = temp;
-			comboscriptmap[i].update();
-		}
-		//}
-		if(is_large)
-			large_dialog(assignscript_dlg);
-	
 		ret = zc_popup_dialog(assignscript_dlg,ret);
-		
 		
 		FILE* tempfile;
 		switch(ret)
@@ -26515,7 +26781,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26532,7 +26798,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						
 						fclose(tempfile);
 						parse_script_file(&ffscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) ffscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(ffscripts[it->first+1])
 					{
@@ -26559,7 +26826,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26575,7 +26842,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&globalscripts[it->first],"tmp",false);
-						if(it->second.isDisassembled()) globalscripts[it->first]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) globalscripts[it->first]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) globalscripts[it->first]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(globalscripts[it->first])
 					{
@@ -26602,7 +26870,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26618,7 +26886,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&itemscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) itemscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(itemscripts[it->first+1])
 					{
@@ -26644,7 +26913,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26660,7 +26929,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&guyscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) guyscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(guyscripts[it->first+1])
 					{
@@ -26686,7 +26956,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26702,7 +26972,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(lwpnscripts[it->first+1])
 					{
@@ -26728,7 +26999,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26744,7 +27015,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(ewpnscripts[it->first+1])
 					{
@@ -26770,7 +27042,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26786,7 +27058,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&linkscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) linkscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) linkscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) linkscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(linkscripts[it->first+1])
 					{
@@ -26812,7 +27085,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26828,7 +27101,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&dmapscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(dmapscripts[it->first+1])
 					{
@@ -26854,7 +27128,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26870,7 +27144,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fclose(tempfile);
 						parse_script_file(&screenscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) screenscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(screenscripts[it->first+1])
 					{
@@ -26896,7 +27171,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26913,7 +27188,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						
 						fclose(tempfile);
 						parse_script_file(&itemspritescripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(itemspritescripts[it->first+1])
 					{
@@ -26940,7 +27216,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							al_trace("\n");
 							al_trace("%s",it->second.scriptname.c_str());
 							al_trace("\n");
-							al_trace(meta_str.c_str());
+							safe_al_trace(meta_str.c_str());
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
@@ -26957,7 +27233,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						
 						fclose(tempfile);
 						parse_script_file(&comboscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.flags |= ZMETA_DISASSEMBLED;
+						if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) comboscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
 					else if(comboscripts[it->first+1])
 					{
@@ -27017,15 +27294,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asffcscripts[rind].at(0) == '+')
-					{
-						ffcmap[lind].scriptname = asffcscripts[rind].substr(2);
-					}
-					else ffcmap[lind].scriptname = asffcscripts[rind];
-					if(scripts[ffcmap[lind].scriptname].disassembled)
-						ffcmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						ffcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					ffcmap[lind].updateName(asffcscripts[rind]);
+					ffcmap[lind].format = scripts[ffcmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27052,15 +27322,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asglobalscripts[rind].at(0) == '+')
-					{
-						globalmap[lind].scriptname = asglobalscripts[rind].substr(2);
-					}
-					else globalmap[lind].scriptname = asglobalscripts[rind];
-					if(scripts[globalmap[lind].scriptname].disassembled)
-						globalmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						globalmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					globalmap[lind].updateName(asglobalscripts[rind]);
+					globalmap[lind].format = scripts[globalmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27081,15 +27344,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asitemscripts[rind].at(0) == '+')
-					{
-						itemmap[lind].scriptname = asitemscripts[rind].substr(2);
-					}
-					else itemmap[lind].scriptname = asitemscripts[rind];
-					if(scripts[itemmap[lind].scriptname].disassembled)
-						itemmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						itemmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					itemmap[lind].updateName(asitemscripts[rind]);
+					itemmap[lind].format = scripts[itemmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27110,15 +27366,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asnpcscripts[rind].at(0) == '+')
-					{
-						npcmap[lind].scriptname = asnpcscripts[rind].substr(2);
-					}
-					else npcmap[lind].scriptname = asnpcscripts[rind];
-					if(scripts[npcmap[lind].scriptname].disassembled)
-						npcmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						npcmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					npcmap[lind].updateName(asnpcscripts[rind]);
+					npcmap[lind].format = scripts[npcmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27139,15 +27388,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(aslweaponscripts[rind].at(0) == '+')
-					{
-						lwpnmap[lind].scriptname = aslweaponscripts[rind].substr(2);
-					}
-					else lwpnmap[lind].scriptname = aslweaponscripts[rind];
-					if(scripts[lwpnmap[lind].scriptname].disassembled)
-						lwpnmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						lwpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					lwpnmap[lind].updateName(aslweaponscripts[rind]);
+					lwpnmap[lind].format = scripts[lwpnmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27168,15 +27410,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(aseweaponscripts[rind].at(0) == '+')
-					{
-						ewpnmap[lind].scriptname = aseweaponscripts[rind].substr(2);
-					}
-					else ewpnmap[lind].scriptname = aseweaponscripts[rind];
-					if(scripts[ewpnmap[lind].scriptname].disassembled)
-						ewpnmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						ewpnmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					ewpnmap[lind].updateName(aseweaponscripts[rind]);
+					ewpnmap[lind].format = scripts[ewpnmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27197,15 +27432,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(aslinkscripts[rind].at(0) == '+')
-					{
-						linkmap[lind].scriptname = aslinkscripts[rind].substr(2);
-					}
-					else linkmap[lind].scriptname = aslinkscripts[rind];
-					if(scripts[linkmap[lind].scriptname].disassembled)
-						linkmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						linkmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					linkmap[lind].updateName(aslinkscripts[rind]);
+					linkmap[lind].format = scripts[linkmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27226,15 +27454,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asscreenscripts[rind].at(0) == '+')
-					{
-						screenmap[lind].scriptname = asscreenscripts[rind].substr(2);
-					}
-					else screenmap[lind].scriptname = asscreenscripts[rind];
-					if(scripts[screenmap[lind].scriptname].disassembled)
-						screenmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						screenmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					screenmap[lind].updateName(asscreenscripts[rind]);
+					screenmap[lind].format = scripts[screenmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27255,15 +27476,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asdmapscripts[rind].at(0) == '+')
-					{
-						dmapmap[lind].scriptname = asdmapscripts[rind].substr(2);
-					}
-					else dmapmap[lind].scriptname = asdmapscripts[rind];
-					if(scripts[dmapmap[lind].scriptname].disassembled)
-						dmapmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						dmapmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					dmapmap[lind].updateName(asdmapscripts[rind]);
+					dmapmap[lind].format = scripts[dmapmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27284,15 +27498,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(asitemspritescripts[rind].at(0) == '+')
-					{
-						itemspritemap[lind].scriptname = asitemspritescripts[rind].substr(2);
-					}
-					else itemspritemap[lind].scriptname = asitemspritescripts[rind];
-					if(scripts[itemspritemap[lind].scriptname].disassembled)
-						itemspritemap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						itemspritemap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					itemspritemap[lind].updateName(asitemspritescripts[rind]);
+					itemspritemap[lind].format = scripts[itemspritemap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27313,15 +27520,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				else
 				{
-					if(ascomboscripts[rind].at(0) == '+')
-					{
-						comboscriptmap[lind].scriptname = ascomboscripts[rind].substr(2);
-					}
-					else comboscriptmap[lind].scriptname = ascomboscripts[rind];
-					if(scripts[comboscriptmap[lind].scriptname].disassembled)
-						comboscriptmap[lind].format = SCRIPT_FORMAT_ZASM;
-					else 
-						comboscriptmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					comboscriptmap[lind].updateName(ascomboscripts[rind]);
+					comboscriptmap[lind].format = scripts[comboscriptmap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27532,67 +27732,141 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 44:
 				//Clear, clear slots of current type- after a confirmation.
 			{
-				char buf[256] = {0};
-				char type_buf[32] = {0};
-				int type = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp);
-				switch(type)
-				{
-					default:
-						type = 0;
-						//fallthrough
-					case 0:
-						strcpy(type_buf, "FFC");
-						break;
-					case 1:
-						strcpy(type_buf, "Global");
-						break;
-					case 2:
-						strcpy(type_buf, "Item");
-						break;
-					case 3:
-						strcpy(type_buf, "NPC");
-						break;
-					case 4:
-						strcpy(type_buf, "LWeapon");
-						break;
-					case 5:
-						strcpy(type_buf, "EWeapon");
-						break;
-					case 6:
-						strcpy(type_buf, "Hero");
-						break;
-					case 7:
-						strcpy(type_buf, "DMap");
-						break;
-					case 8:
-						strcpy(type_buf, "Screen");
-						break;
-					case 9:
-						strcpy(type_buf, "ItemSprite");
-						break;
-					case 10:
-						strcpy(type_buf, "Combo");
-						break;
-				}
-				sprintf(buf, "Clear all '%s' script slots?", type_buf);
-				if(jwin_alert("Clear Slots", buf, NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
-				{
-					clearAllSlots(type);
-				}
+				doClearSlots(&slotflags);
 				break;
 			}
-			
-			case 45:
-				//Clear All, clear all slots of all types- after a confirmation.
+		}
+		slotflags = reload_scripts(scripts);
+	}
+}
+
+static char slottype_str_buf[32];
+
+const char *slottype_list(int index, int *list_size)
+{
+	if(index >= 0)
+	{
+		bound(index,0,10);
+        
+		switch(index)
+		{
+			case 0:
+				strcpy(slottype_str_buf, "FFC");
+				break;
+			case 1:
+				strcpy(slottype_str_buf, "Global");
+				break;
+			case 2:
+				strcpy(slottype_str_buf, "Item");
+				break;
+			case 3:
+				strcpy(slottype_str_buf, "NPC");
+				break;
+			case 4:
+				strcpy(slottype_str_buf, "LWeapon");
+				break;
+			case 5:
+				strcpy(slottype_str_buf, "EWeapon");
+				break;
+			case 6:
+				strcpy(slottype_str_buf, "Hero");
+				break;
+			case 7:
+				strcpy(slottype_str_buf, "DMap");
+				break;
+			case 8:
+				strcpy(slottype_str_buf, "Screen");
+				break;
+			case 9:
+				strcpy(slottype_str_buf, "ItemSprite");
+				break;
+			case 10:
+				strcpy(slottype_str_buf, "Combo");
+				break;
+		}
+        
+        return slottype_str_buf;
+	}
+	*list_size = 11;
+	return NULL;
+}
+static ListData slottype_sel_list(slottype_list, &font);
+
+static DIALOG clearslots_dlg[] =
+{
+    { jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Clear Slots", NULL, NULL },
+    { jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
+    { jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, (void *) &slottype_sel_list, NULL, NULL },
+	{ jwin_radio_proc,      40,      34+00,   81,   9,      vc(14),             vc(1),              0,   D_SELECTED, 0,  0, (void *) "Clear Script Type:", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+32,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Missing (--) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+48,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Preserved (++) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+64,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Imported (==) Slots", NULL, NULL },
+	{ jwin_radio_proc,      40,      34+80,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear All", NULL, NULL },
+    { d_timer_proc,         0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL },
+    { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
+};
+
+void doClearSlots(byte* flags)
+{
+	//{ Setup
+	clearslots_dlg[0].dp2=lfont;
+	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
+	clearslots_dlg[4].flags |= D_SELECTED;
+	clearslots_dlg[5].flags &= ~D_SELECTED;
+	clearslots_dlg[6].flags &= ~D_SELECTED;
+	clearslots_dlg[7].flags &= ~D_SELECTED;
+	clearslots_dlg[8].flags &= ~D_SELECTED;
+	if(((*flags) & SLOTMSGFLAG_MISSING) == 0)
+		clearslots_dlg[5].flags |= D_DISABLED;
+	else
+		clearslots_dlg[5].flags &= ~D_DISABLED;
+	if(((*flags) & SLOTMSGFLAG_PRESERVED) == 0)
+		clearslots_dlg[6].flags |= D_DISABLED;
+	else
+		clearslots_dlg[6].flags &= ~D_DISABLED;
+	if(((*flags) & SLOTMSGFLAG_IMPORTED) == 0)
+		clearslots_dlg[7].flags |= D_DISABLED;
+	else
+		clearslots_dlg[7].flags &= ~D_DISABLED;
+	//}
+	
+	if(is_large)
+		large_dialog(clearslots_dlg);
+	
+	if(zc_popup_dialog(clearslots_dlg,2)==1)
+	{
+		int q = 3;
+		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
+		switch(q)
+		{
+			case 4: //Clear type
 			{
-				
-				if(jwin_alert("Clear Slots", "Clear all script slots of all types?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
-				{
-					for(int type = 0; type <= 10; ++type)
-					{
-						clearAllSlots(type);
-					}
-				}
+				clearAllSlots(clearslots_dlg[3].d1);
+				break;
+			}
+			case 5: //Clear Missing
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_MISSING);
+				break;
+			}
+			case 6: //Clear Preserved
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_PRESERVED);
+				break;
+			}
+			case 7: //Clear Imported ZASM
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q,SLOTMSGFLAG_IMPORTED);
+				break;
+			}
+			case 8: //Clear ALL
+			{
+				for(int q = 0; q <= 10; ++q)
+					clearAllSlots(q);
 				break;
 			}
 		}
@@ -27656,7 +27930,7 @@ int onImportFFScript()
                 ffcmap[ffscript_sel_dlg[5].d1].scriptname="ASM script";
 			ffcmap[ffscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
             
-			ffscripts[ffscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			ffscripts[ffscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
 			
             build_biffs_list();
         }
@@ -27687,7 +27961,7 @@ int onImportNPCScript()
             else
                 npcmap[npcscript_sel_dlg[5].d1].scriptname="ASM script";
             npcmap[npcscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			guyscripts[npcscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			guyscripts[npcscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_binpcs_list();
         }
@@ -27717,7 +27991,7 @@ int onImportITEMSPRITEScript()
             else
                 itemspritemap[itemspritescript_sel_dlg[5].d1].scriptname="ASM script";
             itemspritemap[itemspritescript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			itemspritescripts[itemspritescript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			itemspritescripts[itemspritescript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_biitemsprites_list();
         }
@@ -27747,7 +28021,7 @@ int onImportSCREENScript()
             else
                 screenmap[screenscript_sel_dlg[5].d1].scriptname="ASM script";
             screenmap[screenscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			screenscripts[screenscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			screenscripts[screenscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_biscreens_list();
         }
@@ -27778,7 +28052,7 @@ int onImportHEROScript()
             else
                 linkmap[linkscript_sel_dlg[5].d1].scriptname="ASM script";
             linkmap[linkscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			linkscripts[linkscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			linkscripts[linkscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_bilinks_list();
         }
@@ -27809,7 +28083,7 @@ int onImportDMapScript()
             else
                 dmapmap[dmapscript_sel_dlg[5].d1].scriptname="ASM script";
             dmapmap[dmapscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			dmapscripts[dmapscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			dmapscripts[dmapscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_bidmaps_list();
         }
@@ -27840,7 +28114,7 @@ int onImportComboScript()
             else
                 comboscriptmap[comboscript_sel_dlg[5].d1].scriptname="ASM script";
             comboscriptmap[comboscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			comboscripts[comboscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			comboscripts[comboscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_bidcomboscripts_list();
         }
@@ -27871,7 +28145,7 @@ int onImportEWPNScript()
             else
                 ewpnmap[eweaponscript_sel_dlg[5].d1].scriptname="ASM script";
             ewpnmap[eweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			ewpnscripts[eweaponscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			ewpnscripts[eweaponscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_bieweapons_list();
         }
@@ -27902,7 +28176,7 @@ int onImportLWPNScript()
             else
                 lwpnmap[lweaponscript_sel_dlg[5].d1].scriptname="ASM script";
             lwpnmap[lweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			lwpnscripts[lweaponscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			lwpnscripts[lweaponscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_bilweapons_list();
         }
@@ -27933,7 +28207,7 @@ int onImportItemScript()
             else
 				itemmap[itemscript_sel_dlg[5].d1].scriptname="ASM script";
 			itemmap[itemscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			itemscripts[itemscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			itemscripts[itemscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
                 
             build_biitems_list();
         }
@@ -27964,7 +28238,7 @@ int onImportGScript()
             else
                 globalmap[gscript_sel_dlg[5].d1].scriptname="ASM script";
 			globalmap[gscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			globalscripts[gscript_sel_dlg[5].d1+1]->meta.flags |= ZMETA_DISASSEMBLED;
+			globalscripts[gscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
         }
     }
     
@@ -30784,6 +31058,7 @@ int main(int argc,char **argv)
     midi_volume                    = get_config_int("zquest", "midi", 255);
 	
 	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
+	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -33412,6 +33687,7 @@ int save_config_file()
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
     set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
+	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
     {

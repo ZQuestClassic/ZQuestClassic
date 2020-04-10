@@ -212,5 +212,30 @@ namespace util
 			return false;
 		else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
 	}
+
+	void safe_al_trace(const char* str)
+	{
+		size_t len = strlen(str);
+		if(len < 512) //safe already
+		{
+			al_trace(str);
+			return;
+		}
+		else //Would crash al_trace... for some reason?
+		{
+			char buf[512] = {0};
+			size_t q = 0;
+			while(len-q >= 512)
+			{
+				memcpy(buf, str+q, 511);
+				al_trace(buf);
+				q+=511;
+			}
+			if(len-q > 0)
+			{
+				al_trace(str+q);
+			}
+		}
+	}
 }
 

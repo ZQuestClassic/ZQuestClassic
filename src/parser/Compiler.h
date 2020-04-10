@@ -91,9 +91,24 @@ namespace ZScript
 	{
 		zasm_meta first;
 		std::vector<ZScript::Opcode*> second;
-		bool disassembled;
-		
-		disassembled_script_data() : disassembled(false)
+		byte format;
+		std::string formatName(std::string name)
+		{
+			char buf[64];
+			std::string fmt = "%s";
+			switch(format)
+			{
+				case SCRIPT_FORMAT_DISASSEMBLED:
+					fmt = "++%s";
+					break;
+				case SCRIPT_FORMAT_ZASM:
+					fmt = "==%s";
+					break;
+			}
+			sprintf(buf, fmt.c_str(), name.c_str());
+			return std::string(buf);
+		}
+		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
 	};
 

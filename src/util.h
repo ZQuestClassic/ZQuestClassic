@@ -27,6 +27,7 @@ namespace util
 	char* zc_itoa(int value, char* str, int base = 10);
 	int zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
+	void safe_al_trace(const char* str);
 }
 
 #endif
