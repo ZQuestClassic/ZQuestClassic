@@ -1496,6 +1496,72 @@ namespace ZScript
 		}
 	};
 
+	class OReadPODArrayR : public BinaryOpcode
+	{
+	public:
+		OReadPODArrayR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReadPODArrayR(a->clone(),b->clone());
+		}
+	};
+
+	class OReadPODArrayI : public BinaryOpcode
+	{
+	public:
+		OReadPODArrayI(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReadPODArrayI(a->clone(),b->clone());
+		}
+	};
+
+	class OWritePODArrayRR : public BinaryOpcode
+	{
+	public:
+		OWritePODArrayRR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODArrayRR(a->clone(),b->clone());
+		}
+	};
+
+	class OWritePODArrayRI : public BinaryOpcode
+	{
+	public:
+		OWritePODArrayRI(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODArrayRI(a->clone(),b->clone());
+		}
+	};
+
+	class OWritePODArrayIR : public BinaryOpcode
+	{
+	public:
+		OWritePODArrayIR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODArrayIR(a->clone(),b->clone());
+		}
+	};
+
+	class OWritePODArrayII : public BinaryOpcode
+	{
+	public:
+		OWritePODArrayII(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODArrayII(a->clone(),b->clone());
+		}
+	};
+
 	class OAddImmediate : public BinaryOpcode
 	{
 	public:

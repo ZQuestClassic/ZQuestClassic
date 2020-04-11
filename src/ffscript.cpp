@@ -20393,6 +20393,18 @@ void do_combotile(const bool v)
 	set_register(sarg1, combobuf[combo].tile * 10000);
 }
 
+void do_readpod(const bool v)
+{
+	long indx = SH::get_arg(sarg2, v) / 10000;
+	set_register(sarg1, ArrayH::getElement(ri->d[0] / 10000, indx));
+}
+void do_writepod(const bool v1, const bool v2)
+{
+	long indx = SH::get_arg(sarg1, v1) / 10000;
+	long val = SH::get_arg(sarg2, v2);
+	ArrayH::setElement(ri->d[0] / 10000, indx, val);
+}
+
 bool zasm_advance()
 {
 	if( zc_readrawkey(KEY_INSERT, true) )
@@ -21165,6 +21177,37 @@ int run_script(const byte type, const word script, const long i)
 				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
 						 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
 				break;
+	
+			case READPODARRAYR:
+			{
+				do_readpod(false);
+				break;
+			}
+			case READPODARRAYV:
+			{
+				do_readpod(true);
+				break;
+			}
+			case WRITEPODARRAYRR:
+			{
+				do_writepod(false,false);
+				break;
+			}
+			case WRITEPODARRAYRV:
+			{
+				do_writepod(false,true);
+				break;
+			}
+			case WRITEPODARRAYVR:
+			{
+				do_writepod(true,false);
+				break;
+			}
+			case WRITEPODARRAYVV:
+			{
+				do_writepod(true,true);
+				break;
+			}
 				
 			case NOT:
 				do_not(false);
@@ -30810,6 +30853,13 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	
 	{ "POPARGS",           2,   0,   1,   0},
 	{ "GAMERELOAD",           0,   0,   0,   0},
+	
+	{ "READPODARRAYR",           2,   0,   0,   0},
+	{ "READPODARRAYV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYRR",           2,   0,   0,   0},
+	{ "WRITEPODARRAYRV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
+	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

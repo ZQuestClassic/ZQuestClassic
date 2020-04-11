@@ -962,8 +962,14 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "POPARGS",           2,   0,   1,   0},
 	{ "GAMERELOAD",           0,   0,   0,   0},
-//	{ "GETCONFIGINT",                2,   0,   0,   0},
-//	{ "SETCONFIGINT",                2,   0,   0,   0},
+	
+	{ "READPODARRAYR",           2,   0,   0,   0},
+	{ "READPODARRAYV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYRR",           2,   0,   0,   0},
+	{ "WRITEPODARRAYRV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
+	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 

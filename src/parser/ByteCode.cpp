@@ -1939,6 +1939,36 @@ string OSetRegister::toString()
     return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OReadPODArrayR::toString()
+{
+	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OReadPODArrayI::toString()
+{
+	return "READPODARRAYV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRR::toString()
+{
+	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRI::toString()
+{
+	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayIR::toString()
+{
+	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayII::toString()
+{
+	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OAddImmediate::toString()
 {
     return "ADDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
