@@ -7123,9 +7123,8 @@ long get_register(const long arg)
 
 		case CREATEBITMAP:
 		{
-			Z_scripterrlog("Creating a bitmap for bitmap ref: %d\n", ri->bitmapref);
-				ret=FFCore.do_create_bitmap();
-				break;
+			ret=FFCore.do_create_bitmap();
+			break;
 		}
 
 
@@ -20393,17 +20392,37 @@ void do_combotile(const bool v)
 	set_register(sarg1, combobuf[combo].tile * 10000);
 }
 
+void do_readpod(const bool v)
+{
+	long indx = SH::get_arg(sarg2, v) / 10000;
+	set_register(sarg1, ArrayH::getElement(ri->d[0] / 10000, indx));
+}
+void do_writepod(const bool v1, const bool v2)
+{
+	long indx = SH::get_arg(sarg1, v1) / 10000;
+	long val = SH::get_arg(sarg2, v2);
+	ArrayH::setElement(ri->d[0] / 10000, indx, val);
+}
+
 bool zasm_advance()
 {
 	if( zc_readrawkey(KEY_INSERT, true) )
 	{
 		if(zc_getrawkey(KEY_LSHIFT, true) || zc_getrawkey(KEY_RSHIFT, true))
 		{
-			FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
+			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			{
+				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
+			}
+			else FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
 		}
 		else if(zc_getrawkey(KEY_ALT, true) || zc_getrawkey(KEY_ALTGR, true))
 		{
-			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			{
+				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
+			}
+			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
 		else if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
 		{
@@ -20753,7 +20772,7 @@ int run_script(const byte type, const word script, const long i)
 	
 	bool increment = true;
 	
-	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT )
+	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT )
 	{
 		if( zasm_debugger )
 		{
@@ -20767,7 +20786,7 @@ int run_script(const byte type, const word script, const long i)
 		}
 		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 	}
-	else if( zasm_debugger )
+	else if( zasm_debugger && !(SKIPZASMPRINT()))
 	{
 		//Print new script metadata when starting script
 		FFCore.TraceScriptIDs(true);
@@ -20789,7 +20808,7 @@ int run_script(const byte type, const word script, const long i)
 		}
 		
 		//Handle manual breaking
-		if( FFCore.zasm_break_mode == ZASM_BREAK_NONE && zc_readrawkey(KEY_INSERT, true))
+		if( zasm_debugger && zc_readrawkey(KEY_INSERT, true))
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 		//Break
 		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
@@ -21165,6 +21184,37 @@ int run_script(const byte type, const word script, const long i)
 				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
 						 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
 				break;
+	
+			case READPODARRAYR:
+			{
+				do_readpod(false);
+				break;
+			}
+			case READPODARRAYV:
+			{
+				do_readpod(true);
+				break;
+			}
+			case WRITEPODARRAYRR:
+			{
+				do_writepod(false,false);
+				break;
+			}
+			case WRITEPODARRAYRV:
+			{
+				do_writepod(false,true);
+				break;
+			}
+			case WRITEPODARRAYVR:
+			{
+				do_writepod(true,false);
+				break;
+			}
+			case WRITEPODARRAYVV:
+			{
+				do_writepod(true,true);
+				break;
+			}
 				
 			case NOT:
 				do_not(false);
@@ -25925,7 +25975,11 @@ void FFScript::init()
 {
 	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
-	if ( zasm_debugger ) ZASMPrint(true);
+	if ( zasm_debugger )
+	{
+		ZASMPrint(true);
+		zasm_break_mode = ZASM_BREAK_HALT;
+	}
 	
 	temp_no_stepforward = 0;
 	nostepforward = 0;
@@ -30811,6 +30865,13 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "POPARGS",           2,   0,   1,   0},
 	{ "GAMERELOAD",           0,   0,   0,   0},
 	
+	{ "READPODARRAYR",           2,   0,   0,   0},
+	{ "READPODARRAYV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYRR",           2,   0,   0,   0},
+	{ "WRITEPODARRAYRV",           2,   0,   1,   0},
+	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
+	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -32023,6 +32084,7 @@ void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
 
 void FFScript::ZASMPrint(bool open)
 {
+	if(SKIPZASMPRINT()) return;
 	Z_scripterrlog("%s ZASM Console\n", open ? "Opening" : "Closing");
 	#ifdef _WIN32
 	if ( open )
@@ -32074,6 +32136,7 @@ std::string ZASMVarToString(long arg)
 
 void FFScript::ZASMPrintCommand(const word scommand)
 {
+	if(SKIPZASMPRINT()) return;
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	
@@ -32137,6 +32200,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 
 void FFScript::ZASMPrintVarSet(const long arg, long argval)
 {
+	if(SKIPZASMPRINT()) return;
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
@@ -32151,6 +32215,7 @@ void FFScript::ZASMPrintVarSet(const long arg, long argval)
 
 void FFScript::ZASMPrintVarGet(const long arg, long argval)
 {
+	if(SKIPZASMPRINT()) return;
 	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];

@@ -1,5 +1,22 @@
 //2.55 Changes
 
+//Alpha 62
+
+Add new ZASM Debugger modes
+	Holding 'Ctrl' in addition to either 'Shift+Insert' or 'Alt+Insert' will perform
+	the normal operation of the given combination, but will skip all ZASM printing until
+	it reaches the next break- allowing higher FPS during that time.
+Heavily optimize array initialization, and somewhat optimize array access.
+	Arrays now use new ZASM instructions:
+		WRITEPODARRAYRR, WRITEPODARRAYRV, WRITEPODARRAYVR, WRITEPODARRAYVV
+			-These write to arrays, either using 2 registers, 2
+				values, or a combination.
+		READPODARRAYR, READPODARRAYV
+			-These read from arrays, using either a register or
+				a value for the index.
+Alpha is now 62
+	( Venrob, 11th April, 2020 )
+
 //Alpha 61
 Add a clear slots dialog to the script assign menu. This replaces the two clear buttons
 	present prior, and allows more specific options. You can clear only missing, only

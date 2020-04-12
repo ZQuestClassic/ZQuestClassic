@@ -765,22 +765,27 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
 	}
+	optional<long> arrVal = host.array->getCompileTimeValue(this,scope);
+	optional<long> indxVal = host.index->getCompileTimeValue(this,scope);
+	
+	if(!arrVal)
+	{
+		// First, push the array.
+		visit(host.array.get(), param);
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	}
 
-	// First, push the array.
-	visit(host.array.get(), param);
-	addOpcode(new OPushRegister(new VarArgument(EXP1)));
-
-	// Load the index into INDEX2.
-	visit(host.index.get(), param);
-	addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
-
+	if(!indxVal)
+	{
+		//Load the index
+		visit(host.index.get(), param);
+	}
 	// Pop array into INDEX.
-	addOpcode(new OPopRegister(new VarArgument(INDEX)));
-
-	// Return GLOBALRAM to indicate an array access.
-	//   (As far as I can tell, there's no difference between GLOBALRAM and
-	//    SCRIPTRAM, so I'll use GLOBALRAM here instead of checking.)
-	addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAM)));
+	if(arrVal) addOpcode(new OSetImmediate(new VarArgument(INDEX), new LiteralArgument(*arrVal)));
+	else addOpcode(new OPopRegister(new VarArgument(INDEX)));
+	
+	if(indxVal) addOpcode(new OReadPODArrayI(new VarArgument(EXP1), new LiteralArgument(*indxVal)));
+	else addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
@@ -1789,19 +1794,14 @@ void BuildOpcodes::stringLiteralDeclaration(
 	                           new VarArgument(EXP1)));
 	for (int i = 0; i < (int)data.size(); ++i)
 	{
-		addOpcode(new OSetImmediate(
-				          new VarArgument(INDEX2),
-				          new LiteralArgument(i * 10000L)));
-		addOpcode(new OSetImmediate(
-				          new VarArgument(SCRIPTRAM),
-				          new LiteralArgument(data[i] * 10000L)));
+		addOpcode(new OWritePODArrayII(
+				          new LiteralArgument(i * 10000L),
+						  new LiteralArgument(data[i] * 10000L)));
 	}
-	addOpcode(new OSetImmediate(
-			          new VarArgument(INDEX2),
-			          new LiteralArgument(data.size() * 10000L)));
-	addOpcode(new OSetImmediate(
-			          new VarArgument(SCRIPTRAM),
-			          new LiteralArgument(0)));
+	//Add nullchar
+	addOpcode(new OWritePODArrayII(
+					  new LiteralArgument(data.size() * 10000L),
+					  new LiteralArgument(0)));
 }
 
 void BuildOpcodes::stringLiteralFree(
@@ -1832,18 +1832,13 @@ void BuildOpcodes::stringLiteralFree(
 	                                new VarArgument(EXP1)));
 	for (int i = 0; i < (int)data.size(); ++i)
 	{
-		init.push_back(new OSetImmediate(
-				               new VarArgument(INDEX2),
-				               new LiteralArgument(i * 10000L)));
-		init.push_back(new OSetImmediate(
-				               new VarArgument(SCRIPTRAM),
+		init.push_back(new OWritePODArrayII(
+				               new LiteralArgument(i * 10000L),
 				               new LiteralArgument(data[i] * 10000L)));
 	}
-	init.push_back(new OSetImmediate(
-			               new VarArgument(INDEX2),
-			               new LiteralArgument(data.size() * 10000L)));
-	init.push_back(new OSetImmediate(
-			               new VarArgument(SCRIPTRAM),
+	//Add nullchar
+	init.push_back(new OWritePODArrayII(
+			               new LiteralArgument(data.size() * 10000L),
 			               new LiteralArgument(0)));
 
 	////////////////////////////////////////////////////////////////
@@ -1939,13 +1934,19 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	for (vector<ASTExpr*>::const_iterator it = host.elements.begin();
 		 it != host.elements.end(); ++it, i += 10000L)
 	{
-		addOpcode(new OPushRegister(new VarArgument(INDEX)));
-		visit(*it, &context);
-		addOpcode(new OPopRegister(new VarArgument(INDEX)));
-		addOpcode(new OSetImmediate(new VarArgument(INDEX2),
-		                            new LiteralArgument(i)));
-		addOpcode(new OSetRegister(new VarArgument(SCRIPTRAM),
-		                           new VarArgument(EXP1)));
+		if (optional<long> val = (*it)->getCompileTimeValue(this, scope))
+		{
+			addOpcode(new OWritePODArrayII(new LiteralArgument(i),
+			                               new LiteralArgument(*val)));
+		}
+		else
+		{
+			addOpcode(new OPushRegister(new VarArgument(INDEX)));
+			visit(*it, &context);
+			addOpcode(new OPopRegister(new VarArgument(INDEX)));
+			addOpcode(new OWritePODArrayIR(new LiteralArgument(i),
+			                               new VarArgument(EXP1)));
+		}
 	}
 	
 	////////////////////////////////////////////////////////////////
@@ -2019,17 +2020,21 @@ void BuildOpcodes::arrayLiteralFree(
 	for (vector<ASTExpr*>::iterator it = host.elements.begin();
 		 it != host.elements.end(); ++it, i += 10000L)
 	{
-		context.initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
-		opcodeTargets.push_back(&context.initCode);
-		visit(*it, &context);
-		opcodeTargets.pop_back();
-		context.initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
-		context.initCode.push_back(
-				new OSetImmediate(new VarArgument(INDEX2),
-				                  new LiteralArgument(i)));
-		context.initCode.push_back(
-				new OSetRegister(new VarArgument(SCRIPTRAM),
-				                 new VarArgument(EXP1)));
+		if (optional<long> val = (*it)->getCompileTimeValue(this, scope))
+		{
+			context.initCode.push_back(new OWritePODArrayII(new LiteralArgument(i),
+			                                                new LiteralArgument(*val)));
+		}
+		else
+		{
+			context.initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
+			opcodeTargets.push_back(&context.initCode);
+			visit(*it, &context);
+			opcodeTargets.pop_back();
+			context.initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
+			context.initCode.push_back(new OWritePODArrayIR(new LiteralArgument(i),
+			                                                new VarArgument(EXP1)));
+		}
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -2225,33 +2230,49 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	}
 
 	vector<Opcode*> opcodes;
-
-	// Push the value.
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-
-	// Get and push the array pointer.
-	BuildOpcodes buildOpcodes1(scope);
-	buildOpcodes1.visit(host.array.get(), param);
-	opcodes = buildOpcodes1.getResult();
-	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
-		addOpcode(*it);
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-
-	// Get the index.
-	BuildOpcodes buildOpcodes2(scope);
-	buildOpcodes2.visit(host.index.get(), param);
-	opcodes = buildOpcodes2.getResult();
-	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
-		addOpcode(*it);
-
+	BuildOpcodes bo(scope);
+	optional<long> arrVal = host.array->getCompileTimeValue(&bo, scope);
+	optional<long> indxVal = host.index->getCompileTimeValue(&bo, scope);
+	if(!arrVal || !indxVal)
+	{
+		// Push the value.
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	}
+	
+	if(!arrVal)
+	{
+		// Get and push the array pointer.
+		BuildOpcodes buildOpcodes1(scope);
+		buildOpcodes1.visit(host.array.get(), param);
+		opcodes = buildOpcodes1.getResult();
+		for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
+			addOpcode(*it);
+		if(!indxVal)
+		{
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		else addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	}
+	if(!indxVal)
+	{
+		// Get the index.
+		BuildOpcodes buildOpcodes2(scope);
+		buildOpcodes2.visit(host.index.get(), param);
+		opcodes = buildOpcodes2.getResult();
+		for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
+			addOpcode(*it);
+		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //can't be helped, unforunately -V
+	}
 	// Setup array indices.
-    addOpcode(new OPopRegister(new VarArgument(INDEX)));
-    addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
-
-	// Pop and assign the value.
-	//   (As far as I can tell, there's no difference between GLOBALRAM and
-	//    SCRIPTRAM, so I'll use GLOBALRAM here instead of checking.)
-    addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
-    addOpcode(new OSetRegister(new VarArgument(GLOBALRAM), new VarArgument(EXP1)));
+	if(arrVal)
+		addOpcode(new OSetImmediate(new VarArgument(INDEX), new LiteralArgument(*arrVal)));
+    else if(!indxVal) addOpcode(new OPopRegister(new VarArgument(INDEX)));
+	
+	if(!arrVal || !indxVal)
+	{
+		addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
+	}
+	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1)));
+	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1)));
 }
 
