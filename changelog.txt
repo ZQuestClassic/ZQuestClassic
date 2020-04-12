@@ -2,6 +2,10 @@
 
 //Alpha 62
 
+Add new ZASM Debugger modes
+	Holding 'Ctrl' in addition to either 'Shift+Insert' or 'Alt+Insert' will perform
+	the normal operation of the given combination, but will skip all ZASM printing until
+	it reaches the next break- allowing higher FPS during that time.
 Heavily optimize array initialization, and somewhat optimize array access.
 	Arrays now use new ZASM instructions:
 		WRITEPODARRAYRR, WRITEPODARRAYRV, WRITEPODARRAYVR, WRITEPODARRAYVV

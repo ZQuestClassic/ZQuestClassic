@@ -6209,7 +6209,9 @@ void Breakpoint(char[] string);
  * Break controls:
  *     'Insert' - break, or step forward if broken
  *     'Shift+Insert' - Step forward until next breakpoint, or start of next script, whichever comes first
+ *     'Ctrl+Shift+Insert' - Same as above, but, doesn't print any ZASM until it breaks.
  *     'Alt+Insert' - Step forward until next breakpoint
+ *     'Ctrl+Alt+Insert' - Same as above, but, doesn't print any ZASM until it breaks.
  *     'Ctrl+Insert' - Exit the ZASM debugger entirely
  * If the ZASM debugger is not open, this instruction does NOTHING.
  * Passing NULL to this function will not produce an error, instead printing no label

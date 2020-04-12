@@ -75,8 +75,11 @@ enum zasmBreak
 {
 	ZASM_BREAK_NONE,
 	ZASM_BREAK_HALT,
-	ZASM_BREAK_ADVANCE_SCRIPT
+	ZASM_BREAK_ADVANCE_SCRIPT,
+	ZASM_BREAK_SKIP_SCRIPT,
+	ZASM_BREAK_SKIP
 };
+#define SKIPZASMPRINT() (FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP)
 
 //suspend types
 enum { 
