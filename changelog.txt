@@ -1,11 +1,14 @@
 //2.55 Changes
 
 //Alpha 62
-
+Fix minor errors with 'file'->
+	Remove a debug trace
+	Fix file->OpenMode not reassigning pointer
 Add new ZASM Debugger modes
 	Holding 'Ctrl' in addition to either 'Shift+Insert' or 'Alt+Insert' will perform
 	the normal operation of the given combination, but will skip all ZASM printing until
 	it reaches the next break- allowing higher FPS during that time.
+	( Venrob, 12th April, 2020 )
 Heavily optimize array initialization, and somewhat optimize array access.
 	Arrays now use new ZASM instructions:
 		WRITEPODARRAYRR, WRITEPODARRAYRV, WRITEPODARRAYVR, WRITEPODARRAYVV

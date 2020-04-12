@@ -23944,7 +23944,6 @@ bool FFScript::get_scriptfile_path(char* buf, const char* path)
 
 void check_file_error(long ref)
 {
-	Z_scripterrlog("File error: %s\n", strerror(32));
 	if(user_file* f = checkFile(ref, "", true, true))
 	{
 		int err = ferror(f->file);

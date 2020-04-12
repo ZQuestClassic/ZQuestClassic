@@ -12737,6 +12737,7 @@ void FileSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		code.push_back(new OFileOpenMode(new VarArgument(EXP1),new VarArgument(EXP2)));
+		REASSIGN_PTR(EXP2);
 		RETURN();
 		function->giveCode(code);
 	}
