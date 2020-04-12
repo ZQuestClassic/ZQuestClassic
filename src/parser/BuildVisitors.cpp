@@ -2251,6 +2251,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		{
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
+		else addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
 	}
 	if(!indxVal)
 	{
@@ -2260,12 +2261,12 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		opcodes = buildOpcodes2.getResult();
 		for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
 			addOpcode(*it);
-		OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)); //can't be helped, unforunately -V
+		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //can't be helped, unforunately -V
 	}
 	// Setup array indices.
 	if(arrVal)
 		addOpcode(new OSetImmediate(new VarArgument(INDEX), new LiteralArgument(*arrVal)));
-    else addOpcode(new OPopRegister(new VarArgument(INDEX)));
+    else if(!indxVal) addOpcode(new OPopRegister(new VarArgument(INDEX)));
 	
 	if(!arrVal || !indxVal)
 	{
