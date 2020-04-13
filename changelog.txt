@@ -1,6 +1,9 @@
 //2.55 Changes
 
 //Alpha 62
+Updated 'string_functions.zh'
+	Moved 'printf' and 'sprintf' into 'std::string::'
+	This allows them to be used if desired, but the new internal versions will be used by default.
 Internalize 'sprintf' and 'printf' functions.
 	These should be MUCH faster than their ZScript counterparts, with 99% the same results.
 	Take 0-16 varargs at this time; could theoretically expand to 18...

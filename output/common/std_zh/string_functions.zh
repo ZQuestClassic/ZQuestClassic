@@ -916,61 +916,6 @@ void strncatf(int dest, int arg, int format, int n)
 
 }
 
-//String Print Format
-//Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
-//Maximum 16 arguments
-int sprintf(int ret, char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
-{
-	int pos = 0;
-	int currentarg = 0;
-	int a[0x10];
-	arrayset(a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
-
-	for(int i = 0; formatstr[i] != 0; ++i)
-	{
-		char32 chr = formatstr[i];
-		if(chr == '\\') //Control code
-		{
-			char32 nextchr = formatstr[i + 1];
-			if(nextchr == 'n')
-			{
-				ret[pos] = MSGC_LINEFEED;
-				++pos;
-				++i;
-				continue;
-			}
-		}
-		else if(chr == '%') //Format argument
-		{
-			char32 nextchr = formatstr[i + 1];
-			if(sprintf_isMFCode(nextchr))
-			{
-				strcatf(ret, a[currentarg], sprintf_MFCodeToInt(nextchr));
-				for(; ret[pos] != 0; ++pos);
-				++currentarg;
-				++i;
-				continue;
-			}
-		}
-
-		ret[pos] = chr;
-		++pos;
-	}
-
-	return pos;
-}
-
-//Print Format
-//Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
-{
-	char32 buffer[0x200]; //Max TraceS length is 512
-	sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
-	TraceS(buffer);
-}
-
 //Used by sprintf
 bool sprintf_isMFCode(char32 chr)
 {
@@ -1004,116 +949,6 @@ int sprintf_MFCodeToInt(char32 chr)
 		case 'X': return MF_HEXUPPER;
 		default: return -1;
 	}
-}
-
-
-//Function overloads
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8,int a9,int aa,int ab,int ac,int ad,int ae){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8,int a9,int aa,int ab,int ac,int ad){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8,int a9,int aa,int ab){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8,int a9,int aa){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8,int a9){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								   int a8){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3){
-	return sprintf(ret,formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1,int a2){
-	return sprintf(ret,formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0,int a1){
-	return sprintf(ret,formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr,int a0){
-	return sprintf(ret,formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-int sprintf(int ret,char32 formatstr){
-	return sprintf(ret,formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa,int ab,int ac,int ad,int ae){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa,int ab,int ac,int ad){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa,int ab,int ac){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa,int ab){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9,int aa){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8,int a9){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-						  int a8){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
-	printf(formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4){
-	printf(formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2,int a3){
-	printf(formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1,int a2){
-	printf(formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0,int a1){
-	printf(formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr,int a0){
-	printf(formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-}
-void printf(char32 formatstr){
-	printf(formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
 
 void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
@@ -2101,5 +1936,166 @@ namespace std
 			return ilen(ptr, 0);
 		}
 		
+		//printf / sprintf now internal
+		
+		//Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
+		//Maximum 16 arguments
+		int sprintf(int ret, char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
+		{
+			int pos = 0;
+			int currentarg = 0;
+			int a[0x10];
+			arrayset(a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
+
+			for(int i = 0; formatstr[i] != 0; ++i)
+			{
+				char32 chr = formatstr[i];
+				if(chr == '\\') //Control code
+				{
+					char32 nextchr = formatstr[i + 1];
+					if(nextchr == 'n')
+					{
+						ret[pos] = MSGC_LINEFEED;
+						++pos;
+						++i;
+						continue;
+					}
+				}
+				else if(chr == '%') //Format argument
+				{
+					char32 nextchr = formatstr[i + 1];
+					if(sprintf_isMFCode(nextchr))
+					{
+						strcatf(ret, a[currentarg], sprintf_MFCodeToInt(nextchr));
+						for(; ret[pos] != 0; ++pos);
+						++currentarg;
+						++i;
+						continue;
+					}
+				}
+
+				ret[pos] = chr;
+				++pos;
+			}
+
+			return pos;
+		}
+		//Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
+		{
+			char32 buffer[0x200]; //Max TraceS length is 512
+			sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
+			TraceS(buffer);
+		}
+		//Function overloads
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8,int a9,int aa,int ab,int ac,int ad,int ae){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8,int a9,int aa,int ab,int ac,int ad){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8,int a9,int aa,int ab){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8,int a9,int aa){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8,int a9){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+										   int a8){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3){
+			return sprintf(ret,formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2){
+			return sprintf(ret,formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0,int a1){
+			return sprintf(ret,formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr,int a0){
+			return sprintf(ret,formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		int sprintf(int ret,char32 formatstr){
+			return sprintf(ret,formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa,int ab,int ac,int ad,int ae){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa,int ab,int ac,int ad){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa,int ab,int ac){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa,int ab){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9,int aa){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8,int a9){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+								  int a8){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
+			printf(formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4){
+			printf(formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2,int a3){
+			printf(formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1,int a2){
+			printf(formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0,int a1){
+			printf(formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr,int a0){
+			printf(formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
+		void printf(char32 formatstr){
+			printf(formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		}
 	}
 }
