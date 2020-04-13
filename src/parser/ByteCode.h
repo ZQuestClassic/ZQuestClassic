@@ -1928,6 +1928,28 @@ namespace ZScript
 			return new OTrace6Register(a->clone());
 		}
 	};
+	
+	class OPrintfImmediate : public UnaryOpcode
+	{
+	public:
+		OPrintfImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPrintfImmediate(a->clone());
+		}
+	};
+
+	class OSPrintfImmediate : public UnaryOpcode
+	{
+	public:
+		OSPrintfImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSPrintfImmediate(a->clone());
+		}
+	};
 
 	class OBreakpoint : public UnaryOpcode
 	{

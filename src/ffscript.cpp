@@ -31,6 +31,8 @@ extern byte use_dwm_flush;
 #include "script_drawing.h"
 #include "util.h"
 using namespace util;
+#include <sstream>
+using std::ostringstream;
 
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
@@ -38,7 +40,6 @@ using namespace util;
 	#include <fcntl.h>
 	#include <unistd.h>
 	#include <iostream>
-	#include <sstream>
 	#define SCRIPT_FILE_MODE	(S_ISVTX | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #endif
 
@@ -21738,6 +21739,15 @@ int run_script(const byte type, const word script, const long i)
 			case TRACE6:
 				FFCore.do_tracestring();
 				break;
+			
+			case PRINTFV:
+				FFCore.do_printf(true);
+				break;
+			
+			case SPRINTFV:
+				FFCore.do_sprintf(true);
+				break;
+			
 			case BREAKPOINT:
 				if( zasm_debugger )
 				{
@@ -30871,6 +30881,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
 	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
 	
+	{ "PRINTFV",           1,   1,   0,   0},
+	{ "SPRINTFV",           1,   1,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -32278,13 +32291,10 @@ void FFScript::do_tracebool(const bool v)
 	}
 }
 
-void FFScript::do_tracestring()
+void traceStr(string const& str)
 {
-	long arrayptr = get_register(sarg1) / 10000;
-	string str;
-	ArrayH::getString(arrayptr, str, 512);
-	TraceScriptIDs();
-	al_trace("%s", str.c_str());
+	FFCore.TraceScriptIDs();
+	safe_al_trace(str.c_str());
 	
 	if(zconsole)
 		printf("%s", str.c_str());
@@ -32300,6 +32310,163 @@ void FFScript::do_tracestring()
 			printf("%s", str.c_str());	
 		#endif
 	}
+}
+
+void FFScript::do_tracestring()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string str;
+	ArrayH::getString(arrayptr, str, 512);
+	traceStr(str);
+}
+
+string zs_sprintf(char const* format, int num_args)
+{
+	int arg_offset = ri->sp + num_args - 1;
+	int next_arg = 0;
+	ostringstream oss;
+	while(format[0] != '\0')
+	{
+		long arg_val = ((next_arg >= num_args) ? 0 : SH::read_stack(arg_offset - next_arg));
+		char buf[256] = {0};
+		for(int q = 0; q < 256; ++q)
+		{
+			if(format[0] == '\0') //done
+			{
+				oss << buf;
+				return oss.str();
+			}
+			else if(format[0] == '%')
+			{
+				++format;
+				bool hex_upper = true;
+				switch(format[0])
+				{
+					case 'i':
+					case 'p':
+					{
+					zsprintf_int:
+						char argbuf[16] = {0};
+						zc_itoa(arg_val / 10000, argbuf);
+						++next_arg;
+						oss << buf << argbuf;
+						q = 300; //break main loop
+						break;
+					}
+					case 'f':
+					{
+					zsprintf_float:
+						char argbuf[16] = {0};
+						zc_itoa(arg_val/10000, argbuf);
+						int inx = 0; for(;argbuf[inx]!=0;++inx);
+						argbuf[inx++] = '.';
+						argbuf[inx++] = '0' + ((arg_val / 1000) % 10);
+						argbuf[inx++] = '0' + ((arg_val / 100) % 10);
+						argbuf[inx++] = '0' + ((arg_val / 10) % 10);
+						argbuf[inx] = '0' + (arg_val % 10);
+						for(int i = 0; i < 3; ++i)
+						{
+							if(argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
+						}
+						++next_arg;
+						oss << buf << argbuf;
+						q = 300; //break main loop
+						break;
+					}
+					case 'd':
+					{
+						if((arg_val % 10000) != 0)
+						{
+							goto zsprintf_float;
+						}
+						goto zsprintf_int;
+					}
+					case 's':
+					{
+						long strptr = arg_val / 10000;
+						string str;
+						ArrayH::getString(strptr, str, MAX_ZC_ARRAY_SIZE);
+						oss << buf << str.c_str();
+						++next_arg;
+						q = 300; //break main loop
+						break;
+					}
+					case 'c':
+					{
+						int c = arg_val / 10000;
+						++next_arg;
+						if(char(c) != c)
+						{
+							Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
+							Z_scripterrlog("Value of invalid char will overflow.\n");
+						}
+						buf[q] = char(c);
+						oss << buf;
+						q = 300; //break main loop
+						break;
+					}
+					case 'x':
+						hex_upper = false;
+						//Fallthrough
+					case 'X':
+					{
+						char argbuf[16] = {0};
+						zc_itoa(arg_val/10000, argbuf, 16); //base 16; hex
+						for(int inx = 0; inx < 16; ++inx) //set chosen caps
+						{
+							argbuf[inx] = (hex_upper ? toupper(argbuf[inx]) : tolower(argbuf[inx]));
+						}
+						oss << buf << "0x" << argbuf;
+						q = 300; //break main loop
+						break;
+					}
+					case '%':
+					{
+						buf[q] = '%';
+						break;
+					}
+					default:
+					{
+						buf[q] = format[0];
+						break;
+					}
+				}
+				++format;
+			}
+			else
+			{
+				buf[q] = format[0];
+				++format;
+			}
+		}
+	}
+	return oss.str();
+}
+
+void FFScript::do_printf(const bool v)
+{
+	int num_args = SH::get_arg(sarg1, v) / 10000;
+	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	string formatstr;
+	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	
+	traceStr(zs_sprintf(formatstr.c_str(), num_args));
+}
+void FFScript::do_sprintf(const bool v)
+{
+	int num_args = SH::get_arg(sarg1, v) / 10000;
+	long dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
+	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	string formatstr;
+	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	
+	string output = zs_sprintf(formatstr.c_str(), num_args);
+	if(ArrayH::setArray(dest_arrayptr, output.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
+		ri->d[2] = ArrayH::strlen(dest_arrayptr);
+	}
+	else ri->d[2] = output.size();
 }
 
 void FFScript::do_breakpoint()

@@ -1,6 +1,14 @@
 //2.55 Changes
 
 //Alpha 62
+Internalize 'sprintf' and 'printf' functions.
+	These should be MUCH faster than their ZScript counterparts, with 99% the same results.
+	Take 0-16 varargs at this time; could theoretically expand to 18...
+	Only difference from ZScript functions: if you would have gotten an array out-of-bounds error
+		by having too many '%' in the formatstr, these will simply use '0' as the value instead of erroring.
+		This matches the behavior of the ZScript function for <16 args, though the ZScript function used
+		a size 16 buffer, thus going beyond that caused avoidable script errors.
+	( Venrob, 13th April, 2020 )
 Fix minor errors with 'file'->
 	Remove a debug trace
 	Fix file->OpenMode not reassigning pointer

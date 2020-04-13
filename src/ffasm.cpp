@@ -970,6 +970,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
 	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
 	
+	{ "PRINTFV",           1,   1,   0,   0},
+	{ "SPRINTFV",           1,   1,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
