@@ -2405,6 +2405,16 @@ string OTrace6Register::toString()
     return "TRACE6 " + getArgument()->toString();
 }
 
+string OPrintfImmediate::toString()
+{
+	return "PRINTFV " + getArgument()->toString();
+}
+
+string OSPrintfImmediate::toString()
+{
+	return "SPRINTFV " + getArgument()->toString();
+}
+
 string OBreakpoint::toString()
 {
     return "BREAKPOINT " + getArgument()->toString();

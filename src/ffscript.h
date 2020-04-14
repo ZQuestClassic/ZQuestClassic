@@ -450,6 +450,8 @@ void do_xtoa();
 
 void do_tracebool(const bool v);
 void do_tracestring();
+void do_printf(const bool v);
+void do_sprintf(const bool v);
 void do_breakpoint();
 void do_trace(bool v);
 void do_tracenl();
@@ -2600,8 +2602,11 @@ enum ASM_DEFINE
 	WRITEPODARRAYRV,
 	WRITEPODARRAYVR,
 	WRITEPODARRAYVV,
+	
+	PRINTFV,
+	SPRINTFV,
 
-	NUMCOMMANDS           //0x018A
+	NUMCOMMANDS           //0x018C
 };
 
 
