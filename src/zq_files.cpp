@@ -671,6 +671,7 @@ int PickRuleset()
 				case qr_PARSER_BOOL_TRUE_DECIMAL:
 				case qr_PARSER_TRUE_INT_SIZE:
 				case qr_PARSER_BINARY_32BIT:
+				case qr_PARSER_STRINGSWITCH_INSENSITIVE:
 					break;
 				default:
 					set_bit(quest_rules,i,0);

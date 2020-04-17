@@ -21,6 +21,9 @@
 YYLTYPE noloc = {0,0,0,0};
 int yyrow, yycol;
 
+enum {st_none, st_case};
+int special_state = st_none;
+
 // Defined in ffscript.ypp.
 void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 %}
@@ -68,7 +71,10 @@ for		TOKEN( FOR );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
 switch		TOKEN( SWITCH );
-case		TOKEN( CASE );
+case		{
+	special_state = st_case;
+	TOKEN( CASE );
+}
 default		TOKEN( DEFAULT );
 return		TOKEN( RETURN );
 import		{
@@ -156,7 +162,10 @@ decorationsprite	TOKEN( DECORATION );
 ";"		TOKEN( SEMICOLON );
 "::"		TOKEN( SCOPERES );
 ".."		TOKEN( SCOPERES );
-":"		TOKEN( COLON );
+":"		{
+	if(special_state == st_case) special_state = st_none;
+	TOKEN( COLON );
+}
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
 "["		TOKEN( LBRACKET );
@@ -376,6 +385,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		yylloc.last_line = yyrow;
 		yylloc.last_column = yycol;
 		yylval = new ASTString(qstr.str(), yylloc);
+		if(special_state == st_case) return TOK_CASESTRING;
 		return TOK_QUOTEDSTRING;
 	}
 }

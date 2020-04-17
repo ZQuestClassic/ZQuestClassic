@@ -9267,6 +9267,10 @@ long get_register(const long arg)
 		case PC:
 			ret = ri->pc;
 			break;
+		
+		case SWITCHKEY:
+			ret = ri->switchkey;
+			break;
 			
 		case SCRIPTRAM:
 		case GLOBALRAM:
@@ -16067,6 +16071,10 @@ void set_register(const long arg, const long value)
 			ri->pc = value;
 			break;
 			
+		case SWITCHKEY:
+			ri->switchkey = value;
+			break;
+			
 		case SCRIPTRAM:
 		case GLOBALRAM:
 			ArrayH::setElement(ri->d[0] / 10000, ri->d[1] / 10000, value);
@@ -16267,6 +16275,40 @@ void do_comp(const bool v)
 	else                ri->scriptflag &= ~MOREFLAG;
 	
 	if(temp2 == temp)   ri->scriptflag |= TRUEFLAG;
+	else                ri->scriptflag &= ~TRUEFLAG;
+}
+
+void do_internal_strcmp()
+{
+	long arrayptr_a = get_register(sarg1)/10000;
+	long arrayptr_b = get_register(sarg2)/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	int temp = strcmp(strA.c_str(), strB.c_str());
+	
+	if(temp >= 0)       ri->scriptflag |= MOREFLAG;
+	else                ri->scriptflag &= ~MOREFLAG;
+	
+	if(temp == 0)       ri->scriptflag |= TRUEFLAG;
+	else                ri->scriptflag &= ~TRUEFLAG;
+}
+
+void do_internal_stricmp()
+{
+	long arrayptr_a = get_register(sarg1)/10000;
+	long arrayptr_b = get_register(sarg2)/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	int temp = stricmp(strA.c_str(), strB.c_str());
+	
+	if(temp >= 0)       ri->scriptflag |= MOREFLAG;
+	else                ri->scriptflag &= ~MOREFLAG;
+	
+	if(temp == 0)       ri->scriptflag |= TRUEFLAG;
 	else                ri->scriptflag &= ~TRUEFLAG;
 }
 
@@ -21227,6 +21269,14 @@ int run_script(const byte type, const word script, const long i)
 				
 			case COMPARER:
 				do_comp(false);
+				break;
+			
+			case STRCMPR:
+				do_internal_strcmp();
+				break;
+			
+			case STRICMPR:
+				do_internal_stricmp();
 				break;
 				
 			case SETV:
@@ -30883,6 +30933,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	
 	{ "PRINTFV",           1,   1,   0,   0},
 	{ "SPRINTFV",           1,   1,   0,   0},
+	
+	{ "STRCMPR",           2,   0,   0,   0},
+	{ "STRICMPR",           2,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

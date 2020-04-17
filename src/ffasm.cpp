@@ -25,23 +25,6 @@ using namespace util;
 using std::string;
 using std::ostringstream;
 
-#ifdef ALLEGRO_MACOSX
-#define strnicmp strncasecmp
-#endif
-
-#ifdef ALLEGRO_MACOSX
-#define strnicmp strncasecmp
-#endif
-
-#ifdef ALLEGRO_LINUX
-#define strnicmp strncasecmp
-#endif
-
-#ifdef _MSC_VER
-#define stricmp _stricmp
-#define strnicmp _strnicmp
-#endif
-
 extern char *datapath, *temppath;
 
 script_command command_list[NUMCOMMANDS+1]=
@@ -972,6 +955,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "PRINTFV",           1,   1,   0,   0},
 	{ "SPRINTFV",           1,   1,   0,   0},
+	
+	{ "STRCMPR",           2,   0,   0,   0},
+	{ "STRICMPR",           2,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
@@ -2121,6 +2107,7 @@ script_variable variable_list[]=
 	{ "FILEERR", FILEERR, 0, 0 },
 	{ "MESSAGEDATATEXTWID", MESSAGEDATATEXTWID, 0, 0 },
 	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
+	{ "SWITCHKEY", SWITCHKEY, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -8,8 +8,6 @@
 #include "../util.h"
 using namespace util;
 
-#define PARSER_DEBUG 0
-
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
 #define FUNCFLAG_INLINE				0x01
 #define FUNCFLAG_INVALID			0x02

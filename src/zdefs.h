@@ -142,6 +142,24 @@
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
+//Moved these OS-dependent defs from 'ffasm.cpp', to be global.
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef ALLEGRO_LINUX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
+
 #ifdef ALLEGRO_DOS
 //already defined in DOS
 /*
@@ -953,7 +971,7 @@ enum
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_SHORT_CIRCUIT, //Default on.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
 	qr_SPRITEXY_IS_FLOAT,
 	qr_PARSER_TRUE_INT_SIZE, //Default on
@@ -970,7 +988,9 @@ enum
 	qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2,
 	//84
 	qr_COMBOSCRIPTS_LAYER_3, qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6,
-	qr_OLD_INIT_SCRIPT_TIMING, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
+	qr_OLD_INIT_SCRIPT_TIMING, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
+	qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, qr_PARSER_STRINGSWITCH_INSENSITIVE,
+	//85
 	
     qr_MAX
 };
@@ -2052,6 +2072,8 @@ public:
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	
+	long switchkey; //used for switch statements
     
     void Clear()
     {
@@ -2067,6 +2089,7 @@ public:
 		comboposref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
+		switchkey = 0;
     }
     
     refInfo()
@@ -2095,6 +2118,7 @@ public:
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref;
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
+		switchkey = rhs.switchkey;
         return *this;
     }
 };

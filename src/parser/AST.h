@@ -455,6 +455,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> key;
 		// A vector of case groupings.
 		owning_vector<ASTSwitchCases> cases;
+		
+		bool isString;
 	private:
 	};
 
@@ -469,6 +471,8 @@ namespace ZScript
 
 		// The list of case labels.
 		owning_vector<ASTExprConst> cases;
+		// The list of string labels
+		owning_vector<ASTStringLiteral> str_cases;
 		//The list of cases with ranges
 		owning_vector<ASTRange> ranges;
 		// If the default case is included in this grouping.

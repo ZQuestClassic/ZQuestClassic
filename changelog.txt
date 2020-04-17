@@ -1,6 +1,18 @@
 //2.55 Changes
 
 //Alpha 62
+Switch-case Upgrades
+	Added a register SWITCHKEY to store the key of switch-cases, so it doesn't need to repeatedly push/pop it
+	Optimized constant values in cases... which should be all of them. Why wasn't it already optimal? :shrug:
+	Added switch/case ability to switch Strings. Simply use a string literal as the constant for the case.
+		Strings and ints cannot be combined in a single switch/case.
+		Matching is case-sensitive by default; though '#option STRING_SWITCH_CASE_INSENSITIVE on' will
+			make it case-insensitive.
+	Optimized switch/case with only default case.
+		If the only case is default (even in a situation like 'case 1: default:', it's one joint case)
+			then a sizable amount of overhead can be skipped while maintaining identical functionality.
+	( Venrob, 16th April, 2020 )
+
 Updated 'string_functions.zh'
 	Moved 'printf' and 'sprintf' into 'std::string::'
 	This allows them to be used if desired, but the new internal versions will be used by default.

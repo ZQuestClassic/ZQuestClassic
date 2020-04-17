@@ -196,12 +196,35 @@ void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
 	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
-void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
+void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 {
+	bool found_int = false, found_str = false;
+	for (vector<ASTSwitchCases*>::iterator it = host.cases.begin(); it != host.cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+		if(cases->str_cases.size())
+			found_str = true;
+		if(cases->cases.size())
+			found_int = true;
+	}
+	if(found_int && found_str) //Error
+	{
+		handleError(CompileError::MixedSwitch(&host));
+		return;
+	}
+	else if(found_str)
+	{
+		host.isString = true;
+		for (vector<ASTSwitchCases*>::iterator it = host.cases.begin(); it != host.cases.end(); ++it)
+		{
+			visit(host, (*it)->str_cases, param);
+		}
+	}
+	
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.key->getReadType(scope, this), DataType::FLOAT, &host);
+	checkCast(*host.key->getReadType(scope, this), host.isString ? DataType::CHAR : DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseRange(ASTRange& host, void*)

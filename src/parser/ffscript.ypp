@@ -61,7 +61,6 @@ extern YYLTYPE noloc;
 	ASTExpr* right = (ASTExpr*)d3; \
 	klass* rval = new klass(left->clone(), right, a3);	\
 	dd = new ASTExprAssign(left, rval, ad);
-
 %}
 
 %code requires {
@@ -74,7 +73,6 @@ extern YYLTYPE noloc;
 
 %glr-parser
 %expect 1
-//%expect-rr 26
 %error-verbose
 %start Init
 %parse-param {ZScript::ASTFile*& root}
@@ -213,6 +211,7 @@ extern YYLTYPE noloc;
  // Others
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token CASESTRING
 %token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
@@ -914,7 +913,6 @@ Statement_Switch :
 		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
 		sw->key = key;
 		$$ = sw;}
-	;
 
 Statement_Switch_Body :
 	Statement_Switch_Body Statement_Switch_Cases Statement_Block_List {
@@ -948,19 +946,33 @@ Statement_Switch_Cases :
 		ASTRange* range = (ASTRange*)$3;
 		cases->ranges.push_back(range);
 		$$ = cases;}
+	| Statement_Switch_Cases CASE CASESTRING COLON {
+		ASTString* rawstring = (ASTString*)$3;
+		ASTStringLiteral* key = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		cases->str_cases.push_back(key);
+		$$ = cases;}
 	| CASE Expression_Constant COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTExprConst* key = (ASTExprConst*)$2;
 		cases->cases.push_back(key);
 		$$ = cases;}
-	| DEFAULT COLON {
-		ASTSwitchCases* cases = new ASTSwitchCases(@$);
-		cases->isDefault = true;
-		$$ = cases;}
 	| CASE Expression_Range COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTRange* range = (ASTRange*)$2;
 		cases->ranges.push_back(range);
+		$$ = cases;}
+	| CASE CASESTRING COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTString* rawstring = (ASTString*)$2;
+		ASTStringLiteral* key = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		cases->str_cases.push_back(key);
+		$$ = cases;}
+	| DEFAULT COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		cases->isDefault = true;
 		$$ = cases;}
 	;
 

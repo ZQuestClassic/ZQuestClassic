@@ -42,6 +42,8 @@ string ZScript::VarToString(long ID)
 		return "SP";
 	case PC:
 		return "PC";
+	case SWITCHKEY:
+		return "SWITCHKEY";
 		
 	case DATA:
 		return "DATA";
@@ -2018,6 +2020,16 @@ string OCompareImmediate::toString()
 string OCompareRegister::toString()
 {
     return "COMPARER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalStringCompare::toString()
+{
+	return "STRCMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalInsensitiveStringCompare::toString()
+{
+	return "STRICMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OWaitframe::toString()
