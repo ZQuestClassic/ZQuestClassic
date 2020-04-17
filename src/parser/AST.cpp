@@ -376,7 +376,7 @@ void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
 // ASTStmtSwitch
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
-	: ASTStmt(location), key(NULL)
+	: ASTStmt(location), key(NULL), isString(false)
 {}
 
 void ASTStmtSwitch::execute(ASTVisitor& visitor, void* param)

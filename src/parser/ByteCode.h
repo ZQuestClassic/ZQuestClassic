@@ -1206,8 +1206,9 @@
 #define FILEERR					1134
 #define MESSAGEDATATEXTWID					1135
 #define MESSAGEDATATEXTHEI					1136
+#define SWITCHKEY				1137
 
-#define LAST_BYTECODE 		1137
+#define LAST_BYTECODE 		1138
 
 //} END OF BYTECODE
 
@@ -1669,6 +1670,28 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OCompareRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OInternalStringCompare : public BinaryOpcode
+	{
+	public:
+		OInternalStringCompare(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OInternalStringCompare(a->clone(),b->clone());
+		}
+	};
+
+	class OInternalInsensitiveStringCompare : public BinaryOpcode
+	{
+	public:
+		OInternalInsensitiveStringCompare(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OInternalInsensitiveStringCompare(a->clone(),b->clone());
 		}
 	};
 

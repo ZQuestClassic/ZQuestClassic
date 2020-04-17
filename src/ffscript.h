@@ -2605,8 +2605,11 @@ enum ASM_DEFINE
 	
 	PRINTFV,
 	SPRINTFV,
+	
+	STRCMPR,
+	STRICMPR,
 
-	NUMCOMMANDS           //0x018C
+	NUMCOMMANDS           //0x018E
 };
 
 
@@ -3896,8 +3899,9 @@ enum ASM_DEFINE
 #define FILEERR					0x13A6
 #define MESSAGEDATATEXTWID					0x13A7
 #define MESSAGEDATATEXTHEI					0x13A8
+#define SWITCHKEY					0x13A9
 
-#define NUMVARIABLES         	0x13A9
+#define NUMVARIABLES         	0x13AA
 
 //} End variables
 

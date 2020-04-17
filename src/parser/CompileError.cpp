@@ -298,10 +298,8 @@ void ZScript::box_out_err(CompileError const& error)
 
 void ZScript::logDebugMessage(const char* msg)
 {
-	#if PARSER_DEBUG > 0
 	box_out("Debug: "); box_out(msg);
 	box_eol();
-	#endif
 }
 
 ////////////////////////////////////////////////////////////////

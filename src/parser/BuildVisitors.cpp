@@ -204,9 +204,15 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 
 void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 {
+	if(host.isString)
+	{
+		caseStmtStrSwitch(host, param);
+		return;
+	}
+	
 	map<ASTSwitchCases*, int> labels;
 	vector<ASTSwitchCases*> cases = host.cases.data();
-
+	
 	int end_label = ScriptParser::getUniqueLabelID();;
 	int default_label = end_label;
 
@@ -223,8 +229,19 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	deallocateRefsUntilCount(startRefCount);
 	while ((int)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
+	
+	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
+	{
+		visit(cases.back()->block.get(), param);
+		// Add ending label, for 'break;'
+		Opcode *next = new ONoOp();
+		next->setLabel(end_label);
+		result.push_back(next);
+		return;
+	}
+	
 	//Continue
-	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	result.push_back(new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 
 	// Add the tests and jumps.
 	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
@@ -241,11 +258,16 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			 ++it)
 		{
 			// Test this individual case.
-			result.push_back(new OPushRegister(new VarArgument(EXP2)));
-			visit(*it, param);
-			result.push_back(new OPopRegister(new VarArgument(EXP2)));
+			if(optional<long> val = (*it)->getCompileTimeValue(this, scope))
+			{
+				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+			}
+			else //Shouldn't ever happen?
+			{
+				visit(*it, param);
+				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+			}
 			// If the test succeeds, jump to its label.
-			result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
 		}
 		for (vector<ASTRange*>::iterator it = cases->ranges.begin();
@@ -255,17 +277,28 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			ASTRange& range = **it;
 			int skipLabel = ScriptParser::getUniqueLabelID();
 			//Test each full range
-			result.push_back(new OPushRegister(new VarArgument(EXP2))); //Push the key
-			visit(*range.start, param); //Handle the starting EXPR
-			result.push_back(new OPopRegister(new VarArgument(EXP2))); //Pop the key
-			result.push_back(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //Compare key to lower bound
+			if(optional<long> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
+			{
+				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+			}
+			else //Shouldn't ever happen?
+			{
+				visit(*range.start, param);
+				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+			}
 			result.push_back(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 			result.push_back(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
-			result.push_back(new OPushRegister(new VarArgument(EXP2))); //Push the key
-			visit(*range.end, param); //Handle the ending EXPR
-			result.push_back(new OPopRegister(new VarArgument(EXP2))); //Pop the key
-			result.push_back(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //Compare key to upper bound
+			
+			if(optional<long> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
+			{
+				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+			}
+			else //Shouldn't ever happen?
+			{
+				visit(*range.end, param);
+				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+			}
 			result.push_back(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 			result.push_back(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
@@ -290,14 +323,115 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		// Mark start of the block we're adding.
 		int block_start_index = result.size();
 		// Make a nop for starting the block.
-		result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
+		result.push_back(new ONoOp());
 		result[block_start_index]->setLabel(labels[cases]);
 		// Add block.
 		visit(cases->block.get(), param);
 	}
 
 	// Add ending label.
-    Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+    Opcode *next = new ONoOp();
+    next->setLabel(end_label);
+	result.push_back(next);
+
+	// Restore break label.
+	breaklabelid = old_break_label;
+	breakRefCount = oldBreakRefCount;
+}
+
+void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
+{
+	map<ASTSwitchCases*, int> labels;
+	vector<ASTSwitchCases*> cases = host.cases.data();
+
+	int end_label = ScriptParser::getUniqueLabelID();;
+	int default_label = end_label;
+
+	// save and override break label.
+	int old_break_label = breaklabelid;
+	int oldBreakRefCount = breakRefCount;
+	breaklabelid = end_label;
+	breakRefCount = arrayRefs.size();
+
+	// Evaluate the key.
+	int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.key.get(), param);
+	//Deallocate string/array literals from within the key
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	
+	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
+	{
+		visit(cases.back()->block.get(), param);
+		// Add ending label, for 'break;'
+		Opcode *next = new ONoOp();
+		next->setLabel(end_label);
+		result.push_back(next);
+		return;
+	}
+	
+	//Continue
+	result.push_back(new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+
+	// Add the tests and jumps.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Make the target label.
+		int label = ScriptParser::getUniqueLabelID();
+		labels[cases] = label;
+
+		// Run the tests for these cases.
+		for (vector<ASTStringLiteral*>::iterator it = cases->str_cases.begin();
+			 it != cases->str_cases.end();
+			 ++it)
+		{
+			// Test this individual case.
+			//Allocate the string literal
+			int litRefCount = arrayRefs.size(); //Store ref count
+			literalVisit(*it, param);
+			
+			// Compare the strings
+			if(*lookupOption(*scope, CompileOption::OPT_STRING_SWITCH_CASE_INSENSITIVE))
+				result.push_back(new OInternalInsensitiveStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+			else
+				result.push_back(new OInternalStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+			
+			//Deallocate string literal
+			deallocateRefsUntilCount(litRefCount);
+			while ((int)arrayRefs.size() > litRefCount)
+				arrayRefs.pop_back();
+			
+			//
+			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
+		}
+
+		// If this set includes the default case, mark it.
+		if (cases->isDefault)
+			default_label = label;
+	}
+
+	// Add direct jump to default case (or end if there isn't one.).
+	result.push_back(new OGotoImmediate(new LabelArgument(default_label)));
+
+	// Add the actual code branches.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Mark start of the block we're adding.
+		int block_start_index = result.size();
+		// Make a nop for starting the block.
+		result.push_back(new ONoOp());
+		result[block_start_index]->setLabel(labels[cases]);
+		// Add block.
+		visit(cases->block.get(), param);
+	}
+
+	// Add ending label.
+    Opcode *next = new ONoOp();
     next->setLabel(end_label);
 	result.push_back(next);
 

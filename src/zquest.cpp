@@ -24768,7 +24768,7 @@ static int compiler_tab_list_global[] =
 
 static int compiler_tab_list_quest[] =
 {
-    6,7,8,9,17,22,23,
+    6,7,8,9,17,22,23,24,
 	-1
 };
 
@@ -24918,6 +24918,7 @@ static DIALOG zscript_parser_dlg[] =
 		(void *) "void run()' label:",                  NULL,   NULL                  },
     { d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
     { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
+    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -24943,6 +24944,7 @@ static int zscripparsertrules[] =
 	NULL, //this dialogue index is used by global settings
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
+	qr_PARSER_STRINGSWITCH_INSENSITIVE,
     -1
 };
 
