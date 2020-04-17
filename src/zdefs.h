@@ -971,7 +971,7 @@ enum
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_SHORT_CIRCUIT, //Default on.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
 	qr_SPRITEXY_IS_FLOAT,
 	qr_PARSER_TRUE_INT_SIZE, //Default on
