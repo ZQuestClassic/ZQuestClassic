@@ -1177,7 +1177,7 @@ int FFScript::ConvertCase(std::string *s)
 			s->at(q) += 32;
 		}
 	}
-	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s->c_str());
+	zprint("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s->c_str());
 	return 1;
 }
 
@@ -5992,7 +5992,7 @@ long get_register(const long arg)
 		int pos = ri->d[0] / 10000; \
 		if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		{ \
-		    Z_scripterrlog("Inalid pos used to read %s\n"); \
+		    Z_scripterrlog("Invalid pos used to read %s\n"); \
 		    ret = -10000; \
 		} \
 		else \
@@ -6013,7 +6013,7 @@ long get_register(const long arg)
 		    int pos = ri->d[0] / 10000; \
 		    if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		    { \
-			Z_scripterrlog("Inalid pos used to read %s\n"); \
+			Z_scripterrlog("Invalid pos used to read %s\n"); \
 			ret = -10000; \
 		    } \
 		    else \
@@ -7620,7 +7620,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboD[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboD[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7649,7 +7649,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboC[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboC[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7677,7 +7677,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboF[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboF[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7707,7 +7707,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboT[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboT[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7737,7 +7737,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboI[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboI[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7768,7 +7768,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Inalid pos used to read mapdata->ComboS[%d]\n", pos);
+					Z_scripterrlog("Invalid pos used to read mapdata->ComboS[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -9671,8 +9671,8 @@ void set_register(const long arg, const long value)
 			int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
 			seta = vbound(seta,-1,255);
 			setb = vbound(setb,-1,255);
-			//Z_scripterrlog("A is: %d\n", seta);
-			//Z_scripterrlog("A is: %d\n", setb);
+			//zprint("A is: %d\n", seta);
+			//zprint("A is: %d\n", setb);
 				
 			Awpn = seta;
 			game->awpn = seta;
@@ -9701,9 +9701,9 @@ void set_register(const long arg, const long value)
 			int slot = ri->d[1]/10000;
 			int force = ri->d[2]/10000;
 			
-			Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
-			Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
-			Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
+			zprint("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+			zprint("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+			zprint("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
 			
 			//If we add more item buttons, slot should be an int
 			//and force shuld be an int
@@ -11467,13 +11467,13 @@ void set_register(const long arg, const long value)
 		case LWPNOTILE:
 			if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
 			{
-				//Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
+				//zprint("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
 					((weapon*)s)->o_tile=(value/10000);
 					//((weapon*)s)->script_wrote_otile=1; //Removing this as of 26th October, 2019 -Z
 				//if at some future point we WANT writing ->Tile to also overwrite ->OriginalTile,
 				//then either the user will need to manually write tile, or we can add a QR and 
 				// write ->tile here. 'script_wrote_otile' is out.
-				//Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
+				//zprint("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
 			}
 			break;
 			
@@ -11567,7 +11567,7 @@ void set_register(const long arg, const long value)
 		case LWPNPARENT:
 		{
 			//int pitm = (vbound(value/10000,1,(MAXITEMS-1)));
-			//Z_scripterrlog("Attempting to set ParentItem to: %d\n", pitm); 
+			//zprint("Attempting to set ParentItem to: %d\n", pitm); 
 					
 			if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
 				(((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
@@ -12874,11 +12874,11 @@ void set_register(const long arg, const long value)
 	int val = (value/10000);
         if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboD[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= MAXCOMBOS )
 	{
-		Z_scripterrlog("Inalid combo ID %d used to write to Screen->ComboD[]\n", val);
+		Z_scripterrlog("Invalid combo ID %d used to write to Screen->ComboD[]\n", val);
 	}
         else
         {
@@ -12895,11 +12895,11 @@ void set_register(const long arg, const long value)
         int val = (value/10000); //cset
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 15 )
 	{
-		Z_scripterrlog("Inalid CSet ID %d used to write to Screen->ComboC[]\n", val);
+		Z_scripterrlog("Invalid CSet ID %d used to write to Screen->ComboC[]\n", val);
 	}
         else
         {
@@ -12916,11 +12916,11 @@ void set_register(const long arg, const long value)
         int val = (value/10000); //flag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboF[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboF[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboF[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboF[]\n", val);
 	}
         
         else
@@ -12934,11 +12934,11 @@ void set_register(const long arg, const long value)
         int val = (value/10000); //type
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
 	}
         else
         {
@@ -12970,11 +12970,11 @@ void set_register(const long arg, const long value)
         int val = (value/10000); //iflag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboI[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboI[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboI[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboI[]\n", val);
 	}
         
         else
@@ -12988,11 +12988,11 @@ void set_register(const long arg, const long value)
         int val = (value/10000); //iflag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
 	}
         else
             combobuf[tmpscr->data[pos]].walk=(val)&15;
@@ -14664,11 +14664,11 @@ void set_register(const long arg, const long value)
 			mapscr *m = GetMapscr(ri->mapsref);
 			if ( ((unsigned) pos) > 175 )
 			{
-				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
+				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
 			}
 			else if ( ((unsigned) val) >= MAXCOMBOS )
 			{
-				Z_scripterrlog("Inalid combo ID %d used to write to mapdata->ComboD[]\n", val);
+				Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
 			}
 			else
 			{
@@ -14686,11 +14686,11 @@ void set_register(const long arg, const long value)
 			mapscr *m = GetMapscr(ri->mapsref);
 			if ( ((unsigned) pos) > 175 )
 			{
-				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
+				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
 			}
 			else if ( ((unsigned) val) >= 15 )
 			{
-				Z_scripterrlog("Inalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
+				Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
 			}
 			else
 			{
@@ -14708,11 +14708,11 @@ void set_register(const long arg, const long value)
 			mapscr *m = GetMapscr(ri->mapsref);
 			if ( ((unsigned) pos) > 175 )
 			{
-				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
+				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
 			}
 			else if ( ((unsigned) val) >= 256 )
 			{
-				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
+				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
 			}
 			
 			else
@@ -14727,11 +14727,11 @@ void set_register(const long arg, const long value)
 			mapscr *m = GetMapscr(ri->mapsref);
 			if ( ((unsigned) pos) > 175 )
 			{
-				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
+				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
 			}
 			else if ( ((unsigned) val) >= 256 )
 			{
-				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboT[]\n", val);
+				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboT[]\n", val);
 			}
 			else
 			{
@@ -14774,11 +14774,11 @@ void set_register(const long arg, const long value)
 			mapscr *m = GetMapscr(ri->mapsref);
 			if ( ((unsigned) pos) > 175 )
 			{
-				Z_scripterrlog("Inalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
+				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
 			}
 			else if ( ((unsigned) val) >= 256 )
 			{
-				Z_scripterrlog("Inalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
+				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
 			}
 			
 			else
@@ -15986,9 +15986,9 @@ void set_register(const long arg, const long value)
 		case AUDIOVOLUME:
 		{
 			int indx = ri->d[0] / 10000;
-			//Z_scripterrlog("Volume[index] is: %d", indx);
+			//zprint("Volume[index] is: %d", indx);
 			//int vol = value / 10000;
-			//Z_scripterrlog("Attempted to change volume to: %d", vol);
+			//zprint("Attempted to change volume to: %d", vol);
 			switch(indx)
 			{
 				
@@ -16216,7 +16216,7 @@ void do_set(const bool v, const byte whichType, const long whichUID)
 	}   
 	if(!allowed)
 	{
-		Z_scripterrlog("Script attemtped to change own object's script! This has been ignored.\n");
+		Z_scripterrlog("Script attempted to change own object's script! This has been ignored.\n");
 		return;
 	}
 	long temp = SH::get_arg(sarg2, v);
@@ -16633,10 +16633,10 @@ void do_srndrnd()
 void FFScript::getRTC(const bool v)
 {
 	//long type = get_register(sarg1) / 10000;
-	//Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	//zprint("FFCore.getRTC() type == %d\n",type);
 	//int time = getTime(type);
-	//Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
-	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
+	//zprint("FFCore.getRTC() time == %d\n",time);
+	//zprint("FFCore.getRTC() time * 10000 == %d\n",time);
 	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
 	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
 }
@@ -18263,10 +18263,10 @@ void FFScript::do_loadmapdata(const bool v)
 	long _map = SH::get_arg(sarg1, v) / 10000;
 	
 	long _scr = SH::get_arg(sarg2, v) / 10000;
-	Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
-	Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
+	zprint("LoadMapData Map Value: %d\n", _map);
+	zprint("LoadMapData Screen Value: %d\n", _scr);
 	int indx = (_map * MAPSCRS + _scr);
-	Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
+	zprint("LoadMapData Indx Value: %d\n", indx);
 	if ( _map < 1 || _map > (map_count-1) )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
@@ -18278,8 +18278,8 @@ void FFScript::do_loadmapdata(const bool v)
 		ri->mapsref = 0;
 	}
 	else ri->mapsref = indx;
-	Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
-	//Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+	zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
+	//zprint("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
 void FFScript::do_loadmapdata_tempscr(const bool v)
@@ -18630,7 +18630,7 @@ INLINE void set_drawing_command_args(const int j, const word numargs)
 INLINE void set_user_bitmap_command_args(const int j, const word numargs)
 {
 	//ri->bitmapref = SH::read_stack(ri->sp+numargs);
-	//Z_scripterrlog("Current drawing bitmap ref is: %d\n", ri->bitmapref );
+	//zprint("Current drawing bitmap ref is: %d\n", ri->bitmapref );
 	for(int k = 1; k <= numargs; k++)
 		script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
@@ -18680,7 +18680,7 @@ void do_drawing_command(const int script_command)
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		//for ( int q = 0; q < 6; q++ ) 
 		//{ 
-		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
 		//}
 		int arrayptr = script_drawing_commands[j][2]/10000;
 		if ( !arrayptr ) //Don't crash because of vector size.
@@ -18688,10 +18688,10 @@ void do_drawing_command(const int script_command)
 			Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
 			break;
 		}
-		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 		int sz = ArrayH::getSize(arrayptr);
 		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		//zprint("Pixelarray size is: %d\n", sz);
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
@@ -18706,7 +18706,7 @@ void do_drawing_command(const int script_command)
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		//for ( int q = 0; q < 6; q++ ) 
 		//{ 
-		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
 		//}
 		int arrayptr = script_drawing_commands[j][2]/10000;
 		if ( !arrayptr ) //Don't crash because of vector size.
@@ -18714,10 +18714,10 @@ void do_drawing_command(const int script_command)
 			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
 			break;
 		}
-		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 		int sz = ArrayH::getSize(arrayptr);
 		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		//zprint("Pixelarray size is: %d\n", sz);
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
@@ -18732,7 +18732,7 @@ void do_drawing_command(const int script_command)
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		//for ( int q = 0; q < 6; q++ ) 
 		//{ 
-		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
 		//}
 		int arrayptr = script_drawing_commands[j][2]/10000;
 		if ( !arrayptr ) //Don't crash because of vector size.
@@ -18740,10 +18740,10 @@ void do_drawing_command(const int script_command)
 			Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
 			break;
 		}
-		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 		int sz = ArrayH::getSize(arrayptr);
 		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		//zprint("Pixelarray size is: %d\n", sz);
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
@@ -18781,7 +18781,7 @@ void do_drawing_command(const int script_command)
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		//for ( int q = 0; q < 6; q++ ) 
 		//{ 
-		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
 		//}
 		int arrayptr = script_drawing_commands[j][2]/10000;
 		if ( !arrayptr ) //Don't crash because of vector size.
@@ -18789,10 +18789,10 @@ void do_drawing_command(const int script_command)
 			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
 			break;
 		}
-		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 		int sz = ArrayH::getSize(arrayptr);
 		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		//zprint("Pixelarray size is: %d\n", sz);
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
@@ -18960,21 +18960,18 @@ void do_drawing_command(const int script_command)
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
 	case CLEARBITMAP:	
 	{
-		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 1);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
 		break;
 	}
 	case BITMAPCLEARTOCOLOR:	
 	{
-		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
 		break;
 	}
 	case REGENERATEBITMAP:	
 	{
-		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
 		break;
@@ -19003,7 +19000,7 @@ void do_drawing_command(const int script_command)
 	break;
 	case READBITMAP:	
 	{
-		//Z_scripterrlog("Calling %s\n","READBITMAP");
+		//zprint("Calling %s\n","READBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
 		string *str = script_drawing_commands.GetString();
@@ -19020,14 +19017,14 @@ void do_drawing_command(const int script_command)
 		}
 		regulate_path(*str);
 		
-		//Z_scripterrlog("READBITMAP string is %s\n", cptr);
+		//zprint("READBITMAP string is %s\n", cptr);
 		
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
 	case WRITEBITMAP:	
 	{
-		//Z_scripterrlog("Calling %s\n","WRITEBITMAP");
+		//zprint("Calling %s\n","WRITEBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		std::string *str = script_drawing_commands.GetString();
@@ -19045,7 +19042,7 @@ void do_drawing_command(const int script_command)
 		}
 		regulate_path(*str);
 		
-		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
+		//zprint("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
@@ -19286,15 +19283,15 @@ void FFScript::AlloffLimited(int flagset)
 //valid warpTypes: tile, side, exit, cancel, instant
 bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
 {
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
-	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
+	zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
 	byte t = 0;
 	t=(currscr<128)?0:1;
 	bool overlay=false;
@@ -19315,13 +19312,13 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
 	{
-		Z_scripterrlog("WarpEx() was set to warp return point:%d\n", warpDestY); 
+		zprint("WarpEx() was set to warp return point:%d\n", warpDestY); 
 		if ( (unsigned)warpDestY < 4 )
 		{
 			wx = m->warpreturnx[warpDestY];
 			wy = m->warpreturny[warpDestY];
-			Z_scripterrlog("WarpEx Return Point X is: %d\n",wx);
-			Z_scripterrlog("WarpEx Return Point Y is: %d\n",wy);
+			zprint("WarpEx Return Point X is: %d\n",wx);
+			zprint("WarpEx Return Point Y is: %d\n",wy);
 		}
 		else
 		{
@@ -19352,15 +19349,15 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		}
 		
 	} 
-	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15918);
+	//zprint("FFCore.warp_link reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	int wrindex = 0;
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Link:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
-	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15925);
-	//Z_scripterrlog("FFCore.warp_link war type is: %d \n", warpType);
+	//zprint("FFCore.warp_link reached line: %d \n", 15925);
+	//zprint("FFCore.warp_link war type is: %d \n", warpType);
 	
 	//int last_entr_scr = -1;
 	//int last_entr_dmap = -1;
@@ -19380,7 +19377,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		case wtIWARPZAP:
 		case wtIWARPWAVE: 
 		{
-			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15936);
+			//zprint("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
 			int olddiveclk = Link.diveclk;
 			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
@@ -19396,7 +19393,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 				Link.setAction(swimming); FFCore.setLinkAction(swimming);
 				Link.diveclk = olddiveclk;
 			}
-			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15948);
+			//zprint("FFCore.warp_link reached line: %d \n", 15948);
 			switch(warpEffect)
 			{
 				case warpEffectZap: zapout(); break;
@@ -19421,7 +19418,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 				case warpEffectNONE:
 				default: break;
 			}
-			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15973);
+			//zprint("FFCore.warp_link reached line: %d \n", 15973);
 			int c = DMaps[currdmap].color;
 			currdmap = dmapID;
 			dlevel = DMaps[currdmap].level;
@@ -19521,7 +19518,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		
 		case wtEXIT:
 		{
-			//Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
+			//zprint("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
@@ -19777,11 +19774,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		game->set_continue_scrn(scrID);
 		game->set_continue_dmap(dmapID);
 		lastentrance = scrID;
-		//Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
-		//Z_scripterrlog("lastentrance = %d\n",lastentrance);
+		//zprint("Setting Last Entrance to: %d\n", scrID);
+		//zprint("lastentrance = %d\n",lastentrance);
 		lastentrance_dmap = dmapID;
-		//Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
-		//Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
+		//zprint("Setting Last Entrance DMap to: %d\n", dmapID);
+		//zprint("lastentrance_dmap = %d\n",lastentrance_dmap);
 		//lastentrance_dmap = currdmap;
 		//lastentrance = game->get_continue_scrn();
 	}
@@ -19829,17 +19826,17 @@ void FFScript::do_adjustvolume(const bool v)
 {
 	long perc = (SH::get_arg(sarg1, v) / 10000);
 	float pct = perc / 100.0;
-	Z_scripterrlog("pct is: %f\n",pct);
+	zprint("pct is: %f\n",pct);
 	float temp_midi = 0;
 	float temp_digi = 0;
 	float temp_mus = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
 	{
-		Z_scripterrlog("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
+		zprint("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
 		temp_midi = do_getMIDI_volume();
-		Z_scripterrlog("temp_midi is %f\n", temp_midi);
+		zprint("temp_midi is %f\n", temp_midi);
 		usr_midi_volume = do_getMIDI_volume();
-		Z_scripterrlog("usr_midi_volume stored as %d\n", usr_midi_volume);
+		zprint("usr_midi_volume stored as %d\n", usr_midi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
 	}
 	else 
@@ -19850,7 +19847,7 @@ void FFScript::do_adjustvolume(const bool v)
 	{
 		temp_digi = do_getDIGI_volume();
 		usr_digi_volume = do_getDIGI_volume();
-		Z_scripterrlog("usr_music_volume stored as %d\n", usr_digi_volume);
+		zprint("usr_music_volume stored as %d\n", usr_digi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
 	}
 	else
@@ -19861,7 +19858,7 @@ void FFScript::do_adjustvolume(const bool v)
 	{
 		temp_mus = do_getMusic_volume();
 		usr_music_volume = do_getMusic_volume();
-		Z_scripterrlog("usr_music_volume stored as %d\n", usr_music_volume);
+		zprint("usr_music_volume stored as %d\n", usr_music_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
 	}
 	else
@@ -19872,9 +19869,9 @@ void FFScript::do_adjustvolume(const bool v)
 	temp_midi *= pct;
 	temp_digi *= pct;
 	temp_mus *= pct;
-	Z_scripterrlog("temp_midi is: %f\n",temp_midi);
-	Z_scripterrlog("temp_digi is: %f\n",temp_digi);
-	Z_scripterrlog("temp_mus is: %f\n",temp_mus);
+	zprint("temp_midi is: %f\n",temp_midi);
+	zprint("temp_digi is: %f\n",temp_digi);
+	zprint("temp_mus is: %f\n",temp_mus);
 	do_setMIDI_volume((int)temp_midi);
 	do_setDIGI_volume((int)temp_digi);
 	do_setMusic_volume((int)temp_mus);
@@ -19889,7 +19886,7 @@ void FFScript::do_adjustsfxvolume(const bool v)
 	{
 		temp_sfx = do_getSFX_volume();
 		usr_sfx_volume = (int)temp_sfx;
-		Z_scripterrlog("usr_sfx_volume stored as %d\n", usr_sfx_volume);
+		zprint("usr_sfx_volume stored as %d\n", usr_sfx_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
 	}
 	else 
@@ -19991,7 +19988,7 @@ void FFScript::do_set_oggex_position(const bool v)
 void FFScript::go_get_oggex_position()
 {
 	int pos = get_zcmusicpos()*10;
-	al_trace("ZC OGG Position is %d\n", pos);
+	zprint("ZC OGG Position is %d\n", pos);
 	set_register(sarg1, pos);
 }
 
@@ -20303,7 +20300,7 @@ void do_getffcscript()
 void do_npc_link_in_range()
 {
 	int dist = get_register(sarg1) / 10000;
-	Z_scripterrlog("LinkInrange dist is: %d\n", dist);
+	zprint("LinkInrange dist is: %d\n", dist);
 	//bool in_range = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
@@ -20311,7 +20308,7 @@ void do_npc_link_in_range()
 		//bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//in_range = (e->LinkInRange(dist));
-		Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		zprint("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
 		bool in_range = GuyH::getNPC()->LinkInRange(dist);
 		//set_register(sarg2, in_range ? 10000 : 0); //This isn't setting the right value, it seems. 
 		//set_register(sarg1, (in_range ? 10000 : 0));
@@ -20882,28 +20879,28 @@ int run_script(const byte type, const word script, const long i)
 				switch(type)
 				{
 					case SCRIPT_FFC:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
 					case SCRIPT_NPC:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
 					case SCRIPT_LWPN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
 					case SCRIPT_EWPN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
 					case SCRIPT_ITEMSPRITE:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
 					case SCRIPT_ITEM:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
 					case SCRIPT_GLOBAL:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
 					case SCRIPT_LINK:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
-						Z_scripterrlog("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
-					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s has exited.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+						zprint("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
+					case SCRIPT_COMBO: zprint("%s Script %s has exited.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
 					
 					default: break;					
 				}
@@ -22418,10 +22415,10 @@ int run_script(const byte type, const word script, const long i)
 			
 				// int x;
 				
-				// Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
-				// Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
-				// Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
-				// Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
+				// zprint("ri->d[3] is (%i), trying to use for '%s'\n", nn, "nn");
+				// zprint("ri->d[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
+				// zprint("ri->d[1] is (%i), trying to use for '%s'\n", map, "map");
+				// zprint("ri->d[0] is (%i), trying to use for '%s'\n", index, "index");
 				
 				if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
 					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
@@ -22968,9 +22965,9 @@ int run_script(const byte type, const word script, const long i)
 			{
 				int itemid = ri->idata;
 				int mode = get_register(sarg1) / 10000;
-				Z_scripterrlog("Trying to run the script on item: %d\n",itemid);
-				Z_scripterrlog("The script ID is: %d\n",itemsbuf[itemid].script);
-				Z_scripterrlog("Runitemscript mode is: %d\n", mode);
+				zprint("Trying to run the script on item: %d\n",itemid);
+				zprint("The script ID is: %d\n",itemsbuf[itemid].script);
+				zprint("Runitemscript mode is: %d\n", mode);
 				switch(mode)
 				{
 					case 0:
@@ -23727,7 +23724,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
 				{
-				//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
+				//zprint("FFScript: FFC (%d) issued WAITDRAW\n", i);
 					tmpscr->ffcswaitdraw |= (1<<i);
 				//set_bitl(tmpscr->ffcswaitdraw, i, 1);
 				}
@@ -23800,7 +23797,7 @@ int run_script(const byte type, const word script, const long i)
 			
 		case SCRIPT_ITEM:
 		{
-			Z_scripterrlog("Item script reached quit/end of scope\n");
+			zprint("Item script reached quit/end of scope\n");
 			int new_i = 0;
 			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
@@ -23819,7 +23816,7 @@ int run_script(const byte type, const word script, const long i)
 				itemCollectScriptData[new_i].Clear();
 			}
 			FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
-			Z_scripterrlog("Item script reached quit/end of scope for new_i: %d\n",new_i);
+			zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
 			itemscriptInitialised[new_i] = 0;
 			
 			break; //item scripts aren't gonna go again anyway
@@ -23920,7 +23917,7 @@ int run_script(const byte type, const word script, const long i)
 int ffscript_engine(const bool preload)
 {
 	//run screen script, first
-	//Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
+	//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 	if(( preload && tmpscr->preloadscript) || !preload )
 	{
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
@@ -24227,7 +24224,7 @@ void FFScript::do_file_readints()
 		/*
 		fseek(f->file, 0L, SEEK_END);
 		int foo = ftell(f->file);
-		Z_scripterrlog("File size: %ld\n", foo);
+		zprint("File size: %ld\n", foo);
 		rewind(f->file);
 		//*/
 		
@@ -24410,20 +24407,20 @@ void FFScript::do_file_geterr()
 void FFScript::do_write_bitmap()
 {
 	for ( int q = 0; q < 16; q++)
-	Z_scripterrlog("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
+	zprint("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
 	long arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 
 	ArrayH::getString(arrayptr, filename_str, 512);
 	int ref = ri->bitmapref-10;
-	Z_scripterrlog("WriteBitmap() filename is %s\n",filename_str.c_str());
-	Z_scripterrlog("WriteBitmap ri->bitmapref is: %d\n",ref );
+	zprint("WriteBitmap() filename is %s\n",filename_str.c_str());
+	zprint("WriteBitmap ri->bitmapref is: %d\n",ref );
 	if ( ref <= 0 )
 	{
 		if (ref == -2 )
 		{
 			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
-			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+			zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -24435,7 +24432,7 @@ void FFScript::do_write_bitmap()
 		if ( scb.script_created_bitmaps[ref].u_bmp ) 
 		{
 			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
-			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+			zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -24447,7 +24444,7 @@ void FFScript::do_write_bitmap()
 		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
 		{
 			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
-			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+			zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -24470,7 +24467,7 @@ long FFScript::do_allocate_bitmap()
 void FFScript::do_isvalidbitmap()
 {
 	long UID = get_register(sarg1);
-	//Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
+	//zprint("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
 		set_register(sarg1, 10000);
@@ -24479,7 +24476,7 @@ void FFScript::do_isvalidbitmap()
 void FFScript::do_isallocatedbitmap()
 {
 	long UID = get_register(sarg1);
-	//Z_scripterrlog("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
+	//zprint("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
@@ -24501,7 +24498,7 @@ void FFScript::user_bitmaps_init()
 
 long FFScript::do_create_bitmap()
 {
-	//Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
+	//zprint("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
 	long w = (ri->d[1] / 10000);
 	long h = (ri->d[0]/10000);
@@ -24862,7 +24859,7 @@ int FFScript::do_getpixel()
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
-	Z_scripterrlog("Getpixel pointer is: %d\n", ri->bitmapref-10);
+	zprint("Getpixel pointer is: %d\n", ri->bitmapref-10);
 	//bmp = targetBitmap;
 	if(!bitty)
 		{
@@ -24910,9 +24907,9 @@ long FFScript::loadMapData()
 	long _map = (ri->d[0] / 10000);
 	long _scr = (ri->d[1]/10000);
 	int indx = (zc_max((_map)-1,0) * MAPSCRS + _scr);
-	//Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
-	//Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
-	//Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
+	//zprint("LoadMapData Map Value: %d\n", _map);
+	//zprint("LoadMapData Screen Value: %d\n", _scr);
+	//zprint("LoadMapData Indx Value: %d\n", indx);
 	 if ( _map < 1 || _map > map_count )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
@@ -24926,7 +24923,7 @@ long FFScript::loadMapData()
 		return LONG_MAX;
 	}
 	else ri->mapsref = indx;
-	//Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
+	//zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
 	return ri->mapsref;
 }
 
@@ -26798,7 +26795,7 @@ void FFScript::do_warp_ex(bool v)
 		case 8:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
-			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 8);
+			zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
 			FFCore.warpex[wexActive] = 1; 
 			
 			for ( int q = 0; q < wexDir; q++ )
@@ -26813,7 +26810,7 @@ void FFScript::do_warp_ex(bool v)
 		case 9:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			FFCore.warpex[wexActive] = 1; 
 			
 			for ( int q = 0; q < wexActive; q++ )
@@ -26823,7 +26820,7 @@ void FFScript::do_warp_ex(bool v)
 			
 			//for ( int q = 0; q < wexLast; q++ ) 
 			//{
-			//	Z_scripterrlog("FFCore.warpex[%d] is: %d\n", q, FFCore.warpex[q]);
+			//	zprint("FFCore.warpex[%d] is: %d\n", q, FFCore.warpex[q]);
 			//}
 			
 			break;
@@ -27090,7 +27087,7 @@ void FFScript::lweaponScriptEngine()
 	for ( int q = 0; q < Lwpns.Count(); q++ )
 	{
 		//ri->lwpn = Lwpns.spr(q)->getUID();
-		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
+		//zprint("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
 		//ri->lwpn = Lwpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Lwpns.spr(q);
 		switch(Lwpns.spr(q)->id)
@@ -27400,14 +27397,14 @@ void FFScript::lweaponScriptEngine()
 bool FFScript::itemScriptEngine()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	//zprint("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
 	{
 		
-		//Z_scripterrlog("Checking item ID: %d\n",q);
+		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( item_doscript[q] < 1 ) continue;
-		//Z_scripterrlog("Running ItemScriptEngine() for item ID: %dn", q);
+		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 			After executing RunScript(), item_doscript is set to '1' in Link.cpp.
 			If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
@@ -27473,7 +27470,7 @@ bool FFScript::itemScriptEngine()
 		
 		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
 			
@@ -27519,10 +27516,10 @@ bool FFScript::itemScriptEngine()
 		//}
 		//if ( runningItemScripts[i] == 1 )
 		//{
-			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//zprint("Found a script running on item ID: %d\n",q);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			//zprint("Script Detected for that item is: %d\n",itemsbuf[q].script);
 			
 			////if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
 			////{
@@ -27537,7 +27534,7 @@ bool FFScript::itemScriptEngine()
 			////}
 		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
 		{
-			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 		}
 		//}
@@ -27570,10 +27567,10 @@ void FFScript::npcScriptEngineOnWaitdraw()
 bool FFScript::itemScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	//zprint("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
 	{
-		//Z_scripterrlog("Checking item ID: %d\n",q);
+		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( item_doscript[q] < 1 ) continue;
 		if ( !itemScriptsWaitdraw[q] ) continue;
@@ -27625,7 +27622,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		
 		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
 			
@@ -27642,7 +27639,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			
 		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
 		{
-			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 		}
 		//itemScriptsWaitdraw[q] = 0; THis is the wrong place, so I moved it into an else stmt at the top of this function's body. -Z
@@ -27658,7 +27655,7 @@ void FFScript::eweaponScriptEngine()
 	for ( int q = 0; q < Ewpns.Count(); q++ )
 	{
 		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
 		//ri->ewpn = Ewpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Ewpns.spr(q);
 		if ( wp->isLWeapon ) continue;
@@ -28083,7 +28080,7 @@ void FFScript::lweaponScriptEngineOnWaitdraw()
 	for ( int q = 0; q < Lwpns.Count(); q++ )
 	{
 		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
 		//ri->ewpn = Ewpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Lwpns.spr(q);
 		if ( !wp->isLWeapon ) continue;
@@ -28105,7 +28102,7 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 	for ( int q = 0; q < Ewpns.Count(); q++ )
 	{
 		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
 		//ri->ewpn = Ewpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Ewpns.spr(q);
 		if ( wp->isLWeapon ) continue;
@@ -28661,7 +28658,6 @@ void FFScript::do_slidenpc()
 
 void FFScript::do_npckickbucket()
 {
-	
 	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -28669,7 +28665,6 @@ void FFScript::do_npckickbucket()
 		//GuyH::getNPC()->kickbucket();
 		guys.del(GuyH::getNPCIndex(ri->guyref));
 	}
-	//else Z_scripterrlog
 }
 
 void FFScript::do_npc_stopbgsfx()
@@ -28774,7 +28769,7 @@ void FFScript::do_npc_constwalk()
 {
 	long arrayptr = get_register(sarg2) / 10000;
 	int sz = FFCore.getSize(arrayptr);
-	//Z_scripterrlog("Array size passed to do_npc_constwalk: %d\n", sz);
+	//zprint("Array size passed to do_npc_constwalk: %d\n", sz);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
@@ -28788,7 +28783,7 @@ void FFScript::do_npc_constwalk()
 				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
 				return;
 			}
-			//Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+			//zprint("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 			//	(getElement(arrayptr, 2)/10000));
 			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 				(getElement(arrayptr, 2)/10000) );
@@ -29011,51 +29006,51 @@ long FFScript::npc_collision()
 		{
 			case obj_type_lweapon:
 			{
-				Z_scripterrlog("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_eweapon:
 			{
-				Z_scripterrlog("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_npc:
 			{
-				Z_scripterrlog("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_link:
 			{
-				Z_scripterrlog("Checking collision on npc (%d) against Player\n", ri->guyref);
+				zprint("Checking collision on npc (%d) against Player\n", ri->guyref);
 				isColl = 0;
 				break;
 			}
 			case obj_type_ffc:
 			{
 				_obj_ptr *= 10000; _obj_ptr -= 1;
-				Z_scripterrlog("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_combo_pos:
 			{
 				_obj_ptr *= 10000;
-				Z_scripterrlog("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_item:
 			{
-				Z_scripterrlog("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
+				zprint("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			default: 
 			{
-				Z_scripterrlog("Invalid object type (%d) passed to npc->Collidion(int type, int ptr)\n", _obj_type);
+				Z_scripterrlog("Invalid object type (%d) passed to npc->Collision(int type, int ptr)\n", _obj_type);
 				isColl = 0;
 				break;
 			}
@@ -29071,7 +29066,7 @@ long FFScript::npc_linedup()
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
 		long range = (ri->d[0] / 10000);
-		//Z_scripterrlog("LinedUp distance is: %d\n", range);
+		//zprint("LinedUp distance is: %d\n", range);
 		bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		return (long)GuyH::getNPC()->lined_up(range,dir8);
@@ -29084,7 +29079,7 @@ long FFScript::npc_linedup()
 void FFScript::do_npc_link_in_range(const bool v)
 {
 	int dist = get_register(sarg1) / 10000;
-	//Z_scripterrlog("LinkInrange dist is: %d\n", dist);
+	//zprint("LinkInrange dist is: %d\n", dist);
 	//bool in_range = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
@@ -29092,7 +29087,7 @@ void FFScript::do_npc_link_in_range(const bool v)
 		//bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//in_range = (e->LinkInRange(dist));
-		//Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		//zprint("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
 		bool in_range = GuyH::getNPC()->LinkInRange(dist);
 		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
 		//set_register(sarg1, (in_range ? 10000 : 0));
@@ -29114,7 +29109,7 @@ void FFScript::do_npc_simulate_hit(const bool v)
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
 	{
-		Z_scripterrlog("Trying to simulate a hit on npc\n");
+		zprint("Trying to simulate a hit on npc\n");
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 2 ) //type and pointer
 		{
@@ -29156,7 +29151,7 @@ void FFScript::do_npc_knockback(const bool v)
 	long time = SH::get_arg(sarg1, v) / 10000;
 	long dir = SH::get_arg(sarg2, v) / 10000;
 	long spd = vbound(ri->d[0] / 10000, 0, 255);
-	//Z_scripterrlog("Knockback: time %d,dir %d,spd %d\n",time,dir,spd);
+	//zprint("Knockback: time %d,dir %d,spd %d\n",time,dir,spd);
 	bool ret = false;
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
@@ -29229,7 +29224,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	long section_id = SH::get_arg(sarg2, v2) / 10000;
-	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
 	FFCore.getString(arrayptr, strA);
@@ -29242,7 +29237,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 		{
 			p_igetl(&sram_version,f,true);
 			p_igetl(&section_id,f,true);
-			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
+			zprint("Reading ZCSRAM, Version: %d\n", sram_version);
 			if ( sram_version > SRAM_VERSION ) //file version is greater than programme current version.
 			{
 				Z_scripterrlog("SRAM Version is from a version of ZC newer than the running version and cannot be loaded.\n");
@@ -29265,7 +29260,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
-			Z_scripterrlog("do_savegamestructs COMPLETED READINV %s, with section ID flags %d\n", "ALL", section_id);
+			zprint("do_savegamestructs COMPLETED READINV %s, with section ID flags %d\n", "ALL", section_id);
 			
 			set_register(sarg1, 10000);
 		}
@@ -29287,7 +29282,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	long section_id = SH::get_arg(sarg2, v2) / 10000;
-	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
 	FFCore.getString(arrayptr, strA);
@@ -29313,7 +29308,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
-			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, with section ID flags %d\n", "ALL", section_id);
+			zprint("do_savegamestructs COMPLETED WRITING %s, with section ID flags %d\n", "ALL", section_id);
 			set_register(sarg1, 10000);
 		}
 		else 
@@ -29349,7 +29344,7 @@ void FFScript::do_LowerToUpper(const bool v)
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
 	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		zprint("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
 	for ( unsigned int q = 0; q < strA.size(); ++q )
@@ -29366,7 +29361,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		//	continue;
 		//}
 	}
-	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//zprint("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -29400,7 +29395,7 @@ void FFScript::do_UpperToLower(const bool v)
 		//	continue;
 		//}
 	}
-	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//zprint("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -29676,7 +29671,7 @@ void FFScript::do_ConvertCase(const bool v)
 		//	continue;
 		//}
 	}
-	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//zprint("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -29688,21 +29683,21 @@ void FFScript::do_ConvertCase(const bool v)
 void FFScript::do_xlen(const bool v)
 {
 	//not implemented, xlen not found
-	//Z_scripterrlog("Running: %s\n","strlen()");
+	//zprint("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//zprint("strlen string size is: %d\n", str.length());
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 void FFScript::do_xtoi(const bool v)
 {
 	//not implemented, xtoi not found
-	//Z_scripterrlog("Running: %s\n","strlen()");
+	//zprint("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//zprint("strlen string size is: %d\n", str.length());
 	//set_register(sarg1, (xtoi(str.c_str()) * 10000));
 }
 void FFScript::do_ilen(const bool v)
@@ -29710,7 +29705,7 @@ void FFScript::do_ilen(const bool v)
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//zprint("strlen string size is: %d\n", str.length());
 	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
 }
 void FFScript::do_atoi(const bool v)
@@ -29753,7 +29748,7 @@ void FFScript::do_strcat()
 	//char str_c[2048];
 	//strcpy(str_c, strA.c_str());
 	string strC = strA + strB;
-	//Z_scripterrlog("strcat string: %s\n", strC.c_str());
+	//zprint("strcat string: %s\n", strC.c_str());
 	if(ArrayH::setArray(arrayptr_a, strC.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
@@ -29905,11 +29900,11 @@ void FFScript::do_arraycpy(const bool a, const bool b)
 }
 void FFScript::do_strlen(const bool v)
 {
-	//Z_scripterrlog("Running: %s\n","strlen()");
+	//zprint("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//zprint("strlen string size is: %d\n", str.length());
 	set_register(sarg1, (str.length() * 10000));
 }
 
@@ -29921,7 +29916,7 @@ void FFScript::do_strncmp()
 	long len = ri->d[2]/10000;
 	//for ( int q = 0; q < 8; q++ )
 	//{
-	//	Z_scripterrlog("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
+	//	zprint("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
 	//	
 	//}
 	
@@ -29942,15 +29937,15 @@ void FFScript::do_npc_canmove(const bool v)
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
-			//Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			//zprint("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
-			//Z_scripterrlog("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
+			//zprint("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
 			//return;
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
-			//Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
+			//zprint("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
@@ -29958,7 +29953,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			//Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
+			//zprint("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
@@ -29966,7 +29961,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			Z_scripterrlog("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
+			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
@@ -32150,7 +32145,7 @@ void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
 void FFScript::ZASMPrint(bool open)
 {
 	if(SKIPZASMPRINT()) return;
-	Z_scripterrlog("%s ZASM Console\n", open ? "Opening" : "Closing");
+	zprint("%s ZASM Console\n", open ? "Opening" : "Closing");
 	#ifdef _WIN32
 	if ( open )
 	{
