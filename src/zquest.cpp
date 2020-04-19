@@ -14673,11 +14673,10 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
         {
             textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
-            textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
-            textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
+            textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
+            textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
+            textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
            // textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
-            textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
             textprintf_ex(screen,spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
             textprintf_ex(screen,spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
             textprintf_ex(screen,spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
