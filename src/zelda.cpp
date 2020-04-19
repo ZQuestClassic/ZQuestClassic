@@ -117,14 +117,14 @@ int colordepth;
 int db=0;
 //zinitdata  zinit;
 int detail_int[10];                                         //temporary holder for things you want to detail
-int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
-int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+int lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            //aclk, aframe
+int lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
 int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
 unsigned char __isZQuest = 0; //shared functions can use this. -
 int strike_hint_timer=0;
-int strike_hint;
-int slot_arg, slot_arg2;
+int strike_hint = 0;
+int slot_arg = 0, slot_arg2 = 0;
 char save_file_name[1024] = "zc.sav";
 //char *SAVE_FILE = (char *)"zc.sav";
 char *SAVE_FILE = NULL;
@@ -134,7 +134,7 @@ CScriptDrawingCommands script_drawing_commands;
 using std::string;
 using std::pair;
 
-int zq_screen_w, zq_screen_h;
+int zq_screen_w = 0, zq_screen_h = 0;
 int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
@@ -152,8 +152,8 @@ bool standalone_mode=false;
 char *standalone_quest=NULL;
 bool skip_title=false;
 
-int favorite_combos[MAXFAVORITECOMBOS];
-int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
+int favorite_combos[MAXFAVORITECOMBOS] = {0};
+int favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
 
 void playLevelMusic();
 
@@ -300,30 +300,30 @@ bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of bla
 */
 bool ewind_restart=false;
 
-word     msgclk, msgstr,
-         msgpos,	// screen position of the next character.
-         msgptr,	// position within the string of the next character. <MSGSIZE.
-         msgcolour,	// colour to use for the displayed text.
-         msgspeed,	// delay between each character (5 = default).
-         msg_w,
-         msg_h,
-         msg_count,
-         cursor_x,
-         cursor_y,
+word     msgclk = 0, msgstr = 0,
+         msgpos = 0,	// screen position of the next character.
+         msgptr = 0,	// position within the string of the next character. <MSGSIZE.
+         msgcolour = 0,	// colour to use for the displayed text.
+         msgspeed = 0,	// delay between each character (5 = default).
+         msg_w = 0,
+         msg_h = 0,
+         msg_count = 0,
+         cursor_x = 0,
+         cursor_y = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
-byte msg_margins[4];
+byte msg_margins[4] = {0};
 int prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
 FONT	 *msgfont;
 word     door_combo_set_count;
-word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-short    lensclk;
-int     lensid; // Lens's item id. -1 if lens is off.
-int    Bpos;
+word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
+short    lensclk = 0;
+int     lensid = 0; // Lens's item id. -1 if lens is off.
+int    Bpos = 0;
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
 byte ffcgrid[4]={0};
@@ -331,46 +331,46 @@ bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
 PALETTE tempbombpal;
-bool usebombpal;
+bool usebombpal = false;
 
-int readsize, writesize;
+int readsize = 0, writesize = 0;
 bool fake_pack_writing=false;
 combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compile. All memory from this is freed after loading the quest file.
 
-SAMPLE customsfxdata[WAV_COUNT];
-unsigned char customsfxflag[WAV_COUNT>>3];
+SAMPLE customsfxdata[WAV_COUNT] = {0};
+unsigned char customsfxflag[WAV_COUNT>>3]  = {0};
 int sfxdat=1;
 BITMAP *hw_screen;
-int zqwin_scale;
+int zqwin_scale = 0;
 
-int jwin_pal[jcMAX];
+int jwin_pal[jcMAX] = {0};
 int gui_colorset=0;
-int fullscreen;
+int fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
 byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
-int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
-int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+int lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0;
+int digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
-int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+int joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 unsigned long GameFlags=0;
-int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
-int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
-int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
-int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
-int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
-int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
-int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
-int nets=1580, magicitem=-1,nayruitem=-1, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
+int js_stick_1_x_stick = 0, js_stick_1_x_axis = 0, js_stick_1_x_offset = 0;
+int js_stick_1_y_stick = 0, js_stick_1_y_axis = 0, js_stick_1_y_offset = 0;
+int js_stick_2_x_stick = 0, js_stick_2_x_axis = 0, js_stick_2_x_offset = 0;
+int js_stick_2_y_stick = 0, js_stick_2_y_axis = 0, js_stick_2_y_offset = 0;
+int DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn = 0, DRbtn = 0, ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
+int hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
+int cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0;
+int gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
+int nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 float avgfps=0;
 dword fps_secs=0;
 bool do_cheat_goto=false, do_cheat_light=false;
-int checkx, checky;
+int checkx = 0, checky = 0;
 int loadlast=0;
 int skipcont=0;
 int skipicon=0;
@@ -383,32 +383,32 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
 
 
-bool Throttlefps, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS, Showpal=false, disableClickToFreeze=false;
-bool Playing, FrameSkip=false, TransLayers;
-bool __debug=false,debug_enabled;
-bool refreshpal,blockpath,loaded_guys,freeze_guys,
-     loaded_enemies,drawguys,details=false,watch;
-bool darkroom=false,naturaldark=false,BSZ;                         //,NEWSUBSCR;
-bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11, F5,keyI, keyQ,
-     SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
+bool Throttlefps = true, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
+bool Playing, FrameSkip=false, TransLayers = true;
+bool __debug=false,debug_enabled = false;
+bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
+     loaded_enemies= false,drawguys= false,details=false,watch= false;
+bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
+bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
+     SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
      pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
-     pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
-     is_on_conveyor, activated_timed_warp=false;
+     pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
+     is_on_conveyor= false, activated_timed_warp=false;
 
-byte COOLSCROLL;
+byte COOLSCROLL = 0;
 
 int  add_asparkle=0, add_bsparkle=0;
 int SnapshotFormat, NameEntryMode=0;
 
-char   zeldadat_sig[52];
-char   sfxdat_sig[52];
-char   fontsdat_sig[52];
-char   cheat_goto_dmap_str[4];
-char   cheat_goto_screen_str[3];
-short  visited[6];
-byte   guygrid[176];
+char   zeldadat_sig[52]={0};
+char   sfxdat_sig[52]={0};
+char   fontsdat_sig[52]={0};
+char   cheat_goto_dmap_str[4]={0};
+char   cheat_goto_screen_str[3]={0};
+short  visited[6]={0};
+byte   guygrid[176]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
@@ -544,18 +544,18 @@ dword getNumGlobalArrays()
 //movingblock mblock2; //mblock[4]?
 //LinkClass   Link;
 
-int resx,resy,scrx,scry;
-bool sbig;                                                  // big screen
-bool sbig2;													// bigger screen
+int resx= 0,resy= 0,scrx= 0,scry= 0;
+bool sbig=false;                                                  // big screen
+bool sbig2=false;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
-bool scanlines;                                             //do scanlines if sbig==1
+bool scanlines=false;                                             //do scanlines if sbig==1
 bool toogam=false;
 bool ignoreSideview=false;
 
 int cheat = (DEVLEVEL > 1) ? 4 : 0;                         // 0 = none; 1,2,3,4 = cheat level
 
-int mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
-int idle_count, active_count;
+int mouse_down=0;                                             // used to hold the last reading of 'gui_mouse_b()' status
+int idle_count=0, active_count=0;
 
 
 // quest file data
@@ -564,16 +564,16 @@ byte                quest_rules[QUESTRULES_NEW_SIZE];
 byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count;
+word                map_count=0;
 MsgStr              *MsgStrings;
-int					msg_strings_size;
+int					msg_strings_size=0;
 DoorComboSet        *DoorComboSets;
 dmap                *DMaps;
 miscQdata           QMisc;
 std::vector<mapscr> TheMaps;
 zcmap               *ZCMaps;
 byte                *quest_file;
-dword               quest_map_pos[MAPSCRS*MAXMAPS2];
+dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
@@ -2255,6 +2255,14 @@ int init_game()
     
     if(firstplay)
         game->set_hasplayed(1);
+    
+    if(firstplay)
+    {
+	game->awpn=0;
+	game->bwpn=0;
+	game->forced_awpn = -1; 
+	game->forced_bwpn = -1;    
+    }
         
     update_subscreens();
     
@@ -3329,6 +3337,8 @@ void game_loop()
 		    {
 			if(!Quit)
 			{
+			    //set a B item hack
+			    //Bwpn = Bweapon(Bpos);
 			    Quit = qGAMEOVER;
 			}
 			
@@ -5257,11 +5267,16 @@ int main(int argc, char* argv[])
 		switch(Quit)
 		{
 			case qSAVE:
-			case qSAVECONT:
-			case qCONT:
+			
 			case qQUIT:
 			case qGAMEOVER:
 			case qRELOAD:
+				//set a B item hack
+				//Bwpn = Bweapon(Bpos);
+				//game->bwpn = Bpos;
+				//directItemB = directItem;
+			case qCONT:
+			case qSAVECONT:
 			{
 				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
 				show_subscreen_dmap_dots=true;
