@@ -25071,12 +25071,6 @@ int onZScriptCompilerSettings()
     return D_O_K;
 }
 
-void centre_zscript_dialogs()
-{
-    jwin_center_dialog(zscript_settings_dlg);
-    jwin_center_dialog(zscript_parser_dlg);
-}
-
 //editbox_data zscript_edit_data;
 
 static DIALOG edit_zscript_dlg[] =
@@ -28193,6 +28187,15 @@ int onImportZASM()
 	}
 	delete temp_slot;
 	return D_O_K;
+}
+
+void centre_zscript_dialogs()
+{
+    jwin_center_dialog(zscript_settings_dlg);
+    jwin_center_dialog(zscript_parser_dlg);
+    jwin_center_dialog(exportzasm_dlg);
+    jwin_center_dialog(importzasm_dlg);
+    jwin_center_dialog(clearslots_dlg);
 }
 
 //The Dialogue that loads a ZMOD Module File
