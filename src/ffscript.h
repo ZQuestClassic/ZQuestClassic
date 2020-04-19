@@ -3005,6 +3005,7 @@ enum ASM_DEFINE
 
 #define CURDSCR              0x08B5
 //#define GETSTART             0x08B6 //?
+#define INCQST 		     0x08B6
 
 #define COMBOSD	             0x08B7
 #define SCREENSTATEDD        0x08B8
@@ -3223,7 +3224,7 @@ enum ASM_DEFINE
 #define IDATAGAINLOWER 0x10D6
 #define RESVD023 0x10D7
 #define RESVD024 0x10D8
-#define INCQST 0x10D9
+#define RESVD025 0x10D9
 
 #define NPCSCRDEFENSED 0x10DA
 
