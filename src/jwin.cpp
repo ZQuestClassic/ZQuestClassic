@@ -4170,7 +4170,7 @@ static int droplist(DIALOG *d)
     
     (*data->listFunc)(-1, &listsize);
     y = d->y + d->h;
-    h = zc_min(listsize,8) * text_height(*data->font) + 8;
+    h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
     
     if(y+h >= zq_screen_h)
     {
