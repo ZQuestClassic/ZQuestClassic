@@ -1700,6 +1700,7 @@ int init_game()
     game->bwpn = bpos;
     Bwpn = Bweapon(bpos);
     directItemB = directItem;
+    directItemA = directItem;
     update_subscr_items();
     
     reset_subscr_items();
