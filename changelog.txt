@@ -1,5 +1,11 @@
 ChangeLog for 2.53.1
 
+//Beta 38
+Fixed the initialisation of forced_awpn and forced_bwpn on firstplay.
+Fixed a bug where exiting a quest with an A+B subscreen, and starting
+	to play a B-only subscreen quest preventing using the A-item.
+	( ZoriaRPG, 19th April, 2020 )
+
 //Beta 37
 Clear forced_wpn if setting an item slot from the real subscreen.
 If the user config for ZC Player speifies a custom SAVEFILE
@@ -17,6 +23,7 @@ Values set when writing Link->Equipment now write to
 		return early.
 	If a forced item is removed from inventory (with a script, or with
 		a string), then its forced value is set to -1.
+	( ZoriaRPG, 25th March, 2020 )
 
 //Beta 36
 Backport ZQ Minimap Enhancements from 2.55
