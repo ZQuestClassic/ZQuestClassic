@@ -652,6 +652,10 @@ ScriptsData::ScriptsData(Program& program)
 		string const& author = script.getAuthor().substr(0,32);
 		strcpy(meta.script_name, name.substr(0,32).c_str());
 		strcpy(meta.author, author.c_str());
+		al_trace(meta.script_name);
+		al_trace(meta.author);
+		al_trace(name.c_str());
+		al_trace(author.c_str());
 		if(Function* run = script.getRun())
 		{
 			int ind = 0;

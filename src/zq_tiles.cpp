@@ -13351,7 +13351,7 @@ const char *comboscriptdroplist(int index, int *list_size)
     
     return bidcomboscripts[index].first.c_str();
 }
-static ListData comboscript_list(comboscriptdroplist, &font);
+ListData comboscript_list(comboscriptdroplist, &font);
 
 static DIALOG combo_dlg[] =
 {

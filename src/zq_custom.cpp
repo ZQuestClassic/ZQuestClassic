@@ -1051,7 +1051,7 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemscript_list(itemscriptdroplist, &pfont);
+ListData itemscript_list(itemscriptdroplist, &pfont);
 
 const char *itemspritescriptdroplist(int index, int *list_size)
 {
@@ -1066,7 +1066,7 @@ const char *itemspritescriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
 
 const char *lweaponscriptdroplist(int index, int *list_size)
 {
@@ -1081,7 +1081,7 @@ const char *lweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
 
 static DIALOG itemdata_special_dlg[] =
 {
@@ -5897,7 +5897,7 @@ const char *npcscriptdroplist(int index, int *list_size)
     
     return binpcs[index].first.c_str();
 }
-static ListData npcscript_list(npcscriptdroplist, &font);
+ListData npcscript_list(npcscriptdroplist, &font);
 
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
@@ -5918,7 +5918,7 @@ const char *eweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
+ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);

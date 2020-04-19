@@ -41,6 +41,7 @@ struct script_slot_data
 			scriptname = newname.substr(2);
 		}
 		else scriptname = newname;
+		update();
 	}
 	
 	void clear()
