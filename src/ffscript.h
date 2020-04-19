@@ -1242,6 +1242,7 @@ enum ASM_DEFINE
 
 #define CURDSCR              0x08B5
 //#define GETSTART             0x08B6 //?
+#define INCQST 		     0x08B6
 
 #define COMBOSD	             0x08B7
 #define SCREENSTATEDD        0x08B8

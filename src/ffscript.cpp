@@ -20,6 +20,7 @@ FFScript FFCore;
 
 extern int directItemA;
 extern int directItemB;
+extern unsigned char script_incremented;
 
 #include "guys.h"
 #include "gamedata.h"
@@ -30,6 +31,7 @@ extern int directItemB;
 #include "zscriptversion.h"
 #include "rendertarget.h"
 #include "metadata/versionsig.h"
+#include "ending.h"
 
 extern byte monochrome_console;
 
@@ -3816,6 +3818,36 @@ long get_register(const long arg)
     
     switch(arg)
     {
+	    
+///--------------------------------------------------------
+/// Game->
+
+    case INCQST:
+    {
+	//zprint2("Incrementing Quest\n");
+	int newqst = 0;
+	if ( game->get_quest() < 255 )  //255 is a custom quest
+	{
+		newqst = (game->get_quest()+1);
+	}
+	else
+	{
+		newqst = 1;
+	}
+	//zprint2("newqst is: %d\n", newqst);
+	if ( newqst < 11 ) 
+	{
+		
+		ret = newqst * 10000;
+		Quit = qINCQST;
+		//ending();
+		
+	}
+	else ret = -10000;
+	break;
+    }
+	    
+	    
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
