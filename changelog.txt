@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 39
+Backported the Linux console from 2.55 to 2.53.1. 
+	( ZoriaRPG, 19th April, 2020 )
+
 //Beta 38
 Fixed the initialisation of forced_awpn and forced_bwpn on firstplay.
 Fixed a bug where exiting a quest with an A+B subscreen, and starting

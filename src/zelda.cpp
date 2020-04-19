@@ -53,7 +53,17 @@ ZModule zcm;
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
-#include "ConsoleLogger.h"
+#ifdef _WIN32
+	#include "ConsoleLogger.h"
+#else //Unix
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
+	int pt = 0;
+	char* ptname = NULL;
+	std::ostringstream lxconsole_oss;
+#endif
 extern FFScript FFCore;
 
 #ifdef _WIN32
@@ -761,6 +771,14 @@ void zprint(const char * const format,...)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+		{
+			
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
+			
+		}
+	
 		#endif
 	}
 	
@@ -789,6 +807,9 @@ void zprint2(const char * const format,...)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
 		#endif
 	}
 	
@@ -797,7 +818,7 @@ void zprint2(const char * const format,...)
 
 void Z_eventlog(const char *format,...)
 {
-    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 0 )
+    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 0)
     {
         char buf[2048];
         
@@ -813,9 +834,12 @@ void Z_eventlog(const char *format,...)
 	#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#else //Unix
+			printf("%s", buf);	
 		#endif
     }
 }
+
 
 // Yay, more extern globals.
 extern byte curScriptType;
@@ -828,36 +852,44 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
-       
         switch(curScriptType)
         {
-		case SCRIPT_GLOBAL:
-		    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
-			#ifdef _WIN32
-			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
-				curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
-			#endif
-		    break;
-		    
-		case SCRIPT_FFC:
-		    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
-		    
-			#ifdef _WIN32
-			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
-			#endif
-		break;
-		    
-		case SCRIPT_ITEM:
-		    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
-			#ifdef _WIN32
-			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
-			#endif
-		break;
-		default: break;
+        case SCRIPT_GLOBAL:
+            al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
+			curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Global script %u (%s): \n", curScriptNum+1, globalmap[curScriptNum].second.c_str());	
+		#endif
+            break;
 	
+            
+        case SCRIPT_FFC:
+            al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+	    
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("FFC script %u (%s): \n", curScriptNum, ffcmap[curScriptNum-1].second.c_str());	
+		#endif    
+	break;
+            
+        case SCRIPT_ITEM:
+            al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Itemdata script %u (%s): \n", curScriptNum, itemmap[curScriptNum-1].second.c_str());	
+		#endif    
+	break;
+      
         }
         
         char buf[2048];
@@ -868,7 +900,7 @@ void Z_scripterrlog(const char * const format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-	if(zconsole)
+        if(zconsole)
 	{
             printf("%s",buf);
 	}
@@ -879,6 +911,7 @@ void Z_scripterrlog(const char * const format,...)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 		#endif
 	}
+	
     }
 }
 
@@ -3134,6 +3167,82 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
+#else //Unix
+
+    { // Let's try making a console for Linux -Z
+	pt = posix_openpt(O_RDWR);
+	if (pt == -1)
+	{
+		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,O_RDWR);
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		Z_error("Could not redirect standard output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		Z_error("Could not redirect standard error output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+    } //this is in a block because I want it in a block. -Z
+    
+    no_lx_console:
+    {
+	    //Z_error("Could not open Linux console.\n");
+    }
+    
+    
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
+    
+	if ( quest_header_zelda_version > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", quest_header_zelda_version, quest_header_zelda_build);
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
+	//std::cerr << "Test cerr\n\n";
+	std::cin.ignore(1);
 #endif
     
     

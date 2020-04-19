@@ -9336,7 +9336,10 @@ void TraceScriptIDs()
 			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
 				curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+			#else //Unix
+				printf("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());	
 			#endif
+		
 		    break;
 		    
 		case SCRIPT_FFC:
@@ -9345,7 +9348,9 @@ void TraceScriptIDs()
 			#ifdef _WIN32
 			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
-			#endif
+			#else //Unix
+				printf("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+			#endif  
 		break;
 		    
 		case SCRIPT_ITEM:
@@ -9353,7 +9358,9 @@ void TraceScriptIDs()
 			#ifdef _WIN32
 			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
-			#endif
+			#else //Unix
+				printf("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			#endif 
 		break;
 		
 	}
@@ -9363,74 +9370,82 @@ void TraceScriptIDs()
 
 void do_trace(bool v)
 {
-    long temp = SH::get_arg(sarg1, v);
+	long temp = SH::get_arg(sarg1, v);
+	
+	char tmp[100];
+	sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
+	string s2(tmp);
+	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+	TraceScriptIDs();
+	al_trace("%s\n", s2.c_str());
     
-    char tmp[100];
-    sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
-    string s2(tmp);
-    s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
-    TraceScriptIDs();
-    al_trace("%s\n", s2.c_str());
-    
-    if(zconsole)
-        printf("%s\n", s2.c_str());
-    if ( zscript_debugger ) 
+	if(zconsole)
+		printf("%s\n", s2.c_str());
+	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#else //Unix
+			printf("%s\n", s2.c_str());	
 		#endif
 	}
 }
 
 void do_tracebool(const bool v)
 {
-    long temp = SH::get_arg(sarg1, v);
-    TraceScriptIDs();
-    al_trace("%s\n", temp ? "true": "false");
+	long temp = SH::get_arg(sarg1, v);
+	TraceScriptIDs();
+	al_trace("%s\n", temp ? "true": "false");
     
-    if(zconsole)
-        printf("%s\n", temp ? "true": "false");
-    if ( zscript_debugger ) 
+	if(zconsole)
+		printf("%s\n", temp ? "true": "false");
+	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		#else //Unix
+			printf("%s\n", temp ? "true": "false");	
 		#endif
 	}
 }
 
 void do_tracestring()
 {
-    long arrayptr = get_register(sarg1) / 10000;
-    string str;
-    ArrayH::getString(arrayptr, str, 512);
-    TraceScriptIDs();
-    al_trace("%s", str.c_str());
+	long arrayptr = get_register(sarg1) / 10000;
+	string str;
+	ArrayH::getString(arrayptr, str, 512);
+	TraceScriptIDs();
+	al_trace("%s", str.c_str());
     
-    if(zconsole)
-        printf("%s", str.c_str());
-    if ( zscript_debugger ) 
-    {
-	#ifdef _WIN32
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+	if(zconsole)
+		printf("%s", str.c_str());
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
 
-	#endif
-    }
+		#else //Unix
+			printf("%s", str.c_str());	
+		#endif
+	}
 }
 
 void do_tracenl()
 {
-    al_trace("\n");
-    
-    if(zconsole)
-        printf("\n");
-    if ( zscript_debugger ) 
+	al_trace("\n");
+	
+	if(zconsole)
+		printf("\n");
+	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
+		#else //Unix
+			printf("\n");	
 		#endif
 	}
 }
@@ -9502,7 +9517,9 @@ void do_tracetobase()
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#endif
+		#else //Unix
+			printf("%s\n", s2.c_str());
+		#endif 
 	}
 }
 
