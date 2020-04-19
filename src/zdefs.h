@@ -2500,8 +2500,8 @@ struct mapscr
 
 #define METADATA_V			2
 #define V_COMPILER_FIRST	2020
-#define V_COMPILER_SECOND	3
-#define V_COMPILER_THIRD	10
+#define V_COMPILER_SECOND	4
+#define V_COMPILER_THIRD	18
 #define V_COMPILER_FOURTH	0
 #define ZMETA_NULL_TYPE		1
 struct zasm_meta
@@ -2634,6 +2634,13 @@ struct script_data
 	{
 		if(zasm)
 			delete[] zasm;
+	}
+	
+	void transfer(script_data& other)
+	{
+		other.meta = meta;
+		other.zasm = zasm;
+		zasm = NULL;
 	}
 };
 

@@ -201,7 +201,7 @@ protected:
 
 	// our own UNLOCK function
 	inline void LeaveCriticalSection(void)
-	{ m_fast_critical_section=0;
+	{ m_fast_critical_section=0; }
 #else
 	inline void InitializeCriticalSection(void)
 	{  }
@@ -1487,7 +1487,7 @@ static MENU import_250_menu[] =
     
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    //{ (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
+    // { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1524,7 +1524,7 @@ static MENU import_menu[] =
     { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
-    //{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    // { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
@@ -1688,9 +1688,6 @@ static MENU audio_menu[] =
 
 static MENU script_menu[] =
 {
-    { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
-    { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
-    { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
     { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1938,17 +1935,8 @@ static MENU zscript_menu[] =
 	{ (char *)"&Quest Script Settings",         onZScriptSettings,         NULL,                     0,            NULL   },
 	//divider
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &FFC Script",         onImportFFScript,          NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Item Script",        onImportItemScript,        NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Global Script",      onImportGScript,           NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &NPC Script",         onImportNPCScript,         NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &LWeapon Script",     onImportLWPNScript,        NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &EWeapon Script",     onImportEWPNScript,        NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Hero Script",        onImportHEROScript,        NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &DMap Script",        onImportDMapScript,        NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Screen Script",      onImportSCREENScript,      NULL,                     0,            NULL   },
-	{ (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,  NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Combo Script",  onImportComboScript,  NULL,                     0,            NULL   },
+	{ (char *)"&Export ZASM Script",            onExportZASM,              NULL,                     0,            NULL   },
+	{ (char *)"&Import ZASM Script",            onImportZASM,              NULL,                     0,            NULL   },
 //	{ (char *)"Set Include Path",               onZScriptSetIncludePath,   NULL,                     0,            NULL   },
 
 	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
@@ -3290,7 +3278,7 @@ static DIALOG load_doorset_dlg[] =
     { jwin_edit_proc,          55,     63,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
     //8
     
-    //{ jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
+    // { jwin_check_proc,        10,     46,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Don't Overwrite",                      NULL,   NULL                  },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -5674,8 +5662,8 @@ int onViewMap()
 {
     int temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
-    /*if(load_the_map()==0)
-    {*/
+    //if(load_the_map()==0)
+    //{
     launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true);
     //}
     ShowMisalignments=temp_aligns;
@@ -7179,7 +7167,7 @@ void refresh(int flags)
         //font=tfont;
     }
     
-    //} //if(true)
+    // } //if(true)
     if(zq_showpal)
     {
         for(int i=0; i<256; i++)
@@ -21548,7 +21536,7 @@ int onHeader()
 			}
 		}
 		//if ( ret == -1 )
-		// {
+		//{
 		//	key[KEY_ENTER] = 0; 
 		//	ret = 17;
 		//}
@@ -21556,7 +21544,7 @@ int onHeader()
 	if ( key[KEY_ENTER_PAD] )
 	{
 		//if ( ret == -1 )
-		// {
+		//{
 		//	key[KEY_ENTER_PAD] = 0; 
 		//	ret = 17;
 		//}
@@ -21600,7 +21588,7 @@ int onHeader()
     while(ret == 20 || ret == 21 || ret == 16);
     
     //do
-    // {
+    //{
     //    ret=zc_popup_dialog(header_dlg,-1);
         /*
 	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
@@ -22419,7 +22407,6 @@ int onOrgComboAliases()
 			swapComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
 			ret = -1;
 		    }
-	    //}
     }
     while(ret==1);
     return ret;
@@ -23232,6 +23219,11 @@ static TABPANEL ffcombo_tabs[] =
     { NULL,                  0,           NULL,              0, NULL }
 };
 
+const char *globalscriptlist(int index, int *list_size);
+static ListData globalscript_list(globalscriptlist, &font);
+const char *linkscriptlist(int index, int *list_size);
+static ListData linkscript_list(linkscriptlist, &font);
+
 const char *ffscriptlist(int index, int *list_size);
 
 static ListData fflink_list(fflinklist, &font);
@@ -23443,9 +23435,11 @@ char *clean_numeric_string(char *string)
     return string;
 }
 
+script_struct biglobal[NUMSCRIPTGLOBAL+1]; //global script
+int biglobal_cnt = -1;
 script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
-script_struct biitems[NUMSCRIPTFFC]; //item script
+script_struct biitems[NUMSCRIPTITEM]; //item script
 int biitems_cnt = -1;
 script_struct binpcs[NUMSCRIPTGUYS]; //npc script
 int binpcs_cnt = -1;
@@ -23471,6 +23465,48 @@ int biitemsprites_cnt = -1;
 script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
 int bidcomboscripts_cnt = -1;
 //static char ffscript_str_buf[32];
+
+void build_biglobal_list()
+{
+    biglobal[0].first = "(None)";
+    biglobal[0].second = -1;
+    biglobal_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+    {
+        if(globalmap[i].scriptname.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << globalmap[i].scriptname << " (" << i << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biglobal[biglobal_cnt].first = ss.str();
+        biglobal[biglobal_cnt].second = i;
+        ++biglobal_cnt;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biglobal_cnt; i<NUMSCRIPTGLOBAL; ++i)
+    {
+        biglobal[i].first="";
+        biglobal[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biglobal_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biglobal_cnt; j++)
+        {
+            if(stricmp(biglobal[i].first.c_str(),biglobal[j].first.c_str()) > 0 && strcmp(biglobal[j].first.c_str(),""))
+                zc_swap(biglobal[i],biglobal[j]);
+        }
+    }
+    
+    biglobal_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTGLOBAL+1; ++i)
+        if(biglobal[i].first.length() > 0)
+            biglobal_cnt = i+1;
+}
 
 void build_biffs_list()
 {
@@ -23894,6 +23930,17 @@ void build_bidcomboscripts_list()
 }
 
 
+const char *globalscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = biglobal_cnt;
+        return NULL;
+    }
+    
+    return biglobal[index].first.c_str();
+}
+
 const char *ffscriptlist(int index, int *list_size)
 {
     if(index < 0)
@@ -23903,6 +23950,17 @@ const char *ffscriptlist(int index, int *list_size)
     }
     
     return biffs[index].first.c_str();
+}
+
+const char *linkscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = bilinks_cnt;
+        return NULL;
+    }
+    
+    return bilinks[index].first.c_str();
 }
 
 const char *lweaponscriptlist(int index, int *list_size)
@@ -25012,12 +25070,6 @@ int onZScriptCompilerSettings()
     return D_O_K;
 }
 
-void centre_zscript_dialogs()
-{
-    jwin_center_dialog(zscript_settings_dlg);
-    jwin_center_dialog(zscript_parser_dlg);
-}
-
 //editbox_data zscript_edit_data;
 
 static DIALOG edit_zscript_dlg[] =
@@ -25050,65 +25102,12 @@ void doEditZScript(int bg,int fg)
     delete em;
 }
 
+//{ Start type-specific import dlgs
 static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
-
-static DIALOG ffscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &ffscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
-
-static DIALOG itemscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &itemscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
-
-static DIALOG comboscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &comboscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static ListData gscript_sel_dlg_list(gscriptlist2, &font);
-
-static DIALOG gscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &gscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-//npc script slots
 static char npcscript_str_buf2[32];
-
 const char *npcscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25131,25 +25130,8 @@ const char *npcscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTGUYS-1);
     return NULL;
 }
-
-
 static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
-
-static DIALOG npcscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-//lweapon scripts
 static char lweaponscript_str_buf2[32];
-
 const char *lweaponscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25172,24 +25154,8 @@ const char *lweaponscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-
-
 static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
-
-static DIALOG lweaponscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &lweaponscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static char eweaponscript_str_buf2[32];
-
 const char *eweaponscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25212,23 +25178,8 @@ const char *eweaponscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-
 static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
-
-static DIALOG eweaponscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &eweaponscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static char linkscript_str_buf2[32];
-
 const char *linkscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25261,9 +25212,7 @@ const char *linkscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTLINK-1);
     return NULL;
 }
-
 static char itemspritescript_str_buf2[32];
-
 const char *itemspritescriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25286,24 +25235,8 @@ const char *itemspritescriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
-
-static DIALOG linkscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &linkscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 static char dmapscript_str_buf2[32];
-
 const char *dmapscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25326,62 +25259,9 @@ const char *dmapscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTSDMAP-1);
     return NULL;
 }
-
 static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
-
-static DIALOG dmapscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &dmapscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-//static char itemspritescript_str_buf2[32];
-/*
-const char *itemspritescriptlist2(int index, int *list_size)
-{
-    if(index>=0)
-    {
-        char buf[20];
-        bound(index,0,254);
-        
-        if(itemspritemap[index].scriptname=="")
-            strcpy(buf, "<none>");
-        else
-        {
-            strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
-            buf[19]='\0';
-        }
-        
-        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
-        return itemspritescript_str_buf2;
-    }
-    
-    *list_size=(NUMSCRIPTSITEMSPRITE-1);
-    return NULL;
-}
-*/
 static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
-
-static DIALOG itemspritescript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &itemspritescript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static char screenscript_str_buf2[32];
-
 const char *screenscriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -25404,21 +25284,8 @@ const char *screenscriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTSCREEN-1);
     return NULL;
 }
-
 static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
-
-static DIALOG screenscript_sel_dlg[] =
-{
-    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
-    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
-    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &screenscript_sel_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+//} End type-specific import dlgs
 
 void clear_map_states()
 {
@@ -26287,6 +26154,32 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 	}
 }
 
+enum script_slot_type
+{
+	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
+	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, num_types
+};
+script_slot_type getType(int type)
+{
+	switch(type)
+	{
+		case SCRIPT_FFC: return type_ffc;
+		case SCRIPT_GLOBAL: return type_global;
+		case SCRIPT_ITEM: return type_itemdata;
+		case SCRIPT_NPC: return type_npc;
+		case SCRIPT_LWPN: return type_lweapon;
+		case SCRIPT_EWPN: return type_eweapon;
+		case SCRIPT_LINK: return type_hero;
+		case SCRIPT_DMAP:
+		case SCRIPT_ACTIVESUBSCREEN:
+		case SCRIPT_PASSIVESUBSCREEN:
+			return type_dmap;
+		case SCRIPT_SCREEN: return type_screen;
+		case SCRIPT_ITEMSPRITE: return type_itemsprite;
+		case SCRIPT_COMBO: return type_combo;
+		default: return type_ffc; //Default
+	}
+}
 #define SLOTMSGFLAG_MISSING		0x01
 #define SLOTMSGFLAG_PRESERVED	0x02
 #define SLOTMSGFLAG_IMPORTED	0x04
@@ -26311,7 +26204,7 @@ void clearAllSlots(int type, byte flags = 0)
 	bound(type,0,10);
 	switch(type)
 	{
-		case 0: //FFC
+		case type_ffc:
 		{
 			for(int q = 0; q < NUMSCRIPTFFC-1; ++q)
 			{
@@ -26321,7 +26214,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 1: //Global
+		case type_global:
 		{
 			//Start at 1 to not clear Init
 			for(int q = 1; q < NUMSCRIPTGLOBAL; ++q)
@@ -26332,7 +26225,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 2: //Item
+		case type_itemdata:
 		{
 			for(int q = 0; q < NUMSCRIPTITEM-1; ++q)
 			{
@@ -26342,7 +26235,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 3: //npc
+		case type_npc:
 		{
 			for(int q = 0; q < NUMSCRIPTGUYS-1; ++q)
 			{
@@ -26352,7 +26245,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 4: //lweapon
+		case type_lweapon:
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
@@ -26362,7 +26255,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 5: //eweapon
+		case type_eweapon:
 		{
 			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
@@ -26372,7 +26265,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 6: //hero
+		case type_hero:
 		{
 			for(int q = 0; q < NUMSCRIPTLINK-1; ++q)
 			{
@@ -26382,7 +26275,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 7: //dmap
+		case type_dmap:
 		{
 			for(int q = 0; q < NUMSCRIPTSDMAP-1; ++q)
 			{
@@ -26392,7 +26285,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 8: //screen
+		case type_screen:
 		{
 			for(int q = 0; q < NUMSCRIPTSCREEN-1; ++q)
 			{
@@ -26402,7 +26295,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 9: //itemsprite
+		case type_itemsprite:
 		{
 			for(int q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
 			{
@@ -26412,7 +26305,7 @@ void clearAllSlots(int type, byte flags = 0)
 			}
 			break;
 		}
-		case 10: //combo
+		case type_combo:
 		{
 			for(int q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
 			{
@@ -27747,41 +27640,41 @@ const char *slottype_list(int index, int *list_size)
 {
 	if(index >= 0)
 	{
-		bound(index,0,10);
+		bound(index,0,num_types-1);
         
 		switch(index)
 		{
-			case 0:
+			case type_ffc:
 				strcpy(slottype_str_buf, "FFC");
 				break;
-			case 1:
+			case type_global:
 				strcpy(slottype_str_buf, "Global");
 				break;
-			case 2:
+			case type_itemdata:
 				strcpy(slottype_str_buf, "Item");
 				break;
-			case 3:
+			case type_npc:
 				strcpy(slottype_str_buf, "NPC");
 				break;
-			case 4:
+			case type_lweapon:
 				strcpy(slottype_str_buf, "LWeapon");
 				break;
-			case 5:
+			case type_eweapon:
 				strcpy(slottype_str_buf, "EWeapon");
 				break;
-			case 6:
+			case type_hero:
 				strcpy(slottype_str_buf, "Hero");
 				break;
-			case 7:
+			case type_dmap:
 				strcpy(slottype_str_buf, "DMap");
 				break;
-			case 8:
+			case type_screen:
 				strcpy(slottype_str_buf, "Screen");
 				break;
-			case 9:
+			case type_itemsprite:
 				strcpy(slottype_str_buf, "ItemSprite");
 				break;
-			case 10:
+			case type_combo:
 				strcpy(slottype_str_buf, "Combo");
 				break;
 		}
@@ -27874,6 +27767,436 @@ void doClearSlots(byte* flags)
 	}
 }
 
+static DIALOG exportzasm_dlg[] =
+{
+    { jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Export ZASM", NULL, NULL },
+    { jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
+    { jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, (void *) &slottype_sel_list, NULL, NULL },
+    { jwin_droplist_proc,   50,      28+48,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
+    { jwin_text_proc,       50,      28+8,    16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Type:", NULL, NULL },
+    { jwin_text_proc,       50,      28+40,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Slot:", NULL, NULL },
+    { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
+};
+
+static DIALOG importzasm_dlg[] =
+{
+    { jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Import ZASM", NULL, NULL },
+    { jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
+    { jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, (void *) &slottype_sel_list, NULL, NULL },
+    { jwin_droplist_proc,   50,      28+48,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
+    // 5
+	{ jwin_text_proc,       50,      28+8,    16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Type:", NULL, NULL },
+    { jwin_text_proc,       50,      28+40,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Slot:", NULL, NULL },
+    { jwin_text_proc,       50,      28+72,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Name:", NULL, NULL },
+	{ jwin_edit_proc,       50,      28+80,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          19, 0, NULL, NULL, NULL },
+	
+    { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
+};
+extern ListData itemscript_list;
+extern ListData itemspritescript_list;
+extern ListData lweaponscript_list;
+extern ListData npcscript_list;
+extern ListData eweaponscript_list;
+extern ListData comboscript_list;
+
+static EXT_LIST zasm_extlist[] =
+{
+	{ (char *)"ZASM Files (*.zasm)",                        (char *)"zasm"                                     },
+	{ NULL,                                                  NULL                                              }
+};
+
+int onExportZASM()
+{
+	exportzasm_dlg[0].dp2 = lfont;
+	exportzasm_dlg[3].d1 = type_ffc;
+	exportzasm_dlg[4].dp = (void*)&ffscript_list;
+	exportzasm_dlg[4].d1 = 0;
+	//{ Build script lists
+	build_biffs_list();
+	build_biglobal_list();
+	build_biitems_list();
+	build_binpcs_list();
+	build_bilweapons_list();
+	build_bieweapons_list();
+	build_bilinks_list();
+	build_bidmaps_list();
+	build_biscreens_list();
+	build_biitemsprites_list();
+	build_bidcomboscripts_list();
+	//}
+	int indx = 1;
+	script_data const* scriptChoice = NULL;
+	
+	while(!scriptChoice)
+	{
+		if(is_large)
+			large_dialog(exportzasm_dlg);
+		indx = zc_popup_dialog(exportzasm_dlg, indx);
+		switch(indx)
+		{
+			case 1: //confirm; exit dlg
+			{
+				//{ Find script choice
+				int scriptInd = -1;
+				switch(exportzasm_dlg[3].d1)
+				{
+					case type_ffc:
+						scriptInd = biffs[exportzasm_dlg[4].d1].second;
+						break;
+					case type_global:
+						scriptInd = biglobal[exportzasm_dlg[4].d1].second;
+						break;
+					case type_itemdata:
+						scriptInd = biitems[exportzasm_dlg[4].d1].second;
+						break;
+					case type_npc:
+						scriptInd = binpcs[exportzasm_dlg[4].d1].second;
+						break;
+					case type_lweapon:
+						scriptInd = bilweapons[exportzasm_dlg[4].d1].second;
+						break;
+					case type_eweapon:
+						scriptInd = bieweapons[exportzasm_dlg[4].d1].second;
+						break;
+					case type_hero:
+						scriptInd = bilinks[exportzasm_dlg[4].d1].second;
+						break;
+					case type_dmap:
+						scriptInd = bidmaps[exportzasm_dlg[4].d1].second;
+						break;
+					case type_screen:
+						scriptInd = biscreens[exportzasm_dlg[4].d1].second;
+						break;
+					case type_itemsprite:
+						scriptInd = biditemsprites[exportzasm_dlg[4].d1].second;
+						break;
+					case type_combo:
+						scriptInd = bidcomboscripts[exportzasm_dlg[4].d1].second;
+						break;
+				}
+				if(scriptInd < 0) break; //Invalid; likely '(None)'
+				switch(exportzasm_dlg[3].d1)
+				{
+					case type_ffc:
+						scriptChoice = ffscripts[scriptInd];
+						break;
+					case type_global:
+						scriptChoice = globalscripts[scriptInd];
+						break;
+					case type_itemdata:
+						scriptChoice = itemscripts[scriptInd];
+						break;
+					case type_npc:
+						scriptChoice = guyscripts[scriptInd];
+						break;
+					case type_lweapon:
+						scriptChoice = lwpnscripts[scriptInd];
+						break;
+					case type_eweapon:
+						scriptChoice = ewpnscripts[scriptInd];
+						break;
+					case type_hero:
+						scriptChoice = linkscripts[scriptInd];
+						break;
+					case type_dmap:
+						scriptChoice = dmapscripts[scriptInd];
+						break;
+					case type_screen:
+						scriptChoice = screenscripts[scriptInd];
+						break;
+					case type_itemsprite:
+						scriptChoice = itemspritescripts[scriptInd];
+						break;
+					case type_combo:
+						scriptChoice = comboscripts[scriptInd];
+						break;
+				}
+				//}
+				//{ Find export file
+				if(!getname("Export Script (.zasm)","zasm",zasm_extlist,datapath,false))
+				{
+					scriptChoice = NULL;
+					break;
+				}
+				replace_extension(temppath, temppath, "zasm", 2047);
+				
+				if(exists(temppath))
+				{
+					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+					{
+						scriptChoice = NULL;
+						break;
+					}
+				}
+				
+				FILE* zasm_output = fopen(temppath, "w");
+				if(zasm_output == NULL)
+				{
+					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					scriptChoice = NULL;
+					break;
+				}
+				//}
+				write_script(zasm_output, scriptChoice);
+				fclose(zasm_output);
+				break;
+			}
+			case 0: case 2: //Cancel/X; quit dlg
+				return D_O_K;
+			case 3: //Type select
+			{
+				switch(exportzasm_dlg[3].d1)
+				{
+					default: //Shouldn't occur, but to be safe
+					case type_ffc:
+						exportzasm_dlg[4].dp = (void*)&ffscript_list;
+						break;
+					case type_global:
+						exportzasm_dlg[4].dp = (void*)&globalscript_list;
+						break;
+					case type_itemdata:
+						exportzasm_dlg[4].dp = (void*)&itemscript_list;
+						break;
+					case type_npc:
+						exportzasm_dlg[4].dp = (void*)&npcscript_list;
+						break;
+					case type_lweapon:
+						exportzasm_dlg[4].dp = (void*)&lweaponscript_list;
+						break;
+					case type_eweapon:
+						exportzasm_dlg[4].dp = (void*)&eweaponscript_list;
+						break;
+					case type_hero:
+						exportzasm_dlg[4].dp = (void*)&linkscript_list;
+						break;
+					case type_dmap:
+						exportzasm_dlg[4].dp = (void*)&dmapscript_list;
+						break;
+					case type_screen:
+						exportzasm_dlg[4].dp = (void*)&screenscript_list;
+						break;
+					case type_itemsprite:
+						exportzasm_dlg[4].dp = (void*)&itemspritescript_list;
+						break;
+					case type_combo:
+						exportzasm_dlg[4].dp = (void*)&comboscript_list;
+						break;
+				}
+				exportzasm_dlg[4].d1 = 0;
+				break;
+			}
+		}
+	}
+	return D_O_K;
+}
+
+int onImportZASM()
+{
+	importzasm_dlg[0].dp2 = lfont;
+	importzasm_dlg[4].dp = (void*)&ffscript_list;
+	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
+	{
+		return D_O_K;
+	}
+	FILE* zasm_import_file = fopen(temppath, "r");
+	if(zasm_import_file == NULL)
+	{
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		return D_O_K;
+	}
+	script_data *temp_slot = new script_data();
+	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
+	{
+		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		delete temp_slot;
+		return D_O_K;
+	}
+	char namebuf[33] = {0};
+	if(temp_slot->meta.valid()) //Found metadata
+	{
+		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
+		strcpy(namebuf, temp_slot->meta.script_name);
+		switch(importzasm_dlg[3].d1)
+		{
+			default: //Shouldn't occur, but to be safe
+			case type_ffc:
+				importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
+				break;
+			case type_global:
+				importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
+				break;
+			case type_itemdata:
+				importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
+				break;
+			case type_npc:
+				importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
+				break;
+			case type_lweapon:
+				importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
+				break;
+			case type_eweapon:
+				importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
+				break;
+			case type_hero:
+				importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+				break;
+			case type_dmap:
+				importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
+				break;
+			case type_screen:
+				importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
+				break;
+			case type_itemsprite:
+				importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
+				break;
+			case type_combo:
+				importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
+				break;
+		}
+		importzasm_dlg[4].d1 = 0;
+	}
+	else
+	{
+		importzasm_dlg[3].d1 = 0;
+		importzasm_dlg[4].dp = (void*)&ffscript_list;
+		importzasm_dlg[4].d1 = 0;
+	}
+	importzasm_dlg[8].dp = (void*)namebuf;
+	bool confirmed = false;
+	int indx = 1;
+	while(!confirmed)
+	{
+		if(is_large)
+			large_dialog(importzasm_dlg);
+		indx = zc_popup_dialog(importzasm_dlg, indx);
+		switch(indx)
+		{
+			case 1: //confirm; exit dlg
+			{
+				if(!namebuf[0]) break; //No name?
+				script_data **slot = NULL;
+				script_slot_data *map = NULL;
+				//{ Find script choice
+				int scriptInd = importzasm_dlg[4].d1;
+				switch(importzasm_dlg[3].d1)
+				{
+					case type_ffc:
+						slot = &ffscripts[scriptInd];
+						map = &ffcmap[scriptInd];
+						break;
+					case type_global:
+						slot = &globalscripts[scriptInd];
+						map = &globalmap[scriptInd];
+						break;
+					case type_itemdata:
+						slot = &itemscripts[scriptInd];
+						map = &itemmap[scriptInd];
+						break;
+					case type_npc:
+						slot = &guyscripts[scriptInd];
+						map = &npcmap[scriptInd];
+						break;
+					case type_lweapon:
+						slot = &lwpnscripts[scriptInd];
+						map = &lwpnmap[scriptInd];
+						break;
+					case type_eweapon:
+						slot = &ewpnscripts[scriptInd];
+						map = &ewpnmap[scriptInd];
+						break;
+					case type_hero:
+						slot = &linkscripts[scriptInd];
+						map = &linkmap[scriptInd];
+						break;
+					case type_dmap:
+						slot = &dmapscripts[scriptInd];
+						map = &dmapmap[scriptInd];
+						break;
+					case type_screen:
+						slot = &screenscripts[scriptInd];
+						map = &screenmap[scriptInd];
+						break;
+					case type_itemsprite:
+						slot = &itemspritescripts[scriptInd];
+						map = &itemspritemap[scriptInd];
+						break;
+					case type_combo:
+						slot = &comboscripts[scriptInd];
+						map = &comboscriptmap[scriptInd];
+						break;
+				}
+				//}
+				if(!slot) break; //Not found?
+				temp_slot->transfer(**slot);
+				map->format = SCRIPT_FORMAT_ZASM;
+				map->updateName(namebuf);
+				confirmed = true;
+				break;
+			}
+			case 0: case 2: //Close dlg
+			{
+				delete temp_slot;
+				return D_O_K;
+			}
+			case 3: //Type select
+			{
+				switch(importzasm_dlg[3].d1)
+				{
+					default: //Shouldn't occur, but to be safe
+					case type_ffc:
+						importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
+						break;
+					case type_global:
+						importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
+						break;
+					case type_itemdata:
+						importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
+						break;
+					case type_npc:
+						importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
+						break;
+					case type_lweapon:
+						importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
+						break;
+					case type_eweapon:
+						importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
+						break;
+					case type_hero:
+						importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+						break;
+					case type_dmap:
+						importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
+						break;
+					case type_screen:
+						importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
+						break;
+					case type_itemsprite:
+						importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
+						break;
+					case type_combo:
+						importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
+						break;
+				}
+				importzasm_dlg[4].d1 = 0;
+				break;
+			}
+		}
+	}
+	delete temp_slot;
+	return D_O_K;
+}
+
+void centre_zscript_dialogs()
+{
+    jwin_center_dialog(zscript_settings_dlg);
+    jwin_center_dialog(zscript_parser_dlg);
+    jwin_center_dialog(exportzasm_dlg);
+    jwin_center_dialog(importzasm_dlg);
+    jwin_center_dialog(clearslots_dlg);
+}
+
 //The Dialogue that loads a ZMOD Module File
 int load_zmod_module_file()
 {
@@ -27905,346 +28228,6 @@ int load_zmod_module_file()
 	    return D_O_K;
 }
 
-
-
-
-int onImportFFScript()
-{
-    char name[20]="";
-    
-    ffscript_sel_dlg[0].dp2 = lfont;
-    ffscript_sel_dlg[2].dp = name;
-    ffscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(ffscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(ffscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&ffscripts[ffscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)ffscript_sel_dlg[2].dp)>0)
-                ffcmap[ffscript_sel_dlg[5].d1].scriptname=(char *)ffscript_sel_dlg[2].dp;
-            else
-                ffcmap[ffscript_sel_dlg[5].d1].scriptname="ASM script";
-			ffcmap[ffscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-            
-			ffscripts[ffscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-			
-            build_biffs_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportNPCScript()
-{
-    char name[20]="";
-    
-    npcscript_sel_dlg[0].dp2 = lfont;
-    npcscript_sel_dlg[2].dp = name;
-    npcscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(npcscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(npcscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&guyscripts[npcscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)npcscript_sel_dlg[2].dp)>0)
-                npcmap[npcscript_sel_dlg[5].d1].scriptname=(char *)npcscript_sel_dlg[2].dp;
-            else
-                npcmap[npcscript_sel_dlg[5].d1].scriptname="ASM script";
-            npcmap[npcscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			guyscripts[npcscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_binpcs_list();
-        }
-    }
-    
-    return D_O_K;
-}
-int onImportITEMSPRITEScript()
-{
-    char name[20]="";
-    
-    itemspritescript_sel_dlg[0].dp2 = lfont;
-    itemspritescript_sel_dlg[2].dp = name;
-    itemspritescript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(itemspritescript_sel_dlg);
-        
-    int ret=zc_popup_dialog(itemspritescript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&itemspritescripts[itemspritescript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)itemspritescript_sel_dlg[2].dp)>0)
-                itemspritemap[itemspritescript_sel_dlg[5].d1].scriptname=(char *)itemspritescript_sel_dlg[2].dp;
-            else
-                itemspritemap[itemspritescript_sel_dlg[5].d1].scriptname="ASM script";
-            itemspritemap[itemspritescript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			itemspritescripts[itemspritescript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_biitemsprites_list();
-        }
-    }
-    
-    return D_O_K;
-}
-int onImportSCREENScript()
-{
-    char name[20]="";
-    
-    screenscript_sel_dlg[0].dp2 = lfont;
-    screenscript_sel_dlg[2].dp = name;
-    screenscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(screenscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(screenscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&screenscripts[screenscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)screenscript_sel_dlg[2].dp)>0)
-                screenmap[screenscript_sel_dlg[5].d1].scriptname=(char *)screenscript_sel_dlg[2].dp;
-            else
-                screenmap[screenscript_sel_dlg[5].d1].scriptname="ASM script";
-            screenmap[screenscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			screenscripts[screenscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_biscreens_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportHEROScript()
-{
-    char name[20]="";
-    
-    linkscript_sel_dlg[0].dp2 = lfont;
-    linkscript_sel_dlg[2].dp = name;
-    linkscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(linkscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(linkscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&linkscripts[linkscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)linkscript_sel_dlg[2].dp)>0)
-                linkmap[linkscript_sel_dlg[5].d1].scriptname=(char *)linkscript_sel_dlg[2].dp;
-            else
-                linkmap[linkscript_sel_dlg[5].d1].scriptname="ASM script";
-            linkmap[linkscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			linkscripts[linkscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_bilinks_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportDMapScript()
-{
-    char name[20]="";
-    
-    dmapscript_sel_dlg[0].dp2 = lfont;
-    dmapscript_sel_dlg[2].dp = name;
-    dmapscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(dmapscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(dmapscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&dmapscripts[dmapscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)dmapscript_sel_dlg[2].dp)>0)
-                dmapmap[dmapscript_sel_dlg[5].d1].scriptname=(char *)dmapscript_sel_dlg[2].dp;
-            else
-                dmapmap[dmapscript_sel_dlg[5].d1].scriptname="ASM script";
-            dmapmap[dmapscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			dmapscripts[dmapscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_bidmaps_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportComboScript()
-{
-    char name[20]="";
-    
-    comboscript_sel_dlg[0].dp2 = lfont;
-    comboscript_sel_dlg[2].dp = name;
-    comboscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(comboscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(comboscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&comboscripts[comboscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)comboscript_sel_dlg[2].dp)>0)
-                comboscriptmap[comboscript_sel_dlg[5].d1].scriptname=(char *)comboscript_sel_dlg[2].dp;
-            else
-                comboscriptmap[comboscript_sel_dlg[5].d1].scriptname="ASM script";
-            comboscriptmap[comboscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			comboscripts[comboscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_bidcomboscripts_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportEWPNScript()
-{
-    char name[20]="";
-    
-    eweaponscript_sel_dlg[0].dp2 = lfont;
-    eweaponscript_sel_dlg[2].dp = name;
-    eweaponscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(eweaponscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(eweaponscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&ewpnscripts[eweaponscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)eweaponscript_sel_dlg[2].dp)>0)
-                ewpnmap[eweaponscript_sel_dlg[5].d1].scriptname=(char *)eweaponscript_sel_dlg[2].dp;
-            else
-                ewpnmap[eweaponscript_sel_dlg[5].d1].scriptname="ASM script";
-            ewpnmap[eweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			ewpnscripts[eweaponscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_bieweapons_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportLWPNScript()
-{
-    char name[20]="";
-    
-    lweaponscript_sel_dlg[0].dp2 = lfont;
-    lweaponscript_sel_dlg[2].dp = name;
-    lweaponscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(lweaponscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(lweaponscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&lwpnscripts[lweaponscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)lweaponscript_sel_dlg[2].dp)>0)
-                lwpnmap[lweaponscript_sel_dlg[5].d1].scriptname=(char *)lweaponscript_sel_dlg[2].dp;
-            else
-                lwpnmap[lweaponscript_sel_dlg[5].d1].scriptname="ASM script";
-            lwpnmap[lweaponscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			lwpnscripts[lweaponscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_bilweapons_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportItemScript()
-{
-    char name[20]="";
-    
-    itemscript_sel_dlg[0].dp2 = lfont;
-    itemscript_sel_dlg[2].dp = name;
-    itemscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(itemscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(itemscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&itemscripts[itemscript_sel_dlg[5].d1+1])==D_O_K)
-        {
-            if(strlen((char *)itemscript_sel_dlg[2].dp)>0)
-                itemmap[itemscript_sel_dlg[5].d1].scriptname=(char *)itemscript_sel_dlg[2].dp;
-            else
-				itemmap[itemscript_sel_dlg[5].d1].scriptname="ASM script";
-			itemmap[itemscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			itemscripts[itemscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-                
-            build_biitems_list();
-        }
-    }
-    
-    return D_O_K;
-}
-
-int onImportGScript()
-{
-    char name[20]="";
-    
-    gscript_sel_dlg[0].dp2 = lfont;
-    gscript_sel_dlg[2].dp = name;
-    gscript_sel_dlg[5].d1 = 0;
-    
-    if(is_large)
-        large_dialog(gscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(gscript_sel_dlg,0);
-    
-    if(ret==3)
-    {
-        if(parse_script(&globalscripts[gscript_sel_dlg[5].d1])==D_O_K)
-        {
-            if(strlen((char *)gscript_sel_dlg[2].dp)>0)
-                globalmap[gscript_sel_dlg[5].d1].scriptname=(char *)gscript_sel_dlg[2].dp;
-            else
-                globalmap[gscript_sel_dlg[5].d1].scriptname="ASM script";
-			globalmap[gscript_sel_dlg[5].d1].format = SCRIPT_FORMAT_ZASM;
-			globalscripts[gscript_sel_dlg[5].d1+1]->meta.setFlag(ZMETA_IMPORTED);
-        }
-    }
-    
-    return D_O_K;
-}
 
 //FFC Editor FFC_Editor
 int onEditFFCombo(int ffcombo)
@@ -33040,15 +33023,12 @@ void center_zquest_dialogs()
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
-    jwin_center_dialog(ffscript_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(gscript_sel_dlg);
     jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
     center_zq_init_dialog();
-    jwin_center_dialog(itemscript_sel_dlg);
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
@@ -33903,9 +33883,6 @@ command_pair commands[cmdMAX]=
     { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
     { "Header",                             0, (intF) onHeader                                         },
     { "Help",                               0, (intF) onHelp                                           },
-    { "Import ASM FFC Script",              0, (intF) onImportFFScript                                 },
-    { "Import ASM Global Script",           0, (intF) onImportGScript                                  },
-    { "Import ASM Item Script",             0, (intF) onImportItemScript                               },
     { "Import Combos",                      0, (intF) onImport_Combos                                  },
     { "Import DMaps",                       0, (intF) onImport_DMaps                                   },
     { "Import Graphics Pack",               0, (intF) onImport_ZGP                                     },
