@@ -2461,8 +2461,12 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 
 int parse_script_file(script_data **script, const char *path, bool report_success)
 {
-	saved=false;
 	FILE *fscript = fopen(path,"rb");
+	return parse_script_file(script, fscript, report_success);
+}
+int parse_script_file(script_data **script, FILE* fscript, bool report_success)
+{
+	saved=false;
 	char *buffer = new char[0x400];
 	char *combuf = new char[0x100];
 	char *arg1buf = new char[0x100];

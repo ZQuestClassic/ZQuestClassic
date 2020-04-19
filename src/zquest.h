@@ -533,6 +533,7 @@ int onImportGScript();
 int onCompileScript();
 int onSlotAssign();
 int onExportZASM();
+int onImportZASM();
 
 
 typedef struct item_struct

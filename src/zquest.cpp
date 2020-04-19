@@ -1939,7 +1939,8 @@ static MENU zscript_menu[] =
 	//divider
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Export ZASM Script",            onExportZASM,              NULL,                     0,            NULL   },
-	//divider
+	{ (char *)"&Import ZASM Script",            onImportZASM,              NULL,                     0,            NULL   },
+	/*//divider
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Import ASM &FFC Script",         onImportFFScript,          NULL,                     0,            NULL   },
 	{ (char *)"Import ASM &Item Script",        onImportItemScript,        NULL,                     0,            NULL   },
@@ -1951,7 +1952,7 @@ static MENU zscript_menu[] =
 	{ (char *)"Import ASM &DMap Script",        onImportDMapScript,        NULL,                     0,            NULL   },
 	{ (char *)"Import ASM &Screen Script",      onImportSCREENScript,      NULL,                     0,            NULL   },
 	{ (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,  NULL,                     0,            NULL   },
-	{ (char *)"Import ASM &Combo Script",  onImportComboScript,  NULL,                     0,            NULL   },
+	{ (char *)"Import ASM &Combo Script",  onImportComboScript,  NULL,                     0,            NULL   },*/
 //	{ (char *)"Set Include Path",               onZScriptSetIncludePath,   NULL,                     0,            NULL   },
 
 	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
@@ -26367,6 +26368,27 @@ enum script_slot_type
 	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
 	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, num_types
 };
+script_slot_type getType(int type)
+{
+	switch(type)
+	{
+		case SCRIPT_FFC: return type_ffc;
+		case SCRIPT_GLOBAL: return type_global;
+		case SCRIPT_ITEM: return type_itemdata;
+		case SCRIPT_NPC: return type_npc;
+		case SCRIPT_LWPN: return type_lweapon;
+		case SCRIPT_EWPN: return type_eweapon;
+		case SCRIPT_LINK: return type_hero;
+		case SCRIPT_DMAP:
+		case SCRIPT_ACTIVESUBSCREEN:
+		case SCRIPT_PASSIVESUBSCREEN:
+			return type_dmap;
+		case SCRIPT_SCREEN: return type_screen;
+		case SCRIPT_ITEMSPRITE: return type_itemsprite;
+		case SCRIPT_COMBO: return type_combo;
+		default: return type_ffc; //Default
+	}
+}
 #define SLOTMSGFLAG_MISSING		0x01
 #define SLOTMSGFLAG_PRESERVED	0x02
 #define SLOTMSGFLAG_IMPORTED	0x04
@@ -27965,6 +27987,22 @@ static DIALOG exportzasm_dlg[] =
     { jwin_text_proc,       50,      28+40,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Slot:", NULL, NULL },
     { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
 };
+
+static DIALOG importzasm_dlg[] =
+{
+    { jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Import ZASM", NULL, NULL },
+    { jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
+    { jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, (void *) &slottype_sel_list, NULL, NULL },
+    { jwin_droplist_proc,   50,      28+48,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
+    // 5
+	{ jwin_text_proc,       50,      28+8,    16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Type:", NULL, NULL },
+    { jwin_text_proc,       50,      28+40,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Slot:", NULL, NULL },
+    { jwin_text_proc,       50,      28+72,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Name:", NULL, NULL },
+	{ jwin_edit_proc,       50,      28+80,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          19, 0, NULL, NULL, NULL },
+	
+    { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
+};
 extern ListData itemscript_list;
 extern ListData itemspritescript_list;
 extern ListData lweaponscript_list;
@@ -28091,6 +28129,7 @@ int onExportZASM()
 					scriptChoice = NULL;
 					break;
 				}
+				replace_extension(temppath, temppath, "zasm", 2047);
 				
 				if(exists(temppath))
 				{
@@ -28161,6 +28200,203 @@ int onExportZASM()
 	}
 	return D_O_K;
 }
+
+int onImportZASM()
+{
+	importzasm_dlg[0].dp2 = lfont;
+	importzasm_dlg[4].dp = (void*)&ffscript_list;
+	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
+	{
+		return D_O_K;
+	}
+	FILE* zasm_import_file = fopen(temppath, "r");
+	if(zasm_import_file == NULL)
+	{
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		return D_O_K;
+	}
+	script_data *temp_slot = new script_data();
+	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
+	{
+		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		delete temp_slot;
+		return D_O_K;
+	}
+	char namebuf[33] = {0};
+	if(temp_slot->meta.valid()) //Found metadata
+	{
+		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
+		strcpy(namebuf, temp_slot->meta.script_name);
+		switch(importzasm_dlg[3].d1)
+		{
+			default: //Shouldn't occur, but to be safe
+			case type_ffc:
+				importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
+				break;
+			case type_global:
+				importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
+				break;
+			case type_itemdata:
+				importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
+				break;
+			case type_npc:
+				importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
+				break;
+			case type_lweapon:
+				importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
+				break;
+			case type_eweapon:
+				importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
+				break;
+			case type_hero:
+				importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+				break;
+			case type_dmap:
+				importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
+				break;
+			case type_screen:
+				importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
+				break;
+			case type_itemsprite:
+				importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
+				break;
+			case type_combo:
+				importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
+				break;
+		}
+		importzasm_dlg[4].d1 = 0;
+	}
+	else
+	{
+		importzasm_dlg[3].d1 = 0;
+		importzasm_dlg[4].dp = (void*)&ffscript_list;
+		importzasm_dlg[4].d1 = 0;
+	}
+	importzasm_dlg[8].dp = (void*)namebuf;
+	bool confirmed = false;
+	int indx = 1;
+	while(!confirmed)
+	{
+		if(is_large)
+			large_dialog(importzasm_dlg);
+		indx = zc_popup_dialog(importzasm_dlg, indx);
+		switch(indx)
+		{
+			case 1: //confirm; exit dlg
+			{
+				if(!namebuf[0]) break; //No name?
+				script_data **slot = NULL;
+				script_slot_data *map = NULL;
+				//{ Find script choice
+				int scriptInd = importzasm_dlg[4].d1;
+				switch(importzasm_dlg[3].d1)
+				{
+					case type_ffc:
+						slot = &ffscripts[scriptInd];
+						map = &ffcmap[scriptInd];
+						break;
+					case type_global:
+						slot = &globalscripts[scriptInd];
+						map = &globalmap[scriptInd];
+						break;
+					case type_itemdata:
+						slot = &itemscripts[scriptInd];
+						map = &itemmap[scriptInd];
+						break;
+					case type_npc:
+						slot = &guyscripts[scriptInd];
+						map = &npcmap[scriptInd];
+						break;
+					case type_lweapon:
+						slot = &lwpnscripts[scriptInd];
+						map = &lwpnmap[scriptInd];
+						break;
+					case type_eweapon:
+						slot = &ewpnscripts[scriptInd];
+						map = &ewpnmap[scriptInd];
+						break;
+					case type_hero:
+						slot = &linkscripts[scriptInd];
+						map = &linkmap[scriptInd];
+						break;
+					case type_dmap:
+						slot = &dmapscripts[scriptInd];
+						map = &dmapmap[scriptInd];
+						break;
+					case type_screen:
+						slot = &screenscripts[scriptInd];
+						map = &screenmap[scriptInd];
+						break;
+					case type_itemsprite:
+						slot = &itemspritescripts[scriptInd];
+						map = &itemspritemap[scriptInd];
+						break;
+					case type_combo:
+						slot = &comboscripts[scriptInd];
+						map = &comboscriptmap[scriptInd];
+						break;
+				}
+				//}
+				if(!slot) break; //Not found?
+				temp_slot->transfer(**slot);
+				map->format = SCRIPT_FORMAT_ZASM;
+				map->updateName(namebuf);
+				confirmed = true;
+				break;
+			}
+			case 0: case 2: //Close dlg
+			{
+				delete temp_slot;
+				return D_O_K;
+			}
+			case 3: //Type select
+			{
+				switch(importzasm_dlg[3].d1)
+				{
+					default: //Shouldn't occur, but to be safe
+					case type_ffc:
+						importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
+						break;
+					case type_global:
+						importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
+						break;
+					case type_itemdata:
+						importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
+						break;
+					case type_npc:
+						importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
+						break;
+					case type_lweapon:
+						importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
+						break;
+					case type_eweapon:
+						importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
+						break;
+					case type_hero:
+						importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+						break;
+					case type_dmap:
+						importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
+						break;
+					case type_screen:
+						importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
+						break;
+					case type_itemsprite:
+						importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
+						break;
+					case type_combo:
+						importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
+						break;
+				}
+				importzasm_dlg[4].d1 = 0;
+				break;
+			}
+		}
+	}
+	delete temp_slot;
+	return D_O_K;
+}
+
 //The Dialogue that loads a ZMOD Module File
 int load_zmod_module_file()
 {

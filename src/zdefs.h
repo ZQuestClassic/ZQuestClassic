@@ -2635,6 +2635,13 @@ struct script_data
 		if(zasm)
 			delete[] zasm;
 	}
+	
+	void transfer(script_data& other)
+	{
+		other.meta = meta;
+		other.zasm = zasm;
+		zasm = NULL;
+	}
 };
 
 struct script_command
