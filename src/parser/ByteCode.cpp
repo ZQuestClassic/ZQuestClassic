@@ -1013,6 +1013,9 @@ string VarArgument::toString()
     
     case LINKEATEN:
         return "LINKEATEN";
+    
+    case INCQST:
+        return "INCQST";
         
     default:
     {

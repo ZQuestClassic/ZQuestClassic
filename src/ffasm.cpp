@@ -1271,6 +1271,7 @@ script_variable variable_list[]=
     { "ZELDAVERSION",         ZELDAVERSION,            0,             0 },
     { "GETRENDERTARGET",         GETRENDERTARGET,            0,             0 },
     { "LINKEATEN",         LINKEATEN,            0,             0 },
+    {"INCQST", INCQST, 0, 0 },
 	
     { " ",                       -1,             0,             0 }
 };

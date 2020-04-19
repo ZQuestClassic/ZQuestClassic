@@ -363,6 +363,9 @@ using namespace std;
 #define LINKEATEN 391
 //#define FFDD			    309 //8 of these
 #define GETRENDERTARGET		1083 //From 2.55, ported to 2.53R3/2.53.1
+#define INCQST				1138 //to align with 2.55
+
+#define LAST_BYTECODE 		1139
 
 class LiteralArgument;
 class VarArgument;

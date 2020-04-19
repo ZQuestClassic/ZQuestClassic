@@ -29,6 +29,21 @@ bool IsValidArray(int ptr);		ZASM Instruction:
 /// Game-> //
 /////////////
 
+int IncrementQuest();			ZASM Instruction:
+					INCQST
+
+/**
+* Ends the current quest, incrementing the quest ID by +1, and
+* saves. This works as a normal WIN FLAG. except that the normal
+* ending credits do not appear. Instead, there is a fade out, and
+* the player is returned to the file select, but the file in the 
+* current slot is modified to be the next quest in the MODULE.
+*
+* This is exclusively intended to be used for serialised quests
+* in MODULES and requires the use of QUEST NUMBERS to work.
+*/
+				
+
 int Version;				ZASM Instruction: 
 					ZELDAVERSION
 /**
