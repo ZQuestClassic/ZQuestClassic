@@ -772,18 +772,29 @@ void inc_quest()
 		if(game->get_quest()==3 && deaths == 0)
 			quest = 5;
 	
-		// Likewise, if you beat the 5th but died, go back to the 4th or move on to 6th if it exists.
-		if(game->get_quest()==5 && deaths > 0)
+		//I can;t find a better solution. If we reach five with wacky progression, just move on. -Z
+		
+		if(game->get_quest()>=5 && game->get_quest() < 10 /*&& deaths > 0*/)
 		{
-			if ( file_exists("6th.qst") )
-			{
-				quest = 6;
-			}
-			else quest = 4;
+			//if ( file_exists("6th.qst") )
+			//{
+			//	quest = 6;
+			//}
+			//else quest = 4;
+			quest = game->get_quest()+1;
 		}
+		// Likewise, if you beat the 5th but died, go back to the 4th or move on to 6thif(game->get_quest()==5 && deaths > 0)
+		//{
+		//	if ( file_exists("6th.qst") )
+		//	{
+		//		quest = 6;
+		//	}
+		//	else quest = 4;
+		//}
 	
 		/*
-		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+		// If you beat the 3rd quest without dying skip over the eas if it exists.
+		ier 4th and play the 5th quest.
 		if(game->get_quest()==3 && deaths == 0)
 			quest = 5;
 	
