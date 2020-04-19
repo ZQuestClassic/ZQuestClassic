@@ -1666,6 +1666,14 @@ int init_game()
     if(firstplay)
         game->set_hasplayed(1);
         
+    if(firstplay)
+    {
+	game->awpn=0;
+	game->bwpn=0;
+	game->forced_awpn = -1; 
+	game->forced_bwpn = -1;    
+    }
+    
     update_subscreens();
     
     load_Sitems(&QMisc);
