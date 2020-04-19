@@ -2270,7 +2270,7 @@ string get_meta(zasm_meta const& meta)
 		<< "\n#FFSCRIPT_VERSION = " << meta.ffscript_v
 		<< "\n#SCRIPT_NAME = " << meta.script_name
 		<< "\n#AUTHOR = " << meta.author
-		<< "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type)
+		<< "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type).c_str()
 		<< "\n#AUTO_GEN = " << ((meta.flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
 		<< "\n#COMPILER_V1 = " << meta.compiler_v1
 		<< "\n#COMPILER_V2 = " << meta.compiler_v2
@@ -2307,7 +2307,9 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	if(end_space_pos == string::npos) return false;
 	size_t semi = line.find_first_of(";",end_space_pos);
 	string val = line.substr(end_space_pos, (semi == string::npos ? semi : semi-end_space_pos-1)); //The value portion
-	val = val.substr(0, val.find_last_not_of(" \t\r\n\0")); //trim trailing whitespace
+	size_t endpos = val.find_last_not_of(" \t\r\n\0");
+	if(endpos != string::npos) ++endpos;
+	val = val.substr(0, endpos); //trim trailing whitespace
 	
 	if(val.size() > 32)
 	{

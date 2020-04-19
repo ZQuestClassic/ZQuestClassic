@@ -532,6 +532,7 @@ int onImportEWPNScript();
 int onImportGScript();
 int onCompileScript();
 int onSlotAssign();
+int onExportZASM();
 
 
 typedef struct item_struct
@@ -553,7 +554,7 @@ extern weapon_struct biw[wMAX];
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
 void build_bidcomboscripts_list();
-extern script_struct biitems[NUMSCRIPTFFC]; //item script
+extern script_struct biitems[NUMSCRIPTITEM]; //item script
 extern int biitems_cnt;
 
 
