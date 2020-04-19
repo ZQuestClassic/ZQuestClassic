@@ -324,6 +324,88 @@ class ZModule
 		char n;
 };
 
+
+typedef struct ZSCRIPT_CONFIG_ENTRY
+{
+   char *name;                      /* variable name (NULL if comment) */
+   char *data;                      /* variable value */
+   struct ZSCRIPT_CONFIG_ENTRY *next;       /* linked list */
+} ZSCRIPT_CONFIG_ENTRY;
+
+
+typedef struct ZSCRIPT_CONFIG
+{
+   ZSCRIPT_CONFIG_ENTRY *head;              /* linked list of config entries */
+   char *filename;                  /* where were we loaded from? */
+   int dirty;                       /* has our data changed? */
+} ZSCRIPT_CONFIG;
+
+
+typedef struct ZSCRIPT_CONFIG_HOOK
+{
+   char *section;                   /* hooked config section info */
+   int (*intgetter)(AL_CONST char *name, int def);
+   AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
+   void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
+   struct ZSCRIPT_CONFIG_HOOK *next; 
+} ZSCRIPT_CONFIG_HOOK;
+
+
+#define MAX_CONFIGS     4
+
+static ZSCRIPT_CONFIG *config[MAX_CONFIGS] = { NULL, NULL, NULL, NULL };
+static ZSCRIPT_CONFIG *config_override = NULL;
+static ZSCRIPT_CONFIG *config_language = NULL;
+static ZSCRIPT_CONFIG *system_config = NULL;
+
+static ZSCRIPT_CONFIG_HOOK *config_hook = NULL;
+
+static int config_installed = FALSE;
+
+static char **config_argv = NULL;
+static char *argv_buf = NULL;
+static int argv_buf_size = 0;
+
+//Config files
+void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
+void zscript_flush_config_file(void);
+void zscript_destroy_config(ZSCRIPT_CONFIG *cfg);
+void zscript_config_cleanup(void);
+void zscript_init_config(int loaddata);
+int zscript_get_config_line(const char *data, int length, char **name, char **val);
+void zscript_set_config(ZSCRIPT_CONFIG **config, const char *data, int length, const char *filename);
+void zscript_load_config_file(ZSCRIPT_CONFIG **config, const char *filename, const char *savefile);
+void zscript_set_config_file(const char *filename);
+void zscript_set_config_data(const char *data, int length);
+void zscript_override_config_file(const char *filename);
+void zscript_override_config_data(const char *data, int length);
+void zscript_push_config_state(void);
+void zscript_pop_config_state(void);
+void zscript_prettify_config_section_name(const char *in, char *out, int out_size);
+void zscript_hook_config_section(const char *section, int (*intgetter)(const char *, int), const char *(*stringgetter)(const char *, const char *), void (*stringsetter)(const char *, const char *));
+int zscript_config_is_hooked(const char *section);
+ZSCRIPT_CONFIG_ENTRY *zscript_find_config_string(ZSCRIPT_CONFIG *config, const char *section, const char *name, ZSCRIPT_CONFIG_ENTRY **prev);
+const char *zscript_get_config_string(const char *section, const char *name, const char *def);
+int zscript_get_config_int(const char *section, const char *name, int def);
+int zscript_get_config_hex(const char *section, const char *name, int def);
+float zscript_get_config_float(const char *section, const char *name, float def);
+int zscript_get_config_id(const char *section, const char *name, int def);
+char **zscript_get_config_argv(const char *section, const char *name, int *argc);
+ZSCRIPT_CONFIG_ENTRY *zscript_insert_config_variable(ZSCRIPT_CONFIG *the_config, ZSCRIPT_CONFIG_ENTRY *p, const char *name, const char *data);
+void zscript_set_config_string(const char *section, const char *name, const char *val);
+void zscript_set_config_int(const char *section, const char *name, int val);
+void zscript_set_config_hex(const char *section, const char *name, int val);
+void zscript_set_config_float(const char *section, const char *name, float val);
+void zscript_set_config_id(const char *section, const char *name, int val);
+void _zscript_reload_config(void);
+void zscript_reload_config_texts(const char *new_language);
+const char *zscript_get_config_text(const char *msg);
+int zscript_add_unique_config_name(const char ***names, int n, char const *name);
+int zscript_attach_config_entries(ZSCRIPT_CONFIG *conf, const char *section,int n, const char ***names, int list_sections);
+int zscript_list_config_entries(const char *section, const char ***names);
+int zscript_list_config_sections(const char ***names);
+void zscript_free_config_entries(const char ***names);
+
 class FFScript
 {
 	
@@ -331,6 +413,8 @@ class FFScript
 public:
 //FFScript();
 void init();
+
+
 int max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
