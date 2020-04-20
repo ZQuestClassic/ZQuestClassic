@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 40
+Fixed a bug where finishing a custom quest advanted to 1st.qst.
 Added Game->IncrementQuest().
 Backported Rob's fixes for abc list size from 2.55.
 	( ZoriaRPG, 19th April, 2020 )
