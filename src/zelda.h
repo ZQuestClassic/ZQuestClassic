@@ -69,7 +69,7 @@ extern bool dev_debug;
 /******** Enums & Structs ********/
 /*********************************/
 
-enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qSAVE, qSAVECONT, qWON, qRELOAD, qERROR };
+enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qSAVE, qSAVECONT, qWON, qRELOAD, qERROR, qINCQST, qLAST };
 
 // "special" walk flags
 enum

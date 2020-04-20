@@ -5358,6 +5358,22 @@ int main(int argc, char* argv[])
 				ending();
 			}
 			break;
+			
+			case qINCQST:
+			{
+				Link.setDontDraw(true);
+				//Link.setCharging(0);//don't have the sword out during the ending. 
+				//Link.setSwordClk(0);
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+		
+				initZScriptGlobalRAM();
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+				ending_scripted();
+			}
+			break;
 		}
         FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!

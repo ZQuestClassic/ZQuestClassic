@@ -1,5 +1,12 @@
 //2.55 Changes
 
+//Alpha 64
+Updated the ZSA docs to cover the new instruction, and added section anchors. 
+Ported some module family members (startingScreen, startingDMap) from 2.53.1. 
+Ported Game->IncrementQuest() from 2.53.1, Beta 40
+Added a termination to the quit state enum as qQUITLAST, and added qINCQST.
+	( ZoriaRPG, 20th April, 2020 )
+
 //Alpha 63
 Added 'Export ZASM' menu
 Added 'Import ZASM' menu

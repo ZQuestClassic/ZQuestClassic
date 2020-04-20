@@ -30,6 +30,7 @@ extern byte use_dwm_flush;
 //#include "zc_sys.h"
 #include "script_drawing.h"
 #include "util.h"
+#include "ending.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -2791,6 +2792,30 @@ long get_register(const long arg)
 	switch(arg)
 	{
 		
+		case INCQST:
+		{
+			//zprint2("Incrementing Quest\n");
+			int newqst = 0;
+			if ( game->get_quest() < 255 )  //255 is a custom quest
+			{
+				newqst = (game->get_quest()+1);
+			}
+			else
+			{
+				newqst = 1;
+			}
+			//zprint2("newqst is: %d\n", newqst);
+			if ( newqst < 11 ) 
+			{
+			
+				ret = newqst * 10000;
+				Quit = qINCQST;
+				//ending();
+			
+			}
+			else ret = -10000;
+			break;
+		}
 		//Debug->Null()
 		case DONULL: 
 			ret = 0;
@@ -26296,6 +26321,9 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	
+	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
+	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));
+	
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
@@ -26440,7 +26468,31 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
 		//al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
 		
-		
+		//Quest starting screens and DMaps
+	
+		//dmaps
+		moduledata.startingdmap[0] = get_config_int("QUESTS","first_startdmap",0);
+		moduledata.startingdmap[1] = get_config_int("QUESTS","second_startdmap",0);
+		moduledata.startingdmap[2] = get_config_int("QUESTS","third_startdmap",0);
+		moduledata.startingdmap[3] = get_config_int("QUESTS","fourth_startdmap",0);
+		moduledata.startingdmap[4] = get_config_int("QUESTS","fifth_startdmap",0);
+		moduledata.startingdmap[5] = get_config_int("QUESTS","sixth_startdmap",0);
+		moduledata.startingdmap[6] = get_config_int("QUESTS","seventh_startdmap",0);
+		moduledata.startingdmap[7] = get_config_int("QUESTS","eighth_startdmap",0);
+		moduledata.startingdmap[8] = get_config_int("QUESTS","ninth_startdmap",0);
+		moduledata.startingdmap[9] = get_config_int("QUESTS","tenth_startdmap",0);
+		//screens
+		moduledata.startingscreen[0] = get_config_int("QUESTS","first_startscreen",0x77);
+		moduledata.startingscreen[1] = get_config_int("QUESTS","second_startscreen",0x77);
+		moduledata.startingscreen[2] = get_config_int("QUESTS","third_startscreen",0x77);
+		moduledata.startingscreen[3] = get_config_int("QUESTS","fourth_startscreen",0x77);
+		moduledata.startingscreen[4] = get_config_int("QUESTS","fifth_startscreen",0x77);
+		moduledata.startingscreen[5] = get_config_int("QUESTS","sixth_startscreen",0x77);
+		moduledata.startingscreen[6] = get_config_int("QUESTS","seventh_startscreen",0x77);
+		moduledata.startingscreen[7] = get_config_int("QUESTS","eighth_startscreen",0x77);
+		moduledata.startingscreen[8] = get_config_int("QUESTS","ninth_startscreen",0x77);
+		moduledata.startingscreen[9] = get_config_int("QUESTS","tenth_startscreen",0x77);
+	
 		//name entry icons, tiles, and csets
 		for ( int q = 0; q < sels_tile_LAST; q++ ) 
 		{

@@ -593,7 +593,7 @@ void ending()
 	
 	credits_skip:
 	
-	if(game->get_quest()>0 && game->get_quest()<=5)
+	if(game->get_quest()>0 && game->get_quest()<=9)
 	{
 		inc_quest();
 		removeItemsOfFamily(game, itemsbuf, itype_ring);
@@ -642,9 +642,9 @@ void ending()
 	}
 	FFCore.skip_ending_credits = 0;
 	
-//  setPackfilePassword(datapwd);
+	//  setPackfilePassword(datapwd);
 	load_quest(game);
-//  setPackfilePassword(NULL);
+	//  setPackfilePassword(NULL);
 	saves[currgame] = *game;
 	load_game_icon_to_buffer(false,currgame);
 	load_game_icon(game,false,currgame);
@@ -652,6 +652,123 @@ void ending()
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
+	show_saving(scrollbuf);
+	save_savedgames();
+}
+
+
+void ending_scripted()
+{
+	items.clear();
+	Ewpns.clear();
+	Lwpns.clear();
+	guys.clear();
+	Sitems.clear();
+	chainlinks.clear();
+	decorations.clear();
+	clear_bitmap(msg_txt_display_buf);
+	clear_bitmap(msg_bg_display_buf);
+	dismissmsg();
+	ALLOFF(true, true);
+    
+	//music_stop();
+	kill_sfx();
+	//sfx(WAV_ZELDA);
+	Quit=0;
+    
+	game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
+    
+	draw_screen_clip_rect_x1=0;
+	draw_screen_clip_rect_x2=255;
+	draw_screen_clip_rect_y1=0;
+	draw_screen_clip_rect_y2=223;
+	//draw_screen_clip_rect_show_link=true;
+	//draw_screen_clip_rect_show_guys=false;
+   
+	for(int f=0; f<77; f++)
+	{
+        
+		if(f>=0 && ((f-0)%5 == 0))
+		{
+			draw_screen_clip_rect_x1+=8;
+			draw_screen_clip_rect_x2-=8;
+			//draw_screen_clip_rect_show_guys=true;
+		}
+        
+		draw_screen(tmpscr);
+		advanceframe(true);
+        
+		if(Quit) return;
+	}
+    
+	clear_bitmap(msg_txt_display_buf);
+	clear_bitmap(msg_bg_display_buf);
+	draw_screen(tmpscr);
+	advanceframe(true);
+    
+	draw_screen_clip_rect_x1=0;
+	draw_screen_clip_rect_x2=255;
+	//draw_screen_clip_rect_show_guys=false;
+    
+	clear_bitmap(scrollbuf);
+	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	endingpal();
+    
+        inc_quest();
+        removeItemsOfFamily(game, itemsbuf, itype_ring);
+        int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+        
+        if(maxring != -1)
+        {
+            getitem(maxring,true);
+        }
+        
+        ringcolor(false);
+	stop_midi();
+	//restore user volume if it was changed by script
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	{
+		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+		midi_volume = FFCore.usr_midi_volume;
+//		master_volume(-1,FFCore.usr_midi_volume);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+	{
+		digi_volume = FFCore.usr_digi_volume;
+		//master_volume((long)(FFCore.usr_digi_volume),1);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+	{
+		emusic_volume = (long)FFCore.usr_music_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+	{
+		sfx_volume = (long)FFCore.usr_sfx_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (long)FFCore.usr_panstyle;
+	}
+	if(zcmusic != NULL)
+	{
+		zcmusic_stop(zcmusic);
+		zcmusic_unload_file(zcmusic);
+		zcmusic = NULL;
+	}
+	FFCore.skip_ending_credits = 0;
+    
+	//  setPackfilePassword(datapwd);
+	load_quest(game);
+	strcpy(game->title,QHeader.title);
+	//  setPackfilePassword(NULL);
+	saves[currgame] = *game;
+	load_game_icon_to_buffer(false,currgame);
+	load_game_icon(game,false,currgame);
+    
+	game->set_continue_dmap(zinit.start_dmap);
+	game->set_continue_scrn(0xFF);
+	game->set_cont_hearts(zinit.cont_heart);
+	game->set_hasplayed(false);
 	show_saving(scrollbuf);
 	save_savedgames();
 }
@@ -666,7 +783,7 @@ void inc_quest()
 	
 	int deaths = game->get_deaths();
 	
-	if ( moduledata.old_quest_serial_flow )
+	if ( moduledata.old_quest_serial_flow || game->get_quest() >= 5 )
 	{
 		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
 			quest = zc_min(4,moduledata.max_quest_files);// 4;
@@ -682,9 +799,9 @@ void inc_quest()
 		if(game->get_quest()==3 && deaths == 0)
 			quest = zc_min(5,moduledata.max_quest_files);// 4;
 		
-		// Likewise, if you beat the 5th but died, go back to the 4th.
+		// //I can't find a better solution. If we reach five with wacky progression, just move on. -Z
 		if(game->get_quest()==5 && deaths > 0)
-			quest = zc_min(4,moduledata.max_quest_files);// 4;
+			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);// 4;
 	}
 	else
 	{
@@ -700,8 +817,9 @@ void inc_quest()
 	game->set_life(3*HP_PER_HEART);
 	game->set_maxbombs(8);
 	game->set_hasplayed(true);
-	game->set_continue_dmap(zinit.start_dmap);
-	game->set_continue_scrn(0x77);
+	//now bound to modules
+	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
+	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
 	resetItems(game,&zinit,true);
 	load_quest(game);
 	load_game_icon_to_buffer(false,currgame);

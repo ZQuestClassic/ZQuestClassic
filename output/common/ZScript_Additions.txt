@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 62
-Document Revision: 16th April, 2020
+Document for: 2.55, Alpha 64
+Document Revision: 20th April, 2020
 
 
  __           _   _                 
@@ -2279,7 +2279,7 @@ Available annotations:
 
 //////////////
 //  Global  //
-//////////////
+//////////////								// Global
 
 int Floor(float n);
  * Truncates n to the nearest integer, rounding downwards.
@@ -2453,9 +2453,19 @@ __________      .__        __                    _____                ___.
 
 ////////////
 //  Game  //
-////////////
+////////////								// Game
 
 Adds ZScript:
+
+int IncrementQuest();
+ * Ends the current quest, incrementing the quest ID by +1, and
+ * saves. This works as a normal WIN FLAG. except that the normal
+ * ending credits do not appear. Instead, there is a fade out, and
+ * the player is returned to the file select, but the file in the 
+ * current slot is modified to be the next quest in the MODULE.
+ *
+ * This is exclusively intended to be used for serialised quests
+ * in MODULES and requires the use of QUEST NUMBERS to work.
 
 int MaxNPCs();
  * Returns the maximum number of npc sprites that arw allowed
@@ -2763,7 +2773,7 @@ int GetPointer(bool *ptr[]);
 
 /////////////////
 ///  Input->  ///
-/////////////////
+/////////////////								// Input
 
 int ModifierKeys;
  * Returns the Allegro Keyboard Modifier Flags:
@@ -3124,7 +3134,7 @@ void GetError(char32[] buf);
 
 ////////////////
 ///  Screen  ///
-////////////////
+////////////////								// Screen
 
 npc LoadNPCByUID(int uid);
  * Returns an npc pointer to an npc on the screen if its UID matches
@@ -3538,7 +3548,7 @@ bool NumFFCs[33];
 
 /////////////
 ///  FFC  ///
-/////////////
+/////////////									// FFC
 
 int ID;	
  * The screen ref of the ffc. Used primarily for this->ID.
@@ -3654,7 +3664,7 @@ int ScriptFlip;
 
 /////////////////
 ///  *weapon  ///
-/////////////////
+/////////////////								// Weapon
 
 int Power; 
  * The damage/power value of te weapo.
@@ -3731,7 +3741,7 @@ untyped Misc[32];
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
-///////////////////////////
+///////////////////////////							// EWeapon
 
 int ParentUID;
  * Returns the UID of the NPC that controls this eweapon.
@@ -3741,7 +3751,7 @@ int ParentUID;
 
 ///////////////////////////
 ///  LWeapon  Specific  ///
-///////////////////////////
+///////////////////////////							// LWeapon
 
 int Weapon;
  * The UseWeapon property for this weapon. 
@@ -3775,7 +3785,7 @@ int AClock
 
 /////////////
 ///  NPC  ///
-/////////////
+/////////////									// NPC
 
 int Random;
  * Corresponds to the Enemy Editor Random Rate value.
@@ -4081,7 +4091,7 @@ int FireSound;
 
 //////////////
 ///  Hero  ///
-//////////////
+//////////////									// Hero // Player
 
 int Steps[8];
  * The number of pixels that the player moves in a frame, based on
@@ -4349,7 +4359,7 @@ The following are the members of data struct pointers (combo, sprite, item, npc,
 
 //////////////////
 ///  itemdata  ///
-//////////////////
+//////////////////								// Itemdata
 
 int ID;		
  * Returns the item number of the item in question.
@@ -4576,7 +4586,7 @@ itemdata GetItem(name[]);
 
 /////////////////////
 ///  messagedata  ///
-/////////////////////
+/////////////////////								// Messagedata
 
 void Set(int buffer[]);
  * Assigns the ZString buffer[] to the messagedata pointer's string.
@@ -4670,7 +4680,7 @@ int TextHeight;
 	
 //////////////////
 ///  dmapdata  ///
-//////////////////
+//////////////////								// DMapdata
 
 	1.	Sideview Gravity on All Screens (uses Dmaps[].sideview, new var.
 	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
@@ -4709,7 +4719,7 @@ void GetMusic();
 
 //////////////////
 ///  shopdata  ///
-//////////////////
+//////////////////								// Shopdata
 
 int Type;
  * Returns the shop type for the current shopdata pointer where:
@@ -4743,7 +4753,7 @@ Note: The message displayed when entering a shop is Screen->String, or mapdata->
 
 /////////////////
 ///  mapdata  ///
-/////////////////
+/////////////////								// Mapdata
 
 int Map;
  * Returns the map that this mapdata points to
@@ -5158,7 +5168,7 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
 
 ///////////////////
 ///  combodata  ///
-///////////////////
+///////////////////								// Combodata
 
 int Pos();
  * Returns the combo screen index of a combo from a combodata script, from the 'this->'
@@ -5364,7 +5374,7 @@ int BlockWeaponLevel;
 	
 /////////////////
 ///  npcdata  ///
-/////////////////
+/////////////////								// NPCData
 
 /*
 The npcdata datatype allows the user to load and manipulate Enemy Editor
@@ -5576,7 +5586,7 @@ t/b/a
 
 ////////////////////
 ///  spritedata  ///
-////////////////////
+////////////////////								// Spritedata
 
 /*
 The spritedata datatype allows the user to load and manipulate weapon sprite struct
@@ -5617,7 +5627,7 @@ int Type;
 
 /////////////////////
 ///  dropsetdata  ///
-/////////////////////
+/////////////////////								// Dropsetdata
 
 int Choose();
  * Returns a random item ID from the dropset
@@ -5651,61 +5661,61 @@ t/b/a
 
 //////////////////
 ///  ponddata  ///
-//////////////////
+//////////////////								// Ponddata
 
 t/b/a
 
 //////////////////
 ///  warpring  ///
-//////////////////
+//////////////////								// Warpringdata
 
 t/b/a
 
 /////////////////
 ///  doorset  ///
-/////////////////
+/////////////////								// Doorsetdata
 
 t/b/a
 
 ////////////////////
 ///  misccolors  ///
-////////////////////
+////////////////////								// Miscdata
 
 t/b/a
 
 /////////////////
 ///  rgbdata  ///
-/////////////////
+/////////////////								// RGBata
 
 t/b/a
 
 /////////////////
 ///  palette  ///
-/////////////////
+/////////////////								// Palettedata
 
 t/b/a
 
 ////////////////
 ///  zcmidi  ///
-////////////////
+////////////////								// MIDI
 
 t/b/a
 
 //////////////////
 ///  palcycle  ///
-//////////////////
+//////////////////								// Palcycledata
 
 t/b/a
 
 //////////////////
 ///  gamedata  ///
-//////////////////
+//////////////////								// Gamedata
 
 t/b/a
 
 ////////////////
 ///  cheats  ///
-////////////////
+////////////////								// Cheatdata
 
 t/b/a
 
@@ -5719,7 +5729,7 @@ Commands for graphics, sound, text, and bitmap objects.
 
 ////////////////////
 ///  Graphics->  ///
-////////////////////
+////////////////////								// Graphics
 
 int GetPixel(bitmap b, int x, int y);
  * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
@@ -5765,7 +5775,7 @@ void Greyscale(bool enable);
 
 /////////////////
 ///  Audio->  ///
-/////////////////
+/////////////////								// Audio
 
 void PlayOgg(int filename[]);
  * Similar to PlayEnhancedMusic(), but only for OGG files.
@@ -5863,7 +5873,7 @@ int PanStyle;
 
 ////////////////
 ///  Text->  ///
-////////////////
+////////////////								// Text
 
 int FontHeight(int font);
 int StringHeight(char32 ptr, int font);
@@ -5892,7 +5902,7 @@ int MessageHeight(int msg);
 
 ////////////////
 ///  bitmap  ///
-////////////////
+////////////////								// Bitmap
 
 //void DrawPlane(int layer, int rt, int srcX, int srcY, 
 //		int srcW, int srcH, int destW, int destH, 
@@ -6269,7 +6279,7 @@ Functions for debugging, and raw access to the internal ZASM stack and mechanics
 
 /////////////////
 ///  Debug->  ///
-/////////////////
+/////////////////								// Debug
 
 untyped NULL;
 untyped Null;

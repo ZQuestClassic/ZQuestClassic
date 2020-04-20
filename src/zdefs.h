@@ -4022,6 +4022,8 @@ struct zcmodule
 	//if it is 1, then we use the old hardcoded quest flow.
 	
 	int max_quest_files;
+	word startingdmap[10];
+	word startingscreen[10];
 	int title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
 	char enem_type_names[eeMAX][255];

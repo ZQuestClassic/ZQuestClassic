@@ -1831,6 +1831,8 @@ string ZScript::VarToString(long ID)
 	case FILEEOF: return "FILEEOF";
 	case FILEERR: return "FILEERR";
 	
+	case INCQST: return "INCQST";
+	
 	
 	default:
 	{

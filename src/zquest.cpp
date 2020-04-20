@@ -35422,6 +35422,8 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
 	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
 	moduledata.old_quest_serial_flow = 0;
+	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
+	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));
 	moduledata.max_quest_files = 0;
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;

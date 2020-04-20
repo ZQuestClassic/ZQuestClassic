@@ -18,5 +18,6 @@ void putendmsg(const char *s,int x,int y,int speed,void(proc)());
 void brick(int x,int y);
 void endingpal();
 void ending();
+void ending_scripted();
 #endif
  

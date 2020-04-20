@@ -2108,6 +2108,7 @@ script_variable variable_list[]=
 	{ "MESSAGEDATATEXTWID", MESSAGEDATATEXTWID, 0, 0 },
 	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
 	{ "SWITCHKEY", SWITCHKEY, 0, 0 },
+	{"INCQST", INCQST, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
