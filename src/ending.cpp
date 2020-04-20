@@ -728,10 +728,10 @@ void inc_quest()
 	if ( linear_quest_loading || game->get_quest() >= 5 )
 	{
 		int curquest = game->get_quest();
-		if ( curquest == 255 ) //255 is a custom quest. We set it to 0 to roll over to 1, later. 
-		{
-			curquest = 0;
-		}
+		//if ( curquest == 255 ) //255 is a custom quest. We set it to 0 to roll over to 1, later. 
+		//{
+		//	curquest = 0; This would break normal quests. 
+		//}
 		/*switch(curquest)
 		{
 			
