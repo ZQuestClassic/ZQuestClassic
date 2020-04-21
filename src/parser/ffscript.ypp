@@ -111,6 +111,7 @@ extern YYLTYPE noloc;
 %token UNLESS
 %token REPEAT
 %token INLINE
+%token CASSERT
 
  // Types
 %token ZVOID
@@ -250,6 +251,7 @@ Global_Statement :
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| AlwaysUsing SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Global_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -363,6 +365,7 @@ Namespace_Statement :
 	| Annotated_Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -451,6 +454,18 @@ Option :
 	| HASH OPTION DEFAULT DEFAULT NEWLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Default, @$);}
+	;
+
+////////////////////////////////////////////////////////////////
+// Assertion
+
+Statement_Assert :
+	CASSERT LPAREN Expression_Constant RPAREN {
+		$$ = new ASTAssert((ASTExprConst*)$3, NULL, @$);
+	}
+	| CASSERT LPAREN Expression_Constant COMMA QUOTEDSTRING RPAREN {
+		$$ = new ASTAssert((ASTExprConst*)$3, (ASTString*)$5, @$);
+	}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -769,6 +784,7 @@ Script_Block_Element :
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -834,6 +850,7 @@ Statement :
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
 	| SEMICOLON {$$ = new ASTStmtEmpty(@$);}
 	| Statement_CompileError SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	;
 
 Statement_NoSemicolon:

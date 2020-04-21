@@ -103,6 +103,7 @@ until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
+CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
 void		TOKEN( ZVOID );

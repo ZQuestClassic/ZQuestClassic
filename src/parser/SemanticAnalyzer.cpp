@@ -708,6 +708,25 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 	}
 }
 
+void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
+{
+	visit(host.expr.get(), param);
+    if (breakRecursion(host)) return;
+	long val = *(host.expr->getCompileTimeValue(this, scope));
+	if(val == 0)
+	{
+		ASTString* str = host.msg.get();
+		if(str)
+		{
+			handleError(CompileError::AssertFail(&host, str->getValue().c_str()));
+		}
+		else
+		{
+			handleError(CompileError::AssertFail(&host, ""));
+		}
+	}
+}
+
 // Expressions
 
 void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)

@@ -93,6 +93,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(declaration));
 		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(declaration));
+		break;
 	}
 }
 
@@ -547,6 +550,9 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
 		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(&declaration));
+		break;
 	}
 }
 
@@ -580,6 +586,9 @@ void ASTNamespace::addDeclaration(ASTDecl& declaration)
 		break;
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(&declaration));
 		break;
 	}
 }
@@ -882,6 +891,17 @@ ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location
 void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
 {
 	return visitor.caseUsing(*this, param);
+}
+
+// ASTAssert
+
+ASTAssert::ASTAssert(ASTExprConst* expr, ASTString* msg, LocationData const& location)
+	: ASTDecl(location), expr(expr), msg(msg)
+{}
+
+void ASTAssert::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseAssert(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////

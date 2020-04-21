@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 64
-Document Revision: 20th April, 2020
+Document Revision: 21st April, 2020
 
 
  __           _   _                 
@@ -1287,6 +1287,34 @@ If short-circuiting is enabled, the following occurs:
 		//if 'a' is true, 'b' is skipped. 
 
 
+/////////////////////
+// Constant Assert //
+/////////////////////
+
+You may now make constant assertions to create custom compile errors.
+
+	[example--
+		const int COMBO = 0;
+		//
+		CONST_ASSERT(COMBO > 0);
+	--end example]
+	This would cause the compile error:
+		"Assert failed!"
+	on the line of the assert.
+	
+You may also include a custom message to be printed with the error.
+
+	[example--
+		const int COMBO = 0;
+		//
+		CONST_ASSERT(COMBO > 0, "COMBO must be > 0!");
+	--end example]
+	This would cause the compile error:
+		"Assert failed! COMBO must be > 0!"
+	on the line of the assert.
+
+This can be useful to prevent yourself from making mistakes, or for scripts you share
+to ensure that others using your script don't make mistakes when setting constants.
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______

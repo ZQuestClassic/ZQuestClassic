@@ -72,6 +72,7 @@ namespace ZScript
 	class ASTStmtReturnVal;
 	class ASTStmtBreak;
 	class ASTStmtContinue;
+	class ASTAssert;
 	class ASTStmtEmpty;
 	// Declarations
 	class ASTDecl; // virtual
@@ -293,6 +294,7 @@ namespace ZScript
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		
 		FileScope* scope;
 	};
@@ -633,7 +635,8 @@ namespace ZScript
 			TYPE_DATATYPE,
 			TYPE_SCRIPTTYPE,
 			TYPE_NAMESPACE,
-			TYPE_USING
+			TYPE_USING,
+			TYPE_ASSERT
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -665,6 +668,7 @@ namespace ZScript
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		
 		Script* script;
 	};
@@ -692,6 +696,7 @@ namespace ZScript
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		std::string name;
 		
 		Namespace* namesp;
@@ -934,7 +939,20 @@ namespace ZScript
 	private:
 		ASTExprIdentifier* identifier;
 	};
+	
+	class ASTAssert : public ASTDecl
+	{
+	public:
+		ASTAssert(ASTExprConst* expr, ASTString* msg = NULL, LocationData const& location = LocationData::NONE);
+		ASTAssert* clone() const {return new ASTAssert(*this);}
 
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		Type getDeclarationType() const {return TYPE_ASSERT;}
+		
+		owning_ptr<ASTExprConst> expr;
+		owning_ptr<ASTString> msg;
+	};
 	////////////////////////////////////////////////////////////////
 	// Expressions
 

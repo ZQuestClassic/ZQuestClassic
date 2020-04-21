@@ -1,6 +1,10 @@
 //2.55 Changes
 
 //Alpha 64
+Add CONST_ASSERT to ZScript
+	This allows creating custom compile errors in your scripts.
+	( Venrob, 21st April, 2020 )
+
 Updated the ZSA docs to cover the new instruction, and added section anchors. 
 Ported some module family members (startingScreen, startingDMap) from 2.53.1. 
 Ported Game->IncrementQuest() from 2.53.1, Beta 40
@@ -8,10 +12,13 @@ Added a termination to the quit state enum as qQUITLAST, and added qINCQST.
 	( ZoriaRPG, 20th April, 2020 )
 
 //Alpha 63
+Fix graphical bug with droplists
+	( Venrob, 19th April, 2020 )
+	
 Added 'Export ZASM' menu
 Added 'Import ZASM' menu
 	Replaces the old individual 'Import [type] ZASM Script' menus
-	( Venrob, 18h April, 2020 )
+	( Venrob, 18th April, 2020 )
 
 Alpha is now 63
 	( Venrob, 16th April, 2020 )

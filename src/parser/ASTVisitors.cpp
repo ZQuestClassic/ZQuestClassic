@@ -109,6 +109,8 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	block_visit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.asserts, param);
 }
 
 void RecursiveVisitor::caseSetOption(ASTSetOption& host, void* param)
@@ -234,6 +236,8 @@ void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 	block_visit(host, host.variables, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.functions, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.asserts, param);
 }
 
 void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
@@ -253,6 +257,8 @@ void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 	block_visit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.asserts, param);
 }
 
 void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
@@ -313,6 +319,11 @@ void RecursiveVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* p
 	visit(host.type.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.definition.get(), param);
+}
+
+void RecursiveVisitor::caseAssert(ASTAssert& host, void* param)
+{
+	//Ignored, except in SemanticAnalyzer
 }
 
 // Expressions
