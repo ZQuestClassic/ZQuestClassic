@@ -1,6 +1,12 @@
 //2.55 Changes
 
 //Alpha 64
+Fix Registration system bug causing it to recurse more than necessary
+	This was causing some compile errors to be reported multiple times
+Fix 'on' in '#option'
+	It was 'true' before, which interacted VERY dangerously with the
+	option 'BOOL_TRUE_RETURN_DECIMAL', causing options that you set
+	to 'on' to actually be set to 'off' instead.
 Add CONST_ASSERT to ZScript
 	This allows creating custom compile errors in your scripts.
 	( Venrob, 21st April, 2020 )
