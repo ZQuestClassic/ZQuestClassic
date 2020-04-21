@@ -679,6 +679,7 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
+    cmdFindBuggyNext,
     cmdMAX
 };
 

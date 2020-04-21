@@ -1757,6 +1757,7 @@ static MENU quest_reports_menu[] =
     { (char *)"&Item Locations",            onItemLocationReport,      NULL,                     0,            NULL   },
     { (char *)"&Script Locations",          onScriptLocationReport,    NULL,                     0,            NULL   },
     { (char *)"&What Links Here",           onWhatWarpsReport,         NULL,                     0,            NULL   },
+    { (char *)"&Bugged Next-> Combo Locations",           onBuggedNextComboLocationReport,         NULL,                     0,            NULL   },
     { (char *)"In&tegrity Check\t ",        NULL,                      integrity_check_menu,     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -6723,7 +6724,7 @@ void refresh(int flags)
             rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
             jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*command_buttonwidth)+4,(commands_list.h*command_buttonheight)+4, FR_DEEP);
             rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*command_buttonwidth)-1,commands_list.y+(commands_list.h*command_buttonheight)-1,jwin_pal[jcBOXFG]);
-            textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favorite Commands");
+            textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favourite Commands");
             FONT *tfont=font;
             font=pfont;
             
@@ -28413,6 +28414,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
+    { "Find Buggy Next->",              0, (intF) onBuggedNextComboLocationReport                                    },
     
 
 };
