@@ -299,8 +299,8 @@ appx_equal	TOKEN( APPXEQUAL );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
 	inherit			TOKEN( INHERIT );
-	on			TOKEN( ZTRUE );
-	off			TOKEN( ZFALSE );
+	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );
+	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
 	error			VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
 	warn			VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
