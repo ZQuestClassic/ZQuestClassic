@@ -1,0 +1,5 @@
+//User definitions
+
+typedef const int define;
+typedef itemsprite item;
+script typedef itemdata item;

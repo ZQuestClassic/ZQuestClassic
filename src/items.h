@@ -28,8 +28,8 @@ int addenemy(int x,int y,int id,int clk);
 bool addfairy(fix x, fix y, int misc3, int id);
 bool can_drop(fix x, fix y);
 void item_fall(fix& x, fix& y, fix& fall);
+int select_dropitem(int item_set);
 int select_dropitem(int item_set, int x, int y);
-bool is_side_view();
 
 class item : public sprite
 {
@@ -60,6 +60,7 @@ public:
     virtual ~item();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+	virtual int run_script(int mode);
 };
 
 // easy way to draw an item

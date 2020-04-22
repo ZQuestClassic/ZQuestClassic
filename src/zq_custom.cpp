@@ -581,6 +581,57 @@ const char *itemdata_weaponlist(int index, int *list_size)
 
 static ListData itemdata_weapon_list(itemdata_weaponlist, &pfont);
 
+list_data_struct biwt[wSwordLA+1];
+int biwt_cnt=-1;
+
+void build_biwt_list()
+{
+    int start=biwt_cnt=0;
+    
+    for(int i=start; i<41; i++)
+    {
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if(moduledata.player_weapon_names[i][0]!='-')
+	{
+		//load these from the module
+	   // biwt[biwt_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+	    //biwt[biwt_cnt].s = (char *)enetype_string[i];
+	    biwt[biwt_cnt].s = (char *)moduledata.player_weapon_names[i];
+	    biwt[biwt_cnt].i = i;
+	    ++biwt_cnt;
+	}
+		
+    }
+    
+    // No alphabetic sorting for this list
+    for(int j=start+1; j<biwt_cnt-1; j++)
+    {
+        if(!strcmp(biwt[j].s,"(None)"))
+        {
+            for(int i=j; i>0; i--)
+                zc_swap(biwt[i],biwt[i-1]);
+                
+            break;
+        }
+    }
+}
+
+const char *weapontypelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biwt_cnt;
+        return NULL;
+    }
+    
+    return biwt[index].s;
+    
+}
+
+static ListData lweapontype_list(weapontypelist, &font);
+
+
 static char itemdata_weapontypelist_str_buf[14];
 
 const char *itemdata_weapontypelist(int index, int *list_size)
@@ -588,7 +639,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,40);
-        
+        al_trace("Selected Weapon: %s\n",(char *)moduledata.player_weapon_names[index]);
 	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
 	else return (char *)moduledata.player_weapon_names[index];
 	/*
@@ -794,7 +845,69 @@ const char *counterlist(int index, int *list_size)
 
 static ListData counter_list(counterlist, &pfont);
 
+const char the_enemy_defences[edLAST][255]=
+{
+	"(None)", "1/2 Damage", "1/4 Damage", "Stun", "Stun Or Block", "Stun Or Ignore", "Block If < 1",
+	"Block If < 2", "Block If < 4", "Block If < 6", "Block If < 8", "Block", "Ignore If < 1", "Ignore",
+	"One-Hit-Kill", "Block if Power < 10", "Double Damage", "Triple Damage", "Quadruple Damage",
+	"Enemy Gains HP = Damage", "Trigger Screen Secrets", "-freeze", "-msgnotenabled", "-msgline", 
+	"-lvldamage", "-lvlreduction", "Split", "Transform", "-lvlblock2", "-lvlblock3", "-lvlblock4", 
+	"-lvlblock5", "-shock", "Bomb Explosion", "Superbomb Explosion", "-deadrock", "-breakshoeld",
+	"-restoreshield", "-specialdrop", "-incrcounter", "-reducecounter", "Harmless Explosion",
+	"-killnosplit", "-tribble", "-fireball", "-fireballlarge", "Summon", "-wingame", "-jump",
+	"-eat", "-showmessage"
+};
 
+
+list_data_struct biedefs[edLAST];
+int biedefs_cnt=-1;
+
+void build_biedefs_list()
+{
+    int start=biedefs_cnt=0;
+    
+    for(int i=start; i<41; i++)
+    {
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if(the_enemy_defences[i][0]!='-')
+	{
+		//load these from the module
+	   // biedefs[biedefs_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+	    //biedefs[biedefs_cnt].s = (char *)enetype_string[i];
+	    biedefs[biedefs_cnt].s = (char *)the_enemy_defences[i];
+	    biedefs[biedefs_cnt].i = i;
+	    ++biedefs_cnt;
+	}
+		
+    }
+    
+    // No alphabetic sorting for this list
+    for(int j=start+1; j<biedefs_cnt-1; j++)
+    {
+        if(!strcmp(biedefs[j].s,"(None)"))
+        {
+            for(int i=j; i>0; i--)
+                zc_swap(biedefs[i],biedefs[i-1]);
+                
+            break;
+        }
+    }
+}
+
+const char *edefslist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biedefs_cnt;
+        return NULL;
+    }
+    
+    return biedefs[index].s;
+    
+}
+
+static ListData enemy_defence_list(edefslist, &pfont);
 
 
 //Moved defenselist up here so that it is also available to itemdata. -Z
@@ -938,7 +1051,7 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemscript_list(itemscriptdroplist, &pfont);
+ListData itemscript_list(itemscriptdroplist, &pfont);
 
 const char *itemspritescriptdroplist(int index, int *list_size)
 {
@@ -953,7 +1066,7 @@ const char *itemspritescriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
 
 const char *lweaponscriptdroplist(int index, int *list_size)
 {
@@ -968,7 +1081,7 @@ const char *lweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
 
 static DIALOG itemdata_special_dlg[] =
 {
@@ -1408,10 +1521,10 @@ static DIALOG itemdata_dlg[] =
     { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
     //293 --weapon editor
     { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweapontype_list,						 NULL,   NULL 				   },
     //295
     { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &enemy_defence_list,						 NULL,   NULL 				   },
     //297
     { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
@@ -1444,7 +1557,7 @@ static DIALOG itemdata_dlg[] =
     { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+28,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
     //317 validate cost flag
     { jwin_check_proc,        120,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Validate Cost",                        NULL,   NULL                  },
-	
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -2370,6 +2483,11 @@ void edit_itemdata(int index)
         
     itemdata_dlg[197].dp = da[8];
     itemdata_dlg[198].dp = da[9];
+    if(biwt_cnt==-1)
+    {
+        build_biwt_list();
+    }
+    build_biedefs_list();
     
     build_biitems_list();
     build_biitemsprites_list();
@@ -2400,8 +2518,19 @@ void edit_itemdata(int index)
     itemdata_dlg[316].d1 = the_spritescript;
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
-    itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
+     
+    for(int j=0; j<biwt_cnt; j++)
+    {
+        if(biwt[j].i == itemsbuf[index].useweapon)
+            itemdata_dlg[294].d1 = j;
+    }
+    for(int j=0; j<biedefs_cnt; j++)
+    {
+        if(biedefs[j].i == itemsbuf[index].useweapon)
+            itemdata_dlg[296].d1 = j;
+    }
+    //itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
+    //itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
     itemdata_dlg[298].d1 = itemsbuf[index].weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
@@ -2520,10 +2649,14 @@ void edit_itemdata(int index)
 	
 	//! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
+	//test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
 	test.weaprange = vbound(atoi(wrange),0,214747);
 	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_dlg[294].d1;; //atoi(wweap);
+	//test.useweapon = itemdata_dlg[294].d1; //atoi(wweap);
+	
+	test.useweapon = itemdata_dlg[294].d1 != 0 ? biwt[itemdata_dlg[294].d1].i : wNone;
+	test.usedefence = itemdata_dlg[296].d1 != 0 ? biedefs[itemdata_dlg[296].d1].i : 0;
+	
 	test.weap_pattern[0] = itemdata_dlg[298].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
@@ -2890,8 +3023,968 @@ static MENU ilist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
+
+int readoneitem(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	itemdata tempitem;
+	memset(&tempitem, 0, sizeof(itemdata));
+        //reset_itembuf(&tempitem,i);
+    
+   
+	char istring[64]={0};
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneitem section_version: %d\n", section_version);
+	al_trace("readoneitem section_cversion: %d\n", section_cversion);
+    
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if ( ( section_version > V_ITEMS ) || ( section_version == V_ITEMS && section_cversion < CV_ITEMS ) )
+	{
+		al_trace("Cannot read .zitem packfile made using V_ITEMS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+   
+	if(!pfread(&istring, 64, f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.tile,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.misc,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.csets,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.frames,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.speed,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.delay,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.ltm,f,true))
+	{	
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.family,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.fam_type,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetl(&tempitem.power,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.flags,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&tempitem.script,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_getc(&tempitem.count,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&tempitem.amount,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&tempitem.collect_script,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&tempitem.setmax,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&tempitem.max,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.playsound,f,true))
+	{
+		return 0;
+	}
+    
+	for(int j=0; j<8; j++)
+	{
+		if(!p_igetl(&tempitem.initiald[j],f,true))
+		{
+		return 0;
+		}
+	}
+    
+	for(int j=0; j<2; j++)
+	{
+		if(!p_getc(&tempitem.initiala[j],f,true))
+		{
+			return 0;
+		}
+	}
+    
+	if(!p_getc(&tempitem.wpn,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn2,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn3,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn4,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn5,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn6,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn7,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn8,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn9,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.wpn10,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.pickup_hearts,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc1,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc2,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.magic,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc3,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc4,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc5,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc6,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc7,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc8,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc9,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetl(&tempitem.misc10,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_getc(&tempitem.usesound,f,true))
+	{
+		return 0;
+	}
+    
+	if ( zversion >= 0x255 )
+	{
+		if  ( section_version >= 45 )
+		{
+		    //New itemdata vars -Z
+		    //! version 27
+		    
+		if(!p_getc(&tempitem.useweapon,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_getc(&tempitem.usedefence,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempitem.weaprange,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempitem.weapduration,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+			    if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+			    {
+				return 0;
+			    }
+		    }
+		    //version 28
+			if(!p_igetl(&tempitem.duplicates,f,true))
+			{
+			    return 0;
+			}
+			for ( int q = 0; q < INITIAL_D; q++ )
+			{
+				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+				{
+					return 0;
+				}
+			}
+			for ( int q = 0; q < INITIAL_A; q++ )
+			{
+				if(!p_getc(&tempitem.weap_initiala[q],f,true))
+				{
+					return 0;
+				}
+			}
+
+			if(!p_getc(&tempitem.drawlayer,f,true))
+			{
+			    return 0;
+			}
+
+
+			if(!p_igetl(&tempitem.hxofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.hyofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.hxsz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.hysz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.hzsz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.xofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.yofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_hxofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_hyofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_hxsz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_hysz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_hzsz,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_xofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_yofs,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetw(&tempitem.weaponscript,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.wpnsprite,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.magiccosttimer,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.tilew,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.tileh,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_tilew,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.weap_tileh,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetl(&tempitem.pickup,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetw(&tempitem.pstring,f,true))
+			{
+			    return 0;
+			}
+			if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+			{
+			    return 0;
+			}
+			
+			if(!p_getc(&tempitem.cost_counter,f,true))
+			{
+			    return 0;
+			}
+			
+			//InitD[] labels
+			for ( int q = 0; q < 8; q++ )
+			{
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempitem.initD_label[q][w],f,true))
+					{
+						return 0;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempitem.weapon_initD_label[q][w],f,true))
+					{
+						return 0;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempitem.sprite_initD_label[q][w],f,true))
+					{
+						return 0;
+					} 
+				}
+				if(!p_igetl(&tempitem.sprite_initiald[q],f,true))
+				{
+					return 0;
+				} 
+			}
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_getc(&tempitem.sprite_initiala[q],f,true))
+				{
+					return 0;
+				} 
+				
+			}
+			if(!p_igetw(&tempitem.sprite_script,f,true))
+			{
+				return 0;
+			} 
+			//read it into an item
+		}
+	}
+	memcpy(&itemsbuf[index], &tempitem, sizeof(itemdata));
+	//strcpy(item_string[index], istring);
+	itemsbuf[bii[index].i] = tempitem;
+	strcpy(item_string[bii[index].i], istring);
+       
+	return 1;
+}
+
+
+
+int writeoneitem(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_ITEMS;
+    dword section_cversion=CV_ITEMS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+    
+   
+        
+       //section data        
+        
+            if(!pfwrite(item_string[i], 64, f))
+            {
+                new_return(5);
+            }
+	    
+	    if(!p_iputl(itemsbuf[i].tile,f))
+            {
+                new_return(6);
+            }
+            
+            if(!p_putc(itemsbuf[i].misc,f))
+            {
+                new_return(7);
+            }
+            
+            if(!p_putc(itemsbuf[i].csets,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_putc(itemsbuf[i].frames,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_putc(itemsbuf[i].speed,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_putc(itemsbuf[i].delay,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_iputl(itemsbuf[i].ltm,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_iputl(itemsbuf[i].family,f))
+            {
+                new_return(13);
+            }
+            
+            if(!p_putc(itemsbuf[i].fam_type,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].power,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].flags,f))
+            {
+                new_return(15);
+            }
+            
+            if(!p_iputw(itemsbuf[i].script,f))
+            {
+                new_return(16);
+            }
+            
+            if(!p_putc(itemsbuf[i].count,f))
+            {
+                new_return(17);
+            }
+            
+            if(!p_iputw(itemsbuf[i].amount,f))
+            {
+                new_return(18);
+            }
+            
+            if(!p_iputw(itemsbuf[i].collect_script,f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputw(itemsbuf[i].setmax,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputw(itemsbuf[i].max,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_putc(itemsbuf[i].playsound,f))
+            {
+                new_return(23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                {
+                    new_return(24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_putc(itemsbuf[i].initiala[j],f))
+                {
+                    new_return(25);
+                }
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn2,f))
+            {
+                new_return(27);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn3,f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn4,f))
+            {
+                new_return(29);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn5,f))
+            {
+                new_return(30);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn6,f))
+            {
+                new_return(31);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn7,f))
+            {
+                new_return(32);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn8,f))
+            {
+                new_return(33);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn9,f))
+            {
+                new_return(34);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn10,f))
+            {
+                new_return(35);
+            }
+            
+            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            {
+                new_return(36);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc1,f))
+            {
+                new_return(37);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc2,f))
+            {
+                new_return(38);
+            }
+            
+            if(!p_putc(itemsbuf[i].magic,f))
+            {
+                new_return(39);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc3,f))
+            {
+                new_return(40);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc4,f))
+            {
+                new_return(41);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc5,f))
+            {
+                new_return(42);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc6,f))
+            {
+                new_return(43);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc7,f))
+            {
+                new_return(44);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc8,f))
+            {
+                new_return(45);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc9,f))
+            {
+                new_return(46);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc10,f))
+            {
+                new_return(47);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                new_return(48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_putc(itemsbuf[i].useweapon,f))
+            {
+                new_return(49);
+            }
+	    if(!p_putc(itemsbuf[i].usedefence,f))
+            {
+                new_return(50);
+            }
+	    if(!p_iputl(itemsbuf[i].weaprange,f))
+            {
+                new_return(51);
+            }
+	    if(!p_iputl(itemsbuf[i].weapduration,f))
+            {
+                new_return(52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    {
+			new_return(53);
+		    }
+	    }
+	    //version 28
+		if(!p_iputl(itemsbuf[i].duplicates,f))
+		{
+		    new_return(54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			{
+				new_return(55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+			{
+				new_return(56);
+			}
+		}
+
+		if(!p_putc(itemsbuf[i].drawlayer,f))
+		{
+		    new_return(57);
+		}
+
+
+		if(!p_iputl(itemsbuf[i].hxofs,f))
+		{
+		    new_return(58);
+		}
+		if(!p_iputl(itemsbuf[i].hyofs,f))
+		{
+		    new_return(59);
+		}
+		if(!p_iputl(itemsbuf[i].hxsz,f))
+		{
+		    new_return(60);
+		}
+		if(!p_iputl(itemsbuf[i].hysz,f))
+		{
+		    new_return(61);
+		}
+		if(!p_iputl(itemsbuf[i].hzsz,f))
+		{
+		    new_return(62);
+		}
+		if(!p_iputl(itemsbuf[i].xofs,f))
+		{
+		    new_return(63);
+		}
+		if(!p_iputl(itemsbuf[i].yofs,f))
+		{
+		    new_return(64);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		{
+		    new_return(65);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		{
+		    new_return(66);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		{
+		    new_return(67);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		{
+		    new_return(68);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		{
+		    new_return(69);
+		}
+		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		{
+		    new_return(70);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		{
+		    new_return(71);
+		}
+		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		{
+		    new_return(72);
+		}
+		if(!p_iputl(itemsbuf[i].wpnsprite,f))
+		{
+		    new_return(73);
+		}
+		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		{
+		    new_return(74);
+		}
+		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+		{
+		    new_return(75);
+		}
+		if(!p_iputl(itemsbuf[i].tilew,f))
+		{
+		    new_return(76);
+		}
+		if(!p_iputl(itemsbuf[i].tileh,f))
+		{
+		    new_return(77);
+		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    new_return(78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    new_return(79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    new_return(80);
+		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    new_return(81);
+		}
+		if(!p_iputw(itemsbuf[i].pstring,f))
+		{
+		    new_return(82);
+		}
+		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+		{
+		    new_return(83);
+		}
+		
+		if(!p_putc(itemsbuf[i].cost_counter,f))
+		{
+		    new_return(84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					new_return(85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					new_return(86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					new_return(87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				new_return(88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				new_return(89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			new_return(90);
+		} 
+		return 1;
+}
 
 void ilist_rclick_func(int index, int x, int y)
 {
@@ -2911,6 +4004,45 @@ void ilist_rclick_func(int index, int x, int y)
     {
         itemsbuf[bii[index].i]=itemsbuf[copiedItem];
         ilist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
+                return;
+	int iid = bii[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .zitem packfile %s\n", temppath);
+	}
+	*/
+	writeoneitem(f,iid);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load Item(.zitem)", "zitem", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readoneitem(f,index))
+	{
+		al_trace("Could not read from .zitem packfile %s\n", temppath);
+		jwin_alert("ZITEM File: Error","Could not load the specified item.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bii[index].i]=itemsbuf[copiedItem];
+        ilist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
@@ -2966,6 +4098,7 @@ static DIALOG wpndata_dlg[] =
     { jwin_check_proc,   198,  153,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Behind", NULL, NULL },
     { jwin_edit_proc,     92,  65,   155,  16,   vc(12),  vc(1),  0,       0,          64,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     61,  69,   35,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -3518,12 +4651,38 @@ const char *itemsetlist(int index, int *list_size)
     return NULL;
 }
 
-list_data_struct biew[wMax-wEnemyWeapons];
+list_data_struct biew[wMAX];
 int biew_cnt=-1;
+
+char temp_custom_ew_strings[10][40];
+
+static int enemy_weapon_types[]=
+{
+    128, ewFireball,ewArrow,ewBrang,ewSword,
+    ewRock,ewMagic,ewBomb,ewSBomb,
+    //137
+    ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
+    ewWind,ewFlame2,ewFlame2Trail,
+    //145
+    ewIce,ewFireball2
+	
+};
+
+static int enemy_script_weapon_types[]=
+{
+    wScript1, wScript2, wScript3, wScript4,
+	//35
+    wScript5, wScript6, wScript7, wScript8,
+	//39
+    wScript9, wScript10
+	
+};
 
 void build_biew_list()
 {
     biew_cnt=0;
+
+    memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
     
     for(int i=0; i<wMax-wEnemyWeapons; i++)
     {
@@ -3532,10 +4691,23 @@ void build_biew_list()
         {
             //biew[biew_cnt].s = (char *)eweapon_string[i];
             biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
-            biew[biew_cnt].i = i;
+            biew[biew_cnt].i = enemy_weapon_types[i];
             ++biew_cnt;
         }
     }
+    for(int i = 0; i < 10; i++)
+    {
+        biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
+	biew[biew_cnt].i = enemy_script_weapon_types[i];
+	++biew_cnt;
+    }
+    al_trace("biew_cnt is: %d\n", biew_cnt);
+    for ( int i = 0; i < biew_cnt; i++ )
+    {
+	al_trace("biew[%d] id is (%d) and string is (%s)\n", i, biew[i].i, biew[i].s);
+	    
+    }
+    
 }
 
 const char *eweaponlist(int index, int *list_size)
@@ -3883,8 +5055,8 @@ static EnemyNameInfo enameinf[]=
         eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
         { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
-		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
-		(char *)"BFlags[12]:",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",
+		(char *)"Fast Drawing",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
@@ -3897,7 +5069,7 @@ static EnemyNameInfo enameinf[]=
         eeGLEEOK, { "Heads:", "Head HP:", "Shot Type:", NULL, "Neck Segments:", "Neck Offset 1:", "Neck Offset 2:", "Head Offset:", "Fly Head Offset:", NULL },
         { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3911,7 +5083,7 @@ static EnemyNameInfo enameinf[]=
         eeDIG, { "Enemy 1 ID:", "Enemy 2 ID:", "Enemy 3 ID:", "Enemy 4 ID:", "Enemy 1 Qty:", "Enemy 2 Qty:", "Enemy 3 Qty:", "Enemy 4 Qty:", "Unused:", "Type:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3925,7 +5097,7 @@ static EnemyNameInfo enameinf[]=
         eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
         { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3939,7 +5111,7 @@ static EnemyNameInfo enameinf[]=
         eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3953,7 +5125,7 @@ static EnemyNameInfo enameinf[]=
         eeGHOMA, { "Shot Type:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3967,7 +5139,7 @@ static EnemyNameInfo enameinf[]=
         eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3981,7 +5153,7 @@ static EnemyNameInfo enameinf[]=
         eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -3995,8 +5167,8 @@ static EnemyNameInfo enameinf[]=
         eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",
-		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
-		(char *)"BFlags[12]:",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",
+		(char *)"Fast Drawing",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
@@ -4009,7 +5181,7 @@ static EnemyNameInfo enameinf[]=
         eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4023,7 +5195,7 @@ static EnemyNameInfo enameinf[]=
         eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
         { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4037,7 +5209,7 @@ static EnemyNameInfo enameinf[]=
         eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4051,7 +5223,7 @@ static EnemyNameInfo enameinf[]=
         eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
@@ -4065,7 +5237,7 @@ static EnemyNameInfo enameinf[]=
         eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4079,7 +5251,7 @@ static EnemyNameInfo enameinf[]=
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4093,7 +5265,7 @@ static EnemyNameInfo enameinf[]=
         eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4107,7 +5279,7 @@ static EnemyNameInfo enameinf[]=
         eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4121,7 +5293,7 @@ static EnemyNameInfo enameinf[]=
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4135,7 +5307,7 @@ static EnemyNameInfo enameinf[]=
         eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4149,7 +5321,7 @@ static EnemyNameInfo enameinf[]=
         eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
@@ -4163,7 +5335,7 @@ static EnemyNameInfo enameinf[]=
         eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
@@ -4177,7 +5349,7 @@ static EnemyNameInfo enameinf[]=
         eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4191,7 +5363,7 @@ static EnemyNameInfo enameinf[]=
         eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4205,7 +5377,7 @@ static EnemyNameInfo enameinf[]=
         eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4219,7 +5391,7 @@ static EnemyNameInfo enameinf[]=
         eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4233,7 +5405,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4247,7 +5419,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4261,7 +5433,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4275,7 +5447,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4289,7 +5461,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4303,7 +5475,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4317,7 +5489,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4331,7 +5503,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4345,7 +5517,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4359,7 +5531,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4373,7 +5545,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT11, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4387,7 +5559,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT12, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4401,7 +5573,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT13, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4415,7 +5587,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT14, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4429,7 +5601,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT15, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4443,7 +5615,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT16, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4457,7 +5629,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT17, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4471,7 +5643,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT18, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4485,7 +5657,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT19, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4499,7 +5671,7 @@ static EnemyNameInfo enameinf[]=
         eeSCRIPT20, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4513,7 +5685,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4527,7 +5699,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4541,7 +5713,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4555,7 +5727,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4569,7 +5741,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4583,7 +5755,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4597,7 +5769,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4611,7 +5783,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4625,7 +5797,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4639,7 +5811,7 @@ static EnemyNameInfo enameinf[]=
         eeFFRIENDLY10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4653,7 +5825,7 @@ static EnemyNameInfo enameinf[]=
         eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4668,7 +5840,7 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
-		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"Use Editor Defenses",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
+		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor Defenses",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
@@ -4681,7 +5853,7 @@ static EnemyNameInfo enameinf[]=
         -1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -4725,7 +5897,7 @@ const char *npcscriptdroplist(int index, int *list_size)
     
     return binpcs[index].first.c_str();
 }
-static ListData npcscript_list(npcscriptdroplist, &font);
+ListData npcscript_list(npcscriptdroplist, &font);
 
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
@@ -4746,7 +5918,7 @@ const char *eweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
+ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -5492,7 +6664,7 @@ static DIALOG enedata_dlg[] =
 	//255 attributes
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_attribs_tabs,     NULL, (void *)enedata_dlg   },
     */
-	  
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -5832,7 +7004,7 @@ void edit_enemydata(int index)
         
         for(int j=0; j<biew_cnt; j++)
         {
-            if(biew[j].i == guysbuf[index].weapon - wEnemyWeapons)
+            if(biew[j].i == guysbuf[index].weapon /*- wEnemyWeapons*/)
                 enedata_dlg[45].d1 = j;
         }
     }
@@ -6262,7 +7434,7 @@ void edit_enemydata(int index)
         test.e_width = vbound(atoi(ew),0,20);
         test.e_height = vbound(atoi(eh),0,20);
         
-        test.weapon = enedata_dlg[45].d1 != 0 ? biew[enedata_dlg[45].d1].i + wEnemyWeapons : wNone;
+        test.weapon = enedata_dlg[45].d1 != 0 ? biew[enedata_dlg[45].d1].i /*+ wEnemyWeapons*/ : wNone;
         test.family = bief[enedata_dlg[46].d1].i;
         test.anim = biea[enedata_dlg[47].d1].i;
         test.e_anim = biea[enedata_dlg[48].d1].i;
@@ -6343,8 +7515,14 @@ void edit_enemydata(int index)
             test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
             
         if(enedata_dlg[143].flags & D_SELECTED)
+	{
             test.cset = 14;
-            
+	}
+	//if we disable the box, revert to cset 8 -Z.
+	else if(guysbuf[index].cset == 14 || test.cset == 14)
+	{
+		test.cset = 8;
+	}
 	test.defense[edefSCRIPT01] = enedata_dlg[203].d1;
 	test.defense[edefSCRIPT02] = enedata_dlg[204].d1;
 	test.defense[edefSCRIPT03] = enedata_dlg[205].d1;
@@ -6499,8 +7677,1046 @@ static MENU elist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
+
+int readonenpc(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	guydata tempguy;
+	memset(&tempguy, 0, sizeof(guydata));
+        //reset_itembuf(&tempitem,i);
+    
+   
+	char npcstring[64]={0}; //guy_string[]
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readonenpc section_version: %d\n", section_version);
+	al_trace("readonenpc section_cversion: %d\n", section_cversion);
+    
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .znpc packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if ( ( section_version > V_GUYS ) || ( section_version == V_GUYS && section_cversion < CV_GUYS ) )
+	{
+		al_trace("Cannot read .znpc packfile made using V_GUYS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .znpc packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+   
+	if(!pfread(&npcstring, 64, f,true))
+	{
+		return 0;
+	}
+    
+	//section data
+	if(!p_igetl(&tempguy.flags,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.flags2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.s_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.e_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.family,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.dp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.wdp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.weapon,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.rate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hrate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.step,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.homing,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.grumble,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.item_set,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc1,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc3,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc4,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc5,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc6,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc7,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc8,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc9,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc10,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bgsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bosspal,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.extend,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for(int j=0; j < edefLAST; j++)
+		    {
+			if(!p_getc(&tempguy.defense[j],f,true))
+			{
+			   return 0;
+			}
+		    }
+		    
+		    if(!p_getc(&tempguy.hitsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.deadsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc11,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc12,f,true))
+		    {
+			return 0;
+		    }
+		    
+    
+	if ( zversion >= 0x255 )
+	{
+		if  ( section_version >= 41 )
+		{
+		    //New itemdata vars -Z
+		    //! version 27
+		    
+			//2.55 starts here
+		    for(int j=edefLAST; j < edefLAST255; j++)
+		    {
+			if(!p_getc(&tempguy.defense[j],f,true))
+			{
+			    return 0;
+			}
+		    }
+		    
+		    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+		    if(!p_igetl(&tempguy.txsz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.tysz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hxsz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hysz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hzsz,f,true))
+		    {
+			return 0;
+		    }
+		    // These are not fixed types, but ints, so they are safe to use here. 
+		    if(!p_igetl(&tempguy.hxofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hyofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.xofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.yofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.zofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.wpnsprite,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.SIZEflags,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozentile,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozencset,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozenclock,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&tempguy.frozenmisc[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    if(!p_igetw(&tempguy.firesfx,f,true))
+		    {
+			return 0;
+		    }
+		    //misc 16->31
+		    if(!p_igetl(&tempguy.misc16,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc17,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc18,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc19,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc20,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc21,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc22,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc23,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc24,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc25,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc26,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc27,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc28,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc29,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc30,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc31,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc32,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			if(!p_igetl(&tempguy.movement[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			    if(!p_igetl(&tempguy.new_weapon[q],f,true))
+			    {
+				return 0;
+			    }
+		    }
+		    if(!p_igetw(&tempguy.script,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&tempguy.initD[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    for ( int q = 0; q < 2; q++ )
+		    {
+			if(!p_igetl(&tempguy.initA[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    if(!p_igetl(&tempguy.editorflags,f,true))
+		    {
+			return 0;
+		    }
+		    //somehow forgot these in the older builds -Z
+		    if(!p_igetl(&tempguy.misc13,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc14,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc15,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    //Enemy Editor InitD[] labels
+		    for ( int q = 0; q < 8; q++ )
+		    {
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempguy.initD_label[q][w],f,true))
+					{
+						return 0;
+					}
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempguy.weapon_initD_label[q][w],f,true))
+					{
+						return 0;
+					}
+				}
+		    }
+		    if(!p_igetw(&tempguy.weaponscript,f,true))
+		    {
+			return 0;
+		    }
+		    //eweapon initD
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&tempguy.weap_initiald[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		}
+	}
+	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));
+	//strcpy(item_string[index], istring);
+	guysbuf[bie[index].i] = tempguy;
+	strcpy(guy_string[bie[index].i], npcstring);
+       
+	return 1;
+}
+
+int writeonenpc(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_GUYS;
+    dword section_cversion=CV_GUYS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+    
+	if(!pfwrite(guy_string[i], 64, f))
+            {
+                new_return(5);
+            }
+        
+       if(!p_iputl(guysbuf[i].flags,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].flags2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].s_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].e_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].family,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].cset,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].dp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].wdp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].weapon,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].rate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hrate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].step,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].homing,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].grumble,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].item_set,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc1,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc3,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc4,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc5,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc6,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc7,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc8,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc9,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc10,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bgsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bosspal,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].extend,f))
+	    {
+		return 0;
+	    }
+	    
+	    for(int j=0; j < edefLAST; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		   return 0;
+		}
+	    }
+	    
+	    if(!p_putc(guysbuf[i].hitsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].deadsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc11,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc12,f))
+	    {
+		return 0;
+	    }
+	    
+	    //2.55 starts here
+	    for(int j=edefLAST; j < edefLAST255; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		    return 0;
+		}
+	    }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(!p_iputl(guysbuf[i].txsz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].tysz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hxsz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hysz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hzsz,f))
+	    {
+		return 0;
+	    }
+	    // These are not fixed types, but ints, so they are safe to use here. 
+	    if(!p_iputl(guysbuf[i].hxofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hyofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].xofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].yofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].zofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].wpnsprite,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].SIZEflags,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozentile,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozencset,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozenclock,f))
+	    {
+		return 0;
+	    }
+	    
+	    for ( int q = 0; q < 10; q++ ) 
+	    {
+		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
+		{
+			return 0;
+		}
+	    }
+	    if(!p_iputw(guysbuf[i].firesfx,f))
+	    {
+		return 0;
+	    }
+	    //misc 16->31
+	    if(!p_iputl(guysbuf[i].misc16,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc17,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc18,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc19,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc20,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc21,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc22,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc23,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc24,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc25,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc26,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc27,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc28,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc29,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc30,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc31,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc32,f))
+	    {
+		return 0;
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].movement[q],f))
+		    {
+			return 0;
+		    }
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].new_weapon[q],f))
+		    {
+			return 0;
+		    }
+	    }
+	    if(!p_iputw(guysbuf[i].script,f))
+	    {
+		return 0;
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initD[q],f))
+		{
+			return 0;
+		}
+	    }
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initA[q],f))
+		{
+			return 0;
+		}
+	    }
+	    if(!p_iputl(guysbuf[i].editorflags,f))
+	    {
+		return 0;
+	    }
+	    //somehow forgot these in the older builds -Z
+	    if(!p_iputl(guysbuf[i].misc13,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc14,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc15,f))
+	    {
+		return 0;
+	    }
+	    
+	    //Enemy Editor InitD[] labels
+	    for ( int q = 0; q < 8; q++ )
+	    {
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].initD_label[q][w],f))
+				{
+					return 0;
+				}
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				{
+					return 0;
+				}
+			}
+	    }
+	    if(!p_iputw(guysbuf[i].weaponscript,f))
+	    {
+		return 0;
+	    }
+	    //eweapon initD
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		{
+			return 0;
+		}
+	    }
+	return 1;
+}
+
+
+
+
+
+
 
 void elist_rclick_func(int index, int x, int y)
 {
@@ -6520,6 +8736,45 @@ void elist_rclick_func(int index, int x, int y)
     {
         guysbuf[bie[index].i]=guysbuf[copiedGuy];
         elist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	int iid = bie[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeonenpc(f,iid);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readonenpc(f,index))
+	{
+		al_trace("Could not read from .znpc packfile %s\n", temppath);
+		jwin_alert("ZNPC File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+        elist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
@@ -7602,6 +9857,7 @@ static DIALOG linktile_dlg[] =
     {  d_timer_proc,                         0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   },
     {  jwin_text_proc,                       4,    183,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Swim Speed:",          NULL,   NULL                   },
     {  jwin_droplist_proc,                  77,    179,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &swimspeed_list,        NULL,   NULL                   },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
     {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }
 };
 

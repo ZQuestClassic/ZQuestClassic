@@ -1841,6 +1841,7 @@ int main(int argc, char **argv)
     
 #ifndef ALLEGRO_DOS
     zq_scale = get_config_int("romview","scale",1);
+	abc_patternmatch = get_config_int("romview", "lister_pattern_matching", 1);
     scale_arg = used_switch(argc,argv,"-scale");
     scale_arg = false; // What!?
     
@@ -1870,11 +1871,11 @@ int main(int argc, char **argv)
     zqwin_set_scale(0,false);
 #endif
     
-    if(used_switch(argc,argv,"-fullscreen"))
-    {
-        tempmode = GFX_AUTODETECT_FULLSCREEN;
-    }
-    else if(used_switch(argc,argv,"-windowed"))
+    //if(used_switch(argc,argv,"-fullscreen"))
+    //{
+    //    tempmode = GFX_AUTODETECT_FULLSCREEN;
+    //}
+    //else if(used_switch(argc,argv,"-windowed"))
     {
         tempmode=GFX_AUTODETECT_WINDOWED;
     }

@@ -81,8 +81,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_eol();
 	
 	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed() || semanticAnalyzer.hasSkipFailed()
-		|| regVisitor.hasSkipFailed())
+	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
 		return NULL;
     
 	FunctionData fd(program);
@@ -121,14 +120,7 @@ string ScriptParser::prepareFilename(string const& filename)
 {
 	string retval = filename;
 
-	for (int i = 0; retval[i]; ++i)
-	{
-#ifdef _ALLEGRO_WINDOWS
-		if (retval[i] == '/') retval[i] = '\\';
-#else
-		if (retval[i] == '\\') retval[i] = '/';
-#endif
-	}
+	regulate_path(retval);
 	return retval;
 }
         
@@ -227,13 +219,14 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	IntermediateData *rval = new IntermediateData(fdata);
     
 	// Push 0s for init stack space.
+	/* Why? The stack should already be init'd to all 0, anyway?
 	rval->globalsInit.push_back(
 			new OSetImmediate(new VarArgument(EXP1),
 			                  new LiteralArgument(0)));
 	int globalStackSize = *program.getScope().getRootStackSize();
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
-				new OPushRegister(new VarArgument(EXP1)));
+				new OPushRegister(new VarArgument(EXP1)));*/
     
 	// Generate variable init code.
 	for (vector<Datum*>::iterator it = globalVariables.begin();
@@ -252,9 +245,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	}
     
 	// Pop off everything.
+	/* See above; why push this in the first place?
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
-				new OPopRegister(new VarArgument(EXP2)));
+				new OPopRegister(new VarArgument(EXP2)));*/
         
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
@@ -464,8 +458,8 @@ void ScriptParser::assemble(IntermediateData *id)
 		Script& script = **it;
 		if (script.getName() == "~Init") continue;
 		if(script.getType() == ScriptType::untyped) continue;
-		Function& run = *getRunFunction(script);
-		int numparams = getRunFunction(script)->paramTypes.size();
+		Function& run = *script.getRun();
+		int numparams = script.getRun()->paramTypes.size();
 		script.code = assembleOne(program, run.getCode(), numparams);
 	}
 }
@@ -651,7 +645,35 @@ ScriptsData::ScriptsData(Program& program)
 	{
 		Script& script = **it;
 		string const& name = script.getName();
-		theScripts[name] = script.code;
+		zasm_meta& meta = theScripts[name].first;
+		theScripts[name].second = script.code;
+		meta.autogen();
+		meta.script_type = script.getType().getTrueId();
+		string const& author = script.getAuthor().substr(0,32);
+		strcpy(meta.script_name, name.substr(0,32).c_str());
+		strcpy(meta.author, author.c_str());
+		al_trace(meta.script_name);
+		al_trace(meta.author);
+		al_trace(name.c_str());
+		al_trace(author.c_str());
+		if(Function* run = script.getRun())
+		{
+			int ind = 0;
+			for(vector<string const*>::const_iterator it = run->paramNames.begin();
+				it != run->paramNames.end(); ++it)
+			{
+				char* dest = meta.run_idens[ind++];
+				strcpy(dest, (**it).c_str());	
+			}
+			ind = 0;
+			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
+				it != run->paramTypes.end(); ++it)
+			{
+				optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
+			}
+		}
+		
 		script.code = vector<Opcode*>();
 		scriptTypes[name] = script.getType();
 	}

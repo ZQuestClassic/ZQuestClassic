@@ -54,7 +54,7 @@ bool item::animate(int)
 	    
 		if ( obeys_gravity ) // from above, or if scripted
 		{
-			if(tmpscr->flags7&fSIDEVIEW)
+			if(isSideViewGravity())
 			{
 			    if(!_walkflag(x,y+16,0))
 			    {
@@ -91,7 +91,7 @@ bool item::animate(int)
 		} 
 	    
 	*/
-        if(is_side_view())
+        if(isSideViewGravity())
         {
             if
 	    (
@@ -224,6 +224,7 @@ void item::draw(BITMAP *dest)
         
     if ( z > 0 && get_bit(quest_rules, qr_ITEMSHADOWS) )
     {
+	shadowtile = wpnsbuf[iwShadow].newtile+aframe;
 	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
     }
     if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
@@ -410,7 +411,17 @@ void removeItemsOfFamily(gamedata *g, itemdata *items, int family)
     for(int i=0; i<MAXITEMS; i++)
     {
         if(items[i].family == family)
+	{
             g->set_item(i,false);
+	    if ( game->forced_bwpn == i ) 
+	    {
+		game->forced_bwpn = -1;
+	    } //not else if! -Z
+	    if ( game->forced_awpn == i ) 
+	    {
+		game->forced_awpn = -1;
+	    }
+	}
     }
 }
 
@@ -419,7 +430,17 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int
     for(int i=0; i<MAXITEMS; i++)
     {
         if(items[i].family == family && items[i].fam_type < level)
+        {
             g->set_item(i, false);
+	    if ( game->forced_bwpn == i ) 
+	    {
+		game->forced_bwpn = -1;
+	    } //not else if! -Z
+	    if ( game->forced_awpn == i ) 
+	    {
+		game->forced_awpn = -1;
+	    }
+	}
     }
 }
 
@@ -428,7 +449,18 @@ void removeItemsOfFamily(zinitdata *z, itemdata *items, int family)
     for(int i=0; i<MAXITEMS; i++)
     {
         if(items[i].family == family)
+        {
             z->items[i]=false;
+	    if ( game->forced_bwpn == i ) 
+	    {
+		game->forced_bwpn = -1;
+	    } //not else if! -Z
+	    if ( game->forced_awpn == i ) 
+	    {
+		game->forced_awpn = -1;
+	    }
+		
+	}
     }
 }
 

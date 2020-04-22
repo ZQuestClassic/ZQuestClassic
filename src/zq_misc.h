@@ -204,6 +204,8 @@ int onSecretCombo();
 
 int onHeader();
 int onAnimationRules();
+int onWeaponRules();
+int onHeroRules();
 int onComboRules();
 int onItemRules();
 int onEnemyRules();
@@ -260,6 +262,26 @@ int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
 int onExport_UnencodedQuest();
+int onAbout_Module();
+int onExport_Tilepack();
+int onImport_Tilepack();
+int onImport_Tilepack_To();
+
+int onExport_Combopack();
+int onImport_Combopack_To();
+int onImport_Combopack();
+
+int onImport_Comboaliaspack();
+int onImport_Comboaliaspack_To();
+int onExport_Comboaliaspack();
+
+int writezdoorsets(PACKFILE *f, int first, int count);
+int readzdoorsets(PACKFILE *f, int first, int count, int deststart);
+int writeonezdoorset(PACKFILE *f, int index);
+int readonezdoorset(PACKFILE *f, int index);
+
+int onExport_Doorset();
+int onImport_Doorset();
 
 int onGotoMap();
 int onMapCount();
@@ -292,6 +314,7 @@ void KeyFileName(char *kfname);
 
 int onSpacebar();
 int onSnapshot();
+int onMapscrSnapshot();
 int onSaveZQuestSettings();
 int onClearQuestFilepath();
 void go();

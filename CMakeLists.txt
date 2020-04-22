@@ -7,6 +7,7 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+option(WANT_ZSCRIPT "Enable ZScript Compiler" on)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
@@ -81,7 +82,7 @@ endforeach()
 find_package(BISON QUIET)
 find_package(FLEX QUIET)
 
-if(${BISON_FOUND} AND ${FLEX_FOUND})
+if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
 	if(MSVC)
 		set(FLEXFLAGS "--wincompat")
 	endif()

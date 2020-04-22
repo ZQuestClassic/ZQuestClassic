@@ -24,6 +24,7 @@
 
 #include "zq_class.h"
 #include "zdefs.h"
+#include "items.h"
 
 void movefairy(fix&,fix&,int)
 {
@@ -50,19 +51,24 @@ void item_fall(fix&, fix&, fix&)
 	return;
 }
 
+int select_dropitem(int)
+{
+    return 0;
+}
+
 int select_dropitem(int, int, int)
 {
     return 0;
 }
 
-bool is_side_view()
-{
-    return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
-}
-
 void getitem(int, bool)
 {
     return;
+}
+
+int item::run_script(int)
+{
+	return RUNSCRIPT_OK;
 }
 /*** end of sprite.cc ***/
 

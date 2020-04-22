@@ -24,6 +24,7 @@ enum {spr_hold1, spr_hold2};
 enum { las_original, las_bszelda, las_zelda3, las_zelda3slow, las_max };
 
 extern int script_link_sprite;
+extern int script_link_cset;
 extern int script_link_flip;
 
 extern int old_floatspr, old_slashspr, linkspr;

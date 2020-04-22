@@ -1,3 +1,24 @@
+[METADATA]
+title = Default Module
+author = Armageddon Games
+info_0 = The 'Default Module' for ZQuest Creator
+info_1 = and for ZC Player, featuring fully-open
+info_2 = assets, materials, scripts, enemies, items,
+info_3 = weapons, and quests that are releaded under 
+info_4 = the GPLv2 license. 
+
+version_first = 2
+version_second = 0
+version_third = 1
+version_fourth = 0
+version_build = 0
+version_beta = 0
+version_year = 2019
+version_month = 11
+version_day = 19
+version_hour = 6
+version_minute = 40
+
 [QUESTS]
 quest_flow = 0
 num_quest_files = 1
@@ -11,6 +32,28 @@ seventh_qst =
 eighth_qst = 
 ninth_qst = 
 tenth_qst = 
+
+first_startdmap = 0
+second_startdmap = 0
+third_startdmap = 0
+fourth_startdmap = 0
+fifth_startdmap = 0
+sixth_startdmap = 
+seventh_startdmap = 
+eighth_startdmap = 
+ninth_startdmap = 
+tenth_startdmap = 
+
+first_startscreen = 119
+second_startscreen = 119
+third_startscreen = 119
+fourth_startscreen = 119
+fifth_startscreen = 119
+sixth_startscreen = 
+seventh_startscreen = 
+eighth_startscreen = 
+ninth_startscreen = 
+tenth_startscreen = 
 
 [NAMEENTRY]
 first_qst_skip = 
@@ -1140,9 +1183,9 @@ mfDROPCOMPASS = 156 Drop Compass (Scripted)
 mfDROPMAP = 157 Drop Map (Scripted)
 mfDROPBOSSKEY = 158 Drop Bosskey (Scripted)
 mfSPAWNNPC = 159 Spawn NPC (Scripted)
-mfSWITCHHOOK = 160 SwitchHook Spot (Scripted)
-mfSIDEVIEWLADDER = 161 Sideview Ladder
-mfSIDEVIEWPLATFORM = 162 Sideview Platform
+mfSWITCHHOOK = 159 Switchhook (Scripted)
+mf161 = -Unused
+mf162 = -Unused
 mf163 = -Unused
 mf164 = -Unused
 mf165 = -Unused
@@ -1294,6 +1337,16 @@ ewFlame2 = Flame 2
 ewFlame2Trail = -Flame 2 Trail <unused>
 ewIce = -Ice <unused>
 ewFireball2 = Fireball (Rising)
+Custom_1 = Custom 01
+Custom_2 = Custom 02
+Custom_3 = Custom 03
+Custom_4 = Custom 04
+Custom_5 = Custom 05
+Custom_6 = Custom 06
+Custom_7 = Custom 07
+Custom_8 = Custom 08
+Custom_9 = Custom 09
+Custom_10 = Custom 10
 
 [LWEAPONS]
 lwNone = (None)
@@ -1302,8 +1355,8 @@ lwBeam = Sword Beam
 lwBrang = Boomerang
 lwBomb = Bomb
 lwSBomb = Super Bomb
-lwLitBomb = Lit Bomb
-lwLitSBomb = Lit Super Bomb
+lwLitBomb = -Lit Bomb
+lwLitSBomb = -Lit Super Bomb
 lwArrow = Arrow
 lwFire = Fire
 lwWhistle = Whistle
@@ -1323,7 +1376,7 @@ lwSSparkle = Sparkle
 lwFSparkle = -FSparkle
 lwSmack = -Smack
 lwPhantom = -Phantom
-lwCane = Staff if Protection
+lwCane = Staff of Protection
 lwRefBeam = Reflected Sword Beam
 lwStomp = Stomp
 lwScript1 = Script 1

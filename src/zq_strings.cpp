@@ -50,13 +50,17 @@ static int editmsg_string_list[] =
 { 2, 3, 4, 5, 8, 17, 18, 29, 32, -1 };
 
 static int editmsg_attributes_list[] =
-{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, -1 };
+{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, -1 };
+
+static int editmsg_portrait_list[] =
+{ 45, 46, 47, 48, 49, 50, 51, 52, 53, -1 };
 
 static TABPANEL editmsg_tabs[] =
 {
     // (text)
     { (char*)"String",      D_SELECTED,  editmsg_string_list,      0,  NULL },
     { (char*)"Attributes",     0,        editmsg_attributes_list,     0,  NULL },
+    { (char*)"Portrait",     0,        editmsg_portrait_list,     0,  NULL },
     { NULL,             0,           NULL,                         0,  NULL }
 };
 
@@ -120,7 +124,7 @@ DIALOG editmsg_dlg[] =
     { jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
     { jwin_text_proc,       52,   140,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "String font:", NULL, NULL },
     { jwin_droplist_proc,      110,  136,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     // 20
     { jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Width:", NULL, NULL },
     { jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
@@ -137,7 +141,31 @@ DIALOG editmsg_dlg[] =
     { jwin_button_proc,     250,  187+6,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
     { d_keyboard_proc,         0,    0,     0,  0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     { jwin_check_proc,     52,  176,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Set previous string's \"Next string\" to this", NULL, NULL },
+    { jwin_check_proc,     56,  146,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Full Tiled Background", NULL, NULL },
+    { jwin_check_proc,     56,  156,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent BG", NULL, NULL },
+    // 35
+	{ jwin_check_proc,     56,  166,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent FG", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_edit_proc,      232,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "T. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    // 40
+	{ jwin_ctext_proc,     208,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "B. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "L. Margin:", NULL, NULL },
+    { jwin_edit_proc,      232,  102,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     208,   106,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "R. Margin:", NULL, NULL },
+    // 45
+    { jwin_edit_proc,      80,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     64,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Y:", NULL, NULL },
+    { jwin_edit_proc,      80,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
+	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    // 50
+    { jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Width:", NULL, NULL },
+    { jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_ctext_proc,     136,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Height:", NULL, NULL },
+	{ d_cstile_proc,      60,  104,    16,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -156,42 +184,76 @@ DIALOG editmsg_help_dlg[] =
 
 static MENU strlist_rclick_menu[] =
 {
-    { (char *)"Copy Properties",  NULL,  NULL, 0, NULL },
-    { (char *)"Paste Properties", NULL,  NULL, 0, NULL },
+    { (char *)"Copy",  NULL,  NULL, 0, NULL },
+    { (char *)"",  NULL,  NULL, 0, NULL },
+    { (char *)"Paste Style", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Text", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Both", NULL,  NULL, 0, NULL },
+    { (char *)"Paste Style to All", NULL,  NULL, 0, NULL },
+    { (char *)"",  NULL,  NULL, 0, NULL },
     { (char *)"Set As Template",  NULL,  NULL, 0, NULL },
     { NULL,                       NULL,  NULL, 0, NULL }
 };
 
-static int zqstr_propCopySrc=-1;
+static int zqstr_copysrc=-1;
 void strlist_rclick_func(int index, int x, int y)
 {
-    // Don't do anything on (none) or <New String>
-    if(index==0 || index==msg_count-1)
-        return;
-    
-    // Disable "Paste Properties" if the copy source is invalid
-    if(zqstr_propCopySrc<=0 || zqstr_propCopySrc>=msg_count)
-        strlist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        strlist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(strlist_rclick_menu, x, y);
+	// Don't do anything on (none) or <New String>
+	if(index<=0 || index==msg_count-1)
+		return;
+	
+	// Disable paste options if the copy source is invalid
+	if(zqstr_copysrc<=0 || zqstr_copysrc>=msg_count)
+	{
+		strlist_rclick_menu[2].flags|=D_DISABLED;
+		strlist_rclick_menu[3].flags|=D_DISABLED;
+		strlist_rclick_menu[4].flags|=D_DISABLED;
+		strlist_rclick_menu[5].flags|=D_DISABLED;
+	}
+	else
+	{
+		strlist_rclick_menu[2].flags&=~D_DISABLED;
+		strlist_rclick_menu[3].flags&=~D_DISABLED;
+		strlist_rclick_menu[4].flags&=~D_DISABLED;
+		strlist_rclick_menu[5].flags&=~D_DISABLED;
+	}
+	int ret=popup_menu(strlist_rclick_menu, x, y);
 
-    switch(ret)
-    {
-    case 0: // Copy properties
-        zqstr_propCopySrc=msg_at_pos(index);
-        break;
-        
-    case 1: // Paste properties
-        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_propCopySrc]);
-        break;
-
-    case 2: // Set as template
-        sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
-        strlist_dlg[22].flags|=D_DIRTY;
-        break;
-    }
+	switch(ret)
+	{
+	case 0: // Copy
+		zqstr_copysrc=msg_at_pos(index);
+		break;
+	
+	case 2: // Paste Style
+		MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
+		break;
+	
+	case 3: //Paste Text
+		MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
+		strlist_dlg[2].flags|=D_DIRTY;
+		break;
+	
+	case 4: //Paste Both
+		MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc]; //Overloaded assignment copies both
+		strlist_dlg[2].flags|=D_DIRTY;
+		break;
+	
+	case 5: //Paste Style to All
+		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
+		{
+			for(int q = 0; q < msg_count-1; ++q)
+			{
+				MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
+			}
+		}
+		break;
+	
+	case 7: // Set as template
+		sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
+		strlist_dlg[22].flags|=D_DIRTY;
+		break;
+	}
 }
 
 // Don't actually use this to strip spaces.
@@ -505,7 +567,6 @@ int onStrings()
     int morex=zinit.msg_more_x;
     int morey=zinit.msg_more_y;
     int msgspeed = zinit.msg_speed;
-    word copysrc=0;
     sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
     sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
     sprintf(msgspeed_string, "%d", zinit.msg_speed);
@@ -550,6 +611,17 @@ int onStrings()
             MsgStrings[msg_count].vspace=0;
             MsgStrings[msg_count].stringflags=0;
             MsgStrings[msg_count].listpos=msg_count;
+            MsgStrings[msg_count].margins[up] = 8;
+            MsgStrings[msg_count].margins[down] = 0;
+            MsgStrings[msg_count].margins[left] = 8;
+            MsgStrings[msg_count].margins[right] = 0;
+            MsgStrings[msg_count].margins[right] = 0;
+			MsgStrings[msg_count].portrait_tile = 0;
+			MsgStrings[msg_count].portrait_cset = 0;
+			MsgStrings[msg_count].portrait_x = 0;
+			MsgStrings[msg_count].portrait_y = 0;
+			MsgStrings[msg_count].portrait_tw = 1;
+			MsgStrings[msg_count].portrait_th = 1;
         }
         
         strlist_dlg[7].dp=msgmore_xstring;
@@ -777,19 +849,19 @@ int onStrings()
             
         case 19: // copy
             if(index==msg_count-1)
-                copysrc=0;
+                zqstr_copysrc=-1;
             else
-                copysrc=index;
+                zqstr_copysrc=index;
                 
             break;
             
         case 20: // paste
-            if(copysrc>0)
+            if(zqstr_copysrc>0 && index>0)
             {
                 if(index==msg_count-1)
-                    msg_count++;
+                    ++msg_count;
                     
-                MsgStrings[index]=MsgStrings[copysrc];
+                MsgStrings[index]=MsgStrings[zqstr_copysrc];
             }
             
             break;
@@ -861,24 +933,47 @@ void editmsg(int index, int addAfter)
     editmsg_dlg[9].flags = MsgStrings[index].trans ? D_SELECTED : 0;
     editmsg_dlg[12].d1 = MsgStrings[index].tile;
     editmsg_dlg[12].fg = MsgStrings[index].cset;
+    editmsg_dlg[53].d1 = MsgStrings[index].portrait_tile;
+    editmsg_dlg[53].d2 = MsgStrings[index].portrait_cset&15;
     char msg_ybuf[5];
     char msg_xbuf[5];
     char msg_wbuf[5];
     char msg_hbuf[5];
     char msg_hsbuf[5];
     char msg_vsbuf[5];
+	char msg_margins_bufs[4][5];
+	char prt_xbuf[5];
+	char prt_ybuf[5];
+	char prt_twbuf[5];
+	char prt_thbuf[5];
     sprintf(msg_ybuf,"%d",MsgStrings[index].y);
     sprintf(msg_xbuf,"%d",MsgStrings[index].x);
     sprintf(msg_wbuf,"%d",MsgStrings[index].w);
     sprintf(msg_hbuf,"%d",MsgStrings[index].h);
     sprintf(msg_hsbuf,"%d",MsgStrings[index].hspace);
     sprintf(msg_vsbuf,"%d",MsgStrings[index].vspace);
+    sprintf(prt_xbuf,"%d",MsgStrings[index].portrait_x);
+    sprintf(prt_ybuf,"%d",MsgStrings[index].portrait_y);
+    sprintf(prt_twbuf,"%d",MsgStrings[index].portrait_tw);
+    sprintf(prt_thbuf,"%d",MsgStrings[index].portrait_th);
+	for(int q = 0; q < 4; ++q)
+	{
+		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
+	}
     editmsg_dlg[9].dp = msg_ybuf;
     editmsg_dlg[15].dp = msg_xbuf;
     editmsg_dlg[19].dp = msg_wbuf;
     editmsg_dlg[21].dp = msg_hbuf;
     editmsg_dlg[23].dp = msg_hsbuf;
     editmsg_dlg[25].dp = msg_vsbuf;
+	for(int q = 0; q < 4; ++q)
+	{
+		editmsg_dlg[37+(2*q)].dp = msg_margins_bufs[q];
+	}
+    editmsg_dlg[45].dp = prt_ybuf;
+    editmsg_dlg[47].dp = prt_xbuf;
+    editmsg_dlg[49].dp = prt_twbuf;
+    editmsg_dlg[51].dp = prt_thbuf;
     char msg_sfxbuf[5];
     sprintf(msg_sfxbuf,"%d",MsgStrings[index].sfx);
     editmsg_dlg[13].dp = msg_sfxbuf;
@@ -886,6 +981,9 @@ void editmsg(int index, int addAfter)
     editmsg_dlg[28].flags=(MsgStrings[index].stringflags&STRINGFLAG_WRAP)?D_SELECTED:0;
     editmsg_dlg[32].flags=0;
     editmsg_dlg[32].proc=jwin_check_proc;
+    editmsg_dlg[33].flags=(MsgStrings[index].stringflags&STRINGFLAG_FULLTILE)?D_SELECTED:0;
+    editmsg_dlg[34].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_BG)?D_SELECTED:0;
+    editmsg_dlg[35].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_FG)?D_SELECTED:0;
         
     msg_x = 0;
     msg_y = 0;
@@ -928,8 +1026,25 @@ void editmsg(int index, int addAfter)
             ret = -1;
             // Show string help
             editmsg_help_dlg[0].dp2= lfont;
-            editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
-            editmsg_help_dlg[2].bg = vc(15);
+	    FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
+	    if (!stringshelpfile )
+	    {
+		stringshelpfile = fopen("zstrings.txt", "r");
+		if ( stringshelpfile )
+		{
+			editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+           
+		}
+		else
+		{
+			Z_error("File Missing: zstrings.txt.");
+		}
+	    }
+	    else
+	    {
+		editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+            }
+	    editmsg_help_dlg[2].bg = vc(15);
             ((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
         }
     }
@@ -947,15 +1062,28 @@ void editmsg(int index, int addAfter)
         MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
         MsgStrings[index].tile = editmsg_dlg[12].d1;
         MsgStrings[index].cset = editmsg_dlg[12].fg;
+        MsgStrings[index].portrait_tile = editmsg_dlg[53].d1;
+        MsgStrings[index].portrait_cset = editmsg_dlg[53].d2;
         MsgStrings[index].x = vbound((int)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].y = vbound((int)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].w = vbound((int)strtol(msg_wbuf, (char **)NULL, 10),8,512);
         MsgStrings[index].h = vbound((int)strtol(msg_hbuf, (char **)NULL, 10),8,512);
+		for(int q = 0; q < 4; ++q)
+		{
+			MsgStrings[index].margins[q] = vbound((byte)strtol(msg_margins_bufs[q], (char **)NULL, 10),0,255);
+		}
+        MsgStrings[index].portrait_x = vbound((int)strtol(prt_xbuf, (char **)NULL, 10),0,255);
+        MsgStrings[index].portrait_y = vbound((int)strtol(prt_ybuf, (char **)NULL, 10),0,255);
+        MsgStrings[index].portrait_tw = vbound((int)strtol(prt_twbuf, (char **)NULL, 10),0,16);
+        MsgStrings[index].portrait_th = vbound((int)strtol(prt_thbuf, (char **)NULL, 10),0,14);
         MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
         MsgStrings[index].stringflags = editmsg_dlg[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
         MsgStrings[index].stringflags = editmsg_dlg[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
+        MsgStrings[index].stringflags = editmsg_dlg[33].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_FULLTILE : MsgStrings[index].stringflags & ~STRINGFLAG_FULLTILE;
+        MsgStrings[index].stringflags = editmsg_dlg[34].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_BG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_BG;
+        MsgStrings[index].stringflags = editmsg_dlg[35].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_FG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_FG;
         
         if(index==msg_count)
         {
@@ -1156,17 +1284,26 @@ char *parse_msg_str(char *s)
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
-    int cursor_x = 0;
-    int cursor_y = 0;
+	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
     int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
     int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
     int fonta = editmsg_dlg[18].d1;
     int flags = 0;
     flags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
     flags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+    flags |= (int)editmsg_dlg[33].flags & D_SELECTED ? STRINGFLAG_FULLTILE : 0;
+    flags |= (int)editmsg_dlg[34].flags & D_SELECTED ? STRINGFLAG_TRANS_BG : 0;
+    flags |= (int)editmsg_dlg[35].flags & D_SELECTED ? STRINGFLAG_TRANS_FG : 0;
     int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
     int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
     int nextstring = addtomsglist(editmsg_dlg[5].d1);
+	byte msg_margins[4];
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = oldmargin ? 0 : vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
+	}
+    int cursor_x = msg_margins[left];
+    int cursor_y = msg_margins[up];
     
     int i=0;
     int msgcolour=misc.colors.msgtext;
@@ -1184,7 +1321,17 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
         clear_bitmap(buf);
         
         if(msgtile)
-            frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+2,(h/8)+2,0,0,0);
+		{
+			if(flags & STRINGFLAG_FULLTILE)
+			{
+				draw_block_flip(buf,0,0,msgtile,msgcset,
+					(int)ceil(w/16.0),(int)ceil(h/16.0),0,false,false);
+			}
+			else
+			{
+				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+2,(h/8)+2,0,0,0);
+			}
+		}
             
         bool space=true;
         int tlength=0;
@@ -1257,10 +1404,12 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                 
                 tlength = text_length(workfont, s3);
                 
-                if(cursor_x+tlength+hjump > w  && ((cursor_x > w || !(flags & STRINGFLAG_WRAP)) ? 1 : strcmp(s3," ")!=0))
+                if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
+				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
+				        ? 1 : strcmp(s3," ")!=0))
                 {
                     cursor_y += text_height(workfont) + vspace;
-                    cursor_x=0;
+                    cursor_x=msg_margins[left];
                     //if(space) s3[0]=0;
                 }
                 
@@ -1272,10 +1421,10 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     {
                     case MSGC_NEWLINE:
                     {
-                        if(cursor_x>0 || (cursor_y==0 && cursor_x==0)) // If the newline's already at the end of a line, ignore it
+                        if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
                         {
                             cursor_y += text_height(workfont) + vspace;
-                            cursor_x=0;
+                            cursor_x=msg_margins[left];
                         }
                         
                         //No i++ here - s3 terminates at newlines.
@@ -1294,7 +1443,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                     default:
                         if(s3[k] >= 32 && s3[k] <= 126)
                         {
-                            textprintf_ex(buf,workfont,cursor_x+8,cursor_y+8,msgcolour,-1,"%c",s3[k]);
+                            textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
                             cursor_x += workfont->vtable->char_length(workfont, s3[k]);
                             cursor_x += hspace;
                         }
@@ -1543,8 +1692,15 @@ int msg_code_operands(int cc)
 	    
     case MSGC_WARP:
 	return 6; //dmap, screen, x, y, effect, sound
+    
+    //portrait tile, x, y, width, height
+    case MSGC_CHANGEPORTRAIT:
+    case MSGC_GOTOIFCREEND:
+	return 5;
+    
     case MSGC_SETSCREEND:
 	return 4;
+
     case MSGC_GOTOIFGLOBAL:
     case MSGC_GOTOIFCTRPC:
     case MSGC_GOTOIFCTR:

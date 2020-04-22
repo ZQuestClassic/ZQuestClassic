@@ -32,1228 +32,1235 @@ string LiteralArgument::toString()
     return sign + first + "." + second;
 }
 
-string VarArgument::toString()
+string ZScript::VarToString(long ID)
 {
-    char temp[128];
-    
-     switch(ID)
-    {
-    case SP:
-        return "SP";
-        
-    case DATA:
-        return "DATA";
-        
-    case FFSCRIPT:
-        return "FFSCRIPT";
-        
-    case FCSET:
-        return "CSET";
-        
-    case DELAY:
-        return "DELAY";
-        
-    case FX:
-        return "X";
-    case FFCID:
+	char temp[128];
+	
+	switch(ID)
+	{
+	case SP:
+		return "SP";
+	case PC:
+		return "PC";
+	case SWITCHKEY:
+		return "SWITCHKEY";
+		
+	case DATA:
+		return "DATA";
+		
+	case FFSCRIPT:
+		return "FFSCRIPT";
+		
+	case FCSET:
+		return "CSET";
+		
+	case DELAY:
+		return "DELAY";
+		
+	case FX:
+		return "X";
+	case FFCID:
 	return "FFCID";
-        
-    case FY:
-        return "Y";
-        
-    case XD:
-        return "XD";
-        
-    case YD:
-        return "YD";
-        
-    case XD2:
-        return "XD2";
-        
-    case YD2:
-        return "YD2";
-        
-    case LINKX:
-        return "LINKX";
-        
-    case LINKY:
-        return "LINKY";
-        
-    case LINKZ:
-        return "LINKZ";
-        
-    case LINKJUMP:
-        return "LINKJUMP";
-        
-    case LINKDIR:
-        return "LINKDIR";
-        
-    case LINKHITDIR:
-        return "LINKHITDIR";
-        
-    case LINKSWORDJINX:
-        return "LINKSWORDJINX";
-        
-    case LINKITEMJINX:
-        return "LINKITEMJINX";
-        
-    case LINKHP:
-        return "LINKHP";
-        
-    case LINKMP:
-        return "LINKMP";
-        
-    case LINKMAXHP:
-        return "LINKMAXHP";
-        
-    case LINKMAXMP:
-        return "LINKMAXMP";
-        
-    case LINKACTION:
-        return "LINKACTION";
-        
-    case LINKHELD:
-        return "LINKHELD";
-        
-    case LINKINVIS:
-        return "LINKINVIS";
-        
-    case LINKINVINC:
-        return "LINKINVINC";
-        
-    case LINKMISCD:
-        return "LINKMISCD";
-        
-    case LINKTILE:
-        return "LINKTILE";
-        
-    case LINKFLIP:
-        return "LINKFLIP";
-        
-    case INPUTSTART:
-        return "INPUTSTART";
-        
-    case INPUTMAP:
-        return "INPUTMAP";
-        
-    case INPUTUP:
-        return "INPUTUP";
-        
-    case INPUTDOWN:
-        return "INPUTDOWN";
-        
-    case INPUTLEFT:
-        return "INPUTLEFT";
-        
-    case INPUTRIGHT:
-        return "INPUTRIGHT";
-        
-    case INPUTA:
-        return "INPUTA";
-        
-    case INPUTB:
-        return "INPUTB";
-        
-    case INPUTL:
-        return "INPUTL";
-        
-    case INPUTR:
-        return "INPUTR";
-        
-    case INPUTEX1:
-        return "INPUTEX1";
-        
-    case INPUTEX2:
-        return "INPUTEX2";
-        
-    case INPUTEX3:
-        return "INPUTEX3";
-        
-    case INPUTEX4:
-        return "INPUTEX4";
-        
-    case INPUTAXISUP:
-        return "INPUTAXISUP";
-        
-    case INPUTAXISDOWN:
-        return "INPUTAXISDOWN";
-        
-    case INPUTAXISLEFT:
-        return "INPUTAXISLEFT";
-        
-    case INPUTAXISRIGHT:
-        return "INPUTAXISRIGHT";
-        
-    case INPUTPRESSSTART:
-        return "INPUTPRESSSTART";
-        
-    case INPUTPRESSMAP:
-        return "INPUTPRESSMAP";
-        
-    case INPUTPRESSUP:
-        return "INPUTPRESSUP";
-        
-    case INPUTPRESSDOWN:
-        return "INPUTPRESSDOWN";
-        
-    case INPUTPRESSLEFT:
-        return "INPUTPRESSLEFT";
-        
-    case INPUTPRESSRIGHT:
-        return "INPUTPRESSRIGHT";
-        
-    case INPUTPRESSA:
-        return "INPUTPRESSA";
-        
-    case INPUTPRESSB:
-        return "INPUTPRESSB";
-        
-    case INPUTPRESSL:
-        return "INPUTPRESSL";
-        
-    case INPUTPRESSR:
-        return "INPUTPRESSR";
-        
-    case INPUTPRESSEX1:
-        return "INPUTPRESSEX1";
-        
-    case INPUTPRESSEX2:
-        return "INPUTPRESSEX2";
-        
-    case INPUTPRESSEX3:
-        return "INPUTPRESSEX3";
-        
-    case INPUTPRESSEX4:
-        return "INPUTPRESSEX4";
-        
-    case INPUTPRESSAXISUP:
-        return "PRESSAXISUP";
-        
-    case INPUTPRESSAXISDOWN:
-        return "PRESSAXISDOWN";
-        
-    case INPUTPRESSAXISLEFT:
-        return "PRESSAXISLEFT";
-        
-    case INPUTPRESSAXISRIGHT:
-        return "PRESSAXISRIGHT";
-        
-    case INPUTMOUSEX:
-        return "INPUTMOUSEX";
-        
-    case INPUTMOUSEY:
-        return "INPUTMOUSEY";
-        
-    case INPUTMOUSEZ:
-        return "INPUTMOUSEZ";
-        
-    case INPUTMOUSEB:
-        return "INPUTMOUSEB";
-    
-    case BUTTONPRESS: return "BUTTONPRESS";
-    case BUTTONINPUT: return "BUTTONINPUT";
-    case BUTTONHELD: return "BUTTONHELD";
-    case KEYPRESS: return "KEYPRESS";
-    case READKEY: return "READKEY";
+		
+	case FY:
+		return "Y";
+		
+	case XD:
+		return "XD";
+		
+	case YD:
+		return "YD";
+		
+	case XD2:
+		return "XD2";
+		
+	case YD2:
+		return "YD2";
+		
+	case LINKX:
+		return "LINKX";
+		
+	case LINKY:
+		return "LINKY";
+		
+	case LINKZ:
+		return "LINKZ";
+		
+	case LINKJUMP:
+		return "LINKJUMP";
+		
+	case LINKDIR:
+		return "LINKDIR";
+		
+	case LINKHITDIR:
+		return "LINKHITDIR";
+		
+	case LINKSWORDJINX:
+		return "LINKSWORDJINX";
+		
+	case LINKITEMJINX:
+		return "LINKITEMJINX";
+		
+	case LINKHP:
+		return "LINKHP";
+		
+	case LINKMP:
+		return "LINKMP";
+		
+	case LINKMAXHP:
+		return "LINKMAXHP";
+		
+	case LINKMAXMP:
+		return "LINKMAXMP";
+		
+	case LINKACTION:
+		return "LINKACTION";
+		
+	case LINKHELD:
+		return "LINKHELD";
+		
+	case LINKINVIS:
+		return "LINKINVIS";
+		
+	case LINKINVINC:
+		return "LINKINVINC";
+		
+	case LINKMISCD:
+		return "LINKMISCD";
+		
+	case LINKTILE:
+		return "LINKTILE";
+		
+	case LINKFLIP:
+		return "LINKFLIP";
+		
+	case INPUTSTART:
+		return "INPUTSTART";
+		
+	case INPUTMAP:
+		return "INPUTMAP";
+		
+	case INPUTUP:
+		return "INPUTUP";
+		
+	case INPUTDOWN:
+		return "INPUTDOWN";
+		
+	case INPUTLEFT:
+		return "INPUTLEFT";
+		
+	case INPUTRIGHT:
+		return "INPUTRIGHT";
+		
+	case INPUTA:
+		return "INPUTA";
+		
+	case INPUTB:
+		return "INPUTB";
+		
+	case INPUTL:
+		return "INPUTL";
+		
+	case INPUTR:
+		return "INPUTR";
+		
+	case INPUTEX1:
+		return "INPUTEX1";
+		
+	case INPUTEX2:
+		return "INPUTEX2";
+		
+	case INPUTEX3:
+		return "INPUTEX3";
+		
+	case INPUTEX4:
+		return "INPUTEX4";
+		
+	case INPUTAXISUP:
+		return "INPUTAXISUP";
+		
+	case INPUTAXISDOWN:
+		return "INPUTAXISDOWN";
+		
+	case INPUTAXISLEFT:
+		return "INPUTAXISLEFT";
+		
+	case INPUTAXISRIGHT:
+		return "INPUTAXISRIGHT";
+		
+	case INPUTPRESSSTART:
+		return "INPUTPRESSSTART";
+		
+	case INPUTPRESSMAP:
+		return "INPUTPRESSMAP";
+		
+	case INPUTPRESSUP:
+		return "INPUTPRESSUP";
+		
+	case INPUTPRESSDOWN:
+		return "INPUTPRESSDOWN";
+		
+	case INPUTPRESSLEFT:
+		return "INPUTPRESSLEFT";
+		
+	case INPUTPRESSRIGHT:
+		return "INPUTPRESSRIGHT";
+		
+	case INPUTPRESSA:
+		return "INPUTPRESSA";
+		
+	case INPUTPRESSB:
+		return "INPUTPRESSB";
+		
+	case INPUTPRESSL:
+		return "INPUTPRESSL";
+		
+	case INPUTPRESSR:
+		return "INPUTPRESSR";
+		
+	case INPUTPRESSEX1:
+		return "INPUTPRESSEX1";
+		
+	case INPUTPRESSEX2:
+		return "INPUTPRESSEX2";
+		
+	case INPUTPRESSEX3:
+		return "INPUTPRESSEX3";
+		
+	case INPUTPRESSEX4:
+		return "INPUTPRESSEX4";
+		
+	case INPUTPRESSAXISUP:
+		return "PRESSAXISUP";
+		
+	case INPUTPRESSAXISDOWN:
+		return "PRESSAXISDOWN";
+		
+	case INPUTPRESSAXISLEFT:
+		return "PRESSAXISLEFT";
+		
+	case INPUTPRESSAXISRIGHT:
+		return "PRESSAXISRIGHT";
+		
+	case INPUTMOUSEX:
+		return "INPUTMOUSEX";
+		
+	case INPUTMOUSEY:
+		return "INPUTMOUSEY";
+		
+	case INPUTMOUSEZ:
+		return "INPUTMOUSEZ";
+		
+	case INPUTMOUSEB:
+		return "INPUTMOUSEB";
+	
+	case BUTTONPRESS: return "BUTTONPRESS";
+	case BUTTONINPUT: return "BUTTONINPUT";
+	case BUTTONHELD: return "BUTTONHELD";
+	case RAWKEY: return "RAWKEY";
+	case READKEY: return "READKEY";
 	case DISABLEKEY: return "DISABLEKEY";
 	case DISABLEBUTTON: return "DISABLEBUTTON";
-    case JOYPADPRESS: return "JOYPADPRESS";
-    
-     case LINKINVFRAME:
+	case JOYPADPRESS: return "JOYPADPRESS";
+	
+	 case LINKINVFRAME:
 	return "LINKINVFRAME";
-    case LINKCANFLICKER:
+	case LINKCANFLICKER:
 	return "LINKCANFLICKER";
-    case LINKHURTSFX:
+	case LINKHURTSFX:
 	return "LINKHURTSFX";
-    
-    case LINKEATEN: return "LINKEATEN";
-    
-    case LINKITEMB: return "LINKITEMB";
+	
+	case LINKEATEN: return "LINKEATEN";
+	
+	case LINKITEMB: return "LINKITEMB";
 
-    case LINKITEMA: return "LINKITEMA";
-    case SETITEMSLOT: return "SETITEMSLOT";
-    case GAMESETB: return "GAMESETB";
-    case GAMESETA: return "GAMESETA";
-    case LINKUSINGITEM: return "LINKUSINGITEM";
-    case LINKUSINGITEMA: return "LINKUSINGITEMA";
-    case LINKUSINGITEMB: return "LINKUSINGITEMB";
-    
-    case SDD:
-        return "SDD";
-        
-    case SCREENFLAGSD:
-        return "SCREENFLAGSD";
-        
-    case SCREENEFLAGSD:
-        return "SCREENEFLAGSD";
-        
-    case COMBODD:
-        return "COMBODD";
-        
-    case COMBOCD:
-        return "COMBOCD";
-        
-    case COMBOFD:
-        return "COMBOFD";
-        
-    case COMBODDM:
-        return "COMBODDM";
-        
-    case COMBOCDM:
-        return "COMBOCDM";
-        
-    case COMBOFDM:
-        return "COMBOFDM";
-        
-    case REFFFC:
-        return "REFFFC";
-    
-    case REFMAPDATA: return "REFMAPDATA";
-    case REFSCREENDATA: return "REFSCREENDATA";
-    case REFCOMBODATA: return "REFCOMBODATA";
-    case REFSPRITEDATA: return "REFSPRITEDATA";
-    case REFBITMAP: return "REFBITMAP";
-    case REFNPCCLASS: return "REFNPCCLASS";
-    
-     case REFDMAPDATA: return "REFDMAPDATA";
-     case REFSHOPDATA: return "REFSHOPDATA";
-     case REFMSGDATA: return "REFMSGDATA";
-     case REFNIL: return "REFNIL";
-    
-     case REFDROPS: return "REFDROPS";
-     case REFPONDS: return "REFPONDS";
-     case REFWARPRINGS: return "REFWARPRINGS";
-     case REFDOORS: return "REFDOORS";
-     case REFUICOLOURS: return "REFUICOLOURS";
-     case REFRGB: return "REFRGB";
-     case REFPALETTE: return "REFPALETTE";
-     case REFTUNES: return "REFTUNES";
-     case REFPALCYCLE: return "REFPALCYCLE";
-     case REFGAMEDATA: return "REFGAMEDATA";
-     case REFCHEATS: return "REFCHEATS";
-        
-    case REFITEM:
-        return "REFITEM";
-        
-    case ITEMCOUNT:
-        return "ITEMCOUNT";
-        
-    case ITEMX:
-        return "ITEMX";
-        
-    case ITEMY:
-        return "ITEMY";
-        
-    case ITEMZ:
-        return "ITEMZ";
-        
-    case ITEMJUMP:
-        return "ITEMJUMP";
-        
-    case ITEMDRAWTYPE:
-        return "ITEMDRAWTYPE";
-        
-    case ITEMID:
-        return "ITEMID";
-        
-    case ITEMTILE:
-        return "ITEMTILE";
-        
-    case ITEMCSET:
-        return "ITEMCSET";
-        
-    case ITEMFLASHCSET:
-        return "ITEMFLASHCSET";
-        
-    case ITEMFRAMES:
-        return "ITEMFRAMES";
-        
-    //This DOES NOT DO what ZScript.txt claims that it does, and needs to be fixed. -Z
-    case ITEMFRAME:
-        return "ITEMFRAME";
-        
-    case ITEMASPEED:
-        return "ITEMASPEED";
-    
-    case ITEMACLK:
-        return "ITEMACLK";
-        
-    case ITEMDELAY:
-        return "ITEMDELAY";
-        
-    case ITEMFLASH:
-        return "ITEMFLASH";
-        
-    case ITEMFLIP:
-        return "ITEMFLIP";
-        
-    case ITEMEXTEND:
-        return "ITEMEXTEND";
-        
-    case ITEMPICKUP:
-        return "ITEMPICKUP";
-        
-    case ITEMMISCD:
-        return "ITEMMISCD";
-        
-    case ITEMCLASSFAMILY:
-        return "IDATAFAMILY";
-        
-    case ITEMCLASSFAMTYPE:
-        return "IDATALEVEL";
-        
-    case ITEMCLASSAMOUNT:
-        return "IDATAAMOUNT";
-        
-    case ITEMCLASSMAX:
-        return "IDATAMAX";
-        
-    case ITEMCLASSSETMAX:
-        return "IDATASETMAX";
-        
-    case ITEMCLASSSETGAME:
-        return "IDATAKEEP";
-        
-    case ITEMCLASSCOUNTER:
-        return "IDATACOUNTER";
-        
-    case ITEMCLASSUSESOUND:
-        return "IDATAUSESOUND";
-        
-    case ITEMCLASSPOWER:
-        return "IDATAPOWER";
-        
-    case ITEMCLASSINITDD:
-        return "IDATAINITDD";
-        
-    case REFITEMCLASS:
-        return "REFITEMCLASS";
-        
-    case COMBOID:
-        return "COMBOID";
-        
-    case COMBOTD:
-        return "COMBOTD";
-        
-    case COMBOSD:
-        return "COMBOSD";
-        
-    case COMBOIDM:
-        return "COMBOIDM";
-        
-    case COMBOTDM:
-        return "COMBOTDM";
-        
-    case COMBOSDM:
-        return "COMBOSDM";
-        
-    case GETMIDI:
-        return "GETMIDI";
-        
-    case CURSCR:
-        return "CURSCR";
-        
-    case CURDSCR:
-        return "CURDSCR";
-        
-    case CURMAP:
-        return "CURMAP";
-        
-    case CURDMAP:
-        return "CURDMAP";
-    case GAMEMAXMAPS: return "GAMEMAXMAPS";
-        
-    case CURLEVEL:
-        return "CURLEVEL";
-        
-    case GAMEDEATHS:
-        return "GAMEDEATHS";
-        
-    case GAMECHEAT:
-        return "GAMECHEAT";
-    
-    case ZELDAVERSION:
+	case LINKITEMA: return "LINKITEMA";
+	case SETITEMSLOT: return "SETITEMSLOT";
+	case GAMESETB: return "GAMESETB";
+	case GAMESETA: return "GAMESETA";
+	case LINKUSINGITEM: return "LINKUSINGITEM";
+	case LINKUSINGITEMA: return "LINKUSINGITEMA";
+	case LINKUSINGITEMB: return "LINKUSINGITEMB";
+	
+	case SDD:
+		return "SDD";
+		
+	case SCREENFLAGSD:
+		return "SCREENFLAGSD";
+		
+	case SCREENEFLAGSD:
+		return "SCREENEFLAGSD";
+		
+	case COMBODD:
+		return "COMBODD";
+		
+	case COMBOCD:
+		return "COMBOCD";
+		
+	case COMBOFD:
+		return "COMBOFD";
+		
+	case COMBODDM:
+		return "COMBODDM";
+		
+	case COMBOCDM:
+		return "COMBOCDM";
+		
+	case COMBOFDM:
+		return "COMBOFDM";
+		
+	case REFFFC:
+		return "REFFFC";
+	
+	case REFMAPDATA: return "REFMAPDATA";
+	case REFSCREENDATA: return "REFSCREENDATA";
+	case REFCOMBODATA: return "REFCOMBODATA";
+	case REFSPRITEDATA: return "REFSPRITEDATA";
+	case REFBITMAP: return "REFBITMAP";
+	case REFNPCCLASS: return "REFNPCCLASS";
+	
+	 case REFDMAPDATA: return "REFDMAPDATA";
+	 case REFSHOPDATA: return "REFSHOPDATA";
+	 case REFMSGDATA: return "REFMSGDATA";
+	 case REFNIL: return "REFNIL";
+	
+	 case REFDROPS: return "REFDROPS";
+	 case REFPONDS: return "REFPONDS";
+	 case REFWARPRINGS: return "REFWARPRINGS";
+	 case REFDOORS: return "REFDOORS";
+	 case REFUICOLOURS: return "REFUICOLOURS";
+	 case REFRGB: return "REFRGB";
+	 case REFPALETTE: return "REFPALETTE";
+	 case REFTUNES: return "REFTUNES";
+	 case REFPALCYCLE: return "REFPALCYCLE";
+	 case REFGAMEDATA: return "REFGAMEDATA";
+	 case REFCHEATS: return "REFCHEATS";
+		
+	case REFITEM:
+		return "REFITEM";
+		
+	case ITEMCOUNT:
+		return "ITEMCOUNT";
+		
+	case ITEMX:
+		return "ITEMX";
+		
+	case ITEMY:
+		return "ITEMY";
+		
+	case ITEMZ:
+		return "ITEMZ";
+		
+	case ITEMJUMP:
+		return "ITEMJUMP";
+		
+	case ITEMDRAWTYPE:
+		return "ITEMDRAWTYPE";
+		
+	case ITEMID:
+		return "ITEMID";
+		
+	case ITEMTILE:
+		return "ITEMTILE";
+		
+	case ITEMCSET:
+		return "ITEMCSET";
+		
+	case ITEMFLASHCSET:
+		return "ITEMFLASHCSET";
+		
+	case ITEMFRAMES:
+		return "ITEMFRAMES";
+		
+	//This DOES NOT DO what ZScript.txt claims that it does, and needs to be fixed. -Z
+	case ITEMFRAME:
+		return "ITEMFRAME";
+		
+	case ITEMASPEED:
+		return "ITEMASPEED";
+	
+	case ITEMACLK:
+		return "ITEMACLK";
+		
+	case ITEMDELAY:
+		return "ITEMDELAY";
+		
+	case ITEMFLASH:
+		return "ITEMFLASH";
+		
+	case ITEMFLIP:
+		return "ITEMFLIP";
+		
+	case ITEMEXTEND:
+		return "ITEMEXTEND";
+		
+	case ITEMPICKUP:
+		return "ITEMPICKUP";
+		
+	case ITEMMISCD:
+		return "ITEMMISCD";
+		
+	case ITEMCLASSFAMILY:
+		return "IDATAFAMILY";
+		
+	case ITEMCLASSFAMTYPE:
+		return "IDATALEVEL";
+		
+	case ITEMCLASSAMOUNT:
+		return "IDATAAMOUNT";
+		
+	case ITEMCLASSMAX:
+		return "IDATAMAX";
+		
+	case ITEMCLASSSETMAX:
+		return "IDATASETMAX";
+		
+	case ITEMCLASSSETGAME:
+		return "IDATAKEEP";
+		
+	case ITEMCLASSCOUNTER:
+		return "IDATACOUNTER";
+		
+	case ITEMCLASSUSESOUND:
+		return "IDATAUSESOUND";
+		
+	case ITEMCLASSPOWER:
+		return "IDATAPOWER";
+		
+	case ITEMCLASSINITDD:
+		return "IDATAINITDD";
+		
+	case REFITEMCLASS:
+		return "REFITEMCLASS";
+		
+	case COMBOID:
+		return "COMBOID";
+		
+	case COMBOTD:
+		return "COMBOTD";
+		
+	case COMBOSD:
+		return "COMBOSD";
+		
+	case COMBOIDM:
+		return "COMBOIDM";
+		
+	case COMBOTDM:
+		return "COMBOTDM";
+		
+	case COMBOSDM:
+		return "COMBOSDM";
+		
+	case GETMIDI:
+		return "GETMIDI";
+		
+	case CURSCR:
+		return "CURSCR";
+		
+	case CURDSCR:
+		return "CURDSCR";
+		
+	case CURMAP:
+		return "CURMAP";
+		
+	case CURDMAP:
+		return "CURDMAP";
+	case GAMEMAXMAPS: return "GAMEMAXMAPS";
+		
+	case CURLEVEL:
+		return "CURLEVEL";
+		
+	case GAMEDEATHS:
+		return "GAMEDEATHS";
+		
+	case GAMECHEAT:
+		return "GAMECHEAT";
+	
+	case ZELDAVERSION:
 	return "ZELDAVERSION";
-    case ZELDABUILD:
+	case ZELDABUILD:
 	return "ZELDABUILD";
-    case ZELDABETA:
+	case ZELDABETA:
 	return "ZELDABETA";
-    
-        
-    case GAMETIME:
-        return "GAMETIME";
-        
-    case GAMEHASPLAYED:
-        return "GAMEHASPLAYED";
-        
-    case GAMESTANDALONE:
-        return "GAMESTANDALONE";
-        
-    case GAMETIMEVALID:
-        return "GAMETIMEVALID";
-        
-    case GAMEGUYCOUNT:
-        return "GAMEGUYCOUNT";
-        
-    case GAMECONTSCR:
-        return "GAMECONTSCR";
-        
-    case GAMECONTDMAP:
-        return "GAMECONTDMAP";
-        
-    case GAMEENTRSCR:
-        return "GAMEENTRSCR";
-        
-    case GAMEENTRDMAP:
-        return "GAMEENTRDMAP";
-        
-    case GAMECOUNTERD:
-        return "GAMECOUNTERD";
-        
-    case GAMEMCOUNTERD:
-        return "GAMEMCOUNTERD";
-        
-    case GAMEDCOUNTERD:
-        return "GAMEDCOUNTERD";
-        
-    case GAMEGENERICD:
-        return "GAMEGENERICD";
-    
-    case GAMEMISC:
-        return "GAMEMISC";
-        
-    case GAMEITEMSD:
-        return "GAMEITEMSD";
-        
-    case GAMELITEMSD:
-        return "GAMELITEMSD";
-        
-    case GAMELKEYSD:
-        return "GAMELKEYSD";
-        
-    case SCREENSTATED:
-        return "SCREENSTATED";
-        
-    case SCREENSTATEDD:
-        return "SCREENSTATEDD";
-        
-    case DMAPFLAGSD:
-        return "DMAPFLAGSD";
-        
-    case DMAPLEVELD:
-        return "DMAPLEVELD";
-    
-    case DMAPLEVELPAL:
+	
+		
+	case GAMETIME:
+		return "GAMETIME";
+		
+	case GAMEHASPLAYED:
+		return "GAMEHASPLAYED";
+		
+	case GAMESTANDALONE:
+		return "GAMESTANDALONE";
+		
+	case GAMETIMEVALID:
+		return "GAMETIMEVALID";
+		
+	case GAMEGUYCOUNT:
+		return "GAMEGUYCOUNT";
+		
+	case GAMECONTSCR:
+		return "GAMECONTSCR";
+		
+	case GAMECONTDMAP:
+		return "GAMECONTDMAP";
+		
+	case GAMEENTRSCR:
+		return "GAMEENTRSCR";
+		
+	case GAMEENTRDMAP:
+		return "GAMEENTRDMAP";
+		
+	case GAMECOUNTERD:
+		return "GAMECOUNTERD";
+		
+	case GAMEMCOUNTERD:
+		return "GAMEMCOUNTERD";
+		
+	case GAMEDCOUNTERD:
+		return "GAMEDCOUNTERD";
+		
+	case GAMEGENERICD:
+		return "GAMEGENERICD";
+	
+	case GAMEMISC:
+		return "GAMEMISC";
+		
+	case GAMEITEMSD:
+		return "GAMEITEMSD";
+		
+	case GAMELITEMSD:
+		return "GAMELITEMSD";
+		
+	case GAMELKEYSD:
+		return "GAMELKEYSD";
+		
+	case SCREENSTATED:
+		return "SCREENSTATED";
+		
+	case SCREENSTATEDD:
+		return "SCREENSTATEDD";
+		
+	case DMAPFLAGSD:
+		return "DMAPFLAGSD";
+		
+	case DMAPLEVELD:
+		return "DMAPLEVELD";
+	
+	case DMAPLEVELPAL:
 	return "DMAPLEVELPAL";
-        
-    case DMAPCOMPASSD:
-        return "DMAPCOMPASSD";
-        
-    case DMAPCONTINUED:
-        return "DMAPCONTINUED";
-        
-    case DMAPMIDID:
-        return "DMAPMIDID";
-        
-    case DMAPOFFSET:
-        return "DMAPOFFSET";
-        
-    case DMAPMAP:
-        return "DMAPMAP";
-        
-    case SDDD:
-        return "SDDD";
-        
-    case SDDDD:
-        return "SDDDD";
-        
-    case GAMECLICKFREEZE:
-        return "GAMECLICKFREEZE";
-        
-    case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
-    
-    case FFFLAGSD:
-        return "FFFLAGSD";
-        
-    case FFTWIDTH:
-        return "FFTWIDTH";
-        
-    case FFTHEIGHT:
-        return "FFTHEIGHT";
-        
-    case FFCWIDTH:
-        return "FFCWIDTH";
-        
-    case FFCHEIGHT:
-        return "FFCHEIGHT";
-        
-    case FFLINK:
-        return "FFLINK";
-        
-    case FFMISCD:
-        return "FFMISCD";
-        
-    case FFINITDD:
-        return "FFINITDD";
-        
-        /*case FFDD:
-        return "FFDD";*/
-    case LINKITEMD:
-        return "LINKITEMD";
-    
-    case DISABLEDITEM: return "DISABLEDITEM";
-        
-    case REFNPC:
-        return "REFNPC";
-        
-    case NPCCOUNT:
-        return "NPCCOUNT";
-        
-    case NPCX:
-        return "NPCX";
-        
-    case NPCY:
-        return "NPCY";
-        
-    case NPCZ:
-        return "NPCZ";
-        
-    case NPCJUMP:
-        return "NPCJUMP";
-        
-    case NPCDIR:
-        return "NPCDIR";
-        
-    case NPCRATE:
-        return "NPCRATE";
-        
-    case NPCHOMING:
-        return "NPCHOMING";
-        
-    case NPCFRAMERATE:
-        return "NPCFRAMERATE";
-        
-    case NPCHALTRATE:
-        return "NPCHALTRATE";
-        
-    case NPCDRAWTYPE:
-        return "NPCDRAWTYPE";
-        
-    case NPCHP:
-        return "NPCHP";
-        
-    case NPCID:
-        return "NPCID";
-        
-    case NPCTYPE:
-        return "NPCTYPE";
-        
-    case NPCDP:
-        return "NPCDP";
-        
-    case NPCWDP:
-        return "NPCWDP";
-        
-    case NPCTILE:
-        return "NPCTILE";
-        
-    case NPCOTILE:
-        return "NPCOTILE";
-        
-    case NPCWEAPON:
-        return "NPCWEAPON";
-        
-    case NPCITEMSET:
-        return "NPCITEMSET";
-        
-    case NPCCSET:
-        return "NPCCSET";
-        
-    case NPCBOSSPAL:
-        return "NPCBOSSPAL";
-        
-    case NPCBGSFX:
-        return "NPCBGSFX";
-        
-    case NPCEXTEND:
-        return "NPCEXTEND";
-        
-    case NPCSTEP:
-        return "NPCSTEP";
-        
-    case NPCDEFENSED:
-        return "NPCDEFENSED";
-    case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
-        
-    case NPCMISCD:
-        return "NPCMISCD";
-        
-    case NPCDD:
-        return "NPCDD";
-        
-    case NPCMFLAGS:
-        return "NPCMFLAGS";
-        
-    case NPCCOLLDET:
-        return "NPCCOLLDET";
-        
-    case NPCSTUN:
-        return "NPCSTUN";
-        
-    case NPCHUNGER:
-        return "NPCHUNGER";
-    
-    
-    case NPCINVINC:
-        return "NPCINVINC";
-    case NPCSUPERMAN:
-        return "NPCSUPERMAN";
-    case NPCHASITEM:
-        return "NPCHASITEM";
-    case NPCRINGLEAD:
-        return "NPCRINGLEAD";
-    case NPCSHIELD:
-        return "NPCSHIELD";
-    
-    case NPCFROZEN:
-        return "NPCFROZEN";   
-    case NPCFROZENTILE:
-        return "NPCFROZENTILE";
-    case NPCFROZENCSET:
-        return "NPCFROZENCSET"; 
-    case NPCBEHAVIOUR:
-        return "NPCBEHAVIOUR"; 
-        
-    case SCRDOORD:
-        return "SCRDOORD";
-        
-    case LIT:
-        return "LIT";
-        
-    case WAVY:
-        return "WAVY";
-        
-    case QUAKE:
-        return "QUAKE";
-        
-    case ITEMOTILE:
-        return "ITEMOTILE";
-        
-    case REFLWPN:
-        return "REFLWPN";
-        
-    case LWPNCOUNT:
-        return "LWPNCOUNT";
-        
-    case LWPNX:
-        return "LWPNX";
-        
-    case LWPNY:
-        return "LWPNY";
-        
-    case LWPNZ:
-        return "LWPNZ";
-        
-    case LWPNJUMP:
-        return "LWPNJUMP";
-        
-    case LWPNDIR:
-        return "LWPNDIR";
-        
-    case LWPNANGLE:
-        return "LWPNANGLE";
-        
-    case LWPNSTEP:
-        return "LWPNSTEP";
-        
-    case LWPNFRAMES:
-        return "LWPNFRAMES";
-        
-    case LWPNFRAME:
-        return "LWPNFRAME";
-        
-    case LWPNDRAWTYPE:
-        return "LWPNDRAWTYPE";
-        
-    case LWPNPOWER:
-        return "LWPNPOWER";
-        
-    case LWPNID:
-        return "LWPNID";
-        
-    case LWPNANGULAR:
-        return "LWPNANGULAR";
-        
-    case LWPNBEHIND:
-        return "LWPNBEHIND";
-        
-    case LWPNASPEED:
-        return "LWPNASPEED";
-        
-    case LWPNTILE:
-        return "LWPNTILE";
-        
-    case LWPNFLASHCSET:
-        return "LWPNFLASHCSET";
-        
-    case LWPNDEAD:
-        return "LWPNDEAD";
-        
-    case LWPNCSET:
-        return "LWPNCSET";
-        
-    case LWPNFLASH:
-        return "LWPNFLASH";
-        
-    case LWPNFLIP:
-        return "LWPNFLIP";
-        
-    case LWPNOTILE:
-        return "LWPNOTILE";
-        
-    case LWPNOCSET:
-        return "LWPNOCSET";
-        
-    case LWPNEXTEND:
-        return "LWPNEXTEND";
-        
-    case LWPNCOLLDET:
-        return "LWPNCOLLDET";
-    
-    case LWPNPARENT:
-        return "LWPNPARENT";
-    case LWPNLEVEL:
-        return "LWPNLEVEL";
-    case EWPNPARENT:
-        return "EWPNPARENT";
-        
-    case REFEWPN:
-        return "REFEWPN";
-        
-    case EWPNCOUNT:
-        return "EWPNCOUNT";
-        
-    case EWPNX:
-        return "EWPNX";
-        
-    case EWPNY:
-        return "EWPNY";
-        
-    case EWPNZ:
-        return "EWPNZ";
-        
-    case EWPNJUMP:
-        return "EWPNJUMP";
-        
-    case EWPNDIR:
-        return "EWPNDIR";
-        
-    case EWPNANGLE:
-        return "EWPNANGLE";
-        
-    case EWPNSTEP:
-        return "EWPNSTEP";
-        
-    case EWPNFRAMES:
-        return "EWPNFRAMES";
-        
-    case EWPNFRAME:
-        return "EWPNFRAME";
-        
-    case EWPNDRAWTYPE:
-        return "EWPNDRAWTYPE";
-        
-    case EWPNPOWER:
-        return "EWPNPOWER";
-        
-    case EWPNID:
-        return "EWPNID";
-        
-    case EWPNANGULAR:
-        return "EWPNANGULAR";
-        
-    case EWPNBEHIND:
-        return "EWPNBEHIND";
-        
-    case EWPNASPEED:
-        return "EWPNASPEED";
-        
-    case EWPNTILE:
-        return "EWPNTILE";
-        
-    case EWPNFLASHCSET:
-        return "EWPNFLASHCSET";
-        
-    case EWPNDEAD:
-        return "EWPNDEAD";
-        
-    case EWPNCSET:
-        return "EWPNCSET";
-        
-    case EWPNFLASH:
-        return "EWPNFLASH";
-        
-    case EWPNFLIP:
-        return "EWPNFLIP";
-        
-    case EWPNOTILE:
-        return "EWPNOTILE";
-        
-    case EWPNOCSET:
-        return "EWPNOCSET";
-        
-    case EWPNEXTEND:
-        return "EWPNEXTEND";
-        
-    case EWPNCOLLDET:
-        return "EWPNCOLLDET";
-        
-    case SCRIPTRAM:
-        return "SCRIPTRAM";
-        
-    case GLOBALRAM:
-        return "GLOBALRAM";
-        
-    case SCRIPTRAMD:
-        return "SCRIPTRAMD";
-        
-    case GLOBALRAMD:
-        return "GLOBALRAMD";
-        
-    case LWPNHXOFS:
-        return "LWPNHXOFS";
-        
-    case LWPNHYOFS:
-        return "LWPNHYOFS";
-        
-    case LWPNXOFS:
-        return "LWPNXOFS";
-        
-    case LWPNYOFS:
-        return "LWPNYOFS";
-        
-    case LWPNZOFS:
-        return "LWPNZOFS";
-        
-    case LWPNHXSZ:
-        return "LWPNHXSZ";
-        
-    case LWPNHYSZ:
-        return "LWPNHYSZ";
-        
-    case LWPNHZSZ:
-        return "LWPNHZSZ";
-        
-    case LWPNTXSZ:
-        return "LWPNTXSZ";
-        
-    case LWPNTYSZ:
-        return "LWPNTYSZ";
-        
-    case LWPNMISCD:
-        return "LWPNMISCD";
-        
-    case EWPNHXOFS:
-        return "EWPNHXOFS";
-        
-    case EWPNHYOFS:
-        return "EWPNHYOFS";
-        
-    case EWPNXOFS:
-        return "EWPNXOFS";
-        
-    case EWPNYOFS:
-        return "EWPNYOFS";
-        
-    case EWPNZOFS:
-        return "EWPNZOFS";
-        
-    case EWPNHXSZ:
-        return "EWPNHXSZ";
-        
-    case EWPNHYSZ:
-        return "EWPNHYSZ";
-        
-    case EWPNHZSZ:
-        return "EWPNHZSZ";
-        
-    case EWPNTXSZ:
-        return "EWPNTXSZ";
-        
-    case EWPNTYSZ:
-        return "EWPNTYSZ";
-        
-    case EWPNMISCD:
-        return "EWPNMISCD";
-        
-    case NPCHXOFS:
-        return "NPCHXOFS";
-        
-    case NPCHYOFS:
-        return "NPCHYOFS";
-        
-    case NPCXOFS:
-        return "NPCXOFS";
-        
-    case NPCYOFS:
-        return "NPCYOFS";
-        
-    case NPCZOFS:
-        return "NPCZOFS";
-        
-    case NPCHXSZ:
-        return "NPCHXSZ";
-        
-    case NPCHYSZ:
-        return "NPCHYSZ";
-        
-    case NPCHZSZ:
-        return "NPCHZSZ";
-        
-    case NPCTXSZ:
-        return "NPCTXSZ";
-        
-    case NPCTYSZ:
-        return "NPCTYSZ";
-        
-    case ITEMHXOFS:
-        return "ITEMHXOFS";
-        
-    case ITEMHYOFS:
-        return "ITEMHYOFS";
-        
-    case ITEMXOFS:
-        return "ITEMXOFS";
-        
-    case ITEMYOFS:
-        return "ITEMYOFS";
-        
-    case ITEMZOFS:
-        return "ITEMZOFS";
-        
-    case ITEMHXSZ:
-        return "ITEMHXSZ";
-        
-    case ITEMHYSZ:
-        return "ITEMHYSZ";
-        
-    case ITEMHZSZ:
-        return "ITEMHZSZ";
-        
-    case ITEMTXSZ:
-        return "ITEMTXSZ";
-        
-    case ITEMTYSZ:
-        return "ITEMTYSZ";
-        
-    case LINKHXOFS:
-        return "LINKHXOFS";
-        
-    case LINKHYOFS:
-        return "LINKHYOFS";
-        
-    case LINKXOFS:
-        return "LINKXOFS";
-        
-    case LINKYOFS:
-        return "LINKYOFS";
-        
-    case LINKZOFS:
-        return "LINKZOFS";
-        
-    case LINKHXSZ:
-        return "LINKHXSZ";
-        
-    case LINKHYSZ:
-        return "LINKHYSZ";
-        
-    case LINKHZSZ:
-        return "LINKHZSZ";
-        
-    case LINKTXSZ:
-        return "LINKTXSZ";
-        
-    case LINKTYSZ:
-        return "LINKTYSZ";
-        
-    case LINKDRUNK:
-        return "LINKDRUNK";
-        
-    case LINKEQUIP:
-        return "LINKEQUIP";
-        
-    case LINKLADDERX:
-        return "LINKLADDERX";
-        
-    case LINKLADDERY:
-        return "LINKLADDERY";
-        
-    case ROOMTYPE:
-        return "ROOMTYPE";
-        
-    case ROOMDATA:
-        return "ROOMDATA";
-        
-    case PUSHBLOCKX:
-        return "PUSHBLOCKX";
-        
-    case PUSHBLOCKY:
-        return "PUSHBLOCKY";
-        
-    case PUSHBLOCKCOMBO:
-        return "PUSHBLOCKCOMBO";
-        
-    case PUSHBLOCKCSET:
-        return "PUSHBLOCKCSET";
-        
-    case UNDERCOMBO:
-        return "UNDERCOMBO";
-        
-    case UNDERCSET:
-        return "UNDERCSET";
-    
-    //2.6
-    case CREATELWPNDX: return "CREATELWPNDX";
-    
-    //2.54 -Z
+		
+	case DMAPCOMPASSD:
+		return "DMAPCOMPASSD";
+		
+	case DMAPCONTINUED:
+		return "DMAPCONTINUED";
+		
+	case DMAPMIDID:
+		return "DMAPMIDID";
+		
+	case DMAPOFFSET:
+		return "DMAPOFFSET";
+		
+	case DMAPMAP:
+		return "DMAPMAP";
+		
+	case SDDD:
+		return "SDDD";
+		
+	case SDDDD:
+		return "SDDDD";
+		
+	case GAMECLICKFREEZE:
+		return "GAMECLICKFREEZE";
+		
+	case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
+	
+	case FFFLAGSD:
+		return "FFFLAGSD";
+		
+	case FFTWIDTH:
+		return "FFTWIDTH";
+		
+	case FFTHEIGHT:
+		return "FFTHEIGHT";
+		
+	case FFCWIDTH:
+		return "FFCWIDTH";
+		
+	case FFCHEIGHT:
+		return "FFCHEIGHT";
+		
+	case FFLINK:
+		return "FFLINK";
+		
+	case FFMISCD:
+		return "FFMISCD";
+		
+	case FFINITDD:
+		return "FFINITDD";
+		
+		/*case FFDD:
+		return "FFDD";*/
+	case LINKITEMD:
+		return "LINKITEMD";
+	
+	case DISABLEDITEM: return "DISABLEDITEM";
+		
+	case REFNPC:
+		return "REFNPC";
+		
+	case NPCCOUNT:
+		return "NPCCOUNT";
+		
+	case NPCX:
+		return "NPCX";
+		
+	case NPCY:
+		return "NPCY";
+		
+	case NPCZ:
+		return "NPCZ";
+		
+	case NPCJUMP:
+		return "NPCJUMP";
+		
+	case NPCDIR:
+		return "NPCDIR";
+		
+	case NPCRATE:
+		return "NPCRATE";
+		
+	case NPCHOMING:
+		return "NPCHOMING";
+		
+	case NPCFRAMERATE:
+		return "NPCFRAMERATE";
+		
+	case NPCHALTRATE:
+		return "NPCHALTRATE";
+		
+	case NPCDRAWTYPE:
+		return "NPCDRAWTYPE";
+		
+	case NPCHP:
+		return "NPCHP";
+		
+	case NPCID:
+		return "NPCID";
+		
+	case NPCTYPE:
+		return "NPCTYPE";
+		
+	case NPCDP:
+		return "NPCDP";
+		
+	case NPCWDP:
+		return "NPCWDP";
+		
+	case NPCTILE:
+		return "NPCTILE";
+		
+	case NPCOTILE:
+		return "NPCOTILE";
+		
+	case NPCWEAPON:
+		return "NPCWEAPON";
+		
+	case NPCITEMSET:
+		return "NPCITEMSET";
+		
+	case NPCCSET:
+		return "NPCCSET";
+		
+	case NPCBOSSPAL:
+		return "NPCBOSSPAL";
+		
+	case NPCBGSFX:
+		return "NPCBGSFX";
+		
+	case NPCEXTEND:
+		return "NPCEXTEND";
+		
+	case NPCSTEP:
+		return "NPCSTEP";
+		
+	case NPCDEFENSED:
+		return "NPCDEFENSED";
+	case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
+		
+	case NPCMISCD:
+		return "NPCMISCD";
+		
+	case NPCDD:
+		return "NPCDD";
+		
+	case NPCMFLAGS:
+		return "NPCMFLAGS";
+		
+	case NPCCOLLDET:
+		return "NPCCOLLDET";
+		
+	case NPCSTUN:
+		return "NPCSTUN";
+		
+	case NPCHUNGER:
+		return "NPCHUNGER";
+	
+	
+	case NPCINVINC:
+		return "NPCINVINC";
+	case NPCSUPERMAN:
+		return "NPCSUPERMAN";
+	case NPCHASITEM:
+		return "NPCHASITEM";
+	case NPCRINGLEAD:
+		return "NPCRINGLEAD";
+	case NPCSHIELD:
+		return "NPCSHIELD";
+	
+	case NPCFROZEN:
+		return "NPCFROZEN";   
+	case NPCFROZENTILE:
+		return "NPCFROZENTILE";
+	case NPCFROZENCSET:
+		return "NPCFROZENCSET"; 
+	case NPCBEHAVIOUR:
+		return "NPCBEHAVIOUR"; 
+		
+	case SCRDOORD:
+		return "SCRDOORD";
+		
+	case LIT:
+		return "LIT";
+		
+	case WAVY:
+		return "WAVY";
+		
+	case QUAKE:
+		return "QUAKE";
+		
+	case ITEMOTILE:
+		return "ITEMOTILE";
+		
+	case REFLWPN:
+		return "REFLWPN";
+		
+	case LWPNCOUNT:
+		return "LWPNCOUNT";
+		
+	case LWPNX:
+		return "LWPNX";
+		
+	case LWPNY:
+		return "LWPNY";
+		
+	case LWPNZ:
+		return "LWPNZ";
+		
+	case LWPNJUMP:
+		return "LWPNJUMP";
+		
+	case LWPNDIR:
+		return "LWPNDIR";
+		
+	case LWPNANGLE:
+		return "LWPNANGLE";
+		
+	case LWPNSTEP:
+		return "LWPNSTEP";
+		
+	case LWPNFRAMES:
+		return "LWPNFRAMES";
+		
+	case LWPNFRAME:
+		return "LWPNFRAME";
+		
+	case LWPNDRAWTYPE:
+		return "LWPNDRAWTYPE";
+		
+	case LWPNPOWER:
+		return "LWPNPOWER";
+		
+	case LWPNID:
+		return "LWPNID";
+		
+	case LWPNANGULAR:
+		return "LWPNANGULAR";
+		
+	case LWPNBEHIND:
+		return "LWPNBEHIND";
+		
+	case LWPNASPEED:
+		return "LWPNASPEED";
+		
+	case LWPNTILE:
+		return "LWPNTILE";
+		
+	case LWPNFLASHCSET:
+		return "LWPNFLASHCSET";
+		
+	case LWPNDEAD:
+		return "LWPNDEAD";
+		
+	case LWPNCSET:
+		return "LWPNCSET";
+		
+	case LWPNFLASH:
+		return "LWPNFLASH";
+		
+	case LWPNFLIP:
+		return "LWPNFLIP";
+		
+	case LWPNOTILE:
+		return "LWPNOTILE";
+		
+	case LWPNOCSET:
+		return "LWPNOCSET";
+		
+	case LWPNEXTEND:
+		return "LWPNEXTEND";
+		
+	case LWPNCOLLDET:
+		return "LWPNCOLLDET";
+	
+	case LWPNPARENT:
+		return "LWPNPARENT";
+	case LWPNLEVEL:
+		return "LWPNLEVEL";
+	
+	case EWPNLEVEL:
+		return "EWPNLEVEL";
+	case EWPNPARENT:
+		return "EWPNPARENT";
+		
+	case REFEWPN:
+		return "REFEWPN";
+		
+	case EWPNCOUNT:
+		return "EWPNCOUNT";
+		
+	case EWPNX:
+		return "EWPNX";
+		
+	case EWPNY:
+		return "EWPNY";
+		
+	case EWPNZ:
+		return "EWPNZ";
+		
+	case EWPNJUMP:
+		return "EWPNJUMP";
+		
+	case EWPNDIR:
+		return "EWPNDIR";
+		
+	case EWPNANGLE:
+		return "EWPNANGLE";
+		
+	case EWPNSTEP:
+		return "EWPNSTEP";
+		
+	case EWPNFRAMES:
+		return "EWPNFRAMES";
+		
+	case EWPNFRAME:
+		return "EWPNFRAME";
+		
+	case EWPNDRAWTYPE:
+		return "EWPNDRAWTYPE";
+		
+	case EWPNPOWER:
+		return "EWPNPOWER";
+		
+	case EWPNID:
+		return "EWPNID";
+		
+	case EWPNANGULAR:
+		return "EWPNANGULAR";
+		
+	case EWPNBEHIND:
+		return "EWPNBEHIND";
+		
+	case EWPNASPEED:
+		return "EWPNASPEED";
+		
+	case EWPNTILE:
+		return "EWPNTILE";
+		
+	case EWPNFLASHCSET:
+		return "EWPNFLASHCSET";
+		
+	case EWPNDEAD:
+		return "EWPNDEAD";
+		
+	case EWPNCSET:
+		return "EWPNCSET";
+		
+	case EWPNFLASH:
+		return "EWPNFLASH";
+		
+	case EWPNFLIP:
+		return "EWPNFLIP";
+		
+	case EWPNOTILE:
+		return "EWPNOTILE";
+		
+	case EWPNOCSET:
+		return "EWPNOCSET";
+		
+	case EWPNEXTEND:
+		return "EWPNEXTEND";
+		
+	case EWPNCOLLDET:
+		return "EWPNCOLLDET";
+		
+	case SCRIPTRAM:
+		return "SCRIPTRAM";
+		
+	case GLOBALRAM:
+		return "GLOBALRAM";
+		
+	case SCRIPTRAMD:
+		return "SCRIPTRAMD";
+		
+	case GLOBALRAMD:
+		return "GLOBALRAMD";
+		
+	case LWPNHXOFS:
+		return "LWPNHXOFS";
+		
+	case LWPNHYOFS:
+		return "LWPNHYOFS";
+		
+	case LWPNXOFS:
+		return "LWPNXOFS";
+		
+	case LWPNYOFS:
+		return "LWPNYOFS";
+		
+	case LWPNZOFS:
+		return "LWPNZOFS";
+		
+	case LWPNHXSZ:
+		return "LWPNHXSZ";
+		
+	case LWPNHYSZ:
+		return "LWPNHYSZ";
+		
+	case LWPNHZSZ:
+		return "LWPNHZSZ";
+		
+	case LWPNTXSZ:
+		return "LWPNTXSZ";
+		
+	case LWPNTYSZ:
+		return "LWPNTYSZ";
+		
+	case LWPNMISCD:
+		return "LWPNMISCD";
+		
+	case EWPNHXOFS:
+		return "EWPNHXOFS";
+		
+	case EWPNHYOFS:
+		return "EWPNHYOFS";
+		
+	case EWPNXOFS:
+		return "EWPNXOFS";
+		
+	case EWPNYOFS:
+		return "EWPNYOFS";
+		
+	case EWPNZOFS:
+		return "EWPNZOFS";
+		
+	case EWPNHXSZ:
+		return "EWPNHXSZ";
+		
+	case EWPNHYSZ:
+		return "EWPNHYSZ";
+		
+	case EWPNHZSZ:
+		return "EWPNHZSZ";
+		
+	case EWPNTXSZ:
+		return "EWPNTXSZ";
+		
+	case EWPNTYSZ:
+		return "EWPNTYSZ";
+		
+	case EWPNMISCD:
+		return "EWPNMISCD";
+		
+	case NPCHXOFS:
+		return "NPCHXOFS";
+		
+	case NPCHYOFS:
+		return "NPCHYOFS";
+		
+	case NPCXOFS:
+		return "NPCXOFS";
+		
+	case NPCYOFS:
+		return "NPCYOFS";
+		
+	case NPCZOFS:
+		return "NPCZOFS";
+		
+	case NPCHXSZ:
+		return "NPCHXSZ";
+		
+	case NPCHYSZ:
+		return "NPCHYSZ";
+		
+	case NPCHZSZ:
+		return "NPCHZSZ";
+		
+	case NPCTXSZ:
+		return "NPCTXSZ";
+		
+	case NPCTYSZ:
+		return "NPCTYSZ";
+		
+	case ITEMHXOFS:
+		return "ITEMHXOFS";
+		
+	case ITEMHYOFS:
+		return "ITEMHYOFS";
+		
+	case ITEMXOFS:
+		return "ITEMXOFS";
+		
+	case ITEMYOFS:
+		return "ITEMYOFS";
+		
+	case ITEMZOFS:
+		return "ITEMZOFS";
+		
+	case ITEMHXSZ:
+		return "ITEMHXSZ";
+		
+	case ITEMHYSZ:
+		return "ITEMHYSZ";
+		
+	case ITEMHZSZ:
+		return "ITEMHZSZ";
+		
+	case ITEMTXSZ:
+		return "ITEMTXSZ";
+		
+	case ITEMTYSZ:
+		return "ITEMTYSZ";
+		
+	case LINKHXOFS:
+		return "LINKHXOFS";
+		
+	case LINKHYOFS:
+		return "LINKHYOFS";
+		
+	case LINKXOFS:
+		return "LINKXOFS";
+		
+	case LINKYOFS:
+		return "LINKYOFS";
+		
+	case LINKZOFS:
+		return "LINKZOFS";
+		
+	case LINKHXSZ:
+		return "LINKHXSZ";
+		
+	case LINKHYSZ:
+		return "LINKHYSZ";
+		
+	case LINKHZSZ:
+		return "LINKHZSZ";
+		
+	case LINKTXSZ:
+		return "LINKTXSZ";
+		
+	case LINKTYSZ:
+		return "LINKTYSZ";
+		
+	case LINKDRUNK:
+		return "LINKDRUNK";
+		
+	case LINKEQUIP:
+		return "LINKEQUIP";
+		
+	case LINKLADDERX:
+		return "LINKLADDERX";
+		
+	case LINKLADDERY:
+		return "LINKLADDERY";
+		
+	case ROOMTYPE:
+		return "ROOMTYPE";
+		
+	case ROOMDATA:
+		return "ROOMDATA";
+		
+	case PUSHBLOCKX:
+		return "PUSHBLOCKX";
+		
+	case PUSHBLOCKY:
+		return "PUSHBLOCKY";
+		
+	case PUSHBLOCKCOMBO:
+		return "PUSHBLOCKCOMBO";
+		
+	case PUSHBLOCKCSET:
+		return "PUSHBLOCKCSET";
+		
+	case UNDERCOMBO:
+		return "UNDERCOMBO";
+		
+	case UNDERCSET:
+		return "UNDERCSET";
+	
+	//2.6
+	case CREATELWPNDX: return "CREATELWPNDX";
+	
+	//2.54 -Z
 /* 2.54 Implemented
-    */
-    
-    
+	*/
+	
+	
 //itemclass / itemdata
 
-    //case IDATAFRAME: return "IDATAFRAME";
-    case IDATACOSTCOUNTER: return "IDATACOSTCOUNTER";
-    case ITEMCLASSID: return "IDATAID";
-    case IDATALTM: return "IDATALTM";
-    case IDATAPSCRIPT: return "IDATAPSCRIPT";
-    case IDATASCRIPT: return "IDATASCRIPT";
-    case IDATAMAGCOST: return "IDATAMAGCOST";
-    case IDATAMINHEARTS: return "IDATAMINHEARTS";
-    case IDATATILE: return "IDATATILE";
-    case IDATAMISC: return "IDATAMISC";    
-    case IDATACSET: return "IDATACSET";
-    case IDATAFRAMES: return "IDATAFRAMES";
-    case IDATAASPEED: return "IDATAASPEED";
-    case IDATADELAY: return "IDATADELAY"; 
-    case IDATACOMBINE: return "IDATACOMBINE";
-    case IDATADOWNGRADE: return "IDATADOWNGRADE";
-    case IDATAKEEPOLD: return "IDATAKEEPOLD";
-    case IDATARUPEECOST: return "IDATARUPEECOST";
-    case IDATAEDIBLE: return "IDATAEDIBLE";
-    case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
-    case IDATAGAINLOWER: return "IDATAGAINLOWER";
-    case IDATAPSTRING: return "IDATAPSTRING";
-    
-    //idata arrays
-    case IDATAATTRIB: return "IDATAATTRIB";
-    case IDATAFLAGS: return "IDATAFLAGS";
-    case IDATASPRITE: return "IDATASPRITE";
-        
-    case IDATAUSEWPN: return "IDATAUSEWPN";
-    case IDATAUSEDEF: return "IDATAUSEDEF";
-    case IDATAWRANGE: return "IDATAWRANGE";
-    case IDATAMAGICTIMER: return "IDATAMAGICTIMER";
-    case IDATAUSEMVT: return "IDATAUSEMVT";
-    case IDATADURATION: return "IDATADURATION";
-    case IDATADUPLICATES: return "IDATADUPLICATES";
-    case IDATADRAWLAYER: return "IDATADRAWLAYER";
-    case IDATACOLLECTFLAGS: return "IDATACOLLECTFLAGS";
-    case IDATAWEAPONSCRIPT: return "IDATAWEAPONSCRIPT";
-    case IDATAMISCD: return "IDATAMISCD";
-    case IDATAWEAPHXOFS: return "IDATAWEAPHXOFS";
-    case IDATAWEAPHYOFS: return "IDATAWEAPHYOFS";
-    case IDATAWEAPHYSZ: return "IDATAWEAPHYSZ";
-    case IDATAWEAPHXSZ: return "IDATAWEAPHXSZ";
-    case IDATAWEAPHZSZ: return "IDATAWEAPHZSZ";
-    case IDATAWEAPXOFS: return "IDATAWEAPXOFS";
-    case IDATAWEAPYOFS: return "IDATAWEAPYOFS";
-    case IDATAWEAPZOFS: return "IDATAWEAPZOFS";
-    case IDATAWPNINITD: return "IDATAWPNINITD";
-    
-    //Item Sizing
-    case IDATAOVERRIDEFLWEAP: return "IDATAOVERRIDEFLWEAP";
-    case IDATATILEHWEAP: return "IDATATILEHWEAP";
-    case IDATATILEWWEAP: return "IDATATILEWWEAP";
-    case IDATAHZSZWEAP: return "IDATAHZSZWEAP";
-    case IDATAHYSZWEAP: return "IDATAHYSZWEAP";
-    case IDATAHXSZWEAP: return "IDATAHXSZWEAP";
-    case IDATADYOFSWEAP: return "IDATADYOFSWEAP";
-    case IDATADXOFSWEAP: return "IDATADXOFSWEAP";
-    case IDATAHYOFSWEAP: return "IDATAHYOFSWEAP";
-    case IDATAHXOFSWEAP: return "IDATAHXOFSWEAP";
-    case IDATAOVERRIDEFL: return "IDATAOVERRIDEFL";
-    case IDATAPICKUP: return "IDATAPICKUP";
-    case IDATATILEH: return "IDATATILEH";
-    case IDATATILEW: return "IDATATILEW";
-    case IDATAHZSZ: return "IDATAHZSZ";
-    case IDATAHYSZ: return "IDATAHYSZ";
-    case IDATAHXSZ: return "IDATAHXSZ";
-    case IDATADYOFS: return "IDATADYOFS";
-    case IDATADXOFS: return "IDATADXOFS";
-    case IDATAHYOFS: return "IDATAHYOFS";
-    case IDATAHXOFS: return "IDATAHXOFS";
-    
-    case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
-    
-    //Debug->
-    
-    case DEBUGREFFFC: return "DEBUGREFFFC";
-    case DEBUGREFITEM: return "DEBUGREFITEM";
-    case DEBUGREFNPC: return "DEBUGREFNPC";
-    case DEBUGREFITEMDATA: return "DEBUGREFITEMDATA";
-    case DEBUGREFLWEAPON: return "DEBUGREFLWEAPON";
-    case DEBUGREFEWEAPON: return "DEBUGREFEWEAPON";
-    case DEBUGSP: return "DEBUGSP";
-    case DEBUGGDR: return "DEBUGGDR";
-    
-    case LWPNRANGE: return "LWPNRANGE";
-    
-    case SETSCREENDOOR: return "SETSCREENDOOR";
-    case SETSCREENENEMY: return "SETSCREENENEMY";
-    case SCREENWIDTH: return "SCREENWIDTH";
-    case SCREENHEIGHT: return "SCREENHEIGHT";
-    case SCREENVIEWX: return "SCREENVIEWX";
-    case SCREENVIEWY: return "SCREENVIEWY";
-    case SCREENGUY: return "SCREENGUY";
-    case SCREENSTRING: return "SCREENSTRING";
-    case SCREENROOM: return "SCREENROOM";
-    case SCREENENTX: return "SCREENENTX";
-    case SCREENENTY: return "SCREENENTY";
-    case SCREENITEM: return "SCREENITEM";
-    case SCREENUNDCMB: return "SCREENUNDCMB";
-    case SCREENUNDCST: return "SCREENUNDCST";
-    case SCREENCATCH: return "SCREENCATCH";
-    case SETSCREENLAYOP: return "SETSCREENLAYOP";
-    case SETSCREENSECCMB: return "SETSCREENSECCMB";
-    case SETSCREENSECCST: return "SETSCREENSECCST";
-    case SETSCREENSECFLG: return "SETSCREENSECFLG";
-    case SETSCREENLAYMAP: return "SETSCREENLAYMAP";
-    case SETSCREENLAYSCR: return "SETSCREENLAYSCR";
-    case SETSCREENPATH: return "SETSCREENPATH";
-    case SETSCREENWARPRX: return "SETSCREENWARPRX";
-    case SETSCREENWARPRY: return "SETSCREENWARPRY";
-    
-    case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
-    case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
-    case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
-    case PASSSUBOFS: return "PASSSUBOFS";
-    case COMBODATAID: return "COMBODATAID";
-    
-    case LINKBIGHITBOX: return "LINKBIGHITBOX";
-    case LINKDIAG: return "LINKDIAG";
-    
-    //NPCData
-    
+	//case IDATAFRAME: return "IDATAFRAME";
+	case IDATACOSTCOUNTER: return "IDATACOSTCOUNTER";
+	case ITEMCLASSID: return "IDATAID";
+	case IDATALTM: return "IDATALTM";
+	case IDATAPSCRIPT: return "IDATAPSCRIPT";
+	case IDATASCRIPT: return "IDATASCRIPT";
+	case IDATAMAGCOST: return "IDATAMAGCOST";
+	case IDATAMINHEARTS: return "IDATAMINHEARTS";
+	case IDATATILE: return "IDATATILE";
+	case IDATAMISC: return "IDATAMISC";    
+	case IDATACSET: return "IDATACSET";
+	case IDATAFRAMES: return "IDATAFRAMES";
+	case IDATAASPEED: return "IDATAASPEED";
+	case IDATADELAY: return "IDATADELAY"; 
+	case IDATACOMBINE: return "IDATACOMBINE";
+	case IDATADOWNGRADE: return "IDATADOWNGRADE";
+	case IDATAKEEPOLD: return "IDATAKEEPOLD";
+	case IDATARUPEECOST: return "IDATARUPEECOST";
+	case IDATAEDIBLE: return "IDATAEDIBLE";
+	case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
+	case IDATAGAINLOWER: return "IDATAGAINLOWER";
+	case IDATAPSTRING: return "IDATAPSTRING";
+	
+	//idata arrays
+	case IDATAATTRIB: return "IDATAATTRIB";
+	case IDATAFLAGS: return "IDATAFLAGS";
+	case IDATASPRITE: return "IDATASPRITE";
+		
+	case IDATAUSEWPN: return "IDATAUSEWPN";
+	case IDATAUSEDEF: return "IDATAUSEDEF";
+	case IDATAWRANGE: return "IDATAWRANGE";
+	case IDATAMAGICTIMER: return "IDATAMAGICTIMER";
+	case IDATAUSEMVT: return "IDATAUSEMVT";
+	case IDATADURATION: return "IDATADURATION";
+	case IDATADUPLICATES: return "IDATADUPLICATES";
+	case IDATADRAWLAYER: return "IDATADRAWLAYER";
+	case IDATACOLLECTFLAGS: return "IDATACOLLECTFLAGS";
+	case IDATAWEAPONSCRIPT: return "IDATAWEAPONSCRIPT";
+	case IDATAMISCD: return "IDATAMISCD";
+	case IDATAWEAPHXOFS: return "IDATAWEAPHXOFS";
+	case IDATAWEAPHYOFS: return "IDATAWEAPHYOFS";
+	case IDATAWEAPHYSZ: return "IDATAWEAPHYSZ";
+	case IDATAWEAPHXSZ: return "IDATAWEAPHXSZ";
+	case IDATAWEAPHZSZ: return "IDATAWEAPHZSZ";
+	case IDATAWEAPXOFS: return "IDATAWEAPXOFS";
+	case IDATAWEAPYOFS: return "IDATAWEAPYOFS";
+	case IDATAWEAPZOFS: return "IDATAWEAPZOFS";
+	case IDATAWPNINITD: return "IDATAWPNINITD";
+	
+	//Item Sizing
+	case IDATAOVERRIDEFLWEAP: return "IDATAOVERRIDEFLWEAP";
+	case IDATATILEHWEAP: return "IDATATILEHWEAP";
+	case IDATATILEWWEAP: return "IDATATILEWWEAP";
+	case IDATAHZSZWEAP: return "IDATAHZSZWEAP";
+	case IDATAHYSZWEAP: return "IDATAHYSZWEAP";
+	case IDATAHXSZWEAP: return "IDATAHXSZWEAP";
+	case IDATADYOFSWEAP: return "IDATADYOFSWEAP";
+	case IDATADXOFSWEAP: return "IDATADXOFSWEAP";
+	case IDATAHYOFSWEAP: return "IDATAHYOFSWEAP";
+	case IDATAHXOFSWEAP: return "IDATAHXOFSWEAP";
+	case IDATAOVERRIDEFL: return "IDATAOVERRIDEFL";
+	case IDATAPICKUP: return "IDATAPICKUP";
+	case IDATATILEH: return "IDATATILEH";
+	case IDATATILEW: return "IDATATILEW";
+	case IDATAHZSZ: return "IDATAHZSZ";
+	case IDATAHYSZ: return "IDATAHYSZ";
+	case IDATAHXSZ: return "IDATAHXSZ";
+	case IDATADYOFS: return "IDATADYOFS";
+	case IDATADXOFS: return "IDATADXOFS";
+	case IDATAHYOFS: return "IDATAHYOFS";
+	case IDATAHXOFS: return "IDATAHXOFS";
+	
+	case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
+	
+	//Debug->
+	
+	case DEBUGREFFFC: return "DEBUGREFFFC";
+	case DEBUGREFITEM: return "DEBUGREFITEM";
+	case DEBUGREFNPC: return "DEBUGREFNPC";
+	case DEBUGREFITEMDATA: return "DEBUGREFITEMDATA";
+	case DEBUGREFLWEAPON: return "DEBUGREFLWEAPON";
+	case DEBUGREFEWEAPON: return "DEBUGREFEWEAPON";
+	case DEBUGSP: return "DEBUGSP";
+	case DEBUGGDR: return "DEBUGGDR";
+	
+	case LWPNRANGE: return "LWPNRANGE";
+	
+	case SETSCREENDOOR: return "SETSCREENDOOR";
+	case SETSCREENENEMY: return "SETSCREENENEMY";
+	case SCREENWIDTH: return "SCREENWIDTH";
+	case SCREENHEIGHT: return "SCREENHEIGHT";
+	case SCREENVIEWX: return "SCREENVIEWX";
+	case SCREENVIEWY: return "SCREENVIEWY";
+	case SCREENGUY: return "SCREENGUY";
+	case SCREENSTRING: return "SCREENSTRING";
+	case SCREENROOM: return "SCREENROOM";
+	case SCREENENTX: return "SCREENENTX";
+	case SCREENENTY: return "SCREENENTY";
+	case SCREENITEM: return "SCREENITEM";
+	case SCREENUNDCMB: return "SCREENUNDCMB";
+	case SCREENUNDCST: return "SCREENUNDCST";
+	case SCREENCATCH: return "SCREENCATCH";
+	case SETSCREENLAYOP: return "SETSCREENLAYOP";
+	case SETSCREENSECCMB: return "SETSCREENSECCMB";
+	case SETSCREENSECCST: return "SETSCREENSECCST";
+	case SETSCREENSECFLG: return "SETSCREENSECFLG";
+	case SETSCREENLAYMAP: return "SETSCREENLAYMAP";
+	case SETSCREENLAYSCR: return "SETSCREENLAYSCR";
+	case SETSCREENPATH: return "SETSCREENPATH";
+	case SETSCREENWARPRX: return "SETSCREENWARPRX";
+	case SETSCREENWARPRY: return "SETSCREENWARPRY";
+	
+	case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
+	case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
+	case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
+	case PASSSUBOFS: return "PASSSUBOFS";
+	case COMBODATAID: return "COMBODATAID";
+	
+	case LINKBIGHITBOX: return "LINKBIGHITBOX";
+	case LINKDIAG: return "LINKDIAG";
+	
+	//NPCData
+	
 	//three inputs no return (function-only)
 	case SETNPCDATASCRIPTDEF: return "SETNPCDATASCRIPTDEF";
 	case SETNPCDATADEFENSE: return "SETNPCDATADEFENSE";
 	case SETNPCDATASIZEFLAG: return "SETNPCDATASIZEFLAG";
 	case SETNPCDATAATTRIBUTE: return "SETNPCDATAATTRIBUTE";
-    
-    //ComboData
-    
-    //three inputs no return (function-only)
+	
+	//ComboData
+	
+	//three inputs no return (function-only)
 	case SCDBLOCKWEAPON: return "SCDBLOCKWEAPON";
 	case SCDEXPANSION: return "SCDEXPANSION";
 	case SCDSTRIKEWEAPONS: return "SCDSTRIKEWEAPONS";
@@ -1539,6 +1546,16 @@ string VarArgument::toString()
 	case MESSAGEDATAVSPACE: return "MESSAGEDATAVSPACE";
 	case MESSAGEDATAHSPACE: return "MESSAGEDATAHSPACE";
 	case MESSAGEDATAFLAGS: return "MESSAGEDATAFLAGS";
+	case MESSAGEDATAMARGINS: return "MESSAGEDATAMARGINS";
+	case MESSAGEDATAPORTTILE: return "MESSAGEDATAPORTTILE";
+	case MESSAGEDATAPORTCSET: return "MESSAGEDATAPORTCSET";
+	case MESSAGEDATAPORTX: return "MESSAGEDATAPORTX";
+	case MESSAGEDATAPORTY: return "MESSAGEDATAPORTY";
+	case MESSAGEDATAPORTWID: return "MESSAGEDATAPORTWID";
+	case MESSAGEDATAPORTHEI: return "MESSAGEDATAPORTHEI";
+	case MESSAGEDATAFLAGSARR: return "MESSAGEDATAFLAGSARR";
+	case MESSAGEDATATEXTWID: return "MESSAGEDATATEXTWID";
+	case MESSAGEDATATEXTHEI: return "MESSAGEDATATEXTHEI";
 	
 	case DMAPDATAID: return "DMAPDATAID";
 	case DMAPDATAMAP: return "DMAPDATAMAP";
@@ -1589,6 +1606,7 @@ string VarArgument::toString()
 	case COMBODANIMFLAGS: return "COMBODANIMFLAGS";
 	case COMBODEXPANSION: return "COMBODEXPANSION";
 	case COMBODATTRIBUTES: return "COMBODATTRIBUTES";
+	case COMBODATTRIBYTES: return "COMBODATTRIBYTES";
 	case COMBODUSRFLAGS: return "COMBODUSRFLAGS";
 	case COMBODTRIGGERFLAGS: return "COMBODTRIGGERFLAGS";
 	case COMBODTRIGGERLEVEL: return "COMBODTRIGGERLEVEL";
@@ -1775,14 +1793,58 @@ string VarArgument::toString()
 	case SCREENDATASWARPRETSQR: return "SCREENDATASWARPRETSQR";
 	case MAPDATATWARPRETSQR: return "MAPDATATWARPRETSQR";
 	case MAPDATASWARPRETSQR: return "MAPDATASWARPRETSQR";
+	case NPCSUBMERGED: return "NPCSUBMERGED";
+	case EWPNPARENTUID: return "EWPNPARENTUID";
+	case GAMEGRAVITY: return "GAMEGRAVITY";
+	case GAMESCROLLING: return "GAMESCROLLING";
+	case COMBODASPEED: return "COMBODASPEED";
+	case DROPSETITEMS: return "DROPSETITEMS";
+	case DROPSETCHANCES: return "DROPSETCHANCES";
+	case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
+	case DROPSETCHOOSE: return "DROPSETCHOOSE";
+	case NPCPARENTUID: return "NPCPARENTUID";
+	case KEYPRESS: return "KEYPRESS";
+	case KEYINPUT: return "KEYINPUT";
+	
+	case SPRITEMAXNPC: return "SPRITEMAXNPC";
+	case SPRITEMAXLWPN: return "SPRITEMAXLWPN";
+	case SPRITEMAXEWPN: return "SPRITEMAXEWPN";
+	case SPRITEMAXITEM: return "SPRITEMAXITEM";
+	case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
+	case SPRITEMAXDECO: return "SPRITEMAXDECO";
+	case HEROHEALTHBEEP: return "HEROHEALTHBEEP";
+	case NPCRANDOM: return "NPCRANDOM";
+	case COMBOXR: return "COMBOXR";
+	case COMBOYR: return "COMBOYR";
+	case COMBOPOSR: return "COMBOPOSR";
+	case COMBODATASCRIPT: return "COMBODATASCRIPT";
+	case COMBODATAINITD: return "COMBODATAINITD";
+	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
+	case SHOPDATATYPE: return "SHOPDATATYPE";
+	case HEROSTEPS: return "HEROSTEPS";
+	case HEROSTEPRATE: return "HEROSTEPRATE";
+	case COMBODOTILE: return "COMBODOTILE";
+	case COMBODFRAME: return "COMBODFRAME";
+	case COMBODACLK: return "COMBODACLK";
+	
+	case FILEPOS: return "FILEPOS";
+	case FILEEOF: return "FILEEOF";
+	case FILEERR: return "FILEERR";
+	
+	case INCQST: return "INCQST";
 	
 	
-    default:
-    {
-        sprintf(temp, "d%d", ID);
-        return string(temp);
-    }
-    }
+	default:
+	{
+		sprintf(temp, "d%d", ID);
+		return string(temp);
+	}
+	}
+}
+
+string VarArgument::toString()
+{
+	return VarToString(ID);
 }
 
 string GlobalArgument::toString()
@@ -1881,6 +1943,36 @@ string OSetRegister::toString()
     return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OReadPODArrayR::toString()
+{
+	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OReadPODArrayI::toString()
+{
+	return "READPODARRAYV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRR::toString()
+{
+	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRI::toString()
+{
+	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayIR::toString()
+{
+	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayII::toString()
+{
+	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OAddImmediate::toString()
 {
     return "ADDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -1930,6 +2022,16 @@ string OCompareImmediate::toString()
 string OCompareRegister::toString()
 {
     return "COMPARER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalStringCompare::toString()
+{
+	return "STRCMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalInsensitiveStringCompare::toString()
+{
+	return "STRICMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OWaitframe::toString()
@@ -2004,6 +2106,11 @@ string OPushImmediate::toString()
 string OPopRegister::toString()
 {
     return "POP " + getArgument()->toString();
+}
+
+string OPopArgsRegister::toString()
+{
+    return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OLoadIndirect::toString()
@@ -2312,6 +2419,21 @@ string OTrace6Register::toString()
     return "TRACE6 " + getArgument()->toString();
 }
 
+string OPrintfImmediate::toString()
+{
+	return "PRINTFV " + getArgument()->toString();
+}
+
+string OSPrintfImmediate::toString()
+{
+	return "SPRINTFV " + getArgument()->toString();
+}
+
+string OBreakpoint::toString()
+{
+    return "BREAKPOINT " + getArgument()->toString();
+}
+
 
 string ORandRegister::toString()
 {
@@ -2403,6 +2525,11 @@ string OLoadDMapDataRegister::toString()
     return "LOADDMAPDATAR " + getArgument()->toString();
 }
 
+string OLoadDropsetRegister	::toString()
+{
+    return "LOADDROPSETR " + getArgument()->toString();
+}
+
 string ODMapDataGetNameRegister::toString()
 {
     return "DMAPDATAGETNAMER " + getArgument()->toString();
@@ -2480,6 +2607,7 @@ string OLoadNPCRegister::toString()
 {
     return "LOADNPCR " + getArgument()->toString();
 }
+
 
 string OLoadLWpnRegister::toString()
 {
@@ -2834,6 +2962,26 @@ string OIsSolidMapdata::toString()
     return "MAPDATAISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdataLayer::toString()
+{
+    return "MAPDATAISSOLIDLYR " + getArgument()->toString();
+}
+
+string OIsSolidLayer::toString()
+{
+    return "ISSOLIDLAYER " + getArgument()->toString();
+}
+
+string OLoadTmpScr::toString()
+{
+    return "LOADTMPSCR " + getArgument()->toString();
+}
+
+string OLoadScrollScr::toString()
+{
+    return "LOADSCROLLSCR " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";
@@ -2997,6 +3145,11 @@ string OGetScreenEFlags::toString()
 string OEnd::toString()
 {
     return "GAMEEND";
+}
+
+string OGameReload::toString()
+{
+    return "GAMERELOAD";
 }
 
 string OGameContinue::toString()
@@ -4626,6 +4779,10 @@ string OWriteBitmap::toString()
 {
     return "WRITEBITMAP";
 }
+string OBitmapFree::toString()
+{
+    return "BITMAPFREE";
+}
 
 string OIsValidBitmap::toString()
 {
@@ -4926,7 +5083,51 @@ string OGETDMAPBYNAME::toString()
     return "GETDMAPBYNAME " + getArgument()->toString();
 }
 
+string OLoadNPCBySUIDRegister::toString()
+{
+    return "LOADNPCBYSUID " + getArgument()->toString();
+}
+string OLoadLWeaponBySUIDRegister::toString()
+{
+    return "LOADLWEAPONBYSUID " + getArgument()->toString();
+}
+string OLoadEWeaponBySUIDRegister::toString()
+{
+    return "LOADWEAPONCBYSUID " + getArgument()->toString();
+}
 
+string OByte::toString()
+{
+    return "TOBYTE " + getArgument()->toString();
+}
+
+string OToInteger::toString()
+{
+    return "TOINTEGER " + getArgument()->toString();
+}
+
+string OFloor::toString()
+{
+    return "FLOOR " + getArgument()->toString();
+}
+
+string OCeiling::toString()
+{
+    return "CEILING " + getArgument()->toString();
+}
+
+string OSByte::toString()
+{
+    return "TOSIGNEDBYTE " + getArgument()->toString();
+}
+string OWord::toString()
+{
+    return "TOWORD " + getArgument()->toString();
+}
+string OShort::toString()
+{
+    return "TOSHORT " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {
@@ -4942,6 +5143,116 @@ string OFileExists::toString()
 {
 	return "FILEEXISTS " + getArgument()->toString();
 }
+
+string OFileClose::toString()
+{
+	return "FILECLOSE";
+};
+
+string OFileFree::toString()
+{
+	return "FILEFREE";
+};
+
+string OFileIsAllocated::toString()
+{
+	return "FILEISALLOCATED";
+};
+
+string OFileIsValid::toString()
+{
+	return "FILEISVALID";
+};
+
+string OAllocateFile::toString()
+{
+	return "FILEALLOCATE";
+};
+
+string OFileFlush::toString()
+{
+	return "FILEFLUSH";
+};
+
+string OFileGetChar::toString()
+{
+	return "FILEGETCHAR";
+};
+
+string OFileRewind::toString()
+{
+	return "FILEREWIND";
+};
+
+string OFileClearError::toString()
+{
+	return "FILECLEARERR";
+};
+//
+string OFileOpen::toString()
+{
+	return "FILEOPEN " + getArgument()->toString();
+};
+
+string OFileCreate::toString()
+{
+	return "FILECREATE " + getArgument()->toString();
+};
+
+string OFileReadString::toString()
+{
+	return "FILEREADSTR " + getArgument()->toString();
+};
+
+string OFileWriteString::toString()
+{
+	return "FILEWRITESTR " + getArgument()->toString();
+};
+
+string OFilePutChar::toString()
+{
+	return "FILEPUTCHAR " + getArgument()->toString();
+};
+
+string OFileUngetChar::toString()
+{
+	return "FILEUNGETCHAR " + getArgument()->toString();
+};
+
+string OFileGetError::toString()
+{
+	return "FILEGETERROR " + getArgument()->toString();
+};
+//
+string OFileReadChars::toString()
+{
+	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileReadInts::toString()
+{
+	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteChars::toString()
+{
+	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteInts::toString()
+{
+	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileSeek::toString()
+{
+	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileOpenMode::toString()
+{
+	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////

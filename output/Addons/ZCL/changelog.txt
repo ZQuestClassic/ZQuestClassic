@@ -2,6 +2,34 @@ ZCL Changelog
 
 Version 2.7.x
 
+2.7.7
+Move RomView into a sub-directory and bundle old fonts.dat
+and allegro.lib with it so that it runs in 2,55.
+Change code from commandlibe process to exec process.
+	( ZoriaRPG, 910h October, 2019 )
+
+2.7.6
+Added Load Module (.zmod) butons to both the ZC Player and
+the ZQuest Editor config tabs. 
+	( ZoriaRPG, 9th October, 2019 )
+
+2.7.5
+Split up Theme/Colour settings for ZC Player and ZQuest
+Added / replaced some tab icons (drivers, colours tabs, notes tab).
+	( ZoriaRPG, 9th October, 2019 )
+
+2.7.4
+Added User Theme Load Button, User Theme lister selection, 
+	and User theme preview image (using Legacy theme, small mode).
+	( ZoriaRPG, 9th October, 2019 )
+
+2.7.3
+Fix alignment of Select Save File button.
+Updated labels for tabs.
+Added a graphic for the save file button.
+Added a button to select the current .sav file for ZC Player.
+	( ZoriaRPG, 3rd October, 2019 )
+	
 2.7.2
 Fixed a bug where the zquest.cfg was being corrupted (in this version).
 Added DXGL Configuration to Video Drivers
@@ -17,6 +45,20 @@ Segregated ZC Player and ZQ GFX Drivers
 	( ZoriaRPG, 18th July, 2019 )
 
 Version 2.6.x
+
+2.6.12
+Removed extraneous 'Show Misaligns' option from ZQuest Options 2.
+ZQuest tab now defaults on Options 1, as intended.
+	( ZoriaRPG, 5th March, 2019 ) 	
+
+2.6.11
+Fix 'Skip Logo' button and update 2.6.11
+	( ZoriaRPG, 19th February, 2019 ) 
+	
+2.6.10
+Added Dark and October UI Themes
+Fixed initial page selection (was ZQuest, now ZC).
+	( ZoriaRPG, 29th January, 2019 ) 
 
 2.6.9
 Removed extra instance of 'Til;e Protection' box.

@@ -21,6 +21,9 @@
 YYLTYPE noloc = {0,0,0,0};
 int yyrow, yycol;
 
+enum {st_none, st_case};
+int special_state = st_none;
+
 // Defined in ffscript.ypp.
 void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 %}
@@ -68,7 +71,10 @@ for		TOKEN( FOR );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
 switch		TOKEN( SWITCH );
-case		TOKEN( CASE );
+case		{
+	special_state = st_case;
+	TOKEN( CASE );
+}
 default		TOKEN( DEFAULT );
 return		TOKEN( RETURN );
 import		{
@@ -84,13 +90,9 @@ continue	TOKEN( CONTINUE );
 const		TOKEN( ZCONST );
 do		TOKEN( DO );
 typedef		TOKEN( TYPEDEF );
-"#ignore error"		TOKEN( EXPECTERROR );
-"#IGNORE ERROR"		TOKEN( EXPECTERROR );
-"#ignore warning"	TOKEN( EXPECTERROR );
-"#IGNORE WARNING"	TOKEN( EXPECTERROR );
+
 catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
-"#define"		TOKEN( DEFINE );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
@@ -101,6 +103,7 @@ until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
+CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
 void		TOKEN( ZVOID );
@@ -110,30 +113,30 @@ float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
 char32		TOKEN( ZCHAR );
 bitmap		TOKEN( BITMAP );
-cheat		TOKEN( CHEAT );
+cheatdata		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );
-doorset		TOKEN( DOORSET );
-dropset		TOKEN( DROPSET );
+doorsetdat		TOKEN( DOORSET );
+dropsetdata		TOKEN( DROPSET );
 dmapdata	TOKEN( DMAP );
 eweapon		TOKEN( EWEAPON );
 ffc		TOKEN( FFC );
 gamedata	TOKEN( GAMEDATA );
-item		TOKEN( ITEM );
 itemdata	TOKEN( ITEMCLASS );
 lweapon		TOKEN( LWEAPON );
 mapdata		TOKEN( MAP );
 messagedata	TOKEN( MESSAGE );
-misccolor	TOKEN( MISCCOLOR );
+misccolordata	TOKEN( MISCCOLOR );
+misccolourdata	TOKEN( MISCCOLOR );
 npc		TOKEN( NPC );
 npcdata		TOKEN( NPCDATA );
-palcycle	TOKEN( PALCYCLE );
+palcycledata	TOKEN( PALCYCLE );
 palette		TOKEN( PALETTE );
 ponddata	TOKEN( POND );
-rgb		TOKEN( RGB );
+rgbdata		TOKEN( RGB );
 shopdata	TOKEN( SHOP );
 spritedata	TOKEN( SPRITE );
 musicdata		TOKEN( TUNE );
-warpring	TOKEN( WARPRING );
+warpringdata	TOKEN( WARPRING );
 screendata	TOKEN( SCREEN );
 player	TOKEN( LINK );
 link	TOKEN( LINK );
@@ -141,14 +144,29 @@ hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
 subscreendata	TOKEN( SUBSCREENDATA );
+particlesprite	TOKEN( PARTICLE );
+decorationsprite	TOKEN( DECORATION );
+"try"	{
+		char temp[512];
+		//char temp2[512];
+		sprintf(temp, "The 'try' keyword is reserved and may not be used as an identifier.");
+		//sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
+		box_eol();box_out(temp); 
+		//box_eol(); box_out(temp2);box_eol();
+		box_eol();
+		return 0;
+	}
 
  /* Syntax */
 ","		TOKEN( COMMA );
 "."		TOKEN( DOT );
 ";"		TOKEN( SEMICOLON );
-"::"	TOKEN( SCOPERES );
-".."	TOKEN( SCOPERES );
-":"		TOKEN( COLON );
+"::"		TOKEN( SCOPERES );
+".."		TOKEN( SCOPERES );
+":"		{
+	if(special_state == st_case) special_state = st_none;
+	TOKEN( COLON );
+}
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
 "["		TOKEN( LBRACKET );
@@ -156,6 +174,11 @@ subscreendata	TOKEN( SUBSCREENDATA );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
 "?"		TOKEN( QMARK ); //for ternary
+
+"#"		{
+		BEGIN( HASH ); //Handle the string following 'import' specially
+		TOKEN( HASH );
+}
 
  /* Operators (in order of operations) */
 "->"		TOKEN( ARROW );
@@ -181,11 +204,12 @@ bitnot		TOKEN( BITNOT );
 "equals"	TOKEN( EQ );
 "!="		TOKEN( NE );
 not_eq		TOKEN( NE );
-not_equal		TOKEN( NE );
+"<>"		TOKEN( NE );
+not_equal	TOKEN( NE );
 "&"		TOKEN( BITAND );
 bitand		TOKEN( BITAND );
 "^"		TOKEN( BITXOR );
-xor		TOKEN( BITXOR );
+bitxor		TOKEN( BITXOR );
 "|"		TOKEN( BITOR );
 bitor		TOKEN( BITOR );
 "&&"		TOKEN( AND );
@@ -203,17 +227,41 @@ or		TOKEN( OR );
 ">>="		TOKEN( RSHIFTASSIGN );
 "&="		TOKEN( BITANDASSIGN );
 and_eq		TOKEN( BITANDASSIGN );
-and_equal		TOKEN( BITANDASSIGN );
+and_equal	TOKEN( BITANDASSIGN );
 "^="		TOKEN( BITXORASSIGN );
 xor_eq		TOKEN( BITXORASSIGN );
-xor_equal		TOKEN( BITXORASSIGN );
+xor_equal	TOKEN( BITXORASSIGN );
 "|="		TOKEN( BITORASSIGN );
 or_eq		TOKEN( BITORASSIGN );
-or_equal		TOKEN( BITORASSIGN );
+or_equal	TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
- /*	cast		TOKEN( CAST );	*/
+"^^"		TOKEN( XOR );
+"xor"		TOKEN( XOR );
+"..."		TOKEN( RANGE );
+"~~"		TOKEN (APPXEQUAL);
+appx_eq		TOKEN( APPXEQUAL );
+appx_equal	TOKEN( APPXEQUAL );
+"!!"		TOKEN (DOUBLEBANG);
+"%%"		TOKEN (PERCENT);
+"~="		TOKEN (BITNOTASSIGN);
+"bitnot_eq"	TOKEN (BITNOTASSIGN);
+"bitnot_equal"	TOKEN (BITNOTASSIGN);
+"!%"		TOKEN (INVMOD);
+"$$"		TOKEN (DOUBLEADDR);
+"**"		TOKEN (DOUBLESTAR);
+"@"		TOKEN (HANDLE);
+"@@"		TOKEN (HANDLETOHANDLE);
+"$"		TOKEN (ADDR);
+ /*	cast	TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
+ /* "*"+IDENTIFIER how do we segregate from multiply? */
+ /* "&"+IDENTIFIER how do we segregate from bitand? */
+ /* these would need to see if they are LH values. */
+ /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
+ /* "**" pointer/poiters */
+ 
+ zstruct		TOKEN( SCRIPTSTRUCT );
 
  /* Line Comments */
 "//".*		/* hit end of file */
@@ -225,7 +273,7 @@ or_equal		TOKEN( BITORASSIGN );
 	scol = yycol;
 	ADVANCE; 
 	BEGIN( COMMENT );
-}
+} 
 <COMMENT>{
 	[^*\n]*			ADVANCE;
 	[^*\n]*\n		NEWLINE;
@@ -239,17 +287,22 @@ or_equal		TOKEN( BITORASSIGN );
 }
 
  /* Hash Commands */
-<INITIAL>"#"		BEGIN( HASH ); TOKEN( HASH );
 <HASH>{
-	\\\n		NEWLINE;
-	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
-	option		TOKEN( OPTION );
-	include		BEGIN( IMPORTING ); TOKEN( INCLUDE );
-	inherit		TOKEN( INHERIT );
-	on			TOKEN( ZTRUE );
-	off			TOKEN( ZFALSE );
-	error		VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
-	warn		VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
+	\\\n			NEWLINE;
+	[ \t\r]+		ADVANCE;
+	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE ); 
+	"option"		TOKEN( OPTION );
+	"ignore error"		TOKEN( EXPECTERROR );
+	"IGNORE ERROR"		TOKEN( EXPECTERROR );
+	"ignore warning"	TOKEN( EXPECTERROR );
+	"IGNORE WARNING"	TOKEN( EXPECTERROR );
+	"define"		TOKEN( DEFINE );
+	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
+	inherit			TOKEN( INHERIT );
+	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );
+	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
+	error			VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
+	warn			VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
 
  /* Strings */
@@ -333,6 +386,7 @@ or_equal		TOKEN( BITORASSIGN );
 		yylloc.last_line = yyrow;
 		yylloc.last_column = yycol;
 		yylval = new ASTString(qstr.str(), yylloc);
+		if(special_state == st_case) return TOK_CASESTRING;
 		return TOK_QUOTEDSTRING;
 	}
 }

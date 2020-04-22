@@ -121,7 +121,9 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 
 // ZScript::Script
 
-Script::Script(Program& program) : program(program) {}
+Script::Script(Program& program)
+	: program(program), runFunc(NULL)
+{}
 
 Script::~Script()
 {
@@ -140,7 +142,7 @@ ScriptType UserScript::getType() const
 }
 
 // ZScript::BuiltinScript
-
+const string BuiltinScript::builtin_author = "ZQ_PARSER";
 BuiltinScript::BuiltinScript(
 		Program& program, ScriptType type, string const& name)
 	: Script(program), type(type), name(name)
@@ -205,16 +207,9 @@ BuiltinScript* ZScript::createScript(
 	return script;
 }
 
-Function* ZScript::getRunFunction(Script const& script)
-{
-	//ret//urn getOnly<Function*>(script.getScope().getLocalFunctions("run"))
-	return getOnly<Function*>(script.getScope().getLocalFunctions(FFCore.scriptRunString))
-		.value_or(NULL);
-}
-
 optional<int> ZScript::getLabel(Script const& script)
 {
-	if (Function* run = getRunFunction(script))
+	if (Function* run = script.getRun())
 		return run->getLabel();
 	return nullopt;
 }
@@ -374,11 +369,11 @@ BuiltinConstant::BuiltinConstant(
 
 FunctionSignature::FunctionSignature(
 		string const& name, vector<DataType const*> const& parameterTypes)
-	: name(name), parameterTypes(parameterTypes)
+	: name(name), parameterTypes(parameterTypes), prefix(false)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function)
-	: name(function.name), parameterTypes(function.paramTypes)
+	: name(function.name), parameterTypes(function.paramTypes), prefix(function.hasPrefixType)
 {}
 		
 int FunctionSignature::compare(FunctionSignature const& other) const
@@ -408,11 +403,22 @@ bool FunctionSignature::operator<(FunctionSignature const& other) const
 string FunctionSignature::asString() const
 {
 	ostringstream oss;
-	oss << name << "(";
-	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
-		 it != parameterTypes.end(); ++it)
+	vector<DataType const*>::const_iterator it = parameterTypes.begin();
+	if(prefix)
 	{
-		if (it != parameterTypes.begin()) oss << ", ";
+		oss << (*it)->getName() << "->";
+		++it;
+	}
+	oss << name << "(";
+	if(it != parameterTypes.end())
+	{
+		//Add the first type; the loop adds a comma before it.
+		oss << (*it)->getName();
+		++it;
+	}
+	for (; it != parameterTypes.end(); ++it)
+	{
+		oss << ", ";
 		oss << (*it)->getName();
 	}
 	oss << ")";
@@ -422,15 +428,16 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id, int flags)
+				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id, int flags, int internal_flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
-	  returnType(returnType), name(name), paramTypes(paramTypes),
-	  id(id), label(nullopt), flags(flags)
+	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
+	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false)
 {}
 
 Function::~Function()
 {
 	deleteElements(ownedCode);
+	deleteElements(paramNames);
 }
 
 vector<Opcode*> Function::takeCode()

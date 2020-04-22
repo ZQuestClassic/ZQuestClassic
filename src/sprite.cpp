@@ -123,10 +123,14 @@ sprite::sprite()
     rotation = 0;
     scale = 0;
     obeys_gravity = 0;
+    drawflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;
 	script_knockback_speed = 0;
+	screenedge = 0;
+	shadowsprite = 0;
+	scriptshadowtile = -1;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -192,11 +196,15 @@ scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
 obeys_gravity(other.obeys_gravity),
+drawflags(other.drawflags),
 knockbackflags(other.knockbackflags),
 knockbackSpeed(other.knockbackSpeed),
 script_knockback_clk(other.script_knockback_clk),
 script_knockback_speed(other.script_knockback_speed),
 scale(other.scale),
+screenedge(other.screenedge),
+shadowsprite(other.shadowsprite),
+scriptshadowtile(other.scriptshadowtile),
 do_animation(other.do_animation)
 
 {
@@ -299,6 +307,9 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     misc=0;
     c_clk=0;
     shadowtile=0;
+    shadowsprite = 0;
+    screenedge = 0;
+    scriptshadowtile = -1;
     for ( int q = 0; q < 8; q++ ) 
     {
         initD[q] = 0;
@@ -500,7 +511,7 @@ void sprite::draw(BITMAP* dest)
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code
 	}
-	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) 
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
 	{
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code
@@ -2157,17 +2168,19 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
     }
 }
 
+int sprite::run_script(int mode)
+{
+	return RUNSCRIPT_OK; //Default implementation; override in subclasses
+}
 /***************************************************************************/
 
 /**********************************/
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255*256
-
 //class enemy;
 
-sprite_list::sprite_list() : count(0) {}
+sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255) {}
 void sprite_list::clear()
 {
     while(count>0) del(0);
@@ -2199,7 +2212,7 @@ bool sprite_list::swap(int a,int b)
 
 bool sprite_list::add(sprite *s)
 {
-    if(count>=SLMAX)
+    if(count>=max_sprites)
     {
         delete s;
         return false;
@@ -2311,6 +2324,7 @@ bool sprite_list::del(int j)
     }
     
     --count;
+	if(j<=active_iterator) --active_iterator;
     //checkConsistency();
     return true;
 }
@@ -2394,21 +2408,37 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 
 void sprite_list::animate()
 {
-    int i=0;
-    
-    while(i<count)
-    {
-        if(!(freeze_guys && sprites[i]->canfreeze))
-        {
-            if(sprites[i]->animate(i))
-            {
-                del(i);
-                --i;
-            }
-        }
-        
-        ++i;
-    }
+	active_iterator = 0;
+	
+	while(active_iterator<count)
+	{
+		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		{
+			if(sprites[active_iterator]->animate(active_iterator))
+			{
+				del(active_iterator);
+			}
+		}
+		
+		++active_iterator;
+	}
+	active_iterator = -1;
+}
+
+void sprite_list::run_script(int mode)
+{
+	active_iterator = 0;
+	
+	while(active_iterator<count)
+	{
+		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		{
+			sprites[active_iterator]->run_script(mode);
+		}
+		
+		++active_iterator;
+	}
+	active_iterator = -1;
 }
 
 void sprite_list::check_conveyor()
@@ -2425,6 +2455,11 @@ void sprite_list::check_conveyor()
 int sprite_list::Count()
 {
     return count;
+}
+
+bool sprite_list::has_space(int space)
+{
+	return (count+space) <= max_sprites;
 }
 
 int sprite_list::hit(sprite *s)

@@ -76,6 +76,7 @@ public:
     short bgsfx, bosspal;
     byte defense[edefLAST255];
     byte hitsfx,deadsfx;
+	byte submerged;
     
     long hitby[NUM_HIT_TYPES_USED];
     short firesfx;
@@ -101,6 +102,7 @@ public:
     long weap_initiald[8];
     long weap_initiala[2];
     byte stickclk;
+    int parent_script_UID;
    
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
@@ -131,6 +133,7 @@ public:
     
     // auomatically kill off enemy (for rooms with ringleaders)
     virtual void kickbucket();
+    virtual bool isSubmerged();
     // Stop BG SFX only if no other enemy is playing it
     void stop_bgsfx(int index);
     bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
@@ -221,6 +224,7 @@ public:
         return false;
     }
     
+	virtual int run_script(int mode);
 
 protected:
     int  clk2,sclk;
@@ -395,6 +399,7 @@ public:
     virtual bool animate(int index);
     bool canplace(int d);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eWallM : public enemy
@@ -406,6 +411,7 @@ public:
     void wallm_crawl();
     void grablink();
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eTrap : public enemy
@@ -499,6 +505,7 @@ public:
     virtual void facelink();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eStalfos : public enemy
@@ -802,6 +809,8 @@ void movefairy2(fix x,fix y,int misc);
 void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
 int addenemy(int x,int y,int z,int id,int clk);
+int addchild(int x,int y,int id,int clk, int parent_scriptUID);
+int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID);
 bool isjumper(int id);
 bool canfall(int id);
 void addfires();

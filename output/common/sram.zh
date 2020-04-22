@@ -1,0 +1,114 @@
+namespace sram /* Ensure a uniue .sram. filename, per save slot */
+{
+	char32 hash[512]; //filename
+	const int FILE_FAIL 	= 0;
+	const int FILE_CREATED 	= 1;
+	const int FILE_SUCCESS 	= 1;
+	const int FILE_EXISTS 	= 2;
+	
+	namespace version
+	{
+		const float ID 		= 1.0002;
+		const int DATE_YEAR	= 2020;
+		const int DATE_MONTH 	= 1;
+		const int DATE_DAY 	= 21;
+		const int DATE_HOUR 	= 2;
+		const int DATE_MINUTE 	= 30;
+	}
+	
+	int valid()
+	{
+		if ( hash[0] && File->FileExists(hash) )
+		{
+			return FILE_EXISTS;
+		}
+		return FILE_FAIL;
+	}
+	int generatehash()
+	{
+		if(File->FileExists(hash)) return FILE_EXISTS;
+		char32 qname[256];
+		char32 eos = 255;
+		GetSaveName(qname);
+		memcpy(hash, name, 256);
+		for(; !qname[eos]; --eos)
+		{
+			//find the end of the str
+		}
+		//eos is now at the end of the string
+		for ( int q = eos; q >= 0; --q)
+		{
+			hash[q] = qname[q]; //copy qname to global hash
+		}
+		
+		for(int q = eos; q < 512; ++q)
+		{
+			hsh(q) = Rand('A', 'z');
+			if ( hsh[q] >= CHAR_LBRACE && hsh[q] <= CHAR_GRAVE ) hsh[q] = Rand('0', '9');
+		}
+		
+		hash[511] = 0;
+		hash[510] = 'm';
+		hash[509] = 'a';
+		hash[508] = 'r';
+		hash[507] = 's';
+		hash[506] = '.';
+		return 1;
+		
+		//Filename is nowhashed
+		
+		/*char32 hsh[256];
+		for(int q = 0; q < 256; ++q)
+		{
+			hsh(q) = Rand('A', 'z');
+			if ( hsh[q] >= CHAR_LBRACE && hsh[q] <= CHAR_GRAVE ) hsh[q] = Rand('A', 'Z');
+		}
+		for ( int q = 0; q < 2
+		*/
+	}
+
+	int Save()
+	{
+		if ( generatehash() )
+		{
+			SaveSRAM(hash,0);
+			return FILE_SUCCESS;
+		}
+	}
+	int Save(int section)
+	{
+		if ( generatehash() )
+		{
+			SaveSRAM(hash,section);
+			return FILE_SUCCESS;
+		}
+	}
+	int Load()
+	{
+		if ( valid() )
+		{
+			LoadSRAM(hash,0);
+			return FILE_SUCCESS;
+		}
+		else 
+		{
+			generatehash();
+			return FILE_FAIL;
+		}
+	}
+	int Load(int section)
+	{
+		if ( valid() )
+		{
+			LoadSRAM(hash,section);
+			return FILE_SUCCESS;
+		}
+		else 
+		{
+			generatehash();
+			return FILE_FAIL;
+		}
+		
+	}
+	
+}

@@ -1,18 +1,59 @@
 		
-/////////////////
-///  ZScript  ///
-/////////////////
+
+
+ /@@@@@@@@  /@@@@@@                      /@@             /@@                        /@@ /@@   /@@
+|_____ @@  /@@__  @@                    |__/            | @@                      /@@@@| @@  | @@
+     /@@/ | @@  \__/  /@@@@@@@  /@@@@@@  /@@  /@@@@@@  /@@@@@@         /@@    /@@|_  @@| @@  | @@
+    /@@/  |  @@@@@@  /@@_____/ /@@__  @@| @@ /@@__  @@|_  @@_/        |  @@  /@@/  | @@| @@@@@@@@
+   /@@/    \____  @@| @@      | @@  \__/| @@| @@  \ @@  | @@           \  @@/@@/   | @@|_____  @@
+  /@@/     /@@  \ @@| @@      | @@      | @@| @@  | @@  | @@ /@@        \  @@@/    | @@      | @@
+ /@@@@@@@@|  @@@@@@/|  @@@@@@@| @@      | @@| @@@@@@@/  |  @@@@/         \  @/    /@@@@@@    | @@
+|________/ \______/  \_______/|__/      |__/| @@____/    \___/            \_/    |______/    |__/
+                                            | @@                                                 
+                                            | @@                                                 
+                                            |__/                                                 
+
 
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 31
-Document Revision: 8th September, 2019
+Document for: 2.55, Alpha 64
+Document Revision: 21st April, 2020
 
+
+ __           _   _                 
+/ _\ ___  ___| |_(_) ___  _ __  ___ 
+\ \ / _ \/ __| __| |/ _ \| '_ \/ __|
+_\ \  __/ (__| |_| | (_) | | | \__ \
+\__/\___|\___|\__|_|\___/|_| |_|___/
+                                    
+1. Syntax
+2. Namespaces
+3. Global Pointers
+4. Datatypes
+5. Typedef
+6. Custom Datatypes & Enum
+7. Arrays
+8. Strings
+9. New Features
+10. Bugfixes
+11. Script Types
+12. Compiler
+13. New Instructions
+14. System and Script Timing and Execution Order
 
 ////////////////////////////////////////////////////
 /// ZSCRIPT PARSER AND LEXER ///////////////////////
 ////////////////////////////////////////////////////
+
+  _________             __                 
+ /   _____/__.__. _____/  |______  ___  ___
+ \_____  <   |  |/    \   __\__  \ \  \/  /
+ /        \___  |   |  \  |  / __ \_>    < 
+/_______  / ____|___|  /__| (____  /__/\_ \
+        \/\/         \/          \/      \/
+
+									// Syntax
 
 ////////////
 // Tokens //
@@ -45,15 +86,28 @@ The ZScript parser supports the following standard and alternative tokens:
 !=		:	Not-Equal
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
+~~		:	Approximately Equal
+	
+	
+Approximately Equal
+	Compares if two values are apprxiately equal within aset margin of error.
+	The default margin is 0.0100
+	You can set a custom margin with:
+	#option APPROX_EQUAL_MARGIN <float>
+	
 
 //Logical
 !		: 	Not
 ||		:	Logical OR
-&&		:	Logical XOR
+&&		:	Logical AND
+^^		:	Logical XOR
 and 		: 	Equivalent to 	&&
+xor		: 	Equivalent to 	^^
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
+appx_eq 	:	Equivalent to 	~~
+appx_equal 	:	Equivalent to 	~~
 
 //Resolution
 .		:	Script Name Scope Resolution
@@ -70,7 +124,7 @@ not_eq 		:	Equivalent to 	!=
 ^=		:	Bitwise XOR-Assign
 bitand 		: 	Equivalent to 	&
 bitor 		: 	Equivalent to 	|
-xor 		: 	Equivalent to 	^
+bitxor 		: 	Equivalent to 	^
 compl		: 	Equivalent to	~
 bitnot		: 	Equivalent to	~
 or_eq 		: 	Equivalent to 	|=
@@ -79,7 +133,222 @@ xor_eq 		: 	Equivalent to 	^=
 xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
+~=		:	Equivalent to &= ~
+bitnot_eq	:	Equivalent to &= ~
+bitnot_equal	:	Equivalent to &= ~
+
+Notes: Xor abd Logical Xor alternative Tokens
+	C lacks logical xor (^^), and thus the alternate token 
+	for bitwise xor (^) is 'xor', HOWEVER, all other bitwise 
+	alternative tokens are prefixed with 'bit:
+		e.g., 'bitand', 'bitor'
+		...but the logical operator alternative tokens 
+	for logical AND and logical OR (&&, ||) have no prefix:
+		i.e. 'and', 'or'.
+	Thus, for the sake of **linguistic uniformity**, I changed
+	our alternative tokens for bitwise and logical xor.
 	
+	Now, logical xor (^^) uses 'xor' as an alternative token, and
+	bitwise xor (^) uses 'bitxor'.
+	
+	WHile this differs from C, I feel that this change makes
+	the alternative tokens more uniform, and easier to remember.
+		-ZoriaRPG ( 28th October, 2019 )
+	
+	
+______                                                                  
+ \      \ _____    _____   ____   _________________    ____  ____   ______
+ /   |   \\__  \  /     \_/ __ \ /  ___/\____ \__  \ _/ ___\/ __ \ /  ___/
+/    |    \/ __ \|  Y Y  \  ___/ \___ \ |  |_> > __ \\  \__\  ___/ \___ \ 
+\____|__  (____  /__|_|  /\___  >____  >|   __(____  /\___  >___  >____  >
+        \/     \/      \/     \/     \/ |__|       \/     \/    \/     \/ 
+
+									// Namespaces
+	
+///////////////
+// Namespace //
+///////////////
+
+ZScript now supports C-style namespaces.
+
+Declaration examples:
+
+namespace foo
+{
+	int x(){return 16;}
+}
+
+namespace bar
+{
+	int y(){return 32;}
+	namespace foobar
+	{
+		int z(){ return 64;}
+	}
+}
+
+namespace doh
+{
+	int xyz(){return 128;}
+}
+
+Access examples:
+
+foo::x();
+bar::y();
+bar::foobar::z();
+
+
+/////////////////////
+// Using Namespace //
+/////////////////////
+
+You may invoke the 'using' token to bring the contents of a namespaces
+into the current scope, thus ignoring the requirement for scope-resolution
+(::) until the end of that scope.
+
+You may also invoke 'using' as 'always using' to make that namespace global; this cannot be undone.
+
+The following scopes are valid:
+
+file
+namespace
+script
+function
+
+Using the above namespaces as examples:
+	[example--
+
+	//buffer
+	always using namespace doh;
+	//now in scope in all files, functions, and scripts
+	//never falls out of scope
+	//cannot be undone
+
+	///file 1
+	using namespace foo;
+
+	//we can now ignore scope resolution for namespace foo
+	x(); //now equivalent to foo::x();
+	//end of file; namespace falls out of scope.
+
+	//file 2
+	using namespace bar::foobar;
+	z(); //now equivalent to bar:foobar::z();
+	//end of file; namespace falls out of scope.
+
+	//function
+	void main()
+	{
+		using namespace bar;
+		y();
+	} //namespace falls out of scope
+
+	ffc script f
+	{
+		using namespace foo; //whole script
+		void run()
+		{
+			using namespace bar; //only in run()
+			int v = x();
+			int w = y();
+		}
+		void n()
+		{
+			int r = y(); //illegal
+		}
+	}
+	
+	--end example]
+	
+Ambigious identifier access is an error that can occur with 'using'.
+	[example--
+	void foo(){}
+	namespace bar
+	{
+		void foo(){}
+	}
+	
+	void example()
+	{
+		using namespace bar;
+		foo(); //Illegal; which 'foo()' are you trying to call?
+	}
+	--end example]
+	
+In this case, you can select which identifier to reference using scope resolution.
+	[example--
+	void example2()
+	{
+		using namespace bar;
+		bar::foo(); //Calls 'foo()' within namespace 'bar'
+		::foo(); //Calls 'foo()' that is not in a namespace
+	}
+	--end example]
+Another example:
+	[example--
+	namespace bar
+	{
+		void foo(){}
+	}
+	namespace foo
+	{
+		using namespace bar;
+		void foo(){}
+		void example3()
+		{
+			foo(); //This is LEGAL.
+		}
+	}
+	--end example]
+	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
+	there is no local match. In this case, since 'example3()' is in 'namespace foo',
+	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
+	
+
+  ________.__        ___.          .__    __________      .__        __                       
+ /  _____/|  |   ____\_ |__ _____  |  |   \______   \____ |__| _____/  |_  ___________  ______
+/   \  ___|  |  /  _ \| __ \\__  \ |  |    |     ___/  _ \|  |/    \   __\/ __ \_  __ \/  ___/
+\    \_\  \  |_(  <_> ) \_\ \/ __ \|  |__  |    |  (  <_> )  |   |  \  | \  ___/|  | \/\___ \ 
+ \______  /____/\____/|___  (____  /____/  |____|   \____/|__|___|  /__|  \___  >__|  /____  >
+        \/                \/     \/                               \/          \/           \/ 
+
+									// Global Pointers
+//////////////////
+// New Pointers //
+//////////////////
+
+	Hero->
+	Player->
+	
+		These are synonymous with the old Link-> pointer, which is now deprecated but retained
+		for compatibility purposes. 
+	
+	Graphics->
+		Used for graphical functions.
+
+	Audio->
+		Used for sound and music functions.
+
+	Input->
+		Used to read and write buttons, and keyboard keys; as well as control states.
+
+	Text->
+		Used to get information on fonts, or to display text.
+
+	FileSystem->
+		Used to get information on the user filesystem, such as fileexists(), pathexists().
+
+
+
+________          __          __                                
+\______ \ _____ _/  |______ _/  |_ ___.__.______   ____   ______
+ |    |  \\__  \\   __\__  \\   __<   |  |\____ \_/ __ \ /  ___/
+ |    `   \/ __ \|  |  / __ \|  |  \___  ||  |_> >  ___/ \___ \ 
+/_______  (____  /__| (____  /__|  / ____||   __/ \___  >____  >
+        \/     \/          \/      \/     |__|        \/     \/ 
+
+									// Datatypes
 
 ///////////////////////
 /// Basic Datatypes ///
@@ -156,6 +425,7 @@ untyped : A special datatype that can be cast to and from any other type.
 	ffc:
 		Used to create a pointer to one of the 32 freeform combo objects on the current
 		screen, and to access its members. You cannot create ffcs.
+		The ffc datatype is the 'this' pointer for ffc scripts.
 		
 	npc: 
 		Used to create a pointer to an npc object. 
@@ -164,6 +434,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		The maximum number of npc objects is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
 		Use this to access npc varibles, arrays, and functions. 
+		The npc datatype is the 'this' pointer for npc scripts.
 		
 	eweapon:
 	lweapon:
@@ -174,14 +445,25 @@ untyped : A special datatype that can be cast to and from any other type.
 		The maximum number of weapon objects (per type) is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
 		Use this to access lweapon and eweaopon varibles, arrays, and functions. 
+		The eweapon datatype is the 'this' pointer for eweapon scripts.
+		The lweapon datatype is the 'this' pointer for lweapon scripts.
+		Note that while eweapon and lweapon share most members, that some members are unique
+		to one or the other, and that these script types are not 1:1 interchangeable.
 		
-	item: 
-		Used to create a pointer to an item object. 
-		You may either load a current (valid) item on the current screen to the pointer, or create
-		a new item on the screen using this pointer.
-		The maximum number of item objects is defined in std.zh, but you may have multiple pointers
+	itemsprite: 
+		Used to create a pointer to an itemsprite object. 
+		You may either load a current (valid) itemsprite on the current screen to the pointer, or create
+		a new itemsprite on the screen using this pointer.
+		The maximum number of itemsprite objects is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
-		Use this to access item varibles, arrays, and functions. 
+		Use this to access itemsprite varibles, arrays, and functions.
+		NOTE: In previous versions, this type was simply called "item".
+	
+	itemdata:
+		Used to access the Item Editor values.
+		You may load item IDs 0 to 255 to a pointer, and edit the values in the Item Editor
+		for that item, or read its editor values for other use.
+		The itemdata datatype is the 'this' pointer for itemdata (formerly item) scripts.
 	
 	bitmap:
 		Used to create user bitmaps, similar to the old 2.50 Render Target bitmaps,
@@ -193,34 +475,58 @@ untyped : A special datatype that can be cast to and from any other type.
 		There are a maximum of 250 user bitmaps at any one time.
 	
 	npcdata: 
-		Access to all Eemy Editor data.
+		Used to access the Enemy/NPC Editor values.
+		You may load NPC IDs 0 to 255 to a pointer, and edit the values in the Enemy Editor
+		for that npc, or read its editor values for other use.
 
 	combodata:
-		Access to all Combo Editor data.
+		Used to access the Combo Editor values.
+		You may load Combo IDs 0 to 65279 to a pointer, and edit the values in the Combo Editor
+		for that combo, or read its editor values for other use.
+		The combodata datatype is the 'this' pointer for combodata (T/B/A) scripts.
 
 	spritedata:
-		Access to Weapon Sprite Editor data.
+		Used to access the Weapon Sprite Editor values.
+		You may load Combo IDs 0 to 255 to a pointer, and edit the values in the Weapon Sprite 
+		Editor for that sprite, or read its editor values for other use.
 
 	mapdata: 
-		Access to all data contained on MAPS (mapscreens).
+		Used to access all data contained on MAPS (mapscreens).
+		You may load a mapscreen by referencing the map, and the screen; or load
+		tempscreen or scrolling screen layers to a pointer, and edit the values for that screen;
+		or read its values for other use.
 
 	dmapdata : 
-		Access to all DMap Editor data.
+		Used to access all all DMap Editor data.
+		You may load a DMap IDs 0 to 511 to a pointer, and edit the values for that DMap;
+		or read its editor values for other use.
+		The dmapdata datatype is the 'this' pointer for dmapdata scripts.
 
 	messagedata :
-		Access to all String Editor data.
+		Used to access all String Editor data.
+		You may load a Message String IDs 1 to 65535 to a pointer, and edit the values for
+		that message string; or read its editor values for other use.
 
 	shopdata :
-		Access to all Item Shop Editor and Info Shop Editor data.
-
+		Used to access all Item Shop Editor and Info Shop Editor data.
+		You may load a Shop Type IDs 0 to 255, or Info Shop IDs 0 to 255, to a pointer, 
+		and edit the values for that shop; or read its editor values for other use.
+		
+	dropsetdata :
+		Used to access all Item Dropset Editor data.
+		You may load a Item Dropset Type IDs 0 to 255, to a pointer, and edit the values for 
+		the dropset; or read its editor values for other use.
+		
+	file :
+		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
+		These files can contain either text, or raw binary number data, based on which functions you use.
+	
 	//Planned/Incomplete
-	dropdata : t/b/a
-		(Planned) Access to all Dropset Editor data.
-	warpring : t/b/a
+	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
-	doorset : t/b/a
+	doorsetdata : t/b/a
 		(Planned) Access to all Doorset Editor data
-	misccolors : t/b/a
+	misccolorsdata : t/b/a
 		(Planned) Access to all Misc Colours dialogue data.
 	rgbdata : t/b/a
 		(Planned) DATATYPE for colour triplets as red,green,blue in one integer value.
@@ -230,19 +536,101 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) OBJECT TYPE, for loading and using USER PALETTES.
 		This is similar to how user bitmaps work, and may also include a save/load format similar
 		to ZPL, so that palettes created by script can be saved, then imported into other quests.
-	zcmidi : t/b/a
+	zcmididata : t/b/a
 		(Planned) OBJECT TYPE for working with MIDIs, both in-quest, and as external files.
-	palcycle : t/b/a
+	palcycledata : t/b/a
 		(Planned) Access to all Palette Cycle data.
 	gamedata : t/b/a
 		(Planned) Access to all global game data (game->, in source)
-	cheats : t/b/a
+	cheatsdata : t/b/a
 		(Planned) Access to cheat code information.
-	file : t/b/a
-		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
 	subscreendata: t/b/a
 	
+
+///////////////////////
+/// Type Specifiers ///
+///////////////////////
+
+const TYPE
+
+If you declare a type constant, one of two things occurs:
+	If the ASSIGNED VALUE is also constant at compile time, then the value of the constant is converted to
+	a literal during compilation.
+	
+	e.g.
+	const int A = 5; 
+	const int B = A; //A is constant at compile time
+	int arr[B]; //B is sized to 5 during compilation.
+	
+	Such a declaration uses no stack space/registers.
+	
+If the type is NOT constant at compile time, the declaration is treated as a normal variable/array of its type,
+	however, its value cannot be modified during runtime.
+	
+	e.g.
+	const int hpcap = Link->MaxHP; //not constant at compile time, but the value of hpcap
+		is read-only.
+	const char32[]="A String"; //not constant at compile time (true const string isn't available, nor is const array).
+		You cannot modify this during runtime.
+	void foo(const bool a, const int b)
+	{
+		a = false; //illegal to write to a
+		b = 64; //cannot write to b
+	}
+	
+	This can be useful if you wish to pass params without the risk of code modifying them, especially
+	when passing a pointer by reference.
+
+This type specifier can be applied to ALL datatypes, including enum-specified types.
+
+
+___________                        .___      _____ 
+\__    ___/__.__.______   ____   __| _/_____/ ____\
+  |    | <   |  |\____ \_/ __ \ / __ |/ __ \   __\ 
+  |    |  \___  ||  |_> >  ___// /_/ \  ___/|  |   
+  |____|  / ____||   __/ \___  >____ |\___  >__|   
+          \/     |__|        \/     \/    \/       
+	  
+									// Typedef
+
+/////////////
+// Typedef //
+/////////////
+
+	You can now define your own types using typedef using normal C syntax:
+
+	typedef old_type new_type;
+
+	[example--
+		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 		
+
+		typedef const int DEFINE;
+		//Allows you to use the token DEFINE to declare constant ints. 
 		
+	--end example]
+	
+	
+////////////////////
+// Script Typedef //
+////////////////////
+
+	 You may also typedef script tokens, creating your own types that resolve into existing script types.
+
+	e.g. script typedef hero villain;
+	
+	You may now declare the script type 'villain script', that resolves into the normal 'hero script' type.
+
+
+
+_________                 __                   ________          __          __                                
+\_   ___ \ __ __  _______/  |_  ____   _____   \______ \ _____ _/  |______ _/  |_ ___.__.______   ____   ______
+/    \  \/|  |  \/  ___/\   __\/  _ \ /     \   |    |  \\__  \\   __\__  \\   __<   |  |\____ \_/ __ \ /  ___/
+\     \___|  |  /\___ \  |  | (  <_> )  Y Y  \  |    `   \/ __ \|  |  / __ \|  |  \___  ||  |_> >  ___/ \___ \ 
+ \______  /____//____  > |__|  \____/|__|_|  / /_______  (____  /__| (____  /__|  / ____||   __/ \___  >____  >
+        \/           \/                    \/          \/     \/          \/      \/     |__|        \/     \/ 
+
+									// Custom Datatypes	
+									// Enum
 //////////////////////
 // Enumerated Lists //
 //////////////////////
@@ -275,48 +663,156 @@ the values in the enumerated list.
 	restrictions.
 		act = <actiontype>7; //this is legal. 
 		
-	voiod foo(actiontype action)
-	{
-		actiontype newaction = action; 
-	}
+	[example--
+	
+		void foo(actiontype action)
+		{
+			actiontype newaction = action; 
+		}
+	
+	--end example]
 	You can only pass legal values in the actiontype enum to the parameter of this function.
+	
+	You can further declare functions to return an enum type:
+	
+	[example--
+	
+		actiontype walking()
+		{
+			return walk;
+		}
+		
+	--end example]
+	
+	
+	You can declare enums inside namespaces, and scripts, and then dereference them as any
+	other namespace or script scoped component.
+	
+	[example--
+	
+		namespace myns
+		{
+			enum sizeflag { szNone, szSmall, szMedium, szLarge = 4 };
+			enum othertype { otA, otB, otC, otD, otE, otF, otG, otH, otI, otJ };
+		};
+		
+		myns::othertype getFlag(myns::sizeflag sz, actiontype act)
+		{
+			switch(act)
+			{
+				case none:				
+				case walk:
+				{
+					switch(sz)
+					{
+						case myns::szNone: return myns::otA;  // Need to dereference the constant, as it 
+						case myns::szSmall: return myns::otC; // is part of an enum, inside a namespace.
+						case myns::szMedium: return myns::otD;
+						case myns::szLarge: return myns::otI;
+					}
+				}
+				case attack:
+				{
+					switch(sz)
+					{
+						case myns::szNone: return myns::otA;
+						case myns::szSmall: return myns::otE;
+						case myns::szMedium: return myns::otG;
+						case myns::szLarge: return myns::otH;
+					}
+				}
+				default: return myns::otA;	
+			}
+		}
+	
+	--end example]
+	
+	Because these count as specific types, like int, itemdata, and npc, you can use them as overloads 
+	in function signatures, and as long as you always pass the enum constants, you will guarantee a match.
+	
+	[example--
+	
+		int myoverloads(int a, npc b, eweapon c);
+		myns::othertype myoverloads(actiontype a, npc b, eweapon c);
+		
+		//If you call:
+		
+		othertype(walk, n, e);
+			//This will use 'myns::othertype myoverloads(actiontype a, npc b, eweapon c)'
+			
+		//If you instead call:
+		
+		othertype(1, n, e);
+			//This will use 'myoverloads(int a, npc b, eweapon c)'
+		
+	--end example]
+	
+	Thus, enum types allow you very precise control over function overloads.
+	
+	Last, you can use script-scoping, instead of namespace-scoping, if you wish:
+	
+	[example--
+	
+		untyped script fakestruct
+		{
+			enum fktype { seNone, seA, seB, seC };
+			enum fkflag { sfNone, sfA, sfB, sfC = 4 }; 
+		}
+		
+		int getfakestructflag(fakestruct.fkflag flag)
+		{
+			int r = <int>flag; //cast to int
+			return r;
+		}
+		
+		//Convert a flag to its type ID
+		fakestruct.fktype flagtype(fakestruct.fkflag flag)
+		{
+			switch(flag)
+			{
+				case fakestruct.sfNone: return fakestruct.seNone; 
+				case fakestruct.sfA: return fakestruct.seA; 
+				case fakestruct.sfB: return fakestruct.seB; 
+				case fakestruct.sfC: return fakestruct.seC; 
+			}
+		}
+	
+	--end example]
+	
+	
 
-	
-///////////////////////
-/// Type Specifiers ///
-///////////////////////
+   _____                                    
+  /  _  \___________________  ___.__. ______
+ /  /_\  \_  __ \_  __ \__  \<   |  |/  ___/
+/    |    \  | \/|  | \// __ \\___  |\___ \ 
+\____|__  /__|   |__|  (____  / ____/____  >
+        \/                  \/\/         \/ 
 
-const TYPE
+									// Arrays
 
-If you declare a type constant, one of two things occurs:
-	If the ASSIGNED VALUE is also constant at compile time, then the value of the constant is converted to
-	a literal during compilation.
-	
-	e.g.
-	const int A = 5; 
-	const int B = A; //A is constant at compile time
-	int arr[B]; //B is sized to 5 during compilation.
-	
-	Such a declaration uses no stack space/registers.
-	
-If the type is NOT constant at compile time, the declaration is treated as a normal variable/array of its type,
-	however, its value cannot be modified during runtime.
-	
-	e.g.
-	const int hpcap = Link->MaxHP; //not constant at compile time, but the calue of hpcap
-		is read-only.
-	const char32[]="A String"; //not constant at compile time (true const string isn't available, nor is const array).
-		You cannot modify this during runtime.
-	void foo(const bool a, const int b)
-	{
-		a = false; //illegal to write to a
-		b = 64; //cannot write to b
-	}
-	
-	This can be useful if you wish to pass params without the risk of code modifying them, especially
-	when passing a pointer by reference.
+////////////////////////////////////
+// Array Declaration Improvements //
+////////////////////////////////////
 
-This type specifier can be applied to ALL datatypes, including enum-specified types.
+	Arrays now support being declared with any constant expression.:
+
+	[example--
+
+		int arr[10*4]; 
+		//This is now the same as int arr[40];
+		
+	--end example]
+
+	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrD[4] ] ] ] )
+
+	Further, you may now use constants in array declarations:
+
+	[example--
+
+		const int sARR_MAX = 20;
+		int arr[sARR_MAX];
+		
+	--end example]
 
 
 /////////////////////	
@@ -341,101 +837,543 @@ char32 arrays may be initialised with a string:
 char32 IDENTIFIER[SIZE] = "string"; //Explicit size.
 char32 IDENTIFIER[] = "string"; //Sized implicitely to number of characters +1 for NULL termination.
 
-	Explicitely-sized string arrays must be sized to the length + 1 to include a NULL terminator.
+	Explicitely-sized string arrays must be sized to at least the length + 1 to include a NULL terminator.
 
 
-//////////////
-// Bugfixes //
-//////////////
+  _________ __         .__                      
+ /   _____//  |________|__| ____    ____  ______
+ \_____  \\   __\_  __ \  |/    \  / ___\/  ___/
+ /        \|  |  |  | \/  |   |  \/ /_/  >___ \ 
+/_______  /|__|  |__|  |__|___|  /\___  /____  >
+        \/                     \//_____/     \/ 
 
-	//Alpha 24
+									// Strings
+
+/////////////////////
+// String Literals //
+/////////////////////
+
+	You may now use C-style string literals at any non-global scope.
+
+	[example--
+
+		TraceS("Trace this string.");
+		
+	--end example]
+
+
+	You may use standard C-style escape characters in string literals:
+
+	- \a\b\f\n\r\t\v for the standard values,
+	- \" for quotes
+	- You can escape a newline to make it not appear in the string
+
+	Additionally, adjacent strings are merged by the compiler.
+
+	[example--
+
+		TraceS("This is a string"
+			" on two lines");
+		
+	--end example]
 	
-	///////////////
-	// NOT Token //
-	///////////////
+
+///////////////////////////////////////
+// Single Character Escape Sequences //
+///////////////////////////////////////
+
+You may now use escape sequences in a SINGLECHAR type:
+	char32 tab = '\t';
 	
-	You may now use the Not (!) token on any datatype, as in C++.
+	Valid Escape Characters
+	\a     		Alert (Beep, Bell) (added in C89)[1]
+	\b    		Backspace
+	\f     		Formfeed Page Break
+	\n     		Newline (Line Feed); see notes below
+	\r     		Carriage Return
+	\t     		Horizontal Tab
+	\v     		Vertical Tab
+	\\     		Backslash
+	\'     		Single quotation mark
+	\"     		Double quotation mark
+	\?     		Question mark (used to avoid trigraphs) 
+	\x0 to \xFF   	Normal ANSI characters, as hex value. 
+	
+
+	
+///////////////////////////////
+/// Expanded Array Literals ///
+///////////////////////////////
+
+	Array Literals of the following form may be used in lots of places,
+	not just array variable declarations.
+
+	{0, 1, 2}
+	(int[]){0, 1, 2}
+	(int[3]){}
+	(int[3]){4}
+
+	[example--
+	
+		RunFFCScript(script_no, (int[8]){arg1, arg2, arg3});
+		
+	--end example]
+	
+	If no type is specified, the array will default to 'untyped'.
+
+
+	
+
+ _______                  ___________            __                               
+ \      \   ______  _  __ \_   _____/___ _____ _/  |_ __ _________   ____   ______
+ /   |   \_/ __ \ \/ \/ /  |    __)/ __ \\__  \\   __\  |  \_  __ \_/ __ \ /  ___/
+/    |    \  ___/\     /   |     \\  ___/ / __ \|  | |  |  /|  | \/\  ___/ \___ \ 
+\____|__  /\___  >\/\_/    \___  / \___  >____  /__| |____/ |__|    \___  >____  >
+        \/     \/              \/      \/     \/                        \/     \/ 
+
+									// New Features
+
+/////////////////////////
+// Ternary Expressions //
+/////////////////////////
+
+You may now use C-style ternary expressions:
+
+	int x = Rand(6,8);
+	int y = x > 7 ? 1 : 0;
+	
+	Assigns, and operations inside ternary blocks must be in parens:
+		bool V = true;
+		int b;
+		int a = V ? ( b =  5 ) ? ( b = 4 );
+		
+		int c = V ? ( b -= 2 ) ? 0; 
+		
+		int y; int z; 
+		int x = (y += 10) ? (z = 5) : (a -= 2);
+		
+	In all of these cases, parens are mandatory. 
+	
+	Further, compound ternary expressions should be placed in parens:
+		int a = (V ? 1 : 0) ? 5 : 6
+		
+	The default, is to evaluate in a linear sequence.
+			
+	Thus, 
+		bool ? int : int ? bool : int
+	...would evaluate as: 
+		bool ? int : (int ? bool : int)
+	
+	Using parens to define your order of operations and scope, is prudent. 
+
+
+///////////////////////////
+// Variable Declarations //
+///////////////////////////
+
+You can now declare, and initialise variables on one line, as in C.
+	Format:
+	TYPE (identifier | identifier ASSIGN NUMBER) comma [repeating] SEMICOLON
+	Examples:
+		int a, b, c = 9, h = 16, f = c+h;
+		float n = 1.04, m = 6.03;
+		
+		These are equivalent to:
+		int a; int b; int c = 9; int h = 16; int f = c+h;
+		float n = 1.04; float m = 6.03;
+
+
+///////////////////
+// Explicit Cast //
+///////////////////
+
+You may now explicitly cast a value, using a type in angle braces.
+
+	ffc f = Screen->LoadFFC(15);
+	int x = <int>f;
+
+	f = <ffc>2;
+
+
+///////////////////////////
+/// Arrow from Function ///
+///////////////////////////
+
+You may now use the arrow (->) operator on functions of datatypes/pointers, including
+cases where you are not using the base function in an assign.
+	Examples:
+	int x = Screen->LoadNPCByUID(this->ParentUID)->X;
+	int sfx = Game->LoadItemData(16)->UseSound;
+	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
+	
+	Previously, you were required to declare a variable and make an assign
+		in multiple stages.#
+		e.g., this: 
+		int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
+	
+		...used to require:
+		
+		lweapon l = Screen->LoadLWeapon(1);
+		itemdata id = Game->LoadItemData(l->Parent);
+		int lvl = id->Level;
+		
+		You can now skip these useless declarations, unless you have a 
+		reason or desire to cache the data in a variable. This saves stack space, 
+		and, in some circumstances, may improve performance; however repeated
+		use of the same variables may benefit from caching the values in a register.
+		
+		
+////////////////////
+// Comment Blocks //
+////////////////////
+
+	The ZScript language now supports C-Style comment blocks using the traditional syntax of:
+
+	[example--
+
+		/* 
+			COMMENT BLOCK
+			
+		*/
+		
+	--end example]
+
+
+/////////////////////
+// Global Pointers //
+/////////////////////
+
+	You may now declare any datatype, including arrays for any datatype at a global scope.
+	*	Data saved to these may become invalid and require manual cleansing by the user!
+	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
+
+
+////////////
+// Unless //
+////////////
+
+	This statement runs the code block attached to it if its statement would evaluate false
+	in an if statement.
+	Aside from the obvious semantical enhancement over 'if(!expression)', the advantage of 
+	this, is that 'unless(expression)' is faster (in ASM instructions) than 'if(!expression)'.
+
+	Example: 
+		int x = 6; int y;
+		unless(x==6)
+		{
+			y = 1;
+		}
+	
+	In this example, the code block would never run, because x == 6. 
+	This is the opposite of 'if', and supports 'else unless' and 'else'
+	blocks following the unless statement.
+	
+	
+////////////
+// Repeat //
+////////////
+
+Repeats a command a given number of times.
+The value passed to repeat(const int v) must be constant at compile time.
+
+Example:
+	const int N = 10;
+	int x;
+	repeat(N) { ++x; }
+	
+This is similar to a for loop, but it produces faster ZASM, because the number
+of iterations is known at compile-time.
+
+
+/////////////////////
+// Until, do-until //
+/////////////////////
+
+	ZScript now supports the Pascal-style token 'until'. 
+	This functions as an inverted 'while' statement.
+	Aside from the obvious semantical enhancement over 'while(!expression)', the advantage of 
+	this, is that 'until(expression)' is faster (in ASM instructions) than 'while(!expression)'.
+	
+	Examples:
+	
+		until(x > 7) { DoSomething(); }
+		
+		do
+		{
+			Something();
+		} until ( x > 7 );
+
+
+
+/////////////////
+// Switch-Case //
+/////////////////
+
+	ZScript now supports C-style switch statements. Case values must be numeric literals,
+	ranges, or constant expressions. Each case should end in a break instruction, or else
+	fallthrough can be expected to occur. You may provide a default case.
+
+	[example-- 
+
+		const int SOME_CONST = 11;
+
+		switch(var)
+		{
+			case 1:
+			{
+				DoSomething(); 
+				break
+			}
+			case SOME_CONST:
+			{
+				DoSomethingElse();
+				break:
+			}
+			case SOME_CONST+(10*2)
+			{
+				DoOther();
+				break;
+			}
+			default:
+			{
+				DoDefault();
+				break;
+			}
+		}
+
+	--end example]
+	
+	
+	 _    __      __              ____                       
+	| |  / /___ _/ /_  _____     / __ \____ _____  ____ ____ 
+	| | / / __ `/ / / / / _ \   / /_/ / __ `/ __ \/ __ `/ _ \
+	| |/ / /_/ / / /_/ /  __/  / _, _/ /_/ / / / / /_/ /  __/
+	|___/\__,_/_/\__,_/\___/  /_/ |_|\__,_/_/ /_/\__, /\___/ 
+	                                            /____/       
+						    
+	You may use a VALUE RANGE in a case statement. 
+	
+	Value ranges take the form of one number, three dots and another number.
+	
+	The numbers in this range may have decimal places, and you may use constants
+		as the upper and lower bounds of a range.
+		
+	If the switch value is >= [left range value] and is <= [right range value]
+		then that case will execute.
+		
+	The left value of a range must be smaller than the right:
+		1...3
+		This is a range of values >= 1.0000 and <= 3.0000
+		
+		3...1
+		This is invalid and will generate an error. 
+		
+	If these values are identical, it will generate a warning; a normal
+		case should be used instead of a value range in such a case.
+	
+	[example-- 
+	
+		float a = 1.5;
+		const float B = 1.0;
+		const float C = 2.5;
+		switch(a)
+		{
+			case B...2.4: DoFirst(); break;
+			case C...3: DoSecond(); break;
+		}
+	--end example]
+
+	As the value of 'a' at this time is 1.5000, it fallswithin the range of the
+	first case (B...2.4) and DoFirst() will execute.
+	
+	  _________ __         .__                      
+	 /   _____//  |________|__| ____    ____  ______
+	 \_____  \\   __\_  __ \  |/    \  / ___\/  ___/
+	 /        \|  |  |  | \/  |   |  \/ /_/  >___ \ 
+	/_______  /|__|  |__|  |__|___|  /\___  /____  >
+	        \/                     \//_____/     \/ 
+	
+	You may use switch-case on STRING LITERALS.
+	Note: You may use EITHER string literals, OR numeric values, but NOT BOTH.
+	
+	[example--
+		char32 tmp[] = "Test";
+		switch(tmp)
+		{
+			case "foo":
+				DoSomething();
+				break;
+			case "bar":
+				DoSomethingElse();
+				break;
+			case "Test":
+				DoThirdThing();
+				break;
+			default:
+				DoDefaultThing();
+		}
+	--end example]
+	
+	This will match the string against each literal, looking for an identical string.
+	By default, this matches case-sensitively; though if the option 'STRING_SWITCH_CASE_INSENSITIVE'
+		is nonzero, it will match case-insensitively.
+		
+	String literal switches and numeric switches cannot be mixed.
+	[example--
+		switch(foo)
+		{
+			case 1:
+				DoSomething();
+				break;
+			case "foo":
+				DoSomethingElse();
+				break;
+		}
+	--end example]
+	This code will produce a compile error, and is not allowed.
+	
+///////////////////
+/// Logical Xor ///
+///////////////////
+
+ZScript now supports logical xor operations using the following tokens:
+	^^
+	logicalxor
+	
+	[example--
+		if ( a ^^ b ) return true;
+		if ( c logicalxor d ) return true;
+	--end example]
+	
+If you chain logical xor operations, they are handled in a linear sequence
+for their order of operations.
+	[example--
+		if ( a ^^ b ^^ c ^^ d )
+		becomes
+		if ( ( a ^^ b ) ^^ c ) ^^ d ) )
+	--end example]
+	
+	It is prudent therefore, to properly specify order of operations for this operation.
+
+
+///////////////
+// NOT Token //
+///////////////
+
+You may now use the Not (!) token on any datatype, as in C++.
+Example:
+	ffc f;
+	if ( !f ) f = Screen->LoadFFC(3);
+	
+	bitmap b;
+	if ( !b ) b = Game->CreateBitmap(16,16);
+	else b->Create(0, 16, 16);
+	
+This allows checking if a pointer is initialised, easily. 
+
+
+///////////////////
+// Short Circuit //
+///////////////////
+
+Fixed short-circuiting. Logical AND and Logical OR now short-circuit as in C,
+based on a compiler flag.
+
+If short-circuiting is enabled, the following occurs:
+
+	if ( a && b ) 
+		//if 'a' is false, 'b' is skipped.
+	if ( a || b )
+		//if 'a' is true, 'b' is skipped. 
+
+
+/////////////////////
+// Constant Assert //
+/////////////////////
+
+You may now make constant assertions to create custom compile errors.
+
+	[example--
+		const int COMBO = 0;
+		//
+		CONST_ASSERT(COMBO > 0);
+	--end example]
+	This would cause the compile error:
+		"Assert failed!"
+	on the line of the assert.
+	
+You may also include a custom message to be printed with the error.
+
+	[example--
+		const int COMBO = 0;
+		//
+		CONST_ASSERT(COMBO > 0, "COMBO must be > 0!");
+	--end example]
+	This would cause the compile error:
+		"Assert failed! COMBO must be > 0!"
+	on the line of the assert.
+
+This can be useful to prevent yourself from making mistakes, or for scripts you share
+to ensure that others using your script don't make mistakes when setting constants.
+
+__________              _____.__                      
+\______   \__ __  _____/ ____\__|__  ___ ____   ______
+ |    |  _/  |  \/ ___\   __\|  \  \/  // __ \ /  ___/
+ |    |   \  |  / /_/  >  |  |  |>    <\  ___/ \___ \ 
+ |______  /____/\___  /|__|  |__/__/\_ \\___  >____  >
+        \/     /_____/                \/    \/     \/ 
+
+									// Bugfixes
+	
+///////////////////////
+// Constant Division //
+///////////////////////
+
+Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
+Fixed issues with division by an integer, where values would be truncated.
+Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag to enable the old, 2.50.x behaviour
+Fixed scope resolution for identifiers and variables when used across
+	imported files.
 	Example:
-		ffc f;
-		if ( !f ) f = Screen->LoadFFC(3);
+
+		//buffer
+
+		import "bar.zs"
+		void foo()
+		{
+			scrid.bar();
+		}
+		////////////////////end of buffer
 		
-		bitmap b;
-		if ( !b ) b = Game->CreateBitmap(16,16);
-		else b->Create(0, 16, 16);
+		//bar.zs
 		
-	This allows checking if a pointer is initialised, easily. 
-
-	//Alpha 16
+		ffc script scrid
+		{
+			void run(){}
+			voud bar(){ Trace(1); }
+		}
 	
-	///////////////////
-	// Short Circuit //
-	///////////////////
-	
-	Fixed short-circuiting. Logical AND and Logical OR now short-circuit as in C,
-	based on a compiler flag.
-	
-	If short-circuiting is enabled, the following occurs:
-	
-		if ( a && b ) 
-			//if 'a' is false, 'b' is skipped.
-		if ( a || b )
-			//if 'a' is true, 'b' is skipped. 
-	
-	//Alpha 13
-	
-	///////////////////////
-	// Constant Division //
-	///////////////////////
-	
-	Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
-	Fixed issues with division by an integer, where values would be truncated.
-	Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag to enable the old, 2.50.x behaviour
-	Fixed scope resolution for identifiers and variables when used across
-		imported files.
-		Example:
-
-			//buffer
-
-			import "bar.zs"
-			void foo()
-			{
-				scrid.bar();
-			}
-			////////////////////end of buffer
-			
-			//bar.zs
-			
-			ffc script scrid
-			{
-				void run(){}
-				voud bar(){ Trace(1); }
-			}
+	This worked in 2.50.x, but broke at some point in 2.55, and the
+	correct behaviour has been restored. 
 		
-		This worked in 2.50.x, but broke at some point in 2.55, and the
-		correct behaviour has been restored. 
-			
-	Script errors will now give line and column references prior to the
-		error type.
-			
-		Old:
-			Error S007: Variable X can't have type VOID.
-				@ LINE 4 COLUMNS 1-11
-			
-		New: 
-			LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
-	Syntax errors have yet to be updated.
-			
-	Fixed some issues where compiler errors improperly carried over. 
+Script errors will now give line and column references prior to the
+	error type.
+		
+	Old:
+		Error S007: Variable X can't have type VOID.
+			@ LINE 4 COLUMNS 1-11
+		
+	New: 
+		LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
+Syntax errors have yet to be updated.
+		
+Fixed some issues where compiler errors improperly carried over. 
 
-	Fixed import directive pathing with backslashes:
-		Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
-		As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
-		This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
-			
+Fixed import directive pathing with backslashes:
+	Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
+	As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
+	This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
 
-//////////////////
-// Script Types //
-//////////////////
 
 //////////////
 // Waitdraw //
@@ -445,11 +1383,22 @@ The Waitdraw() instruction defers further execution of a script (pausing it) unt
 	draws to the screen have been rendered for the present frame.
 	
 The following script types now support Waitdraw():
-ffc, screendata, eweapon, itemsprite, item.
+ffc, screendata, eweapon, itemsprite, itemdata.
 You may disable Waitdraw support (for compatibility reasons) for ffc scripts, 
-	and item scripts in the ZScript Quest Settings Dialogue.
+	and itemdata scripts in the ZScript Quest Settings Dialogue.
 	
 Waitdraw support for npc, and lweapon scripts remains t/b/a.
+
+
+
+  _________            .__        __    ___________                            
+ /   _____/ ___________|__|______/  |_  \__    ___/__.__.______   ____   ______
+ \_____  \_/ ___\_  __ \  \____ \   __\   |    | <   |  |\____ \_/ __ \ /  ___/
+ /        \  \___|  | \/  |  |_> >  |     |    |  \___  ||  |_> >  ___/ \___ \ 
+/_______  /\___  >__|  |__|   __/|__|     |____|  / ____||   __/ \___  >____  >
+        \/     \/         |__|                    \/     |__|        \/     \/ 
+
+ 									// Script Types
 
 ///////////////////
 /// FFC Scripts ///
@@ -583,7 +1532,7 @@ Waitdraw Support:	Yes, based on slot.
 // Slot (4) : Load from Save //
 ///////////////////////////////
 
-*	SLOT NAME: 'onLoadSave'
+*	SLOT NAME: 'onSaveLoad'
 *
 * 	This script runs FOR ONE FRAME, on every load of a quest from the file select 
 * 	screen, AFTER the player has saved the game at least one time.
@@ -664,7 +1613,22 @@ Waitdraw Support:	Yes, based on slot.
 *	unless the quest rule 'Skip Continue Screen' in 'Quest->Rules->Other' is active. If the player does not chooses
 *	to exit via the standard continue screen, or it is skipped via the aforementioned rule, gameplay will resume
 *	exactly where it left off.
-   
+
+//////////////////////
+// Slot (8) :  Save //
+//////////////////////
+
+*	 SLOT NAME: 'onSave'
+*
+*	 This script runs FOR ONE FRAME, when the game saves the save data.
+*	 This occurs either from F6>>>Save (or GameOver>>>Save), when saving via a Save Point combo type,
+*	 as well as from the ZScript commands 'Game->Save()', 'Game->SaveAndQuit()', and 'Game->SaveAndContinue()'.
+*	 
+*	 This runs AFTER the 'onExit' script, in any condition that would cause both to run.
+*	 
+*	 The main purpose of this script is to allow saving of custom script data that would NOT be saved to the
+*	 save file; such as ZScript files, bitmap images, or SRAM.
+
    
 ////////////////////
 /// Hero Scripts ///
@@ -777,8 +1741,8 @@ Waitdraw Support:	Yes, based on slot.
  
 TOKEN(s):		dmapdata script
 POINTER: 		dmapdata
-InitD:			Yes, [8]
-InitD Labels:		Yes, [8]
+InitD:			Yes, [8] each (active, scripted subscreen)
+InitD Labels:		Yes, [8] each (active, scripted subscreen)
 InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	Yes
@@ -788,6 +1752,38 @@ Waitdraw Support:	Yes
 *
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
+* 
+* There are three script slots in the DMap Editor:
+*	Active
+*		This script runs whenever the player is on the DMap.
+*		It has eight InitD args, and eight InitD strings.
+*		If the player warps while this script is running, then the engine 
+*		will load the DMap Active script from the destination DMap (if any).
+*			If using a scripted DMap Active Subscreen script, you have
+*			the option that this script continues to run while the scripted
+*			subscreen is open.
+*	Scripted Subscreen (Active)
+*		This script runs, if assigned, when the player presses the
+*		START button, IN PLACE OF THE NORMAL ACTIVE SUBSCREEN for this DMap.
+*		This script type hasd eight InitD args and eight InitD strings.
+*		InitD with this script type is shared with the DMap Passive Subscreen Script Slot.
+*		If the player warps while this is running, then the engie will
+*		load the Scripted Subscreen (Active) DMap script from the destination DMap (if any).
+*		If the destination DMap lacks a Scripted Subscreen (Active) DMap script,
+*		then the virtual subscreen will terminate.
+*	Scripted Subscreen (Passive)
+*		If assigned, this script runs whenever the player is on the DMap.
+*		Its purpose is to permit creating a scripted passive subscreen.
+*		This script shares its InitD args and its InitD strings with the Scripted
+*		Subscreen (Active) DMap slot script.
+*		If the player warps while this script is running, then the engine
+*		will load the Scripted Subscreen (Passive) script from the destination
+*		DMap (if any).
+*			If using a scripted DMap Subscreen (Active) script, then you
+*			further have the option that this script continues to run while
+*			the scripted active subscreen is open.
+*
+*
 *
 * DMap scripts run only on DMaps where they are set to run.
 * Warping to a DMap with a dmap script will start that script.
@@ -795,14 +1791,23 @@ Waitdraw Support:	Yes
 * You can assign this script to a DMap in the DMAPS EDITOR dialogue. 
 *	To do this, open the DMAPS EDITOR, and select the 'Scripts' tab.
 *
-* You may assign scripts to DMaps from other scripts, via dmapdata->Script
-* 	on an initialised dmapdata pointer.
+* You may assign scripts to DMaps from other scripts, on an initialised dmapdata pointer,
+* via dmapdata->Script and dmapdata->SubscreenScript[2], where the indices are:
 *
-* DMap Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
+*	DMD_SUBSCREEN_ACTIVE 	= 0;
+*	DMD_SUBSCREEN_PASSIVE 	= 1;
+*
+* DMap Active Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
 * 	You may assign values to these in the DMAP EDITOR, and you may label the fields
 * 	for these InitD values in the DMAP EDITOR.
 * 	You may also read or write to them by script with dmapdata->InitD[] (or this->InitD[])
 *
+* DMap Subscreen Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
+*	You may assign values to these in the DMAP EDITOR, and you may label the fields
+* 	for these InitD values in the DMAP EDITOR.
+* 	Both subscreen script types shjare the InitD values and labels, per DMap.
+* 	You may also read from, or write to them by script with dmapdata->SubscreenInitD[].
+* 
 * Trying to modify the script while it is running with this->Script, is untested.
 
 
@@ -935,7 +1940,7 @@ Waitdraw Support:	No
 //////////////////////////
 
 TOKEN(s):		itemsprite script
-POINTER: 		item
+POINTER: 		itemsprite
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
 InitA:			No
@@ -943,9 +1948,9 @@ Multiple Frames:	Yes
 Waitdraw Support:	Yes
 
 * You can now compile and assign scripts to items that appear on the screen.
-* The 'this' pointer for itemsprite scripts is item (ri->itemsref).
+* The 'this' pointer for itemsprite scripts is itemsprite (ri->itemsref).
 *
-* This script can run for multiple frames. It automatically ends if the item becomes invalid.
+* This script can run for multiple frames. It automatically ends if the itemsprite becomes invalid.
 *
 * You can assign this script to an item in the ITEM EDITOR dialogue. 
 *	To do this, open the ITEM EDITOR, and select the 'Scripts' tab.
@@ -954,19 +1959,19 @@ Waitdraw Support:	Yes
 * itemsprite Scripts have eight InitD[] args, in the ITEM EDITOR for this script type.
 * 	You may assign values to these in the ITEM EDITOR, and you may label the fields
 * 	for these InitD values in the ITEM EDITOR.
-* 	You may also read or write to them by script with item->InitD[] (or this->InitD[])
+* 	You may also read or write to them by script with itemsprite->InitD[] (or this->InitD[])
 *
 * Trying to modify the script while it is running with this->Script, is untested.
 
 t/b/a
-Item Script, FFC Script
+Itemdata Script, FFC Script
 
 
-////////////////////
-/// Item Scripts ///
-////////////////////
+////////////////////////
+/// Itemdata Scripts ///
+////////////////////////
 
-TOKEN(s):		item script
+TOKEN(s):		itemdata script
 POINTER: 		itemdata
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
@@ -974,12 +1979,36 @@ InitA:			Yes, [2]
 Multiple Frames:	Yes, depends on QR or item flag
 Waitdraw Support:	Yes, depends on QR
 
-It is now possible to permit item scripts to run for more than one frame.
+It is now possible to permit itemdata scripts to run for more than one frame.
 	To do this, you must enable the Quest Rule, 'Item Scripts Continue to Run', 
 	in Quest->Rules->Scripts.
 	
 	This rule is disabled by default, and disabled for all legacy quests, for compatibility
 	reasons.
+
+NOTE: In previous versions, this type was simply called "item script".
+
+
+/////////////////////
+/// Combo Scripts ///
+/////////////////////
+
+TOKEN(s):		combodata script
+POINTER: 		combodata
+InitD:			Yes, [2]
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	t/b/a
+
+
+* Each combo position, on every layer, is capable of running a script. You can set the permitted layers in the
+* menu: ZScript >>> Quest Specific Settings >>> Scripts.
+* combodata Scripts have two InitD[] args, in the COMBO EDITOR for this script type.
+* 	You may also read or write to them by script with combodata->InitD[] (or this->InitD[])
+* Each combo in the Combo Editor may have one script, and twi InitD values, set on the 'Script' tab.
+* Combo scripts, and only combo scripts, may call <combodata>this-> Pos(), PosX(), and PosY() to obtain
+* coordinates for a combo running a script.
 
 
 /////////////////////////
@@ -999,25 +2028,15 @@ Waitdraw Support:	Undecided
 To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
 
 
-/////////////////////
-/// Combo Scripts ///
-/////////////////////
 
-NOT IMPLEMENTED!
+_________                       .__.__                
+\_   ___ \  ____   _____ ______ |__|  |   ___________ 
+/    \  \/ /  _ \ /     \\____ \|  |  | _/ __ \_  __ \
+\     \___(  <_> )  Y Y  \  |_> >  |  |_\  ___/|  | \/
+ \______  /\____/|__|_|  /   __/|__|____/\___  >__|   
+        \/             \/|__|                \/       
 
-TOKEN(s):		combodata script
-POINTER: 		combodata
-InitD:			Yes, [t/b/d]
-InitD Labels:		No
-InitA:			No
-Multiple Frames:	Yes
-Waitdraw Support:	Undecided
-
-To be added in a future spec. Will run on combos, set by in the Combo Editor.
-
-
-
-
+									// Compiler
 
 ///////////////////////////
 /// Compiler Directives ///
@@ -1082,7 +2101,7 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		off: This disables the option.
 		error: Used for certain options.
 		warn: Used for certain options.
-		inherit: This causes the option to inherit from its last state (e.g., from an imported file). 
+		inherit: This causes the option to inherit from its last state (e.g., from an importing file). 
 		default: Use the default ZQuest value for this option. (Set in 'ZScript->Compiler Settings')
 	
 	MACROS
@@ -1099,7 +2118,7 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 			bug, where division by a literal resulted in truncation.
 		
 	SHORT_CIRCUIT
-		Off by default.
+		On by default, however off by default for quests made prior to 2.55.
 		Valid values: 'on', 'off', 'inherit', 'default'
 		Enable short-circuiting; see section 'Short Circuiting' above
 		
@@ -1143,6 +2162,17 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		This option is FORCED to 'off' for 'std.zh', as it would break a number of functions.
 		Be cautious when using this option.
 		
+	APPROX_EQUAL_MARGIN <float>
+		Sets the margin of error for the ~~ (approximately equal) operator.
+		The defailt margin of error is 0.0100, so (1.090 ~~ 1.080) == true.
+		Set to a foating point value to use a new error margin for ~~.
+	
+	STRING_SWITCH_CASE_INSENSITIVE
+		Off by default.
+		Valid values: 'on', 'off', 'inherit', 'default'
+		If on, switch-case on string literals will be case-insensitive.
+		Else, they will be case-sensitive.
+		
 Files default to inheriting the option state of the file that imported them. For the buffer, this will use the defaults.
 You may force an option to its' default value by setting it to 'default'
 The default values can be modified in ZQuest, under 'ZScript->Compiler Settings'.
@@ -1154,444 +2184,59 @@ Note: 	You can use any constant expression, or constant value that is one to rep
 	and any constant expression, or constant value that is three to represent 'warn'.
 	The options 'inherit', and 'default' are specific, and not bound to any literal value. 
 	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
-	
 
-///////////////////////////////////////
-// Single Character Escape Sequences //
-///////////////////////////////////////
+/////////////////////////////
+//       Annotations       //
+/////////////////////////////
 
-You may now use escape sequences in a SINGLECHAR type:
-	char32 tab = '\t';
-	
-	Valid Escape Characters
-	\a     		Alert (Beep, Bell) (added in C89)[1]
-	\b    		Backspace
-	\f     		Formfeed Page Break
-	\n     		Newline (Line Feed); see notes below
-	\r     		Carriage Return
-	\t     		Horizontal Tab
-	\v     		Vertical Tab
-	\\     		Backslash
-	\'     		Single quotation mark
-	\"     		Double quotation mark
-	\?     		Question mark (used to avoid trigraphs) 
-	\x0 to \xFF   	Normal ANSI characters, as hex value. 
-	
+Annotations allow for metadata to be set in specific circumstances.
 
-/////////////////////////
-// Ternary Expressions //
-/////////////////////////
+An annotation is specified as follows:
+	@Key("Value")
+Annotations can be listed together to use multiple on the same target, as follows:
+	@Key("Value"), @Key2("Value2")
 
-You may now use C-style ternary expressions:
-
-	int x = Rand(6,8);
-	int y = x > 7 ? 1 : 0;
-	
-	Assigns, and operations inside ternary blocks must be in parens:
-		bool V = true;
-		int b;
-		int a = V ? ( b =  5 ) ? ( b = 4 );
-		
-		int c = V ? ( b -= 2 ) ? 0; 
-		
-		int y; int z; 
-		int x = (y += 10) ? (z = 5) : (a -= 2);
-		
-	In all of these cases, parens are mandatory. 
-	
-	Further, compound ternary expressions should be placed in parens:
-		int a = (V ? 1 : 0) ? 5 : 6
-		
-	The default, is to evaluate in a linear sequence.
-			
-	Thus, 
-		bool ? int : int ? bool : int
-	...would evaluate as: 
-		bool ? int : (int ? bool : int)
-	
-	Using parens to define your order of operations and scope, is prudent. 
-
-///////////////////////////
-// Variable Declarations //
-///////////////////////////
-
-You can now declare, and initialise variables on one line, as in C.
-	Format:
-	TYPE (identifier | identifier ASSIGN NUMBER) comma [repeating] SEMICOLON
-	Examples:
-		int a, b, c = 9, h = 16, f = c+h;
-		float n = 1.04, m = 6.03;
-		
-		These are equivalent to:
-		int a; int b; int c = 9; int h = 16; int f = c+h;
-		float n = 1.04; float m = 6.03;
-
-///////////////////
-// Explicit Cast //
-///////////////////
-
-You may now explicitly cast a value, using a type in angle braces.
-
-	ffc f = Screen->LoadFFC(15);
-	int x = <int>f;
-
-	f = <ffc>2;
-
-
-////////////////////
-// Comment Blocks //
-////////////////////
-
-	The ZScript language now supports C-Style comment blocks using the traditional syntax of:
+Presently, annotations are only allowed on scripts.
 
 	[example--
-
-		/* 
-			COMMENT BLOCK
-			
-		*/
 		
-	--end example]
-	
-///////////////
-// Namespace //
-///////////////
-
-ZScript now supports C-style namespaces.
-
-Declaration examples:
-
-namespace foo
-{
-	int x(){return 16;}
-}
-
-namespace bar
-{
-	int y(){return 32;}
-	namespace foobar
-	{
-		int z(){ return 64;}
-	}
-}
-
-namespace doh
-{
-	int xyz(){return 128;}
-}
-
-Access examples:
-
-foo::x();
-bar::y();
-bar::foobar::z();
-
-/////////////////////
-// Using Namespace //
-/////////////////////
-
-You may invoke the 'using' token to bring the contents of a namespaces
-into the current scope, thus ignoring the requirement for scope-resolution
-(::) until the end of that scope.
-
-You may also invoke 'using' as 'always using' to make that namespace global; this cannot be undone.
-
-The following scopes are valid:
-
-file
-namespace
-script
-function
-
-Using the above namespaces as examples:
-	[example--
-
-	//buffer
-	always using namespace doh;
-	//now in scope in all files, functions, and scripts
-	//never falls out of scope
-	//cannot be undone
-
-	///file 1
-	using namespace foo;
-
-	//we can now ignore scope resolution for namespace foo
-	x(); //now equivalent to foo::x();
-	//end of file; namespace falls out of scope.
-
-	//file 2
-	using namespace bar::foobar;
-	z(); //now equivalent to bar:foobar::z();
-	//end of file; namespace falls out of scope.
-
-	//function
-	void main()
-	{
-		using namespace bar;
-		y();
-	} //namespace falls out of scope
-
-	ffc script f
-	{
-		using namespace foo; //whole script
-		void run()
+		@Author("Venrob") //This sets the 'Author' metadata of 'script foo' to read 'Venrob'
+		ffc script foo
 		{
-			using namespace bar; //only in run()
-			int v = x();
-			int w = y();
-		}
-		void n()
-		{
-			int r = y(); //illegal
-		}
-	}
-	
-	--end example]
-	
-Ambigious identifier access is an error that can occur with 'using'.
-	[example--
-	void foo(){}
-	namespace bar
-	{
-		void foo(){}
-	}
-	
-	void example()
-	{
-		using namespace bar;
-		foo(); //Illegal; which 'foo()' are you trying to call?
-	}
-	--end example]
-	
-In this case, you can select which identifier to reference using scope resolution.
-	[example--
-	void example2()
-	{
-		using namespace bar;
-		bar::foo(); //Calls 'foo()' within namespace 'bar'
-		::foo(); //Calls 'foo()' that is not in a namespace
-	}
-	--end example]
-Another example:
-	[example--
-	namespace bar
-	{
-		void foo(){}
-	}
-	namespace foo
-	{
-		using namespace bar;
-		void foo(){}
-		void example3()
-		{
-			foo(); //This is LEGAL.
-		}
-	}
-	--end example]
-	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
-	there is no local match. In this case, since 'example3()' is in 'namespace foo',
-	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
-
-
-////////////////////////////////////
-// Array Declaration Improvements //
-////////////////////////////////////
-
-	Arrays now support being declared with any constant expression.:
-
-	[example--
-
-		int arr[10*4]; 
-		//This is now the same as int arr[40];
-		
-	--end example]
-
-	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrD[4] ] ] ] )
-
-	Further, you may now use constants in array declarations:
-
-	[example--
-
-		const int sARR_MAX = 20;
-		int arr[sARR_MAX];
-		
-	--end example]
-
-/////////////////////
-// String Literals //
-/////////////////////
-
-	You may now use C-style string literals at any non-global scope.
-
-	[example--
-
-		TraceS("Trace this string.");
-		
-	--end example]
-
-
-	You may use standard C-style escape characters in string literals:
-
-	- \a\b\f\n\r\t\v for the standard values,
-	- \" for quotes
-	- You can escape a newline to make it not appear in the string
-
-	Additionally, adjacent strings are merged by the compiler.
-
-	[example--
-
-		TraceS("This is a string"
-			" on two lines");
-		
-	--end example]
-	
-/////////////////////
-// Global Pointers //
-/////////////////////
-
-	You may now declare any datatype, including arrays for any datatype at a global scope.
-	*	Data saved to these may become invalid and require manual cleansing by the user!
-	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
-
-////////////
-// Unless //
-////////////
-
-	This statement runs the code block attached to it if its statement would evaluate false
-	in an if statement.
-	Aside from the obvious semantical enhancement over 'if(!expression)', the advantage of 
-	this, is that 'unless(expression)' is faster (in ASM instructions) than 'if(!expression)'.
-
-	Example: 
-		int x = 6; int y;
-		unless(x==6)
-		{
-			y = 1;
-		}
-	
-	In this example, the code block would never run, because x == 6. 
-	This is the opposite of 'if', and supports 'else unless' and 'else'
-	blocks following the unless statement.
-	
-////////////
-// Repeat //
-////////////
-
-Repeats a command a given number of times.
-The value passed to repeat(const int v) must be constant at compile time.
-
-Example:
-	const int N = 10;
-	int x;
-	repeat(N) { ++x; }
-	
-This is similar to a for loop, but it produces faster ZASM, because the number
-of iterations is known at compile-time.
-
-/////////////////////
-// Until, do-until //
-/////////////////////
-
-	ZScript now supports the Pascal-style token 'until'. 
-	This functions as an inverted 'while' statement.
-	Aside from the obvious semantical enhancement over 'while(!expression)', the advantage of 
-	this, is that 'until(expression)' is faster (in ASM instructions) than 'while(!expression)'.
-	
-	Examples:
-	
-		until(x > 7) { DoSomething(); }
-		
-		do
-		{
-			Something();
-		} until ( x > 7 );
-
-
-/////////////////
-// Switch-Case //
-/////////////////
-
-	ZScript now supports C-style switch statements. Case values must be numeric literals,
-	or constant expressions. Switch-case cases must end in a break instruction, and a you
-	may provide a default case.
-
-	[example-- 
-
-		const int SOME_CONST = 11;
-
-		switch(var)
-		{
-			case 1:
+			void run()
 			{
-				DoSomething(); 
-				break
-			}
-			case SOME_CONST:
-			{
-				DoSomethingElse();
-				break:
-			}
-			case SOME_CONST+(10*2)
-			{
-				DoOther();
-				break;
-			}
-			default:
-			{
-				DoDefault();
-				break;
+				TraceS("Test");
 			}
 		}
-
-	--end example]
-
-/////////////
-// Typedef //
-/////////////
-
-	You can now define your own types using typedef using normal C syntax:
-
-	typedef old_type new_type;
-
-	[example--
-		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 		
-
-		typedef const int DEFINE;
-		//Allows you to use the token DEFINE to declare constant ints. 
 		
 	--end example]
+
+Available annotations:
+
+	@Author -
+		Valid on: Scripts
+		Function: Sets the author name metadata field
+
+/////////////////////////////
+///  Registration System  ///
+/////////////////////////////
+
+	A new registration handler has been added to the parser.
+	Now, global references do NOT need to be placed in order.
 	
-	
-////////////////////
-// Script Typedef //
-////////////////////
-
-	 You may also typedef script tokens, creating your own types that resolve into existing script types.
-
-	e.g. script typedef hero villain;
-	
-	You may now declare the script type 'villain script', that resolves into the normal 'hero script' type.
-
-
-///////////////////////////////
-/// Expanded Array Literals ///
-///////////////////////////////
-
-	Array Literals of the following form may be used in lots of places,
-	not just array variable declarations.
-
-	{0, 1, 2}
-	(int[]){0, 1, 2}
-	(int[3]){}
-	(int[3]){4}
-
 	[example--
 	
-		RunFFCScript(script_no, (int[8]){arg1, arg2, arg3});
-		
+		const int A = B;
+		const int B = 10;
+		const int C = B;
+	
 	--end example]
 	
-	If no type is specified, the array will default to 'untyped'.
+	Both 'A' and 'C' will be equal to '10'.
+	Previously, a compiler error 'Variable B has not been declared' would occur,
+	as 'B' would not have been processed by the time it is needed.
+	The registration system ensures that everything is registered beforehand, removing this issue.
+
 
 //////////////////////////////////
 /// Mechanical and AST Changes ///
@@ -1649,59 +2294,43 @@ of iterations is known at compile-time.
 	--end example]
 
 
-/////////////////////////////
-///  Registration System  ///
-/////////////////////////////
-
-	A new registration handler has been added to the parser.
-	Now, global references do NOT need to be placed in order.
-	
-	[example--
-	
-		const int A = B;
-		const int B = 10;
-		const int C = B;
-	
-	--end example]
-	
-	Both 'A' and 'C' will be equal to '10'.
-	Previously, a compiler error 'Variable B has not been declared' would occur,
-	as 'B' would not have been processed by the time it is needed.
-	The registration system ensures that everything is registered beforehand, removing this issue.
-
-//////////////////
-// New Pointers //
-//////////////////
-
-	Hero->
-	Player->
-	
-		These are synonymous with the old Link-> pointer, which is now deprecated but retained
-		for compatibility purposes. 
-	
-	Graphics->
-		Used for graphical functions.
-
-	Audio->
-		Used for sound and music functions.
-
-	Input->
-		Used to read and write buttons, and keyboard keys; as well as control states.
-
-	Text->
-		Used to get information on fonts, or to display text.
-
-	FileSystem->
-		Used to get information on the user filesystem, such as fileexists(), pathexists().
 
 
-////////////////////////////////////////////////////
-/// NEW ZSCRIPT INSTRUCTIONS ///////////////////////
-////////////////////////////////////////////////////
+ _______                  .___                 __                        __  .__                      
+ \      \   ______  _  __ |   | ____   _______/  |________ __ __   _____/  |_|__| ____   ____   ______
+ /   |   \_/ __ \ \/ \/ / |   |/    \ /  ___/\   __\_  __ \  |  \_/ ___\   __\  |/  _ \ /    \ /  ___/
+/    |    \  ___/\     /  |   |   |  \\___ \  |  |  |  | \/  |  /\  \___|  | |  (  <_> )   |  \\___ \ 
+\____|__  /\___  >\/\_/   |___|___|  /____  > |__|  |__|  |____/  \___  >__| |__|\____/|___|  /____  >
+        \/     \/                  \/     \/                          \/                    \/     \/ 
+
+									// New Instructions
 
 //////////////
 //  Global  //
-//////////////
+//////////////								// Global
+
+int Floor(float n);
+ * Truncates n to the nearest integer, rounding downwards.
+
+int Ceiling(float n);
+ * Truncates n to the nearest integer, rounding upwards.
+
+int Integer(float n);
+ * Truncates n to an integer.
+
+untyped Byte(untyped n);
+untyped Int8(untyped n);
+ * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.
+ 
+untyped Word(untyped n);
+untyped Int16(untyped n);
+ * Clamps and returns 'n' sized to an unsigned 16-bit integer, with appropriate overflow.
+
+untyped Short(untyped n);
+ * Clamps and returns 'n' sized to a signed 16-bit integer, with appropriate overflow.
+
+untyped SignedByte(untyped n);
+ * Clamps and returns 'n' sized to a signed byte, with appropriate overflow.
 
 void SaveSRAM("filename.zcsram", int flags);
 void LoadSRAM("filename.zcsram", int flags);
@@ -1790,6 +2419,29 @@ int strspn(string[], string_keys[]);
 int strcspn(string[], string_keys[]);
  * Returns the length of characters in a string before a character contained in
  * 'string_keys' is found
+
+void sprintf(char32[] buf, char32[] format, ...untyped...)
+ * Takes a buffer, a format string, and anywhere between 0 and 16 (inclusive) untyped arguments.
+ * The untyped arguments will be inserted to the string at points in the format string.
+ * Points are specified using '%'. The letter after is used to determine the type of the arg.
+ *     "%i" - Integer. Inserts the number as a string, without decimal places.
+ *     "%f" - Float. Inserts the number as a string, with decimal places.
+ *            If the number does not contain decimal places, ".0" will still appear.
+ *     "%d" - Number value. Automatically chooses between "%i" and "%f".
+ *     "%s" - String value. Parameter must be a valid ZScript string.
+ *     "%p" - Pointer value. Identical to "%i".
+ *     "%c" - Character value. Inserts a single character.
+ *     "%x" - Hexadecimal, lowercase. Inserts the number, not including decimals,
+ *            in hexidecimal. Uses lowercase for letters.
+ *     "%X" - Hexadecimal, uppercase. Same as above, but uses uppercase for letters.
+ *     "%%" - Inserts a single '%' character, without trying to read it as an argument.
+ * The resulting string will be placed in the buffer, which is expected to be large enough
+ *     to hold the output.
+
+void printf(char32 format[], ...untyped...)
+ * Takes a format string, and anywhere between 0 and 16 (inclusive) untyped arguments.
+ * Same as 'sprintf', but instead of placing the result in a buffer, will instead
+ *     trace the result, as with "TraceS()".
  
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
@@ -1819,77 +2471,130 @@ bool IsValidArray(untyped[]);
 
 /************************************************************************************************************/
 
-//////////////////
-//  FileSystem  //
-//////////////////
 
-bool DirExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' is a valid directory path,
- * relative to the current ZC path.
-
-bool FileExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' is a valid file path,
- * relative to the current ZC path.
-
-/************************************************************************************************************/
+__________      .__        __                    _____                ___.                        
+\______   \____ |__| _____/  |_  ___________    /     \   ____   _____\_ |__   ___________  ______
+ |     ___/  _ \|  |/    \   __\/ __ \_  __ \  /  \ /  \_/ __ \ /     \| __ \_/ __ \_  __ \/  ___/
+ |    |  (  <_> )  |   |  \  | \  ___/|  | \/ /    Y    \  ___/|  Y Y  \ \_\ \  ___/|  | \/\___ \ 
+ |____|   \____/|__|___|  /__|  \___  >__|    \____|__  /\___  >__|_|  /___  /\___  >__|  /____  >
+                        \/          \/                \/     \/      \/    \/     \/           \/ 
 
 ////////////
 //  Game  //
-////////////
+////////////								// Game
 
 Adds ZScript:
 
-Game->GetNPCScript("name");
+int IncrementQuest();
+ * Ends the current quest, incrementing the quest ID by +1, and
+ * saves. This works as a normal WIN FLAG. except that the normal
+ * ending credits do not appear. Instead, there is a fade out, and
+ * the player is returned to the file select, but the file in the 
+ * current slot is modified to be the next quest in the MODULE.
+ *
+ * This is exclusively intended to be used for serialised quests
+ * in MODULES and requires the use of QUEST NUMBERS to work.
+
+int MaxNPCs();
+ * Returns the maximum number of npc sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxNPCs(int newmax);
+ * Sets the maximum number of npc sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+int MaxLWeapons();
+ * Returns the maximum number of lweapon sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxLWeapons(int newmax);
+ * Sets the maximum number of lweapon sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+int MaxEWeapons();
+ * Returns the maximum number of eweapon sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxEWeapons(int newmax);
+ * Sets the maximum number of eweapon sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+ 
+ int MaxItemsprites();
+ * Returns the maximum number of itemsprite sprites that arw allowed
+ * to be on the screen at one time. 
+ 
+void MaxItemsprites(int newmax);
+ * Sets the maximum number of itemsprite sprites that are allowed to
+ * be on the screen at one time. The current legal range is 
+ * 1 to 1024.
+
+float Gravity[3];
+ * Read or write to the Game's Gravity values.
+ * Use the 'GR_' constants to access this array
+
+int Scrolling[5];
+ * Read values related to scrolling. READ-ONLY.
+ * Use the 'SCROLL_*' constants to access this array
+     * SCROLL_DIR: The direction the screen is scrolling. Returns -1 while not scrolling.
+     * SCROLL_NX: The x-offset for the new screen. Returns 0 while not scrolling.
+     * SCROLL_NY: The y-offset for the new screen. Returns 0 while not scrolling.
+     * SCROLL_OX: The x-offset for the old screen. Returns 0 while not scrolling.
+     * SCROLL_OY: The y-offset for the old screen. Returns 0 while not scrolling.
+
+int Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetLWeaponScript("name");
+int Game->GetLWeaponScript("name");
  * Returns the slot ID of the lweapon script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetEWeaponScript("name");
+int Game->GetEWeaponScript("name");
  * Returns the slot ID of the eweapon script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetHeroScript("name");
-Game->GetLinkScript("name");
-Game->GetPlayerScript("name");
+int Game->GetHeroScript("name");
+int Game->GetLinkScript("name");
+int Game->GetPlayerScript("name");
  * Returns the slot ID of the hero script 'name'.
  * Returns -1 if there is no match.
 
-Game->GetDMapScript("name");
+int Game->GetDMapScript("name");
  * Returns the slot ID of the dmapdata script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetScreenScript("name");
+int Game->GetScreenScript("name");
  * Returns the slot ID of the screendata script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetSubscreenScript("name");
+int Game->GetSubscreenScript("name");
  * Returns the slot ID of the subscreen script 'name'.
  * Returns -1 if there is no match.
  * Thos script type is not implemented at this time.
  
-Game->GetUntypedScript("name");
+int Game->GetUntypedScript("name");
  * Returns 0; not implemented as this script type has no slot assignment at this time.
  
-Game->GetItemSpriteScript("name");
+int Game->GetItemSpriteScript("name");
  * Returns the slot ID of the itemsprite script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetNPC("name");
+int Game->GetNPC("name");
  * Returns the ID of the npc 'name'.
  * Returns -1 if there is no match.
  
-Game->GetItem("name");
+int Game->GetItem("name");
  * Returns the ID of the item 'name'.
  * Returns -1 if there is no match.
  
-Game->GetDMap("name");
+int Game->GetDMap("name");
  * Returns the ID of the DMap 'name'.
  * Returns -1 if there is no match.
  
-Game->GetCombo("name");
+int Game->GetCombo("name");
  * Returns the ID of the first combo with label 'name'.
  * Returns -1 if there is no match.
  
@@ -1908,6 +2613,11 @@ void SaveAndQuit();
 
 void ShowContinueScreen();
  * As void ShowSaveScreen(), but it shows the base Save/Retry/Continue screen.
+
+void Reload();
+ * Similar to 'Game->End()', but, instead of going back to the title screen,
+ *     the same save file will be automatically reloaded; allowing a script to quickly
+ *     revert to the prior save, without needing the user to re-select the save file.
 
 bool SkipF6;
  * Disables showing the Continue/Retry/Save menu if the player presses F6.
@@ -1941,6 +2651,25 @@ npcdata LoadNPCData(int id);
 
 mapdata LoadMapData(int map, int screen);
  * Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
+
+mapdata LoadTempScreen(int layer);
+ * Loads a screen data ref for the TEMPORARY data of the layer 'layer'.
+ * This can be used to make temporary changes to layers of the current screen, which will not
+ *     persist upon leaving the screen.
+ * NOTE: All changes to this pointer are lost upon changing screens.
+
+mapdata LoadScrollingScreen(int layer);
+ * Loads a screen data ref for the TEMPORARY data of the layer 'layer' used for scrolling.
+ * During scrolling, this can be used to change things on the screen you are presently scrolling away from.
+ * Not during scrolling, this will point to the last screen you scrolled away from.
+ * This pointer will include any temporary changes made while you were on the screen.
+ * NOTE: All changes to this pointer are lost upon changing screens.
+
+dmapdata LoadDMapData(int dmap);
+ * Loads a dmapdata ref for dmap ID 'dmap' to a 'dmapdata' typed pointer.
+
+dropsetdata LoadDropset(int ID);
+ * Loads a dropsetdata ref for dropset number 'ID' to a 'dropset' typed pointer.
 
 spritedata LoadSpriteData(int id);
  * Loads an Weapon Sprite Editor table data ref for sprite 'id', to a 'spritedata' typed pointer.
@@ -2070,10 +2799,392 @@ int GetPointer(bool *ptr[]);
 
 /************************************************************************************************************/
 
+/////////////////
+///  Input->  ///
+/////////////////								// Input
+
+int ModifierKeys;
+ * Returns the Allegro Keyboard Modifier Flags:
+ *	KB_SHIFT_FLAG = 0x0001;
+ *	KB_CTRL_FLAG = 0x0002;
+ *	KB_ALT_FLAG = 0x0004;
+ *	KB_LWIN_FLAG = 0x0008;
+ *	KB_RWIN_FLAG = 0x0010;
+ *	KB_MENU_FLAG  = 0x0020;
+ *	KB_COMMAND_FLAG  = 0x0040;
+ *	KB_SCROLOCK_FLAG  = 0x0100;
+ *	KB_NUMLOCK_FLAG = 0x0200;
+ *	KB_CAPSLOCK_FLAG = 0x0400;
+ *	KB_INALTSEQ_FLAG = 0x0800;
+ *	KB_ACCENT1_FLAG = 0x1000; 
+ *	KB_ACCENT2_FLAG = 0x2000; 
+ *	KB_ACCENT3_FLAG = 0x4000; 
+ *	KB_ACCENT4_FLAG = 0x8000; 
+ * I am unsure what 0x80 is, if anything. It is not listed in Allegro keyboard.h. -Z
+ * Might have been reserved for the Apple Right Command key, but never used. 
+ 
+int KeyBindings[14];
+ * Returns the key bound to the 14 possible system keys.
+ * Use the CB_* constants to access the array, and the KEY_*
+ * constants for values. 
+ 
+bool SimulateKeypress[127];
+ * Simulates pressing a key on the keyboard, where the key_id
+ * is the index of the array. 
+ * Input->SimulateKeypress[KEY_A] = true; will attempt to simulate 
+ * the user pressing the A key on their keyboard.
+ * Writing this false has no effect. 
+
+bool Press[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was pressed this frame.
+ *	Replaces Link->Press*.
+ * Use the CB_* constants to access this array. 
+
+bool Button[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ *	Replaces Link->Input*.
+ * Use the CB_* constants to access this array. 
+ 
+bool Hold[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ * May be identical to Input->Press[] in some regards.
+ * Use the CB_* constants to access this array. 
+ 
+bool DisableButton[18];
+ * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
+ * Scripts will still read the button normally, ignoring this
+ * This allows disabling the engine's button, while not disabling the button for scripts.
+ * Use the CB_* constants to access this array. 
+ 
+bool KeyRaw[127];
+ * Read-Only: An array of boolean values that read as 'true'
+ * 	if the corresponding keyboard key was pressed this frame.
+ * You can write a key false, but not true. 
+ * Use the KEY_* constants to access this array. 
+ * Note: This writes directly to allegro's key[] values.
+	
+bool ReadKey[127] ( should become a function ReadKey()? )
+ * As 'KeyRaw[]', except that reading a key with ReadKey[] will ignore further input from that key, 
+   until it is released. 
+ * Read-only.
+ * Use the KEY_* constants to access this array. 
+ 
+bool Key[127];
+ * Returns true if a key was down this frame.
+ * Functions similarly to 'Input->Button[]', but for keys.
+ * Read/Write; this will affect most engine functions as well, though
+ *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
+ *     bypass this, though can be affected via 'KeyRaw[]'
+ 
+bool KeyPressed[127];
+ * Returns true if a key was pressed this frame.
+ * Functions similarly to 'Input->Press[]', but for keys.
+ * Read/Write; this will affect most engine functions as well, though
+ *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
+ *     bypass this, though can be affected via 'KeyRaw[]'
+ *     Writing this true for 'F3', 'F4', or 'F6' will trigger the button;
+ *     though writing false must occur to 'KeyRaw[]'.
+ 
+bool DisableKey[127];
+ * Setting an index of this array to 'true' will disable that key for engine input
+ * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
+ * Script key reading, such as 'Input->Key[]', are unaffected.
+ * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
+ * Use the KEY_* constants to access this array. 
+ 
+bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
+ * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
+ * Use the CB_* constants to access this array. 
+ 
+float Mouse[6];
+ * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
+   plus the x/y components of the mouse.
+ *	Replaces mouse variables under Link->.
+ * indices: 
+ * 	float Mouse[0] Mouse X Position
+ * 	float Mouse[1] Mouse Y Position
+ * 	float Mouse[2] Mouse Z Position
+ * 	bool Mouse[3] Left Button
+ * 	bool Mouse[4] Right Button
+ * 	bool Mouse[5] Middle Button
+
+
+//int Type //this is a dummy function in the table.
+
+/************************************************************************************************************/
+
+//////////////////
+//  FileSystem  //
+//////////////////
+
+bool DirExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid directory path,
+ *     relative to the current ZC path.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this is relative to "[zc root]/Files/[quest name]/"
+
+bool FileExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid file path,
+ *     relative to the current ZC path.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this is relative to "[zc root]/Files/[quest name]/"
+
+/************************************************************************************************************/
+
 ////////////////
-///  Screen  ///
+///   File   ///
 ////////////////
 
+/*
+ * General info:
+ * Files opened with 'Open()' or 'Create()', as well as some modes passed to
+ *     'OpenMode()', can be Read/Write. In a Read/Write mode, you must call
+ *     one of a few certain functions between a read call and a write call.
+ *     These functions will list this effect in their description.
+ *
+ * Writing to files does not write directly to disk, but to a buffer.
+ *     It is guaranteed that the contents of this buffer will be written to disk
+ *     upon a successful call to 'Flush()', or upon the closing of the file.
+ *     Upon exiting the quest, all open files are closed.
+ *
+ * There is a limit of 256 file pointers. A pointer does not need to have a file
+ *     open to count against this limit. Any pointer that returns true from
+ *     'isAllocated()' counts against this limit. Calling 'Free()' will deallocate
+ *     a pointer, thus no longer counting against this limit. If you open many files
+ *     without calling 'Free()', you may run out of pointers, and be unable to open
+ *     further files (until you call 'Free()' on some existing pointers).
+ *
+ * Files are NOT automatically freed if they fall out of scope. You should be sure to
+ *     manually call 'Free()' before this happens, or you may lose the pointer, and be
+ *     unable to free it later. This could lead to running out of available file pointers.
+ *
+ * Remember: POSIX filesystems are Case-SenSitive. 
+ */
+
+bool Open("filepath");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Attempts to open the file at "[zc root]/Files/[questname]/[filepath]"
+ * Returns true if successful, false if not.
+ * File is opened with mode "rb+" (a read/write binary mode)
+ *     If the file does not exist, it will fail.
+ * For an equivalent text file mode, use 'OpenMode("filepath", "r+")'
+
+bool Create("filepath");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Same as 'Open()', but the file is opened with mode "wb+".
+ *     If the file does not exist, it will be created.
+ *     If the file DOES exist, all data in the file will be deleted.
+ * For an equivalent text file mode, use 'OpenMode("filepath", "w+")'
+
+bool OpenMode("filepath", "mode_string");
+ * If the file pointer has not been allocated, this function will allocate it.
+ * Closes any open file connected to the file pointer.
+ * Same as 'Open()', but the file is opened with the specified mode.
+ * Valid modes (details taken from http://www.cplusplus.com/reference/cstdio/fopen/):
+ *     "r"  | read: Open file for input operations. The file must exist.
+ *     "w"  | write: Create an empty file for output operations. If a file
+ *            with the same name already exists, its contents are discarded
+ *            and the file is treated as a new empty file.
+ *     "a"  | append: Open file for output at the end of a file. Output operations
+ *            always write data at the end of the file, expanding it. Repositioning
+ *            operations ('Seek()', 'Rewind()') are ignored. The file is created if
+ *            it does not exist.
+ *     "r+" | read/update: Open a file for update (both for input and output). The
+ *            file must exist.
+ *     "w+" | write/update: Create an empty file and open it for update (both for
+ *            input and output). If a file with the same name already exists its
+ *            contents are discarded and the file is treated as a new empty file.
+ *     "a+" | append/update: Open a file for update (both for input and output)
+ *            with all output operations writing data at the end of the file.
+ *            Repositioning operations (fseek, fsetpos, rewind) affects the next
+ *            input operations, but output operations move the position back to the
+ *            end of file. The file is created if it does not exist.
+ *
+ * The letter "b" can be added to the end of any of these (or before the "+", for update modes)
+ *     to specify a binary file mode. Not doing this will specify a text file mode.
+ * Text files are files containing sequences of lines of text. Depending on the environment
+ *     where the application runs, some special character conversion may occur in input/output
+ *     operations in text mode to adapt them to a system-specific text file format. Although
+ *     on some environments no conversions occur and both text files and binary files are
+ *     treated the same way, using the appropriate mode improves portability.
+
+void Close();
+ * Closes any open file connected to the file pointer.
+ * This does NOT deallocate the pointer; it is still free to open new files on.
+
+void Free();
+ * Closes any open file connected to the file pointer.
+ * This will deallocate the file pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many file pointers may be allocated at once.
+ * See the 'General Information' at the top of this section for more details.
+
+bool isAllocated();
+ * Returns true if this file pointer is allocated.
+ * This does NOT mean it has a file open; the pointer simply has an ID.
+
+bool isValid();
+ * Returns true if this file pointer has a file open.
+
+bool Allocate();
+ * Attempts to allocate the file pointer. If it was already allocated, this will re-allocate it;
+ *     without deallocating the old pointer! This should not be called on already allocated pointers.
+ * Returns true if it can allocate; false otherwise. A false return indicates that the maximum
+ *     number of allocated files has been reached.
+
+bool Flush();
+ * Flushes the buffer of the file being written to.
+ * Writes to a file do not actually write to the file immediately; they instead go to a buffer.
+ *     Calling this function will force the buffer to be written to disk.
+
+int ReadString(char32[] buf);
+ * Reads a section of characters from the file.
+ * Will read either until 'buf' is full, an error occurs, End of File is reached, or a newline
+ *     character is reached.
+ * If it ends due to reaching a newline character, the newline character will be included at the
+ *     end of the string.
+ * Returns the length of the string read into 'buf'.
+
+int ReadChars(char32[] buf, int count, int pos);
+ * Reads a section of characters from the file.
+ * Starts placing characters at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * Will always add a null character at the end of the read characters.
+ * Returns the number of characters read, excluding the added null character.
+
+int ReadInts(untyped[] buf, int count, int pos);
+ * Reads a section of binary data from the file.
+ * Starts placing data at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * The binary data read will be 32b; such that reading '1' will place '0.0001' into buf.
+ *     This means that the binary data can contain decimal places.
+ * Returns the number of ints read.
+
+int WriteString(char32[] str);
+ * Writes the string stored in 'str' to the file.
+ * Returns the number of characters successfully written.
+
+int WriteChars(char32[] buf, int count, int pos);
+ * Writes characters from 'buf' to file.
+ * Starts at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'buf' until it finds a null character, or reaches the end of 'buf'.
+ * If 'count' is positive, writes 'count' characters from buf.
+ * Returns the number of characters successfully written.
+
+int WriteInts(untyped[] arr, int count, int pos);
+ * Writes 32b binary data from 'arr' to file.
+ * The binary data written will be 32b; such that writing '1' will write '10000' to file.
+ *     This means that the binary data can contain decimal places; writing '0.0001' will write '1' to file.
+ * Starts at 'arr[pos]'.
+ *     If 'pos' is negative, starts at 'arr[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'arr' until it reaches the end of 'arr'.
+ * If 'count' is positive, writes 'count' ints from arr.
+ * Returns the number of 32b integers successfully written.
+
+char32 GetChar();
+ * Reads and returns the next character in the file.
+ * Returns -1 if it fails; check 'EOF' and 'Error' to see why.
+
+char32 PutChar(char32 c);
+ * Writes 'c' to file.
+ * Returns -1 if it fails; otherwise returns 'c'.
+
+char32 UngetChar(char32 c);
+ * Un-reads 'c' to the input stream.
+ * Returns -1 if it fails; otherwise returns 'c'.
+ * This is a READ operation, not a WRITE operation. The file will not actually be modified;
+ *     but further read operations will find this as the next character to be read.
+ * Useful if you read a character, then realize you don't want it.
+
+int Pos;
+ * Read-only.
+ * This represents the current position in the file.
+ * In binary modes ('Open()', 'Create()', or 'OpenMode()' including "b"), this is the number
+ *     of bytes into the file, / 10000. (i.e. 1 byte in == 0.0001).
+ * In text modes ('OpenMode()' not including "b"),
+ *     the numerical value may not be meaningful but can still be used to restore the position
+ *     to the same position later using 'Seek()' (if there are characters put back using
+ *     'UngetChar()' still pending of being read, the behavior is undefined).
+
+bool Seek(int pos, bool from_current);
+ * Moves the current position of the file.
+ * 'pos' is a 32b value, where '0.0001' represents 1 byte; similar to 'Pos'.
+ * If 'from_current' is true, it moves forward from the current position.
+ * Otherwise, it moves so that 'Pos' is equal to 'pos'.
+ * Using 'from_current'==true in a file open in text mode ('OpenMode()' not
+ *     including "b") is undefined.
+ * Returns true if successful, false otherwise.
+ * If successful, this function has the following side-effects:
+ *     All previous calls to 'UngetChar()' are dropped.
+ *     The 'EOF' indicator is set to false.
+ *     Allows switching between reading and writing on a read/write file.
+
+void Rewind();
+ * Rewinds to the beginning of the file.
+ * This function has the following side-effects:
+ *     All previous calls to 'UngetChar()' are dropped.
+ *     The 'EOF' indicator is set to false.
+ *     The 'Error' indicator is set to 0.
+ *     Allows switching between reading and writing on a read/write file.
+
+bool EOF;
+ * Read-Only. Returns true if a read call attempted to read past the end of the file.
+ * If true, no further read calls will succeed until the position has been changed;
+ *     i.e. 'Seek()' or 'Rewind()'.
+
+int Error;
+ * Read-Only. Returns 0 if the file has not enountered an error.
+ * If an error was encountered, returns an error code number.
+
+void ClearError();
+ * Clears the active EOF and Error indicators.
+ * i.e. this writes 'EOF = false;' and 'Error = 0;'.
+
+void GetError(char32[] buf);
+ * Stores a string describing the current error into the buffer provided.
+ * Stores an empty string if 'Error == 0'.
+
+
+/************************************************************************************************************/
+
+////////////////
+///  Screen  ///
+////////////////								// Screen
+
+npc LoadNPCByUID(int uid);
+ * Returns an npc pointer to an npc on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load npcs by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
+ lweapon LoadLWeaponByUID(int uid);
+ * Returns an lweapon pointer to an lweapon on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load lweapon by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
+ eweapon LoadEWeaponByUID(int uid);
+ * Returns an eweapon pointer to an eweapon on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load lweapon by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
 int Script;
  * The screendata script used for the current screen.
 
@@ -2100,6 +3211,10 @@ int Script;
  
 untyped InitD[8];
  * The eight script args for the script that runs on this screen.
+
+bool isSolidLayer(int x, int y, int layer);
+ * As 'Screen->isSolid()', but instead of returning true if there is solidity on layers 0, 1, or 2,
+ * returns the solidity only for the specified layer.
 
 lweapon CreateLWeaponDx(int type, int baseitem)
  * Create an lweapon with sprites, sounds, and other values set as if it was generated by a specific item.
@@ -2461,7 +3576,7 @@ bool NumFFCs[33];
 
 /////////////
 ///  FFC  ///
-/////////////
+/////////////									// FFC
 
 int ID;	
  * The screen ref of the ffc. Used primarily for this->ID.
@@ -2473,17 +3588,43 @@ bool Flags[14];
 
 /************************************************************************************************************/
 
-//////////////
-///  Item  ///
-//////////////
 
+  _________            .__  __           ________ ___.        __               __          
+ /   _____/____________|__|/  |_  ____   \_____  \\_ |__     |__| ____   _____/  |_  ______
+ \_____  \\____ \_  __ \  \   __\/ __ \   /   |   \| __ \    |  |/ __ \_/ ___\   __\/  ___/
+ /        \  |_> >  | \/  ||  | \  ___/  /    |    \ \_\ \   |  \  ___/\  \___|  |  \___ \ 
+/_______  /   __/|__|  |__||__|  \___  > \_______  /___  /\__|  |\___  >\___  >__| /____  >
+        \/|__|                       \/          \/    \/\______|    \/     \/          \/ 
+The following are the members for sprite objects (Hero, npc, lweapon, eweapon, and itemsprite).
+
+////////////////////
+///  Itemsprite  ///
+////////////////////
+
+bool Animation;
+ * Normally 'true'. If enabled, the item is animated by the ZC engine.
+ * Set this false to disable engine animation.
+ 
+int Max();
+ * Returns the maximum number of itemsprite sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of itemsprite sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
+ 
 untyped InitD[8];
- * The 8 D args for the item.
+ * The 8 D args for the itemsprite.
  * Used as this->InitD[] for itemsprite scripts.
 
 bool Gravity;
- * If set true, the npc would item in sideview gravity.
- * Items have gravity set true by default.
+ * If set true, the itemsprite will fall in sideview gravity.
+ * Itemsprites have gravity set true by default.
 `
 int Scale;
  * The scale factor for this sprited object. 
@@ -2499,20 +3640,20 @@ int Rotation;
  *  'Old (Faster) Sprite Drawing.
 
 int Script;
- * The itemsprite script attached to this item.
+ * The itemsprite script attached to this itemsprite.
 
 int Family;
 int Type;
- * The Family (Item Class) of the item.
+ * The Family (Item Class) of the itemsprite.
 
 untyped Misc[32];
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
 int Pickup;
- * The pick-up type for this item.
+ * The pick-up type for this itemsprite.
 	
 int PickupString;
- * If this is > 0, then when Link touches the item, ZC will display a ZQ String Editor message string
+ * If this is > 0, then when Link touches the itemsprite, ZC will display a ZQ String Editor message string
  * equal to its value.
  * The precise behaviour of this is affected by PickupFlags.
 
@@ -2531,28 +3672,48 @@ int SizeFlags;
 
 
 float UID;	
- * Each item created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an item.
+ * Each itemsprite created by ZC in in a given session is assigned a unique ID (UID).
+ * Returns the UID of an itemsprite.
  * UIDs begin at 00000.0001 and overflow at 217478.3648. 
  *	Note: This allows for 2,147,483,647 unique items, per-session.
 
 int AClock 
- * The clock used for the item's animation cycle. 
+ * The clock used for the itemsprite's animation cycle. 
 
 int ScriptTile;
- * If set to 0 or higher, then the item will be drawn with this tile.
+ * If set to 0 or higher, then the itemsprite will be drawn with this tile.
  * The default value for this is -1.
 
 int ScriptFlip;
- * If set to 0, or higher, then the engine will use this Flip state to draw the item.
+ * If set to 0, or higher, then the engine will use this Flip state to draw the itemsprite.
  * The default value for this is -1. 
 
 /************************************************************************************************************/	
 
 /////////////////
 ///  *weapon  ///
-/////////////////
+/////////////////								// Weapon
 
+int Power; 
+ * The damage/power value of te weapo.
+ * Identical to *weapon->Damage, but added for uniformity with itemdata.
+
+bool Animation;
+ * Normally 'true'. If enabled, the weapon is animated by the ZC engine.
+ * Set this false to disable engine animation.
+
+int Max();
+ * Returns the maximum number of weapon sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of weapon sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
 bool Gravity;
  * If set true, the weapon falls in sideview gravity.
  * Some weapons (e.g. fire, bombs) have this set true by default.
@@ -2590,7 +3751,10 @@ npc Parent;
  * Weapons created by script have a default Parent of -1 (lweapon) and <npc>-0.0001 (eweapon). 
 	
 int Level;
- * The Level value associated with the weapon. 
+ * LWeapons: The Level value associated with the weapon. 
+ * EWeapons: The first bit (Level&1) is used to set a 'boss/unblockable'
+ * state. If this bit is 1, then the weapon is a boss weapon.
+ * Otherwise it is a normal weapon, blocked by standard shield flags.
 
 float UID;
  * Each weapon created by ZC in in a given session is assigned a unique ID (UID).
@@ -2604,8 +3768,18 @@ untyped Misc[32];
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
 ///////////////////////////
-///  LWeapon  Specific  ///
+///  EWeapon  Specific  ///
+///////////////////////////							// EWeapon
+
+int ParentUID;
+ * Returns the UID of the NPC that controls this eweapon.
+ * Useful in weapon scripts, using Screen->LoadNPCBYUID(this->ParentUID).
+ * Returns 0 is there is no npc controlling the weapon.
+ * Remember that UIDs become stale if the npc is destroyed!
+
 ///////////////////////////
+///  LWeapon  Specific  ///
+///////////////////////////							// LWeapon
 
 int Weapon;
  * The UseWeapon property for this weapon. 
@@ -2633,16 +3807,41 @@ int Range;
  * The range of boomerang and hookshot lweapons in pixels; and arrow lweapons in frames.
 
 int AClock 
- * The clock used for the item's animation cycle. 
+ * The clock used for the itemsprite's animation cycle. 
 
 /************************************************************************************************************/		
 
 /////////////
 ///  NPC  ///
-/////////////
+/////////////									// NPC
+
+int Random;
+ * Corresponds to the Enemy Editor Random Rate value.
+
+bool Animation;
+ * Normally 'true'. If enabled, the npc is animated by the ZC engine.
+ * Set this false to disable engine animation.
+
+int Max();
+ * Returns the maximum number of npc sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+
+void Max(int newmax);
+ * Sets the maximum number of npc sprites (eweapon and lweapon are
+ * separate values, and should be read from the appropriate 
+ * pointer type) that arw allowed to be on the screen at one time. 
+ * The current legal range is 
+ * 1 to 1024.
+ 
+bool Submerged();
+ * Returns if the npc is submerged (in the ground, in the water, or in a wall).
+ * Returns true if the npc is FULLY submerged.
+ * Returns false as soon as the npc is even partly submerged, and
+ * continues to return true until that npc is fully-submerged. 
 
 bool Gravity;
- * Not implemented at this time.
+ * If set true, the npc will fall in sideview gravity.
  * Some npcs have this set true by default, others are false by default,
  * based on the npc family.
 
@@ -2697,7 +3896,9 @@ bool Knockback(int time, int dir, int speed);
  *     'bool npc->NoKnockback;' was set true for this enemy
 
 void Remove(); 
- * Instantly kills an npc
+ * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
+ * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
+ * If called from an NPC script on the NPC running the script, immediately terminates the script.
 
 void StopBGSFX();
  * Stops the background sounds that the npc is generating.
@@ -2918,7 +4119,29 @@ int FireSound;
 
 //////////////
 ///  Hero  ///
-//////////////
+//////////////									// Hero // Player
+
+int Steps[8];
+ * The number of pixels that the player moves in a frame, based on
+ * his present coordinates. The movement is taken from his x and y:
+ * as: 
+ * x_move_in_pixels = Hero->Step[Hero->X&7]
+ * y_move_in_pixels = Hero->Step[Hero->Y&7]
+ * The default values are: { 1, 1, 2, 1, 1, 2, 1, 1 };
+ * You can double his speed by doubling these values, or adjust it slightly as needed.
+ * NOTE: This only affects 4-way movement, and has no effect
+ *       if the quest rule 'New Hero Movement' is enabled.
+
+int Step;
+ * The steprate that the player moves at. This functions similarly to "npc->Step" and such;
+ * a step rate of '100' means that you move '1 pixel per frame'. The default step rate is
+ * '150', moving at '1.5 pixels per frame'.
+ * NOTE: This affects BOTH 4-way and 8-way movement, but ONLY
+ *       if the quest rule "New Hero Movement" is enabled.
+
+bool Animation;
+ * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.
+ * Set this false to disable engine animation.
 
 bool NoStepForward;
  * If set true, the player will not take two steps into NES dungeon rooms.
@@ -2990,6 +4213,14 @@ untyped HitBy[10];
  * are not yet implemented in this mechanic. 
 
 **************************************************************
+
+int HealthBeep; 
+ * The timer for the health beep sound, if it is not constant.
+ * Setting this to -2 suspends system control over stopping the sound,
+ * and setting this to -4 suspends system control over both stopping, 
+ * and starting it.
+ * The normal operating range used by the system is 70 to -1, where -1
+ * wraps around to zero internally. 
 
 int Stun;
  * Returns the number of frames for which Link will; remain stunned.
@@ -3146,15 +4377,27 @@ void WarpEx(int ptr[])
 
 /************************************************************************************************************/
 
+________          __             _________ __                        __          
+\______ \ _____ _/  |______     /   _____//  |________ __ __   _____/  |_  ______
+ |    |  \\__  \\   __\__  \    \_____  \\   __\_  __ \  |  \_/ ___\   __\/  ___/
+ |    `   \/ __ \|  |  / __ \_  /        \|  |  |  | \/  |  /\  \___|  |  \___ \ 
+/_______  (____  /__| (____  / /_______  /|__|  |__|  |____/  \___  >__| /____  >
+        \/     \/          \/          \/                         \/          \/ 
+The following are the members of data struct pointers (combo, sprite, item, npc, message, game, cheat, warpring, shop, map, and dmap data).
+
 //////////////////
 ///  itemdata  ///
-//////////////////
+//////////////////								// Itemdata
 
 int ID;		
  * Returns the item number of the item in question.
 
 bool EquipmentItem;
  * Identical to bool Keep, but with more logical naming.
+
+int Damage;
+ * The damage produced by weapons generated from tis item.
+ * Identical to itemdata->Power, provided for uniformity it weapons.
 
 void RunScript(int mode);
  * Runs the script assigned to this item at any arbitrary time.
@@ -3371,7 +4614,7 @@ itemdata GetItem(name[]);
 
 /////////////////////
 ///  messagedata  ///
-/////////////////////
+/////////////////////								// Messagedata
 
 void Set(int buffer[]);
  * Assigns the ZString buffer[] to the messagedata pointer's string.
@@ -3386,22 +4629,86 @@ int Next;
  * Next message in list.
 
 int Tile;
+ * The tile for the background
+
 int CSet;
+ * The CSet for the background
+
 int Font;
+ * The message font
+
 int X;
+ * The messagebox X position
+
 int Y;
+ * The messagebox Y position
+
 int Width;
+ * The messagebox Width
+
 int Height;
+ * The messagebox Height
+
 int Sound;
+ * The text advancing SFX
+
 int ListPosition;
+ * The position in the list
+
 int VSpace;
+ * The space vertically between lines, in pixels
+
 int HSpace;
-int Flags;
-bool Transparent; (unused at this time).
+ * The space horizontally between characters, in pixels
+
+bool Flag[7];
+ * A set of flags
+ * MSGFLAG_WRAP         - If the text wraps around the bounding box
+ * MSGFLAG_CONT         - If the message is the continuation of a previous one
+ * MSGFLAG_CENTER       - Reserved
+ * MSGFLAG_RIGHT        - Reserved
+ * MSGFLAG_FULLTILE     - If the background tile should be treated as the UL of a tile block,
+ *                        instead of the UL of a 2x2 adjustable frame
+ * MSGFLAG_TRANS_BG     - If the background should be translucent
+ * MSGFLAG_TRANS_FG     - If the text should be translucent
+
+int PortraitTile;
+ * The upper-left corner tile of the portrait.
+ * If 0, no portrait will be displayed.
+
+int PortraitCSet;
+ * The CSet of the portrait
+
+int PortraitX;
+ * The X position of the portrait
+
+int PortraitY;
+ * The Y position of the portrait
+
+int PortraitTileWidth;
+ * The Tile Width of the portrait.
+ * If 0, no portrait will be displayed.
+ * Max value 16
+
+int PortraitTileHeight;
+ * The Tile Width of the portrait.
+ * If 0, no portrait will be displayed.
+ * Max value 14
+
+int TextWidth;
+ * Returns the width, in pixels, of the message.
+ * This uses the font and text as set in the 'Strings' editor,
+ * 	and ignores both trailing spaces and line breaks.
+ * Read-Only
+
+int TextHeight;
+ * Returns the height, in pixels, of the message.
+ * This uses the font as set in the 'Strings' editor, and ignores line breaks.
+ * Read-Only
 	
 //////////////////
 ///  dmapdata  ///
-//////////////////
+//////////////////								// DMapdata
 
 	1.	Sideview Gravity on All Screens (uses Dmaps[].sideview, new var.
 	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
@@ -3440,17 +4747,41 @@ void GetMusic();
 
 //////////////////
 ///  shopdata  ///
-//////////////////
+//////////////////								// Shopdata
 
-	shop->Price[3]
-	infoshop->Price[3]
-	infoshop->String[3]
-	shop->Item[3]
-	shop->HasItem[3]
+int Type;
+ * Returns the shop type for the current shopdata pointer where:
+ * 0: Invalid
+ * 1: Item Shhop
+ * 2: Info Shop
+ * This is read-only and solely based on the internal value of the pointer.
+ 
+int Price[3];
+ * Valid for both item and innformation shop types.
+ * The trhree prices for items or information in the shop. 
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+int String[3];
+ * Valid for both item and innformation shop types.
+ * For info shops, these are the IDs of the three hint strings that you can buy.
+ * For item shops, these are the IDs of the three strings displayed when you buy an item.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+
+int Item[3];
+ * Valid ONLY for item shop types.
+ * The IDs of the items sold by the shop.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+bool HasItem[3];
+ * Valid ONLY for item shop types.
+ * Enables the sale of items in each of the three positions.
+ * [0] is leftmost, [1] is middle, [2] is rightmost.
+ 
+Note: The message displayed when entering a shop is Screen->String, or mapdata->String.
 
 /////////////////
 ///  mapdata  ///
-/////////////////
+/////////////////								// Mapdata
 
 int Map;
  * Returns the map that this mapdata points to
@@ -3478,6 +4809,9 @@ untyped InitD[8];
 
 bool isSolid(int x, int y);
  * As Screen->isSolid(int x, int y), for any mapscreen.
+
+bool isSolidLayer(int x, int y, int layer);
+ * As Screen->isSolidLayer(int x, int y, int layer), for any mapscreen.
 
 int Valid;
  * ?
@@ -3860,11 +5194,34 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
  * 	With 2D arrays, this would simply be FFCInitA[32][2].
 
 
-
-
 ///////////////////
 ///  combodata  ///
-///////////////////
+///////////////////								// Combodata
+
+int Pos();
+ * Returns the combo screen index of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->Pos()'.
+ * Using this from any other combodata variable is illegal and undefined.
+
+int PosX();
+int X;
+ * Returns the X-coordinate of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->PosX()'.
+ * Using this from any other combodata variable is illegal and undefined.
+ * If used as 'this->X', it is read-only.
+
+int PosY();
+int Y;
+ * Returns the Y-coordinate of a combo from a combodata script, from the 'this->'
+ * pointer as 'this->PosY()'.
+ * Using this from any other combodata variable is illegal and undefined.
+ * If used as 'this->Y', it is read-only.
+
+int Script;
+ * The combodata script used by this combo.
+
+untyped InitD[2];
+ * The two InitD args used by the combodata script for this combo.
 
 int ID;
  * Returns the combo ID associated with the current combodata pointer.
@@ -3873,9 +5230,26 @@ int Type;
  * The 'type' of the combo, in the Combo Editor. 
  * Setting this changes the combo type variables. ?
 
+int OriginalTile; 
+ * The original tile of the combo's animation. Writing to this will cause the combo
+ * 	to shift to the new animation immediately.
+ * Writing this variable is undefined if the quest rule 'New Combo Animation' is off.
+ 
 int Tile; 
- * The tile ID used by the combo.
+ * The tile ID used by the current animation frame of the combo.
+ * Writing to this will cause the tile you write to display for at least 1 frame.
+ * Writing this variable is undefined if the quest rule 'New Combo Animation' is off.
+ 
+int Frame;
+ * The frame of the combo's animation that is presently showing. Writing to this will skip in the animation.
+ * Using this variable is undefined if the quest rule 'New Combo Animation' is off.
 
+int AClk;
+ * The clock used for the combo's animation cycle.
+
+int ASpeed;
+ * The animation speed of the combo. 
+ 
 int Flip; 
  * The flip settings for the combo tile.
 	
@@ -3922,8 +5296,14 @@ int Expansion[6];
  * Reserved for future use by the Combo Editor.
 	
 int Attributes[4]; 
- * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'
+ * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes 2'
  * 	tab in the Combo Editor.
+ * Min value FLOAT_MIN, max value FLOAT_MAX.
+ 
+ int Attribytes[4]; 
+ * Corresponds to Attribytes[0] through Attribytes[3] on the 'Attributes 1'
+ * 	tab in the Combo Editor.
+ * Min value BYTE_MIN, max value BYTE_MAX.
 
 int UserFlags;
  * Corresponds to the 'Misc Flags' on the Attributes tab of the Combo Editor.
@@ -4019,279 +5399,10 @@ int BlockWeaponLevel;
 	combodata->Flags and Screen->ComboFlags[pos] -- Maybe ComboMisc[pos] to avoid confusion?
 	Combo QR rules will become ComboMisc[] ! 
 
-////////////////////
-///  Graphics->  ///
-////////////////////
-
-int GetPixel(bitmap b, int x, int y);
- * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
- * The value is expressed as float at this time. 
-
-int NumDraws();
- * Returns the number of script draws that have been executed during the current frame.
- 
-int MaxDraws();
- * Returns the maximum number of script draws per frame that you can execute in the current build.
- 
-void Monochrome(int mode);
- * Sets the entire display to monochrome output, using a hue mode that you may select, and either distributed,
- * or uniform colour distribution.
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void MonoHue(int red, int green, int blue, bool distributed);
- * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
- * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
- * as `red`, `green`, and `blue`. 
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void Tint(int red, int green, blue);
- * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
- * This respects the current DMap (level) palette, and it affects the entire main game palette. 
-
-void ClearTint();
- * Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
-   the given DMap palette. 
-
-void Wavy(bool wavyin); 
- * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
- * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using parameter 1. 
-
-void Zap(bool zapin);
- * Creates a wavy visual effect, identical to 'Zap' Warp effects.
- * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using parameter 1. 
-
-void Greyscale(bool enable);
- * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
- * This is useful for simulating 'Gameboy' style displays.
-	
-
-/////////////////
-///  Audio->  ///
-/////////////////
-
-void PlayOgg(int filename[]);
- * Similar to PlayEnhancedMusic(), but only for OGG files.
- * Supports seeking, and other special instructions.
-
-int GetOggPos();
- * Returns the current seek position of an OGG started with PlayOgg, in ms.
-
-void SetOggPos(int new_pos);
- * Sets the play position for an OGG started with PlayOgg(), in ms.
- 
-void SetOggSpeed(int newspeed);
- * Sets the playback speed of an OGG started with PlayOgg();
- 
-
-void PlaySound(int soundid);	ZASM Instruction: 
-					PLAYSOUNDR
-					PLAYSOUNDV
-	/**
-	* Plays one of the quest's sound effects. Use the SFX_ constants in
-	* std.zh as values of soundid.
-	*/ Example Use: !#!
-	
-void EndSound(int soundid);
- * If sfx_id is playing, calling this immediately stops that sound.
-
-void PauseSound(int soundid);
- * If sfx_id is playing, calling this pauses it, halting it from playing, in
- * a manner that you may later resume it from the point at which it was paused.
- * See also: Audio->ResumeSound(int sfx_id) and Audio->ContinueSound(int sfx_id).
-
-void ResumeSound(int soundid); 
- * Resumes a sound effect with an ID of sfx_id, that has been paused.
-
-void ContinueSound(int soundid);
- * Resumes a sound effect with an ID of sfx_id, that has been paused.
-
-void AdjustMusicVolume(int percent); 
- * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
- * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
-
-void AdjustSFXVolume(int percent);
- * Adjusts the volume of all Soune Effects (WAV).
- * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
-
-void AdjustSound(int, int, bool)
-
-void PauseCurMIDI();
- * Pauses the current MIDI in a manner that permits resuming it.
- * Note: This does not affect Enhanced Music playback.
- * See also: Audio->ResumeCurMIDI().
-
-void ResumeCurMIDI();
- * Resumes MIDI playback, if it has been paused.
- * Note: This does not affect Enhanced Music playback.
- * See also: Audio->PauseCurMIDI().
-
-void PlayMIDI(int MIDIid);	ZASM Instruction: 
-					PLAYMIDIR
-					PLAYMIDIV
-	/**
-	* Changes the current screen MIDI to MIDIid.
-	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
-	*/ Example Use: !#!
-
-bool PlayEnhancedMusic(int filename[], int track);
-		
-					ZASM Instruction: 
-					PLAYENHMUSIC
-	/**
-	* Play the specified enhanced music if it's available. If the music
-	* cannot be played, the current music will continue. The music will
-	* revert to normal upon leaving the screen.
-	* Returns true if the music file was loaded successfully.
-	* The filename cannot be more than 255 characters. If the music format
-	* does not support multiple tracks, the track argument will be ignored.
-	*/ Example Use: 
-	
-		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
-		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
-		
-		// Plays the enhanced music file 'myfle.mp3', track 1. 
-		// If the file is mssing, the game will instead play 
-		// the midi specified as midi_id.
-
-int PanStyle;
- * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
-
-//int Volume[4]
- * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
-
-////////////////
-///  Text->  ///
-////////////////
-
-int FontHeight(int font);
-int StringHeight(char32 ptr, int font);
-int CharHeight(char32 chr, int font);
- * Returns the height, in pixels, of the given font.
-
-int StringWidth(char32 ptr, int font);
- * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
-
-int CharWidth(char32 chr, int font);
- * Returns the width, in pixels, of the character 'chr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
-
-int MessageWidth(int msg);
- * Returns the width, in pixels, of the internal string at index 'msg'.
- * This uses the font and text as set in the 'Strings' editor,
- * 	and ignores both trailing spaces and line breaks.
-
-int MessageHeight(int msg);
- * Returns the height, in pixels, of the internal string at index 'msg'.
- * This uses the font as set in the 'Strings' editor, and ignores line breaks.
-
-/////////////////
-///  Input->  ///
-/////////////////
-
-int ModifierKeys;
- * Returns the Allegro Keyboard Modifier Flags:
- *	KB_SHIFT_FLAG = 0x0001;
- *	KB_CTRL_FLAG = 0x0002;
- *	KB_ALT_FLAG = 0x0004;
- *	KB_LWIN_FLAG = 0x0008;
- *	KB_RWIN_FLAG = 0x0010;
- *	KB_MENU_FLAG  = 0x0020;
- *	KB_COMMAND_FLAG  = 0x0040;
- *	KB_SCROLOCK_FLAG  = 0x0100;
- *	KB_NUMLOCK_FLAG = 0x0200;
- *	KB_CAPSLOCK_FLAG = 0x0400;
- *	KB_INALTSEQ_FLAG = 0x0800;
- *	KB_ACCENT1_FLAG = 0x1000; 
- *	KB_ACCENT2_FLAG = 0x2000; 
- *	KB_ACCENT3_FLAG = 0x4000; 
- *	KB_ACCENT4_FLAG = 0x8000; 
- * I am unsure what 0x80 is, if anything. It is not listed in Allegro keyboard.h. -Z
- * Might have been reserved for the Apple Right Command key, but never used. 
- 
-int KeyBindings[14];
- * Returns the key bound to the 14 possible system keys.
- * Use the CB_* constants to access the array, and the KEY_*
- * constants for values. 
- 
-bool SimulateKeypress[127];
- * Simulates pressing a key on the keyboard, where the key_id
- * is the index of the array. 
- * Input->SimulateKeypress[KEY_A] = true; will attempt to simulate 
- * the user pressing the A key on their keyboard.
- * Writing this false has no effect. 
-
-bool Press[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was pressed this frame.
- *	Replaces Link->Press*.
- * Use the CB_* constants to access this array. 
-
-bool Button[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- *	Replaces Link->Input*.
- * Use the CB_* constants to access this array. 
- 
-bool Hold[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- * May be identical to Input->Press[] in some regards.
- * Use the CB_* constants to access this array. 
- 
-bool DisableButton[18];
- * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
- * Scripts will still read the button normally, ignoring this
- * This allows disabling the engine's button, while not disabling the button for scripts.
- * Use the CB_* constants to access this array. 
- 
-bool Key[127];
- * Read-Only: An array of boolean values that read as 'true'
- * 	if the corresponding keyboard key was pressed this frame.
- * You can write a key false, but not true. 
- * Use the KEY_* constants to access this array. 
-	
-bool ReadKey[127] ( should become a function ReadKey()? )
- * As Key[], except that reading a key with ReadKey[] will ignore further input from that key, 
-   until it is released. 
- * Read-only.
- * Use the KEY_* constants to access this array. 
- 
-bool DisableKey[127];
- * Setting an index of this array to 'true' will disable that key for engine input
- * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
- * Script key reading, such as 'Input->Key[]', are unaffected.
- * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
- * Use the KEY_* constants to access this array. 
- 
-bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
- * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
- * Use the CB_* constants to access this array. 
- 
-float Mouse[6];
- * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
-   plus the x/y components of the mouse.
- *	Replaces mouse variables under Link->.
- * indices: 
- * 	float Mouse[0] Mouse X Position
- * 	float Mouse[1] Mouse Y Position
- * 	float Mouse[2] Mouse Z Position
- * 	bool Mouse[3] Left Button
- * 	bool Mouse[4] Right Button
- * 	bool Mouse[5] Middle Button
-
-
-//int Type //this is a dummy function in the table.
 	
 /////////////////
 ///  npcdata  ///
-/////////////////
+/////////////////								// NPCData
 
 /*
 The npcdata datatype allows the user to load and manipulate Enemy Editor
@@ -4503,7 +5614,7 @@ t/b/a
 
 ////////////////////
 ///  spritedata  ///
-////////////////////
+////////////////////								// Spritedata
 
 /*
 The spritedata datatype allows the user to load and manipulate weapon sprite struct
@@ -4542,20 +5653,292 @@ int Type;
 
 //Where are Flash, and Flags?! -Z
 
+/////////////////////
+///  dropsetdata  ///
+/////////////////////								// Dropsetdata
+
+int Choose();
+ * Returns a random item ID from the dropset
+ * Returns -1 if 'nothing' is chosen.
+
+int Items[10];
+ * The item IDs stored in the dropset
+
+int Chances[10];
+ * The chances of each item stored in the dropset
+ * These are not direct percentages, but weights.
+
+int NothingChance;
+ * The chance of nothing being dropped
+ * This is not a percentage, but a weighted value
+
+/* The following are planned, but yet to be implemented
+	itemsprite Create(int x, int y);
+	itemsprite Create(int x, int y, int z);
+	 * Creates a random item from the dropset at the given coordinates
+	 * Returns NULL if 'nothing' is chosen, as no item is created.
+
+	void GetName(char[] buf);
+	 * Loads the name of the dropset into the buffer
+
+	void SetName(char[] buf);
+	 * Sets the name of the dropset from the buffer
+*/
+
+t/b/a
+
 //////////////////
-///  dropdata  ///
+///  ponddata  ///
+//////////////////								// Ponddata
+
+t/b/a
+
 //////////////////
+///  warpring  ///
+//////////////////								// Warpringdata
+
+t/b/a
+
+/////////////////
+///  doorset  ///
+/////////////////								// Doorsetdata
+
+t/b/a
+
+////////////////////
+///  misccolors  ///
+////////////////////								// Miscdata
+
+t/b/a
+
+/////////////////
+///  rgbdata  ///
+/////////////////								// RGBata
+
+t/b/a
+
+/////////////////
+///  palette  ///
+/////////////////								// Palettedata
 
 t/b/a
 
 ////////////////
-///  bitmap  ///
-////////////////
+///  zcmidi  ///
+////////////////								// MIDI
 
-void DrawPlane(int layer, int rt, int srcX, int srcY, 
-		int srcW, int srcH, int destW, int destH, 
-		int angle, int cx, int cy, int space_z, int horizon, 
-		int scale_x, int scale_y);
+t/b/a
+
+//////////////////
+///  palcycle  ///
+//////////////////								// Palcycledata
+
+t/b/a
+
+//////////////////
+///  gamedata  ///
+//////////////////								// Gamedata
+
+t/b/a
+
+////////////////
+///  cheats  ///
+////////////////								// Cheatdata
+
+t/b/a
+
+  ________                    .__    .__                  ____      _________                        .___
+ /  _____/___________  ______ |  |__ |__| ____   ______  /  _ \    /   _____/ ____  __ __  ____    __| _/
+/   \  __\_  __ \__  \ \____ \|  |  \|  |/ ___\ /  ___/  >  _ </\  \_____  \ /  _ \|  |  \/    \  / __ | 
+\    \_\  \  | \// __ \|  |_> >   Y  \  \  \___ \___ \  /  <_\ \/  /        (  <_> )  |  /   |  \/ /_/ | 
+ \______  /__|  (____  /   __/|___|  /__|\___  >____  > \_____\ \ /_______  /\____/|____/|___|  /\____ | 
+        \/           \/|__|        \/        \/     \/         \/         \/                  \/      \/ 
+Commands for graphics, sound, text, and bitmap objects.
+
+////////////////////
+///  Graphics->  ///
+////////////////////								// Graphics
+
+int GetPixel(bitmap b, int x, int y);
+ * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
+ * The value is expressed as float at this time. 
+
+int NumDraws();
+ * Returns the number of script draws that have been executed during the current frame.
+ 
+int MaxDraws();
+ * Returns the maximum number of script draws per frame that you can execute in the current build.
+ 
+void Monochrome(int mode);
+ * Sets the entire display to monochrome output, using a hue mode that you may select, and either distributed,
+ * or uniform colour distribution.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void MonoHue(int red, int green, int blue, bool distributed);
+ * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
+ * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
+ * as `red`, `green`, and `blue`. 
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void Tint(int red, int green, blue);
+ * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void ClearTint();
+ * Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
+   the given DMap palette. 
+
+void Wavy(bool wavyin); 
+ * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
+ * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using parameter 1. 
+
+void Zap(bool zapin);
+ * Creates a wavy visual effect, identical to 'Zap' Warp effects.
+ * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using parameter 1. 
+
+void Greyscale(bool enable);
+ * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
+ * This is useful for simulating 'Gameboy' style displays.
+	
+
+/////////////////
+///  Audio->  ///
+/////////////////								// Audio
+
+void PlayOgg(int filename[]);
+ * Similar to PlayEnhancedMusic(), but only for OGG files.
+ * Supports seeking, and other special instructions.
+
+int GetOggPos();
+ * Returns the current seek position of an OGG started with PlayOgg, in ms.
+
+void SetOggPos(int new_pos);
+ * Sets the play position for an OGG started with PlayOgg(), in ms.
+ 
+void SetOggSpeed(int newspeed);
+ * Sets the playback speed of an OGG started with PlayOgg();
+ 
+
+void PlaySound(int soundid);	ZASM Instruction: 
+					PLAYSOUNDR
+					PLAYSOUNDV
+	/**
+	* Plays one of the quest's sound effects. Use the SFX_ constants in
+	* std.zh as values of soundid.
+	*/ Example Use: !#!
+	
+void EndSound(int soundid);
+ * If sfx_id is playing, calling this immediately stops that sound.
+
+void PauseSound(int soundid);
+ * If sfx_id is playing, calling this pauses it, halting it from playing, in
+ * a manner that you may later resume it from the point at which it was paused.
+ * See also: Audio->ResumeSound(int sfx_id) and Audio->ContinueSound(int sfx_id).
+
+void ResumeSound(int soundid); 
+ * Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void ContinueSound(int soundid);
+ * Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void AdjustMusicVolume(int percent); 
+ * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
+ * The parameter 'int percent' is the percentage of its present volume.
+ * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+ *	would pass '50' to parameter 1.
+
+void AdjustSFXVolume(int percent);
+ * Adjusts the volume of all Soune Effects (WAV).
+ * The parameter 'int percent' is the percentage of its present volume.
+ * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+ *	would pass '50' to parameter 1.
+
+void AdjustSound(int, int, bool)
+
+void PauseCurMIDI();
+ * Pauses the current MIDI in a manner that permits resuming it.
+ * Note: This does not affect Enhanced Music playback.
+ * See also: Audio->ResumeCurMIDI().
+
+void ResumeCurMIDI();
+ * Resumes MIDI playback, if it has been paused.
+ * Note: This does not affect Enhanced Music playback.
+ * See also: Audio->PauseCurMIDI().
+
+void PlayMIDI(int MIDIid);	ZASM Instruction: 
+					PLAYMIDIR
+					PLAYMIDIV
+	/**
+	* Changes the current screen MIDI to MIDIid.
+	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
+	*/ Example Use: !#!
+
+bool PlayEnhancedMusic(int filename[], int track);
+		
+					ZASM Instruction: 
+					PLAYENHMUSIC
+	/**
+	* Play the specified enhanced music if it's available. If the music
+	* cannot be played, the current music will continue. The music will
+	* revert to normal upon leaving the screen.
+	* Returns true if the music file was loaded successfully.
+	* The filename cannot be more than 255 characters. If the music format
+	* does not support multiple tracks, the track argument will be ignored.
+	*/ Example Use: 
+	
+		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
+		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
+		
+		// Plays the enhanced music file 'myfle.mp3', track 1. 
+		// If the file is mssing, the game will instead play 
+		// the midi specified as midi_id.
+
+int PanStyle;
+ * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
+
+//int Volume[4]
+ * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
+
+////////////////
+///  Text->  ///
+////////////////								// Text
+
+int FontHeight(int font);
+int StringHeight(char32 ptr, int font);
+int CharHeight(char32 chr, int font);
+ * Returns the height, in pixels, of the given font.
+
+int StringWidth(char32 ptr, int font);
+ * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int CharWidth(char32 chr, int font);
+ * Returns the width, in pixels, of the character 'chr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int MessageWidth(int msg);
+ * Returns the width, in pixels, of the internal string at index 'msg'.
+ * This uses the font and text as set in the 'Strings' editor,
+ * 	and ignores both trailing spaces and line breaks.
+
+int MessageHeight(int msg);
+ * Returns the height, in pixels, of the internal string at index 'msg'.
+ * This uses the font as set in the 'Strings' editor, and ignores line breaks.
+
+
+////////////////
+///  bitmap  ///
+////////////////								// Bitmap
+
+//void DrawPlane(int layer, int rt, int srcX, int srcY, 
+//		int srcW, int srcH, int destW, int destH, 
+//		int angle, int cx, int cy, int space_z, int horizon, 
+//		int scale_x, int scale_y);
+void DrawPlane(int layer, bitmap src, int src_x, int src_y, int dest_x,
+			int dest_y, int dest_w, int dest_h, int space_z, int horizon, 
+			float scale_x, float scale_y, bool mask);
  * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward 
  * a horizon point.
  
@@ -4566,6 +5949,15 @@ int Width;
 int Height;
  * Returns the height of the bitmap, in pixels. 
  * READ-ONLY. Bitmaps cannot be resized by writing to this. 
+
+void Free();
+ * If the bitmap is allocated, frees the bitmap.
+ *     This means that this bitmap ID is able to be returned by subsequent
+ *     calls to 'Game->AllocateBitmap()' and such.
+ * Note: The bitmap will remain allocated until script draws are next cleared.
+ *       This generally occurs at the end of each frame, unless 'Game->Suspend[]'
+ *       is used to prevent it.
+ * Once the bitmap is freed, any image data on it is deleted.
 
 bool isValid();
  * Returns true if the bitmap points to a valid bitmap
@@ -4581,10 +5973,12 @@ float GetPixel(int x, int y);
  * Returns the palette index value of a pixel on the current bitmap pointer.
 
 void Create(int layer, int width, int height);
- * Creates a bitmap on an already-initialised bitmap pointer, with a size of height, width.
- * Destroys any existing bitmap ont hat pointer before creating a new one. 
- * You can use this in conjunction with Game->AllocateBitmap(), or to destroy an existing bitmap and 
- * create a new one.
+ * Creates a bitmap on a bitmap pointer, with a size of height, width.
+ * Destroys any existing bitmap on that pointer before creating a new one.
+ * You can use this on an initialized bitmap pointer; either one allocated with 'Game->AllocateBitmap()', or
+ *     a bitmap pointer that has a valid bitmap on it.
+ * You can ALSO use this on an uninitialised pointer, and it will attempt to initialize it.
+ *     The layer arg will be ignored when this is used on an uninitialised pointer.
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT clear a specific 'layer' of a bitmap. 
  *       Layers in ZC are only an expression of drawing order/sequence!
@@ -4603,29 +5997,47 @@ void ClearToColor(int layer, int color);
  
 void Read(int layer, "filename");
  * Reads a valid graphic file into a bitmap pointer.
- * Use Game->AllocateBitmap() to prime the pointer first, if it is uninitialised.
+ * If used on an uninitialised pointer, it will first attempt to allocate it.
+ *     If it fails to allocate the pointer, it will not attempt the read operation.
  * If the filename provided is invalid (e.g., the file is missing), the pointer
  * will be initialised with a blank bitmap at a size of 256x176.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this will read a file relative to "[zc root]/Files/[quest name]/" instead of relative
+ *     to "[zc root]".
+ * Read() will fail if:
+ *	The file is corrupt:
+		PNG, JPEG, or other 'compressed' formats may abort if the file is corrupt.
+ * 		Formats such as .BMP or .TGA may read up until missing data, as they are linear.
+ * 	The file is missing.
+ * 	The filename is incorrect. Remember that POSIX filesystems are Case-SenSitive. 
  
 void Write(int layer, "filename", bool allow_overwrite);
  * Writes a bitmap out as a graphic file.
  * This supports the following formats/extensions:
- * .png, .gif, .pcx, .tgx, and .bmp. 
+ *     .png, .gif, .pcx, .tgx, and .bmp. 
  * The provided filename string MUST include one of these extensions, as this
- * both sets the output filetype, and validates the write.
+ *     both sets the output filetype, and validates the write.
  * Any other extension, or a lack of a valid extension will result in
- * logging an error and failing to write the file.
+ *     logging an error and failing to write the file.
  * Will not replace an existing file unless allow_overwrite is true.
- * Will fail on an uninitialised pointer. 
+ * Will fail on an uninitialised pointer.
+ * Will create any missing directories on the path.
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.
  *        Layers in ZC are only an expression of drawing order/sequence!
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this will write a file relative to "[zc root]/Files/[quest name]/" instead of relative
+ *     to "[zc root]".
+ * Remember that POSIX filesystems are Case-SenSitive. 
 
-void Blit	( int layer, 
-			bitmap target, 
-			int source_x, int source_y, int source_w, int source_h, 
-			int dest_x, int dest_y, int dest_w, int dest_h, 
-			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+void Blit	
+	( 
+		int layer, 
+		bitmap target, 
+		int source_x, int source_y, int source_w, int source_h, 
+		int dest_x, int dest_y, int dest_w, int dest_h, 
+		float rotation, int cx, int cy, int mode, int lit,  bool mask
+	);
 			
  * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP. 
  * As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
@@ -4634,11 +6046,15 @@ void Blit	( int layer,
  *	as the argument to 'bitmap target'.
  * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
 
-void BlitTo ( int layer, 
-			bitmap source, 
-			int source_x, int source_y, int source_w, int source_h, 
-			int dest_x, int dest_y, int dest_w, int dest_h, 
-			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+void RevBlit 
+void BlitTo 
+	( 
+		int layer, 
+		bitmap source, 
+		int source_x, int source_y, int source_w, int source_h, 
+		int dest_x, int dest_y, int dest_w, int dest_h, 
+		float rotation, int cx, int cy, int mode, int lit,  bool mask
+	);
 			
  * BLITS ANOTHER BITMAP TO THE POINTER 'b'.
  * As DrawBitmapEx(), except that it draws TO an initialised bitmap pointer,
@@ -4880,71 +6296,18 @@ void DrawScreenComboIFlags	(int layer,
 // RenderFrom(target, mode, args[])
 
 
-t/b/a
 
-//////////////////
-///  ponddata  ///
-//////////////////
-
-t/b/a
-
-//////////////////
-///  warpring  ///
-//////////////////
-
-t/b/a
-
-/////////////////
-///  doorset  ///
-/////////////////
-
-t/b/a
-
-////////////////////
-///  misccolors  ///
-////////////////////
-
-t/b/a
-
-/////////////////
-///  rgbdata  ///
-/////////////////
-
-t/b/a
-
-/////////////////
-///  palette  ///
-/////////////////
-
-t/b/a
-
-////////////////
-///  zcmidi  ///
-////////////////
-
-t/b/a
-
-//////////////////
-///  palcycle  ///
-//////////////////
-
-t/b/a
-
-//////////////////
-///  gamedata  ///
-//////////////////
-
-t/b/a
-
-////////////////
-///  cheats  ///
-////////////////
-
-t/b/a
+________        ___.                       .__                
+\______ \   ____\_ |__  __ __  ____   ____ |__| ____    ____  
+ |    |  \_/ __ \| __ \|  |  \/ ___\ / ___\|  |/    \  / ___\ 
+ |    `   \  ___/| \_\ \  |  / /_/  > /_/  >  |   |  \/ /_/  >
+/_______  /\___  >___  /____/\___  /\___  /|__|___|  /\___  / 
+        \/     \/    \/     /_____//_____/         \//_____/  
+Functions for debugging, and raw access to the internal ZASM stack and mechanics. 
 
 /////////////////
 ///  Debug->  ///
-/////////////////
+/////////////////								// Debug
 
 untyped NULL;
 untyped Null;
@@ -4955,6 +6318,20 @@ untyped NULL();
 lweapon l = Screen->LoadLWeapon(16);
 l->Dir = DIR_UP;
 l = NULL(); // Clear the pointer to NULL.
+
+void Breakpoint(char[] string);
+ * If the ZASM debugger is open, this will break execution, and print the given string.
+ * Break controls:
+ *     'Insert' - break, or step forward if broken
+ *     'Shift+Insert' - Step forward until next breakpoint, or start of next script, whichever comes first
+ *     'Ctrl+Shift+Insert' - Same as above, but, doesn't print any ZASM until it breaks.
+ *     'Alt+Insert' - Step forward until next breakpoint
+ *     'Ctrl+Alt+Insert' - Same as above, but, doesn't print any ZASM until it breaks.
+ *     'Ctrl+Insert' - Exit the ZASM debugger entirely
+ * If the ZASM debugger is not open, this instruction does NOTHING.
+ * Passing NULL to this function will not produce an error, instead printing no label
+ * In ZASM scripts, passing the 'NUL' register to this instruction will not produce an error, instead printing no label
+
 
 float D[256];
  * This is the value of the ri->d[] registers. 
@@ -5061,3 +6438,65 @@ SetRenderSource(int target, int x, int y, int w, int h)
 //To add:
 Game->Freeze(int type) or Game->Suspend() 
 datatype->Create(), Load(), Destroy()
+
+
+
+   _____            __                    _______           _            
+  / ___/__  _______/ /____  ____ ___     /_  __(_)___ ___  (_)___  ____ _
+  \__ \/ / / / ___/ __/ _ \/ __ `__ \     / / / / __ `__ \/ / __ \/ __ `/
+ ___/ / /_/ (__  ) /_/  __/ / / / / /    / / / / / / / / / / / / / /_/ / 
+/____/\__, /____/\__/\___/_/ /_/ /_/    /_/ /_/_/ /_/ /_/_/_/ /_/\__, /  
+     /____/                                                     /____/   
+
+
+2.55 Script Timing
+19th December, 2019 for Alpha 48
+
+1. (If firstplay) Global Init; allocate global arrays and variables.
+2. (If firstplay) Link Init
+3. (If loading from a saved file) Global OnLoadSave
+4. Global onLaunch (if not F6 continue)
+5. Global Continue Game (if F6 Continue)
+6. FFCs by Screen Index (1 to 32)
+7. Global Active (prior to Waitdraw)
+8. Link Active  (prior to Waitdraw)
+9. DMap Active (prior  to Waitdraw)
+10. DMap Passive Subscreen
+11. Itemsprite Scripts (by screen index)
+12. NPC Active (by screen index)
+13. EWeapon Active (by screen index)
+14. Clear script one-frame conditions: Clears HitBy[]
+15. Link.animate() : During this function, global, Link, and DMap scripts are run during screen scrolling)
+15a. Global active during scrolling
+15b. Link active, during scrolling, waitdraw may apply
+15c. DMap Active, during scrolling, waitdraw may apply
+15d. DMap Subscreen Passive, during scrolling, waitdraw may apply.
+15e. DMap Subscreen Active, is the player pressed the Start button or the script was already running. 
+	Running this script executes is its own isolated event loop. 
+	If the DMap Subscreen Active script is running:
+		(a) DMap Active (if the QR to run it is enabled)
+		(b) DMap Subscreen Passive (if the QR to run it is enabled)
+		(c) DMap Subscreen Active
+		(d) Waitdraw
+		(e) DMap Active (after waitdraw, if the QR to run it is enabled)
+		(f) DMap Subscreen Passive (after waitdraw, if the QR to run it is enabled)
+		(g) DMap Subscreen Active (after waitdraw)
+16. Item Collect Scripts
+17. Item Action scripts
+18. Continual item scripts, after first frame (ordered by item ID)
+19. LWeapon scripts (by screen index)
+20. WAITDRAW
+21. Global Active (after Waitdraw pause)
+22. Link Active (after Waitdraw pause)
+23. DMap Active (after Waitdraw pause)
+24. DMap Subscreen passive (after Waitdraw pause)
+25. FFcs after Waitdraw (if rule enabled_
+26. Itemdata scripts after Waitdraw (if rule enabled)
+27. NPC Scripts after Waitdraw.
+29. EWeapon Scripts after Waitdraw.
+30. LWeapon Scripts after Waitdraw.
+31. Itemsprite Scripts after Waitdraw.
+32.0. Global Exit  (if applicable)
+32.1. Link Death (if applicable)
+32.2.  Link Win (if Applicable)
+33. Global F6 Script (if the player pressed F6)

@@ -23,6 +23,7 @@ namespace ZScript
 		void caseStmtIf(ASTStmtIf& host, void* = NULL);
 		void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* = NULL);
+		void caseRange(ASTRange& host, void* = NULL);
 		void caseStmtFor(ASTStmtFor& host, void* = NULL);
 		void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
 		void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
@@ -39,6 +40,7 @@ namespace ZScript
 		void caseScript(ASTScript& host, void* = NULL);
 		void caseNamespace(ASTNamespace& host, void* = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* = NULL);
+		void caseAssert(ASTAssert& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
@@ -56,12 +58,14 @@ namespace ZScript
 		void caseExprPreDecrement(ASTExprPreDecrement& host, void* = NULL);
 		void caseExprAnd(ASTExprAnd& host, void* = NULL);
 		void caseExprOr(ASTExprOr& host, void* = NULL);
+		void caseExprXOR(ASTExprXOR& host, void* = NULL);
 		void caseExprGT(ASTExprGT& host, void* = NULL);
 		void caseExprGE(ASTExprGE& host, void* = NULL);
 		void caseExprLT(ASTExprLT& host, void* = NULL);
 		void caseExprLE(ASTExprLE& host, void* = NULL);
 		void caseExprEQ(ASTExprEQ& host, void* = NULL);
 		void caseExprNE(ASTExprNE& host, void* = NULL);
+		void caseExprAppxEQ(ASTExprAppxEQ& host, void* = NULL);
 		void caseExprPlus(ASTExprPlus& host, void* = NULL);
 		void caseExprMinus(ASTExprMinus& host, void* = NULL);
 		void caseExprTimes(ASTExprTimes& host, void* = NULL);

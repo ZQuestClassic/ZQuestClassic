@@ -5,10 +5,8 @@
 #include <vector>
 #include <string>
 
-
 #define MAX_SCRIPT_DRAWING_COMMANDS 10000
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
-
 
 // For Quad and Triangle. *allegro Bug-Fix* -Gleeok
 class SmallBitmapTextureCache
@@ -306,17 +304,7 @@ public:
         //small_tex_cache.Init();
     }
     
-    void Clear()
-    {
-        if(commands.empty())
-            return;
-            
-        //only clear what was used.
-        memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
-        count = 0;
-        
-        draw_container.Clear();
-    }
+    void Clear();
     
     int Count() const
     {

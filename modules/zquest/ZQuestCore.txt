@@ -20,6 +20,7 @@ src/subscr.cpp
 src/zc_custom.cpp
 src/init.cpp
 src/alleg_compat.cpp
+src/util.cpp
 
 ## End of ZQuest Core module
 )

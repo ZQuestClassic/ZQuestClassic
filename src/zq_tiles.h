@@ -24,6 +24,20 @@ extern byte cset_reduce_table[PAL_SIZE];
 void calc_cset_reduce_table(PALETTE pal, int cs);
 
 void register_used_tiles();
+
+int readcomboaliasfile(PACKFILE *f);
+int readcomboaliasfile_to_location(PACKFILE *f, int start);
+int writecomboaliasfile(PACKFILE *f, int index, int count);
+
+int readtilefile(PACKFILE *f);
+int writetilefile(PACKFILE *f, int index, int count);
+int readtilefile_to_location(PACKFILE *f, int start);
+int readtilefile_to_location(PACKFILE *f, int start, int skip);
+
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite);
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip);
+int writecombofile(PACKFILE *f, int index, int count);
+
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
@@ -34,6 +48,7 @@ void comeback_combos();
 void little_x(BITMAP *dest, int x, int y, int c, int s);
 void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m);
 void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int bg,int fg,int flags,bool jwin);
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags);
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,int flags,bool jwin,bool overlay);
@@ -41,8 +56,8 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
 bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value);
 void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value);
-void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value);
-bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value);
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value);
+bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value);
 
 //*************** tile flood fill stuff **************
 
@@ -87,6 +102,7 @@ bool leech_tiles(tiledata *dest,int start,int cs);
 void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
 void grab_tile(int tile,int &cs);
 void draw_tiles(int first,int cs, int f);
+void draw_tiles(BITMAP* dest,int first,int cs, int f,bool large,bool true_empty = false);
 int tile_col(int tile);
 int tile_row(int tile);
 int tile_page(int tile);

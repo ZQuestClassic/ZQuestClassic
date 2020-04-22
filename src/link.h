@@ -36,7 +36,7 @@
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
-extern const byte lsteps[8];
+extern byte lsteps[8];
 
 enum { did_fairy=1, did_candle=2, did_whistle=4, did_magic=8, did_glove=16, did_all=32 };
 
@@ -223,7 +223,7 @@ public:
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	link_is_stunned; //scripted stun from weapons; possibly for later eweapon effects in the future. 
+	link_is_stunned, stundir; //scripted stun from weapons; possibly for later eweapon effects in the future. 
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
@@ -238,10 +238,16 @@ public:
     fix entry_x, entry_y; // When drowning, re-create Link here
     fix falling_oldy; // Used by the Stomp Boots in sideview
     byte dontdraw;
+    byte warp_sound;
     bool diagonalMovement;
     bool bigHitbox;
+	int steprate;
     byte defence[wMax];
     void check_slash_block(weapon *w);
+    void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
+    void check_pound_block(weapon *w);
+    void check_wand_block(weapon *w);
+    void check_slash_block_layer(int bx, int by, int layer);
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
@@ -258,7 +264,8 @@ public:
     int getTileModifier();
     void setTileModifier(int ntemod);
     void movelink();
-    void move(int d);
+    void move(int d, int forceRate = -1);
+	void moveOld(int d2);
     void hitlink(int hit);
     int  nextcombo(int cx,int cy,int cdir);
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
@@ -287,6 +294,7 @@ public:
     bool can_attack();
     void do_rafting();
     void do_hopping();
+    WalkflagInfo walkflag(fix fx,fix fy,int cnt,byte d);
     WalkflagInfo walkflag(int wx,int wy,int cnt,byte d);
     WalkflagInfo walkflagMBlock(int wx,int wy);
     bool edge_of_dmap(int side);
@@ -309,7 +317,7 @@ private:
     void getTriforce(int id);
     int weaponattackpower();
     void positionSword(weapon* w,int itemid);
-    void checkstab();
+    bool checkstab();
     void fairycircle(int type);
     void StartRefill(int refillWhat);
     void Start250Refill(int refillWhat);
@@ -318,10 +326,7 @@ private:
     void heroDeathAnimation();
     void ganon_intro();
     void saved_Zelda();
-    void check_slash_block(int bx, int by);
-    
-    void check_wand_block(int bx, int by);
-    void check_pound_block(int bx, int by);
+   
     void check_conveyor();
     bool sideviewhammerpound();
     bool agonyflag(int flag);
@@ -343,11 +348,19 @@ public:
     virtual void drawshadow(BITMAP* dest, bool translucent);
     virtual void draw(BITMAP* dest);
     virtual bool animate(int index);
-    bool dowarp(int type, int index);
+    bool dowarp(int type, int index, int warpsfx=0);
     
     void linkstep();
     void stepforward(int steps, bool adjust);
     void draw_under(BITMAP* dest);
+    void check_slash_block(int bx, int by);
+    void check_wpn_triggers(int bx, int by, weapon *w);
+    void check_slash_block2(int bx, int by, weapon *w);
+    void check_wand_block2(int bx, int by, weapon *w);
+    void check_pound_block2(int bx, int by, weapon *w);
+    
+    void check_wand_block(int bx, int by);
+    void check_pound_block(int bx, int by);
     
     // called by ALLOFF()
     void resetflags(bool all);
@@ -454,6 +467,8 @@ public:
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
     void setBigHitbox(bool newbighitbox);
+	int getStepRate();
+	void setStepRate(int newrate);
 	
 	
 	int getLastLensID();	

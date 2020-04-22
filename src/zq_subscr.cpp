@@ -5481,7 +5481,7 @@ int onExport_Subscreen_Code()
     if(!getname("Export Subscreen Code (.zss)","zss",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
+    char buf[256+20],buf2[256+20],name[256];
     extract_name(temppath,name,FILENAME8_3);
     
     if(save_subscreen_code(temppath))

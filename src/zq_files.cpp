@@ -413,31 +413,41 @@ int d_rulesettext_proc(int msg, DIALOG *d, int c);
 static DIALOG ruleset_dlg[] =
 {
     { jwin_win_proc,           0,     0,  230,   180,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "New Quest", NULL, NULL },
-    { jwin_button_proc,       76,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_frame_proc,   102,   80,   112,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
+    { jwin_button_proc,       40,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_frame_proc,   102,   80-2-7,   128,  43,   0,       0,      0,       0,             FR_ETCHED,       0,       NULL, NULL, NULL },
     
     { d_dummy_proc,			    20,    71,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0,       0, NULL, NULL },
-    { d_ruleset_radio_proc,       20,    81,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES", NULL, NULL },
-    { d_ruleset_radio_proc,       20,    91,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   101,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "BS-Zelda", NULL, NULL },
-    { d_ruleset_radio_proc,       20,   111,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Zelda 3-esque", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    91-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Authentic NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,    101-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "Fixed NES (8-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   111-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (BS/16-bit)", NULL, NULL },
+    { d_ruleset_radio_proc,       20,   121-8,   61,    9,  vc(14),              vc(1),                 0,       0,     0,             0, (void *) "SNES (Enhanced)", NULL, NULL },
     { d_rulesettext_proc,      108,   85,   0,    0,  vc(14),              vc(1),                 0,       0,     0,             0,       NULL, NULL, NULL },
     // 9
-    { jwin_text_proc,       16,   24,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "You have embarked on a new quest! Please specify which", NULL, NULL },
-    { jwin_text_proc,       16,   34,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "initial set of Quest Rules you want to enable for this", NULL, NULL },
-    { jwin_text_proc,       16,   44,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "quest. Quest Rules affect the behaviour and features of", NULL, NULL },
-    { jwin_text_proc,       16,   54,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the game engine and how different your quest is from", NULL, NULL },
-    { jwin_text_proc,       16,   64,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the NES game 'The Legend of Zelda'.", NULL, NULL },
+    { jwin_text_proc,       16,   24,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please specify the ruleset template for your new quest:", NULL, NULL },
+    { jwin_text_proc,       16,   34,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "These rules affect select sets of engine features that", NULL, NULL },
+    { jwin_text_proc,       16,   44,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "are enabled by default, that you may later toggle on/off,", NULL, NULL },
+    { jwin_text_proc,       16,   54,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "based on the mechanics that you wish to use in your game.", NULL, NULL },
+    { jwin_text_proc,       16,   64,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) " ", NULL, NULL },
     // 14
     { jwin_text_proc,       16,   28,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "You have embarked on a new quest!", NULL, NULL },
-    { jwin_text_proc,       16,   38,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please select an initial set of Quest Rules", NULL, NULL },
-    { jwin_text_proc,       16,   48,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "for your quest. Quest Rules affect", NULL, NULL },
-    { jwin_text_proc,       16,   58,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the features of the game engine.", NULL, NULL },
+    { jwin_text_proc,       16,   38,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Please select an initial ruleset template:", NULL, NULL },
+    { jwin_text_proc,       16,   48,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "These settings affect the features of", NULL, NULL },
+    { jwin_text_proc,       16,   58,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "the game engine that are enabled.", NULL, NULL },
     
-    { jwin_text_proc,       16,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "After creation, individual Quest Rules can be", NULL, NULL },
-    { jwin_text_proc,       16,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "set in the Rules submenu of the Quest menu.", NULL, NULL },
+    { jwin_text_proc,       8,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "After creation, you can toggle individual Rules from the menu", NULL, NULL },
+    { jwin_text_proc,       8,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "options: 'Quest >> Rules' and 'ZScript >> Quest Specific Settings'.", NULL, NULL },
     // There's no d_timer_proc; don't be silly.
+    { d_ruleset_radio_proc,       20,   81-8,   61,    9,  vc(14),              vc(1),                 0,       D_SELECTED,     0,             0, (void *) "Modern", NULL, NULL },
+    { jwin_text_proc,       8,  130,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "To customise, open the 'Quest >> Rules' and ", NULL, NULL },
+    { jwin_text_proc,       8,  140,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "'ZScript >> Quest Specific Settings' dialogues.", NULL, NULL },
+    { jwin_button_proc,       93+40-4,   153,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+enum
+{
+	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
 };
 
 int d_ruleset_radio_proc(int msg,DIALOG *d,int c)
@@ -445,11 +455,12 @@ int d_ruleset_radio_proc(int msg,DIALOG *d,int c)
     int temp = ruleset;
     int ret = jwin_radiofont_proc(msg,d,c);
     
-    if(ruleset_dlg[3].flags & D_SELECTED) ruleset =0;
-    else if(ruleset_dlg[4].flags & D_SELECTED) ruleset =1;
-    else if(ruleset_dlg[5].flags & D_SELECTED) ruleset =2;
-    else if(ruleset_dlg[6].flags & D_SELECTED) ruleset =3;
-    else if(ruleset_dlg[7].flags & D_SELECTED) ruleset =4;
+    if(ruleset_dlg[3].flags & D_SELECTED) ruleset = rulesetNONE;
+    else if(ruleset_dlg[4].flags & D_SELECTED) ruleset = rulesetNES;
+    else if(ruleset_dlg[5].flags & D_SELECTED) ruleset = rulesetFixedNES;
+    else if(ruleset_dlg[6].flags & D_SELECTED) ruleset = rulesetBSZ;
+    else if(ruleset_dlg[7].flags & D_SELECTED) ruleset = rulesetZ3;
+    else if(ruleset_dlg[20].flags & D_SELECTED) ruleset = rulesetModern;
     
     if(temp != ruleset)
     {
@@ -464,185 +475,373 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
     if(msg!=MSG_DRAW)
         return D_O_K;
         
-    char buf[31];
-    char buf2[31];
-    char buf3[31];
-    char buf4[31];
+    char buf[42];
+    char buf2[42];
+    char buf3[42];
+    char buf4[42];
     
     switch(ruleset)
     {
-    case 1: // Original NES
-        sprintf(buf,  "Matches the behaviour of");
-        sprintf(buf2, "'The Legend of Zelda'.");
-        sprintf(buf3, "All but a few rules are off.");
-        sprintf(buf4, " ");
+    case rulesetNES: // Original NES
+	if(is_large)
+	{
+		sprintf(buf,  "Emulates the behaviour, the quirks,");
+		sprintf(buf2, "bugs, and oddities found in the NES");
+		sprintf(buf3, "game 'The Legend of Zelda'.");
+		sprintf(buf4, "All but a few rules are off.");
+	}
+	else
+	{
+		sprintf(buf,  "Traditional NES");
+		sprintf(buf2,  "bugs and quirks.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
         
-    case 2: // Fixed NES
-        sprintf(buf,  "Various bugs in 'The Legend");
-        sprintf(buf2, "of Zelda' are fixed.");
-        sprintf(buf3, "All Quest Rules in the NES");
-        sprintf(buf4, "Fixes category are on.");
+    case rulesetFixedNES: // Fixed NES
+	if(is_large)
+	{
+		sprintf(buf,  "Corrects a large number of oddities");
+		sprintf(buf2, "found in the original NES engine, ");
+		sprintf(buf3, "such as bomb interactions. ");
+		sprintf(buf4, "Enables all 'NES Fixes' Rules");
+	}
+	else
+	{
+		sprintf(buf,  "Applies all NES");
+		sprintf(buf2,  "fixes rules.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+	}
         break;
         
-    case 3: // BS Zelda
-        sprintf(buf,  "Fixed NES, plus BS-Zelda");
-        sprintf(buf2, "animations, new enemy tiles,");
-        sprintf(buf3, "fast scrolling, new push-");
-        sprintf(buf4, "blocks, transition wipes, etc.");
+    case rulesetBSZ: // BS Zelda
+	if(is_large)
+	{
+		sprintf(buf,  "Adds expanded animations befitting a");
+		sprintf(buf2, "Super Famicom era game: Expanded");
+		sprintf(buf3, "enemy tiles, fast scrolling, new push-");
+		sprintf(buf4, "blocks, transition wipes, etc.");
+	}
+	else
+	{
+		sprintf(buf,  "Expanded graphics");
+		sprintf(buf2,  "and sounds.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
         
-    case 4: // Zelda 3-esque
-        sprintf(buf,  "BS-Zelda, plus diagonal Link");
-        sprintf(buf2, "movement, new message strings,");
-        sprintf(buf3, "magic and arrow meters, more");
-        sprintf(buf4, "sound effects, drowning, etc.");
+    case rulesetZ3: // Zelda 3-esque
+	if(is_large)
+	{
+		sprintf(buf,  "As 16-bit, plus diagonal movement,");
+		sprintf(buf2, "new message strings, magic use, real");
+		sprintf(buf3, "arrows, more sounds, drowning, ");
+		sprintf(buf4, "modern boomerang/item interaction.");
+	}
+	else
+	{
+		sprintf(buf,  "Diagonal movement");
+		sprintf(buf2,  "and other enhancements.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+	}
+        break;
+    
+    case rulesetModern: // 255
+	if(is_large)
+	{
+		sprintf(buf,  "Enables all new 2.55 features including");
+		sprintf(buf2, "new Hero movement/step speed, new");
+		sprintf(buf3, "combo animations, scripting extensions,");
+		sprintf(buf4, "and other engine enhancements.");
+	}
+	else
+	{
+		sprintf(buf,  "All new, core 2.55");
+		sprintf(buf2,  "features are enabled.");
+		sprintf(buf3,  " ");
+		sprintf(buf4,  " ");
+		
+	}
         break;
     }
     
     FONT *f = is_large ? font : sfont2;
-    textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
     return D_O_K;
+}
+
+void alwaysOnRules()
+{
+	// Engine fixes
+	set_bit(quest_rules, qr_DMGCOMBOLAYERFIX, 1);
+	set_bit(quest_rules, qr_WARPSIGNOREARRIVALPOINT, 1);
+	set_bit(quest_rules, qr_NOARRIVALPOINT, 1);
+	set_bit(quest_rules, qr_CMBCYCLELAYERS, 1);
+	set_bit(quest_rules, qr_KILLALL, 1);
+	set_bit(quest_rules, qr_ITEMBUBBLE, 1);
+	set_bit(quest_rules, qr_RINGAFFECTDAMAGE, 1);
+	set_bit(quest_rules, qr_NEW_COMBO_ANIMATION, 1);
+	set_bit(quest_rules, qr_BUSHESONLAYERS1AND2, 1);
+	set_bit(quest_rules, qr_CUSTOMCOMBOSLAYERS1AND2, 1);
+	set_bit(quest_rules, qr_HOOKSHOTLAYERFIX, 1);
+	set_bit(quest_rules, qr_EPILEPSY, 1);
+	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);
+	set_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS, 1);
+	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
+	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
+	set_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, 1);
+	// Script Logging
+	set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
+	set_bit(quest_rules, qr_LOG, 1);
+	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
+	// Misc Engine stuff (not really related to any particular ruleset, so, always on)
+	set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+	set_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0, 1);
+	set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
+	set_bit(quest_rules, qr_FFCSCROLL, 1);
+	/* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
+	set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
+	set_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP, 1);
+	set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);
+	set_bit(quest_rules, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, 1); //Give Script 1 to 10 weapons, generated by ZScript unique sprites.
+	set_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, 1);
 }
 
 int PickRuleset()
 {
-    ruleset_dlg[0].dp2=lfont;
-    
-    // Large Mode conversion
-    if(!is_large)
-        ruleset_dlg[2].proc = d_dummy_proc;
-        
-    int start = (is_large?14:9);
-    int end = (is_large?17:13);
-    
-    for(int i = start; i <= end; i++)
-    {
-        ruleset_dlg[i].proc = d_dummy_proc;
-    }
-    
-    if(is_large)
-        large_dialog(ruleset_dlg);
-        
-    int ret = zc_popup_dialog(ruleset_dlg,1);
-    
-    if(ret==1)
-    {
-        if(ruleset>0)
-        {
-            for(int i=0; i<qr_MAX; i++)
-                set_bit(quest_rules,i,0);
-        }
-        
-        // ZC engine fixes
-        // These should always be on.
-        set_bit(quest_rules, qr_DMGCOMBOLAYERFIX, 1);
-        set_bit(quest_rules, qr_WARPSIGNOREARRIVALPOINT, 1);
-        set_bit(quest_rules, qr_NOARRIVALPOINT, 1);
-        set_bit(quest_rules, qr_CMBCYCLELAYERS, 1);
-        set_bit(quest_rules, qr_KILLALL, 1);
-        set_bit(quest_rules, qr_ITEMBUBBLE, 1);
-        set_bit(quest_rules, qr_RINGAFFECTDAMAGE, 1);
-        //Script errors on by default
-        set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
-        
-        switch(ruleset)
-        {
-        case 1: // Original NES
-            set_bit(quest_rules, qr_OLDPICKUP, 1);
-            set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
-            break;
-            
-        case 4: // Zelda 3-esque
-        
-            // Make the water combos drownable
-            for(int i=0; i < MAXCOMBOS; i++)
-            {
-                if(combo_class_buf[combobuf[i].type].water!=0)
-                {
-                    combobuf[i].walk = 0;
-                }
-            }
-            
-            set_bit(quest_rules, qr_DROWN, 1);
-            set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-            set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-            set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-            set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-            set_bit(quest_rules, qr_MSGFREEZE, 1);
-            set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-            set_bit(quest_rules, qr_NOWANDMELEE, 1);
-            set_bit(quest_rules, qr_TRUEARROWS, 1);
-            set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-            set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-            set_bit(quest_rules, qr_SHADOWS, 1);
-            set_bit(quest_rules, qr_LTTPWALK, 1);
-            set_bit(quest_rules, qr_MORESOUNDS, 1);
-            
-            // Fallthrough
-        case 3: // BS Zelda
-            set_bit(quest_rules, qr_TIME, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            set_bit(quest_rules, qr_NEWENEMYTILES, 1);
-            set_bit(quest_rules, qr_FASTDNGN, 1);
-            set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
-            set_bit(quest_rules, qr_COOLSCROLL, 1);
-            set_bit(quest_rules, qr_BSZELDA, 1);
-            set_bit(quest_rules, qr_SOLIDBLK, 1);
-            set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
-            set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
-            set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
-            set_bit(quest_rules, qr_EXPANDEDLTM, 1);
-            set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
-            
-            // Fallthrough
-        case 2: // Fixed NES
-            // Copied from zq_rules.cpp
-            int fixesrules[] =
-            {
-                qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
-                qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
-                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
-                qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
-                qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
-                qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
-            };
-            for(int i=0; fixesrules[i]!=-1; i++)
-            {
-                if(i!=qr_OLDPICKUP)
-                    set_bit(quest_rules, fixesrules[i], 1);
-            }
-            
-            break;
-            
-        }
-    }
-    
-    return D_O_K;
+	zprint("Running int PickRuleset()\n");
+	ruleset_dlg[0].dp2=lfont;
+	
+	// Large Mode conversion
+	if(!is_large)
+		ruleset_dlg[2].proc = d_dummy_proc;
+		
+	int start = (is_large?14:9);
+	int end = (is_large?17:13);
+	
+	for(int i = start; i <= end; i++)
+	{
+		ruleset_dlg[i].proc = d_dummy_proc;
+	}
+	
+	//18-19 or 20-21
+	
+	int infostart = (is_large?21:18);
+	int infoend = (is_large?22:19);
+	
+	for(int i = infostart; i <= infoend; i++)
+	{
+		ruleset_dlg[i].proc = d_dummy_proc;
+	}
+	
+	if(is_large)
+		large_dialog(ruleset_dlg);
+		
+	int ret = zc_popup_dialog(ruleset_dlg,1);
+	//List of all NES Fixes as one set.
+	int fixesrules[] =
+	{
+		qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
+		qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
+		qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
+		qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
+		qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
+		qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
+	};
+		
+	if(ret==1 && ruleset > rulesetNONE)
+	{
+		for(int i=0; i<qr_MAX; ++i)
+		{
+			switch(i)
+			{
+				//Rules to IGNORE, and leave be! -V
+				case qr_PARSER_NO_LOGGING:
+				case qr_PARSER_250DIVISION:
+				case qr_PARSER_SHORT_CIRCUIT:
+				case qr_PARSER_BOOL_TRUE_DECIMAL:
+				case qr_PARSER_TRUE_INT_SIZE:
+				case qr_PARSER_BINARY_32BIT:
+				case qr_PARSER_STRINGSWITCH_INSENSITIVE:
+					break;
+				default:
+					set_bit(quest_rules,i,0);
+			}
+		}
+		
+		alwaysOnRules(); //Set on things that should ALWAYS be on.
+		
+		if(ruleset != rulesetNES) //Rules for all non-'Authentic NES' rulesets
+		{
+			for(int i=0; fixesrules[i]!=-1; ++i)
+			{
+				if(fixesrules[i]!=qr_OLDPICKUP)
+					set_bit(quest_rules, fixesrules[i], 1);
+			}
+		}
+		
+		switch(ruleset)
+		{
+			case rulesetNES: // Authentic NES
+			{
+				set_bit(quest_rules, qr_OLDPICKUP, 1);
+				set_bit(quest_rules, qr_OLDSTYLEWARP, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				break;
+			}
+			case rulesetFixedNES: // Fixed NES
+			{
+				//Nothing to put here; NES fixes are checked above the switch.
+				break;
+			}
+			case rulesetBSZ: // BS Zelda
+			{
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				break;
+			}
+			case rulesetZ3: // Zelda 3-esque
+			{
+				set_bit(quest_rules, qr_DROWN, 1);
+				//Make water drownable
+				for(int i=0; i < MAXCOMBOS; ++i)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+				//From BSZ
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				break;
+			}
+			case rulesetModern: // Modern-style
+			{
+				//Modern
+				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
+				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+				// set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1); //Let's not set this by default until we fix 'fix' precision...
+				set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
+				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
+				set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
+				set_bit(quest_rules, qr_HOLDITEMANIMATION, 1);
+				set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
+				//from Z3
+				//Make water drownable
+				set_bit(quest_rules, qr_DROWN, 1);
+				for(int i=0; i < MAXCOMBOS; ++i)
+				{
+					if(combo_class_buf[combobuf[i].type].water!=0)
+					{
+						combobuf[i].walk = 0;
+					}
+				}
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+				//from BSZ
+				set_bit(quest_rules, qr_TIME, 1);
+				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
+				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
+				set_bit(quest_rules, qr_FASTDNGN, 1);
+				set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING, 1);
+				set_bit(quest_rules, qr_COOLSCROLL, 1);
+				set_bit(quest_rules, qr_BSZELDA, 1);
+				set_bit(quest_rules, qr_SOLIDBLK, 1);
+				set_bit(quest_rules, qr_HESITANTPUSHBLOCKS, 1);
+				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
+				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
+				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				break;
+			}
+		}
+	}
+	
+	return D_O_K;
 }
 
 int onNew()
 {
-    if(checksave()==0)
-        return D_O_K;
-        
-    /*
-      int ret=ListQTs(false);
-      if (ret==-2)
-      {
-        return D_O_K;
-      }
-    */
-    int ret=0;
-    NewQuestFile(ret);
-    
-    if(RulesetDialog > 0)
-        PickRuleset();
-        
-    return D_O_K;
+	if(checksave()==0)
+		return D_O_K;
+		
+	/*
+	int ret=ListQTs(false);
+	if (ret==-2)
+	{
+		return D_O_K;
+	}
+	*/
+	int ret=0;
+	NewQuestFile(ret);
+	set_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT, 1);
+	set_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE, 1);
+	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
+	alwaysOnRules();
+	if(RulesetDialog > 0)
+		PickRuleset();
+		
+	return D_O_K;
 }
 
 int onSave()
@@ -664,8 +863,8 @@ int onSave()
     }
     
     int ret = save_quest(filepath, false);
-    char buf[80],name[13];
-    extract_name(filepath,name,FILENAME8_3);
+    char buf[256+20],name[256];
+    extract_name(filepath,name,FILENAMEALL);
     
     if(!ret)
     {
@@ -711,8 +910,8 @@ int onSaveAs()
     }
     
     int ret = save_quest(temppath, false);
-    char buf[1024],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[1024],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(!ret)
     {
@@ -798,8 +997,8 @@ int onOpen()
     }
     else
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
         filepath[0]=0;
@@ -837,8 +1036,8 @@ int onRevert()
         }
         else
         {
-            char buf[80],name[13];
-            extract_name(filepath,name,FILENAME8_3);
+            char buf[256+20],name[256];
+            extract_name(filepath,name,FILENAMEALL);
             sprintf(buf,"Unable to load %s",name);
             jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
             filepath[0]=0;
@@ -923,8 +1122,8 @@ int onImport_Map()
     
     if(ret)
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,loaderror[ret],NULL,"O&K",NULL,'k',0,lfont);
         
@@ -972,8 +1171,8 @@ int onExport_Map()
         return D_O_K;
         
     int ret = Map.save(temppath);
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(!ret)
     {
@@ -990,7 +1189,7 @@ int onExport_Map()
     return D_O_K;
 }
 
-int onImport_DMaps()
+int onImport_DMaps_old()
 {
     if(!getname("Import DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
@@ -999,8 +1198,8 @@ int onImport_DMaps()
     
     if(!load_dmaps(temppath,0))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1036,13 +1235,190 @@ int onImport_DMaps()
     return D_O_K;
 }
 
+
+int onExport_Tilepack()
+{
+	savesometiles("Save Tile Package", 0);
+	return D_O_K;	
+}
+
+int onAbout_Module()
+{
+	about_module("About Module (.zmod)", 0);
+	return D_O_K;
+}
+
+int onImport_Tilepack_To()
+{
+	writesometiles_to("Load Tile Package to:", 0);
+	return D_O_K;	
+}
+
 int onExport_DMaps()
+{
+
+    
+    savesomedmaps("Read DMaps",0);
+    
+    return D_O_K;
+}
+
+
+int onImport_DMaps()
+{
+    if(!getname("Import DMaps (.zdmap)","zdmap",NULL,datapath,false))
+        return D_O_K;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readsomedmaps(f))
+		{
+			char buf[256+20],name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			char tmpbuf[256+20]={0};
+			sprintf(tmpbuf,"Loaded %s",name);
+			
+			
+			
+			
+			int maxMap=0;
+			for(int i=0; i<MAXDMAPS; i++)
+			{
+			    if(DMaps[i].map>maxMap)
+				maxMap=DMaps[i].map;
+			}
+			
+			if(maxMap>map_count)
+			{
+			    int ret=jwin_alert("Not enough maps",
+					       "The imported DMaps use more maps than are",
+					       " currently available. Do you want to add",
+					       "more maps or change the DMaps' settings?",
+					       "&Add maps","&Modify DMaps",'a','m',lfont);
+			    if(ret==1)
+				setMapCount2(maxMap+1);
+			    else
+			    {
+				for(int i=0; i<MAXDMAPS; i++)
+				{
+				    if(DMaps[i].map>=map_count)
+					DMaps[i].map=0;
+				}
+			    }
+			}
+			
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+   
+    saved=false;
+
+    
+    return D_O_K;
+}
+
+int onImport_Tilepack()
+{
+		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				if (!readtilefile(f))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", name);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+			}
+	
+			pack_fclose(f);
+		}
+		return D_O_K;
+}
+
+int onExport_Combopack()
+{
+	savesomecombos("Save Combo Package", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Combopack_To()
+{
+	writesomecombos_to("Load Combo Package to:", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Combopack()
+{
+		loadcombopack("Load Combo Package to:", 0);
+		return D_O_K;
+}
+
+
+int onExport_Comboaliaspack()
+{
+	savesomecomboaliases("Save Combo Alias Package", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Comboaliaspack_To()
+{
+	writesomecomboaliases_to("Load Combo Alias Package to:", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Comboaliaspack()
+{
+		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				if (!readcomboaliasfile(f))
+				{
+					al_trace("Could not read from .zalias packfile %s\n", name);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+			}
+	
+			pack_fclose(f);
+		}
+		return D_O_K;
+}
+
+int onExport_DMaps_old()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_dmaps(temppath))
     {
@@ -1068,8 +1444,8 @@ int onImport_Pals()
     
     if(!load_pals(temppath,0))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1082,8 +1458,8 @@ int onExport_Pals()
     if(!getname("Export Palettes (.zpl)","zpl",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_pals(temppath))
     {
@@ -1109,8 +1485,8 @@ int onImport_Msgs()
     
     if(!load_msgstrs(temppath,0))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1123,8 +1499,8 @@ int onExport_Msgs()
     if(!getname("Export String Table (.zqs)","zqs",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs(temppath))
     {
@@ -1147,8 +1523,8 @@ int onExport_MsgsText()
     if(!getname("Export Text Dump (.txt)","txt",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs_text(temppath))
     {
@@ -1167,6 +1543,13 @@ int onExport_MsgsText()
 
 int onImport_Combos()
 {
+	writesomecombos("Load Combo Set", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Combos_old()
+{
     int ret=getnumber("Import Start Page",0);
     
     if(cancelgetnum)
@@ -1182,8 +1565,8 @@ int onImport_Combos()
     if(!load_combos(temppath, ret*COMBOS_PER_PAGE))
     {
         // if(!load_combos(temppath)) {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1194,13 +1577,43 @@ int onImport_Combos()
     return D_O_K;
 }
 
+
 int onExport_Combos()
+{
+    if(!getname("Export Combos (.zcombo)","zcombo",NULL,datapath,false))
+        return D_O_K;
+        
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
+    
+    //writetilefile(f,first_tile_id,the_tile_count);
+    
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		writecombofile(f,0,MAXCOMBOS);
+		pack_fclose(f);
+		
+		char tmpbuf[256+20]={0};
+		sprintf(tmpbuf,"Saved %s",name);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		sprintf(buf,"Error");
+		sprintf(buf2,"Error saving %s",name);
+	}
+    
+    return D_O_K;
+}
+
+int onExport_Combos_old()
 {
     if(!getname("Export Combo Table (.cmb)","cmb",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_combos(temppath))
     {
@@ -1228,19 +1641,31 @@ int onImport_Tiles()
     
     bound(ret,0,TILE_PAGES-1);
     
-    if(!getname("Import Tiles (.til)","til",NULL,datapath,false))
+    if(!getname("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
+    char name[256];
+    extract_name(temppath,name,FILENAMEALL);
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readtilefile_to_location(f,0,ret))
+		{
+			char buf[256+20];
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[256+20]={0};
+			
+			sprintf(tmpbuf,"Saved %s",name);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
     
-    // usetiles=true;
-    if(!load_tiles(temppath, ret*TILES_PER_PAGE))
-    {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
     
     refresh(rALL);
     return D_O_K;
@@ -1248,24 +1673,32 @@ int onImport_Tiles()
 
 int onExport_Tiles()
 {
-    if(!getname("Export Tiles (.til)","til",NULL,datapath,false))
+    if(!getname("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
-    if(save_tiles(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
+    //writetilefile(f,first_tile_id,the_tile_count);
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		writetilefile(f,0,NEWMAXTILES);
+		pack_fclose(f);
+		
+		char tmpbuf[256+20]={0};
+		
+		sprintf(tmpbuf,"Saved %s",name);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		
+		sprintf(buf,"Error");
+		sprintf(buf2,"Error saving %s",name);
+	}
+    
     return D_O_K;
 }
 
@@ -1276,8 +1709,8 @@ int onImport_Guys()
         
     if(!load_guys(temppath))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1291,8 +1724,8 @@ int onExport_Guys()
     if(!getname("Export Enemies (.guy)","guy",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_guys(temppath))
     {
@@ -1322,8 +1755,8 @@ int onImport_ComboAlias()
         
     if(!load_combo_alias(temppath))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1337,8 +1770,8 @@ int onExport_ComboAlias()
     if(!getname("Export Combo Alias (.zca)","zca",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_combo_alias(temppath))
     {
@@ -1365,8 +1798,8 @@ int onImport_ZGP()
     // usetiles=true;
     if(!load_zgp(temppath))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1380,8 +1813,8 @@ int onExport_ZGP()
     if(!getname("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_zgp(temppath))
     {
@@ -1408,8 +1841,8 @@ int onImport_Subscreen()
     // usetiles=true;
     if(!load_subscreen(temppath))
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1424,8 +1857,8 @@ int onExport_Subscreen()
         return D_O_K;
         
     bool cancel;
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(save_subscreen(temppath, &cancel))
     {
@@ -1461,8 +1894,8 @@ int onImport_ZQT()
     
     if(error != qe_OK && error != qe_cancel)
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1482,8 +1915,8 @@ int onExport_ZQT()
     if(!getname("Export Quest Template (.zqt)","zqt",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(!save_unencoded_quest(temppath, true))
     {
@@ -1511,8 +1944,8 @@ int onImport_UnencodedQuest()
     
     if(ret != qe_OK && ret != qe_cancel)
     {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
@@ -1532,8 +1965,8 @@ int onExport_UnencodedQuest()
     if(!getname("Export Unencoded Quest (.qsu)","qsu",NULL,datapath,false))
         return D_O_K;
         
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
     
     if(!save_unencoded_quest(temppath, false))
     {
@@ -1548,6 +1981,984 @@ int onExport_UnencodedQuest()
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
     return D_O_K;
+}
+
+//Doorsets
+int readzdoorsets(PACKFILE *f, int first, int count, int deststart)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	int doorscount = 0;
+	DoorComboSet tempDoorComboSet;
+	memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+	int lastset = 0;
+	int firstset = 0;
+	int last = 0;
+	int ret = 1;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&doorscount,f,true))
+	{
+		return 0;
+	}
+	al_trace("doorscount is: %d\n", doorscount);
+	if(!p_igetl(&firstset,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&last,f,true))
+	{
+		return 0;
+	}
+	//if the params passed would be invalid:
+	if ( first < firstset || first >= door_combo_set_count ) 
+	{
+		first = firstset;
+	}
+	if ( lastset < 0 || lastset > count )
+	{
+		lastset = doorscount;
+	}
+	else
+	{
+		lastset = firstset + count;
+	}
+	//end params sanity guard
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdoors packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	{
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zdoors packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	//section data for doors
+	for(int i=firstset+deststart; i<lastset+deststart; ++i)
+	{
+		if(i+deststart >= door_combo_set_count)
+		{
+			al_trace("Reached the current door count trying to import doorsets.\n");
+			ret = 2; break;
+		}
+		al_trace("Door readcycle %d\n", i-deststart);
+		//Clear per set
+		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+		//name
+		if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f,true))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.flags[j],f,true))
+			{
+				return 0;
+			}
+		}
+		memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
+	}
+	return ret;
+}
+
+
+int writezdoorsets(PACKFILE *f, int first = 0, int count = door_combo_set_count)
+{
+	dword section_version=V_DOORS;
+	dword section_cversion=CV_DOORS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	int doorscount = door_combo_set_count;
+	int firstset = first;
+	int lastset = count;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(doorscount,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(firstset,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(lastset,f))
+	{
+		return 0;
+	}
+	//if the params passed would be invalid:
+	if ( firstset < 0 || firstset >= doorscount )
+	{
+		firstset = 0;
+	}
+	if ( lastset < 1 || lastset >= doorscount )
+	{
+		lastset = doorscount;
+	}
+	else
+	{
+		lastset = firstset + count;
+	}
+	//end params sanity guard
+	
+	//doorset data
+	for(int i=firstset; i<lastset; ++i)
+        {
+		al_trace("Door writecycle %d\n", i);
+		//name
+		if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[i].flags[j],f))
+			{
+				return 0;
+			}
+		}
+        }
+	return 1;
+}
+
+
+
+
+int writeonezdoorset(PACKFILE *f, int index)
+{
+	dword section_version=V_DOORS;
+	dword section_cversion=CV_DOORS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	int doorscount = door_combo_set_count;
+	int firstset = 0;
+	int lastset = 1;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(doorscount,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(firstset,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(lastset,f))
+	{
+		return 0;
+	}
+	//doorset data
+	
+        {
+		//name
+		if(!pfwrite(&DoorComboSets[index].name,sizeof(DoorComboSets[0].name),f))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_u[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_d[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_l[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_iputw(DoorComboSets[index].doorcombo_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_putc(DoorComboSets[index].doorcset_r[j][k],f))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_u[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_u[j],f))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_d[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_d[j],f))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_l[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_l[j],f))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].bombdoorcombo_r[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_putc(DoorComboSets[index].bombdoorcset_r[j],f))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_iputw(DoorComboSets[index].walkthroughcombo[j],f))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_putc(DoorComboSets[index].walkthroughcset[j],f))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_putc(DoorComboSets[index].flags[j],f))
+			{
+				return 0;
+			}
+		}
+        }
+	return 1;
+}
+
+
+
+
+int readonezdoorset(PACKFILE *f, int index)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	int doorscount = 0;
+	DoorComboSet tempDoorComboSet;
+	memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+	int firstset = 0;
+	int last = 0;
+	int ret = 1;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&doorscount,f,true))
+	{
+		return 0;
+	}
+	al_trace("doorscount is: %d\n", doorscount);
+	if(!p_igetl(&firstset,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&last,f,true))
+	{
+		return 0;
+	}
+	
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdoors packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_DOORS ) || ( section_version == V_DOORS && section_cversion > CV_DOORS ) )
+	{
+		al_trace("Cannot read .zdoors packfile made using V_DOORS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zdoors packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	//section data for doors
+	{
+		//if(i+deststart >= door_combo_set_count)
+		//{
+		//	al_trace("Reached the current door count trying to import doorsets.\n");
+		//	ret = 2; break;
+		//}
+		//al_trace("Door readcycle %d\n", i-deststart);
+		//Clear per set
+		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
+		//name
+		if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f,true))
+		{
+			return 0;
+		}
+		//up door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//down door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<4; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//left door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//right door
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		for(int j=0; j<9; j++)
+		{
+			for(int k=0; k<6; k++)
+			{
+				if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f,true))
+				{
+					return 0;
+				}
+			}
+		}
+		//up bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//down bomb rubble
+		for(int j=0; j<2; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//left bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//right bomb rubble
+		for(int j=0; j<3; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<3; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//walkthrough stuff
+		for(int j=0; j<4; j++)
+		{
+			if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f,true))
+			{
+				return 0;
+			}
+		}
+		for(int j=0; j<4; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f,true))
+			{
+				return 0;
+			}
+		}
+		//flags
+		for(int j=0; j<2; j++)
+		{
+			if(!p_getc(&tempDoorComboSet.flags[j],f,true))
+			{
+				return 0;
+			}
+		}
+		memcpy(&DoorComboSets[index], &tempDoorComboSet, sizeof(tempDoorComboSet));
+	}
+	return ret;
+}
+
+int onExport_Doorset()
+{
+	do_exportdoorset("Export Doorsets", 0);
+	return D_O_K;
+}
+int onImport_Doorset()
+{
+	do_importdoorset("Import Doorsets", 0);
+	return D_O_K;
 }
 
 void center_zq_files_dialogs()

@@ -260,7 +260,7 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int writedoorcombosets(PACKFILE *f, zquestheader *Header);
 int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i);
 int writeffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script);
+int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **script);
 int writeitemdropsets(PACKFILE *f, zquestheader *Header);
 int writefavorites(PACKFILE *f, zquestheader *Header);
 #endif

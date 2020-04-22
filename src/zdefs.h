@@ -12,11 +12,19 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
-#define DEVLEVEL 2
+#define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
 
 //DEVLEVEL 1: Ignore passwd
 //DEVLEVEL 2: +More verbose logging. 
+
+#if DEVLEVEL > 0
+#define DEVLOGGING	dev_logging
+#define DEVDEBUG	dev_debug
+#else
+#define DEVLOGGING	false
+#endif
+
 
 //Conditional Debugging Compilation
 //Script related
@@ -103,13 +111,14 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       47                              //build number of this version
+#define VERSION_BUILD       48                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 32"                    //version of the program as presented in text
-#define IS_BETA             -32                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        32	
-#define DATE_STR            "22nd September, 2019, 10:22GMT"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 32"
+//#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
+//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
+//#define VERSION_BETA        39	
+//#define DATE_STR            "19th October, 2019, 12:18GMT"
+//__DATE__ and __TIME__ macros can simplify this, in the future. 
+//#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -127,10 +136,29 @@
 
 #define MAX_INTERNAL_QUESTS 	5
 
-#define MAX_SCRIPT_REGISTERS 1024
+#define BITS_SP	10
+#define MAX_SCRIPT_REGISTERS (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250 256
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
+
+//Moved these OS-dependent defs from 'ffasm.cpp', to be global.
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef ALLEGRO_LINUX
+#define strnicmp strncasecmp
+#endif
+
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
 
 #ifdef ALLEGRO_DOS
 //already defined in DOS
@@ -181,31 +209,31 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 
 //Version number of the different section types
-#define V_HEADER           3
+#define V_HEADER           5
 #define V_RULES           15
-#define V_STRINGS          6
+#define V_STRINGS          7
 #define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           12
+#define V_COMBOS           15
 #define V_CSETS            4
 #define V_MAPS            22
-#define V_DMAPS            13
+#define V_DMAPS            14
 #define V_DOORS            1
 #define V_ITEMS           45
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        19
+#define V_INITDATA        20
 #define V_GUYS            41
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        12
+#define V_SAVEGAME        16 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_LINKSPRITES      5
+#define V_LINKSPRITES      6
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         14
+#define V_FFSCRIPT         18
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -247,6 +275,24 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_SFX             5
 #define CV_FAVORITES       1
 
+
+// Loose Object Version Metadata
+// If the version is 0, it is ther original.
+// 'Higher Versions' use negative numbers, so -1 is newer than 0, -2 is newer than -1.
+// Sorry for the ugly hack, but it maintains full compatibility through
+// Packfile magic. -Z
+#define V_ZCOMBO -1
+#define V_ZMOD -1
+#define V_ZTHEME -1
+#define V_ZASM -1
+#define V_ZTILE -1
+#define V_ZTILESET -1
+#define V_ZDMAP -1
+#define V_ZALIAS -1
+#define V_ZNPC -1
+#define V_ZITEM -1
+#define V_ZWPNSPR -1
+
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
 extern int original_playing_field_offset;
@@ -274,11 +320,20 @@ extern bool fake_pack_writing;
 #define WHITE         254
 
 #define BYTE_FILTER 0xFF
+#define DIAG_TO_SIDE		0.7071
+#define SIDE_TO_DIAG		1.4142
+#define STEP_DIAGONAL(s)	(s*DIAG_TO_SIDE)
+#define FIX_FLOOR(fx)		(int(floor(double(fx))))
 
 #define SINGLE_TILE_SIZE    128
 #define TILES_PER_ROW       20
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
+
+#define TILEROW(tile)		(tile/TILES_PER_ROW)
+#define TILECOL(tile)		(tile%TILES_PER_ROW)
+#define TILEPAGE(tile)		(tile/TILES_PER_PAGE)
+
 #define TILE_PAGES          825
 #define TILE_PAGES_ZC250    252 //2.50.x
 
@@ -471,6 +526,9 @@ extern bool fake_pack_writing;
 #define llLENSHIDES     8
 #define llLENSSHOWS     16
 
+// sprite drawing flag bits
+#define sprdrawflagALWAYSOLDDRAWS 1
+
 // enemy flags
 #define efZORA          1
 #define efTRAP4         2
@@ -621,47 +679,83 @@ enum
 //combo name strings come from defdata
 enum
 {
-    cNONE, cSTAIR, cCAVE, cWATER, cARMOS, cGRAVE, cDOCK,
-    cUNDEF, cPUSH_WAIT, cPUSH_HEAVY, cPUSH_HW, cL_STATUE, cR_STATUE,
-    cWALKSLOW, cCVUP, cCVDOWN, cCVLEFT, cCVRIGHT, cSWIMWARP, cDIVEWARP,
-    cLADDERHOOKSHOT, cTRIGNOFLAG, cTRIGFLAG, cZELDA, cSLASH, cSLASHITEM,
-    cPUSH_HEAVY2, cPUSH_HW2, cPOUND, cHSGRAB, cHSBRIDGE, cDAMAGE1,
-    cDAMAGE2, cDAMAGE3, cDAMAGE4, cC_STATUE, cTRAP_H, cTRAP_V, cTRAP_4,
-    cTRAP_LR, cTRAP_UD, cPIT, cHOOKSHOTONLY, cOVERHEAD, cNOFLYZONE, cMIRROR,
-    cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4,
-    cMAGICSPONGE, cCAVE2, cEYEBALL_A, cEYEBALL_B, cNOJUMPZONE, cBUSH,
-    cFLOWERS, cTALLGRASS, cSHALLOWWATER, cLOCKBLOCK, cLOCKBLOCK2,
-    cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2, cLADDERONLY, cBSGRAVE,
-    cCHEST, cCHEST2, cLOCKEDCHEST, cLOCKEDCHEST2, cBOSSCHEST, cBOSSCHEST2,
-    cRESET, cSAVE, cSAVE2, /*cVERTICAL,*/ cCAVEB, cCAVEC, cCAVED,
-    cSTAIRB, cSTAIRC, cSTAIRD, cPITB, cPITC, cPITD,
-    cCAVE2B, cCAVE2C, cCAVE2D, cSWIMWARPB, cSWIMWARPC, cSWIMWARPD,
-    cDIVEWARPB, cDIVEWARPC, cDIVEWARPD, cSTAIRR, cPITR,
-    cAWARPA, cAWARPB, cAWARPC, cAWARPD, cAWARPR,
-    cSWARPA, cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, cSTRIGFLAG,
-    cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
-    cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
-    cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECATED**/, cSPINTILE1, cSPINTILE2,
-    cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
-    cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, cFLOWERSTOUCHY, cTALLGRASSTOUCHY,
-    cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, cEYEBALL_4, cTALLGRASSNEXT,
-    cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, 
-    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10, 
-    cSCRIPT11, cSCRIPT12, cSCRIPT13, cSCRIPT14, cSCRIPT15, 
-    cSCRIPT16, cSCRIPT17, cSRCIPT18, cSCRIPT19, cSCRIPT20, 
+    cNONE, cSTAIR, cCAVE, cWATER, cARMOS, 
+	//5
+	cGRAVE, cDOCK, cUNDEF, cPUSH_WAIT, cPUSH_HEAVY, 
+	//10
+	cPUSH_HW, cL_STATUE, cR_STATUE, cWALKSLOW, cCVUP, 
+	//15
+	cCVDOWN, cCVLEFT, cCVRIGHT, cSWIMWARP, cDIVEWARP,
+	//20
+	cLADDERHOOKSHOT, cTRIGNOFLAG, cTRIGFLAG, cZELDA, cSLASH, 
+	//25
+	cSLASHITEM, cPUSH_HEAVY2, cPUSH_HW2, cPOUND, cHSGRAB, 
+	//30
+	cHSBRIDGE, cDAMAGE1, cDAMAGE2, cDAMAGE3, cDAMAGE4, 
+	//35
+	cC_STATUE, cTRAP_H, cTRAP_V, cTRAP_4, cTRAP_LR, 
+	//40
+	cTRAP_UD, cPIT, cHOOKSHOTONLY, cOVERHEAD, cNOFLYZONE, 
+	//45
+	cMIRROR, cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4,
+	//50
+	cMAGICSPONGE, cCAVE2, cEYEBALL_A, cEYEBALL_B, cNOJUMPZONE, 
+	//55
+	cBUSH, cFLOWERS, cTALLGRASS, cSHALLOWWATER, cLOCKBLOCK, 
+	//60
+	cLOCKBLOCK2, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2, cLADDERONLY, cBSGRAVE,
+	//65
+	cCHEST, cCHEST2, cLOCKEDCHEST, cLOCKEDCHEST2, cBOSSCHEST, 
+	//70
+	cBOSSCHEST2, cRESET, cSAVE, cSAVE2, /*cVERTICAL,*/ cCAVEB, 
+	//75
+	cCAVEC, cCAVED, cSTAIRB, cSTAIRC, cSTAIRD, 
+	//80
+	cPITB, cPITC, cPITD, cCAVE2B, cCAVE2C, 
+	//85
+	cCAVE2D, cSWIMWARPB, cSWIMWARPC, cSWIMWARPD, cDIVEWARPB, 
+	//90
+	cDIVEWARPC, cDIVEWARPD, cSTAIRR, cPITR, cAWARPA, 
+	//95
+	cAWARPB, cAWARPC, cAWARPD, cAWARPR, cSWARPA, 
+	//100
+	cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, 
+	//105
+	cSTRIGFLAG, cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, 
+	//110
+	cNOENEMY, cBLOCKARROW1, cBLOCKARROW2, cBLOCKARROW3, cBLOCKBRANG1, 
+	//115
+	cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL, cBLOCKFIREBALL, 
+	//120
+	cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECATED**/, cSPINTILE1, 
+	//125
+	cSPINTILE2, cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, 
+	//130
+	cSLASHNEXTITEM, cBUSHNEXT, cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, 
+	//135
+	cFLOWERSTOUCHY, cTALLGRASSTOUCHY, cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, 
+	//140
+	cEYEBALL_4, cTALLGRASSNEXT, cSCRIPT1, cSCRIPT2, cSCRIPT3, 
+	//145
+	cSCRIPT4, cSCRIPT5, cSCRIPT6, cSCRIPT7, cSCRIPT8, 
+	//150
+	cSCRIPT9, cSCRIPT10, cSCRIPT11, cSCRIPT12, cSCRIPT13, 
+	//155
+	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18, 
+	//160
+	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
-    //146
     
-    //
-    //151
-    cFIRELAVA1, cFIREFLAVA2, cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
-    //155
+    cFIRELAVA1, cFIREFLAVA2, 
+    //165
+    cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
+    //167
     cHOLEDROP, //drop link as a warp with a drop effect
-    //156
+    //168
     cHOLEDAMAGE1, cHOLEDAMAGE2, cHOLEDAMAGE3, cHOLEDAMAGE4, //Pits that damage and respawn
-    //160
+    //172
     cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
     
       /* pot, or rock:
@@ -679,27 +773,26 @@ enum
 		defined. -Z
 		
 	*/
-      //163
+      //175
     //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
     cLIFT, cLIFTITEM, cLIFTSPECITER, 
-    //166
+    //178
     //lift and show next combo, same plus item drop, same with room item
     cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
-    //169
+    //181
     //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
     cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
-    //172
+    //184
     //lift or shash, then change the combo at its position to the 'next combo', ...
 	//...and make drop, ...and make screen room item
     cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
-    //175
+    //187
 
     cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
-   //176s
+   //188s
    cFREEZEFFCONLY, //freezes only scripts
-   //177
-   cSYS177, cSYS178, cSYS179, cSYS180,
-    cSYS181, cSYS182, cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
+   //189
+   cSYS189, cSYS190,
     cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
     cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
     cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
@@ -866,16 +959,21 @@ enum
 	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */, qr_SIDEVIEWLADDER_FACEUP, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 	//24
-	qr_OLD_SIDEVIEW_CEILING_COLLISON /* Compatibility */, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES /* Compatibility */, qr_OLD_ENEMY_KNOCKBACK_COLLISION /* Compatibility */,
-	qr_FADEBLACKWIPE,
+	qr_OLD_SIDEVIEW_CEILING_COLLISON /* Compatibility */, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES /* Compatibility */, qr_OLD_ENEMY_KNOCKBACK_COLLISION /* Compatibility */, qr_FADEBLACKWIPE,
+	qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_ANIMATECUSTOMWEAPONS, qr_WEAPONSMOVEOFFSCREEN,
+	//25
+	qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, qr_SHORTDGNWALK, qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS,
+	qr_MIRRORS_USE_WEAPON_CENTRE, qr_CUSTOMCOMBOSLAYERS1AND2, qr_BUSHESONLAYERS1AND2, qr_NEW_HERO_MOVEMENT,
+	//26
+	qr_DISABLE_4WAY_GRIDLOCK, qr_NEW_COMBO_ANIMATION, qr_OLD_STRING_EDITOR_MARGINS,
 	
 	//ZScript Parser //room for 20 of these
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_SHORT_CIRCUIT, //Default on.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
-	qr_LINKXY_IS_FLOAT,
+	qr_SPRITEXY_IS_FLOAT,
 	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
@@ -884,9 +982,15 @@ enum
 	qr_OLDCREATEBITMAP_ARGS, qr_OLDQUESTMISC, qr_PARSER_FORCE_INLINE, qr_CLEARINITDONSCRIPTCHANGE,
 	//82
 	qr_NOFFCWAITDRAW, qr_NOITEMWAITDRAW, qr_TRACESCRIPTIDS, qr_FIXDRUNKINPUTS,
-	qr_32BIT_BINARY, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
+	qr_PARSER_BINARY_32BIT, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
 	//83
-	qr_WEAPONS_EXTRA_FRAME,
+	qr_WEAPONS_EXTRA_FRAME, qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING,
+	qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES, qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2,
+	//84
+	qr_COMBOSCRIPTS_LAYER_3, qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6,
+	qr_OLD_INIT_SCRIPT_TIMING, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
+	qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, qr_PARSER_STRINGSWITCH_INSENSITIVE,
+	//85
 	
     qr_MAX
 };
@@ -998,7 +1102,7 @@ enum
 { 
 	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
 	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, emu192b163, 
-	emuEPILEPSY, emuLAST
+	emuEPILEPSY, emuBUGGYNEXTCOMBOS, emuLAST
 		
 };
 
@@ -1067,6 +1171,44 @@ enum
 #define NUM_HIT_TYPES_USED 16
 #define NUM_HIT_TYPES_USED_LINK 4
 
+//Page 1, triggerflags[0]
+
+#define combotriggerSWORD	0x01
+#define combotriggerSWORDBEAM	0x02
+#define combotriggerBRANG	0x04
+#define combotriggerBOMB	0x08
+#define combotriggerSBOMB	0x10
+#define combotriggerLITBOMB	0x20
+#define combotriggerLITSBOMB	0x40
+#define combotriggerARROW	0x80
+#define combotriggerFIRE	0x100
+#define combotriggerWHISTLE	0x200
+#define combotriggerBAIT	0x400
+#define combotriggerWAND	0x800
+#define combotriggerMAGIC	0x1000
+#define combotriggerWIND	0x2000
+#define combotriggerREFMAGIC	0x4000
+#define combotriggerREFFIREBALL	0x8000
+#define combotriggerREFROCK	0x10000
+#define combotriggerHAMMER	0x20000
+
+//Page 2, triggerflags[1]
+#define combotriggerHOOKSHOT	0x01
+#define combotriggerSPARKLE	0x02
+#define combotriggerBYRNA	0x04
+#define combotriggerREFBEAM	0x08
+#define combotriggerSTOMP	0x10
+#define combotriggerSCRIPT01	0x20
+#define combotriggerSCRIPT02	0x40
+#define combotriggerSCRIPT03	0x80
+#define combotriggerSCRIPT04	0x100
+#define combotriggerSCRIPT05	0x200
+#define combotriggerSCRIPT06	0x400
+#define combotriggerSCRIPT07	0x800
+#define combotriggerSCRIPT08	0x1000
+#define combotriggerSCRIPT09	0x2000
+#define combotriggerSCRIPT10	0x4000
+
 // weapon types in game engine
 enum
 {
@@ -1108,6 +1250,115 @@ enum
     //145
     ewIce,ewFireball2,
     wMax
+};
+
+enum defWpnSprite
+{
+	//0
+	ws_0,
+	wsBeam = 0,
+	wsRefBeam = 1,
+	wsSword2 = 1,
+	wsSword3,
+	wsSword4,
+	wsBrang,
+	wsBrang2,
+	wsBrang3,
+	wsBomb,
+	wsSBomb,
+	wsBombblast,
+	//10
+	wsArrow,
+	wsArrow2,
+	wsFire,
+	wsWind,
+	wsBait,
+	wsWandHandle,
+	wsMagic,
+	wsRefFireball,
+	wsFireball = 17,
+	wsFireball2 = 17,
+	wsRock,
+	wsEArrow,
+	//20
+	wsEBeam,
+	wsRefMagic,
+	wsEMagic = 21,
+	wsSpawn,
+	wsDeath,
+	wsUnused24,
+	wsHammer,
+	wsHookshotHead,
+	wsHookshotChainH, 
+	wsHookshotHandle,
+	wsFireSparkle, //silver sparkle
+	wsSilverSparkle = 29, //silver sparkle
+	//30
+	wsGoldSparkle,
+	wsBrang2Sparkle,
+	wsBrang3Sparkle,
+	wsHammerSmack,
+	wArrow3,
+	wsEFire,
+	wsEWind,
+	wsMagicGauge,
+	wsDinFalling,
+	wsDinRising,
+	//40
+	wsDinTrailRising,
+	wsDinTrailFalling,
+	wsHookshotChainV,
+	wsMore,
+	wsUnused44,
+	wsUnused45,
+	wsSword1Slash,
+	wsSword2Slash,
+	wsSword3Slash,
+	wsSword4Slash,
+	//50
+	wsShadow,
+	wsShadowLarge,
+	wsBushLeaves,
+	wsFlowerClippings,
+	wsGrassGlippings,
+	wsTallGrass,
+	wsRipples,
+	wsUnused57,
+	wsNayLoveLeft,
+	wsNayLoveLeftReturn,
+	//60
+	wsNayLoveTrailLeft,
+	wsNayLoveTrailLeftReturn,
+	wsNayLoveRight,
+	wsNayLoveRightReturn,
+	wsNayLoveTrailRight,
+	wsNayLoveTrailRightReturn,
+	wsNayLoveShieldFront,
+	wsNayLoveShieldBack,
+	wsSubscreenVine,
+	wsByrnaCane,
+	//70
+	wsByrnaSlash,
+	wsLongshotHead,
+	wsLongshotChainH,
+	wsLongshotHandle,
+	wsLongshotChainV,
+	wsSbombblast,
+	wsEBomb,
+	wsESbomb,
+	wsEBombblast,
+	wsESbombblast,
+	//80
+	wsEFiretrail,
+	wsEFire2,
+	wsEFiretrail2,
+	wsIce,
+	wsHoverboots,
+	wsMagicFire,
+	wsQuarterHeartPieces,
+	wsByrnaBeam,
+	wsFirework,
+	wsLast
 };
 
 // phantom weapon types
@@ -1806,20 +2057,23 @@ public:
     
     long d[8]; //d registers
     long a[2]; //a regsisters (reference to another ffc on screen)
-    byte sp; //stack pointer for current script
+    word sp : BITS_SP; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
-	dword mapsref, screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
+	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
+	long mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref;
-	int combosref;
+	int combosref, comboposref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	
+	long switchkey; //used for switch statements
     
     void Clear()
     {
@@ -1832,8 +2086,10 @@ public:
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
 		comboidref = 0;
+		comboposref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
+		switchkey = 0;
     }
     
     refInfo()
@@ -1862,6 +2118,7 @@ public:
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref;
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
+		switchkey = rhs.switchkey;
         return *this;
     }
 };
@@ -2210,6 +2467,132 @@ struct mapscr
     
 };
 
+// The version of the ZASM engine a script was compiled for
+// NOT the same as V_FFSCRIPT, which is the version of the packfile format
+// where the scripts are serialized
+#define ZASM_VERSION        3
+
+// Script types
+#define SCRIPT_NONE						0
+#define SCRIPT_GLOBAL					1
+#define SCRIPT_FFC						2
+#define SCRIPT_SCREEN					3
+#define SCRIPT_LINK						4
+#define SCRIPT_ITEM						5
+#define SCRIPT_LWPN						6
+#define SCRIPT_NPC						7
+#define SCRIPT_SUBSCREEN				8
+#define SCRIPT_EWPN						9
+#define SCRIPT_DMAP						10
+#define SCRIPT_ITEMSPRITE				11
+#define SCRIPT_ACTIVESUBSCREEN			12
+#define SCRIPT_PASSIVESUBSCREEN			13
+#define SCRIPT_COMBO					14
+
+#define ZMETA_AUTOGEN		0x01
+#define ZMETA_DISASSEMBLED	0x02
+#define ZMETA_IMPORTED		0x04
+
+#define SCRIPT_FORMAT_DEFAULT		0
+#define SCRIPT_FORMAT_INVALID		1
+#define SCRIPT_FORMAT_DISASSEMBLED	2
+#define SCRIPT_FORMAT_ZASM			3
+
+#define METADATA_V			2
+#define V_COMPILER_FIRST	2020
+#define V_COMPILER_SECOND	4
+#define V_COMPILER_THIRD	18
+#define V_COMPILER_FOURTH	0
+#define ZMETA_NULL_TYPE		1
+struct zasm_meta
+{
+	word zasm_v;
+	word meta_v;
+	word ffscript_v;
+	byte script_type;
+	char run_idens[8][33];
+	byte run_types[8];
+	byte flags;
+	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
+	char script_name[33];
+	char author[33];
+	
+	void setFlag(byte flag)
+	{
+		switch(flag)
+		{
+			case ZMETA_DISASSEMBLED:
+				flags &= ~ZMETA_IMPORTED;
+				flags |= ZMETA_DISASSEMBLED;
+				break;
+			case ZMETA_IMPORTED:
+				flags &= ~ZMETA_DISASSEMBLED;
+				flags |= ZMETA_IMPORTED;
+				break;
+			default:
+				flags |= flag;
+		}
+	}
+	bool valid() const
+	{
+		return zasm_v >= 2 && meta_v >= 1 && ffscript_v >= 16;
+	}
+	void zero()
+	{
+		zasm_v = 0;
+		meta_v = 0;
+		ffscript_v = 0;
+		script_type = 0;
+		flags = 0;
+		compiler_v1 = 0;
+		compiler_v2 = 0;
+		compiler_v3 = 0;
+		compiler_v4 = 0;
+		for(int q = 0; q < 8; ++q)
+		{
+			memset(&run_idens[q], 0, 33);
+			run_types[q] = ZMETA_NULL_TYPE;
+		}
+		memset(&script_name, 0, 33);
+		memset(&author, 0, 33);
+	}
+	void autogen()
+	{
+		zasm_v = ZASM_VERSION;
+		meta_v = METADATA_V;
+		ffscript_v = V_FFSCRIPT;
+		flags = ZMETA_AUTOGEN;
+		compiler_v1 = V_COMPILER_FIRST;
+		compiler_v2 = V_COMPILER_SECOND;
+		compiler_v3 = V_COMPILER_THIRD;
+		compiler_v4 = V_COMPILER_FOURTH;
+	}
+	zasm_meta()
+	{
+		zero();
+	}
+	zasm_meta& operator=(zasm_meta const& other)
+	{
+		zasm_v = other.zasm_v;
+		meta_v = other.meta_v;
+		ffscript_v = other.ffscript_v;
+		script_type = other.script_type;
+		for(int q = 0; q < 8; ++q)
+		{
+			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
+			run_types[q] = other.run_types[q];
+		}
+		flags = other.flags;
+		compiler_v1 = other.compiler_v1;
+		compiler_v2 = other.compiler_v2;
+		compiler_v3 = other.compiler_v3;
+		compiler_v4 = other.compiler_v4;
+		memcpy(&script_name, &(other.script_name),33);
+		memcpy(&author, &(other.author),33);
+		return *this;
+	}
+};
+
 struct ffscript
 {
     word command;
@@ -2218,26 +2601,71 @@ struct ffscript
     char *ptr;
 };
 
+struct script_data
+{
+	ffscript* zasm;
+	zasm_meta meta;
+	
+	bool valid()
+	{
+		return (zasm && zasm[0].command != 0xFFFF);
+	}
+	
+	void disable()
+	{
+		if(zasm)
+			zasm[0].command = 0xFFFF;
+	}
+	
+	script_data(long cmds)
+	{
+		if(cmds > 0)
+			zasm = new ffscript[cmds];
+		else zasm = NULL;
+	}
+	
+	script_data()
+	{
+		zasm = new ffscript[1];
+		zasm[0].command = 0xFFFF;
+	}
+	
+	~script_data()
+	{
+		if(zasm)
+			delete[] zasm;
+	}
+	
+	void transfer(script_data& other)
+	{
+		other.meta = meta;
+		other.zasm = zasm;
+		zasm = NULL;
+	}
+};
 
-// The version of the ZASM engine a script was compiled for
-// NOT the same as V_FFSCRIPT, which is the version of the packfile format
-// where the scripts are serialized
-#define ZASM_VERSION        2
+struct script_command
+{
+    char name[64];
+    byte args;
+    byte arg1_type; //0=reg, 1=val;
+    byte arg2_type; //0=reg, 1=val;
+    bool more_stuff;
+};
 
-// Script types
+struct script_variable
+{
+    char name[64];
+    long id;
+    word maxcount;
+    byte multiple;
+};
 
-#define SCRIPT_NONE            -1
-#define SCRIPT_GLOBAL          0
-#define SCRIPT_FFC             1
-#define SCRIPT_SCREEN          2
-#define SCRIPT_LINK            3
-#define SCRIPT_ITEM            4
-#define SCRIPT_LWPN            5
-#define SCRIPT_NPC             6
-#define SCRIPT_SUBSCREEN       7
-#define SCRIPT_EWPN            8
-#define SCRIPT_DMAP            9
-#define SCRIPT_ITEMSPRITE      10
+//Sprite boundary array indices
+enum
+{
+	spriteremovalY1, spriteremovalY2, spriteremovalX1, spriteremovalX2, spriteremovalZ1, spriteremovalZ2
+};
 
 
 enum
@@ -2396,6 +2824,24 @@ without needing the user to have bit precision. -Z
 #define ctrigUNUSED_3_17	0x10000
 #define ctrigUNUSED_3_18	0x20000
 
+///user flags
+#define cflag1 0x01
+#define cflag2 0x02
+#define cflag3 0x04
+#define cflag4 0x08
+#define cflag5 0x010
+#define cflag6 0x020
+#define cflag7 0x040
+#define cflag8 0x080
+#define cflag9 0x0100
+#define cflag10 0x0200
+#define cflag11 0x0400
+#define cflag12 0x0800
+#define cflag13 0x01000
+#define cflag14 0x02000
+#define cflag15 0x04000
+#define cflag16 0x08000
+
 struct newcombo
 {
     int tile; //16 bits
@@ -2424,6 +2870,20 @@ struct newcombo
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 
     //384 bits total per object
+    byte attribytes[4];
+    word script;
+    long initd[2];
+    //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
+    //byte initialised; //no, better to have 176 inits, each bit for a layter,  
+	int o_tile;
+	byte cur_frame;
+	byte aclk;
+	
+	void set_tile(int newtile)
+	{
+		o_tile = newtile;
+		tile = newtile;
+	}
 };
 
 #define AF_FRESH 1
@@ -2487,6 +2947,35 @@ struct zquestheader
     //304
     byte  old_foo2[18];
     char  templatepath[2048];
+    long new_version_id_main;
+    long new_version_id_second;
+    long new_version_id_third;
+    long new_version_id_fourth;
+    long new_version_id_alpha;
+    long new_version_id_beta;
+    long new_version_id_gamma;
+    long new_version_id_release;
+    word new_version_id_date_year;
+    byte new_version_id_date_month;
+    byte new_version_id_date_day;
+    byte new_version_id_date_hour;
+    byte new_version_id_date_minute;
+    char new_version_devsig[256];
+    char new_version_compilername[256];
+    char new_version_compilerversion[256];
+    char product_name[1024];
+    byte compilerid;
+    long compilerversionnumber_first;
+    long compilerversionnumber_second;
+    long compilerversionnumber_third;
+    long compilerversionnumber_fourth;
+    word developerid;
+    char made_in_module_name[1024];
+    char build_datestamp[256];
+    char build_timestamp[256];
+    char build_timezone[6];
+    //made in module_name
+    
     //602
 };
 
@@ -2515,6 +3004,8 @@ enum { msLINKED };
 #define MSGC_SFX	20 // 1 arg
 #define MSGC_MIDI	21 // 1 arg
 #define MSGC_NAME	22 // 0 args, disabled
+#define MSGC_GOTOIFCREEND	23 // 5 args
+#define MSGC_CHANGEPORTRAIT	24 // 5 args, //not implemented
 #define MSGC_NEWLINE	25 // 0 args
 #define MSGC_GOTOIFYN   30 // 0 args, disabled
 
@@ -2598,54 +3089,80 @@ enum
 
 #define MSGSIZE 144
 
-#define STRINGFLAG_WRAP			1
-#define STRINGFLAG_CONT			2
-#define STRINGFLAG_CENTER		4
-#define STRINGFLAG_RIGHT		8
+#define STRINGFLAG_WRAP			0x01
+#define STRINGFLAG_CONT			0x02
+#define STRINGFLAG_CENTER		0x04
+#define STRINGFLAG_RIGHT		0x08
+#define STRINGFLAG_FULLTILE		0x10
+#define STRINGFLAG_TRANS_BG		0x20
+#define STRINGFLAG_TRANS_FG		0x40
 
 struct MsgStr
 {
-    char s[MSGSIZE+1];
-    word nextstring;
-    int tile;
-    byte cset;
-    bool trans;
-    byte font;
-    short x;
-    short y;   // y position of message boxes.
-    unsigned short w;
-    unsigned short h;
-    byte sfx; // either WAV_MSG or something else.
-    word listpos;
-    byte vspace;
-    byte hspace;
-    byte stringflags;
-    
-    // Copy everything except listpos
-    MsgStr& operator=(MsgStr &other)
-    {
-        strncpy(s, other.s, MSGSIZE+1);
-        nextstring=other.nextstring;
-        copyStyle(other);
-        return *this;
-    }
-    
-    // Copy style data - everything except s, nextstring, and listpos
-    void copyStyle(MsgStr& other)
-    {
-        tile=other.tile;
-        cset=other.cset;
-        trans=other.trans;
-        font=other.font;
-        x=other.x;
-        y=other.y;
-        w=other.w;
-        h=other.h;
-        sfx=other.sfx;
-        vspace=other.vspace;
-        hspace=other.hspace;
-        stringflags=other.stringflags;
-    }
+	char s[MSGSIZE+1];
+	word nextstring;
+	int tile;
+	byte cset;
+	bool trans;
+	byte font;
+	short x;
+	short y;   // y position of message boxes.
+	unsigned short w;
+	unsigned short h;
+	byte sfx; // either WAV_MSG or something else.
+	word listpos;
+	byte vspace;
+	byte hspace;
+	byte stringflags;
+	short margins[4];
+	int portrait_tile;
+	byte portrait_cset;
+	byte portrait_x;
+	byte portrait_y;
+	byte portrait_tw;
+	byte portrait_th;
+	
+	// Copy everything except listpos
+	MsgStr& operator=(MsgStr &other)
+	{
+		copyText(other);
+		copyStyle(other);
+		return *this;
+	}
+	
+	// Copy text data - just s and nextstring
+	void copyText(MsgStr& other)
+	{
+		strncpy(s, other.s, MSGSIZE+1);
+		nextstring=other.nextstring;
+	}
+	
+	// Copy style data - everything except s, nextstring, and listpos
+	void copyStyle(MsgStr& other)
+	{
+		tile=other.tile;
+		cset=other.cset;
+		trans=other.trans;
+		font=other.font;
+		x=other.x;
+		y=other.y;
+		w=other.w;
+		h=other.h;
+		sfx=other.sfx;
+		vspace=other.vspace;
+		hspace=other.hspace;
+		stringflags=other.stringflags;
+		for(int q = 0; q < 4; ++q)
+		{
+			margins[q] = other.margins[q];
+		}
+		portrait_tile=other.portrait_tile;
+		portrait_cset=other.portrait_cset;
+		portrait_x=other.portrait_x;
+		portrait_y=other.portrait_y;
+		portrait_tw=other.portrait_tw;
+		portrait_th=other.portrait_th;
+	}
 };
 
 enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
@@ -2737,6 +3254,10 @@ struct dmap
     word script;
     long initD[8];
     char initD_label[8][65];
+	word active_sub_script;
+	word passive_sub_script;
+	long sub_initD[8];
+	char sub_initD_label[8][65];
 };
 
 // DMap flags
@@ -3189,7 +3710,7 @@ struct gamedata
     std::vector< ZCArray <long> > globalRAM;
     
     byte awpn, bwpn;											// Currently selected weapon slots
-    
+    signed short forced_awpn, forced_bwpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     
@@ -3203,7 +3724,7 @@ struct gamedata
     ~gamedata()
     {}
     
-    void Clear();
+    void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
     void Copy(const gamedata& g);
     
     gamedata &operator = (const gamedata& data)
@@ -3421,7 +3942,7 @@ struct zinitdata
     byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
     byte link_swim_speed;
     
-    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax;
+    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep;
 };
 
 struct zcmap
@@ -3501,6 +4022,8 @@ struct zcmodule
 	//if it is 1, then we use the old hardcoded quest flow.
 	
 	int max_quest_files;
+	word startingdmap[10];
+	word startingscreen[10];
 	int title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
 	char enem_type_names[eeMAX][255];
@@ -3513,6 +4036,7 @@ struct zcmodule
 	char walkmisc9_names[e9tARMOS+1][255];
 	char guy_type_names[gDUMMY1][255];
 	char enemy_weapon_names[wMax-wEnemyWeapons][255];
+	char enemy_scriptweaponweapon_names[10][255];
 	char player_weapon_names[wIce+1][255];
 	char counter_names[33][255];
 	
@@ -3527,7 +4051,27 @@ struct zcmodule
         int select_screen_tiles[sels_tile_LAST];
         char select_screen_tile_csets[sels_tile_cset_LAST];
 	byte refresh_title_screen;
-        
+	
+	//to add, and init
+	//word startingdmap, startingscreen;
+	//char enemy_script_weapon_names[10][255];
+	
+	char moduletitle[255];
+	byte modver_1, modver_2, modver_3, modver_4, modbuild, modbeta;
+	byte modmonth, modday, modhour, modminute;
+	word modyear;
+	char moduleauthor[255];
+	char moduleinfo0[255];
+	char moduleinfo1[255];
+	char moduleinfo2[255];
+	char moduleinfo3[255];
+	char moduleinfo4[255];
+	char moduletimezone[7]; //supports fiveb char abbreviations, and UTC+ or UTC- nn. 
+	//char module_base_nsf[255];
+	
+        char combotypeCustomAttributes[20][4][32];
+        char combotypeCustomAttribytes[20][4][32];
+        char combotypeCustomFlags[20][16][32];
 
 }; //zcmodule
 
@@ -3548,11 +4092,38 @@ struct zcmodule
 //GameFlags
 #define GAMEFLAG_TRYQUIT	0x01
 #define GAMEFLAG_SCRIPTMENU_ACTIVE	0x02
+#define GAMEFLAG_F6SCRIPT_ACTIVE	0x04
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1
 #define DCLICK_AGAIN      2
 #define DCLICK_NOT        3
+
+#define BUILDTM_YEAR (\
+    __DATE__[7] == '?' ? 1900 \
+    : (((__DATE__[7] - '0') * 1000 ) \
+    + (__DATE__[8] - '0') * 100 \
+    + (__DATE__[9] - '0') * 10 \
+    + __DATE__[10] - '0'))
+
+#define BUILDTM_MONTH (\
+    __DATE__ [2] == '?' ? 1 \
+    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) \
+    : __DATE__ [2] == 'b' ? 2 \
+    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
+    : __DATE__ [2] == 'y' ? 5 \
+    : __DATE__ [2] == 'l' ? 7 \
+    : __DATE__ [2] == 'g' ? 8 \
+    : __DATE__ [2] == 'p' ? 9 \
+    : __DATE__ [2] == 't' ? 10 \
+    : __DATE__ [2] == 'v' ? 11 \
+    : 12)
+
+#define BUILDTM_DAY (\
+    __DATE__[4] == '?' ? 1 \
+    : ((__DATE__[4] == ' ' ? 0 : \
+    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
+
 
 template <class T>
 INLINE T sign(T a)
@@ -4058,27 +4629,30 @@ int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
 
 extern void flushItemCache();
 extern void removeFromItemCache(int itemid);
-#define NUMSCRIPTFFC		512
-#define NUMSCRIPTFFCOLD		256
-#define NUMSCRIPTITEM		256
-#define NUMSCRIPTGUYS		256
-#define NUMSCRIPTWEAPONS	256
-#define NUMSCRIPTGLOBAL		7
+#define NUMSCRIPTFFC			512
+#define NUMSCRIPTFFCOLD			256
+#define NUMSCRIPTITEM			256
+#define NUMSCRIPTGUYS			256
+#define NUMSCRIPTWEAPONS		256
+#define NUMSCRIPTGLOBAL			8
+#define NUMSCRIPTGLOBAL255OLD	7
 #define NUMSCRIPTGLOBAL253		4
-#define NUMSCRIPTGLOBALOLD	3
+#define NUMSCRIPTGLOBALOLD		3
 #define NUMSCRIPTLINKOLD		3
-#define NUMSCRIPTLINK		5
-#define NUMSCRIPTSCREEN		256
-#define NUMSCRIPTSDMAP		256
-#define NUMSCRIPTSITEMSPRITE		256
+#define NUMSCRIPTLINK			5
+#define NUMSCRIPTSCREEN			256
+#define NUMSCRIPTSDMAP			256
+#define NUMSCRIPTSITEMSPRITE	256
+#define NUMSCRIPTSCOMBODATA		512
 
-#define GLOBAL_SCRIPT_INIT 		0
-#define GLOBAL_SCRIPT_GAME		1
-#define GLOBAL_SCRIPT_END		2
+#define GLOBAL_SCRIPT_INIT 			0
+#define GLOBAL_SCRIPT_GAME			1
+#define GLOBAL_SCRIPT_END			2
 #define GLOBAL_SCRIPT_ONSAVELOAD	3
 #define GLOBAL_SCRIPT_ONLAUNCH		4
 #define GLOBAL_SCRIPT_ONCONTGAME	5
-#define GLOBAL_SCRIPT_F6	6
+#define GLOBAL_SCRIPT_F6			6
+#define GLOBAL_SCRIPT_ONSAVE		7
 
 #define SCRIPT_LINK_INIT 1
 #define SCRIPT_LINK_ACTIVE 2
@@ -4090,4 +4664,27 @@ extern void removeFromItemCache(int itemid);
 #define LF_PAID_WAND_COST		0x02
 #define LF_PAID_CBYRNA_COST		0x04
 
+#define RUNSCRIPT_OK			0
+#define RUNSCRIPT_ERROR			1
+#define RUNSCRIPT_SELFDELETE	2
+
+enum //Mapscr hardcodes for temp mapscrs
+{
+	MAPSCR_SCROLL6 = -14,
+	MAPSCR_SCROLL5,
+	MAPSCR_SCROLL4,
+	MAPSCR_SCROLL3,
+	MAPSCR_SCROLL2,
+	MAPSCR_SCROLL1,
+	MAPSCR_SCROLL0,
+	MAPSCR_TEMP6,
+	MAPSCR_TEMP5,
+	MAPSCR_TEMP4,
+	MAPSCR_TEMP3,
+	MAPSCR_TEMP2,
+	MAPSCR_TEMP1,
+	MAPSCR_TEMP0
+};
+
 #endif                                                      //_ZDEFS_H_
+

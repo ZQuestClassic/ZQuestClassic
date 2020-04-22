@@ -11,17 +11,17 @@
 *.pch
 
 # Compiled dynamic libraries
-*.so
-*.so.*
-*.dylib
-*.dll
+#.so
+#.so.*
+#*.dylib
+
 
 # Compiled static libraries
-*.lai
-*.la
-*.a
-*.lib
-*.lo
+#*.lai
+#*.la
+#*.lib
+#*.lo
+#*.a
 
 # Generated executables
 *.out
@@ -42,6 +42,21 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Bb]uild/
+.git/
+.git - Copy/
+src - Copy/
+src - Copy (1)/
+src - Copy (2)/
+src - Copy (3)/
+src - Copy (4)/
+src - Copy (5)/
+src - Copy (6)/
+src - Copy (7)/
+src - Copy (8)/
+src - Copy (9)/
+src - Copy (10)/
+
+CMakeFiles/
 
 # Debug based files.
 *.dSYM/
@@ -52,6 +67,7 @@ bld/
 *.userosscache
 *.sln.docstates
 .userprefs
+*.h.sig
 
 # Visual Studio based files
 *.aps
@@ -79,6 +95,7 @@ makefile.inc
 /allegro/CMakeFiles/
 /allegro/Makefile
 /allegro/cmake_install.cmake
+CmakeCache.*
 
 # Bison
 /src/parser/y.output

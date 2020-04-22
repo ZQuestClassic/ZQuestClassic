@@ -33,6 +33,7 @@
 #include "zc_custom.h"
 #include "questReport.h"
 #include "mem_debug.h"
+#include "ffasm.h"
 
 extern zcmodule moduledata;
 
@@ -40,12 +41,17 @@ extern zcmodule moduledata;
 #define stricmp _stricmp
 #endif
 
+#define HIDE_USED (show_only_unused_tiles&1)
+#define HIDE_UNUSED (show_only_unused_tiles&2)
+#define HIDE_BLANK (show_only_unused_tiles&4)
+#define HIDE_8BIT_MARKER (show_only_unused_tiles&8)
 
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();
 static bool massRecolorSetup(int cset);
 static void massRecolorApply(int tile);
+extern int last_droplist_sel;
 
 int ex=0;
 int nextcombo_fake_click=0;
@@ -62,6 +68,8 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
+extern int bidcomboscripts_cnt;
+extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
 
 BITMAP *intersection_pattern;
 
@@ -281,12 +289,12 @@ static void make_combos(int startTile, int endTile, int cs)
     if(!select_combo_2(startCombo,cs))
         return;
     
-    int temp=combobuf[startCombo].tile;
-    combobuf[startCombo].tile=startTile;
+    int temp=combobuf[startCombo].o_tile;
+    combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
     {
-        combobuf[startCombo].tile=temp;
+        combobuf[startCombo].set_tile(temp);
         return;
     }
     
@@ -295,7 +303,7 @@ static void make_combos(int startTile, int endTile, int cs)
     for(int i=0; i<=endTile-startTile; i++)
     {
         combobuf[startCombo+i]=combobuf[startCombo];
-        combobuf[startCombo+i].tile=startTile+i;
+        combobuf[startCombo+i].set_tile(startTile+i);
     }
     
     setup_combo_animations();
@@ -311,13 +319,13 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
         return;
     
     int startTile=top*TILES_PER_ROW+left;
-    int temp=combobuf[startCombo].tile;
-    combobuf[startCombo].tile=startTile;
+    int temp=combobuf[startCombo].o_tile;
+    combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
     {
 	    al_trace("make_combos_rect() early return\n");
-        combobuf[startCombo].tile=temp;
+        combobuf[startCombo].set_tile(temp);
         return;
     }
     
@@ -350,7 +358,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
                 combo++;
             
             combobuf[combo]=combobuf[startCombo];
-            combobuf[combo].tile=tile;
+            combobuf[combo].set_tile(tile);
         }
     }
     
@@ -680,6 +688,29 @@ void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int 
     }
 }
 
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags)
+{
+	if(flags&D_SELECTED)
+	{
+		rect(dest, x, y, x+w-1, y+h-1, jwin_pal[jcDARK]);
+		++x;
+		++y;
+		--w;
+		--h;
+	}
+	//rect(dest,x+1,y+1,x+w-1,y+h-1,jwin_pal[jcDARK]);
+	rectfill(dest,x+1,y+1,x+w-3,y+h-3,jwin_pal[(flags&D_SELECTED ? jcMEDDARK : jcBOX)]);
+	//rect(dest,x,y,x+w-2,y+h-2,jwin_pal[jcDARK]);
+	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
+	if(flags&D_DISABLED)
+	{
+		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
+	}
+	else
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+}
+
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
 {
     bool over=false;
@@ -919,7 +950,7 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     }
 }
 
-void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value)
 {
     //these are here to bypass compiler warnings about unused arguments
     bg=bg;
@@ -929,20 +960,20 @@ void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
     //  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
     //  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
     
-    jwin_draw_frame(dest, x, y, 9, 9, FR_DEEP);
-    rectfill(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTBG]);
+    jwin_draw_frame(dest, x, y, sz, sz, FR_DEEP);
+    rectfill(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTBG]);
     
     if(value)
     {
-        line(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTFG]);
-        line(dest, x+2, y+9-3, x+9-3, y+2, jwin_pal[jcTEXTFG]);
+        line(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTFG]);
+        line(dest, x+2, y+sz-3, x+sz-3, y+2, jwin_pal[jcTEXTFG]);
     }
     
 }
 
 
 
-bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
+bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value)
 {
     bool over=false;
     
@@ -950,13 +981,13 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     {
         custom_vsync();
         
-        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+8,y+8))               //if on checkbox
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+sz-1,y+sz-1))               //if on checkbox
         {
             if(!over)                                             //if wasn't here before
             {
                 scare_mouse();
                 value=!value;
-                draw_checkbox(dest,x,y,bg,fg,value!=0);
+                draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
                 refresh(rMENU);
                 unscare_mouse();
                 over=true;
@@ -968,7 +999,7 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
             {
                 scare_mouse();
                 value=!value;
-                draw_checkbox(dest,x,y,bg,fg,value!=0);
+                draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
                 refresh(rMENU);
                 unscare_mouse();
                 over=false;
@@ -1314,7 +1345,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
         int rows=(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+2)/tool_buttons_columns;
         int row=(i-MOUSE_BMP_SWORD)-(column*rows);
         jwin_draw_button(screen2,tool_buttons_left+(column*23),tool_buttons_top+(row*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
-        masked_blit(mouse_bmp[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
+        masked_blit(mouse_bmp_1x[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
     }
     
     //coordinates
@@ -1340,11 +1371,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
             
             if(newtilebuf[tile].format<=tf4Bit)
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si,*si);
             }
             else
             {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si);
+                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si,*si);
             }
         }
     }
@@ -1365,22 +1396,22 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
         zc_swap(tile, tile2);
     }
     
-    int left=zc_min(tile_col(tile), tile_col(tile2));
-    int columns=zc_max(tile_col(tile), tile_col(tile2))-left+1;
+    int left=zc_min(TILECOL(tile), TILECOL(tile2));
+    int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
     
     int start=tile;
     int end=tile2;
     
     // Might have top-right and bottom-left corners selected...
-    if(rect_sel && tile_col(tile)>tile_col(tile2))
+    if(rect_sel && TILECOL(tile)>TILECOL(tile2))
     {
-        start=tile-(tile_col(tile)-tile_col(tile2));
-        end=tile2+(tile_col(tile)-tile_col(tile2));
+        start=tile-(TILECOL(tile)-TILECOL(tile2));
+        end=tile2+(TILECOL(tile)-TILECOL(tile2));
     }
     
     for(int temptile=start; temptile<=end; temptile++)
     {
-        if(!rect_sel || ((tile_col(temptile)>=left) && (tile_col(temptile)<=left+columns-1)))
+        if(!rect_sel || ((TILECOL(temptile)>=left) && (TILECOL(temptile)<=left+columns-1)))
         {
             unpack_tile(newtilebuf, temptile, 0, false);
             
@@ -3281,6 +3312,12 @@ extern void return_RAMpal_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 void load_imagebuf()
 {
     PACKFILE *f;
+	//cache QRS
+	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ 
+	//	cached_rules[q] = quest_rules[q];
+	//}
     bool compressed=false;
     bool encrypted=false;
     tiledata *hold=newtilebuf;
@@ -3458,6 +3495,8 @@ error2:
         //if(encrypted)
         //	  setPackfilePassword(datapwd);
         loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags);
+        //loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,false,skip_flags);
+	//fails to keep quest password data / header
         
         if(encrypted&&compressed)
         {
@@ -3477,6 +3516,12 @@ error2:
     }
     
     rgb_map = &zq_rgb_table;
+    //restore cashed QRs / rules
+	
+	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//{ 
+	//	quest_rules[q] = cached_rules[q];
+	//}
 }
 
 static char bitstrbuf[32];
@@ -4848,16 +4893,19 @@ bool tile_is_used(int tile)
 {
     return used_tile_table[tile];
 }
-
 void draw_tiles(int first,int cs, int f)
 {
-    clear_bitmap(screen2);
+	draw_tiles(screen2, first, cs, f, is_large);
+}
+void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empty)
+{
+    clear_bitmap(dest);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     
     int w = 16;
     int h = 16;
     
-    if(is_large)
+    if(large)
     {
         w *=2;
         h *=2;
@@ -4869,7 +4917,7 @@ void draw_tiles(int first,int cs, int f)
         int y = (i/TILES_PER_ROW)<<4;
         int l = 16;
         
-        if(is_large)
+        if(large)
         {
             x*=2;
             y*=2;
@@ -4878,36 +4926,46 @@ void draw_tiles(int first,int cs, int f)
         
         l-=2;
         
-        if(((show_only_unused_tiles&1)&&tile_is_used(first+i)&&!blank_tile_table[first+i])   // 1 bit: hide used
-                || ((show_only_unused_tiles&2)&&!tile_is_used(first+i)&&!blank_tile_table[first+i]) // 2 bit: hide unused
-                || ((show_only_unused_tiles&4)&&blank_tile_table[first+i]))	// 4 bit: hide blank
+        if((HIDE_USED && tile_is_used(first+i) && !blank_tile_table[first+i])   // 1 bit: hide used
+                || (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
+                || (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
         {
-            if(InvalidStatic)
-            {
-                for(int dy=0; dy<=l+1; dy++)
-                {
-                    for(int dx=0; dx<=l+1; dx++)
-                    {
-                        screen2->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                    }
-                }
-            }
-            else
-            {
-                rect(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
-            }
+			if(!true_empty) //Use pure color 0; no effects
+			{
+				if(InvalidStatic)
+				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+						}
+					}
+				}
+				else
+				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc(0);
+						}
+					}
+					rect(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
+				}
+			}
         }
         else
         {
             puttile16(buf,first+i,0,0,cs,0);
-            stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
+            stretch_blit(buf,dest,0,0,16,16,x,y,w,h);
         }
         
-        if((f%32)<=16 && is_large && newtilebuf[first+i].format==tf8Bit)
+        if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
         {
-            textprintf_ex(screen2,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
+            textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
         }
     }
     
@@ -4937,7 +4995,7 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     
     // Copied tile and numbers
     jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-    int coldiff=tile_col(copy)-tile_col(copy+copycnt-1);
+    int coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
     if(copy>=0)
     {
         puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
@@ -5187,12 +5245,18 @@ int hide_blank()
     show_only_unused_tiles ^= 4;
     return D_O_K;
 }
+int hide_8bit_marker()
+{
+	show_only_unused_tiles ^= 8;
+	return D_O_K;
+}
 
 static MENU select_tile_view_menu[] =
 {
     { (char *)"Hide Used",   hide_used,   NULL, 0, NULL },
     { (char *)"Hide Unused", hide_unused,   NULL, 0, NULL },
     { (char *)"Hide Blank",  hide_blank,   NULL, 0, NULL },
+    { (char *)"Hide 8-bit marker",  hide_8bit_marker,   NULL, 0, NULL },
     { NULL,                  NULL,  NULL, 0, NULL }
 };
 
@@ -5232,33 +5296,45 @@ static MENU select_combo_rc_menu[] =
     { NULL,              NULL,  NULL, 0, NULL }
 };
 
-//returns the column the tile is in
-int tile_col(int tile)
-{
-    return (tile%TILES_PER_ROW);
-}
-
-//returns the row the tile is in
-int tile_row(int tile)
-{
-    return (tile/TILES_PER_ROW);
-}
-
-//returns the page the tile is on
-int tile_page(int tile)
-{
-    return (tile/TILES_PER_PAGE);
-}
-
 //returns the row the tile is in on its page
 int tile_page_row(int tile)
 {
-    return tile_row(tile)-(tile_page(tile)*TILE_ROWS_PER_PAGE);
+    return TILEROW(tile)-(TILEPAGE(tile)*TILE_ROWS_PER_PAGE);
 }
 
 enum {ti_none, ti_encompass, ti_broken};
 
 //striped check and striped selection
+int move_intersection_ss(newcombo &cmb, int selection_first, int selection_last)
+{
+	int cmb_first = cmb.o_tile;
+	int cmb_last = cmb.o_tile;
+	do
+	{
+		cmb_last = cmb.tile;
+		animate(cmb, true);
+	}
+	while(cmb.tile != cmb.o_tile);
+	reset_combo_animation(cmb);
+	
+	if(cmb_first > selection_last || cmb_last < selection_first)
+		return ti_none;
+	if(cmb_first >= selection_first && cmb_last <= selection_last)
+		return ti_encompass;
+	
+	do
+	{
+		if(cmb.tile >= selection_first && cmb.tile <= selection_last)
+		{
+			reset_combo_animation(cmb);
+			return ti_broken; //contained, but non-encompassing.
+		}
+		animate(cmb, true);
+	}
+	while(cmb.tile != cmb.o_tile);
+	reset_combo_animation(cmb);
+	return ti_none;
+}
 int move_intersection_ss(int check_first, int check_last, int selection_first, int selection_last)
 {
     // if selection is before or after check...
@@ -5300,8 +5376,8 @@ int move_intersection_rs(int check_left, int check_top, int check_width, int che
     
     if(ret1==ti_encompass)
     {
-        if((tile_row(selection_first)<=check_top) &&
-                (tile_row(selection_last)>=(check_top+check_height-1)))
+        if((TILEROW(selection_first)<=check_top) &&
+                (TILEROW(selection_last)>=(check_top+check_height-1)))
         {
             return ti_encompass;
         }
@@ -5316,15 +5392,106 @@ int move_intersection_rs(int check_left, int check_top, int check_width, int che
 
 
 //striped check and rectangular selection
+int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, int selection_width, int selection_height)
+{
+	if(selection_width < TILES_PER_ROW)
+	{
+		int cmb_first = cmb.o_tile;
+		int cmb_last = cmb.o_tile;
+		do
+		{
+			cmb_last = cmb.tile;
+			animate(cmb, true);
+		}
+		while(cmb.tile != cmb.o_tile);
+		reset_combo_animation(cmb);
+		
+        if((TILEROW(cmb_first)>=selection_top) &&
+                (TILEROW(cmb_last)<=selection_top+selection_height-1) &&
+                (TILECOL(cmb_first)>=selection_left) &&
+                (TILECOL(cmb_last)<=TILECOL(selection_left+selection_width-1)))
+        {
+            return ti_encompass;
+        }
+        else if((cmb_last<selection_top*TILES_PER_ROW+selection_left) ||
+                (cmb_first>(selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1))
+        {
+            return ti_none;
+        }
+		
+        if(TILEROW(cmb_first) == TILEROW(cmb_last))
+        {
+            int firstcol = TILECOL(cmb_first);
+            int lastcol = TILECOL(cmb_last);
+            
+            if(lastcol < selection_left || firstcol >= selection_left+selection_width)
+                return ti_none;
+            else //handle skip x
+			{
+				do
+				{
+					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width)
+					{
+						reset_combo_animation(cmb);
+						return ti_broken;
+					}
+					animate(cmb, true);
+				}
+				while(cmb.tile != cmb.o_tile);
+				reset_combo_animation(cmb);
+				return ti_none;
+			}
+        }
+		else //multi-row combo...
+		{
+			int row = TILEROW(cmb_first);
+			
+			do
+			{
+				if(row < selection_top || row > selection_top+selection_height-1)
+				{
+					//This row isn't in the selection; skip to next row
+					do
+					{
+						animate(cmb,true);
+						if(cmb.tile == cmb.o_tile) return ti_none; //reached end
+					}
+					while(TILEROW(cmb.tile) == row);
+					row = TILEROW(cmb.tile);
+					continue;
+				}
+				
+				//This row IS in the selection; check each tile.
+				do
+				{
+					if(TILECOL(cmb.tile) >= selection_left && TILECOL(cmb.tile) <= selection_left+selection_width-1)
+					{
+						reset_combo_animation(cmb);
+						return ti_broken;
+					}
+					animate(cmb, true);
+					if(cmb.tile == cmb.o_tile) return ti_none; //reached end
+				}
+				while(TILEROW(cmb.tile) == row);
+				row = TILEROW(cmb.tile);
+			}
+			while(cmb.tile != cmb.o_tile);
+			
+			return ti_none; //...Theoretically unreachable, but if it DOES get here, it's done.
+		}
+	}
+	
+    return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
+}
 int move_intersection_sr(int check_first, int check_last, int selection_left, int selection_top, int selection_width, int selection_height)
 {
     if(selection_width < TILES_PER_ROW)
     {
         if((check_last-check_first+1<=selection_width) &&
-                (tile_row(check_first)>=selection_top) &&
-                (tile_row(check_last)<=selection_top+selection_height-1) &&
-                (tile_col(check_first)>=selection_left) &&
-                (tile_col(check_last)<=tile_col(selection_left+selection_width-1)))
+                (TILEROW(check_first)>=selection_top) &&
+                (TILEROW(check_last)<=selection_top+selection_height-1) &&
+                (TILECOL(check_first)>=selection_left) &&
+                (TILECOL(check_last)<=TILECOL(selection_left+selection_width-1)))
         {
             return ti_encompass;
         }
@@ -5589,13 +5756,21 @@ void register_used_tiles()
     {
         used_tile_table[t]=false;
     }
-    
+    reset_combo_animations();
+    reset_combo_animations2();
     for(int u=0; u<MAXCOMBOS; u++)
     {
-        for(int t=zc_max(combobuf[u].tile,0); t<zc_min(combobuf[u].tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
+		/* This doesn't account for ASkipX, or ASkipY... Time to rewrite.
+        for(int t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
-        }
+        } */
+		do
+		{
+			used_tile_table[combobuf[u].tile] = true;
+			animate(combobuf[u], true);
+		}
+		while(combobuf[u].tile != combobuf[u].o_tile);
     }
     
     for(int u=0; u<iLast; u++)
@@ -5706,12 +5881,12 @@ void register_used_tiles()
     
     setup_link_sprite_items();
     
-//  i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+//  i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
     for(int u=0; u<41; u++)
     {
-        for(int r=zc_max(tile_row(link_sprite_items[u].tile),0); r<zc_min(tile_row(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int r=zc_max(TILEROW(link_sprite_items[u].tile),0); r<zc_min(TILEROW(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(tile_col(link_sprite_items[u].tile),0); c<zc_min(tile_col(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int c=zc_max(TILECOL(link_sprite_items[u].tile),0); c<zc_min(TILECOL(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
@@ -5733,9 +5908,9 @@ void register_used_tiles()
     
     for(int u=0; u<6; u++)
     {
-        for(int r=zc_max(tile_row(map_styles_items[u].tile),0); r<zc_min(tile_row(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(tile_col(map_styles_items[u].tile),0); c<zc_min(tile_col(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int c=zc_max(TILECOL(map_styles_items[u].tile),0); c<zc_min(TILECOL(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
@@ -5763,9 +5938,9 @@ void register_used_tiles()
         
         for(int u=0; u<4; u++)
         {
-            for(int r=zc_max(tile_row(dmap_map_items[u].tile),0); r<zc_min(tile_row(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+            for(int r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
             {
-                for(int c=zc_max(tile_col(dmap_map_items[u].tile),0); c<zc_min(tile_col(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
+                for(int c=zc_max(TILECOL(dmap_map_items[u].tile),0); c<zc_min(TILECOL(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
                 {
                     used_tile_table[(r*TILES_PER_ROW)+c]=true;
                 }
@@ -5816,9 +5991,9 @@ void register_used_tiles()
             }
             else
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5827,9 +6002,9 @@ void register_used_tiles()
             
             if(darknut)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile+120),0); r<zc_min(tile_row(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile+120),0); c<zc_min(tile_col(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile+120),0); c<zc_min(TILECOL(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5837,9 +6012,9 @@ void register_used_tiles()
             }
             else if(u==eGANON)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5849,17 +6024,17 @@ void register_used_tiles()
             {
                 for(int j=0; j<4; ++j)
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int r=zc_max(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
+                        for(int c=zc_max(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
                     }
                 }
                 
-                int c3=tile_col(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-                int r3=tile_row(guysbuf[u].e_tile)+(gleeok>1?17:8);
+                int c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
+                int r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
                 
                 for(int r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
@@ -5894,9 +6069,9 @@ void register_used_tiles()
             }
             else
             {
-                for(int r=zc_max(tile_row(guysbuf[u].tile),0); r<zc_min(tile_row(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int r=zc_max(TILEROW(guysbuf[u].tile),0); r<zc_min(TILEROW(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].tile),0); c<zc_min(tile_col(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
+                    for(int c=zc_max(TILECOL(guysbuf[u].tile),0); c<zc_min(TILECOL(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -5914,9 +6089,9 @@ void register_used_tiles()
                 }
                 else
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].s_tile),0); r<zc_min(tile_row(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int r=zc_max(TILEROW(guysbuf[u].s_tile),0); r<zc_min(TILEROW(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].s_tile),0); c<zc_min(tile_col(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
+                        for(int c=zc_max(TILECOL(guysbuf[u].s_tile),0); c<zc_min(TILECOL(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
@@ -5960,18 +6135,18 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     if(rect)
     {
-        dest_top=tile_row(dest_first);
-        dest_bottom=tile_row(dest_last);
-        src_top=tile_row(src_first);
-        src_bottom=tile_row(src_last);
+        dest_top=TILEROW(dest_first);
+        dest_bottom=TILEROW(dest_last);
+        src_top=TILEROW(src_first);
+        src_bottom=TILEROW(src_last);
         
-        src_left= zc_min(tile_col(src_first),tile_col(src_last));
-        src_right=zc_max(tile_col(src_first),tile_col(src_last));
+        src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
+        src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
         src_first=(src_top  * TILES_PER_ROW)+src_left;
         src_last= (src_bottom*TILES_PER_ROW)+src_right;
         
-        dest_left= zc_min(tile_col(dest_first),tile_col(dest_last));
-        dest_right=zc_max(tile_col(dest_first),tile_col(dest_last));
+        dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
+        dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
         dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
         dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
         
@@ -6193,14 +6368,14 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
+                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(combobuf[u].tile!=0))
+                    if((i!=ti_none)&&(combobuf[u].o_tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
@@ -6571,11 +6746,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_rr(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+                        i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
@@ -6684,11 +6859,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_rr(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_rs(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
+                        i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(map_styles_items[u].tile!=0))
@@ -6899,11 +7074,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         
                         if(rect)
                         {
-                            i=move_intersection_rr(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                            i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
                         }
                         else
                         {
-                            i=move_intersection_rs(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
+                            i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
                         }
                         
                         if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
@@ -7031,11 +7206,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
                             }
                         }
                         
@@ -7063,11 +7238,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
@@ -7094,11 +7269,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
@@ -7127,18 +7302,18 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
+                                    i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
                                 }
                             }
                             
                             if(i==ti_none)
                             {
-                                int c=tile_col(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=tile_row(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -7204,11 +7379,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
+                                i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
                             }
                         }
                         
@@ -7249,11 +7424,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
+                                    i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
                                 }
                             }
                             
@@ -7401,7 +7576,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
             {
                 if(move_combo_list[u])
                 {
-                    combobuf[u].tile+=diff;
+                    combobuf[u].set_tile(combobuf[u].o_tile+diff);
                 }
             }
             
@@ -7861,9 +8036,9 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
     {
         int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
-        if(rect_sel && tile_col(firsttile)>tile_col(lasttile))
+        if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
-            coldiff=tile_col(firsttile)-tile_col(lasttile);
+            coldiff=TILECOL(firsttile)-TILECOL(lasttile);
             firsttile-=coldiff;
             lasttile+=coldiff;
         }
@@ -7874,8 +8049,8 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
         //otherwise, copy from right to left
         for(int t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
-                    ((tile_col(t)>=tile_col(firsttile)) &&
-                     (tile_col(t)<=tile_col(lasttile))))
+                    ((TILECOL(t)>=TILECOL(firsttile)) &&
+                     (TILECOL(t)<=TILECOL(lasttile))))
                 reset_tile(newtilebuf, t, tf4Bit);
                 
         tile=tile2=zc_min(tile,tile2);
@@ -7978,10 +8153,10 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
     }
     else
     {
-        int rmin=zc_min(tile_row(dest1),tile_row(dest2));
-        int rmax=zc_max(tile_row(dest1),tile_row(dest2));
-        int cmin=zc_min(tile_col(dest1),tile_col(dest2));
-        int cmax=zc_max(tile_col(dest1),tile_col(dest2));
+        int rmin=zc_min(TILEROW(dest1),TILEROW(dest2));
+        int rmax=zc_max(TILEROW(dest1),TILEROW(dest2));
+        int cmin=zc_min(TILECOL(dest1),TILECOL(dest2));
+        int cmax=zc_max(TILECOL(dest1),TILECOL(dest2));
         int d=0;
         
         for(int j=cmin; j<=cmax; ++j)
@@ -8170,21 +8345,380 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
         
         int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
-        if(rect_sel && tile_col(firsttile)>tile_col(lasttile))
+        if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
-            coldiff=tile_col(firsttile)-tile_col(lasttile);
+            coldiff=TILECOL(firsttile)-TILECOL(lasttile);
             firsttile-=coldiff;
             lasttile+=coldiff;
         }
         
         for(int t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
-                    ((tile_col(t)>=tile_col(firsttile)) &&
-                     (tile_col(t)<=tile_col(lasttile))))
+                    ((TILECOL(t)>=TILECOL(firsttile)) &&
+                     (TILECOL(t)<=TILECOL(lasttile))))
                 convert_tile(t, fourbit?tf4Bit:tf8Bit, cs, shift, alt);
                 
         tile=tile2=zc_min(tile,tile2);
     }
+}
+
+
+int readtilefile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, index+(tilect), format);
+		memcpy(newtilebuf[index+(tilect)].data,temp_tile,tilesize(newtilebuf[index+(tilect)].format));
+		delete[] temp_tile;
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+
+int readtilefile_to_location(PACKFILE *f, int start, int skip)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect), format);
+		if ( skip )
+		{
+			if ( (start+(tilect)) < skip ) 
+			{
+				delete[] temp_tile;
+				continue;
+			}
+			
+		}
+		if ( start+(tilect) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
+		}
+		delete[] temp_tile;
+		
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+
+
+int readtilefile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect), format);
+		if ( start+(tilect) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
+		}
+		delete[] temp_tile;
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+int writetilefile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_TILES;
+	dword section_cversion=CV_TILES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		//al_trace("Tile id: %d\n",index+(tilect));
+		if(!p_putc(newtilebuf[index+(tilect)].format,f))
+		{
+			return 0;
+		}
+		//al_trace("Tile format: %d\n", newtilebuf[index+(tilect)].format);
+		if(!pfwrite(newtilebuf[index+(tilect)].data,tilesize(newtilebuf[index+(tilect)].format),f))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+	
 }
 
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
@@ -8270,10 +8804,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         { \
             if(is_rect) \
             { \
-                int row=tile_row(_t); \
+                int row=TILEROW(_t); \
                 if(row<top || row>=top+rows) \
                     continue; \
-                int col=tile_col(_t); \
+                int col=TILECOL(_t); \
                 if(col<left || col>=left+columns) \
                     continue; \
             } \
@@ -8285,15 +8819,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
     
     do
     {
-        //int tile_col(int tile)
-        //int tile_row(int tile)
-        //int tile_page(int tile)
-        //int tile_page_row(int tile)
         rest(4);
-        int top=tile_row(zc_min(tile, tile2));
-        int left=zc_min(tile_col(tile), tile_col(tile2));
-        int rows=tile_row(zc_max(tile, tile2))-top+1;
-        int columns=zc_max(tile_col(tile), tile_col(tile2))-left+1;
+        int top=TILEROW(zc_min(tile, tile2));
+        int left=zc_min(TILECOL(tile), TILECOL(tile2));
+        int rows=TILEROW(zc_max(tile, tile2))-top+1;
+        int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
         bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
         bool redraw=false;
         
@@ -8306,10 +8836,6 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         
         if(keypressed())
         {
-            //tile_page=(tile/TILES_PER_PAGE);
-            //tile_row=(tile/TILES_PER_ROW);
-            //tile_col=(tile%TILES_PER_ROW);
-            //tile_page_row=(tile_row/TILE_ROWS_PER_PAGE);
             switch(readkey()>>8)
             {
             case KEY_ENTER_PAD:
@@ -8341,12 +8867,50 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<11) ? cs+1:0;
+                    cs = (cs<15) ? cs+1:0;
                     
                 redraw=true;
                 break;
             }
-            
+	    case KEY_Z:
+	    {
+		    onSnapshot();
+		    break;
+	    }
+            case KEY_S:
+	    {
+		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		writetilefile(f,tile,1);
+		pack_fclose(f);
+		break;
+	    }
+	    case KEY_L:
+	    {
+		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		if (!readtilefile(f))
+		{
+			al_trace("Could not read from .ztile packfile %s\n", temppath);
+			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	
+		pack_fclose(f);
+		//register_blank_tiles();
+		//register_used_tiles();
+		redraw=true;
+		break;
+	    }
             case KEY_MINUS:
             case KEY_MINUS_PAD:
             {
@@ -8363,7 +8927,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:11;
+                    cs = (cs>0)  ? cs-1:15;
                     
                 redraw=true;
                 break;
@@ -8805,12 +9369,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             break;
             
             case KEY_PGUP:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_row(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
                 redraw=true;
                 break;
                 
             case KEY_PGDN:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-tile_row(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
                 redraw=true;
                 break;
                 
@@ -8829,7 +9393,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 int whatPage = gettilepagenumber("Goto Page", 0);
                 
                 if(whatPage >= 0)
-                    sel_tile(tile,tile2,first,type,((whatPage-tile_page(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
+                    sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
                     
                 break;
             }
@@ -8980,7 +9544,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             {
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-                    show_only_unused_tiles=(show_only_unused_tiles+1)%4;
+					//Only toggle the first 2 bits!
+                    show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
                 }
                 else
                 {
@@ -8990,6 +9555,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 redraw=true;
             }
             break;
+			
+			case KEY_8:
+			case KEY_8_PAD:
+				hide_8bit_marker();
+				break;
             
             case KEY_M:
 		    //al_trace("mass combo key pressed, type == %d\n",type);
@@ -9241,8 +9811,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         PALETTE temppal;
                         get_palette(temppal);
                         BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        stretch_blit(screen2,tempbmp,0,0,16*(is_large+1)*TILES_PER_ROW,16*(is_large+1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        save_bitmap(temppath, tempbmp, temppal);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+                        save_bitmap(temppath, tempbmp, RAMpal);
                         destroy_bitmap(tempbmp);
                     }
                 }
@@ -9323,14 +9893,14 @@ REDRAW:
         {
             if(rect_sel)
             {
-                for(int i=zc_min(tile_row(tile),tile_row(tile2))*TILES_PER_ROW+
-                          zc_min(tile_col(tile),tile_col(tile2));
-                        i<=zc_max(tile_row(tile),tile_row(tile2))*TILES_PER_ROW+
-                        zc_max(tile_col(tile),tile_col(tile2)); i++)
+                for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                          zc_min(TILECOL(tile),TILECOL(tile2));
+                        i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                        zc_max(TILECOL(tile),TILECOL(tile2)); i++)
                 {
                     if(i>=first && i<first+TILES_PER_PAGE &&
-                            tile_col(i)>=zc_min(tile_col(tile),tile_col(tile2)) &&
-                            tile_col(i)<=zc_max(tile_col(tile),tile_col(tile2)))
+                            TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
+                            TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
                     {
                         int x=(i%TILES_PER_ROW)<<(4+is_large);
                         int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
@@ -9344,8 +9914,8 @@ REDRAW:
                 {
                     if(i>=first && i<first+TILES_PER_PAGE)
                     {
-                        int x=tile_col(i)<<(4+is_large);
-                        int y=tile_row(i-first)<<(4+is_large);
+                        int x=TILECOL(i)<<(4+is_large);
+                        int y=TILEROW(i-first)<<(4+is_large);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }
@@ -9370,9 +9940,10 @@ REDRAW:
         {
             select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
             select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-            select_tile_view_menu[0].flags = show_only_unused_tiles&1 ? D_SELECTED : 0;
-            select_tile_view_menu[1].flags = show_only_unused_tiles&2 ? D_SELECTED : 0;
-            select_tile_view_menu[2].flags = show_only_unused_tiles&4 ? D_SELECTED : 0;
+            select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
+            select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
+            select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
+            select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
             int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
             redraw=true;
             
@@ -10242,6 +10813,10 @@ static DIALOG advpaste_dlg[] =
 int advpaste(int tile, int tile2, int copy)
 {
     advpaste_dlg[0].dp2=lfont;
+	
+	if(is_large)
+		large_dialog(advpaste_dlg);
+	
     int ret = zc_popup_dialog(advpaste_dlg,-1);
     
     if(ret!=1) return ret;
@@ -10254,6 +10829,7 @@ int advpaste(int tile, int tile2, int copy)
         if(advpaste_dlg[3].flags & D_SELECTED)   // tile
         {
             combobuf[i].tile=combo.tile;
+            combobuf[i].o_tile=combo.o_tile;
             combobuf[i].flip=combo.flip;
             setup_combo_animations();
             setup_combo_animations2();
@@ -10416,10 +10992,14 @@ int combo_screen(int pg, int tl)
             case KEY_PLUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
+					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
+							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
+					
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].tile = wrap(combobuf[i].tile + ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
-                                                0, NEWMAXTILES-1);
+                        combobuf[i].set_tile(wrap(combobuf[i].tile + amnt,
+                                                0, NEWMAXTILES-1));
                     }
                     
                     setup_combo_animations();
@@ -10437,10 +11017,14 @@ int combo_screen(int pg, int tl)
             case KEY_MINUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
+					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
+							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
+					
                     for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
-                        combobuf[i].tile = wrap(combobuf[i].tile - ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
-                                                0, NEWMAXTILES-1);
+                        combobuf[i].set_tile(wrap(combobuf[i].tile - amnt,
+                                                0, NEWMAXTILES-1));
                     }
                     
                     setup_combo_animations();
@@ -11114,12 +11698,13 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_CLICK)
     {
-        int t=curr_combo.tile;
+        int t=curr_combo.o_tile;
         int f=curr_combo.flip;
         
         if(select_tile(t,f,1,edit_combo_cset,true,0,true))
         {
             curr_combo.tile=t;
+            curr_combo.o_tile=t;
             curr_combo.flip=f;
             return D_REDRAW;
         }
@@ -11137,7 +11722,7 @@ int d_combo_loader(int msg,DIALOG *d,int c)
     {
         FONT *f = is_large ? lfont_l : font;
         textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.tile);
+        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
         textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
@@ -11233,7 +11818,17 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,102,103,-1
+     45,46,47,48,49,50,51,52,53,54,102,103,
+	104,105,106,107,108,109,110,111,
+	112,113,114,115,116,117,118,119,
+	-1
+};
+
+static int combo_attributes_list2[] = 
+{
+	//,
+	55,56,57,58,59,60,61,62,120,121,
+	-1
 };
 
 static int combo_trigger_list[] =
@@ -11250,16 +11845,1513 @@ static int combo_trigger_list2[] =
      -1
 };
 
+static int combo_script_list[] =
+{
+    // dialog control number
+	122,123,124,125,126,127,128,129,
+     -1
+};
+
 static TABPANEL combo_tabs[] =
 {
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
-    { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
+    { (char *)"Attributes 1",          0,             combo_attributes_list,           0, NULL },
+    { (char *)"Attributes 2",          0,             combo_attributes_list2,           0, NULL },
     { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
     { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
+    { (char *)"Script",          0,             combo_script_list,           0, NULL },
 
     { NULL,                   0,             NULL,                        0, NULL }
 };
+
+// Combo Editor
+
+struct ComboAttributesInfo
+{
+    int family;
+	char *flags[16];
+	char *attributes[4];
+	char *attribytes[4];
+  
+};
+
+static ComboAttributesInfo comboattrinfo[]=
+{
+	{ //0
+		cNONE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cSTAIR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+	},
+	{
+		cCAVE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cWATER,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ 
+		cARMOS,
+		{ (char*)"Specify",(char*)"Random",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Enemy 1",(char*)"Enemy 2",NULL, NULL}
+	},
+	{ //5
+		cGRAVE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDOCK,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cUNDEF,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cPUSH_WAIT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cPUSH_HEAVY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ //10
+		cPUSH_HW,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cL_STATUE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cR_STATUE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cWALKSLOW,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cCVUP,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ //15
+		cCVDOWN,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cCVLEFT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cCVRIGHT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cSWIMWARP,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+	},
+	{
+		cDIVEWARP,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+	},
+	{ //20
+		cLADDERHOOKSHOT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cTRIGNOFLAG,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+	},
+	{
+		cTRIGFLAG,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+	},
+	{
+		cZELDA,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cSLASH,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ //25
+		cSLASHITEM,
+		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
+	},
+	{ 
+		cPUSH_HEAVY2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cPUSH_HW2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cPOUND,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cHSGRAB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ //30
+		cHSBRIDGE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE1,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE2,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE3,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE4,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{ //35
+		cC_STATUE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cTRAP_H,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cTRAP_V,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cTRAP_4,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cTRAP_LR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //40
+		cTRAP_UD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cPIT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cHOOKSHOTONLY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cOVERHEAD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cNOFLYZONE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //45
+		cMIRROR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cMIRRORSLASH,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cMIRRORBACKSLASH,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cMAGICPRISM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cMAGICPRISM4,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //50
+		cMAGICSPONGE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cCAVE2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cEYEBALL_A,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cEYEBALL_B,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cNOJUMPZONE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //55
+		cBUSH,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cFLOWERS,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cTALLGRASS,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cSHALLOWWATER,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLOCKBLOCK,
+		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",(char *)"Eat Item",(char *)"Thief",(char *)"No Drain",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Amount",NULL,NULL,NULL},{ (char*)"Item",(char*)"Counter",NULL,(char *)"Sound"}
+	},
+	{ //60
+		cLOCKBLOCK2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBOSSLOCKBLOCK,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBOSSLOCKBLOCK2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLADDERONLY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBSGRAVE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //65
+		cCHEST,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cCHEST2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLOCKEDCHEST,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLOCKEDCHEST2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBOSSCHEST,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //70
+		cBOSSCHEST2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cRESET,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSAVE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSAVE2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cCAVEB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //75
+		cCAVEC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cCAVED,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSTAIRB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSTAIRC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSTAIRD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{ //80
+		cPITB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cPITC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cPITD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cCAVE2B,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cCAVE2C,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //85
+		cCAVE2D,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSWIMWARPB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWIMWARPC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWIMWARPD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cDIVEWARPB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{ //90
+		cDIVEWARPC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cDIVEWARPD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSTAIRR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cPITR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cAWARPA,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{ //95
+		cAWARPB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cAWARPC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cAWARPD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cAWARPR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWARPA,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{ //100
+		cSWARPB,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWARPC,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWARPD,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSWARPR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSTRIGNOFLAG,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{ //105
+		cSTRIGFLAG,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+	},
+	{
+		cSTEP,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+	},
+	{
+		cSTEPSAME,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+	},
+	{
+		cSTEPALL,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+	},
+	{
+		cSTEPCOPY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //110
+		cNOENEMY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKARROW1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKARROW2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKARROW3,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKBRANG1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //115
+		cBLOCKBRANG2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKBRANG3,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKSBEAM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKALL,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBLOCKFIREBALL,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //120
+		cDAMAGE5,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE6,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+	},
+	{
+		cDAMAGE7,
+		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ "Amount",NULL,NULL, NULL}
+	},
+	{
+		cCHANGE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSPINTILE1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //125
+		cSPINTILE2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSCREENFREEZE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSCREENFREEZEFF,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cNOGROUNDENEMY, 
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSLASHNEXT,
+		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
+	},
+	{ //130
+		cSLASHNEXTITEM,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cBUSHNEXT,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cSLASHTOUCHY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cSLASHITEMTOUCHY,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cBUSHTOUCHY,
+		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
+	},
+	{ //135
+		cFLOWERSTOUCHY,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cTALLGRASSTOUCHY,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cSLASHNEXTTOUCHY,
+		{ (char *)"Visuals",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite",NULL,NULL,NULL}
+	},
+	{
+		cSLASHNEXTITEMTOUCHY,
+		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		
+		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cBUSHNEXTTOUCHY,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{ //140
+		cEYEBALL_4,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cTALLGRASSNEXT,
+		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+	},
+	{
+		cSCRIPT1,
+		{ moduledata.combotypeCustomFlags[0][0],moduledata.combotypeCustomFlags[0][1],moduledata.combotypeCustomFlags[0][2],moduledata.combotypeCustomFlags[0][3],moduledata.combotypeCustomFlags[0][4],moduledata.combotypeCustomFlags[0][5],moduledata.combotypeCustomFlags[0][6],
+			moduledata.combotypeCustomFlags[0][7],moduledata.combotypeCustomFlags[0][8],moduledata.combotypeCustomFlags[0][9],moduledata.combotypeCustomFlags[0][10],
+			moduledata.combotypeCustomFlags[0][11],moduledata.combotypeCustomFlags[0][12],moduledata.combotypeCustomFlags[0][13],moduledata.combotypeCustomFlags[0][14],moduledata.combotypeCustomFlags[0][15]},
+		{ moduledata.combotypeCustomAttributes[0][0],moduledata.combotypeCustomAttributes[0][1],moduledata.combotypeCustomAttributes[0][2],moduledata.combotypeCustomAttributes[0][3]},
+		{ moduledata.combotypeCustomAttribytes[0][0],moduledata.combotypeCustomAttribytes[0][1],moduledata.combotypeCustomAttribytes[0][2],moduledata.combotypeCustomAttribytes[0][3]}
+	},
+	{
+		cSCRIPT2,
+		{ moduledata.combotypeCustomFlags[1][0],moduledata.combotypeCustomFlags[1][1],moduledata.combotypeCustomFlags[1][2],moduledata.combotypeCustomFlags[1][3],moduledata.combotypeCustomFlags[1][4],moduledata.combotypeCustomFlags[1][5],moduledata.combotypeCustomFlags[1][6],
+			moduledata.combotypeCustomFlags[1][7],moduledata.combotypeCustomFlags[1][8],moduledata.combotypeCustomFlags[1][9],moduledata.combotypeCustomFlags[1][10],
+			moduledata.combotypeCustomFlags[1][11],moduledata.combotypeCustomFlags[1][12],moduledata.combotypeCustomFlags[1][13],moduledata.combotypeCustomFlags[1][14],moduledata.combotypeCustomFlags[1][15]},
+		{ moduledata.combotypeCustomAttributes[1][0],moduledata.combotypeCustomAttributes[1][1],moduledata.combotypeCustomAttributes[1][2],moduledata.combotypeCustomAttributes[1][3]},
+		{ moduledata.combotypeCustomAttribytes[1][0],moduledata.combotypeCustomAttribytes[1][1],moduledata.combotypeCustomAttribytes[1][2],moduledata.combotypeCustomAttribytes[1][3]}
+		
+	},
+	{
+		cSCRIPT3,
+		
+		{ moduledata.combotypeCustomFlags[2][0],moduledata.combotypeCustomFlags[2][1],moduledata.combotypeCustomFlags[2][2],moduledata.combotypeCustomFlags[2][3],moduledata.combotypeCustomFlags[2][4],moduledata.combotypeCustomFlags[2][5],moduledata.combotypeCustomFlags[2][6],
+			moduledata.combotypeCustomFlags[2][7],moduledata.combotypeCustomFlags[2][8],moduledata.combotypeCustomFlags[2][9],moduledata.combotypeCustomFlags[2][10],
+			moduledata.combotypeCustomFlags[2][11],moduledata.combotypeCustomFlags[2][12],moduledata.combotypeCustomFlags[2][13],moduledata.combotypeCustomFlags[2][14],moduledata.combotypeCustomFlags[2][15]},
+		{ moduledata.combotypeCustomAttributes[2][0],moduledata.combotypeCustomAttributes[2][1],moduledata.combotypeCustomAttributes[2][2],moduledata.combotypeCustomAttributes[2][3]},
+		{ moduledata.combotypeCustomAttribytes[2][0],moduledata.combotypeCustomAttribytes[2][1],moduledata.combotypeCustomAttribytes[2][2],moduledata.combotypeCustomAttribytes[2][3]}
+		
+
+	},
+	{ //145
+		cSCRIPT4,
+		{ moduledata.combotypeCustomFlags[3][0],moduledata.combotypeCustomFlags[3][1],moduledata.combotypeCustomFlags[3][2],moduledata.combotypeCustomFlags[3][3],moduledata.combotypeCustomFlags[3][4],moduledata.combotypeCustomFlags[3][5],moduledata.combotypeCustomFlags[3][6],
+			moduledata.combotypeCustomFlags[3][7],moduledata.combotypeCustomFlags[3][8],moduledata.combotypeCustomFlags[3][9],moduledata.combotypeCustomFlags[3][10],
+			moduledata.combotypeCustomFlags[3][11],moduledata.combotypeCustomFlags[3][12],moduledata.combotypeCustomFlags[3][13],moduledata.combotypeCustomFlags[3][14],moduledata.combotypeCustomFlags[3][15]},
+		{ moduledata.combotypeCustomAttributes[3][0],moduledata.combotypeCustomAttributes[3][1],moduledata.combotypeCustomAttributes[3][2],moduledata.combotypeCustomAttributes[3][3]},
+		{ moduledata.combotypeCustomAttribytes[3][0],moduledata.combotypeCustomAttribytes[3][1],moduledata.combotypeCustomAttribytes[3][2],moduledata.combotypeCustomAttribytes[3][3]}
+
+
+	},
+	{
+		cSCRIPT5,
+		
+		{ moduledata.combotypeCustomFlags[4][0],moduledata.combotypeCustomFlags[4][1],moduledata.combotypeCustomFlags[4][2],moduledata.combotypeCustomFlags[4][3],moduledata.combotypeCustomFlags[4][4],moduledata.combotypeCustomFlags[4][5],moduledata.combotypeCustomFlags[4][6],
+			moduledata.combotypeCustomFlags[4][7],moduledata.combotypeCustomFlags[4][8],moduledata.combotypeCustomFlags[4][9],moduledata.combotypeCustomFlags[4][10],
+			moduledata.combotypeCustomFlags[4][11],moduledata.combotypeCustomFlags[4][12],moduledata.combotypeCustomFlags[4][13],moduledata.combotypeCustomFlags[4][14],moduledata.combotypeCustomFlags[4][15]},
+		{ moduledata.combotypeCustomAttributes[4][0],moduledata.combotypeCustomAttributes[4][1],moduledata.combotypeCustomAttributes[4][2],moduledata.combotypeCustomAttributes[4][3]},
+		{ moduledata.combotypeCustomAttribytes[4][0],moduledata.combotypeCustomAttribytes[4][1],moduledata.combotypeCustomAttribytes[4][2],moduledata.combotypeCustomAttribytes[4][3]}
+
+
+	},
+	{
+		cSCRIPT6,
+		
+		{ moduledata.combotypeCustomFlags[5][0],moduledata.combotypeCustomFlags[5][1],moduledata.combotypeCustomFlags[5][2],moduledata.combotypeCustomFlags[5][3],moduledata.combotypeCustomFlags[5][4],moduledata.combotypeCustomFlags[5][5],moduledata.combotypeCustomFlags[5][6],
+			moduledata.combotypeCustomFlags[5][7],moduledata.combotypeCustomFlags[5][8],moduledata.combotypeCustomFlags[5][9],moduledata.combotypeCustomFlags[5][10],
+			moduledata.combotypeCustomFlags[5][11],moduledata.combotypeCustomFlags[5][12],moduledata.combotypeCustomFlags[5][13],moduledata.combotypeCustomFlags[5][14],moduledata.combotypeCustomFlags[5][15]},
+		{ moduledata.combotypeCustomAttributes[5][0],moduledata.combotypeCustomAttributes[5][1],moduledata.combotypeCustomAttributes[5][2],moduledata.combotypeCustomAttributes[5][3]},
+		{ moduledata.combotypeCustomAttribytes[5][0],moduledata.combotypeCustomAttribytes[5][1],moduledata.combotypeCustomAttribytes[5][2],moduledata.combotypeCustomAttribytes[5][3]}
+
+
+	},
+	{
+		cSCRIPT7,
+		
+		{ moduledata.combotypeCustomFlags[6][0],moduledata.combotypeCustomFlags[6][1],moduledata.combotypeCustomFlags[6][2],moduledata.combotypeCustomFlags[6][3],moduledata.combotypeCustomFlags[6][4],moduledata.combotypeCustomFlags[6][5],moduledata.combotypeCustomFlags[6][6],
+			moduledata.combotypeCustomFlags[6][7],moduledata.combotypeCustomFlags[6][8],moduledata.combotypeCustomFlags[6][9],moduledata.combotypeCustomFlags[6][10],
+			moduledata.combotypeCustomFlags[6][11],moduledata.combotypeCustomFlags[6][12],moduledata.combotypeCustomFlags[6][13],moduledata.combotypeCustomFlags[6][14],moduledata.combotypeCustomFlags[6][15]},
+		{ moduledata.combotypeCustomAttributes[6][0],moduledata.combotypeCustomAttributes[6][1],moduledata.combotypeCustomAttributes[6][2],moduledata.combotypeCustomAttributes[6][3]},
+		{ moduledata.combotypeCustomAttribytes[6][0],moduledata.combotypeCustomAttribytes[6][1],moduledata.combotypeCustomAttribytes[6][2],moduledata.combotypeCustomAttribytes[6][3]}
+
+
+	},
+	{
+		cSCRIPT8,
+		
+		{ moduledata.combotypeCustomFlags[7][0],moduledata.combotypeCustomFlags[7][1],moduledata.combotypeCustomFlags[7][2],moduledata.combotypeCustomFlags[7][3],moduledata.combotypeCustomFlags[7][4],moduledata.combotypeCustomFlags[7][5],moduledata.combotypeCustomFlags[7][6],
+			moduledata.combotypeCustomFlags[7][7],moduledata.combotypeCustomFlags[7][8],moduledata.combotypeCustomFlags[7][9],moduledata.combotypeCustomFlags[7][10],
+			moduledata.combotypeCustomFlags[7][11],moduledata.combotypeCustomFlags[7][12],moduledata.combotypeCustomFlags[7][13],moduledata.combotypeCustomFlags[7][14],moduledata.combotypeCustomFlags[7][15]},
+		{ moduledata.combotypeCustomAttributes[7][0],moduledata.combotypeCustomAttributes[7][1],moduledata.combotypeCustomAttributes[7][2],moduledata.combotypeCustomAttributes[7][3]},
+		{ moduledata.combotypeCustomAttribytes[7][0],moduledata.combotypeCustomAttribytes[7][1],moduledata.combotypeCustomAttribytes[7][2],moduledata.combotypeCustomAttribytes[7][3]}
+
+
+	},
+	{ //150
+		cSCRIPT9,
+		
+		{ moduledata.combotypeCustomFlags[8][0],moduledata.combotypeCustomFlags[8][1],moduledata.combotypeCustomFlags[8][2],moduledata.combotypeCustomFlags[8][3],moduledata.combotypeCustomFlags[8][4],moduledata.combotypeCustomFlags[8][5],moduledata.combotypeCustomFlags[8][6],
+			moduledata.combotypeCustomFlags[8][7],moduledata.combotypeCustomFlags[8][8],moduledata.combotypeCustomFlags[8][9],moduledata.combotypeCustomFlags[8][10],
+			moduledata.combotypeCustomFlags[8][11],moduledata.combotypeCustomFlags[8][12],moduledata.combotypeCustomFlags[8][13],moduledata.combotypeCustomFlags[8][14],moduledata.combotypeCustomFlags[8][15]},
+		{ moduledata.combotypeCustomAttributes[8][0],moduledata.combotypeCustomAttributes[8][1],moduledata.combotypeCustomAttributes[8][2],moduledata.combotypeCustomAttributes[8][3]},
+		{ moduledata.combotypeCustomAttribytes[8][0],moduledata.combotypeCustomAttribytes[8][1],moduledata.combotypeCustomAttribytes[8][2],moduledata.combotypeCustomAttribytes[8][3]}
+
+
+	},
+	{
+		cSCRIPT10,
+		
+		{ moduledata.combotypeCustomFlags[9][0],moduledata.combotypeCustomFlags[9][1],moduledata.combotypeCustomFlags[9][2],moduledata.combotypeCustomFlags[9][3],moduledata.combotypeCustomFlags[9][4],moduledata.combotypeCustomFlags[9][5],moduledata.combotypeCustomFlags[9][6],
+			moduledata.combotypeCustomFlags[9][7],moduledata.combotypeCustomFlags[9][8],moduledata.combotypeCustomFlags[9][9],moduledata.combotypeCustomFlags[9][10],
+			moduledata.combotypeCustomFlags[9][11],moduledata.combotypeCustomFlags[9][12],moduledata.combotypeCustomFlags[9][13],moduledata.combotypeCustomFlags[9][14],moduledata.combotypeCustomFlags[9][15]},
+		{ moduledata.combotypeCustomAttributes[9][0],moduledata.combotypeCustomAttributes[9][1],moduledata.combotypeCustomAttributes[9][2],moduledata.combotypeCustomAttributes[9][3]},
+		{ moduledata.combotypeCustomAttribytes[9][0],moduledata.combotypeCustomAttribytes[9][1],moduledata.combotypeCustomAttribytes[9][2],moduledata.combotypeCustomAttribytes[9][3]}
+
+
+	},
+	{
+		cSCRIPT11,
+		
+		{ moduledata.combotypeCustomFlags[10][0],moduledata.combotypeCustomFlags[10][1],moduledata.combotypeCustomFlags[10][2],moduledata.combotypeCustomFlags[10][3],moduledata.combotypeCustomFlags[10][4],moduledata.combotypeCustomFlags[10][5],moduledata.combotypeCustomFlags[10][6],
+			moduledata.combotypeCustomFlags[10][7],moduledata.combotypeCustomFlags[10][8],moduledata.combotypeCustomFlags[10][9],moduledata.combotypeCustomFlags[10][10],
+			moduledata.combotypeCustomFlags[10][11],moduledata.combotypeCustomFlags[10][12],moduledata.combotypeCustomFlags[10][13],moduledata.combotypeCustomFlags[10][14],moduledata.combotypeCustomFlags[10][15]},
+		{ moduledata.combotypeCustomAttributes[10][0],moduledata.combotypeCustomAttributes[10][1],moduledata.combotypeCustomAttributes[10][2],moduledata.combotypeCustomAttributes[10][3]},
+		{ moduledata.combotypeCustomAttribytes[10][0],moduledata.combotypeCustomAttribytes[10][1],moduledata.combotypeCustomAttribytes[10][2],moduledata.combotypeCustomAttribytes[10][3]}
+
+
+	},
+	{
+		cSCRIPT12,
+		
+		{ moduledata.combotypeCustomFlags[11][0],moduledata.combotypeCustomFlags[11][1],moduledata.combotypeCustomFlags[11][2],moduledata.combotypeCustomFlags[11][3],moduledata.combotypeCustomFlags[11][4],moduledata.combotypeCustomFlags[11][5],moduledata.combotypeCustomFlags[11][6],
+			moduledata.combotypeCustomFlags[11][7],moduledata.combotypeCustomFlags[11][8],moduledata.combotypeCustomFlags[11][9],moduledata.combotypeCustomFlags[11][10],
+			moduledata.combotypeCustomFlags[11][11],moduledata.combotypeCustomFlags[11][12],moduledata.combotypeCustomFlags[11][13],moduledata.combotypeCustomFlags[11][14],moduledata.combotypeCustomFlags[11][15]},
+		{ moduledata.combotypeCustomAttributes[11][0],moduledata.combotypeCustomAttributes[11][1],moduledata.combotypeCustomAttributes[11][2],moduledata.combotypeCustomAttributes[11][3]},
+		{ moduledata.combotypeCustomAttribytes[11][0],moduledata.combotypeCustomAttribytes[11][1],moduledata.combotypeCustomAttribytes[11][2],moduledata.combotypeCustomAttribytes[11][3]}
+
+
+	},
+	{
+		cSCRIPT13,
+		
+		{ moduledata.combotypeCustomFlags[12][0],moduledata.combotypeCustomFlags[12][1],moduledata.combotypeCustomFlags[12][2],moduledata.combotypeCustomFlags[12][3],moduledata.combotypeCustomFlags[12][4],moduledata.combotypeCustomFlags[12][5],moduledata.combotypeCustomFlags[12][6],
+			moduledata.combotypeCustomFlags[12][7],moduledata.combotypeCustomFlags[12][8],moduledata.combotypeCustomFlags[12][9],moduledata.combotypeCustomFlags[12][10],
+			moduledata.combotypeCustomFlags[12][11],moduledata.combotypeCustomFlags[12][12],moduledata.combotypeCustomFlags[12][13],moduledata.combotypeCustomFlags[12][14],moduledata.combotypeCustomFlags[12][15]},
+		{ moduledata.combotypeCustomAttributes[12][0],moduledata.combotypeCustomAttributes[12][1],moduledata.combotypeCustomAttributes[12][2],moduledata.combotypeCustomAttributes[12][3]},
+		{ moduledata.combotypeCustomAttribytes[12][0],moduledata.combotypeCustomAttribytes[12][1],moduledata.combotypeCustomAttribytes[12][2],moduledata.combotypeCustomAttribytes[12][3]}
+
+
+	},
+	{ //155
+		cSCRIPT14,
+		
+		{ moduledata.combotypeCustomFlags[13][0],moduledata.combotypeCustomFlags[13][1],moduledata.combotypeCustomFlags[13][2],moduledata.combotypeCustomFlags[13][3],moduledata.combotypeCustomFlags[13][4],moduledata.combotypeCustomFlags[13][5],moduledata.combotypeCustomFlags[13][6],
+			moduledata.combotypeCustomFlags[13][7],moduledata.combotypeCustomFlags[13][8],moduledata.combotypeCustomFlags[13][9],moduledata.combotypeCustomFlags[13][10],
+			moduledata.combotypeCustomFlags[13][11],moduledata.combotypeCustomFlags[13][12],moduledata.combotypeCustomFlags[13][13],moduledata.combotypeCustomFlags[13][14],moduledata.combotypeCustomFlags[13][15]},
+		{ moduledata.combotypeCustomAttributes[13][0],moduledata.combotypeCustomAttributes[13][1],moduledata.combotypeCustomAttributes[13][2],moduledata.combotypeCustomAttributes[13][3]},
+		{ moduledata.combotypeCustomAttribytes[13][0],moduledata.combotypeCustomAttribytes[13][1],moduledata.combotypeCustomAttribytes[13][2],moduledata.combotypeCustomAttribytes[13][3]}
+
+
+	},
+	{
+		cSCRIPT15,
+		
+		{ moduledata.combotypeCustomFlags[14][0],moduledata.combotypeCustomFlags[14][1],moduledata.combotypeCustomFlags[14][2],moduledata.combotypeCustomFlags[14][3],moduledata.combotypeCustomFlags[14][4],moduledata.combotypeCustomFlags[14][5],moduledata.combotypeCustomFlags[14][6],
+			moduledata.combotypeCustomFlags[14][7],moduledata.combotypeCustomFlags[14][8],moduledata.combotypeCustomFlags[14][9],moduledata.combotypeCustomFlags[14][10],
+			moduledata.combotypeCustomFlags[14][11],moduledata.combotypeCustomFlags[14][12],moduledata.combotypeCustomFlags[14][13],moduledata.combotypeCustomFlags[14][14],moduledata.combotypeCustomFlags[14][15]},
+		{ moduledata.combotypeCustomAttributes[14][0],moduledata.combotypeCustomAttributes[14][1],moduledata.combotypeCustomAttributes[14][2],moduledata.combotypeCustomAttributes[14][3]},
+		{ moduledata.combotypeCustomAttribytes[14][0],moduledata.combotypeCustomAttribytes[14][1],moduledata.combotypeCustomAttribytes[14][2],moduledata.combotypeCustomAttribytes[14][3]}
+
+
+	},
+	{
+		cSCRIPT16,
+		
+		{ moduledata.combotypeCustomFlags[15][0],moduledata.combotypeCustomFlags[15][1],moduledata.combotypeCustomFlags[15][2],moduledata.combotypeCustomFlags[15][3],moduledata.combotypeCustomFlags[15][4],moduledata.combotypeCustomFlags[15][5],moduledata.combotypeCustomFlags[15][6],
+			moduledata.combotypeCustomFlags[15][7],moduledata.combotypeCustomFlags[15][8],moduledata.combotypeCustomFlags[15][9],moduledata.combotypeCustomFlags[15][10],
+			moduledata.combotypeCustomFlags[15][11],moduledata.combotypeCustomFlags[15][12],moduledata.combotypeCustomFlags[15][13],moduledata.combotypeCustomFlags[15][14],moduledata.combotypeCustomFlags[15][15]},
+		{ moduledata.combotypeCustomAttributes[15][0],moduledata.combotypeCustomAttributes[15][1],moduledata.combotypeCustomAttributes[15][2],moduledata.combotypeCustomAttributes[15][3]},
+		{ moduledata.combotypeCustomAttribytes[15][0],moduledata.combotypeCustomAttribytes[15][1],moduledata.combotypeCustomAttribytes[15][2],moduledata.combotypeCustomAttribytes[15][3]}
+
+
+	},
+	{
+		cSCRIPT17,
+		
+		{ moduledata.combotypeCustomFlags[16][0],moduledata.combotypeCustomFlags[16][1],moduledata.combotypeCustomFlags[16][2],moduledata.combotypeCustomFlags[16][3],moduledata.combotypeCustomFlags[16][4],moduledata.combotypeCustomFlags[16][5],moduledata.combotypeCustomFlags[16][6],
+			moduledata.combotypeCustomFlags[16][7],moduledata.combotypeCustomFlags[16][8],moduledata.combotypeCustomFlags[16][9],moduledata.combotypeCustomFlags[16][10],
+			moduledata.combotypeCustomFlags[16][11],moduledata.combotypeCustomFlags[16][12],moduledata.combotypeCustomFlags[16][13],moduledata.combotypeCustomFlags[16][14],moduledata.combotypeCustomFlags[16][15]},
+		{ moduledata.combotypeCustomAttributes[16][0],moduledata.combotypeCustomAttributes[16][1],moduledata.combotypeCustomAttributes[16][2],moduledata.combotypeCustomAttributes[16][3]},
+		{ moduledata.combotypeCustomAttribytes[16][0],moduledata.combotypeCustomAttribytes[16][1],moduledata.combotypeCustomAttribytes[16][2],moduledata.combotypeCustomAttribytes[16][3]}
+
+
+	},
+	{
+		cSCRIPT18,
+		
+		{ moduledata.combotypeCustomFlags[17][0],moduledata.combotypeCustomFlags[17][1],moduledata.combotypeCustomFlags[17][2],moduledata.combotypeCustomFlags[17][3],moduledata.combotypeCustomFlags[17][4],moduledata.combotypeCustomFlags[17][5],moduledata.combotypeCustomFlags[17][6],
+			moduledata.combotypeCustomFlags[17][7],moduledata.combotypeCustomFlags[17][8],moduledata.combotypeCustomFlags[17][9],moduledata.combotypeCustomFlags[17][10],
+			moduledata.combotypeCustomFlags[17][11],moduledata.combotypeCustomFlags[17][12],moduledata.combotypeCustomFlags[17][13],moduledata.combotypeCustomFlags[17][14],moduledata.combotypeCustomFlags[17][15]},
+		{ moduledata.combotypeCustomAttributes[17][0],moduledata.combotypeCustomAttributes[17][1],moduledata.combotypeCustomAttributes[17][2],moduledata.combotypeCustomAttributes[17][3]},
+		{ moduledata.combotypeCustomAttribytes[17][0],moduledata.combotypeCustomAttribytes[17][1],moduledata.combotypeCustomAttribytes[17][2],moduledata.combotypeCustomAttribytes[17][3]}
+
+
+	},
+	{ //160
+		cSCRIPT19,
+		
+		{ moduledata.combotypeCustomFlags[18][0],moduledata.combotypeCustomFlags[18][1],moduledata.combotypeCustomFlags[18][2],moduledata.combotypeCustomFlags[18][3],moduledata.combotypeCustomFlags[18][4],moduledata.combotypeCustomFlags[18][5],moduledata.combotypeCustomFlags[18][6],
+			moduledata.combotypeCustomFlags[18][7],moduledata.combotypeCustomFlags[18][8],moduledata.combotypeCustomFlags[18][9],moduledata.combotypeCustomFlags[18][10],
+			moduledata.combotypeCustomFlags[18][11],moduledata.combotypeCustomFlags[18][12],moduledata.combotypeCustomFlags[18][13],moduledata.combotypeCustomFlags[18][14],moduledata.combotypeCustomFlags[18][15]},
+		{ moduledata.combotypeCustomAttributes[18][0],moduledata.combotypeCustomAttributes[18][1],moduledata.combotypeCustomAttributes[18][2],moduledata.combotypeCustomAttributes[18][3]},
+		{ moduledata.combotypeCustomAttribytes[18][0],moduledata.combotypeCustomAttribytes[18][1],moduledata.combotypeCustomAttribytes[18][2],moduledata.combotypeCustomAttribytes[18][3]}
+		
+	},
+	{
+		cSCRIPT20,
+		
+		{ moduledata.combotypeCustomFlags[19][0],moduledata.combotypeCustomFlags[19][1],moduledata.combotypeCustomFlags[19][2],moduledata.combotypeCustomFlags[19][3],moduledata.combotypeCustomFlags[19][4],moduledata.combotypeCustomFlags[19][5],moduledata.combotypeCustomFlags[19][6],
+			moduledata.combotypeCustomFlags[19][7],moduledata.combotypeCustomFlags[19][8],moduledata.combotypeCustomFlags[19][9],moduledata.combotypeCustomFlags[19][10],
+			moduledata.combotypeCustomFlags[19][11],moduledata.combotypeCustomFlags[19][12],moduledata.combotypeCustomFlags[19][13],moduledata.combotypeCustomFlags[19][14],moduledata.combotypeCustomFlags[19][15]},
+		{ moduledata.combotypeCustomAttributes[19][0],moduledata.combotypeCustomAttributes[19][1],moduledata.combotypeCustomAttributes[19][2],moduledata.combotypeCustomAttributes[19][3]},
+		{ moduledata.combotypeCustomAttribytes[19][0],moduledata.combotypeCustomAttribytes[19][1],moduledata.combotypeCustomAttribytes[19][2],moduledata.combotypeCustomAttribytes[19][3]}
+
+	},
+	{
+		cTRIGGERGENERIC,
+		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
+			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+		
+	},{
+		cMAX,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cFIRELAVA1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cFIREFLAVA2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //165
+		cFIRELAVA3,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cFIRELAVA4,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cHOLEDROP,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cHOLEDAMAGE1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cHOLEDAMAGE2,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //170
+		cHOLEDAMAGE3,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cHOLEDAMAGE4,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cDIG,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cDIGNEXT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cDIGITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //175
+		cLIFT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSPECITER,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTNEXT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTNEXTITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //180
+		cLIFTNEXTSPECITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSLASH,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSLAHITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSLASHSPECITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSLASHNEXT,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //185
+		cLIFTSLASHNEXTITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cLIFTSLASHNEXTSPECITEM,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cBREAKAWAYFLOOR,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cFREEZEFFCONLY,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	
+	{
+		 189,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 190,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 191,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 192,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 193,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 194,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 195,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 196,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 197,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 198,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 199,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 200,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 201,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 202,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 203,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 204,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 205,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 206,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 207,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 208,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 209,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 210,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 211,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 212,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 213,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 214,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 215,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 216,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 217,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 218,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 219,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 220,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 221,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 222,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 223,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 224,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 225,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 226,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 227,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 228,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 229,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 230,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 231,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 232,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 233,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 234,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 235,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 236,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 237,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 238,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 239,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 240,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 241,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 242,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 243,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 244,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 245,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 246,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 247,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 248,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 249,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 250,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 251,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 252,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 253,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 254,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		cEXPANDED,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //256
+		cMAX250,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{ //arbitrary values ahead
+		257, //script combos with the 'engine' flag enabled
+		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
+			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{ 
+		258,
+		//if dropping an enemy from a script 1 to 20 combo
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
+			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{ 
+		259,
+		//if dropping an enemy from a generic trigger combo
+		
+		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
+			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{
+		-1,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+	}
+};
+
+static std::map<int, ComboAttributesInfo *> *comboinfomap = NULL;
+
+std::map<int, ComboAttributesInfo *> *getComboInfoMap()
+{
+    if(comboinfomap == NULL)
+    {
+        comboinfomap = new std::map<int, ComboAttributesInfo *>();
+        
+        for(int i=0;; i++)
+        {
+            ComboAttributesInfo *inf = &comboattrinfo[i];
+            
+            if(inf->family == -1)
+                break;
+                
+            (*comboinfomap)[inf->family] = inf;
+        }
+    }
+    
+    return comboinfomap;
+}
+
+int get_tick_sel(){ return D_CLOSE; } 
+
+const char *comboscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bidcomboscripts_cnt;
+        return NULL;
+    }
+    
+    return bidcomboscripts[index].first.c_str();
+}
+ListData comboscript_list(comboscriptdroplist, &font);
 
 static DIALOG combo_dlg[] =
 {
@@ -11300,7 +13392,7 @@ static DIALOG combo_dlg[] =
     { d_wflag_proc,      232,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     // 24
     { jwin_text_proc,       60,   126,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Type:", NULL, NULL },
-    { jwin_droplist_proc,   89,   122,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_droplist_proc,   89,   122,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       60,   90,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Frames:", NULL, NULL },
     { jwin_text_proc,       60,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Speed:", NULL, NULL },
     { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
@@ -11327,27 +13419,27 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
-    { jwin_check_proc,        144+22,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x01",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x02",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x04",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x08",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
     //52
-    { jwin_check_proc,        144+22,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x20",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x40",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x80",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
-    { jwin_text_proc,           8+22+16,    30+16+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    30-4+16+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //57
-    { jwin_text_proc,           8+22+16,    45+16+4+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    45-4+16+4+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //59
-    { jwin_text_proc,           8+22+16,    60+16+4+8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    60-4+16+4+8,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //61
-    { jwin_text_proc,           8+22+16,    75+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    75-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -11402,11 +13494,154 @@ static DIALOG combo_dlg[] =
    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
     //102
-    { jwin_text_proc,           8+22+16,    90+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    90-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
-    
+    { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    //104
+    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
+    //109
+    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
+    //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
+    //112
+    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //114
+    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //116
+    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //118
+    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
+    //120
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+   
+    //combo script
+    ///122
+    { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    84,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
+     { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
+   //128 cancel, 129 OK
+     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+   
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
+
+
+
+void setComboLabels(int family)
+{
+    std::map<int, ComboAttributesInfo *> *nmap = getComboInfoMap();
+    std::map<int, ComboAttributesInfo *>::iterator it = nmap->find(family);
+    ComboAttributesInfo *inf = NULL;
+    
+    if(it != nmap->end())
+        inf = it->second;
+     
+    if(inf->flags[0]!=NULL)    
+	combo_dlg[47].dp = (char*)inf->flags[0];
+    else combo_dlg[47].dp = (char*)"Flags 1";
+    
+    if(inf->flags[1]!=NULL)    
+	combo_dlg[48].dp = (char*)inf->flags[1];
+    else combo_dlg[48].dp = (char*)"Flags 2";
+   
+    if(inf->flags[2]!=NULL)    
+	combo_dlg[49].dp = (char*)inf->flags[2];
+    else combo_dlg[49].dp = (char*)"Flags 3";
+   
+    if(inf->flags[3]!=NULL)    
+	combo_dlg[50].dp = (char*)inf->flags[3];
+    else combo_dlg[50].dp = (char*)"Flags 4";
+   
+    if(inf->flags[4]!=NULL)    
+	combo_dlg[51].dp = (char*)inf->flags[4];
+    else combo_dlg[51].dp = (char*)"Flags 5";
+   
+    if(inf->flags[5]!=NULL)    
+	combo_dlg[52].dp = (char*)inf->flags[5];
+    else combo_dlg[52].dp = (char*)"Flags 6";
+   
+    if(inf->flags[6]!=NULL)    
+	combo_dlg[53].dp = (char*)inf->flags[6];
+    else combo_dlg[53].dp = (char*)"Flags 7";
+   
+    if(inf->flags[7]!=NULL)    
+	combo_dlg[54].dp = (char*)inf->flags[7];
+    else combo_dlg[54].dp = (char*)"Flags 8";
+   
+    if(inf->flags[8]!=NULL)    
+	combo_dlg[104].dp = (char*)inf->flags[8];
+    else combo_dlg[104].dp = (char*)"Flags 9";
+   
+    if(inf->flags[9]!=NULL)    
+	combo_dlg[105].dp = (char*)inf->flags[9];
+    else combo_dlg[105].dp = (char*)"Flags 10";
+   
+    if(inf->flags[10]!=NULL)    
+	combo_dlg[106].dp = (char*)inf->flags[10];
+    else combo_dlg[106].dp = (char*)"Flags 11";
+   
+    if(inf->flags[11]!=NULL)    
+	combo_dlg[107].dp = (char*)inf->flags[11];
+    else combo_dlg[107].dp = (char*)"Flags 12";
+   
+    if(inf->flags[12]!=NULL)    
+	combo_dlg[108].dp = (char*)inf->flags[12];
+    else combo_dlg[108].dp = (char*)"Flags 13";
+   
+    if(inf->flags[13]!=NULL)    
+	combo_dlg[109].dp = (char*)inf->flags[13];
+    else combo_dlg[109].dp = (char*)"Flags 14";
+   
+    if(inf->flags[14]!=NULL)    
+	combo_dlg[110].dp = (char*)inf->flags[14];
+    else combo_dlg[110].dp = (char*)"Flags 15";
+   
+    if(inf->flags[15]!=NULL)    
+	combo_dlg[111].dp = (char*)inf->flags[15];
+    else combo_dlg[111].dp = (char*)"Flags 16";
+    
+    if(inf->attributes[0]!=NULL)
+	combo_dlg[55].dp = (char*)inf->attributes[0];
+    else combo_dlg[55].dp = (char*)"Attributes[0]";
+    if(inf->attributes[1]!=NULL)
+	combo_dlg[57].dp = (char*)inf->attributes[1];
+    else combo_dlg[57].dp = (char*)"Attributes[1]";
+    if(inf->attributes[2]!=NULL)
+	combo_dlg[59].dp = (char*)inf->attributes[2];
+    else combo_dlg[59].dp = (char*)"Attributes[2]";
+    if(inf->attributes[3]!=NULL)
+	combo_dlg[61].dp = (char*)inf->attributes[3];
+    else combo_dlg[61].dp = (char*)"Attributes[3]";
+    
+    
+    if(inf->attribytes[0]!=NULL)
+	combo_dlg[112].dp = (char*)inf->attribytes[0];
+    else combo_dlg[112].dp = (char*)"Attribytes[0]";
+    if(inf->attribytes[1]!=NULL)
+	combo_dlg[114].dp = (char*)inf->attribytes[1];
+    else combo_dlg[114].dp = (char*)"Attribytes[1]";
+    if(inf->attribytes[2]!=NULL)
+	combo_dlg[116].dp = (char*)inf->attribytes[2];
+    else combo_dlg[116].dp = (char*)"Attribytes[2]";
+    if(inf->attribytes[3]!=NULL)
+	combo_dlg[118].dp = (char*)inf->attribytes[3];
+    else combo_dlg[118].dp = (char*)"Attribytes[3]";
+  
+}
+
 
 int click_d_combo_proc()
 {
@@ -11500,6 +13735,10 @@ int onCmb_dlg_r()
 
 static ListData combotype_list(combotypelist, &font);
 
+
+
+
+
 bool edit_combo(int c,bool freshen,int cs)
 {
     combo_dlg[0].dp2=lfont;
@@ -11524,8 +13763,18 @@ bool edit_combo(int c,bool freshen,int cs)
     char attrib1[8];
     char attrib2[8];
     char attrib3[8];
+    
+    char attribyt0[8];
+    char attribyt1[8];
+    char attribyt2[8];
+    char attribyt3[8];
     char minlevel[8];
     char the_label[11];
+    
+    char initiald0[16];
+    char initiald1[16];
+    
+    int thescript = 0;
     
     char combonumstr[25];
     
@@ -11553,8 +13802,35 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attrib1,"%d",curr_combo.attributes[1]);
     sprintf(attrib2,"%d",curr_combo.attributes[2]);
     sprintf(attrib3,"%d",curr_combo.attributes[3]);
+    
+    //Attribytes[]
+    sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
+    sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
+    sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
+    sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
     strcpy(the_label, curr_combo.label);
+    
+    sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
+    sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
+		
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
+    
+    build_bidcomboscripts_list();
+    
+    int script = 0;
+    
+    for(int j = 0; j < bidcomboscripts_cnt; j++)
+    {
+        if(bidcomboscripts[j].second == curr_combo.script - 1)
+            script = j;
+            
+       
+    }
+   
+    
+    combo_dlg[127].d1 = script;
     
     combo_dlg[13].dp = cset_str;
     
@@ -11577,6 +13853,14 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
     combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
     combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
+    combo_dlg[104].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
+    combo_dlg[105].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
+    combo_dlg[106].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
+    combo_dlg[107].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
+    combo_dlg[108].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
+    combo_dlg[109].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
+    combo_dlg[110].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
+    combo_dlg[111].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
     /*
     for(int i=0; i<8; i++)
     {
@@ -11584,42 +13868,42 @@ bool edit_combo(int c,bool freshen,int cs)
     }
     */
     //item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-    combo_dlg[63].flags = curr_combo.triggerflags[0]&0x01 ? D_SELECTED : 0;
-    combo_dlg[64].flags = curr_combo.triggerflags[0]&0x02 ? D_SELECTED : 0;
-    combo_dlg[65].flags = curr_combo.triggerflags[0]&0x04 ? D_SELECTED : 0;
-    combo_dlg[66].flags = curr_combo.triggerflags[0]&0x08 ? D_SELECTED : 0;
-    combo_dlg[67].flags = curr_combo.triggerflags[0]&0x10 ? D_SELECTED : 0;
-    combo_dlg[68].flags = curr_combo.triggerflags[0]&0x20 ? D_SELECTED : 0;
-    combo_dlg[69].flags = curr_combo.triggerflags[0]&0x40 ? D_SELECTED : 0;
-    combo_dlg[70].flags = curr_combo.triggerflags[0]&0x80 ? D_SELECTED : 0;
-    combo_dlg[71].flags = curr_combo.triggerflags[0]&0x100 ? D_SELECTED : 0;
-    combo_dlg[72].flags = curr_combo.triggerflags[0]&0x200 ? D_SELECTED : 0;
-    combo_dlg[73].flags = curr_combo.triggerflags[0]&0x400 ? D_SELECTED : 0;
-    combo_dlg[74].flags = curr_combo.triggerflags[0]&0x800 ? D_SELECTED : 0;
-    combo_dlg[75].flags = curr_combo.triggerflags[0]&0x1000 ? D_SELECTED : 0;
-    combo_dlg[76].flags = curr_combo.triggerflags[0]&0x2000 ? D_SELECTED : 0;
-    combo_dlg[77].flags = curr_combo.triggerflags[0]&0x4000 ? D_SELECTED : 0;
-    combo_dlg[78].flags = curr_combo.triggerflags[0]&0x8000 ? D_SELECTED : 0;
-    combo_dlg[79].flags = curr_combo.triggerflags[0]&0x10000 ? D_SELECTED : 0;
-    combo_dlg[80].flags = curr_combo.triggerflags[0]&0x20000 ? D_SELECTED : 0;
+    combo_dlg[63].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
+    combo_dlg[64].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
+    combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
+    combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
+    combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
+    combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
+    combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
+    combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
+    combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
+    combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
+    combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
+    combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
+    combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
+    combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
+    combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
+    combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
+    combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
+    combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
     //ZScript liter support ends here. 
-    combo_dlg[81].flags = curr_combo.triggerflags[1]&0x01 ? D_SELECTED : 0;
-    combo_dlg[82].flags = curr_combo.triggerflags[1]&0x02 ? D_SELECTED : 0;
-    combo_dlg[83].flags = curr_combo.triggerflags[1]&0x04 ? D_SELECTED : 0;
-    combo_dlg[84].flags = curr_combo.triggerflags[1]&0x08 ? D_SELECTED : 0;
-    combo_dlg[85].flags = curr_combo.triggerflags[1]&0x010 ? D_SELECTED : 0;
+    combo_dlg[81].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
+    combo_dlg[82].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
+    combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
+    combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
+    combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
     
     //item trigger flags page 2
-    combo_dlg[90].flags = curr_combo.triggerflags[1]&0x020 ? D_SELECTED : 0;
-    combo_dlg[91].flags = curr_combo.triggerflags[1]&0x040 ? D_SELECTED : 0;
-    combo_dlg[92].flags = curr_combo.triggerflags[1]&0x080 ? D_SELECTED : 0;
-    combo_dlg[93].flags = curr_combo.triggerflags[1]&0x100 ? D_SELECTED : 0;
-    combo_dlg[94].flags = curr_combo.triggerflags[1]&0x200 ? D_SELECTED : 0;
-    combo_dlg[95].flags = curr_combo.triggerflags[1]&0x400 ? D_SELECTED : 0;
-    combo_dlg[96].flags = curr_combo.triggerflags[1]&0x800 ? D_SELECTED : 0;
-    combo_dlg[97].flags = curr_combo.triggerflags[1]&0x1000 ? D_SELECTED : 0;
-    combo_dlg[98].flags = curr_combo.triggerflags[1]&0x2000 ? D_SELECTED : 0;
-    combo_dlg[99].flags = curr_combo.triggerflags[1]&0x4000 ? D_SELECTED : 0;
+    combo_dlg[90].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
+    combo_dlg[91].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
+    combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
+    combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
+    combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
+    combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
+    combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
+    combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
+    combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
+    combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
     //three bits remain that are usable (zscript limits)
     
     //85
@@ -11663,12 +13947,80 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[58].dp = attrib1;
     combo_dlg[60].dp = attrib2;
     combo_dlg[62].dp = attrib3;
+    
+    byte attribyte_vals[4] = {0};
+    
+    //Attribytes[]
+    attribyte_vals[0]=(byte)(atoi(attribyt0));
+    attribyte_vals[1]=(byte)(atoi(attribyt1));
+    attribyte_vals[2]=(byte)(atoi(attribyt2));
+    attribyte_vals[3]=(byte)(atoi(attribyt3));
+    
+    sprintf(attribyt0,"%d",attribyte_vals[0]);
+    sprintf(attribyt1,"%d",attribyte_vals[1]);
+    sprintf(attribyt2,"%d",attribyte_vals[2]);
+    sprintf(attribyt3,"%d",attribyte_vals[3]);
+    
+    //122, 124 initD
+    
+    combo_dlg[113].dp = attribyt0;
+    combo_dlg[115].dp = attribyt1;
+    combo_dlg[117].dp = attribyt2;
+    combo_dlg[119].dp = attribyt3;
+    
+    //initd
+    combo_dlg[123].dp = initiald0;
+    combo_dlg[125].dp = initiald1;
+    
+    
+    //trigger level
     combo_dlg[88].dp = minlevel;
     
     combo_dlg[103].dp = the_label;
     
+    //trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
+		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
+		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
+		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
+		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
+		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
+		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
+		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
+		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
+		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+		//breakas here
+		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
+		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
+		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
+		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
+		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
+		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
+		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
+		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+		//ZScript capable numbers end there. 
+		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
+		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
+		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
+		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
+		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+
+		//trigger flags page 2
+		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
+		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
+		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
+		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
+		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
+		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
+		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
+		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
+		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
+		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+    
     
     int index=0;
+    
+    al_trace("Last Selection: %d\n", last_droplist_sel);
     
     for(int j=0; j<bict_cnt; j++)
     {
@@ -11711,212 +14063,537 @@ bool edit_combo(int c,bool freshen,int cs)
         }
     }
     
-    int ret;
+	if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+	{
+		if(combo_dlg[104].flags & D_SELECTED) //change labels
+		{
+			if(combo_dlg[109].flags & D_SELECTED) //change labels
+				setComboLabels(258);
+			else setComboLabels(257);
+		}
+		else setComboLabels(index);
+	}
+	
+	else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+	{
+		if(combo_dlg[109].flags & D_SELECTED) //change labels
+			setComboLabels(259);
+		else setComboLabels(index);
+	}
+	else setComboLabels(index);
+    int ret = -1;
+    
+    
+    
+    if(freshen)
+    {
+        refresh(rALL);
+    }
+    
+    //if(ret==43)
+    //{
+    //}
     
     do
     {
-        ret=zc_popup_dialog(combo_dlg,4);
-        
-        if(ret==43)
-            ctype_help(bict[combo_dlg[25].d1].i);
-        else if(ret==44)
-            cflag_help(combo_dlg[34].d1);
-    }
-    while(ret == 43 || ret == 44);
-    
-    if(freshen)
-    {
-        refresh(rALL);
-    }
-    
-    if(ret==43)
-    {
-    }
-    
-    if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
-    {
-        saved=false;
-        curr_combo.csets = csets;
-        
-        for(int i=0; i<4; i++)
-        {
-            if(combo_dlg[i+15].flags & D_SELECTED)
-            {
-                curr_combo.walk |= 1<<i;
-            }
-            else
-            {
-                curr_combo.walk &= ~(1<<i);
-            }
-        }
-        
 	
-	//userflags
-	if(combo_dlg[47].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x01;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x01;
-	}
-	if(combo_dlg[48].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x02;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x02;
-	}
-	if(combo_dlg[49].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x04;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x04;
-	}
-	if(combo_dlg[49].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x08;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x08;
-	}
-	if(combo_dlg[50].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x10;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x10;
-	}
-	if(combo_dlg[51].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x20;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x20;
-	}
-	if(combo_dlg[52].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x40;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x40;
-	}
-	if(combo_dlg[53].flags & D_SELECTED) 
-	{
-		curr_combo.usrflags |= 0x80;
-	}
-	else
-	{
-		curr_combo.usrflags &= ~0x80;
-	}
+	//else if(ret == 1)
+	//	setComboLabels(combo_dlg[25].d1);
 	
-	//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-	if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-	if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-	if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-	if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-	if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-	if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-	if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-	if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-	if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-	if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
-	//breakas here
-	if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-	if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-	if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-	if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-	if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-	if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-	if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-	if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
-	//ZScript capable numbers end there. 
-	if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-	if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-	if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-	if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-	if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+	//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
+	//{
+		saved=false;
+	    //three bits left for the second index (for ZScript supported values)
+	    
+	    
+	    
+		if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+		{
+			if(combo_dlg[104].flags & D_SELECTED) //change labels
+			{
+				if(combo_dlg[109].flags & D_SELECTED) //change labels
+					setComboLabels(258);
+				else setComboLabels(257);
+			}
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+		{
+			if(combo_dlg[109].flags & D_SELECTED) //change labels
+				setComboLabels(259);
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		else setComboLabels(bict[combo_dlg[25].d1].i);
+	    
+	
+		ret=zc_popup_dialog(combo_dlg,4);
+		//setComboLabels(combo_dlg[25].d1);
+		curr_combo.csets = csets;
+		
+		for(int i=0; i<4; i++)
+		{
+		    if(combo_dlg[i+15].flags & D_SELECTED)
+		    {
+			curr_combo.walk |= 1<<i;
+		    }
+		    else
+		    {
+			curr_combo.walk &= ~(1<<i);
+		    }
+		}
+		
+		
+		//userflags
+		if(combo_dlg[47].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x01;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x01;
+		}
+		if(combo_dlg[48].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x02;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x02;
+		}
+		if(combo_dlg[49].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x04;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x04;
+		}
+		if(combo_dlg[50].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x08;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x08;
+		}
+		if(combo_dlg[51].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x10;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x10;
+		}
+		if(combo_dlg[52].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x20;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x20;
+		}
+		if(combo_dlg[53].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x40;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x40;
+		}
+		if(combo_dlg[54].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x80;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x80;
+		}
+		if(combo_dlg[104].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x100;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x100;
+		}
+		if(combo_dlg[105].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x200;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x200;
+		}
+		if(combo_dlg[106].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x400;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x400;
+		}
+		if(combo_dlg[107].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x800;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x800;
+		}
+		if(combo_dlg[108].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x1000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x1000;
+		}
+		if(combo_dlg[109].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x2000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x2000;
+		}
+		if(combo_dlg[110].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x4000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x4000;
+		}
+		if(combo_dlg[111].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x8000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x8000;
+		}
+		
+		
+		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
+		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
+		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
+		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
+		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
+		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
+		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
+		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
+		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
+		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+		//breakas here
+		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
+		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
+		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
+		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
+		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
+		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
+		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
+		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+		//ZScript capable numbers end there. 
+		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
+		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
+		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
+		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
+		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
 
-	//trigger flags page 2
-	if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-	if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-	if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-	if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-	if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-	if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-	if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-	if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-	if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-	if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-	//three bits left for the second index (for ZScript supported values)
-
-
-	
-        curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
-        
-        for(int i=0; i<4; i++)
-        {
-            if(combo_dlg[i+20].flags & D_SELECTED)
-            {
-                curr_combo.csets |= 16<<i;
-            }
-            else
-            {
-                curr_combo.csets &= ~(16<<i);
-            }
-        }
-        
-        curr_combo.skipanim = zc_max(0,vbound(atoi(skip),0,255)); //bind to size of byte! -Z
-        curr_combo.skipanimy = zc_max(0,vbound(atoi(skipy),0,255)); //bind to size of byte! -Z
-        
-        //lastframe = frames+(frames-1)*skip+(frames-1)*TILES_PER_ROW*skipy
-        //frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
-        //frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
-        int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
-                    (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
-                    
-        curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
-        //curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
-        
-        curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
-        curr_combo.type = bict[combo_dlg[25].d1].i;
-        curr_combo.nextcombo = combo_dlg[32].d1;
-        curr_combo.nextcset = combo_dlg[32].fg;
-        curr_combo.flag = combo_dlg[34].d1;
-	
-	//Attributes[]
-	curr_combo.attributes[0] = vbound(atoi(attrib0),-214747,214747);
-	curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
-	curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
-	curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
-	
-	//trigger minimum level
-	curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
-	
-	
-        
-        curr_combo.animflags = 0;
-        curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
-        curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
-        strcpy(curr_combo.label, the_label);
-        combobuf[c] = curr_combo;
-    }
+		//trigger flags page 2
+		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
+		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
+		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
+		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
+		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
+		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
+		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
+		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
+		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
+		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+		
+		
+		//if(combo_dlg[113].d1 > 255)
+		//{
+		//	al_trace("too big\n");
+		//}
+		
+		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
+		
+		for(int i=0; i<4; i++)
+		{
+		    if(combo_dlg[i+20].flags & D_SELECTED)
+		    {
+			curr_combo.csets |= 16<<i;
+		    }
+		    else
+		    {
+			curr_combo.csets &= ~(16<<i);
+		    }
+		}
+		
+		curr_combo.skipanim = zc_max(0,vbound(atoi(skip),0,255)); //bind to size of byte! -Z
+		curr_combo.skipanimy = zc_max(0,vbound(atoi(skipy),0,255)); //bind to size of byte! -Z
+		
+		//lastframe = frames+(frames-1)*skip+(frames-1)*TILES_PER_ROW*skipy
+		//frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
+		//frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
+		int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
+			    (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
+			    
+		curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
+		//curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
+		
+		curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
+		curr_combo.type = bict[combo_dlg[25].d1].i;
+		//setComboLabels(bict[combo_dlg[25].d1].i);
+		curr_combo.nextcombo = combo_dlg[32].d1;
+		curr_combo.nextcset = combo_dlg[32].fg;
+		curr_combo.flag = combo_dlg[34].d1;
+		
+		//Attributes[]
+		curr_combo.attributes[0] = vbound(atoi(attrib0),-214747,214747);
+		curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
+		curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
+		curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
+		
+		//Attribytes[]
+		
+		attribyte_vals[0] = (byte)vbound(atoi(attribyt0),0,255);
+		attribyte_vals[1] = (byte)vbound(atoi(attribyt1),0,255);
+		attribyte_vals[2] = (byte)vbound(atoi(attribyt2),0,255);
+		attribyte_vals[3] = (byte)vbound(atoi(attribyt3),0,255);
+		
+		curr_combo.attribytes[0] = attribyte_vals[0];
+		curr_combo.attribytes[1] = attribyte_vals[1];
+		curr_combo.attribytes[2] = attribyte_vals[2];
+		curr_combo.attribytes[3] = attribyte_vals[3];
+		
+		//trigger minimum level
+		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
+		
+		//initd and combo script
+		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
+		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
+		curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
+		
+		curr_combo.animflags = 0;
+		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
+		curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
+		
+		if(combo_dlg[47].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x01;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x01;
+		}
+		if(combo_dlg[48].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x02;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x02;
+		}
+		if(combo_dlg[49].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x04;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x04;
+		}
+		if(combo_dlg[50].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x08;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x08;
+		}
+		if(combo_dlg[51].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x10;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x10;
+		}
+		if(combo_dlg[52].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x20;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x20;
+		}
+		if(combo_dlg[53].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x40;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x40;
+		}
+		if(combo_dlg[54].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x80;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x80;
+		}
+		if(combo_dlg[104].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x100;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x100;
+		}
+		if(combo_dlg[105].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x200;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x200;
+		}
+		if(combo_dlg[106].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x400;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x400;
+		}
+		if(combo_dlg[107].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x800;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x800;
+		}
+		if(combo_dlg[108].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x1000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x1000;
+		}
+		if(combo_dlg[109].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x2000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x2000;
+		}
+		if(combo_dlg[110].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x4000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x4000;
+		}
+		if(combo_dlg[111].flags & D_SELECTED) 
+		{
+			curr_combo.usrflags |= 0x8000;
+		}
+		else
+		{
+			curr_combo.usrflags &= ~0x8000;
+		}
+		
+		
+		
+		
+		//combo label
+		strcpy(curr_combo.label, the_label);
+		
+		if(ret==25)
+		{
+			setComboLabels(bict[combo_dlg[25].d1].i);
+		}
+		if(ret==104)
+		{
+			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+			{
+				if(combo_dlg[104].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(257);
+					if(combo_dlg[109].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+				}
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+				ret=zc_popup_dialog(combo_dlg,4);
+			}
+		}
+		if(ret==109)
+		{
+			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+			{
+				if(combo_dlg[104].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[109].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+					else setComboLabels(257);
+				}
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+			}
+			else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+			{
+				if(combo_dlg[109].flags & D_SELECTED) //change labels
+					setComboLabels(259);
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+			}
+			else setComboLabels(bict[combo_dlg[25].d1].i);
+			ret=zc_popup_dialog(combo_dlg,4);
+		}
+		
+		
+		
+		
+		
+		
+			/*ret == combo_dlg[113].dp = attribyt0;
+    combo_dlg[115].dp = attribyt1;
+    combo_dlg[117].dp = attribyt2;
+    combo_dlg[119].dp = attribyt3;
+		*/
+		
+		if(ret==43)
+		    ctype_help(bict[combo_dlg[25].d1].i);
+		else if(ret==44)
+		    cflag_help(combo_dlg[34].d1);
+		
+		
+		
+		
+	//}
     
-    if(freshen)
+	    
+    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
+    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
     {
-        refresh(rALL);
+	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
+	    combobuf[c] = curr_combo;
+	    saved = false;
     }
+	    if(freshen)
+	    {
+		refresh(rALL);
+	    }
+	    
+	    setup_combo_animations();
+	    setup_combo_animations2();
     
-    setup_combo_animations();
-    setup_combo_animations2();
-    return (ret==2);
+    return true;
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)
@@ -12566,3 +15243,1080 @@ void center_zq_tiles_dialogs()
     jwin_center_dialog(recolor_4bit_dlg);
     jwin_center_dialog(recolor_8bit_dlg);
 }
+
+//.ZCOMBO
+
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	reset_combo_animations();
+	reset_combo_animations2();
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo));
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+			if  ( section_version >= 13 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				
+			}
+		}
+				
+		if ( skip )
+		{
+			if ( (index+(tilect-1)) < skip ) goto skip_combo_copy; //is -1 still needed here?
+			
+		}
+		
+		if ( nooverwrite )
+		{
+			
+			if ( combobuf[index+(tilect)].tile ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flip ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].walk ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].type ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].csets ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].foo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].frames ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].speed ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcombo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcset ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flag ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanim ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nexttimer ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanimy ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].animflags ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[0] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[1] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[2] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[3] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[4] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[5] ) goto skip_combo_copy;
+			
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if ( combobuf[index+(tilect)].attributes[q] ) goto skip_combo_copy;
+			}
+			if ( 	combobuf[index+(tilect)].usrflags ) goto skip_combo_copy;
+			for ( int q = 0; q < 3; q++ )
+			{
+				if ( combobuf[index+(tilect)].triggerflags[q] ) goto skip_combo_copy;
+			}
+			if ( 	combobuf[index+(tilect)].triggerlevel ) goto skip_combo_copy;
+			for ( int q = 0; q < 11; q++ )
+			{
+				if ( combobuf[index+(tilect)].label[q] ) goto skip_combo_copy;
+			}
+			
+			{
+				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+			}
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if ( combobuf[index+(tilect)].attribytes[q] ) goto skip_combo_copy;
+			}
+			
+		}
+		else
+		{
+			memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+		}
+		skip_combo_copy:
+		{
+		}
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcombofile_to_location section_version: %d\n", section_version);
+	al_trace("readcombofile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	reset_combo_animations();
+	reset_combo_animations2();
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo)); 
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+			if  ( section_version >= 13 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				
+			}
+		}
+		
+		if ( skip )
+		{
+			if ( (tilect) < skip ) 
+			{
+				continue;
+			}
+			
+		}
+		
+		if ( start+(tilect) < MAXCOMBOS )
+		{
+			if ( nooverwrite )
+			{
+				
+				if ( combobuf[start+(tilect)-skip].tile ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flip ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].walk ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].type ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].csets ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].foo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].frames ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].speed ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcombo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcset ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flag ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanim ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nexttimer ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanimy ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].animflags ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[0] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[1] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[2] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[3] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[4] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[5] ) goto skip_combo_copy2;
+				
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].attributes[q] ) goto skip_combo_copy2;
+					if ( combobuf[start+(tilect)-skip].attribytes[q] ) goto skip_combo_copy2;
+				}
+				if ( 	combobuf[start+(tilect)-skip].usrflags ) goto skip_combo_copy2;
+				for ( int q = 0; q < 3; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].triggerflags[q] ) goto skip_combo_copy2;
+				}
+				if ( 	combobuf[start+(tilect)-skip].triggerlevel ) goto skip_combo_copy2;
+				for ( int q = 0; q < 11; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].label[q] ) goto skip_combo_copy2;
+				}
+				
+				{
+					memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+				}
+					
+					
+			}
+			else
+			{
+				memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+			}
+			skip_combo_copy2:
+			{}
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecombofile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_COMBOS;
+	dword section_cversion=CV_COMBOS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	reset_combo_animations();
+	reset_combo_animations2();
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+	
+		if(!p_iputw(combobuf[index+(tilect)].tile,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].flip,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].walk,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].type,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].csets,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].frames,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].speed,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect)].nextcombo,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].nextcset,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].flag,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].skipanim,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect)].nexttimer,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].skipanimy,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].animflags,f))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_iputl(combobuf[index+(tilect)].attributes[q],f))
+			{
+				return 0;
+			}
+		}
+		if(!p_iputl(combobuf[index+(tilect)].usrflags,f))
+		{
+				return 0;
+		}	 
+		for ( int q = 0; q < 3; q++ ) 
+		{
+			if(!p_iputl(combobuf[index+(tilect)].triggerflags[q],f))
+			{
+				return 0;
+			}
+		}
+		   
+		if(!p_iputl(combobuf[index+(tilect)].triggerlevel,f))
+		{
+				return 0;
+		}	
+		for ( int q = 0; q < 11; q++ ) 
+		{
+			if(!p_putc(combobuf[index+(tilect)].label[q],f))
+			{
+				return 0;
+			}
+		}
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_putc(combobuf[index+(tilect)].attribytes[q],f))
+			{
+				return 0;
+			}
+		}
+	}
+	
+	
+	return 1;
+	
+}
+
+//.ZALIAS
+
+
+//.ZALIAS
+
+int readcomboaliasfile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	word tempword = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias));
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    al_trace("Read, Combo alias count is: %d\n", count2);
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+            //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+	    delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+		    //al_trace("Could not reas alias.combos[%d]\n",k);
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
+			
+			
+			//al_trace("tempword is: %d\n", tempword);
+			temp_alias.combos[k] = tempword;
+			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
+		}
+            }
+	    //al_trace("Read alias combos.\n");
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                //if(!p_getc(&temp_alias.csets[k],f,true))
+		{
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
+			
+			temp_alias.csets[k] = tempcset;
+			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
+		}
+            }
+	    //al_trace("Read alias csets.\n");
+	    //al_trace("About to memcpy a combo alias\n");
+		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+int readcomboaliasfile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcomboaliasfile_to_location section_version: %d\n", section_version);
+	al_trace("readcomboaliasfile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	word tempword = 0;
+	
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias)); 
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            int count2 = 0;
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+	    //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+            delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+	    
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.combos[k] = tempword;
+		}
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.csets[k] = tempcset;
+		}
+            }
+		
+		
+		if ( start+(tilect) < MAXCOMBOALIASES )
+		{
+			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecomboaliasfile(PACKFILE *f, int index, int count)
+{
+	al_trace("Running writecomboaliasfile\n");
+	dword section_version=V_COMBOALIASES;
+	dword section_cversion=CV_COMBOALIASES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+	
+	    if(!p_iputw(combo_aliases[index+(tilect)].combo,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].cset,f))
+            {
+                return 0;
+            }
+            
+            int count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
+            
+	    if(!p_iputl(count2,f))
+            {
+                return 0;
+            }
+	    al_trace("Write`, Combo alias count is: %d\n", count2);
+	    
+            if(!p_putc(combo_aliases[index+(tilect)].width,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].height,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].layermask,f))
+            {
+                return 0;
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
+                {
+                    return 0;
+                }
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
+                {
+                    return 0;
+                }
+            }
+	}
+	
+	return 1;
+	
+}
+

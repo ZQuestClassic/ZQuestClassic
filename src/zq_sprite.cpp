@@ -22,8 +22,6 @@ bool BSZ=false;
 int conveyclk=0;
 bool freeze_guys=false;
 
-#define SLMAX 255
-
 void sprite::check_conveyor()
 {
     return;

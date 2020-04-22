@@ -30,6 +30,7 @@
 #include "link.h"
 #include "mem_debug.h"
 #include "ffscript.h"
+#include "decorations.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -38,6 +39,1332 @@ extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
 extern byte epilepsyFlashReduction;
+
+static double WrapAngle( double radians ) 
+{
+	while (radians <= -PI) radians += (PI*2);
+	while (radians > PI) radians -= (PI*2);
+	return radians;
+}
+
+static double DegreesToRadians(double d)
+{
+	double dvs = PI/180.0;
+	return d*dvs;
+	
+}
+
+static void weapon_triggersecret(int pos, int flag)
+{
+	mapscr *s = tmpscr;
+	int ft=0, checkflag; //Flag trigger, checked flag temp. 
+	bool putit = true;  //Is set false with a mismatch (illegal value input).
+	//Convert a flag type to a secret type. -Z
+	switch(flag)
+	{
+		case mfBCANDLE:
+			ft=sBCANDLE;
+			break;
+			
+		case mfRCANDLE:
+			ft=sRCANDLE;
+			break;
+			
+		case mfWANDFIRE:
+			ft=sWANDFIRE;
+			break;
+			
+		case mfDINSFIRE:
+			ft=sDINSFIRE;
+			break;
+			
+		case mfARROW:
+			ft=sARROW;
+			break;
+			
+		case mfSARROW:
+			ft=sSARROW;
+			break;
+			
+		case mfGARROW:
+			ft=sGARROW;
+			break;
+			
+		case mfSBOMB:
+			ft=sSBOMB;
+			break;
+			
+		case mfBOMB:
+			ft=sBOMB;
+			break;
+			
+		case mfBRANG:
+			ft=sBRANG;
+			break;
+			
+		case mfMBRANG:
+			ft=sMBRANG;
+			break;
+			
+		case mfFBRANG:
+			ft=sFBRANG;
+			break;
+			
+		case mfWANDMAGIC:
+			ft=sWANDMAGIC;
+			break;
+			
+		case mfREFMAGIC:
+			ft=sREFMAGIC;
+			break;
+			
+		case mfREFFIREBALL:
+			ft=sREFFIREBALL;
+			break;
+			
+		case mfSWORD:
+			ft=sSWORD;
+			break;
+			
+		case mfWSWORD:
+			ft=sWSWORD;
+			break;
+			
+		case mfMSWORD:
+			ft=sMSWORD;
+			break;
+			
+		case mfXSWORD:
+			ft=sXSWORD;
+			break;
+			
+		case mfSWORDBEAM:
+			ft=sSWORDBEAM;
+			break;
+			
+		case mfWSWORDBEAM:
+			ft=sWSWORDBEAM;
+			break;
+			
+		case mfMSWORDBEAM:
+			ft=sMSWORDBEAM;
+			break;
+			
+		case mfXSWORDBEAM:
+			ft=sXSWORDBEAM;
+			break;
+			
+		case mfHOOKSHOT:
+			ft=sHOOKSHOT;
+			break;
+			
+		case mfWAND:
+			ft=sWAND;
+			break;
+			
+		case mfHAMMER:
+			ft=sHAMMER;
+			break;
+			
+		case mfSTRIKE:
+			ft=sSTRIKE;
+			break;
+			
+		default:
+			putit = false;
+			break;
+	}
+	if ( putit )
+	{		
+		for(int iter=0; iter<2; ++iter)
+		{
+			//for ( int pos = 0; pos < 176; pos++ ) 
+			//{		
+				if(iter==1) checkflag=s->sflag[pos]; //Placed
+				else checkflag=combobuf[s->data[pos]].flag; //Inherent
+				Z_message("checkflag is: %d\n", checkflag);
+				al_trace("checkflag is: %d\n", checkflag);
+				
+				Z_message("flag is: %d\n", flag);
+				al_trace("flag is: %d\n", flag);
+				//cmbx = COMBOX(pos);
+				////cmby = COMBOY(pos);
+				
+				//Placed flags
+				if ( iter == 1 )
+				{
+					if ( s->sflag[pos] == flag ) {
+						screen_combo_modify_preroutine(s,pos);
+						s->data[pos] = s->secretcombo[ft];
+						s->cset[pos] = s->secretcset[ft];
+						s->sflag[pos] = s->secretflag[ft];
+						// newflag = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,pos);
+					}
+				}
+				//Inherent flags
+				else
+				{
+					if ( combobuf[s->data[pos]].flag == flag ) {
+						screen_combo_modify_preroutine(s,pos);
+						s->data[pos] = s->secretcombo[ft];
+						s->cset[pos] = s->secretcset[ft];
+						//s->sflag[pos] = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,pos);
+					}
+					
+				}
+			//}
+		}
+	}
+	
+}
+
+static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
+{
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = MAPCOMBO(bx,by);
+	int flag = MAPFLAG(bx,by);
+	int flag2 = MAPCOMBOFLAG(bx,by);
+	int ft = 0;
+	int scombo=COMBOPOS(bx,by);
+	bool single16 = false;
+	switch(flag)
+	{
+		
+		case mfSWORDBEAM:
+		case mfWSWORDBEAM:
+		case mfMSWORDBEAM:
+		case mfXSWORDBEAM:
+		case mfBCANDLE:
+		case mfRCANDLE:
+		case mfDINSFIRE:
+		case mfSTRIKE:
+		case mfARROW:
+		case mfSARROW:
+		case mfGARROW:
+		case mfBRANG:
+		case mfMBRANG:
+		case mfFBRANG:
+		case mfWANDMAGIC:
+		case mfREFMAGIC:
+		case mfREFFIREBALL:
+		case mfHAMMER:
+		case mfWAND:
+		{
+			ft = flag;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			break;
+		
+		}
+		
+		
+		
+		
+		//secrets 1 to 16
+		case mfSINGLE:
+		case mfSINGLE16:
+		{
+			single16 = true;
+		}
+		case mfSECRETS01:
+		case mfSECRETS02:
+		case mfSECRETS03:
+		case mfSECRETS04:
+		case mfSECRETS05:
+		case mfSECRETS06:
+		case mfSECRETS07:
+		case mfSECRETS08:
+		case mfSECRETS09:
+		case mfSECRETS10:
+		case mfSECRETS11:
+		case mfSECRETS12:
+		case mfSECRETS13:
+		case mfSECRETS14:
+		case mfSECRETS15:
+		case mfSECRETS16:
+		{
+			ft = flag;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   
+				{ (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			break;
+		
+		}
+		
+		case mfBOMB:
+		case mfSBOMB:
+		{
+			ft = flag2;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			break;
+			
+		}
+	}
+	switch(flag2)
+	{
+		
+		case mfSWORDBEAM:
+		case mfWSWORDBEAM:
+		case mfMSWORDBEAM:
+		case mfXSWORDBEAM:
+		case mfBCANDLE:
+		case mfRCANDLE:
+		case mfDINSFIRE:
+		case mfSTRIKE:
+		case mfARROW:
+		case mfSARROW:
+		case mfGARROW:
+		case mfBRANG:
+		case mfMBRANG:
+		case mfFBRANG:
+		case mfWANDMAGIC:
+		case mfREFMAGIC:
+		case mfREFFIREBALL:
+		case mfHAMMER:
+		case mfWAND:
+		{
+			ft = flag;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by,ft,true));
+			break;
+		
+		}
+		
+		
+		
+		
+		//secrets 1 to 16
+		case mfSINGLE:
+		case mfSINGLE16:
+		{
+			single16 = true;
+		}
+		case mfSECRETS01:
+		case mfSECRETS02:
+		case mfSECRETS03:
+		case mfSECRETS04:
+		case mfSECRETS05:
+		case mfSECRETS06:
+		case mfSECRETS07:
+		case mfSECRETS08:
+		case mfSECRETS09:
+		case mfSECRETS10:
+		case mfSECRETS11:
+		case mfSECRETS12:
+		case mfSECRETS13:
+		case mfSECRETS14:
+		case mfSECRETS15:
+		case mfSECRETS16:
+		{
+			ft = flag;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   
+				{ (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   { (hidden_entrance(0,true,single16,scombo)); weapon_triggersecret(scombo, ft); }
+			break;
+		
+		}
+		
+		case mfBOMB:
+		case mfSBOMB:
+		{
+			ft = flag2;
+			
+			if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			    //ZScript liter support ends here. 
+			
+			else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			
+			else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			    
+			    //item trigger flags page 2
+			
+			else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			
+			else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+		
+			else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )   (findentrance(bx,by+(isSideViewGravity()?2:-3),ft,true));
+			break;
+			
+		}
+	}
+	
+}
+
+static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
+{
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	
+		if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wBeam && c[comboid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wBrang && c[comboid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wBomb && c[comboid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wSBomb && c[comboid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wLitBomb && c[comboid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wLitSBomb && c[comboid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wArrow && c[comboid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wFire && c[comboid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wWhistle && c[comboid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wBait && c[comboid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wWand && c[comboid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wMagic && c[comboid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wWind && c[comboid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wRefMagic && c[comboid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wRefFireball && c[comboid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wRefRock && c[comboid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wHammer && c[comboid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		    //ZScript liter support ends here. 
+		
+		else if ( ( wid == wHookshot && c[comboid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		
+		else if ( ( wid == wFSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		else if ( ( wid == wSSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wCByrna && c[comboid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wRefBeam && c[comboid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wStomp && c[comboid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		    
+		    //item trigger flags page 2
+		
+		else if ( ( wid == wScript1 && c[comboid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript2 && c[comboid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript3 && c[comboid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript4 && c[comboid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript5 && c[comboid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript6 && c[comboid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript7 && c[comboid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript8 && c[comboid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript9 && c[comboid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else if ( ( wid == wScript10 && c[comboid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		
+		else return 0;
+}
+
+static int COMBOAT(int x, int y) 
+{
+	x = vbound(x,255,0);
+	y = vbound(y,175,0);
+	return (y & 240)+(x>>4);
+}
+
+
+#define ComboX(pos) ((pos)%16*16)
+#define ComboY(pos) ((pos)&0xF0)
+#define minSECRET_TYPE 0
+#define maxSECRET_TYPE 43
+static void do_generic_combo(weapon *w, int bx, int by, newcombo *c, int wid, 
+	int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer)
+
+/*
+int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = MAPCOMBO(bx,by);
+	int flag = MAPFLAG(bx,by);
+	int flag2 = MAPCOMBOFLAG(bx,by);
+	int ft = c[cid].attributes[3];
+	//if (!ft) return;
+	//zprint("ft: %d\n", ft);
+	int scombo=COMBOPOS(bx,by);
+	bool single16 = false;
+
+*/
+{
+	if ( c[cid].type < cTRIGGERGENERIC && !(c[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
+	{ 
+		//zprint("cGeneric abort on c[cid].type %d\n", c[cid].type); 
+		return;
+	} 
+	//zprint("Generic combo\n ");
+	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
+	//zprint("swordbeam\n");
+	//zprint("sfx is: %d\n", c[cid].attributes[2]);
+	//zprint("scombo is: %d\n", scombo);
+	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
+	{
+		if ((c[cid].usrflags&cflag1)) 
+		{
+			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
+				decorations.add(new dBushLeaves((fix)ComboX(scombo), (fix)ComboY(scombo),dBUSHLEAVES, 0, 0));
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
+				decorations.add(new dFlowerClippings((fix)ComboX(scombo), (fix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
+			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 3 ) )
+				decorations.add(new dGrassClippings((fix)ComboX(scombo), (fix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+			else if ( c[cid].attribytes[0] > 0 )
+				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+		}
+		int it = -1; 
+		if ( (c[cid].usrflags&cflag2) )
+		{
+			
+			if ( c[cid].usrflags&cflag11 ) //specific item
+			{
+				it = c[cid].attribytes[1];
+			}
+			else it = select_dropitem(c[cid].attribytes[1]); 
+			
+		}
+		//zprint("dropset: %d\n", c[cid].attributes[1]);
+		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
+		//zprint("it: %d\n", it);
+		if( it != -1 )
+		{
+			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
+		//drop special room item
+
+		if ( (c[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
+		{
+			if(tmpscr->hasitem==1)
+				sfx(WAV_CLEARED);
+			items.add(new item((fix)ComboX(scombo),
+				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (fix)-170 : (fix)tmpscr->itemy+1,
+				(fix)ComboY(scombo),
+				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (fix)170 : (fix)0,
+				(fix)0,
+				tmpscr->item,ipONETIME+ipBIGRANGE+((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+		}
+		//screen secrets
+		if ( c[cid].usrflags&cflag7 )
+		{
+			screen_combo_modify_preroutine(tmpscr,scombo);
+			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
+			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
+			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
+			// newflag = s->secretflag[ft];
+			screen_combo_modify_postroutine(tmpscr,scombo);
+			if ( c[cid].attribytes[2] > 0 )
+				sfx(c[cid].attribytes[2],int(bx));
+		}
+		
+		//loop next combo
+		if((c[cid].usrflags&cflag4))
+		{
+			do
+			{
+				
+				
+				if (layer) 
+				{
+					
+					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
+					
+					//undercombo or next?
+					if((c[cid].usrflags&cflag12))
+					{
+						FFCore.tempScreens[layer]->data[scombo] = tmpscr->undercombo;
+						FFCore.tempScreens[layer]->cset[scombo] = tmpscr->undercset;
+						FFCore.tempScreens[layer]->sflag[scombo] = 0;	
+					}
+					else
+						++FFCore.tempScreens[layer]->data[scombo];
+					
+					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
+					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
+					screen_combo_modify_postroutine(tmpscr,scombo);
+				}
+				else
+				{
+					screen_combo_modify_preroutine(tmpscr,scombo);
+					//undercombo or next?
+					if((c[cid].usrflags&cflag12))
+					{
+						tmpscr->data[scombo] = tmpscr->undercombo;
+						tmpscr->cset[scombo] = tmpscr->undercset;
+						tmpscr->sflag[scombo] = 0;	
+					}
+					else
+					{
+						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
+						//++tmpscr->data[scombo];
+					}
+					screen_combo_modify_postroutine(tmpscr,scombo);
+				}
+				
+				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
+				if ( c[cid].usrflags&cflag8 ) w->dead = 1;
+				//tmpscr->sflag[scombo] = c[cid].sflag;
+				//c[tmpscr->data[cid]].cset;
+				//c[tmpscr->data[cid]].cset;
+				
+				//tmpscr->cset[scombo] = c[cid].cset;
+				//tmpscr->sflag[scombo] = c[cid].sflag;
+				//zprint("++comboD\n");
+			} while((c[cid].usrflags&cflag5) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( (c[cid].attribytes[2]) > 0 )
+				sfx(c[cid].attribytes[2],int(bx));
+			
+			
+		}
+		if((c[cid].usrflags&cflag14)) //drop enemy
+		{
+			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[1]),((c[cid].usrflags&cflag6) ? 0 : -15));
+		}
+		//zprint("continuous\n");
+		
+	}
+	set_bit(w->wscreengrid,(((bx>>4) + by)),1);
+	
+	if ( c[cid].usrflags&cflag8 ) w->dead = 1;
+}
+
+static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer = 0/*, int comboid, int flag*/)
+{
+	//zprint("Layer: %d\n", layer);
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
+	//zprint("cid: %d\n", cid);
+	int flag = ( layer ) ? MAPFLAGL(layer, bx,by) : MAPFLAG(bx,by);
+	//zprint("flag: %d\n", flag);
+	int flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,bx,by): MAPCOMBOFLAG(bx,by);
+	//zprint("flag2: %d\n", layer);
+	int ft = c[cid].attribytes[3];
+	//if (!ft) return;
+	//zprint("ft: %d\n", ft);
+	int scombo=COMBOPOS(bx,by);
+	bool single16 = false;
+	
+	///MAPCOMBO2(layer,x,y)
+	if ( c[cid].type >= cSCRIPT1 && c[cid].type <= cTRIGGERGENERIC )
+	{
+		//zprint("Weapon touched generic combo trigger. \n");
+		//zprint("wid is: %d\n", wid);
+		//zprint("cid is: %d\n", cid);
+		//zprint("ft is: %d\n", ft);
+		//zprint("tmpscr->secretcombo[ft]: %d\n", tmpscr->secretcombo[ft]);
+		//zprint("tmpscr->secretcset[ft]: %d\n", tmpscr->secretcset[ft]);
+		//zprint("tmpscr->secretflag[ft]: %d\n", tmpscr->secretflag[ft]);
+		//zprint("matched is: %s\n", ( (c[cid].triggerflags[0]&combotriggerSWORD) ) ? "true" : "false");
+		if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}		
+		else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) ) 
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) ) 
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		
+		    //ZScript liter support ends here. 
+		
+		else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) ) 
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) ) 
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		    
+		    //item trigger flags page 2
+		
+		else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) ) 
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )  
+		{
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		}
+		
+	}
+}
+
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -187,6 +1514,19 @@ int weapon::seekEnemy2(int j)
     return j;
 }
 
+void weapon::convertType(bool toLW)
+{
+	if((isLWeapon && toLW) || (!isLWeapon && !toLW)) return; //Already the right type
+	//== here is unsafe!
+	weaponscript = 0;
+	doscript = 0;
+	initialised = 0;
+	for(int q = 0; q < 8; ++q)
+	{
+		weap_initd[q] = 0;
+	}
+}
+
 weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
@@ -244,6 +1584,8 @@ weapon::weapon(weapon const & other):
     flags(other.flags),			//word		A misc flagset. 
     collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
     duplicates(other.duplicates),	//long		A flagset that determines of the weapon can collect an item.
+    linked_parent(other.linked_parent),	//long		A flagset that determines of the weapon can collect an item.
+    quantity_iterator(other.quantity_iterator),	//long		A flagset that determines of the weapon can collect an item.
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
@@ -251,52 +1593,66 @@ weapon::weapon(weapon const & other):
     ScriptGenerated(other.ScriptGenerated),
     isLWeapon(other.isLWeapon),
 	linkedItem(other.linkedItem),
+	//weaponscript(other.weaponscript),
+	parent_script_UID(other.parent_script_UID), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
+	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
+	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
+	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame)
     
 	
 	//End Weapon editor non-arrays. 
 
 {
-	if ( isLWeapon ) goto skip_eweapon_script_init;
+	weaponscript = other.weaponscript;
+	doscript = other.doscript;
+	//script_wrote_otile = 0;
+	//if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
-	if ( parentid > -1 && parentid != Link.getUID() 
-		&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
-	) 
+	//if ( parentid > -1 && parentid != Link.getUID() 
+	//	&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
+	//) 
+	//{
+	//	enemy *s = (enemy *)guys.getByUID(parentid);
+	//
+	//	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+	//	parent_script_UID = s->script_UID;
+	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	{
+	//		//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+	//	
+	//		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
+	//		
+	//	}
+		
+	//}
+	//skip_eweapon_script_init:
+	//if ( parentitem > -1 ) //lweapons
+	//{
+	//	
+	//	weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
+	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	{
+	//		weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
+	//		
+	//	}
+		
+	//}
+	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+	for( int q = 0; q < 8; q++ ) 
 	{
-		enemy *s = (enemy *)guys.getByUID(parentid);
-	
-		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-		for ( int q = 0; q < INITIAL_D; q++ ) 
-		{
-			//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
-		
-			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
-			
-		}
-		
+		weap_initd[q] = other.weap_initd[q];
 	}
-	skip_eweapon_script_init:
-	if ( parentitem > -1 ) //lweapons
+	for(int i=0; i<10; ++i)
 	{
-		
-		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
-		for ( int q = 0; q < INITIAL_D; q++ ) 
-		{
-			weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
-			
-		}
-		
+		dummy_int[i]=other.dummy_int[i];
+		dummy_fix[i]=other.dummy_fix[i];
+		dummy_float[i]=other.dummy_float[i];
+		dummy_bool[i]=other.dummy_bool[i];
 	}
-	
-	
-    for(int i=0; i<10; ++i)
-    {
-        dummy_int[i]=other.dummy_int[i];
-        dummy_fix[i]=other.dummy_fix[i];
-        dummy_float[i]=other.dummy_float[i];
-        dummy_bool[i]=other.dummy_bool[i];
-    }
     
+	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
     //memset(stack,0,sizeof(stack));
     //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
@@ -421,7 +1777,6 @@ weapon::~weapon()
     }
 }
 
-//ZScript-only
 weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
 {
     x=X;
@@ -446,10 +1801,19 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
+    linked_parent = 0;
+    quantity_iterator = 0;
 	weapon_dying_frame = false;
+	parent_script_UID = 0;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
+	useweapon = itemsbuf[Parentitem].useweapon;
+	usedefence = itemsbuf[Parentitem].usedefence;
+	quantity_iterator = type; //wCByrna uses this for positioning.
+	if ( id != wPhantom && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+	    //Note: eweapons use this for boss weapon block flags
+	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
 	//load initd
 	for ( int q = 0; q < 8; q++ )
 	{
@@ -462,6 +1826,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     if ( isLW ) goto skip_eweapon_script;
     if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
     {
+	    
 	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
 	enemy *s = (enemy *)guys.getByUID(prntid);
 	//int parent_enemy_id = 0;
@@ -469,6 +1834,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+	parent_script_UID = s->script_UID;
+	    //Z_scripterrlog("parentUID %d\n", parent_script_UID);
 	for ( int q = 0; q < 8; q++ )
 	{
 		//load InitD
@@ -499,7 +1866,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
     isLit = false;
 	linkedItem = 0;
+	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+        memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
+        
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
 		
@@ -542,11 +1912,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	case wScript10:
 	case wIce:
     {
-	    Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
+	    #if DEVLEVEL > 0
+		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
+	    #endif
 	if(parentitem >-1)
 	{
-		
-		
+		#if DEVLEVEL > 0
+		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT parent item is: %d\n",parentitem);
+		#endif 
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
@@ -588,7 +1961,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	{
 		if ( !o_tile )
 		{
-		LOADGFX(0);
+			LOADGFX(0);
+			o_tile = tile;
 		}
 	}
 	break;
@@ -811,10 +2185,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
         int qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
-        clk = (int)((((2*type*PI)/qty)
+	//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
+        clk = (int)((((2*quantity_iterator*PI)/qty)
                      // Appear on top of the cane's hook
                      + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
-        type = 0;
+        quantity_iterator = 0;
         
         if(parentitem>-1)
         {
@@ -1062,7 +2437,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		}
 	}
 	*/
-        LOADGFX(type ? type : wSSPARKLE);
+        LOADGFX(linked_parent ? linked_parent : wSSPARKLE);
         step=0;
         break;
         
@@ -1088,7 +2463,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		}
 	}
 	*/
-        LOADGFX(type ? type : wFSPARKLE);
+        LOADGFX(linked_parent ? linked_parent : wFSPARKLE);
         step=0;
         break;
         
@@ -1115,59 +2490,60 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			It is needed for the passive subscreen offset.
 			*/
 		}
-	}
-        switch(type)
-        {
-        case 3: // Din's Fire. This uses magicitem rather than itemid
-            if(magicitem >-1 && !isDummy)
-                defaultw = itemsbuf[magicitem].wpn5;
-            else defaultw = wFIRE;
-            
-            break;
-            
-        case 2: // Wand
-            if(itemid>-1 && !isDummy)
-                defaultw = itemsbuf[itemid].wpn2;
-            else defaultw = wFIRE;
-            
-            break;
-            
-        case 0:
-        case 1: // Candles
-		hxofs = hyofs=1;
-		hxsz = hysz = 14;    
 		
-		if ( parentitem > -1 )
+		switch(itemsbuf[parentitem].family)
 		{
-			//Port Item Editor Weapon Size Values
-			if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-				extend = 3; 
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-				/* yofs+playing_field_offset == yofs+56.
-				It is needed for the passive subscreen offset.
-				*/
+		case itype_dinsfire: // Din's Fire. This uses magicitem rather than itemid
+		    if(magicitem >-1 && !isDummy)
+			defaultw = itemsbuf[magicitem].wpn5;
+		    else defaultw = wFIRE;
+		    step = 0; 
+		    break;
+		    
+		case itype_wand: // Wand
+		    if(itemid>-1 && !isDummy)
+			defaultw = itemsbuf[itemid].wpn2;
+		    else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
+		    step = 0;
+		    break;
+		    
+		case itype_candle: // Candles
+			hxofs = hyofs=1;
+			hxsz = hysz = 14;    
+			step = 0.5;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
 			}
+		    if(itemid>-1 && !isDummy)
+		    {
+			defaultw = itemsbuf[itemid].wpn3;
+			break;
+		    }
+		
+		default:
+		    defaultw = wFIRE;
 		}
-            if(itemid>-1 && !isDummy)
-            {
-                defaultw = itemsbuf[itemid].wpn3;
-                break;
-            }
-        
-        default:
-            defaultw = wFIRE;
-        }
+	}
+        else { defaultw = wFIRE; step = 0; }
         
         LOADGFX(defaultw);
-        step = (type<2)?.5:0;
+        //step = (type<2)?.5:0;
         
         
         if(BSZ)
@@ -1419,8 +2795,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	Z_message("HitHeight: %d\n",hysz);
 	Z_message("HitZHeight: %d\n",hzsz);
 	Z_message("HitXOffset: %d\n",hxofs);
-	Z_message("HitYOffset: %d\n",xofs);
-	Z_message("DrawYOffset: %d\n",yofs);
+	Z_message("HitYOffset: %d\n",(int)xofs);
+	Z_message("DrawYOffset: %d\n",(int)yofs);
 	
 	
         if(itemid >-1)
@@ -2123,6 +3499,22 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         break;
         
+//	case wScript1:
+//	case wScript2:
+//	case wScript3:
+//	case wScript4:
+//	case wScript5:
+//	case wScript6:
+//	case wScript7:
+//	case wScript8:
+//	case wScript9:
+//	case wScript10:
+//	{
+		//LOADGFX(0);
+		//if ( do_animation ) update_weapon_frame(((frames>1)?frames:1),o_tile);
+		//break;
+//	}
+	
     default:
         LOADGFX(0);
         break;
@@ -2136,6 +3528,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 int weapon::getScriptUID() { return script_UID; }
 void weapon::setScriptUID(int new_id) { script_UID = new_id; }
+
+int weapon::getParentScriptUID() { return parent_script_UID; }
+void weapon::setParentScriptUID(int new_id) { parent_script_UID = new_id; }
+
+
 bool weapon::isLinkWeapon()
 {
 	if ( isLWeapon > 0 ) return true;
@@ -2334,6 +3731,7 @@ bool weapon::blocked(int xOffset, int yOffset)
 void weapon::runscript(int index)
 {
     return;
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	switch(id)
 	{
 	    case wScript1:
@@ -2347,8 +3745,10 @@ void weapon::runscript(int index)
 	    case wScript9:
 	    case wScript10:
 	    {
-		Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
+		#if DEVLEVEL > 0
+		if(DEVDEBUG) Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
+		#endif
+		    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
 		/*
                 if ( doscript && weaponscript > 0 ) 
                 {
@@ -2569,6 +3969,7 @@ void weapon::runscript(int index)
 
 bool weapon::animate(int index)
 {
+	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
     // do special timing stuff
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
@@ -2576,9 +3977,105 @@ bool weapon::animate(int index)
     //Only lweapons, or wScript if the weapon is not script generated, or if it IS script-generated and is not an eweapon.
     if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && ( (ScriptGenerated && isLWeapon) || !ScriptGenerated) ) ) 
     {
-	    Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
+	    /*
+	    if ( useweapon == wSword )
+	    {
+		if(dir==up && ((int(x)&15)==0))
+		{
+		    Link.check_slash_block2((int)x,(int)y);
+		    Link.check_slash_block2((int)x,(int)y+8);
+		}
+		else if(dir==up && ((int(x)&15)==8||Link.diagonalMovement))
+		{
+		    Link.check_slash_block2((int)x,(int)y);
+		    Link.check_slash_block2((int)x,(int)y+8);
+		    Link.check_slash_block2((int)x+8,(int)y);
+		    Link.check_slash_block2((int)x+8,(int)y+8);
+		}
+		
+		if(dir==down && ((int(x)&15)==0))
+		{
+		    Link.check_slash_block2((int)x,(int)y+(int)hysz-8);
+		    Link.check_slash_block2((int)x,(int)y+(int)hysz);
+		}
+		else if(dir==down && ((int(x)&15)==8||Link.diagonalMovement))
+		{
+		    Link.check_slash_block2((int)x,(int)y+hysz-8);
+		    Link.check_slash_block2((int)x,(int)y+hysz);
+		    Link.check_slash_block2((int)x+8,(int)y+hysz-8);
+		    Link.check_slash_block2((int)x+8,(int)y+hysz);
+		}
+		
+		if(dir==left)
+		{
+		    Link.check_slash_block2((int)x,(int)y+8);
+		    Link.check_slash_block2((int)x+8,(int)y+8);
+		}
+		
+		if(dir==right)
+		{
+		    Link.check_slash_block2((int)x+hxsz,(int)y+8);
+		    Link.check_slash_block2((int)x+hxsz-8,(int)y+8);
+		}
+		
+	    }*/
+	    
+		for(int dx = 0; dx < hxsz; dx += 16)
+		{
+			for(int dy = 0; dy < hysz; dy += 16)
+			{
+				Link.check_slash_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				//Layers
+				//1
+				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,1);
+				//2
+				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,2);
+				
+				Link.check_wand_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_pound_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+			}
+			Link.check_slash_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,1);
+			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,2);
+			Link.check_wand_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_pound_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+		}
+		for(int dy = 0; dy < hysz; dy += 16)
+		{
+			Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,1);
+			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,2);
+			Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+		}
+		Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,1);
+		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,2);
+		Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+	        findcombotriggers();
+		/* Don't check every single pixel.
+		for ( int w = 0; q < hysz; q++ )
+		{
+			for ( int q = 0; w < hxsz; w++ )
+			{
+				Link.check_slash_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_wand_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_pound_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_wpn_triggers((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+			}
+		}
+		*/
+	    //Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
 					  //Non-script-generated eweapons should be safe.
+	    
+	    //Link.check_wand_block(this);
+	    //Link.check_pound_block(this);
     }
     // fall down
     switch(id)
@@ -2601,7 +4098,7 @@ bool weapon::animate(int index)
     
 	if ( obeys_gravity ) // from above, or if scripted
 	{
-		if(tmpscr->flags7&fSIDEVIEW)
+		if(isSideViewGravity())
 		{
 		    if(!_walkflag(x,y+16,0))
 		    {
@@ -2847,7 +4344,7 @@ bool weapon::animate(int index)
 			posx=checkx;
 			posy=checky;
 		}
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 id = wRefBeam;
                 dir ^= 1;
@@ -2863,7 +4360,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 id = wRefBeam;
 		if ( do_animation ) 
@@ -2899,7 +4396,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
                 dir ^= 2;
@@ -2938,7 +4435,7 @@ bool weapon::animate(int index)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -2950,6 +4447,11 @@ bool weapon::animate(int index)
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle + DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
@@ -2981,6 +4483,8 @@ bool weapon::animate(int index)
 				    w->hxofs=2;
 				    w->hxsz=12;
 				    break;
+				
+				default: break;
 				}
                         }
                         Lwpns.add(w);
@@ -2990,7 +4494,7 @@ bool weapon::animate(int index)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -3000,6 +4504,11 @@ bool weapon::animate(int index)
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle + DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
@@ -3031,6 +4540,8 @@ bool weapon::animate(int index)
 				w->hxofs=2;
 				w->hxsz=12;
 				break;
+			    
+			    default: break;
 			    }
                     }
                     Lwpns.add(w);
@@ -3152,12 +4663,12 @@ bool weapon::animate(int index)
             {
                 findentrance(x,y,mfBCANDLE,true);
                 
-                if(type>0)
+                if(type>1) //red candle 
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if(type>2)
+                if(linked_parent == itype_dinsfire)
                 {
                     findentrance(x,y,mfDINSFIRE,true);
                 }
@@ -3272,14 +4783,14 @@ bool weapon::animate(int index)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }
@@ -3412,14 +4923,14 @@ bool weapon::animate(int index)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }
@@ -4157,12 +5668,13 @@ bool weapon::animate(int index)
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -4176,7 +5688,7 @@ bool weapon::animate(int index)
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -4190,25 +5702,26 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
                 else
                 {
-                    w=this;
+                    w=this; //Oh, look, a memory leak. The new instruction is making something on the heap, but this circumvents removing it. 
                 }
                 
                 w->dir = 3-w->dir;
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -4237,12 +5750,13 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w = NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -4255,7 +5769,7 @@ bool weapon::animate(int index)
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -4287,7 +5801,7 @@ bool weapon::animate(int index)
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4298,11 +5812,16 @@ bool weapon::animate(int index)
                     if(dir!=(tdir^1))
                     {
                         weapon *w=new weapon(*this);
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle + DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->dir=tdir;
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -4331,6 +5850,8 @@ bool weapon::animate(int index)
 				    w->hxofs=2;
 				    w->hxsz=12;
 				    break;
+				
+				default: break;
 				}
                         }
                         Lwpns.add(w);
@@ -4340,7 +5861,7 @@ bool weapon::animate(int index)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4349,11 +5870,16 @@ bool weapon::animate(int index)
                 for(int tdir=0; tdir<4; tdir++)
                 {
                     weapon *w=new weapon(*this);
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->dir=tdir;
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -4383,6 +5909,8 @@ bool weapon::animate(int index)
 				w->hxofs=2;
 				w->hxsz=12;
 				break;
+			    
+			    default: break;
 			    }
                     }
                     Lwpns.add(w);
@@ -4468,12 +5996,13 @@ mirrors:
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -4487,7 +6016,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -4501,12 +6030,13 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -4519,7 +6049,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -4548,12 +6078,13 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -4566,7 +6097,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -4598,7 +6129,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4609,11 +6140,16 @@ mirrors:
                     if(dir!=(tdir^1))
                     {
                         weapon *w=new weapon(*this);
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->dir=tdir;
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -4642,6 +6178,8 @@ mirrors:
 				    w->hxofs=2;
 				    w->hxsz=12;
 				    break;
+				
+				default: break;
 				}
                         }
                         Lwpns.add(w);
@@ -4651,7 +6189,7 @@ mirrors:
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -4661,10 +6199,15 @@ mirrors:
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -4694,6 +6237,8 @@ mirrors:
 				w->hxofs=2;
 				w->hxsz=12;
 				break;
+			    
+			    default: break;
 			    }
                     }
                     Lwpns.add(w);
@@ -4779,6 +6324,8 @@ mirrors:
             
 			if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 			{
+				if(id==wSword) return true;
+				else if ( id==wBrang ) return dead==0;
 				weapon_dying_frame = true;
 				return false;
 			}
@@ -5079,6 +6626,7 @@ mirrors:
     
     // update clocks
     ++clk;
+    //if ( id >= wScript1 && id <= wScript10 ) Z_scripterrlog("Updated Script Weapon Clock\n");
     
     if(dead>0)
     {
@@ -5086,11 +6634,15 @@ mirrors:
         --dead;
     }
     
+    //if ( linked_parent != wBrang || linked_parent != wArrow && id != wPhantom )
+    //{
 	if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 	{
+		if(id==wSword) return true;
 		weapon_dying_frame = true;
 		return false;
 	}
+    //}
     return dead==0;
 }
 
@@ -5119,7 +6671,7 @@ bool weapon::animateandrunscript(int ii)
     case wBait:
     case ewFlame:
     case ewFireTrail:
-        if(tmpscr->flags7&fSIDEVIEW)
+        if(isSideViewGravity())
         {
             if(!_walkflag(x,y+16,0))
             {
@@ -5330,7 +6882,7 @@ bool weapon::animateandrunscript(int ii)
 			posx=checkx;
 			posy=checky;
 		}
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
                 id = wRefBeam;
                 dir ^= 1;
@@ -5346,7 +6898,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
                 id = wRefBeam;
 		if ( do_animation ) 
@@ -5382,7 +6934,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
                 dir ^= 2;
@@ -5421,7 +6973,7 @@ bool weapon::animateandrunscript(int ii)
                 x=(int)posx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -5433,6 +6985,11 @@ bool weapon::animateandrunscript(int ii)
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
@@ -5464,6 +7021,8 @@ bool weapon::animateandrunscript(int ii)
 				    w->hxofs=2;
 				    w->hxsz=12;
 				    break;
+				
+				default: break;
 				}
                         }
                         Lwpns.add(w);
@@ -5473,7 +7032,7 @@ bool weapon::animateandrunscript(int ii)
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
             {
                 int newx, newy;
                 newy=(int)posy&0xF0;
@@ -5483,6 +7042,11 @@ bool weapon::animateandrunscript(int ii)
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
@@ -5514,6 +7078,8 @@ bool weapon::animateandrunscript(int ii)
 				w->hxofs=2;
 				w->hxsz=12;
 				break;
+			    
+			    default: break;
 			    }
                     }
                     Lwpns.add(w);
@@ -5633,12 +7199,12 @@ bool weapon::animateandrunscript(int ii)
             {
                 findentrance(x,y,mfBCANDLE,true);
                 
-                if(type>0)
+                if(type>1) //red candle
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if(type>2)
+                if(linked_parent == itype_dinsfire)
                 {
                     findentrance(x,y,mfDINSFIRE,true);
                 }
@@ -5770,14 +7336,14 @@ bool weapon::animateandrunscript(int ii)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }
@@ -6532,12 +8098,13 @@ mirrors:
         
         if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
         {
-            if(hitcombo(checkx,checky,cMIRROR))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -6551,7 +8118,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
                     
                     if(w->dir&2)
                         w->flip ^= 1;
@@ -6565,12 +8132,13 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -6583,7 +8151,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if((w->dir==1)||(w->dir==2))
@@ -6612,12 +8180,13 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
             {
-                weapon *w=new weapon(*this);
+                weapon *w=NULL;
                 
                 if(id==ewMagic)
                 {
+		    w=new weapon(*this);
                     Lwpns.add(w);
                     dead=0;
                 }
@@ -6630,7 +8199,7 @@ mirrors:
                 
                 if(w->id != wWind)
                 {
-                    w->id = wRefMagic;
+                    w->id = wRefMagic; w->convertType(true);
 			if ( do_animation ) 
 			{
 				if(w->dir&1)
@@ -6662,7 +8231,7 @@ mirrors:
                 w->x=checkx&0xF0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -6674,10 +8243,15 @@ mirrors:
                     {
                         weapon *w=new weapon(*this);
                         w->dir=tdir;
+			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+			{
+				double newangle = this->angle - DegreesToRadians(90*tdir);
+				w->angle = WrapAngle(newangle);
+			}
                         w->x=newx;
                         w->y=newy;
                         w->z=z;
-                        w->id=wRefMagic;
+                        w->id=wRefMagic; w->convertType(true);
                         w->parentid=parentid;
                         w->parentitem=parentitem;
                         w->flip = 0;
@@ -6706,6 +8280,8 @@ mirrors:
 				    w->hxofs=2;
 				    w->hxsz=12;
 				    break;
+				
+				default: break;
 				}
                         }
                         Lwpns.add(w);
@@ -6715,7 +8291,7 @@ mirrors:
                 dead=0;
             }
             
-            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
             {
                 int newx, newy;
                 newy=checky&0xF0;
@@ -6725,10 +8301,15 @@ mirrors:
                 {
                     weapon *w=new weapon(*this);
                     w->dir=tdir;
+		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+		    {
+			double newangle = this->angle - DegreesToRadians(90*tdir);
+			w->angle = WrapAngle(newangle);
+		    }
                     w->x=newx;
                     w->y=newy;
                     w->z=z;
-                    w->id=wRefMagic;
+                    w->id=wRefMagic; w->convertType(true);
                     w->parentid=parentid;
                     w->parentitem=parentitem;
                     w->flip = 0;
@@ -6758,6 +8339,8 @@ mirrors:
 				w->hxofs=2;
 				w->hxsz=12;
 				break;
+			    
+			    default: break;
 			    }
                     }
                     Lwpns.add(w);
@@ -7306,6 +8889,8 @@ reflect:
     }
     
 offscreenCheck:
+    
+    if ( get_bit(quest_rules,qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) goto skip_offscreenCheck;
     switch(id)
     {
     case wSword:
@@ -7394,8 +8979,10 @@ offscreenCheck:
         {
             clk2=256;
             int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-		Z_scripterrlog("weapons.cpp, line %d\n", 7314);
-            if(clipped)
+		#if DEVLEVEL > 0
+		if(DEVDEBUG) Z_scripterrlog("weapons.cpp, line %d\n", 7314);
+                #endif
+	    if(clipped)
             {
                 dead=deadval;
             }
@@ -7490,8 +9077,28 @@ offscreenCheck:
         
         break;
         
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	{
+		
+		if(!clipped || !get_bit(quest_rules,qr_CHECKSCRIPTWEAPONOFFSCREENCLIP) ) dead=1;
+		break;
+	}
     default:
         dead=1;
+    }
+    skip_offscreenCheck:
+    
+    {
+	//do not remove these braces!
     }
 }
 
@@ -7529,6 +9136,7 @@ void weapon::update_weapon_frame(int change, int orig)
 
 void weapon::draw(BITMAP *dest)
 {
+    if(weapon_dying_frame) return;
     if(flash==1)
     {
         if(!BSZ)
@@ -7854,13 +9462,40 @@ void weapon::draw(BITMAP *dest)
 	case wScript9:
 	case wScript10:
 	{
-		if ( do_animation && ScriptGenerated ) 
+		if ( do_animation )
 		{
-			if (script_wrote_otile) 
+			//Bugfix script weapons not animating:
+			//Let's see if this works, and failstobreakanything. -Z
+			//This also will need a QR, if it works!
+			/* Bugged, disabling.
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS) )
 			{
-				tile = o_tile;
-				script_wrote_otile = 0;
+				if(frames>1 && ++aframe >= frames)
+				{
+				    aframe = 0;
+				}
+				//update_weapon_frame(aframe,o_tile);
+				update_weapon_frame(aframe,o_tile);
 			}
+			*/
+			//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
+			//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
+			//{ 
+			//	script_wrote_otile = 0; // NOTES and ISSUES
+							// I honestly do not recall when or why I added this. I think that it was
+							// in an attempt to fix Tile not being reset when writing to OTile. 
+							// 
+							// PROBLEM
+							// Doing any of this on the first frame of a weapon will overwrite a script-set
+							// tile with the original tile if the scripter does this in a script:
+							//
+							// this->OriginalTile = 6;
+							// this->Tile = 12345; 	// will be overwritten by o_tile because of the 
+							//			// script_wrote_otile FLAG being checked by the engine
+							//			// after the script writes to tile! -Z 26th October, 2019
+				
+				//tile = o_tile; //This will overwrite the tile on the calls above, so we can't do it. Fuck it. 
+			//}
 		}
 		//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
 	}
@@ -7873,6 +9508,7 @@ void weapon::draw(BITMAP *dest)
     
     if ( z > 0 && get_bit(quest_rules, qr_WEAPONSHADOWS) )
     {
+	shadowtile = wpnsbuf[iwShadow].newtile+aframe;
 	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
     }
     sprite::draw(dest);
@@ -7892,6 +9528,88 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
+}
+
+
+void weapon::findcombotriggers()
+{
+	for(int dx = 0; dx < hxsz; dx += 16)
+	{
+		for(int dy = 0; dy < hysz; dy += 16)
+		{
+			for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+			{
+				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
+			}
+			
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
+		}
+		for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		{
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
+		}
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
+		
+	}
+	for(int dy = 0; dy < hysz; dy += 16)
+	{
+		for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		{
+			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
+		}
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
+		
+	}
+	for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+	{
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
+	}
+	
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
+}
+
+int weapon::run_script(int mode)
+{
+	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+		return RUNSCRIPT_OK;
+	int ret = RUNSCRIPT_OK;
+	switch(mode)
+	{
+		case MODE_NORMAL:
+			return ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+		case MODE_WAITDRAW:
+			if(waitdraw)
+			{
+				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+				waitdraw = 0;
+			}
+			break;
+	}
+    return ret;
 }
 
 //Dummy weapon for visual effects.

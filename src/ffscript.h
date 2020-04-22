@@ -16,6 +16,11 @@
 #define ZS_FIX 214748
 #define ZS_DWORD 65535
 
+#define MAX_LWPN_SPRITES 1024
+#define MAX_EWPN_SPRITES 1024
+#define MAX_NPC_SPRITES 1024
+#define MAX_ITEM_SPRITES 1024
+
 #define MAX_ZQ_LAYER 6
 #define MAX_DRAW_LAYER 7
 #define MIN_ZQ_LAYER 0
@@ -66,7 +71,15 @@ enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 LSprjumpspr, LSprchargespr, LSprcastingspr, 
 	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
 
-	
+enum zasmBreak
+{
+	ZASM_BREAK_NONE,
+	ZASM_BREAK_HALT,
+	ZASM_BREAK_ADVANCE_SCRIPT,
+	ZASM_BREAK_SKIP_SCRIPT,
+	ZASM_BREAK_SKIP
+};
+#define SKIPZASMPRINT() (FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP)
 
 //suspend types
 enum { 
@@ -90,16 +103,19 @@ enum {
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
-	//16->26 Script Types
+	//16->27 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	//21
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, //26
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
 	
-	//27->29 : Moving items
-	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
-	//30->34 : Misc
+	//28->59: Reserved padding
+	
+	//60->42 : Moving items
+	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
+	//63->67 : Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//35
+	//68
 	susptLAST };
 
 //npc function enums
@@ -163,13 +179,55 @@ enum
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+enum //ScrollingData indexes
+{
+	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
+};
+
 //User-generated / Script-Generated bitmap object
+#define UBMPFLAG_RESERVED		0x01
+#define UBMPFLAG_FREEING		0x02
 struct user_bitmap
 {
 	BITMAP* u_bmp;
 	int width;
 	int height;
 	int depth;
+	byte flags;
+	
+	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0) {}
+	
+	void destroy()
+	{
+		if(u_bmp != NULL)
+			destroy_bitmap(u_bmp);
+		width = 0;
+		height = 0;
+		depth = 0;
+		u_bmp = NULL;
+	}
+	void clear()
+	{
+		destroy();
+		flags = 0;
+	}
+	void reserve()
+	{
+		flags |= UBMPFLAG_RESERVED;
+	}
+	bool reserved()
+	{
+		return (flags & UBMPFLAG_RESERVED) ? true : false;
+	}
+	void free()
+	{
+		flags |= UBMPFLAG_FREEING;
+	}
+	void update()
+	{
+		if(flags & UBMPFLAG_FREEING)
+			clear();
+	}
 };
 
 
@@ -187,8 +245,21 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
-	int num_active;
 	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
+	void update()
+	{
+		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		{
+			script_created_bitmaps[q].update();
+		}
+	}
+	void clear()
+	{
+		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		{
+			script_created_bitmaps[q].clear();
+		}
+	}
 };
 
 #define MAX_USER_PALETTES 256
@@ -213,6 +284,29 @@ struct user_rgb
 	int current_active;
 };
 
+#define MAX_USER_FILES 256
+struct user_file
+{
+	FILE* file;
+	bool reserved;
+	
+	user_file() : file(NULL), reserved(false) {}
+	
+	void clear()
+	{
+		if(file) fclose(file); //Never leave a hanging FILE*!
+		file = NULL;
+		reserved = false;
+	}
+	
+	void close()
+	{
+		if(file) fclose(file);
+		file = NULL;
+	}
+};
+
+
 //Module System.
 //Putting this here for now.
 
@@ -222,13 +316,95 @@ struct user_rgb
 class ZModule
 {
 	public:
-		void init(bool d); //bool default
-		void load(bool zquest);
+		bool init(bool d); //bool default
+		bool load(bool zquest);
 		void debug(); //Print struct data to allegro.log.
 		
 	private:
 		char n;
 };
+
+
+typedef struct ZSCRIPT_CONFIG_ENTRY
+{
+   char *name;                      /* variable name (NULL if comment) */
+   char *data;                      /* variable value */
+   struct ZSCRIPT_CONFIG_ENTRY *next;       /* linked list */
+} ZSCRIPT_CONFIG_ENTRY;
+
+
+typedef struct ZSCRIPT_CONFIG
+{
+   ZSCRIPT_CONFIG_ENTRY *head;              /* linked list of config entries */
+   char *filename;                  /* where were we loaded from? */
+   int dirty;                       /* has our data changed? */
+} ZSCRIPT_CONFIG;
+
+
+typedef struct ZSCRIPT_CONFIG_HOOK
+{
+   char *section;                   /* hooked config section info */
+   int (*intgetter)(AL_CONST char *name, int def);
+   AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
+   void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
+   struct ZSCRIPT_CONFIG_HOOK *next; 
+} ZSCRIPT_CONFIG_HOOK;
+
+
+#define MAX_CONFIGS     4
+
+static ZSCRIPT_CONFIG *config[MAX_CONFIGS] = { NULL, NULL, NULL, NULL };
+static ZSCRIPT_CONFIG *config_override = NULL;
+static ZSCRIPT_CONFIG *config_language = NULL;
+static ZSCRIPT_CONFIG *system_config = NULL;
+
+static ZSCRIPT_CONFIG_HOOK *config_hook = NULL;
+
+static int config_installed = FALSE;
+
+static char **config_argv = NULL;
+static char *argv_buf = NULL;
+static int argv_buf_size = 0;
+
+//Config files
+void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
+void zscript_flush_config_file(void);
+void zscript_destroy_config(ZSCRIPT_CONFIG *cfg);
+void zscript_config_cleanup(void);
+void zscript_init_config(int loaddata);
+int zscript_get_config_line(const char *data, int length, char **name, char **val);
+void zscript_set_config(ZSCRIPT_CONFIG **config, const char *data, int length, const char *filename);
+void zscript_load_config_file(ZSCRIPT_CONFIG **config, const char *filename, const char *savefile);
+void zscript_set_config_file(const char *filename);
+void zscript_set_config_data(const char *data, int length);
+void zscript_override_config_file(const char *filename);
+void zscript_override_config_data(const char *data, int length);
+void zscript_push_config_state(void);
+void zscript_pop_config_state(void);
+void zscript_prettify_config_section_name(const char *in, char *out, int out_size);
+void zscript_hook_config_section(const char *section, int (*intgetter)(const char *, int), const char *(*stringgetter)(const char *, const char *), void (*stringsetter)(const char *, const char *));
+int zscript_config_is_hooked(const char *section);
+ZSCRIPT_CONFIG_ENTRY *zscript_find_config_string(ZSCRIPT_CONFIG *config, const char *section, const char *name, ZSCRIPT_CONFIG_ENTRY **prev);
+const char *zscript_get_config_string(const char *section, const char *name, const char *def);
+int zscript_get_config_int(const char *section, const char *name, int def);
+int zscript_get_config_hex(const char *section, const char *name, int def);
+float zscript_get_config_float(const char *section, const char *name, float def);
+int zscript_get_config_id(const char *section, const char *name, int def);
+char **zscript_get_config_argv(const char *section, const char *name, int *argc);
+ZSCRIPT_CONFIG_ENTRY *zscript_insert_config_variable(ZSCRIPT_CONFIG *the_config, ZSCRIPT_CONFIG_ENTRY *p, const char *name, const char *data);
+void zscript_set_config_string(const char *section, const char *name, const char *val);
+void zscript_set_config_int(const char *section, const char *name, int val);
+void zscript_set_config_hex(const char *section, const char *name, int val);
+void zscript_set_config_float(const char *section, const char *name, float val);
+void zscript_set_config_id(const char *section, const char *name, int val);
+void _zscript_reload_config(void);
+void zscript_reload_config_texts(const char *new_language);
+const char *zscript_get_config_text(const char *msg);
+int zscript_add_unique_config_name(const char ***names, int n, char const *name);
+int zscript_attach_config_entries(ZSCRIPT_CONFIG *conf, const char *section,int n, const char ***names, int list_sections);
+int zscript_list_config_entries(const char *section, const char ***names);
+int zscript_list_config_sections(const char ***names);
+void zscript_free_config_entries(const char ***names);
 
 class FFScript
 {
@@ -237,7 +413,12 @@ class FFScript
 public:
 //FFScript();
 void init();
+
+
 int max_ff_rules;
+mapscr* tempScreens[7];
+mapscr* ScrollingScreens[7];
+int ScrollingData[SZ_SCROLLDATA];
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
 bool getRule(int rule_bit);
@@ -254,7 +435,9 @@ void do_graphics_getpixel();
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
+void npcScriptEngineOnWaitdraw();
 bool itemScriptEngineOnWaitdraw();
+void lweaponScriptEngineOnWaitdraw();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
 void eweaponScriptEngineOnWaitdraw();
@@ -264,12 +447,13 @@ bool newScriptEngine();
 void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
+bool runActiveSubscreenScriptEngine();
 void doScriptMenuDraws();
+void runOnSaveEngine();
 void initIncludePaths();
 void initRunString();
 void updateRunString();
 void updateIncludePaths();
-bool file_exists(const char *filename);
 bool checkExtension(std::string &filename, const std::string &extension);
 //String.h functions for ffscript - 2.55 Alpha 23
 void do_strcmp();
@@ -284,9 +468,9 @@ void do_xtoi(const bool v);
 void do_ilen(const bool v);
 void do_atoi(const bool v);
 bool isNumber(char chr);
-int UpperToLower(std::string s);
-int LowerToUpper(std::string s);
-int ConvertCase(std::string s);
+int UpperToLower(std::string *s);
+int LowerToUpper(std::string *s);
+int ConvertCase(std::string *s);
 int ilen(char *p);
 int zc_strlen(char *p);
 int atox(char *ip_str);
@@ -311,6 +495,8 @@ void do_getdmapbyname();
 
 int getLinkOTile(long index1, long index2);
 int getLinkOFlip(long index1, long index2);
+defWpnSprite getDefWeaponSprite(int wpnid);
+//defWpnSprite getDefWeaponSprite(weapon *wp);
 
 //ZC SRAM
 //void read_maps(PACKFILE *f, int vers_id);
@@ -330,7 +516,7 @@ void read_mapscreens(PACKFILE *f, int vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
 
-
+int combo_script_engine(const bool preload);
 
 void do_strstr();
 void do_strcat();
@@ -348,13 +534,17 @@ void do_xtoa();
 
 void do_tracebool(const bool v);
 void do_tracestring();
+void do_printf(const bool v);
+void do_sprintf(const bool v);
+void do_breakpoint();
 void do_trace(bool v);
 void do_tracenl();
 void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void TraceScriptIDs();
+void ZScriptConsole(int attributes,const char *format,...);
+void TraceScriptIDs(bool zasm_console = false);
 void ZScriptConsolePrint(int colourformat, const char * const format,...);
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
@@ -374,10 +564,35 @@ long getQuestHeaderInfo(int type)
 //{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
-void user_bitmaps_init();
-void user_bitmaps_destroy();
+void user_files_init();
+int get_free_file(bool skipError = false);
+bool get_scriptfile_path(char* buf, const char* path);
+void do_fopen(const bool v, const char* f_mode);
+void do_fclose();
+void do_allocate_file();
+void do_deallocate_file();
+void do_file_isallocated();
+void do_file_isvalid();
+void do_fflush();
+void do_file_readchars();
+void do_file_readstring();
+void do_file_readints();
+void do_file_writechars();
+void do_file_writestring();
+void do_file_writeints();
+void do_file_getchar();
+void do_file_putchar();
+void do_file_ungetchar();
+void do_file_clearerr();
+void do_file_rewind();
+void do_file_seek();
+void do_file_geterr();
 
-int get_free_bitmap();
+void user_bitmaps_init();
+
+int get_free_bitmap(bool skipError = false);
+void do_deallocate_bitmap();
+bool isSystemBitref(long ref);
 
 long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
@@ -389,13 +604,8 @@ void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
 void do_set_oggex_speed(const bool v);
 
-BITMAP* get_user_bitmap(int id);
-
 BITMAP* GetScriptBitmap(int id);
 
-bool cleanup_user_bitmaps();
-
-bool destroy_user_bitmap(int id);
 int highest_valid_user_bitmap();
 long do_create_bitmap();
 
@@ -450,6 +660,11 @@ byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
 
+byte zasm_break_mode;
+
+//Enemy removal bounds
+int enemy_removal_point[6];
+
 //Disable stepforward on dungeon dmaps
 byte nostepforward;
 byte temp_no_stepforward; 
@@ -473,8 +688,25 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
+
+//Combo Scripts
+void init_combo_doscript();
+void clear_combo_refinfo();
+void clear_combo_stacks();
+void clear_combo_refinfo(int pos);
+void clear_combo_stack(int q);
+void clear_combo_initialised();
+void ClearComboScripts();
+int getComboDataLayer(int c, int scripttype);
+int getCombodataPos(int c, int scripttype);
+int getCombodataY(int c, int scripttype);
+int getCombodataX(int c, int scripttype);
+
+//tba
+//void deallocateComboArrays();
 
 int GetScriptObjectUID(int type);
     
@@ -501,6 +733,10 @@ void do_loadnpc_by_script_uid(const bool v);
 void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
+
+int getEnemyByScriptUID(int sUID);
+int getLWeaponByScriptUID(int sUID);
+int getEWeaponByScriptUID(int sUID);
 
 //new npc functions for npc scripts
 void do_isdeadnpc();
@@ -1150,11 +1386,12 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);
 	static void do_loadmapdata(const bool v);
+	static void do_loadmapdata_tempscr(const bool v);
+	static void do_loadmapdata_scrollscr(const bool v);
 	static long loadMapData();
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static void do_readbitmap(const bool v);
 	static long do_allocate_bitmap();
 	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
@@ -1176,6 +1413,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_messagedata_getstring(const bool v);
 	
 	static void do_loaddmapdata(const bool v);
+	static void do_loaddropset(const bool v);
 	static void do_getDMapData_dmapname(const bool v);
 	static void do_setDMapData_dmapname(const bool v);
 	static void do_getDMapData_dmaptitle(const bool v);
@@ -1185,7 +1423,6 @@ static void setLinkBigHitbox(bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
 	
-	static bool checkPath(const char* path, const bool is_dir);
 	static void do_checkdir(const bool is_dir);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
@@ -1216,7 +1453,7 @@ enum __Error
     //only if the player is messing with their pointers...
     ZScriptArray& InvalidError(const long ptr)
     {
-        //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+        Z_scripterrlog("FFSScript::InvalidError - Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
     }
     
@@ -1226,9 +1463,9 @@ enum __Error
         if(ptr <= 0)
             return InvalidError(ptr);
             
-        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
-            long gptr = ptr - MAX_ZCARRAY_SIZE;
+            long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
             
             if(gptr > (long)game->globalRAM.size())
                 return InvalidError(ptr);
@@ -1479,6 +1716,8 @@ void clear_ffc_stack(const byte i);
 void clear_global_stack(const byte i);
 void clear_link_stack();
 void clear_dmap_stack();
+void clear_active_subscreen_stack();
+void clear_passive_subscreen_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
@@ -1530,29 +1769,6 @@ void do_getscreenItem();
 void do_getscreendoor();
 long get_screennpc(mapscr *m, int index);
 void do_getscreennpc();
-
-
-    
-
-
-
-struct script_command
-{
-    char name[64];
-    byte args;
-    byte arg1_type; //0=reg, 1=val;
-    byte arg2_type; //0=reg, 1=val;
-    bool more_stuff;
-};
-
-struct script_variable
-{
-    char name[64];
-    long id;
-    word maxcount;
-    byte multiple;
-};
-
 
 // Defines for script flags
 #define TRUEFLAG          0x0001
@@ -2417,13 +2633,71 @@ enum ASM_DEFINE
 	CLOSEWIPESHAPE,
 	FILEEXISTS,
 	BITMAPCLEARTOCOLOR,
+	LOADNPCBYSUID,
+	LOADLWEAPONBYSUID,
+	LOADWEAPONCBYSUID,
+	LOADDROPSETR,
+    LOADTMPSCR,
+    LOADSCROLLSCR,
+    MAPDATAISSOLIDLYR,
+    ISSOLIDLAYER,
+	BREAKPOINT,
+	TOBYTE,
+	TOWORD,
+	TOSHORT,
+	TOSIGNEDBYTE,
+	TOINTEGER,
+	FLOOR,
+	CEILING,
+	
+	FILECLOSE,
+	FILEFREE,
+	FILEISALLOCATED,
+	FILEISVALID,
+	FILEALLOCATE,
+	FILEFLUSH,
+	FILEGETCHAR,
+	FILEREWIND,
+	FILECLEARERR,
+	
+	FILEOPEN,
+	FILECREATE,
+	FILEREADSTR,
+	FILEWRITESTR,
+	FILEPUTCHAR,
+	FILEUNGETCHAR,
+	
+	FILEREADCHARS,
+	FILEREADINTS,
+	FILEWRITECHARS,
+	FILEWRITEINTS,
+	FILESEEK,
+	FILEOPENMODE,
+	FILEGETERROR,
+	
+	BITMAPFREE,
+	
+	POPARGS,
+	GAMERELOAD,
+	
+	READPODARRAYR,
+	READPODARRAYV,
+	WRITEPODARRAYRR,
+	WRITEPODARRAYRV,
+	WRITEPODARRAYVR,
+	WRITEPODARRAYVV,
+	
+	PRINTFV,
+	SPRINTFV,
+	
+	STRCMPR,
+	STRICMPR,
 
-
-	NUMCOMMANDS           //0x0168
+	NUMCOMMANDS           //0x018E
 };
 
 
-//ZASM registers
+//{ ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
 #define D(n)               ((0x0000)+(n)) //8
 #define A(n)               ((0x0008)+(n)) //2
@@ -2549,7 +2823,7 @@ enum ASM_DEFINE
 #define UNUSED68             0x0287
 #define UNUSED69             0x0288
 #define UNUSED70             0x0289
-#define UNUSED71             0x028A
+#define NPCPARENTUID             0x028A
 #define EWPNPARENT             0x028B
 
 #define ITEMX                0x028C
@@ -2731,6 +3005,7 @@ enum ASM_DEFINE
 
 #define CURDSCR              0x08B5
 //#define GETSTART             0x08B6 //?
+#define INCQST 		     0x08B6
 
 #define COMBOSD	             0x08B7
 #define SCREENSTATEDD        0x08B8
@@ -2965,7 +3240,7 @@ enum ASM_DEFINE
 #define BUTTONPRESS 0x10F4
 #define BUTTONINPUT 0x10F5
 #define BUTTONHELD 0x10F6
-#define KEYPRESS 0x10F7
+#define RAWKEY 0x10F7
 #define READKEY 0x10F8
 #define JOYPADPRESS 0x10F9
 #define DISABLEDITEM 0x10FA
@@ -3658,29 +3933,62 @@ enum ASM_DEFINE
 #define MAPDATATWARPRETSQR		0x1377
 #define MAPDATASWARPRETSQR		0x1378
 #define DMAPDATAID		0x1379
+#define NPCSUBMERGED		0x137A
+#define EWPNPARENTUID		0x137B
+#define GAMEGRAVITY		0x137C
+#define COMBODASPEED		0x137D
+#define DROPSETITEMS		0x137E
+#define DROPSETCHANCES		0x137F
+#define DROPSETNULLCHANCE	0x1380
+#define DROPSETCHOOSE		0x1381
+#define KEYPRESS		0x1382
+#define KEYINPUT		0x1383
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x137A
+#define SPRITEMAXNPC 		0x1384
+#define SPRITEMAXLWPN 		0x1385
+#define SPRITEMAXEWPN 		0x1386
+#define SPRITEMAXITEM 		0x1387
+#define SPRITEMAXPARTICLE 	0x1388
+#define SPRITEMAXDECO 		0x1389
+#define EWPNLEVEL             	0x138A
+#define HEROHEALTHBEEP          0x138B
+#define COMBODATTRIBYTES        0x138C
+#define NPCRANDOM             	0x138D
+#define COMBOXR             	0x138E
+#define COMBOYR             	0x138F
+#define COMBOPOSR             	0x1390
+#define COMBODATASCRIPT         0x1391
+#define COMBODATAINITD          0x1392
+#define HEROSCRIPTCSET          0x1393
+#define SHOPDATATYPE    	0x1394
+#define HEROSTEPS    		0x1395
+#define HEROSTEPRATE    		0x1396
+#define COMBODOTILE    		0x1397
+#define COMBODFRAME    		0x1398
+#define COMBODACLK    		0x1399
+#define PC                   0x139A
+#define GAMESCROLLING			0x139B
+#define MESSAGEDATAMARGINS		0x139C
+#define MESSAGEDATAPORTTILE		0x139D
+#define MESSAGEDATAPORTCSET		0x139E
+#define MESSAGEDATAPORTX		0x139F
+#define MESSAGEDATAPORTY		0x13A0
+#define MESSAGEDATAPORTWID		0x13A1
+#define MESSAGEDATAPORTHEI		0x13A2
+#define MESSAGEDATAFLAGSARR		0x13A3
+#define FILEPOS					0x13A4
+#define FILEEOF					0x13A5
+#define FILEERR					0x13A6
+#define MESSAGEDATATEXTWID					0x13A7
+#define MESSAGEDATATEXTHEI					0x13A8
+#define SWITCHKEY					0x13A9
 
-// Script types
+#define NUMVARIABLES         	0x13AA
 
-
-#define SCRIPT_NONE            -1
-#define SCRIPT_GLOBAL          0
-#define SCRIPT_FFC             1
-#define SCRIPT_SCREEN          2
-#define SCRIPT_LINK            3
-#define SCRIPT_ITEM            4
-#define SCRIPT_LWPN            5
-#define SCRIPT_NPC             6
-#define SCRIPT_SUBSCREEN       7
-#define SCRIPT_EWPN            8
-#define SCRIPT_DMAP            9
-#define SCRIPT_ITEMSPRITE      10
-
-
+//} End variables
 
 struct quad3Dstruct
 {

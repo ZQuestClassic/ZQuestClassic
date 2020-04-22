@@ -12,6 +12,8 @@
 #include <string>
 #include "CompilerUtils.h"
 #include "Types.h"
+#include "parserDefs.h"
+#include "../ffasmexport.h"
 
 namespace ZScript
 {
@@ -70,11 +72,51 @@ namespace ZScript
 		int label;
 	};
 
+	class ArbitraryOpcode : public Opcode
+	{
+	public:
+		ArbitraryOpcode(std::string data) : str(data) {}
+		std::string str;
+		std::string toString()
+		{
+			return str;
+		}
+		Opcode *clone()
+		{
+			return new ArbitraryOpcode(str);
+		}
+	};
+
+	struct disassembled_script_data
+	{
+		zasm_meta first;
+		std::vector<ZScript::Opcode*> second;
+		byte format;
+		std::string formatName(std::string name)
+		{
+			char buf[64];
+			std::string fmt = "%s";
+			switch(format)
+			{
+				case SCRIPT_FORMAT_DISASSEMBLED:
+					fmt = "++%s";
+					break;
+				case SCRIPT_FORMAT_ZASM:
+					fmt = "==%s";
+					break;
+			}
+			sprintf(buf, fmt.c_str(), name.c_str());
+			return std::string(buf);
+		}
+		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
+		{}
+	};
+
 	class ScriptsData
 	{
 	public:
 		ScriptsData(Program&);
-		std::map<std::string, std::vector<Opcode *> > theScripts;
+		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ScriptType> scriptTypes;
 	};
 

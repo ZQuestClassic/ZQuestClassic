@@ -26,6 +26,8 @@
 #include "guys.h"
 #include "zdefs.h"
 #include "maps.h"
+#include "items.h"
+#include "zscriptversion.h"
 #include <stdio.h>
 
 extern sprite_list  guys;
@@ -78,7 +80,7 @@ void item_fall(fix& x, fix& y, fix& fall)
 	}
 }
 
-int select_dropitem(int item_set, int x, int y)
+int select_dropitem(int item_set)
 {
     int total_chance=0;
     
@@ -154,6 +156,12 @@ int select_dropitem(int item_set, int x, int y)
         }
     }
     
+    return drop_item;
+}
+int select_dropitem(int item_set, int x, int y)
+{
+	int drop_item = select_dropitem(item_set);
+	
     if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
     {
         for(int j=0; j<items.Count(); ++j)
@@ -165,13 +173,27 @@ int select_dropitem(int item_set, int x, int y)
             }
         }
     }
-    
-    return drop_item;
+	
+	return drop_item;
 }
-
-bool is_side_view()
+int item::run_script(int mode)
 {
-    return (tmpscr->flags7&fSIDEVIEW)!=0;
+	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
+		return RUNSCRIPT_OK;
+	int ret = RUNSCRIPT_OK;
+	switch(mode)
+	{
+		case MODE_NORMAL:
+			return ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+		case MODE_WAITDRAW:
+			if(waitdraw)
+			{
+				ret = ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+				waitdraw = 0;
+			}
+			break;
+	}
+    return ret;
 }
 /*** end of sprite.cc ***/
 
