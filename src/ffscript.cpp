@@ -8543,19 +8543,55 @@ void do_rshift(const bool v)
 
 void do_warp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
+	int dmapid = SH::get_arg(sarg1, v) / 10000;
+	int screenid = SH::get_arg(sarg2, v) / 10000;
+	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
+	{
+		Z_scripterrlog("Invalid DMap ID (%d) passed to Warp(). Aborting.\n", dmapid);
+		return;
+	}
+	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to Warp(). Aborting.\n", screenid);
+		return;
+	}
+	//Extra sanity guard. 
+	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int)TheMaps.size() )
+	{
+		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
+		return;
+	}
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
+	tmpscr->sidewarptype[0] = wtIWARP;
+	Link.ffwarp = true;
 }
 
 void do_pitwarp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-    Link.ffpit = true;
+	int dmapid = SH::get_arg(sarg1, v) / 10000;
+	int screenid = SH::get_arg(sarg2, v) / 10000;
+	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
+	{
+		Z_scripterrlog("Invalid DMap ID (%d) passed to PitWarp(). Aborting.\n", dmapid);
+		return;
+	}
+	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to PitWarp(). Aborting.\n", screenid);
+		return;
+	}
+	//Extra sanity guard. 
+	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int)TheMaps.size() )
+	{
+		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
+		return;
+	}
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
+	tmpscr->sidewarptype[0] = wtIWARP;
+	Link.ffwarp = true;
+	Link.ffpit = true;
 }
 
 void do_breakshield()

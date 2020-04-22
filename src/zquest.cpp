@@ -28414,7 +28414,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
-    { "Find Buggy Next->",              0, (intF) onBuggedNextComboLocationReport                                    },
+    { "Find Buggy Next->",              0, (intF) onBuggedNextComboLocationReport                                    }
     
 
 };
