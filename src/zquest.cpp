@@ -1793,6 +1793,7 @@ static MENU quest_reports_menu[] =
     { (char *)"&Item Locations",            onItemLocationReport,      NULL,                     0,            NULL   },
     { (char *)"&Script Locations",          onScriptLocationReport,    NULL,                     0,            NULL   },
     { (char *)"&What Links Here",           onWhatWarpsReport,         NULL,                     0,            NULL   },
+    { (char *)"&Bugged Next-> Combo Locations",           onBuggedNextComboLocationReport,         NULL,                     0,            NULL   },
     { (char *)"In&tegrity Check\t ",        NULL,                      integrity_check_menu,     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -33991,8 +33992,8 @@ command_pair commands[cmdMAX]=
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
     { "Script Settings",              0, (intF) onZScriptSettings                                   },
+    { "Find Buggy Next->",              0, (intF) onBuggedNextComboLocationReport                                    }
     
-
 };
 
 /********************************/

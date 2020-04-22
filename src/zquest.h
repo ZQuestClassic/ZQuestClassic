@@ -761,6 +761,7 @@ enum
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
     cmdOnScriptRules,
+    cmdFindBuggyNext,
     cmdMAX
 };
 

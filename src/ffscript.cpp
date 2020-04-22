@@ -16925,34 +16925,51 @@ int do_msgheight(int msg, char const* str)
 
 void do_warp(bool v)
 {
-	int dmap=SH::get_arg(sarg1, v) / 10000;
-	if(dmap<0 || dmap>=MAXDMAPS)
+	int dmapid = SH::get_arg(sarg1, v) / 10000;
+	int screenid = SH::get_arg(sarg2, v) / 10000;
+	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
+	{
+		Z_scripterrlog("Invalid DMap ID (%d) passed to Warp(). Aborting.\n", dmapid);
 		return;
-	int screen=SH::get_arg(sarg2, v) / 10000;
-	if(screen<0 || screen>=MAPSCRS) // Should this be MAPSCRSNORMAL?
+	}
+	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to Warp(). Aborting.\n", screenid);
 		return;
-	// A shifted DMap can still go past the end of the maps, so check that
-	if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
+	}
+	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int)TheMaps.size() )
+	{
+		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
-	
-	tmpscr->sidewarpdmap[0] = dmap;
-	tmpscr->sidewarpscr[0]  = screen;
+	}
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
 	Link.ffwarp = true;
 }
 
 void do_pitwarp(bool v)
 {
-	int dmap=SH::get_arg(sarg1, v) / 10000;
-	if(dmap<0 || dmap>=MAXDMAPS)
+	int dmapid = SH::get_arg(sarg1, v) / 10000;
+	int screenid = SH::get_arg(sarg2, v) / 10000;
+	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
+	{
+		Z_scripterrlog("Invalid DMap ID (%d) passed to PitWarp(). Aborting.\n", dmapid);
 		return;
-	int screen=SH::get_arg(sarg2, v) / 10000;
-	if(screen<0 || screen>=MAPSCRS)
+	}
+	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to PitWarp(). Aborting.\n", screenid);
 		return;
-	if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
+	}
+	//Extra sanity guard. 
+	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int)TheMaps.size() )
+	{
+		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
-	tmpscr->sidewarpdmap[0] = dmap;
-	tmpscr->sidewarpscr[0]  = screen;
+	}
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
 	Link.ffwarp = true;
 	Link.ffpit = true;
@@ -19318,6 +19335,22 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
 	zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
 	zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	if ( ((unsigned)dmapID) >= MAXDMAPS ) 
+	{
+		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", dmapID);
+		return false;
+	}
+	if ( ((unsigned)scrID) >= MAPSCRS ) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", scrID);
+		return false;
+	}
+	//Extra sanity guard. 
+	if ( DMaps[dmapID].map*MAPSCRS+DMaps[dmapID].xoff+scrID >= (int)TheMaps.size() )
+	{
+		Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
+		return false;
+	}
 	byte t = 0;
 	t=(currscr<128)?0:1;
 	bool overlay=false;
@@ -19327,8 +19360,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	//{
 	//	initZScriptDMapScripts();    //Not needed.
 	//}
-	if ( (unsigned)dmapID >= MAXDMAPS ) return false;
-	if ( (unsigned)scrID > MAXSCREENS ) return false;
+
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int mapID = (DMaps[dmapID].map+1);
 		int warp_return_index = -1;
@@ -26849,13 +26881,35 @@ void FFScript::do_warp_ex(bool v)
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
 			zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
-			FFCore.warpex[wexActive] = 1; 
-			
+			int tmpwarp[8]={0};
 			for ( int q = 0; q < wexDir; q++ )
 			{
-				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
+				tmpwarp[q] = (getElement(zscript_array_ptr,q)/10000);
+				//FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
 			}
 			
+			if ( ((unsigned)tmpwarp[1]) >= MAXDMAPS ) 
+			{
+				Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[1]);
+				return;
+			}
+			if ( ((unsigned)tmpwarp[2]) >= MAPSCRS ) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
+				return;
+			}
+			//Extra sanity guard. 
+			if ( DMaps[tmpwarp[1]].map*MAPSCRS+DMaps[tmpwarp[1]].xoff+tmpwarp[2] >= (int)TheMaps.size() )
+			{
+				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
+				return;
+			}
+			//If we passed the sanity checks, populate the FFCore array and begin the action!
+			for ( int q = 0; q < wexDir; q++ )
+			{
+				FFCore.warpex[q] = tmpwarp[q];
+			}
+			FFCore.warpex[wexActive] = 1;
 			FFCore.warpex[wexDir] = -1;
 			
 			break;
@@ -26864,11 +26918,40 @@ void FFScript::do_warp_ex(bool v)
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
 			zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			int tmpwarp[9]={0};
+			
+			for ( int q = 0; q < wexActive; q++ )
+			{
+				tmpwarp[q] = (getElement(zscript_array_ptr,q)/10000);
+				//FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
+			}
+			
+			if ( ((unsigned)tmpwarp[1]) >= MAXDMAPS ) 
+			{
+				Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[1]);
+				return;
+			}
+			if ( ((unsigned)tmpwarp[2]) >= MAPSCRS ) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
+				return;
+			}
+			//Extra sanity guard. 
+			if ( DMaps[tmpwarp[1]].map*MAPSCRS+DMaps[tmpwarp[1]].xoff+tmpwarp[2] >= (int)TheMaps.size() )
+			{
+				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
+				return;
+			}
+			//If we passed the sanity checks, populate the FFCore array and begin the action!
+			for ( int q = 0; q < wexActive; q++ )
+			{
+				FFCore.warpex[q] = tmpwarp[q];
+			}
 			FFCore.warpex[wexActive] = 1; 
 			
 			for ( int q = 0; q < wexActive; q++ )
 			{
-				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
+				FFCore.warpex[q] = tmpwarp[q];
 			}
 			
 			//for ( int q = 0; q < wexLast; q++ ) 
@@ -26891,7 +26974,9 @@ void FFScript::do_warp_ex(bool v)
 	}
 }
 
-
+///////////////////////////////
+//* SCRIPT ENGINE FUNCTIONS *//
+////////////////////////////////////////////////////////////////////////////
 
 void FFScript::clearRunningItemScripts()
 {
