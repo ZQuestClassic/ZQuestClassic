@@ -3157,6 +3157,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_F6,1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 49) )
+	{
+		set_bit(quest_rules,qr_NO_OVERWRITING_HOPPING,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

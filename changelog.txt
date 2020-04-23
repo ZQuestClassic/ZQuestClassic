@@ -1,6 +1,17 @@
 //2.55 Changes
 
-//Alpha 64
+//Alpha 66
+Allow scripts to overwrite Link's action when it is LA_HOPPING (with compat QR)
+	( Venrob, 22nd April, 2020 )
+Added a new Quest Report type: Bugged Next-> Combos.
+	This will scan a quest for any Next-> combo type that also has a secret
+	flag on it, and report that this may be erroneous. (It is legal to
+	place these flags, but they must be EXTERNALLY triggered. They no
+	longer trigger when the Next-> combo is activated.)
+Added extra sanity guards and reports to Hero->Warp, PitWarp, and WarpEx.
+	( ZoriaRPG, 22nd April, 2020 )
+
+//Alpha 65
 Fix Registration system bug causing it to recurse more than necessary
 	This was causing some compile errors to be reported multiple times
 Fix 'on' in '#option'
@@ -11,6 +22,7 @@ Add CONST_ASSERT to ZScript
 	This allows creating custom compile errors in your scripts.
 	( Venrob, 21st April, 2020 )
 
+//Alpha 64
 Updated the ZSA docs to cover the new instruction, and added section anchors. 
 Ported some module family members (startingScreen, startingDMap) from 2.53.1. 
 Ported Game->IncrementQuest() from 2.53.1, Beta 40

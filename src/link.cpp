@@ -942,6 +942,13 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         }
     }
     
+	//Unless compat rule is on, reset hopping clocks when writing action!
+	if(action == hopping && !get_bit(quest_rules,qr_NO_OVERWRITING_HOPPING))
+	{
+		hopclk = 0;
+		hopdir = -1;
+	}
+	
     if(new_action != attacking)
     {
         attackclk=0;

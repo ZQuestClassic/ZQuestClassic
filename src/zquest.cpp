@@ -24688,7 +24688,7 @@ static int zscript_settings_scripts_list[] =
 
 static int zscript_settings_instructions_list[] =
 {
-	7, 8, 15, 16, 19, 20, 23, 27, 28, 29, 30, 40, -1
+	7, 8, 15, 16, 19, 20, 23, 27, 28, 29, 30, 40, 41, -1
 };
 
 static int zscript_settings_objects_list[] =
@@ -24771,6 +24771,7 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
 	//40
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -24788,6 +24789,7 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2, qr_COMBOSCRIPTS_LAYER_3,
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
+	qr_NO_OVERWRITING_HOPPING,
     -1
 };
 
