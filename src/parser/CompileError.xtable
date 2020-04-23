@@ -25,7 +25,7 @@
 
 //	Name,				Code,	Used,	Strict,	Arg1,	Arg,	String
 X(	CantOpenSource,			P,	A,	E,	VOID,	VOID,	"Can't open or parse input file!"							)
-X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Failure to parse imported file %s."							)
+X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Included file (%s) not found or cannot be parsed. Please verify your include paths."			)
 X(	ImportRecursion,		P,	A,	E,	INT,	VOID,	"Recursion limit of %d hit while preprocessing. Perhaps you have circular imports?"	)
 X(	ImportBadScope,			P,	D	                                                                                  				)
 X(	FunctionRedef,			S,	A,	E,	STR,	VOID,	"Function %s was already declared with that type signature."                            )
