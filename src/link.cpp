@@ -6624,12 +6624,12 @@ bool LinkClass::animate(int)
 			}
 			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 			{
+				int itemid = current_item_id(itype_hoverboots);
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
 				else
 				{
 					fall = jumping = 0;
-					int itemid = current_item_id(itype_hoverboots);
 					if(itemsbuf[itemid].misc1)
 						hoverclk = itemsbuf[itemid].misc1;
 					else
@@ -6638,11 +6638,11 @@ bool LinkClass::animate(int)
 						hoverflags |= HOV_INF;
 					}
 					
-					if(itemsbuf[itemid].wpn)
-						decorations.add(new dHover(x, y, dHOVER, 0));
 						
 					sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
 				}
+				if(itemsbuf[itemid].wpn)
+					decorations.add(new dHover(x, y, dHOVER, 0));
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder())
 			{
@@ -6743,9 +6743,9 @@ bool LinkClass::animate(int)
 						hoverclk = 1;
 						hoverflags |= HOV_INF;
 					}
-					decorations.add(new dHover(x, y, dHOVER, 0));
 					sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(FIX_FLOOR(x)));
 				}
+				decorations.add(new dHover(x, y, dHOVER, 0));
 			}
 			else fall += zinit.gravity;
 		}
