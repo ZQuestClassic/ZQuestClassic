@@ -25,7 +25,7 @@
 
 //	Name,				Code,	Used,	Strict,	Arg1,	Arg,	String
 X(	CantOpenSource,			P,	A,	E,	VOID,	VOID,	"Can't parse the main buffer! Aborting."							)
-X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Included file (%s) not found or cannot be parsed. Please verify your include paths."			)
+X(	CantParseImport,			P,	A,	E,	STR,	VOID,	"Included file '%s' encountered an error."			)
 X(	ImportRecursion,		P,	A,	E,	INT,	VOID,	"Recursion limit of %d hit while preprocessing. Perhaps you have circular imports?"	)
 X(	ImportBadScope,			P,	D	                                                                                  				)
 X(	FunctionRedef,			S,	A,	E,	STR,	VOID,	"Function %s was already declared with that type signature."                            )
@@ -108,5 +108,6 @@ X(	RangeEqual,				CX,	A,	W,	INT,	INT,	"Range is of equal value (%d...%d) on both
 X(	BadReassignCall,				C,	A,	W,	STR,	VOID,	"Reassigning function '%s' was called on a constant value! Reassign failed."				)
 X(	MixedSwitch,				CX,	A,	E,	VOID,	VOID,	"Switch contains both strings and numbers"				)
 X(	AssertFail,				C,	A,	E,	STR,	VOID,	"Assert Failed! %s"				)
+X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Could not find included file '%s'. Please check your include paths!"			)
 
 #undef STR
