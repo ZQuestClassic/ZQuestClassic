@@ -3985,8 +3985,9 @@ enum ASM_DEFINE
 #define MESSAGEDATATEXTWID					0x13A7
 #define MESSAGEDATATEXTHEI					0x13A8
 #define SWITCHKEY					0x13A9
+#define HEROJUMPCOUNT					0x13AA
 
-#define NUMVARIABLES         	0x13AA
+#define NUMVARIABLES         	0x13AB
 
 //} End variables
 

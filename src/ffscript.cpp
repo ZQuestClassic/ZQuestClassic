@@ -3274,6 +3274,10 @@ long get_register(const long arg)
 		case LINKCLIMBING:
 			ret = Link.getOnSideviewLadder()?10000:0;
 			break;
+			
+		case HEROJUMPCOUNT:
+			ret = Link.extra_jump_count * 10000;
+			break;
 		
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -10072,6 +10076,10 @@ void set_register(const long arg, const long value)
 		
 		case LINKCLIMBING:
 			Link.setOnSideviewLadder(value!=0?true:false);
+			break;
+			
+		case HEROJUMPCOUNT:
+			Link.extra_jump_count = value/10000;
 			break;
 	///----------------------------------------------------------------------------------------------------//
 	//Input States

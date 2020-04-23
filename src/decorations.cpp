@@ -719,7 +719,7 @@ bool dHover::animate(int index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
-	return LinkHoverClk()<=0;
+	return LinkHoverClk()==0;
 }
 
 dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)

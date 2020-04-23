@@ -70,6 +70,9 @@ typedef struct tilesequence
 #define GUYCAVE 3
 #define STAIRCAVE 4
 
+#define HOV_INF 0x01
+#define HOV_OUT 0x02
+
 class LinkClass : public sprite
 {
     class WalkflagInfo
@@ -259,6 +262,8 @@ public:
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
 	int last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
+	byte hoverflags;
+	long extra_jump_count;
     // Methods below here.
     void explode(int type);
     int getTileModifier();
