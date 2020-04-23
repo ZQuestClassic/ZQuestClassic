@@ -765,6 +765,7 @@ int PickRuleset()
 			case rulesetModern: // Modern-style
 			{
 				//Modern
+				set_bit(quest_rules, qr_DUNGEON_DMAPS_PERM_SECRETS, 1);
 				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
 				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
 				// set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1); //Let's not set this by default until we fix 'fix' precision...
