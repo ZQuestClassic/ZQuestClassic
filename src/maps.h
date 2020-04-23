@@ -19,6 +19,7 @@ void clear_dmap(word i);
 void clear_dmaps();
 int count_dmaps();
 int isdungeon(int dmap = -1, int scr = -1);
+bool canPermSecret(int dmap = -1, int scr = -1);
 int MAPCOMBO(int x,int y);
 int MAPFFCOMBO(int x,int y);
 int MAPCSET(int x,int y);
