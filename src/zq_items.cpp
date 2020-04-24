@@ -24,6 +24,7 @@
 
 #include "zq_class.h"
 #include "zdefs.h"
+#include "items.h"
 
 void movefairy(fix&,fix&,int)
 {
@@ -63,6 +64,11 @@ int select_dropitem(int, int, int)
 void getitem(int, bool)
 {
     return;
+}
+
+int item::run_script(int)
+{
+	return RUNSCRIPT_OK;
 }
 /*** end of sprite.cc ***/
 

@@ -156,6 +156,14 @@ public:
 	virtual bool runKnockback();
     void explode(int mode);
     //void explode(int type);
+	
+	virtual int run_script(int mode);
+};
+
+enum //run_script modes
+{
+	MODE_NORMAL,
+	MODE_WAITDRAW
 };
 
 /***************************************************************************/
@@ -164,13 +172,14 @@ public:
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255*256
+#define SLMAX 255*(511*4)+1
 
 class sprite_list
 {
     sprite *sprites[SLMAX];
     int count;
 	int active_iterator;
+	long max_sprites;
     map<long, int> containedUIDs;
     // Cache requests from scripts
     mutable long lastUIDRequested;
@@ -190,6 +199,8 @@ public:
     fix getY(int j);
     int getID(int j);
     int getMisc(int j);
+	long getMax() {return max_sprites;}
+	void setMax(long max) {max_sprites = (max < SLMAX ? max : SLMAX);}
     bool del(int j);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
@@ -197,7 +208,9 @@ public:
     void drawcloaked2(BITMAP* dest,bool lowfirst);
     void animate();
     void check_conveyor();
+	void run_script(int mode);
     int Count();
+	bool has_space(int space = 1);
     int hit(sprite *s);
     int hit(int x,int y,int z,int xsize, int ysize, int zsize);
     // returns the number of sprites with matching id

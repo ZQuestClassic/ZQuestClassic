@@ -1,5 +1,5 @@
 // std_constants.zh
-// 5th November, 2019 for ZC 2.55 Alpha 32
+// 24th March, 2020 for ZC 2.55 Alpha 52
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -12,6 +12,8 @@ const float PI2				= 6.2832;
 const float E				= 2.7183;
 
 const untyped NULL				= 0;
+const untyped null				= 0;
+const untyped Null				= 0;
 
 const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
 const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
@@ -35,8 +37,8 @@ const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
 const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
 const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
-const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
-const int MIN_COUNTER 			= -32768; //" -32767
+const int MAX_COUNTER 			= WORD_MAX; 
+const int MIN_COUNTER 			= WORD_MIN;
 
 const int MIN_LWEAPON 			= 1; //Lowest numbered objects.
 const int MIN_EWEAPON 			= 1;
@@ -591,6 +593,57 @@ const int IC_CUSTOM17           = 83;
 const int IC_CUSTOM18           = 84;
 const int IC_CUSTOM19           = 85;
 const int IC_CUSTOM20           = 86;
+
+// These item classes create a projectile of the 
+// type LW_CUSTOM/LW_SCRIPT, 01 to 10
+const int IC_WPN_CUSTOM_01           = 256;
+const int IC_WPN_SCRIPT_01           = 256;
+const int IC_WPN_CUSTOM_02           = 257;
+const int IC_WPN_SCRIPT_02           = 257;
+const int IC_WPN_CUSTOM_03           = 258;
+const int IC_WPN_SCRIPT_03           = 258;
+const int IC_WPN_CUSTOM_04           = 259;
+const int IC_WPN_SCRIPT_04           = 259;
+const int IC_WPN_CUSTOM_05           = 260;
+const int IC_WPN_SCRIPT_05           = 260;
+const int IC_WPN_CUSTOM_06           = 261;
+const int IC_WPN_SCRIPT_06           = 261;
+const int IC_WPN_CUSTOM_07           = 262;
+const int IC_WPN_SCRIPT_07           = 262;
+const int IC_WPN_CUSTOM_08           = 263;
+const int IC_WPN_SCRIPT_08           = 263;
+const int IC_WPN_CUSTOM_09           = 264;
+const int IC_WPN_SCRIPT_09           = 264;
+const int IC_WPN_CUSTOM_19           = 265;
+const int IC_WPN_SCRIPT_10           = 265;
+
+const int IC_ICEROD          	     = 266;
+// 267 is unused; reserved for somaria
+// The following are unimplemented, andreserved.
+const int IC_ETHER                   = 268;
+const int IC_BOMBOS                  = 269;
+const int IC_QUAKE                   = 270;
+const int IC_POWDER                  = 271;
+const int IC_TWOWEL                  = 272;
+const int IC_SHOVEL                  = 273;
+const int IC_INSTRUMENT              = 274;
+const int IC_SWORD180                = 275;
+const int IC_SWORD_GB                = 276;
+const int IC_FIREROD                 = 277;
+
+const int IC_SCRIPTED_01             = 400;
+const int IC_SCRIPTED_02             = 401;
+const int IC_SCRIPTED_03             = 402;
+const int IC_SCRIPTED_04             = 403;
+const int IC_SCRIPTED_05             = 404;
+const int IC_SCRIPTED_06             = 405;
+const int IC_SCRIPTED_07             = 406;
+const int IC_SCRIPTED_08             = 407;
+const int IC_SCRIPTED_09             = 408;
+const int IC_SCRIPTED_10             = 409;
+
+const int IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
+
 
 
 //Item IDs. Use with CreateItem() and Link->Item[].
@@ -1600,6 +1653,7 @@ define FONT_LISA_HEIGHT = 8;
 // PrintString Text Formats. Use with Screen->DrawString.
 const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
+//const int TF_CENTRED           = 1; // in ./locale -- prints the string centered on (x)
 const int TF_RIGHT              = 2; // treats the right-most char as (x)
 
 // Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle
@@ -2655,125 +2709,6 @@ enum
 	_ERR_CONSTALREADYCONSTANT
 };
 
-
-enum ffruletype
-{
-    // 1st byte out of 20
-    qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
-    qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
-    // 2
-    qr_NOLEVEL3FIX, qr_COOLSCROLL, qr_NOSCROLL, qr_4TRI,
-    qr_EXPLICIT_RAFTING, qr_FASTFILL, qr_CAVEEXITNOSTOPMUSIC, qr_3TRI,
-    // 3
-    qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
-    qr_CONTFULL_DEP/*DEPRECATED*/, qr_RLFIX, qr_LENSHINTS, /*DEPRECATED*/ 
-    qr_LINKDUNGEONPOSFIX,
-    // 4
-    qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_FFCSCROLL,
-    qr_RAFTLENS, /*DEPRECATED*/  
-	qr_SMOOTHVERTICALSCROLLING, qr_WHIRLWINDMIRROR, qr_NOFLASHDEATH,
-    // 5
-    qr_HOLDNOSTOPMUSIC, qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_NOCLOCKS_DEP/*DEPRECATED*/,
-    qr_TEMPCLOCKS_DEP/*DEPRECATED*/, qr_BRKBLSHLDS_DEP/*DEPRECATED*/, qr_BRKNSHLDTILES, qr_MEANPLACEDTRAPS,
-    // 6
-    qr_PHANTOMPLACEDTRAPS, qr_ALLOWFASTMSG, qr_LINKEDCOMBOS/*DEPRECATED*/, qr_NOGUYFIRES,
-    qr_HEARTRINGFIX, qr_NOHEARTRING, qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX,
-    // 7
-    qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
-    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
-    // 8
-    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_BITMAPOFFSETFIX, /* UNIMPLEMENTED */
-    qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE/*DEPRECATED*/, qr_SHADOWS,
-    // 9
-    qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
-    qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
-    // 10
-    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
-    qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
-    // 11
-    qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS,
-    qr_NOSAVE, qr_NOCONTINUE, qr_QUARTERHEART, qr_NOARRIVALPOINT,
-    // 12
-    qr_NOGUYPOOF, qr_ALLOWMSGBYPASS, qr_NODIVING, qr_LAYER12UNDERCAVE,
-    qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL, qr_RINGAFFECTDAMAGE/*DEPRECATED*/, qr_ALLOW10RUPEEDROPS_DEP/*DEPRECATED*/,
-    // 13
-    qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT, qr_REDPOTIONONCE_DEP/*DEPRECATED*/, qr_OLDSTYLEWARP,
-    qr_NOBORDER, qr_OLDTRIBBLES_DEP/*DEPRECATED*/, qr_REFLECTROCKS /*DEPRECATED*/, qr_OLDPICKUP,
-    // 14
-    qr_ENEMIESZAXIS, qr_SAFEENEMYFADE, qr_MORESOUNDS, qr_BRANGPICKUP,
-    qr_HEARTPIECEINCR_DEP/*DEPRECATED*/, qr_ITEMSONEDGES, qr_EATSMALLSHIELD_DEP/*DEPRECATED*/, qr_MSGFREEZE,
-    // 15
-    qr_SLASHFLIPFIX/*DEPRECATED*/, qr_FIREMAGICSPRITE_DEP/*DEPRECATED*/, qr_SLOWCHARGINGWALK/*DEPRECATED*/, qr_NOWANDMELEE/*DEPRECATED*/,
-    qr_SLOWBOMBFUSES_DEP/*DEPRECATED*/, qr_SWORDMIRROR, qr_SELECTAWPN, qr_LENSSEESENEMIES, /*DEPRECATED*/ 
-    // 16
-    qr_INSTABURNFLAGS, qr_DROWN, qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES,
-    qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/, qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX,
-    // 17
-    qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFLINK2, qr_NOITEMOFFSET,
-    qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
-    // 18
-    qr_REPLACEOPENDOORS /* Compatibility */, qr_OLDLENSORDER /* Compatibility */, qr_NOFAIRYGUYFIRES /* Compatibility */, qr_SCRIPTERRLOG,
-    qr_TRIGGERSREPEAT /* Compatibility */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
-    // 19
-    qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
-    qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
-    // 20
-    qr_BROKENSTATUES /* Compatibility */, qr_BOMBCHUSUPERBOMB,
-    qr_ITEMPICKUPSETSBELOW /* Compatibility */,
-    
-    qr_NOGANONINTRO, //bugfix//
-    qr_MELEEMAGICCOST/*DEPRECATED*/,
-    qr_OLDMIRRORCOMBOS,
-    qr_BROKENBOOKCOST,
-    qr_OLDSIDEVIEWSPIKES,
-    //21
-	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
-	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
-	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
-	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
-	qr_SIDEVIEWTRIFORCECELLAR,
-	//22
-	qr_OUTOFBOUNDSENEMIES,
-	qr_EPILEPSY,
-	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
-	qr_SMARTDROPS,
-	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
-	qr_USE_EX1_EX2_INVENTORYSWAP,
-	qr_NOFASTMODE,
-	qr_OLD_F6,
-	//23
-	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */, qr_SIDEVIEWLADDER_FACEUP, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
-	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
-	//24
-	qr_OLD_SIDEVIEW_CEILING_COLLISON /* Compatibility */, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES /* Compatibility */, qr_OLD_ENEMY_KNOCKBACK_COLLISION /* Compatibility */,
-	qr_FADEBLACKWIPE, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
-	qr_ANIMATECUSTOMWEAPONS,
-	qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
-	
-	//ZScript Parser //room for 20 of these
-	//80
-	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
-	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default off.
-	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
-	qr_LINKXY_IS_FLOAT,
-	qr_PARSER_TRUE_INT_SIZE, //Default on
-	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
-	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
-	//81
-	qr_OLDSPRITEDRAWS,
-	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,
-	qr_OLDQUESTMISC, 
-	qr_PARSER_FORCE_INLINE,
-	qr_CLEARINITDONSCRIPTCHANGE,
-	//82
-	qr_NOFFCWAITDRAW, qr_NOITEMWAITDRAW, qr_TRACESCRIPTIDS, qr_FIXDRUNKINPUTS,
-	qr_32BIT_BINARY, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
-	//83
-	qr_WEAPONS_EXTRA_FRAME, qr_250WRITEEDEFSCRIPT,
-    qr_MAX
-};
-
 //Flags for SaveSRAM() and LoadSRAM()
  const int SRAM_ALL	 	=	0;
  const int SRAM_NPCDATA 	=	0x01;
@@ -2835,17 +2770,21 @@ enum {
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
-	//16->26 Script Types
+	//16->27 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	//21
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, //26
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
 	
-	//27->29 : Moving items
-	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
-	//30->34 : Misc
+	//28->59: Reserved padding
+	
+	//60->42 : Moving items
+	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
+	//63->67 : Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//35
+	//68
 	susptLAST };
+
 
 enum openingWipeShape
 {
@@ -2881,3 +2820,25 @@ enum //Indexes for Game->Gravity[]
 	GR_TERMINALV,
 	GR_SPRLAYER
 };
+
+enum //Indexes for Game->Scrolling[]
+{
+	SCROLL_DIR,
+	SCROLL_NX,
+	SCROLL_NY,
+	SCROLL_OX,
+	SCROLL_OY
+};
+
+enum //Indexes for messagedata->Flags
+{
+	MSGFLAG_WRAP,         // If the text wraps around the bounding box
+	MSGFLAG_CONT,         // If the message is the continuation of a previous one
+	MSGFLAG_CENTER,       // Reserved
+	MSGFLAG_RIGHT,        // Reserved
+	MSGFLAG_FULLTILE,     // If the background tile should be treated as the UL of a tile block,
+	                      // instead of the UL of a 2x2 adjustable frame
+	MSGFLAG_TRANS_BG,     // If the background should be translucent
+	MSGFLAG_TRANS_FG     // If the text should be translucent
+};
+

@@ -40,6 +40,10 @@ string ZScript::VarToString(long ID)
 	{
 	case SP:
 		return "SP";
+	case PC:
+		return "PC";
+	case SWITCHKEY:
+		return "SWITCHKEY";
 		
 	case DATA:
 		return "DATA";
@@ -253,7 +257,7 @@ string ZScript::VarToString(long ID)
 	case BUTTONPRESS: return "BUTTONPRESS";
 	case BUTTONINPUT: return "BUTTONINPUT";
 	case BUTTONHELD: return "BUTTONHELD";
-	case KEYPRESS: return "KEYPRESS";
+	case RAWKEY: return "RAWKEY";
 	case READKEY: return "READKEY";
 	case DISABLEKEY: return "DISABLEKEY";
 	case DISABLEBUTTON: return "DISABLEBUTTON";
@@ -824,6 +828,9 @@ string ZScript::VarToString(long ID)
 		return "LWPNPARENT";
 	case LWPNLEVEL:
 		return "LWPNLEVEL";
+	
+	case EWPNLEVEL:
+		return "EWPNLEVEL";
 	case EWPNPARENT:
 		return "EWPNPARENT";
 		
@@ -1539,6 +1546,16 @@ string ZScript::VarToString(long ID)
 	case MESSAGEDATAVSPACE: return "MESSAGEDATAVSPACE";
 	case MESSAGEDATAHSPACE: return "MESSAGEDATAHSPACE";
 	case MESSAGEDATAFLAGS: return "MESSAGEDATAFLAGS";
+	case MESSAGEDATAMARGINS: return "MESSAGEDATAMARGINS";
+	case MESSAGEDATAPORTTILE: return "MESSAGEDATAPORTTILE";
+	case MESSAGEDATAPORTCSET: return "MESSAGEDATAPORTCSET";
+	case MESSAGEDATAPORTX: return "MESSAGEDATAPORTX";
+	case MESSAGEDATAPORTY: return "MESSAGEDATAPORTY";
+	case MESSAGEDATAPORTWID: return "MESSAGEDATAPORTWID";
+	case MESSAGEDATAPORTHEI: return "MESSAGEDATAPORTHEI";
+	case MESSAGEDATAFLAGSARR: return "MESSAGEDATAFLAGSARR";
+	case MESSAGEDATATEXTWID: return "MESSAGEDATATEXTWID";
+	case MESSAGEDATATEXTHEI: return "MESSAGEDATATEXTHEI";
 	
 	case DMAPDATAID: return "DMAPDATAID";
 	case DMAPDATAMAP: return "DMAPDATAMAP";
@@ -1589,6 +1606,7 @@ string ZScript::VarToString(long ID)
 	case COMBODANIMFLAGS: return "COMBODANIMFLAGS";
 	case COMBODEXPANSION: return "COMBODEXPANSION";
 	case COMBODATTRIBUTES: return "COMBODATTRIBUTES";
+	case COMBODATTRIBYTES: return "COMBODATTRIBYTES";
 	case COMBODUSRFLAGS: return "COMBODUSRFLAGS";
 	case COMBODTRIGGERFLAGS: return "COMBODTRIGGERFLAGS";
 	case COMBODTRIGGERLEVEL: return "COMBODTRIGGERLEVEL";
@@ -1778,11 +1796,42 @@ string ZScript::VarToString(long ID)
 	case NPCSUBMERGED: return "NPCSUBMERGED";
 	case EWPNPARENTUID: return "EWPNPARENTUID";
 	case GAMEGRAVITY: return "GAMEGRAVITY";
+	case GAMESCROLLING: return "GAMESCROLLING";
 	case COMBODASPEED: return "COMBODASPEED";
 	case DROPSETITEMS: return "DROPSETITEMS";
 	case DROPSETCHANCES: return "DROPSETCHANCES";
 	case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
 	case DROPSETCHOOSE: return "DROPSETCHOOSE";
+	case NPCPARENTUID: return "NPCPARENTUID";
+	case KEYPRESS: return "KEYPRESS";
+	case KEYINPUT: return "KEYINPUT";
+	
+	case SPRITEMAXNPC: return "SPRITEMAXNPC";
+	case SPRITEMAXLWPN: return "SPRITEMAXLWPN";
+	case SPRITEMAXEWPN: return "SPRITEMAXEWPN";
+	case SPRITEMAXITEM: return "SPRITEMAXITEM";
+	case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
+	case SPRITEMAXDECO: return "SPRITEMAXDECO";
+	case HEROHEALTHBEEP: return "HEROHEALTHBEEP";
+	case NPCRANDOM: return "NPCRANDOM";
+	case COMBOXR: return "COMBOXR";
+	case COMBOYR: return "COMBOYR";
+	case COMBOPOSR: return "COMBOPOSR";
+	case COMBODATASCRIPT: return "COMBODATASCRIPT";
+	case COMBODATAINITD: return "COMBODATAINITD";
+	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
+	case SHOPDATATYPE: return "SHOPDATATYPE";
+	case HEROSTEPS: return "HEROSTEPS";
+	case HEROSTEPRATE: return "HEROSTEPRATE";
+	case COMBODOTILE: return "COMBODOTILE";
+	case COMBODFRAME: return "COMBODFRAME";
+	case COMBODACLK: return "COMBODACLK";
+	
+	case FILEPOS: return "FILEPOS";
+	case FILEEOF: return "FILEEOF";
+	case FILEERR: return "FILEERR";
+	
+	case INCQST: return "INCQST";
 	
 	
 	default:
@@ -1894,6 +1943,36 @@ string OSetRegister::toString()
     return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OReadPODArrayR::toString()
+{
+	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OReadPODArrayI::toString()
+{
+	return "READPODARRAYV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRR::toString()
+{
+	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayRI::toString()
+{
+	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayIR::toString()
+{
+	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWritePODArrayII::toString()
+{
+	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OAddImmediate::toString()
 {
     return "ADDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -1943,6 +2022,16 @@ string OCompareImmediate::toString()
 string OCompareRegister::toString()
 {
     return "COMPARER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalStringCompare::toString()
+{
+	return "STRCMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OInternalInsensitiveStringCompare::toString()
+{
+	return "STRICMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OWaitframe::toString()
@@ -2017,6 +2106,11 @@ string OPushImmediate::toString()
 string OPopRegister::toString()
 {
     return "POP " + getArgument()->toString();
+}
+
+string OPopArgsRegister::toString()
+{
+    return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OLoadIndirect::toString()
@@ -2323,6 +2417,21 @@ string OTrace5Register::toString()
 string OTrace6Register::toString()
 {
     return "TRACE6 " + getArgument()->toString();
+}
+
+string OPrintfImmediate::toString()
+{
+	return "PRINTFV " + getArgument()->toString();
+}
+
+string OSPrintfImmediate::toString()
+{
+	return "SPRINTFV " + getArgument()->toString();
+}
+
+string OBreakpoint::toString()
+{
+    return "BREAKPOINT " + getArgument()->toString();
 }
 
 
@@ -2853,6 +2962,26 @@ string OIsSolidMapdata::toString()
     return "MAPDATAISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdataLayer::toString()
+{
+    return "MAPDATAISSOLIDLYR " + getArgument()->toString();
+}
+
+string OIsSolidLayer::toString()
+{
+    return "ISSOLIDLAYER " + getArgument()->toString();
+}
+
+string OLoadTmpScr::toString()
+{
+    return "LOADTMPSCR " + getArgument()->toString();
+}
+
+string OLoadScrollScr::toString()
+{
+    return "LOADSCROLLSCR " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";
@@ -3016,6 +3145,11 @@ string OGetScreenEFlags::toString()
 string OEnd::toString()
 {
     return "GAMEEND";
+}
+
+string OGameReload::toString()
+{
+    return "GAMERELOAD";
 }
 
 string OGameContinue::toString()
@@ -4645,6 +4779,10 @@ string OWriteBitmap::toString()
 {
     return "WRITEBITMAP";
 }
+string OBitmapFree::toString()
+{
+    return "BITMAPFREE";
+}
 
 string OIsValidBitmap::toString()
 {
@@ -4958,6 +5096,39 @@ string OLoadEWeaponBySUIDRegister::toString()
     return "LOADWEAPONCBYSUID " + getArgument()->toString();
 }
 
+string OByte::toString()
+{
+    return "TOBYTE " + getArgument()->toString();
+}
+
+string OToInteger::toString()
+{
+    return "TOINTEGER " + getArgument()->toString();
+}
+
+string OFloor::toString()
+{
+    return "FLOOR " + getArgument()->toString();
+}
+
+string OCeiling::toString()
+{
+    return "CEILING " + getArgument()->toString();
+}
+
+string OSByte::toString()
+{
+    return "TOSIGNEDBYTE " + getArgument()->toString();
+}
+string OWord::toString()
+{
+    return "TOWORD " + getArgument()->toString();
+}
+string OShort::toString()
+{
+    return "TOSHORT " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";
@@ -4972,6 +5143,116 @@ string OFileExists::toString()
 {
 	return "FILEEXISTS " + getArgument()->toString();
 }
+
+string OFileClose::toString()
+{
+	return "FILECLOSE";
+};
+
+string OFileFree::toString()
+{
+	return "FILEFREE";
+};
+
+string OFileIsAllocated::toString()
+{
+	return "FILEISALLOCATED";
+};
+
+string OFileIsValid::toString()
+{
+	return "FILEISVALID";
+};
+
+string OAllocateFile::toString()
+{
+	return "FILEALLOCATE";
+};
+
+string OFileFlush::toString()
+{
+	return "FILEFLUSH";
+};
+
+string OFileGetChar::toString()
+{
+	return "FILEGETCHAR";
+};
+
+string OFileRewind::toString()
+{
+	return "FILEREWIND";
+};
+
+string OFileClearError::toString()
+{
+	return "FILECLEARERR";
+};
+//
+string OFileOpen::toString()
+{
+	return "FILEOPEN " + getArgument()->toString();
+};
+
+string OFileCreate::toString()
+{
+	return "FILECREATE " + getArgument()->toString();
+};
+
+string OFileReadString::toString()
+{
+	return "FILEREADSTR " + getArgument()->toString();
+};
+
+string OFileWriteString::toString()
+{
+	return "FILEWRITESTR " + getArgument()->toString();
+};
+
+string OFilePutChar::toString()
+{
+	return "FILEPUTCHAR " + getArgument()->toString();
+};
+
+string OFileUngetChar::toString()
+{
+	return "FILEUNGETCHAR " + getArgument()->toString();
+};
+
+string OFileGetError::toString()
+{
+	return "FILEGETERROR " + getArgument()->toString();
+};
+//
+string OFileReadChars::toString()
+{
+	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileReadInts::toString()
+{
+	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteChars::toString()
+{
+	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileWriteInts::toString()
+{
+	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileSeek::toString()
+{
+	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileOpenMode::toString()
+{
+	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////

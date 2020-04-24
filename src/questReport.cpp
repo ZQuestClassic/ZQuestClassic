@@ -16,9 +16,9 @@
 #include "zq_class.h"
 #include "zq_misc.h"
 #include "zquest.h"
+#include "qst.h"
 
 extern int bie_cnt;
-extern std::map<int, pair<std::string,std::string> > ffcmap;
 
 std::string quest_report_str;
 
@@ -35,6 +35,79 @@ char *palname_spaced(int pal)
     return buf;
 }
 
+static int isNextType(int type)
+{
+	//return true here, if an emulation bit says to use buggy code
+	switch(type)
+	{
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
+
+static int usesSecretTriggerFlag(int type)
+{
+	//return true here, if an emulation bit says to use buggy code
+	switch(type)
+	{
+		case mfSECRETS01:
+		case mfSECRETS02:
+		case mfSECRETS03: 
+		case mfSECRETS04:      
+		case mfSECRETS05: 
+		case mfSECRETS06:
+		case mfSECRETS07: 
+		case mfSECRETS08:
+		case mfSECRETS09: 
+		case mfSECRETS10: 
+		case mfSECRETS11:
+		case mfSECRETS12:
+		case mfSECRETS13:
+		case mfSECRETS14: 
+		case mfSECRETS15: 
+		case mfSECRETS16:
+		case mfBLOCKTRIGGER:
+		case mfNOBLOCKS:
+		case mfBRANG:
+		case mfMBRANG:
+		case mfFBRANG:
+		case mfSARROW:
+		case mfGARROW:
+		case mfRCANDLE:
+		case mfWANDFIRE:
+		case mfDINSFIRE:
+		case mfWANDMAGIC:
+		case mfREFMAGIC:
+		case mfREFFIREBALL:
+		case mfSWORD:
+		case mfWSWORD:
+		case mfMSWORD:
+		case mfXSWORD:
+		case mfSWORDBEAM:
+		case mfWSWORDBEAM:
+		case mfMSWORDBEAM:
+		case mfXSWORDBEAM:
+		case mfHOOKSHOT:
+		case mfWAND:
+		case mfHAMMER:
+		case mfSTRIKE:
+		case mfSINGLE:
+		case mfSINGLE16:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
 
 DIALOG integrity_report_dlg[] =
 {
@@ -2160,7 +2233,7 @@ void scriptLocationReport()
             if(!script_found)
             {
                 buf[0]=0;
-                sprintf(buf, "\n--- %s ---\n", ffcmap[i-1].second.c_str());
+                sprintf(buf, "\n--- %s ---\n", ffcmap[i-1].scriptname.c_str());
                 quest_report_str+=buf;
             }
             
@@ -2302,10 +2375,62 @@ void ComboLocationReport()
     }
 }
 
+void BuggedNextComboLocationReport()
+{
+    mapscr *ts=NULL;
+    char buf[1024];
+    
+    for(int m=0; m<Map.getMapCount(); ++m)
+    {
+        for(int s=0; s<MAPSCRS; ++s)
+        {
+            int i=(m*MAPSCRS+s);
+            ts=&TheMaps[i];
+            
+            if(!(ts->valid&mVALID))
+                continue;
+            
+            for(int c=0; c<176; ++c)
+            {
+                // Checks both combos and secret combos.
+                if(c<176)
+                {
+		    int cmbid = ts->data[c];
+                    if(isNextType(combobuf[cmbid].type))
+		    {
+			if ( usesSecretTriggerFlag(ts->sflag[c]) )
+			{
+				memset(buf, 0, 1024);
+				sprintf(buf, "Found a buggy Next-> Combo ID (%d) using flag (%d) on map (%d), screen (%d) at position (%d).\n", ts->data[c], ts->sflag[c], m+1, s, c);
+				quest_report_str+=buf;
+			}
+			    
+		    }
+                }
+            }
+        }
+    }
+}
+
 int onComboLocationReport()
 {
     quest_report_str="";
     ComboLocationReport();
+    
+    restore_mouse();
+    
+    if(quest_report_str!="")
+        showQuestReport(vc(15),vc(0));
+    else
+        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,lfont);
+        
+    return D_O_K;
+}
+
+int onBuggedNextComboLocationReport()
+{
+    quest_report_str="";
+    BuggedNextComboLocationReport();
     
     restore_mouse();
     

@@ -98,7 +98,7 @@ void ClearComboScripts()
 		combo_initialised[c] = 0;
 		for ( int l = 0; l < 7; l++)
 		{
-			if ( get_bit(quest_rules, qr_combos_run_scripts_layer_0+l) )
+			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
 			{
 				comboscript_combo_ids[c+(176*l)] = 0;
 				comboScriptData[c+(176*l)].Clear();
@@ -229,31 +229,31 @@ int getCombodataY(int c, int scripttype)
 //'script' is the script number
 case COMBOXR:
 {
-    if ( type == SCRIPT_COMBO )
-    {
-        ret = (( ((i)%16*16) ) * 10000); //comboscriptstack[i]
-        //i is the current script number
-    }
-    else
-    {
-        Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
-        ret = -10000;
-    }
-    break;
+	if ( type == SCRIPT_COMBO )
+	{
+		ret = (( ((i)%16*16) ) * 10000); //comboscriptstack[i]
+		//i is the current script number
+	}
+	else
+	{
+		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].scriptname.c_str() );
+		ret = -10000;
+	}
+	break;
 }
 
 case COMBOYR:
 {
-    if ( type == SCRIPT_COMBO )
-    {
-        ret = (( ((i)&0xF0) ) * 10000); //comboscriptstack[i]
-    }
-    else
-    {
-        Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].second.c_str() );
-        ret = -10000;
-    }
-    break;
+	if ( type == SCRIPT_COMBO )
+	{
+		ret = (( ((i)&0xF0) ) * 10000); //comboscriptstack[i]
+	}
+	else
+	{
+		Z_scripterrorlog("Combo->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[type], ffcmap[script].scriptname.c_str() );
+		ret = -10000;
+	}
+	break;
 }
 
 

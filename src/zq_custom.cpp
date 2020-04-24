@@ -581,6 +581,57 @@ const char *itemdata_weaponlist(int index, int *list_size)
 
 static ListData itemdata_weapon_list(itemdata_weaponlist, &pfont);
 
+list_data_struct biwt[wSwordLA+1];
+int biwt_cnt=-1;
+
+void build_biwt_list()
+{
+    int start=biwt_cnt=0;
+    
+    for(int i=start; i<41; i++)
+    {
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if(moduledata.player_weapon_names[i][0]!='-')
+	{
+		//load these from the module
+	   // biwt[biwt_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+	    //biwt[biwt_cnt].s = (char *)enetype_string[i];
+	    biwt[biwt_cnt].s = (char *)moduledata.player_weapon_names[i];
+	    biwt[biwt_cnt].i = i;
+	    ++biwt_cnt;
+	}
+		
+    }
+    
+    // No alphabetic sorting for this list
+    for(int j=start+1; j<biwt_cnt-1; j++)
+    {
+        if(!strcmp(biwt[j].s,"(None)"))
+        {
+            for(int i=j; i>0; i--)
+                zc_swap(biwt[i],biwt[i-1]);
+                
+            break;
+        }
+    }
+}
+
+const char *weapontypelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biwt_cnt;
+        return NULL;
+    }
+    
+    return biwt[index].s;
+    
+}
+
+static ListData lweapontype_list(weapontypelist, &font);
+
+
 static char itemdata_weapontypelist_str_buf[14];
 
 const char *itemdata_weapontypelist(int index, int *list_size)
@@ -588,7 +639,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,40);
-        
+        al_trace("Selected Weapon: %s\n",(char *)moduledata.player_weapon_names[index]);
 	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
 	else return (char *)moduledata.player_weapon_names[index];
 	/*
@@ -794,7 +845,69 @@ const char *counterlist(int index, int *list_size)
 
 static ListData counter_list(counterlist, &pfont);
 
+const char the_enemy_defences[edLAST][255]=
+{
+	"(None)", "1/2 Damage", "1/4 Damage", "Stun", "Stun Or Block", "Stun Or Ignore", "Block If < 1",
+	"Block If < 2", "Block If < 4", "Block If < 6", "Block If < 8", "Block", "Ignore If < 1", "Ignore",
+	"One-Hit-Kill", "Block if Power < 10", "Double Damage", "Triple Damage", "Quadruple Damage",
+	"Enemy Gains HP = Damage", "Trigger Screen Secrets", "-freeze", "-msgnotenabled", "-msgline", 
+	"-lvldamage", "-lvlreduction", "Split", "Transform", "-lvlblock2", "-lvlblock3", "-lvlblock4", 
+	"-lvlblock5", "-shock", "Bomb Explosion", "Superbomb Explosion", "-deadrock", "-breakshoeld",
+	"-restoreshield", "-specialdrop", "-incrcounter", "-reducecounter", "Harmless Explosion",
+	"-killnosplit", "-tribble", "-fireball", "-fireballlarge", "Summon", "-wingame", "-jump",
+	"-eat", "-showmessage"
+};
 
+
+list_data_struct biedefs[edLAST];
+int biedefs_cnt=-1;
+
+void build_biedefs_list()
+{
+    int start=biedefs_cnt=0;
+    
+    for(int i=start; i<41; i++)
+    {
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if(the_enemy_defences[i][0]!='-')
+	{
+		//load these from the module
+	   // biedefs[biedefs_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+	    //biedefs[biedefs_cnt].s = (char *)enetype_string[i];
+	    biedefs[biedefs_cnt].s = (char *)the_enemy_defences[i];
+	    biedefs[biedefs_cnt].i = i;
+	    ++biedefs_cnt;
+	}
+		
+    }
+    
+    // No alphabetic sorting for this list
+    for(int j=start+1; j<biedefs_cnt-1; j++)
+    {
+        if(!strcmp(biedefs[j].s,"(None)"))
+        {
+            for(int i=j; i>0; i--)
+                zc_swap(biedefs[i],biedefs[i-1]);
+                
+            break;
+        }
+    }
+}
+
+const char *edefslist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biedefs_cnt;
+        return NULL;
+    }
+    
+    return biedefs[index].s;
+    
+}
+
+static ListData enemy_defence_list(edefslist, &pfont);
 
 
 //Moved defenselist up here so that it is also available to itemdata. -Z
@@ -938,7 +1051,7 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemscript_list(itemscriptdroplist, &pfont);
+ListData itemscript_list(itemscriptdroplist, &pfont);
 
 const char *itemspritescriptdroplist(int index, int *list_size)
 {
@@ -953,7 +1066,7 @@ const char *itemspritescriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
 
 const char *lweaponscriptdroplist(int index, int *list_size)
 {
@@ -968,7 +1081,7 @@ const char *lweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
 
 static DIALOG itemdata_special_dlg[] =
 {
@@ -1408,10 +1521,10 @@ static DIALOG itemdata_dlg[] =
     { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
     //293 --weapon editor
     { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweapontype_list,						 NULL,   NULL 				   },
     //295
     { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &enemy_defence_list,						 NULL,   NULL 				   },
     //297
     { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
@@ -2370,6 +2483,11 @@ void edit_itemdata(int index)
         
     itemdata_dlg[197].dp = da[8];
     itemdata_dlg[198].dp = da[9];
+    if(biwt_cnt==-1)
+    {
+        build_biwt_list();
+    }
+    build_biedefs_list();
     
     build_biitems_list();
     build_biitemsprites_list();
@@ -2400,8 +2518,19 @@ void edit_itemdata(int index)
     itemdata_dlg[316].d1 = the_spritescript;
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
-    itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
+     
+    for(int j=0; j<biwt_cnt; j++)
+    {
+        if(biwt[j].i == itemsbuf[index].useweapon)
+            itemdata_dlg[294].d1 = j;
+    }
+    for(int j=0; j<biedefs_cnt; j++)
+    {
+        if(biedefs[j].i == itemsbuf[index].useweapon)
+            itemdata_dlg[296].d1 = j;
+    }
+    //itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
+    //itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
     itemdata_dlg[298].d1 = itemsbuf[index].weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
@@ -2520,10 +2649,14 @@ void edit_itemdata(int index)
 	
 	//! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
+	//test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
 	test.weaprange = vbound(atoi(wrange),0,214747);
 	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_dlg[294].d1;; //atoi(wweap);
+	//test.useweapon = itemdata_dlg[294].d1; //atoi(wweap);
+	
+	test.useweapon = itemdata_dlg[294].d1 != 0 ? biwt[itemdata_dlg[294].d1].i : wNone;
+	test.usedefence = itemdata_dlg[296].d1 != 0 ? biedefs[itemdata_dlg[296].d1].i : 0;
+	
 	test.weap_pattern[0] = itemdata_dlg[298].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
@@ -5764,7 +5897,7 @@ const char *npcscriptdroplist(int index, int *list_size)
     
     return binpcs[index].first.c_str();
 }
-static ListData npcscript_list(npcscriptdroplist, &font);
+ListData npcscript_list(npcscriptdroplist, &font);
 
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
@@ -5785,7 +5918,7 @@ const char *eweaponscriptdroplist(int index, int *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
+ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -7382,8 +7515,14 @@ void edit_enemydata(int index)
             test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
             
         if(enedata_dlg[143].flags & D_SELECTED)
+	{
             test.cset = 14;
-            
+	}
+	//if we disable the box, revert to cset 8 -Z.
+	else if(guysbuf[index].cset == 14 || test.cset == 14)
+	{
+		test.cset = 8;
+	}
 	test.defense[edefSCRIPT01] = enedata_dlg[203].d1;
 	test.defense[edefSCRIPT02] = enedata_dlg[204].d1;
 	test.defense[edefSCRIPT03] = enedata_dlg[205].d1;

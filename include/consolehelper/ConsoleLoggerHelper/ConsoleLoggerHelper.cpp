@@ -1,6 +1,7 @@
 // ConsoleLoggerHelper.cpp : Defines the entry point for the console application.
 //
 
+#include <stdlib.h>
 #include "stdio.h"
 #include "windows.h"
 
@@ -221,6 +222,22 @@ long ConsoleExLoop(void)
 
 }
 
+//Windows Implementation of getch(). getchar() only allows 'Press RETURN/ENTER' to exit, not 'ANY KEY'.
+TCHAR getch() 
+{
+	DWORD mode, cc;
+	HANDLE h = GetStdHandle( STD_INPUT_HANDLE );
+	if (h == NULL) 
+	{
+		return 0; // console not found
+	}
+	GetConsoleMode( h, &mode );
+	SetConsoleMode( h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT) );
+	TCHAR c = 0;
+	ReadConsole( h, &c, 1, &cc, NULL );
+	SetConsoleMode( h, mode );
+	return c;
+}
 
 int main(int argc, char* argv[])
 {
@@ -400,11 +417,16 @@ int main(int argc, char* argv[])
 
 	CloseHandle(g_hPipe);
 
-
+	//std::ios_base::sync_with_stdio(false);
+	//int x;
+	//std::cin >> x;
+	//std::cin.ignore(std::cin.rdbuf()->in_avail());
+	
 	printf("\r\nPress any key to end...\r\n");
-	getchar();
+	getch(); //getchar(); //getchar() only allows pressing RETURN/ENTER, but getch() allows any key to exit. 
 	printf("\r\nConsoleHelper Ended\r\n");
 	return 0;
+	
 }
 
 

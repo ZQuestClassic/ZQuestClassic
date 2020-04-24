@@ -253,6 +253,8 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern char   fontsdat_sig[52];
 
+extern unsigned char console_is_open;
+
 // qst.cc helpers
 bool bad_version(int ver);
 fix LinkModifiedX();
@@ -269,6 +271,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c);
 int getnumber(const char *prompt,int initialval);
 int gettilepagenumber(const char *prompt, int initialval);
 
+void about_module(const char *prompt,int initialval);
 void savesometiles(const char *prompt,int initialval);
 void writesometiles_to(const char *prompt,int initialval);
 
@@ -287,11 +290,15 @@ int readsomedmaps(PACKFILE *f);
 //need readsomedmaps_to, with a starting index, in the future
 void savesomedmaps(const char *prompt,int initialval);
 
+void do_importdoorset(const char *prompt,int initialval);
+void do_exportdoorset(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
 
+bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int onSelectSFX();
 int onOptions();
 void fix_drawing_mode_menu();
@@ -370,7 +377,6 @@ int onGotoPage();
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
-
 
 int playTune1();
 int playTune2();
@@ -519,12 +525,15 @@ int onImportNPCScript();
 int onImportSCREENScript();
 int onImportHEROScript();
 int onImportITEMSPRITEScript();
+int onImportComboScript();
 int onImportDMapScript();
 int onImportLWPNScript();
 int onImportEWPNScript();
 int onImportGScript();
 int onCompileScript();
 int onSlotAssign();
+int onExportZASM();
+int onImportZASM();
 
 
 typedef struct item_struct
@@ -545,7 +554,8 @@ extern weapon_struct biw[wMAX];
 
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
-extern script_struct biitems[NUMSCRIPTFFC]; //item script
+void build_bidcomboscripts_list();
+extern script_struct biitems[NUMSCRIPTITEM]; //item script
 extern int biitems_cnt;
 
 
@@ -640,9 +650,8 @@ enum
     cmdPasteGuy,
     cmdHeader,
     cmdHelp,
-    cmdImportFFScript,
-    cmdImportGScript,
-    cmdImportItemScript,
+    cmdImportZASM,
+    cmdExportZASM,
     cmdImport_Combos,
     cmdImport_DMaps,
     cmdImport_ZGP,
@@ -732,13 +741,16 @@ enum
     cmdShowFlags,
     cmdShowCSet,
     cmdShowType,
+    cmdHeroRules,
     cmdComboRules,
     cmdItemRules,
     cmdEnemyRules,
     cmdFixesRules,
     cmdMiscRules,
-    cmdDefault_Items,
+    cmdZScriptRules,
+    cmdZScriptCompilerRules,
     cmdItemDropSets,
+    cmdDefault_Items,
     cmdPastePalette,
     cmdCompatRules,
     cmdComboLocations,
@@ -750,7 +762,7 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
-    cmdOnScriptRules,
+    cmdFindBuggyNext,
     cmdMAX
 };
 
@@ -1057,6 +1069,7 @@ int d_showedit_proc(int msg,DIALOG *d,int c);
 int onHeader();
 
 //static ZCHEATS tmpcheats;
+int PickRuleset();
 int onCheats();
 int RulesPage_1();
 int RulesPage_2();
@@ -1069,6 +1082,8 @@ int RulesPage_8();
 int RulesPage_9();
 int RulesPage_10();
 int onAnimationRules();
+int onWeaponRules();
+int onHeroRules();
 int onComboRules();
 int onItemRules();
 int onEnemyRules();
@@ -1145,7 +1160,10 @@ void cycle_palette();
 /********************/
 
 void doHelp(int bg,int fg);
+int onshieldblockhelp();
+int onZstringshelp();
 int onHelp();
+int onZScripthelp();
 int edit_layers(mapscr* tempscr);
 void autolayer(mapscr* tempscr, int layer, int al[6][3]);
 int findblankcombo();
@@ -1171,6 +1189,8 @@ void switch_out();
 void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
+void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
 int get_currdmap();
 int current_item(int item_type);
 int current_item_power(int item_type);

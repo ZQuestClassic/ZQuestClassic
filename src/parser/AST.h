@@ -53,6 +53,8 @@ namespace ZScript
 	class ASTFile;
 	class ASTFloat;
 	class ASTString;
+	class ASTAnnotation;
+	class ASTAnnotationList;
 	class ASTSetOption;
 	// Statements
 	class ASTStmt; // virtual
@@ -61,6 +63,7 @@ namespace ZScript
 	class ASTStmtIfElse;
 	class ASTStmtSwitch;
 	class ASTSwitchCases;
+	class ASTRange;
 	class ASTStmtFor;
 	class ASTStmtWhile;
 	class ASTStmtDo;
@@ -69,6 +72,7 @@ namespace ZScript
 	class ASTStmtReturnVal;
 	class ASTStmtBreak;
 	class ASTStmtContinue;
+	class ASTAssert;
 	class ASTStmtEmpty;
 	// Declarations
 	class ASTDecl; // virtual
@@ -290,6 +294,7 @@ namespace ZScript
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		
 		FileScope* scope;
 	};
@@ -336,6 +341,29 @@ namespace ZScript
 		std::string str;
 	};
 
+	class ASTAnnotation : public AST
+	{
+	public:
+		ASTAnnotation(ASTString* first, ASTString* second,
+		          LocationData const& location = LocationData::NONE);
+		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTString> first, second;
+	};
+	
+	class ASTAnnotationList : public AST
+	{
+	public:
+		ASTAnnotationList(LocationData const& location = LocationData::NONE);
+		ASTAnnotationList* clone() const {return new ASTAnnotationList(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_vector<ASTAnnotation> set;
+	};
+	
 	class ASTSetOption : public AST
 	{
 	public:
@@ -429,6 +457,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> key;
 		// A vector of case groupings.
 		owning_vector<ASTSwitchCases> cases;
+		
+		bool isString;
 	private:
 	};
 
@@ -443,10 +473,26 @@ namespace ZScript
 
 		// The list of case labels.
 		owning_vector<ASTExprConst> cases;
+		// The list of string labels
+		owning_vector<ASTStringLiteral> str_cases;
+		//The list of cases with ranges
+		owning_vector<ASTRange> ranges;
 		// If the default case is included in this grouping.
 		bool isDefault;
 		// The block to run.
 		owning_ptr<ASTBlock> block;
+	};
+	
+	class ASTRange : public AST
+	{
+	public:
+		ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location = LocationData::NONE);
+		ASTRange* clone() const {return new ASTRange(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTExprConst> start;
+		owning_ptr<ASTExprConst> end;
 	};
 
 
@@ -589,7 +635,8 @@ namespace ZScript
 			TYPE_DATATYPE,
 			TYPE_SCRIPTTYPE,
 			TYPE_NAMESPACE,
-			TYPE_USING
+			TYPE_USING,
+			TYPE_ASSERT
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -615,11 +662,13 @@ namespace ZScript
 
 		owning_ptr<ASTScriptType> type;
 		std::string name;
+		std::string author;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		
 		Script* script;
 	};
@@ -647,6 +696,7 @@ namespace ZScript
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
 		std::string name;
 		
 		Namespace* namesp;
@@ -692,7 +742,7 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
 		
-		bool getFlag(int flag) const {return flags & flag;}
+		bool getFlag(int flag) const {return (flags & flag) != 0;}
 		void setFlag(int flag, bool state = true);
 		int getFlags() const {return flags;}
 		bool isRun() const;
@@ -811,7 +861,7 @@ namespace ZScript
 		owning_vector<ASTExpr> dimensions;
 
 		// If this declares an a sized array.
-		bool hasSize() const {return (dimensions.size());}
+		bool hasSize() const {return (dimensions.size()>0);}
 
 		// Get the total size of this array at compile time.
 		optional<int> getCompileTimeSize(
@@ -889,7 +939,20 @@ namespace ZScript
 	private:
 		ASTExprIdentifier* identifier;
 	};
+	
+	class ASTAssert : public ASTDecl
+	{
+	public:
+		ASTAssert(ASTExprConst* expr, ASTString* msg = NULL, LocationData const& location = LocationData::NONE);
+		ASTAssert* clone() const {return new ASTAssert(*this);}
 
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		Type getDeclarationType() const {return TYPE_ASSERT;}
+		
+		owning_ptr<ASTExprConst> expr;
+		owning_ptr<ASTString> msg;
+	};
 	////////////////////////////////////////////////////////////////
 	// Expressions
 
@@ -1388,6 +1451,21 @@ namespace ZScript
 		          ASTExpr* right = NULL,
 		          LocationData const& location = LocationData::NONE);
 		ASTExprNE* clone() const {return new ASTExprNE(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+	};
+	
+	class ASTExprAppxEQ : public ASTRelExpr
+	{
+	public:
+		ASTExprAppxEQ(ASTExpr* left = NULL,
+		          ASTExpr* right = NULL,
+		          LocationData const& location = LocationData::NONE);
+		ASTExprAppxEQ* clone() const {return new ASTExprAppxEQ(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 

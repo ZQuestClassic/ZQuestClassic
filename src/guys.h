@@ -102,6 +102,7 @@ public:
     long weap_initiald[8];
     long weap_initiala[2];
     byte stickclk;
+    int parent_script_UID;
    
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
@@ -223,6 +224,7 @@ public:
         return false;
     }
     
+	virtual int run_script(int mode);
 
 protected:
     int  clk2,sclk;
@@ -807,6 +809,8 @@ void movefairy2(fix x,fix y,int misc);
 void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
 int addenemy(int x,int y,int z,int id,int clk);
+int addchild(int x,int y,int id,int clk, int parent_scriptUID);
+int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID);
 bool isjumper(int id);
 bool canfall(int id);
 void addfires();

@@ -17,6 +17,8 @@ int onEnemyLocationReport();
 int onScriptLocationReport();
 int onComboLocationReport();
 int onComboTypeLocationReport();
+int onBuggedNextComboLocationReport();
+void BuggedNextComboLocationReport();
 int onWhatWarpsReport();
 
 //Integrity booleans

@@ -59,6 +59,8 @@ extern bool Playing;
 int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
+byte monochrome_console = 0;
+
 extern FONT *lfont;
 extern LinkClass Link;
 extern FFScript FFCore;
@@ -84,20 +86,21 @@ extern int cheat_modifier_keys[4]; //two options each, default either control an
 static const char *ZC_str = "Zelda Classic";
 extern char save_file_name[1024];
 #ifdef ALLEGRO_DOS
-static  const char *qst_dir_name = "dos_qst_dir";
+const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
-static  const char *qst_dir_name = "win_qst_dir";
+const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
-static  const char *qst_dir_name = "linux_qst_dir";
+const char *qst_dir_name = "linux_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_MACOSX)
-static  const char *qst_dir_name = "macosx_qst_dir";
+const char *qst_dir_name = "macosx_qst_dir";
 static  const char *qst_module_name = "current_module";
 #endif
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
+char qst_files_path[2048];
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -328,6 +331,7 @@ void load_game_configs()
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
+	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
    
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -376,7 +380,8 @@ void load_game_configs()
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
    
     // And this one fixes patches unloading on some MIDI setups
-    midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
+    midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
+	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -493,6 +498,9 @@ void save_game_configs()
     set_config_int(cfg_sect,"fastquit",(int)NESquit);
     set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
+    //set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
+   
+    
    
     set_config_int(cfg_sect,"resx",resx);
     set_config_int(cfg_sect,"resy",resy);
@@ -531,7 +539,8 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
     set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
-    set_config_int("zeldadx","debug_console",zconsole);
+    set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
+	set_config_int("zeldadx","debug_console",zconsole);
 #endif
    
 #ifdef ALLEGRO_LINUX
@@ -3792,21 +3801,26 @@ void updatescr(bool allowwavy)
     else if(Playing && !Paused)
         wavy--; // Wavy was set by a script. Decrement it.
         
-    if(!(msgdisplaybuf->clip) && Playing && msgpos && !screenscrolling)
+    if(Playing && msgpos && !screenscrolling)
     {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+		if(!(msg_bg_display_buf->clip))
+			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+		if(!(msg_portrait_display_buf->clip))
+			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+		if(!(msg_txt_display_buf->clip))
+			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
     }
     
     /*
-    if(!(msgdisplaybuf->clip) && Playing && msgpos && !screenscrolling)
+    if(!(msg_txt_display_buf->clip) && Playing && msgpos && !screenscrolling)
     {
 	    BITMAP* subBmp = 0;
-	    masked_blit(msgdisplaybuf,subBmp,0,0,0,playing_field_offset,256,168);
-	    // masked_blit(msgdisplaybuf,subBmp,0,playing_field_offset,256,168);
+	    masked_blit(msg_txt_display_buf,subBmp,0,0,0,playing_field_offset,256,168);
+	    // masked_blit(msg_txt_display_buf,subBmp,0,playing_field_offset,256,168);
 	     draw_trans_sprite(framebuf, subBmp, 0, playing_field_offset);
 	    destroy_bitmap(subBmp);
 	    //void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip);
-       // masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+       // masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
 	    //void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
     }
     */
@@ -4311,7 +4325,7 @@ void f_Quit(int type)
     
     eat_buttons();
     
-    zc_readkey(KEY_ESC);
+    zc_readrawkey(KEY_ESC);
         
     zc_readkey(KEY_ENTER);
 }
@@ -4562,24 +4576,24 @@ void syskeys()
     
     if(zc_readkey(KEY_F2))    ShowFPS=!ShowFPS;
     
-    if(zc_readkey(KEY_F3) && Playing)    Paused=!Paused;
+    if(zc_readrawkey(KEY_F3) && Playing)    Paused=!Paused;
     
-    if(zc_readkey(KEY_F4) && Playing)
+    if(zc_readrawkey(KEY_F4) && Playing)
     {
         Paused=true;
         Advance=true;
     }
     
-    if(zc_readkey(KEY_F6)) onTryQuit();
+    if(zc_readrawkey(KEY_F6)) onTryQuit();
     
 #ifndef ALLEGRO_MACOSX
-    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F9))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F7))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
 #endif
     if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))    onSaveMapPic();
     
@@ -4831,13 +4845,13 @@ bottom:
 void checkQuitKeys()
 {
 #ifndef ALLEGRO_MACOSX
-    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F9))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readrawkey(KEY_F7))    f_Quit(qRESET);
     
-    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
 #endif
 }
 
@@ -4901,6 +4915,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
         
     Advance=false;
     ++frame;
+	update_keys(); //Update ZScript key arrays
     
     syskeys();
 	if(allowF6Script)
@@ -5272,7 +5287,7 @@ int onContinue()
 
 int onEsc() // Unused?? -L
 {
-    return zc_getkey(KEY_ESC, true)?D_CLOSE:D_O_K;
+    return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
 int onVsync()
@@ -5693,44 +5708,45 @@ int d_jbutton_proc(int msg,DIALOG *d,int c)
 //shnarf
 const char *key_str[] =
 {
-    "(none)",         "a",              "b",              "c",
-    "d",              "e",              "f",              "g",
-    "h",              "i",              "j",              "k",
-    "l",              "m",              "n",              "o",
-    "p",              "q",              "r",              "s",
-    "t",              "u",              "v",              "w",
-    "x",              "y",              "z",              "0",
-    "1",              "2",              "3",              "4",
-    "5",              "6",              "7",              "8",
-    "9",              "num 0",          "num 1",          "num 2",
-    "num 3",          "num 4",          "num 5",          "num 6",
-    "num 7",          "num 8",          "num 9",          "f1",
-    "f2",             "f3",             "f4",             "f5",
-    "f6",             "f7",             "f8",             "f9",
-    "f10",            "f11",            "f12",            "esc",
-    "~",              "-",              "=",              "backspace",
-    "tab",            "{",              "}",              "enter",
-    ":",              "quote",          "\\",             "\\ (2)",
-    ",",              ".",              "/",              "space",
-    "insert",         "delete",         "home",           "end",
-    "page up",        "page down",      "left",           "right",
-    "up",             "down",           "num /",          "num *",
-    "num -",          "num +",          "num delete",     "num enter",
-    "print screen",   "pause",          "abnt c1",        "yen",
-    "kana",           "convert",        "no convert",     "at",
-    "circumflex",     ": (2)",          "kanji",          "num =",
-    "back quote",     ";",              "command",        "unknown (0)",
-    "unknown (1)",    "unknown (2)",    "unknown (3)",    "unknown (4)",
-    "unknown (5)",    "unknown (6)",    "unknown (7)",    "left shift",
-    "right shift",    "left control",   "right control",  "alt",
-    "alt gr",         "left win",       "right win",      "menu",
-    "scroll lock",    "number lock",    "caps lock",      "MAX"
+    "(none)       ",         	  "a            ",              "b            ",              "c            ",
+    "d            ",              "e            ",              "f            ",              "g            ",
+    "h            ",              "i            ",              "j            ",              "k            ",
+    "l            ",              "m            ",              "n            ",              "o            ",
+    "p            ",              "q            ",              "r            ",              "s            ",
+    "t            ",              "u            ",              "v            ",              "w            ",
+    "x            ",              "y            ",              "z            ",              "0            ",
+    "1            ",              "2            ",              "3            ",              "4            ",
+    "5            ",              "6            ",              "7            ",              "8            ",
+    "9            ",              "num 0        ",              "num 1        ",              "num 2        ",
+    "num 3        ",              "num 4        ",              "num 5        ",              "num 6        ",
+    "num 7        ",              "num 8        ",              "num 9        ",       	      "f1           ",
+    "f2           ",              "f3           ",              "f4           ",              "f5           ",
+    "f6           ",              "f7           ",              "f8           ",              "f9           ",
+    "f10          ",              "f11          ",              "f12          ",              "esc          ",
+    "~            ",              "-            ",              "=            ",              "backspace    ",
+    "tab          ",              "{            ",              "}            ",              "enter        ",
+    ":            ",              "quote        ",              "\\           ",              "\\ (2)       ",
+    ",            ",              ".            ",              "/            ",              "space        ",
+    "insert       ",              "delete       ",              "home         ",              "end          ",
+    "page up      ",              "page down    ",              "left         ",              "right        ",
+    "up           ",              "down         ",              "num /        ",              "num *        ",
+    "num -        ",              "num +        ",              "num delete   ",              "num enter    ",
+    "print screen ",              "pause        ",              "abnt c1      ",              "yen          ",
+    "kana         ",              "convert      ",              "no convert   ",              "at           ",
+    "circumflex   ",              ": (2)        ",              "kanji        ",              "num =        ",
+    "back quote   ",              ";            ",              "command      ",              "unknown (0)  ",
+    "unknown (1)  ",              "unknown (2)  ",              "unknown (3)  ",              "unknown (4)  ",
+    "unknown (5)  ",              "unknown (6)  ",              "unknown (7)  ",              "left shift   ",
+    "right shift  ",              "left control ",              "right control",              "alt          ",
+    "alt gr       ",              "left win     ",              "right win    ",              "menu         ",
+    "scroll lock  ",              "number lock  ",              "caps lock    ",      "MAX"
 };
+
 
 const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int zcmusic_bufsz;
 
-static char str_a[80],str_b[80],str_s[80],str_m[16],str_l[16],str_r[16],str_p[16],str_ex1[16],str_ex2[16],str_ex3[16],str_ex4[16],
+static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
 	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80];
 
 int d_stringloader(int msg,DIALOG *d,int c)
@@ -5743,46 +5759,46 @@ int d_stringloader(int msg,DIALOG *d,int c)
 		switch(d->w)
 		{
 			case 0:
-				sprintf(str_a,"%d\n%s",Akey,key_str[Akey]);
-				sprintf(str_b,"%d\n%s",Bkey,key_str[Bkey]);
-				sprintf(str_s,"%d\n%s",Skey,key_str[Skey]);
-				sprintf(str_l,"%d\n%s",Lkey,key_str[Lkey]);
-				sprintf(str_r,"%d\n%s",Rkey,key_str[Rkey]);
-				sprintf(str_p,"%d\n%s",Pkey,key_str[Pkey]);
-				sprintf(str_ex1,"%d\n%s",Exkey1,key_str[Exkey1]);
-				sprintf(str_ex2,"%d\n%s",Exkey2,key_str[Exkey2]);
-				sprintf(str_ex3,"%d\n%s",Exkey3,key_str[Exkey3]);
-				sprintf(str_ex4,"%d\n%s",Exkey4,key_str[Exkey4]);
-				sprintf(str_up,"%d\n%s",DUkey,key_str[DUkey]);
-				sprintf(str_down,"%d\n%s",DDkey,key_str[DDkey]);
-				sprintf(str_left,"%d\n%s",DLkey,key_str[DLkey]);
-				sprintf(str_right,"%d\n%s",DRkey,key_str[DRkey]);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_a,"%03d\n%s",Akey,key_str[Akey]);
+				sprintf(str_b,"%03d\n%s",Bkey,key_str[Bkey]);
+				sprintf(str_s,"%03d\n%s",Skey,key_str[Skey]);
+				sprintf(str_l,"%03d\n%s",Lkey,key_str[Lkey]);
+				sprintf(str_r,"%03d\n%s",Rkey,key_str[Rkey]);
+				sprintf(str_p,"%03d\n%s",Pkey,key_str[Pkey]);
+				sprintf(str_ex1,"%03d\n%s",Exkey1,key_str[Exkey1]);
+				sprintf(str_ex2,"%03d\n%s",Exkey2,key_str[Exkey2]);
+				sprintf(str_ex3,"%03d\n%s",Exkey3,key_str[Exkey3]);
+				sprintf(str_ex4,"%03d\n%s",Exkey4,key_str[Exkey4]);
+				sprintf(str_up,"%03d\n%s",DUkey,key_str[DUkey]);
+				sprintf(str_down,"%03d\n%s",DDkey,key_str[DDkey]);
+				sprintf(str_left,"%03d\n%s",DLkey,key_str[DLkey]);
+				sprintf(str_right,"%03d\n%s",DRkey,key_str[DRkey]);
+				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 				
 			case 1:
-				sprintf(str_a,"%d",Abtn);
-				sprintf(str_b,"%d",Bbtn);
-				sprintf(str_s,"%d",Sbtn);
-				sprintf(str_l,"%d",Lbtn);
-				sprintf(str_r,"%d",Rbtn);
-				sprintf(str_m,"%d",Mbtn);
-				sprintf(str_p,"%d",Pbtn);
-				sprintf(str_ex1,"%d",Exbtn1);
-				sprintf(str_ex2,"%d",Exbtn2);
-				sprintf(str_ex3,"%d",Exbtn3);
-				sprintf(str_ex4,"%d",Exbtn4);
-				sprintf(str_up,"%d",DUbtn);
-				sprintf(str_down,"%d",DDbtn);
-				sprintf(str_left,"%d",DLbtn);
-				sprintf(str_right,"%d",DRbtn);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_a,"%03d",Abtn);
+				sprintf(str_b,"%03d",Bbtn);
+				sprintf(str_s,"%03d",Sbtn);
+				sprintf(str_l,"%03d",Lbtn);
+				sprintf(str_r,"%03d",Rbtn);
+				sprintf(str_m,"%03d",Mbtn);
+				sprintf(str_p,"%03d",Pbtn);
+				sprintf(str_ex1,"%03d",Exbtn1);
+				sprintf(str_ex2,"%03d",Exbtn2);
+				sprintf(str_ex3,"%03d",Exbtn3);
+				sprintf(str_ex4,"%03d",Exbtn4);
+				sprintf(str_up,"%03d",DUbtn);
+				sprintf(str_down,"%03d",DDbtn);
+				sprintf(str_left,"%03d",DLbtn);
+				sprintf(str_right,"%03d",DRbtn);
+				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 				
 			case 2:
@@ -5792,10 +5808,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
 				sprintf(str_m,"%3dKB",zcmusic_bufsz);
 				sprintf(str_r,"%3d",sfx_volume);
 				strcpy(str_s,pan_str[pan_style]);
-				sprintf(str_leftmod1,"%d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
+				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
+				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
+				sprintf(str_rightmod1,"%3d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
+				sprintf(str_rightmod2,"%3d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
 				break;
 		}
 	}
@@ -6393,12 +6409,142 @@ int zc_load_zmod_module_file()
 	    return D_O_K;
 }
 
+static DIALOG module_info_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
+
+    { jwin_win_proc,      0,   0,   200,  200,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "About Current Module", NULL, NULL },
+    //1
+    {  jwin_text_proc,        10,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Module:",               NULL,   NULL  },
+    //2
+    {  jwin_text_proc,        50,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+   {  jwin_text_proc,        10,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Author:",               NULL,   NULL  },
+    //4
+    {  jwin_text_proc,        50,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    40,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    50,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Information:",               NULL,   NULL  },
+    //7
+    
+    {  jwin_text_proc,        10,    60,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    70,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    80,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    90,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    100,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    120,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    130,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    140,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+    {  jwin_text_proc,        10,    150,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
+   
+    { jwin_button_proc,   40,   160,  50,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static const char months[13][13] =
+{ 
+	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+};
+
+static std::string dayextension(int dy)
+{ 
+	char temp[6]; 
+	switch(dy)
+	{
+		
+		
+		//st
+		case 1:
+		case 21:
+		case 31:
+			sprintf(temp,"%d%s",dy,"st"); 
+			break;
+		//nd
+		case 2:
+		case 22:
+			sprintf(temp,"%d%s",dy,"nd"); 
+			break;
+		//rd
+		case 3:
+		case 23:
+			sprintf(temp,"%d%s",dy,"rd"); 
+			break;
+		//th
+		default:
+			sprintf(temp,"%d%s",dy,"th");
+			break;
+	}
+	
+	return std::string(temp); 
+} 
+
+
+void about_zcplayer_module(const char *prompt,int initialval)
+{	
+	
+	module_info_dlg[0].dp2 = lfont;
+	if ( moduledata.moduletitle[0] != NULL )
+		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
+	
+	if ( moduledata.moduleauthor[0] != NULL )
+		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
+	
+	if ( moduledata.moduleinfo0[0] != NULL )
+		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
+	if ( moduledata.moduleinfo1[0] != NULL )
+		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
+	if ( moduledata.moduleinfo2[0] != NULL )
+		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
+	if ( moduledata.moduleinfo3[0] != NULL )
+		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
+	if ( moduledata.moduleinfo4[0] != NULL )
+		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
+	
+	char module_date[255];
+	memset(module_date, 0, sizeof(module_date));
+	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
+			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
+	
+	
+	
+	char module_vers[255];
+	memset(module_vers, 0, sizeof(module_vers));
+	sprintf(module_vers, "Version: %d.%d.%d.%d", moduledata.modver_1, moduledata.modver_2, moduledata.modver_3, moduledata.modver_4);
+	
+	
+	//sprintf(tilecount,"%d",1);
+	
+	char module_build[255];
+	memset(module_build, 0, sizeof(module_build));
+	if ( moduledata.modbeta )
+		sprintf(module_build,"Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+	else
+		sprintf(module_build,"Module Build: %d", moduledata.modbuild);
+	
+	module_info_dlg[12].dp = (char*)module_date;
+	module_info_dlg[13].dp = (char*)module_vers;
+	module_info_dlg[14].dp = (char*)module_build;
+	
+	if(is_large)
+		large_dialog(module_info_dlg);
+	
+	int ret = zc_popup_dialog(module_info_dlg,-1);
+	jwin_center_dialog(module_info_dlg);
+	
+	
+}
+
+int onAbout_ZCP_Module()
+{
+	about_zcplayer_module("About Module (.zmod)", 0);
+	return D_O_K;
+}
 
 //New Modules Menu for 2.55+
 static MENU zcmodule_menu[] =
 {
     { (char *)"&Load Module...",        zc_load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"&About Module",        onAbout_ZCP_Module,           NULL,                     0,            NULL   },
     //divider
    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -6488,7 +6634,7 @@ int onGoToComplete()
     onGoTo();
     eat_buttons();
     
-    zc_readkey(KEY_ESC);
+    zc_readrawkey(KEY_ESC);
         
     show_mouse(NULL);
     game_pal();
@@ -6667,7 +6813,8 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         int  sel=0;
         //struct ffblk f;
         char title[40] = "Save MIDI: ";
-        static char fname[2048] = "";
+        char fname[2048];
+	memset(fname,0,2048);
         static EXT_LIST list[] =
         {
             { (char *)"MIDI files (*.mid)", (char *)"mid" },
@@ -6676,6 +6823,7 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         };
         
         strcpy(title+11, tunes[i].title);
+	title[39] = '\0';
         
         if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, lfont)==0)
             goto done;
@@ -7556,7 +7704,7 @@ static DIALOG cheat_dlg[] =
 
 int onCheat()
 {
-    if(!zcheats.flags && !get_debug())
+    if(!zcheats.flags && !get_debug() && DEVLEVEL < 2)
         return D_O_K;
         
     str_a[0]=0;
@@ -7824,6 +7972,29 @@ int v250_dmap_intro_repeat()
 	    else FFCore.emulation[emu250DMAPINTOREPEAT] = 1;
 	}
     return D_O_K;
+}
+
+
+int buggy_next_combo_secrets_emulation()
+{
+	if(jwin_alert3(
+			"EMULATION: Buggy ->Next Combos", 
+			"This action will change if ->Next Combos Trigger Secrets.",
+			"If enabled, some ->Next combos will immediately trigger secrets.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuBUGGYNEXTCOMBOS] ) FFCore.emulation[emuBUGGYNEXTCOMBOS] = 0;
+	    else FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
+	}
+    return D_O_K;
+	
 }
 
 int v210_segment_drops()
@@ -8109,6 +8280,7 @@ static MENU compat_patch_menu[] =
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
+    { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8189,25 +8361,100 @@ static MENU cheat_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+static MENU fixes_menu[] =
+{
+    { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+};
+
+#if DEVLEVEL > 0
+int devLogging();
+int devDebug();
+#if DEVLEVEL > 1
+int setCheat();
+#endif //DEVLEVEL > 1
+static MENU dev_menu[] =
+{
+	{ (char *)"&Force Error Log",           devLogging,              NULL,             D_SELECTED, NULL },
+	{ (char *)"&Extra Debug Log",           devDebug,                NULL,             D_SELECTED, NULL },
+	#if DEVLEVEL > 1
+	{ (char *)"",                           NULL,                    NULL,             0,          NULL },
+	{ (char *)"Set &Cheat",                 setCheat,                NULL,             0,          NULL },
+	#endif //DEVLEVEL > 1
+	{ NULL,                                 NULL,                    NULL,             0,          NULL }
+};
+int devLogging()
+{
+	dev_logging = !dev_logging;
+	dev_menu[0].flags = dev_logging ? D_SELECTED : 0;
+	return D_O_K;
+}
+int devDebug()
+{
+	dev_debug = !dev_debug;
+	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
+	return D_O_K;
+}
+#if DEVLEVEL > 1
+int setCheat()
+{
+	cheat = (vbound(getnumber("Cheat Level",cheat), 0, 4));
+	return D_O_K;
+}
+#endif //DEVLEVEL > 1
+#endif //DEVLEVEL > 0
 
 MENU the_menu[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
-    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+	#if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+	#endif
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+int onMIDIPatch()
+{
+	if(jwin_alert3(
+			"Toggle Windows MIDI Fix", 
+			"This action will change whether ZC Player auto-restarts a MIDI at its",
+			"last index if you move ZC Player out of focus, then back into focus.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (midi_patch_fix) midi_patch_fix = 0;
+	    
+	    else midi_patch_fix = 1;	
+		
+	}
+	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
+	save_game_configs();
+    return D_O_K;
+}
 
 MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
-    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+	#if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+	#endif
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -9219,16 +9466,19 @@ void System()
     misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
+	#if DEVLEVEL > 1
+	dev_menu[3].flags = Playing ? 0 : D_DISABLED;
+	#endif
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
-    
+    fixes_menu[0].flags = (midi_patch_fix)?D_SELECTED:0;
     clear_keybuf();
     show_mouse(screen);
     
     DIALOG_PLAYER *p;
     
-    if(!Playing || (!zcheats.flags && !get_debug()))
+    if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2))
     {
         p = init_dialog(system_dlg2,-1);
     }
@@ -9238,7 +9488,7 @@ void System()
     }
     
     // drop the menu on startup if menu button pressed
-    if(joybtn(Mbtn)||zc_getkey(KEY_ESC))
+    if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
         simulate_keypress(KEY_G << 8);
         
     do
@@ -9293,6 +9543,7 @@ void System()
 	compat_patch_menu[9].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 32 )  ) ? D_DISABLED : ((FFCore.emulation[emu8WAYSHOTSFX])?D_SELECTED:0);
 	//Bombchus use superbomb when contacting link.
 	compat_patch_menu[10].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 29 )  ) ? D_DISABLED : ((FFCore.emulation[emu210BOMBCHU])?D_SELECTED:0);
+	compat_patch_menu[11].flags = ((FFCore.emulation[emuBUGGYNEXTCOMBOS])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
@@ -10102,6 +10353,36 @@ bool disabledKeys[127]=
 	false,false,false,false,false,false,false
 };
 
+bool KeyInput[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
+bool KeyPress[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
+bool key_truestate[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
+};
+
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
@@ -10113,20 +10394,20 @@ bool button_hold[18] = {false, false, false, false, false, false, false, false, 
 
 void load_control_state()
 {
-    control_state[0]=zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
-    control_state[1]=zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
-    control_state[2]=zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
-    control_state[3]=zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
-    control_state[4]=zc_getkey(Akey, true)||joybtn(Abtn);
-    control_state[5]=zc_getkey(Bkey, true)||joybtn(Bbtn);
-    control_state[6]=zc_getkey(Skey, true)||joybtn(Sbtn);
-    control_state[7]=zc_getkey(Lkey, true)||joybtn(Lbtn);
-    control_state[8]=zc_getkey(Rkey, true)||joybtn(Rbtn);
-    control_state[9]=zc_getkey(Pkey, true)||joybtn(Pbtn);
-    control_state[10]=zc_getkey(Exkey1, true)||joybtn(Exbtn1);
-    control_state[11]=zc_getkey(Exkey2, true)||joybtn(Exbtn2);
-    control_state[12]=zc_getkey(Exkey3, true)||joybtn(Exbtn3);
-    control_state[13]=zc_getkey(Exkey4, true)||joybtn(Exbtn4);
+    control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+    control_state[1]=zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+    control_state[2]=zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+    control_state[3]=zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
+    control_state[4]=zc_getrawkey(Akey, true)||joybtn(Abtn);
+    control_state[5]=zc_getrawkey(Bkey, true)||joybtn(Bbtn);
+    control_state[6]=zc_getrawkey(Skey, true)||joybtn(Sbtn);
+    control_state[7]=zc_getrawkey(Lkey, true)||joybtn(Lbtn);
+    control_state[8]=zc_getrawkey(Rkey, true)||joybtn(Rbtn);
+    control_state[9]=zc_getrawkey(Pkey, true)||joybtn(Pbtn);
+    control_state[10]=zc_getrawkey(Exkey1, true)||joybtn(Exbtn1);
+    control_state[11]=zc_getrawkey(Exkey2, true)||joybtn(Exbtn2);
+    control_state[12]=zc_getrawkey(Exkey3, true)||joybtn(Exbtn3);
+    control_state[13]=zc_getrawkey(Exkey4, true)||joybtn(Exbtn4);
     
     if(num_joysticks != 0)
     {
@@ -10159,21 +10440,22 @@ void load_control_state()
 // Returns true if any game key is pressed. This is needed because keypressed()
 // doesn't detect modifier keys and control_state[] can be modified by scripts.
 bool zc_key_pressed()
+//may also need to use zc_getrawkey
 {
-    if((zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
-       (zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
-       (zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
-       (zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
-       (zc_getkey(Akey, true)||joybtn(Abtn)) ||
-       (zc_getkey(Bkey, true)||joybtn(Bbtn)) ||
-       (zc_getkey(Skey, true)||joybtn(Sbtn)) ||
-       (zc_getkey(Lkey, true)||joybtn(Lbtn)) ||
-       (zc_getkey(Rkey, true)||joybtn(Rbtn)) ||
-       (zc_getkey(Pkey, true)||joybtn(Pbtn)) ||
-       (zc_getkey(Exkey1, true)||joybtn(Exbtn1)) ||
-       (zc_getkey(Exkey2, true)||joybtn(Exbtn2)) ||
-       (zc_getkey(Exkey3, true)||joybtn(Exbtn3)) ||
-       (zc_getkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
+    if((zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
+       (zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
+       (zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
+       (zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
+       (zc_getrawkey(Akey, true)||joybtn(Abtn)) ||
+       (zc_getrawkey(Bkey, true)||joybtn(Bbtn)) ||
+       (zc_getrawkey(Skey, true)||joybtn(Sbtn)) ||
+       (zc_getrawkey(Lkey, true)||joybtn(Lbtn)) ||
+       (zc_getrawkey(Rkey, true)||joybtn(Rbtn)) ||
+       (zc_getrawkey(Pkey, true)||joybtn(Pbtn)) ||
+       (zc_getrawkey(Exkey1, true)||joybtn(Exbtn1)) ||
+       (zc_getrawkey(Exkey2, true)||joybtn(Exbtn2)) ||
+       (zc_getrawkey(Exkey3, true)||joybtn(Exbtn3)) ||
+       (zc_getrawkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
         return true;
     
     return false;
@@ -10207,7 +10489,7 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			ret = zc_getkey(KEY_ESC, ignoreDisable);
+			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			flag = &Mdown;
 			break;
 		default: //control_state[] index
@@ -10551,7 +10833,37 @@ void eat_buttons()
 
 bool zc_readkey(int k, bool ignoreDisable)
 {
-    if(zc_getkey(k, ignoreDisable))
+    if(ignoreDisable) return KeyPress[k];
+	switch(k)
+	{
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return KeyPress[k];
+			
+		default:
+			return KeyPress[k] && !disabledKeys[k];
+	}
+}
+
+bool zc_getkey(int k, bool ignoreDisable)
+{
+	if(ignoreDisable) return KeyInput[k];
+	switch(k)
+	{
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return KeyInput[k];
+			
+		default:
+			return KeyInput[k] && !disabledKeys[k];
+	}
+}
+
+bool zc_readrawkey(int k, bool ignoreDisable)
+{
+    if(zc_getrawkey(k, ignoreDisable))
     {
         key[k]=0;
         return true;
@@ -10560,7 +10872,7 @@ bool zc_readkey(int k, bool ignoreDisable)
     return false;
 }
 
-bool zc_getkey(int k, bool ignoreDisable)
+bool zc_getrawkey(int k, bool ignoreDisable)
 {
 	if(ignoreDisable) return key[k];
 	switch(k)
@@ -10572,6 +10884,16 @@ bool zc_getkey(int k, bool ignoreDisable)
 			
 		default:
 			return key[k] && !disabledKeys[k];
+	}
+}
+
+void update_keys()
+{
+	for(int q = 0; q < 128; ++q)
+	{
+		KeyPress[q] = key[q] && !key_truestate[q];
+		KeyInput[q] = key[q];
+		key_truestate[q] = key[q];
 	}
 }
 

@@ -839,38 +839,38 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
 	getters_[name] = fun;
 	return fun;
 }
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
 	setters_[name] = fun;
 	return fun;
 }
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	FunctionSignature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature_, signature))
 		return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID(), flags);
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
@@ -996,10 +996,10 @@ bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerGetter(name, result))
 		result = NULL;
@@ -1008,10 +1008,10 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerSetter(name, result))
 		result = NULL;
@@ -1020,10 +1020,10 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
@@ -1088,35 +1088,35 @@ RootScope::RootScope(TypeStore& typeStore)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::LINK, "Link", 0);
-	BuiltinConstant::create(*this, DataType::LINK, "Hero", 0);
-	BuiltinConstant::create(*this, DataType::LINK, "Player", 0);
-	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
-	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
-	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
-	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 0);
-	BuiltinConstant::create(*this, DataType::TEXT, "Text", 0);
-	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 0);
-	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 0);
-	BuiltinConstant::create(*this, DataType::INPUT, "Input", 0);
-	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 0);
-	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 0);
-	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 0);
-	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 0);
-	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 0);
-	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 0);
-	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 0);
-	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 0);
-	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 0);
-	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 0);
-	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 0);
-	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 0);
-	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 0);
-	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 0);
-	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 0);
-	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 0);
-	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 0);
+	BuiltinConstant::create(*this, DataType::LINK, "Link", 1);
+	BuiltinConstant::create(*this, DataType::LINK, "Hero", 1);
+	BuiltinConstant::create(*this, DataType::LINK, "Player", 1);
+	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 1);
+	BuiltinConstant::create(*this, DataType::GAME, "Game", 1);
+	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 1);
+	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 1);
+	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 1);
+	BuiltinConstant::create(*this, DataType::TEXT, "Text", 1);
+	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 1);
+	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 1);
+	BuiltinConstant::create(*this, DataType::INPUT, "Input", 1);
+	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 1);
+	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 1);
+	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 1);
+	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 1);
+	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 1);
+	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 1);
+	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 1);
+	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
+	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
+	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
+	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
+	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
+	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
+	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
+	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);
+	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 1);
+	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 1);
 }
 
 optional<int> RootScope::getRootStackSize() const
@@ -1297,26 +1297,41 @@ bool RootScope::registerFunction(Function* function)
 	return true;
 }
 
+string cropPath(string filepath)
+{
+	size_t lastslash = filepath.find_last_of("/");
+	size_t lastbslash = filepath.find_last_of("\\");
+	size_t last = (lastslash == string::npos) ? lastbslash : (lastbslash == string::npos ? lastslash : (lastslash > lastbslash ? lastslash : lastbslash));
+	if(last != string::npos) filepath = filepath.substr(last+1);
+	return filepath;
+}
+
 bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
 	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
+	string fname = cropPath(node->getFilename());
+	for ( int q = 0; q < fname.size(); ++q )
+	{
+		if ( fname.at(q) >= 'A' && fname.at(q) <= 'Z' )
+		{
+			fname.at(q) += 32;
+		}
+	}
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(NULL))
 	{
 		node->disable(); //Disable node.
 		switch(headerGuard)
 		{
 			case OPT_ERROR:
 			{
-				errorHandler->handleError(CompileError::HeaderGuardErr(first, first->getFilename()));
 				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
 				return false; //Error, halt.
 			}
 			
 			case OPT_WARN:
 			{
-				errorHandler->handleError(CompileError::HeaderGuardWarn(first, first->getFilename(), "Using"));
 				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
 				return false; //Warn, and do not allow import
 			}
@@ -1328,7 +1343,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 				
 		}
 	}
-	importsByName_[node->getFilename()] = node;
+	importsByName_[fname] = node;
 	return true; //Allow import
 }
 

@@ -60,6 +60,7 @@ public:
     virtual ~item();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+	virtual int run_script(int mode);
 };
 
 // easy way to draw an item

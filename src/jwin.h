@@ -61,6 +61,8 @@ extern "C"
 /* Disable click to select combo for d_combo_proc */
 #define D_NOCLICK       D_USER
 
+#define D_RESIZED		(D_USER<<1)
+
 /* frame styles */
 enum {
     FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK
@@ -77,6 +79,8 @@ enum
 	jcMAX
 };
 
+extern int abc_patternmatch;
+
 /* a copy of the default color scheme; do what you want with this */
 extern int jwin_colors[jcMAX];
 
@@ -84,12 +88,16 @@ extern int mix_value(int c1,int c2,int pos,int max);
 
 /* 1.5k lookup table for color matching */
 extern unsigned int col_diff[3*128];
+extern int last_droplist_sel;
+
+int get_selected_tab(TABPANEL* panel);
 
 /* you should call this before using the other procedures */
 void jwin_set_colors(int *colors);
 
 /* drawing routines */
 void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style);
+void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style);
 void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame);
 void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type);
 void draw_x_button(BITMAP *dest, int x, int y, int state);
@@ -108,8 +116,13 @@ int jwin_text_proc(int msg, DIALOG *d, int c);
 int jwin_ctext_proc(int msg, DIALOG *d, int c);
 int jwin_rtext_proc(int msg, DIALOG *d, int c);
 int jwin_edit_proc(int msg, DIALOG *d, int c);
-int jwin_hexedit_proc(int msg,DIALOG *d,int c);
-int jwin_numedit_proc(int msg,DIALOG *d,int c);
+int jwin_hexedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to hex. numbers */
+int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers,  bound to ZScript int (no decimals) */
+int jwin_numedit_byte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
+int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed byte (8b) */
+int jwin_numedit_short_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned short int (16b) */
+int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed short int (16b) */
+int jwin_numedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers */
 int jwin_list_proc(int msg, DIALOG *d, int c);
 int jwin_textbox_proc(int msg, DIALOG *d, int c);
 int jwin_slider_proc(int msg, DIALOG *d, int c);
@@ -123,6 +136,9 @@ int jwin_radiofont_proc(int msg, DIALOG *d, int c);
 int jwin_tab_proc(int msg, DIALOG *d, int c);
 int jwin_hline_proc(int msg, DIALOG *d, int c);
 int jwin_vline_proc(int msg, DIALOG *d, int c);
+void _jwin_draw_abclistbox(DIALOG *d);
+int jwin_do_abclist_proc(int msg, DIALOG *d, int c);
+void wipe_abc_keypresses();
 
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);
@@ -147,6 +163,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
                  int src_color1, int src_color2, unsigned char dest_color1,
                  unsigned char dest_color2);
 void jwin_center_dialog(DIALOG *dialog);
+void jwin_ulalign_dialog(DIALOG *dialog);
 
 void _calc_scroll_bar(int h, int height, int listsize, int offset,
                       int *bh, int *len, int *pos);
@@ -163,6 +180,9 @@ extern int  do_zqdialog(DIALOG *dialog, int focus_obj);
 
 int d_jslider_proc(int msg, DIALOG *d, int c);
 int d_jwinbutton_proc(int msg, DIALOG *d, int c);
+
+//Misc bitmap drawing
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
 
 
 #ifdef __cplusplus

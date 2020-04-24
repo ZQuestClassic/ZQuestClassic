@@ -1,0 +1,30 @@
+//std.zh metadata
+
+const float STD_VERSION = 1.7049;
+const int STD_DATE_YEAR = 2020;
+const int STD_DATE_MONTH = 3;
+const int STD_DATE_DAY = 22;
+const int STD_DATE_HOUR = 14;
+const int STD_DATE_MINUTE = 39;
+
+namespace std
+{
+	namespace versioninfo
+	{
+		float Get() { return STD_VERSION; }
+		
+		float GetDatestamp()
+		{
+			float dt = STD_DATE_MONTH;
+			dt += STD_DATE_DAY * 100;
+			dt += STD_DATE_YEAR / 10000;
+			return dt;
+		}
+		float GetTimestamp()
+		{
+			float tm = STD_DATE_HOUR;
+			tm += STD_DATE_MINUTE / 10000;
+			return tm;
+		}
+	} //std::version
+}

@@ -93,6 +93,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(declaration));
 		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(declaration));
+		break;
 	}
 }
 
@@ -263,6 +266,28 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 	visitor.caseString(*this, param);
 }
 
+// ASTAnnotation
+
+ASTAnnotation::ASTAnnotation(ASTString* first, ASTString* second, LocationData const& location)
+	: AST(location), first(first), second(second)
+{}
+
+void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
+{
+	
+}
+
+// ASTAnnotationList
+
+ASTAnnotationList::ASTAnnotationList(LocationData const& location)
+	: AST(location)
+{}
+
+void ASTAnnotationList::execute(ASTVisitor& visitor, void* param)
+{
+	
+}
+
 // ASTSetOption
 
 ASTSetOption::ASTSetOption(
@@ -354,7 +379,7 @@ void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
 // ASTStmtSwitch
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
-	: ASTStmt(location), key(NULL)
+	: ASTStmt(location), key(NULL), isString(false)
 {}
 
 void ASTStmtSwitch::execute(ASTVisitor& visitor, void* param)
@@ -371,6 +396,17 @@ ASTSwitchCases::ASTSwitchCases(LocationData const& location)
 void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseSwitchCases(*this, param);
+}
+
+// ASTRange
+
+ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location)
+	: AST(location), start(start), end(end)
+{}
+
+void ASTRange::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseRange(*this, param);
 }
 
 // ASTStmtFor
@@ -491,7 +527,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name(""), script(NULL) {}
+	: ASTDecl(location), type(NULL), name(""), author(""), script(NULL) {}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {
@@ -513,6 +549,9 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 		break;
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(&declaration));
 		break;
 	}
 }
@@ -547,6 +586,9 @@ void ASTNamespace::addDeclaration(ASTDecl& declaration)
 		break;
 	case ASTDecl::TYPE_USING:
 		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(&declaration));
 		break;
 	}
 }
@@ -849,6 +891,17 @@ ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location
 void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
 {
 	return visitor.caseUsing(*this, param);
+}
+
+// ASTAssert
+
+ASTAssert::ASTAssert(ASTExprConst* expr, ASTString* msg, LocationData const& location)
+	: ASTDecl(location), expr(expr), msg(msg)
+{}
+
+void ASTAssert::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseAssert(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1426,6 +1479,30 @@ optional<long> ASTExprNE::getCompileTimeValue(
 	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
+// ASTExprAppxEQ
+
+ASTExprAppxEQ::ASTExprAppxEQ(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+void ASTExprAppxEQ::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprAppxEQ(*this, param);
+}
+
+optional<long> ASTExprAppxEQ::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if (!rightValue) return nullopt;
+	return (abs(*leftValue - *rightValue) <= (*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+}
+
 // ASTExprXOR
 
 ASTExprXOR::ASTExprXOR(
@@ -1530,8 +1607,10 @@ optional<long> ASTExprTimes::getCompileTimeValue(
 {
 	if (!left || !right) return nullopt;
 	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
-	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if(rightValue && (*rightValue == 0)) return 0;
+	if(leftValue && (*leftValue == 0)) return 0;
+	if (!leftValue) return nullopt;
 	if (!rightValue) return nullopt;
 
 	return long(*leftValue * (*rightValue / 10000.0));

@@ -1,5 +1,5 @@
 // std.zh
-// 5th November, 2019 for ZC 2.55 Alpha 26
+// 8th February, 2020 for ZC 2.55 Alpha 50
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
@@ -11,23 +11,26 @@
 #option SHORT_CIRCUIT on
 	//Should work for everything in std_zh, and just speed it up
 
+//Version Metadata
+#include "std_zh/std_meta.zh"
+
 //User Configuration Files
 #include "std_zh/std_user_defs.zh" //Typedefs: Always first.
 #include "std_zh/std.cfg"
 
 //Main Files
+#include "std_zh/limits.zh"
 #include "std_zh/std_constants.zh"
+#include "std_zh/ffrules.zh"
 #include "std_zh/std_functions.zh"
-#include "std_zh/std_vars.zh"	//Basic array, and some generic handlers. Useful in preventing quest fixing/expansion issues. 
+#include "std_zh/math.zh"
+#include "std_zh/weapon.zh"
 
 //ZScript string handling functions, akin to those found in C
 //#include "string.zh"
 #include "std_zh/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
 #include "std_zh/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
 			     //empty, and the string.ch components load from here. 
-
-//New Functions, for 2.53.0 and above
-#include "std_zh/std_extension.zh"
 
 //Keyboard handling for 2.54 and above
 #include "std_zh/std_keyboard.zh"

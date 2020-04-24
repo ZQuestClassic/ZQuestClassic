@@ -13,6 +13,8 @@
 #include "tiles.h"
 #include "zelda.h"
 #include "ffscript.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern refInfo *ri;
@@ -49,12 +51,6 @@ template<class T> inline
 fixed radians_to_fixed(T d)
 {
     return ftofix(RadtoFix(d));
-}
-
-inline bool file_exists(const char *filename) 
-{
-	std::ifstream ifile(filename);
-	return (bool)ifile;
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
@@ -1710,7 +1706,7 @@ void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -1882,7 +1878,7 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x
@@ -5036,7 +5032,7 @@ void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -5219,7 +5215,7 @@ void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x
@@ -5608,12 +5604,11 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	//Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
-	return;
+		Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
     }
 	int bitid = sdci[17] - 10; 
-	if ( scb.script_created_bitmaps[bitid].u_bmp )
-		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	scb.script_created_bitmaps[bitid].destroy();
     
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
     
@@ -5631,7 +5626,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     PALETTE tempPal;
     get_palette(tempPal);
-    if ( file_exists(str->c_str()) )
+    if ( checkPath(str->c_str(), false) )
     {
 	    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), tempPal);
 	    scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
@@ -5644,7 +5639,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    }
 	    else 
 	    {
-		    Z_scripterrlog("Read image file %s\n",str->c_str());
+		    zprint("Read image file %s\n",str->c_str());
 	    }
     }
     else
@@ -5681,6 +5676,7 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if ( !scb.script_created_bitmaps[bitid].u_bmp ) 
     {
 	    Z_scripterrlog("Tried to write from an invalid bitmap pointer %d. Aborting. \n", sdci[17]);
+		return;
     }
     
     bool overwrite = (sdci[3] != 0);
@@ -5705,12 +5701,26 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	{
 		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());
 	}
-	else if ( overwrite || (!file_exists(str->c_str())) )
+	else if ( overwrite || (!checkPath(str->c_str(), false)) )
 	{
-		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+		if(create_path(str->c_str()))
+		{
+			save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
+			if(checkPath(str->c_str(), false))
+			{
+				zprint("Wrote image file %s\n",str->c_str());
+			}
+			else
+			{
+				Z_scripterrlog("Failed to create file '%s'\n",str->c_str());
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Cannot write file '%s' because the directory does not exist, and could not be created.\n", str->c_str());
+		}
 	}
-	else Z_scripterrlog("Cannot write file %s because the file already exists in the specified path.\n", str->c_str());
+	else Z_scripterrlog("Cannot write file '%s' because the file already exists in the specified path.\n", str->c_str());
 }
 
 
@@ -5919,7 +5929,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     
     int render_source = sdci[14]-10;
-    Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
+    //Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
     
     bool tex_is_bitmap = ( sdci[14] != 0 );
     
@@ -10806,5 +10816,18 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
     
     
     color_map=&trans_table;
+}
+
+void CScriptDrawingCommands::Clear()
+{
+	scb.update();
+	if(commands.empty())
+		return;
+	
+	//only clear what was used.
+	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
+	count = 0;
+	
+	draw_container.Clear();
 }
 

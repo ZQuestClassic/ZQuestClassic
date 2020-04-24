@@ -15,6 +15,7 @@ src/zc_items.cpp
 src/init.cpp
 src/win32.cpp
 src/alleg_compat.cpp
+src/util.cpp
 
 ## End of Zelda Core module
 )

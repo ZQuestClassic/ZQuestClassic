@@ -1,14 +1,6 @@
 //General-Use Arrays with Getter/Setter functions
-///5th November, 2019
 
 //A generic array, pre-included with all quests. 
-
-const float STD_VERSION = 1.6004;
-const int STD_DATE_YEAR = 2019;
-const int STD_DATE_MONTH = 11;
-const int STD_DATE_DAY = 5;
-const int STD_DATE_HOUR = 22;
-const int STD_DATE_MINUTE = 34;
 
 namespace std
 {
@@ -31,25 +23,6 @@ namespace std
 	*  It's essentially a catch-all for questmakers, as a way to later expand a quest, without breaking player
 	*  save files, or requiring them to start from scratch, to play the update. 
 	*/
-
-	namespace version
-	{
-		float Get() { return STD_VERSION; }
-		
-		float GetDatestamp()
-		{
-			float dt = STD_DATE_MONTH;
-			dt += STD_DATE_DAY * 100;
-			dt += STD_DATE_YEAR / 10000;
-			return dt;
-		}
-		float GetTimestamp()
-		{
-			float tm = STD_DATE_HOUR;
-			tm += STD_DATE_MINUTE / 10000;
-			return tm;
-		}
-	} //std::version
 	
 	//Data Handling Functions
 

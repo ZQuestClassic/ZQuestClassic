@@ -44,8 +44,9 @@ public:
 
 protected:
     AccessorTable *table;
-	LibrarySymbols() : refVar(0) {}
+	LibrarySymbols() : refVar(0), hasPrefixType(true) {}
     int refVar;
+	bool hasPrefixType;
 
 	ZScript::Function* getFunction(string const& name, int numParams) const;
 

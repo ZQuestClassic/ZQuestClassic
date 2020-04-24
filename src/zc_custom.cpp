@@ -23,6 +23,7 @@ extern wpndata    *wpnsbuf;
 
 int script_link_sprite = 0;
 int script_link_flip = -1;
+int script_link_cset = -1;
 
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                    tile/flip/extend

@@ -39,7 +39,7 @@ std::string varToString(long arg)
 string getOpcodeString(ffscript const* line)
 {
 	script_command s_c = command_list[line->command];
-	al_trace("%s - %ld - %ld\n", s_c.name, line->arg1, line->arg2);
+	//al_trace("%s - %ld - %ld\n", s_c.name, line->arg1, line->arg2);
 	char buf[0x100];
 	char a1buf[0x100];
 	char a2buf[0x100];
@@ -94,14 +94,32 @@ string getOpcodeString(ffscript const* line)
 	return string(buf);
 }
 
-vector<ZScript::Opcode*> disassemble_script(ffscript const* script)
+disassembled_script_data disassemble_script(script_data const* script)
 {
-	al_trace("DISASSEMBLY:\n");
-	vector<ZScript::Opcode*> code;
-	for(long lineCount = 0; script[lineCount].command != 0xFFFF; ++lineCount)
+	// al_trace("DISASSEMBLY:\n");
+	ffscript const* zasm = script->zasm;
+	disassembled_script_data data;
+	data.first = script->meta;
+	for(long lineCount = 0; zasm[lineCount].command != 0xFFFF; ++lineCount)
 	{
-		code.push_back(new ZScript::ArbitraryOpcode(getOpcodeString(&script[lineCount])));
+		data.second.push_back(new ZScript::ArbitraryOpcode(getOpcodeString(&zasm[lineCount])));
 	}
-	return code;
+	return data;
+}
+
+void write_script(FILE* dest, disassembled_script_data const& data)
+{
+	string meta_str = get_meta(data.first);
+	fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), dest);
+	for(vector<ZScript::Opcode *>::const_iterator line = data.second.begin(); line != data.second.end(); ++line)
+	{
+		string theline = (*line)->printLine();
+		fwrite(theline.c_str(), sizeof(char), theline.size(), dest);
+	}
+}
+
+void write_script(FILE* dest, script_data const* script)
+{
+	write_script(dest, disassemble_script(script));
 }
 

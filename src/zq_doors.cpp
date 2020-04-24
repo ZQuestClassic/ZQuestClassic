@@ -1541,6 +1541,96 @@ static DIALOG doorcombosetlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static int copiedDoor;
+static MENU doorlist_rclick_menu[] =
+{
+    //{ (char *)"Copy",  NULL, NULL, 0, NULL },
+    //{ (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void doorlist_rclick_func(int index, int x, int y)
+{
+    //if(bii[index].i<0) // Clicked (none)?
+    if(index < 0) // Clicked (none)?
+        return;
+    
+    //if(copiedItem<0)
+    //    doorlist_rclick_menu[1].flags|=D_DISABLED;
+    //else
+    //    doorlist_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(doorlist_rclick_menu, x, y);
+    char name[256] = {0};
+    
+    if(ret==0) // save
+    {
+	if(!getname("Save Doorset(.zdoors)", "zdoors", NULL,datapath,false))
+	{
+                return;
+	}
+	//int iid = bii[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .zitem packfile %s\n", temppath);
+	}
+	*/
+	int ret = writeonezdoorset(f,index);
+	pack_fclose(f);
+	char tmpbuf[512]={0};
+	if ( ret )
+	{
+		extract_name(temppath,name,FILENAMEALL);
+		sprintf(tmpbuf,"Saved %s",name);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		extract_name(temppath,name,FILENAMEALL);
+		sprintf(tmpbuf,"Failed to save %s",name);
+		jwin_alert("Error!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+        
+    }
+    else if(ret==1) // load
+    {
+	if(!getname("Load Item(.zdoors)", "zdoors", NULL,datapath,false))
+                return;
+	extract_name(filepath,name,FILENAMEALL);
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	int ret = readonezdoorset(f,index);
+				
+	if (!ret)
+	{
+		al_trace("Could not read from .zdoors packfile %s\n", temppath);
+		jwin_alert("ZDOOR File: Error","Could not load the specified doorset.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else if ( ret == 1 )
+	{
+		jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		saved=false;
+	}
+	else if ( ret == 2 )
+	{
+		jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		saved=false;
+	}
+	pack_fclose(f);
+        //itemsbuf[bii[index].i]=itemsbuf[copiedItem];
+        doorcombosetlist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
+        saved=false;
+    }
+}
+
 void reset_doorcomboset(int index);
 void fix_door_combo_set(word &door_combo_set, byte index);
 
@@ -1647,6 +1737,8 @@ int onDoorCombos()
     go();
     int index=0;
     doorcombosetlist_dlg[0].dp2=lfont;
+    doorcombosetlist_dlg[2].dp3 = (void *)&doorlist_rclick_func;
+    doorcombosetlist_dlg[2].flags|=(D_USER<<1);
     
     while(index!=-1)
     {

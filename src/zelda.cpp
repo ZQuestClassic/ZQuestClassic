@@ -30,7 +30,7 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "metadata/devsig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
@@ -54,9 +54,21 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "ffasm.h"
+#include "qst.h"
+#include "util.h"
+using namespace util;
 extern FFScript FFCore; //the core script engine.
 #ifdef _WIN32
 	#include "ConsoleLogger.h"
+#else //Unix
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <iostream>
+	#include <sstream>
+	int pt = 0;
+	char* ptname = NULL;
+	std::ostringstream lxconsole_oss;
 #endif
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
@@ -94,19 +106,25 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+#if DEVLEVEL > 0
+bool dev_logging = true;
+bool dev_debug = true;
+#endif
+
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
 int colordepth;
 int db=0;
 //zinitdata  zinit;
 int detail_int[10];                                         //temporary holder for things you want to detail
-int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
-int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+int lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            //aclk, aframe
+int lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
 int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
+unsigned char __isZQuest = 0; //shared functions can use this. -
 int strike_hint_timer=0;
-int strike_hint;
-int slot_arg, slot_arg2;
+int strike_hint = 0;
+int slot_arg = 0, slot_arg2 = 0;
 char save_file_name[1024] = "zc.sav";
 //char *SAVE_FILE = (char *)"zc.sav";
 char *SAVE_FILE = NULL;
@@ -115,18 +133,8 @@ CScriptDrawingCommands script_drawing_commands;
 
 using std::string;
 using std::pair;
-extern std::map<int, pair<string,string> > ffcmap;
-extern std::map<int, pair<string,string> > globalmap;
-extern std::map<int, pair<string, string> > itemmap;
-extern std::map<int, pair<string, string> > npcmap;
-extern std::map<int, pair<string, string> > ewpnmap;
-extern std::map<int, pair<string, string> > lwpnmap;
-extern std::map<int, pair<string, string> > linkmap;
-extern std::map<int, pair<string, string> > dmapmap;
-extern std::map<int, pair<string, string> > screenmap;
-extern std::map<int, pair<string, string> > itemspritemap;
 
-int zq_screen_w, zq_screen_h;
+int zq_screen_w = 0, zq_screen_h = 0;
 int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
@@ -134,6 +142,7 @@ int passive_subscreen_offset=0;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
+extern int hangcount;
 
 extern bool kb_typing_mode;
 
@@ -143,8 +152,8 @@ bool standalone_mode=false;
 char *standalone_quest=NULL;
 bool skip_title=false;
 
-int favorite_combos[MAXFAVORITECOMBOS];
-int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
+int favorite_combos[MAXFAVORITECOMBOS] = {0};
+int favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
 
 void playLevelMusic();
 
@@ -155,6 +164,7 @@ int draw_screen_clip_rect_y1=0;
 int draw_screen_clip_rect_y2=223;
 
 extern int script_link_sprite; 
+extern int script_link_cset; 
 extern int script_link_flip; 
 
 volatile int logic_counter=0;
@@ -247,7 +257,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -290,73 +300,77 @@ bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of bla
 */
 bool ewind_restart=false;
 
-word     msgclk, msgstr,
-         msgpos,	// screen position of the next character.
-         msgptr,	// position within the string of the next character. <MSGSIZE.
-         msgcolour,	// colour to use for the displayed text.
-         msgspeed,	// delay between each character (5 = default).
-         msg_w,
-         msg_h,
-         msg_count,
-         cursor_x,
-         cursor_y,
+word     msgclk = 0, msgstr = 0,
+         msgpos = 0,	// screen position of the next character.
+         msgptr = 0,	// position within the string of the next character. <MSGSIZE.
+         msgcolour = 0,	// colour to use for the displayed text.
+         msgspeed = 0,	// delay between each character (5 = default).
+         msg_w = 0,
+         msg_h = 0,
+         msg_count = 0,
+         cursor_x = 0,
+         cursor_y = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+byte msg_margins[4] = {0};
+int prt_tile=0;
+byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
-BITMAP   *msgbmpbuf = NULL;
+BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
 FONT	 *msgfont;
 word     door_combo_set_count;
-word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-short    lensclk;
-int     lensid; // Lens's item id. -1 if lens is off.
-int    Bpos;
-byte screengrid[22];
-byte ffcgrid[4];
+word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
+short    lensclk = 0;
+int     lensid = 0; // Lens's item id. -1 if lens is off.
+int    Bpos = 0;
+byte screengrid[22]={0};
+byte screengrid_layer[2][22]={0};
+byte ffcgrid[4]={0};
 bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
 PALETTE tempbombpal;
-bool usebombpal;
+bool usebombpal = false;
 
-int readsize, writesize;
+int readsize = 0, writesize = 0;
 bool fake_pack_writing=false;
 combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compile. All memory from this is freed after loading the quest file.
 
-SAMPLE customsfxdata[WAV_COUNT];
-unsigned char customsfxflag[WAV_COUNT>>3];
+SAMPLE customsfxdata[WAV_COUNT] = {0};
+unsigned char customsfxflag[WAV_COUNT>>3]  = {0};
 int sfxdat=1;
 BITMAP *hw_screen;
-int zqwin_scale;
+int zqwin_scale = 0;
 
-int jwin_pal[jcMAX];
+int jwin_pal[jcMAX] = {0};
 int gui_colorset=0;
-int fullscreen;
+int fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
 byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
-int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
+int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
-int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
-int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+int lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0;
+int digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
-int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+int joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 unsigned long GameFlags=0;
-int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
-int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
-int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
-int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
-int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
-int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
-int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
-int nets=1580, magicitem=-1,nayruitem=-1, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
+int js_stick_1_x_stick = 0, js_stick_1_x_axis = 0, js_stick_1_x_offset = 0;
+int js_stick_1_y_stick = 0, js_stick_1_y_axis = 0, js_stick_1_y_offset = 0;
+int js_stick_2_x_stick = 0, js_stick_2_x_axis = 0, js_stick_2_x_offset = 0;
+int js_stick_2_y_stick = 0, js_stick_2_y_axis = 0, js_stick_2_y_offset = 0;
+int DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn = 0, DRbtn = 0, ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
+int hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
+int cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0;
+int gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
+int nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 float avgfps=0;
 dword fps_secs=0;
 bool do_cheat_goto=false, do_cheat_light=false;
-int checkx, checky;
+int checkx = 0, checky = 0;
 int loadlast=0;
 int skipcont=0;
 int skipicon=0;
@@ -369,49 +383,48 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
 
 
-bool Throttlefps, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS, Showpal=false, disableClickToFreeze=false;
-bool Playing, FrameSkip=false, TransLayers;
-bool __debug=false,debug_enabled;
-bool refreshpal,blockpath,loaded_guys,freeze_guys,
-     loaded_enemies,drawguys,details=false,watch;
-bool darkroom=false,naturaldark=false,BSZ;                         //,NEWSUBSCR;
-bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11, F5,keyI, keyQ,
-     SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
+bool Throttlefps = true, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
+bool Playing, FrameSkip=false, TransLayers = true;
+bool __debug=false,debug_enabled = false;
+bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
+     loaded_enemies= false,drawguys= false,details=false,watch= false;
+bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
+bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
+     SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
      pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
-     pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
-     is_on_conveyor, activated_timed_warp=false;
+     pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
+     is_on_conveyor= false, activated_timed_warp=false;
 
-byte COOLSCROLL;
+byte COOLSCROLL = 0;
 
 int  add_asparkle=0, add_bsparkle=0;
 int SnapshotFormat, NameEntryMode=0;
 
-char   zeldadat_sig[52];
-char   sfxdat_sig[52];
-char   fontsdat_sig[52];
-char   cheat_goto_dmap_str[4];
-char   cheat_goto_screen_str[3];
-short  visited[6];
-byte   guygrid[176];
+char   zeldadat_sig[52]={0};
+char   sfxdat_sig[52]={0};
+char   fontsdat_sig[52]={0};
+char   cheat_goto_dmap_str[4]={0};
+char   cheat_goto_screen_str[3]={0};
+short  visited[6]={0};
+byte   guygrid[176]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
-ffscript *ffscripts[NUMSCRIPTFFC];
-ffscript *itemscripts[NUMSCRIPTITEM];
-ffscript *globalscripts[NUMSCRIPTGLOBAL];
-
-//If only...
-ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
-ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
-ffscript *linkscripts[NUMSCRIPTLINK];
-ffscript *screenscripts[NUMSCRIPTSCREEN];
-ffscript *dmapscripts[NUMSCRIPTSDMAP];
-ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *ffscripts[NUMSCRIPTFFC];
+script_data *itemscripts[NUMSCRIPTITEM];
+script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *guyscripts[NUMSCRIPTGUYS];
+script_data *wpnscripts[NUMSCRIPTWEAPONS];
+script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+script_data *ewpnscripts[NUMSCRIPTWEAPONS];
+script_data *linkscripts[NUMSCRIPTLINK];
+script_data *screenscripts[NUMSCRIPTSCREEN];
+script_data *dmapscripts[NUMSCRIPTSDMAP];
+script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;
@@ -435,8 +448,8 @@ void ScriptOwner::clear()
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
-ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
+ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -452,7 +465,7 @@ void setZScriptVersion(int s_version)
 
 void initZScriptArrayRAM(bool firstplay)
 {
-    for(word i = 0; i < MAX_ZCARRAY_SIZE; i++)
+    for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
     {
         localRAM[i].Clear();
         arrayOwner[i].clear();
@@ -516,7 +529,7 @@ dword getNumGlobalArrays()
     
     do
     {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT][pc].command;
+        scommand = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
@@ -531,18 +544,18 @@ dword getNumGlobalArrays()
 //movingblock mblock2; //mblock[4]?
 //LinkClass   Link;
 
-int resx,resy,scrx,scry;
-bool sbig;                                                  // big screen
-bool sbig2;													// bigger screen
+int resx= 0,resy= 0,scrx= 0,scry= 0;
+bool sbig=false;                                                  // big screen
+bool sbig2=false;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
-bool scanlines;                                             //do scanlines if sbig==1
+bool scanlines=false;                                             //do scanlines if sbig==1
 bool toogam=false;
 bool ignoreSideview=false;
 
 int cheat = (DEVLEVEL > 1) ? 4 : 0;                         // 0 = none; 1,2,3,4 = cheat level
 
-int mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
-int idle_count, active_count;
+int mouse_down=0;                                             // used to hold the last reading of 'gui_mouse_b()' status
+int idle_count=0, active_count=0;
 
 
 // quest file data
@@ -551,16 +564,16 @@ byte                quest_rules[QUESTRULES_NEW_SIZE];
 byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count;
+word                map_count=0;
 MsgStr              *MsgStrings;
-int					msg_strings_size;
+int					msg_strings_size=0;
 DoorComboSet        *DoorComboSets;
 dmap                *DMaps;
 miscQdata           QMisc;
 std::vector<mapscr> TheMaps;
 zcmap               *ZCMaps;
 byte                *quest_file;
-dword               quest_map_pos[MAPSCRS*MAXMAPS2];
+dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
@@ -848,18 +861,22 @@ int donew_shop_msg(int itmstr, int shopstr)
     msgspeed=zinit.msg_speed;
     
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-        clear_bitmap(msgdisplaybuf);
+	{
+        clear_bitmap(msg_bg_display_buf);
+        clear_bitmap(msg_txt_display_buf);
+	}
         
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
-    clear_bitmap(msgbmpbuf);
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
+    clear_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_bg_display_buf, 1);
+    clear_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_txt_bmp_buf);
+    clear_bitmap(msg_bg_bmp_buf);
+    clear_bitmap(msg_portrait_bmp_buf);
     
-    //transparency needs to occur here. -Z
-    if(MsgStrings[msgstr].tile!=0)
-    {
-        frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
-                 (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
-    }
+	msg_bg(MsgStrings[msgstr]);
     
     msgclk=msgpos=msgptr=0;
     msgspace=true;
@@ -867,9 +884,95 @@ int donew_shop_msg(int itmstr, int shopstr)
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
     return tempmsgnext;
+}
+void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
+{
+	for(int tx = 0; tx < w; ++tx)
+		for(int ty = 0; ty < h; ++ty)
+		{
+			int c1 = src->line[sy+ty][sx+tx];
+			int c2 = dest->line[dy+ty][dx+tx];
+			if(c1)
+			{
+				dest->line[dy+ty][dx+tx] = trans_table.data[c1][c2];
+			}
+		}
+}
+void msg_bg(MsgStr const& msg)
+{
+	if(msg.tile == 0) return;
+	if(msg.stringflags & STRINGFLAG_FULLTILE)
+	{
+		draw_block_flip(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
+			(int)ceil(msg.w/16.0),(int)ceil(msg.h/16.0),0,true,false);
+	}
+	else
+	{
+        frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
+                 (msg.w>>3)+2,(msg.h>>3)+2,0,true,0);
+	}
+}
+void msg_prt()
+{
+	clear_bitmap(msg_portrait_bmp_buf);
+	if(prt_tile > 0 && prt_th > 0 && prt_tw > 0)
+	{
+		draw_block_flip(msg_portrait_bmp_buf,0,0,prt_tile,prt_cset,
+			prt_tw, prt_th, 0, true, false);
+	}
+}
+void blit_msgstr_bg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_BG)
+	{
+		BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		if(subbmp)
+		{
+			color_map = &trans_table2;
+			clear_bitmap(subbmp);
+			masked_blit(msg_bg_display_buf, subbmp, sx, sy, 0, 0, w, h);
+			draw_trans_sprite(dest, subbmp, dx, dy);
+			destroy_bitmap(subbmp);
+			color_map = &trans_table;
+		}
+		//zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
+	}
+	else
+	{
+		masked_blit(msg_bg_display_buf, dest, sx, sy, dx, dy, w, h);
+	}
+}
+void blit_msgstr_fg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_FG)
+	{
+		BITMAP* subbmp = create_bitmap_ex(8,w,h);
+		if(subbmp)
+		{
+			color_map = &trans_table2;
+			clear_bitmap(subbmp);
+			masked_blit(msg_txt_display_buf, subbmp, sx, sy, 0, 0, w, h);
+			draw_trans_sprite(dest, subbmp, dx, dy);
+			destroy_bitmap(subbmp);
+			color_map = &trans_table;
+		}
+		//zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
+	}
+	else
+	{
+		masked_blit(msg_txt_display_buf, dest, sx, sy, dx, dy, w, h);
+	}
+}
+void blit_msgstr_prt(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
+{
+	masked_blit(msg_portrait_display_buf, dest, sx, sy, dx, dy, w, h);
 }
 
 void clearmsgnext(int str)
@@ -895,27 +998,43 @@ void donewmsg(int str)
     msgspeed=zinit.msg_speed;
     
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-        clear_bitmap(msgdisplaybuf);
+	{
+        clear_bitmap(msg_bg_display_buf);
+        clear_bitmap(msg_txt_display_buf);
+	}
         
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
-    clear_bitmap(msgbmpbuf);
-    
-    //transparency needs to occur here. -Z
-    if(MsgStrings[msgstr].tile!=0)
-    {
-        frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
-                 (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
-    }
-    
+    clear_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
+    clear_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_txt_bmp_buf);
+    clear_bitmap(msg_bg_bmp_buf);
+    clear_bitmap(msg_portrait_bmp_buf);
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
-    cursor_x=0;
-    cursor_y=0;
+	prt_tile=MsgStrings[msgstr].portrait_tile;
+	prt_cset=MsgStrings[msgstr].portrait_cset;
+	prt_x=MsgStrings[msgstr].portrait_x;
+	prt_y=MsgStrings[msgstr].portrait_y;
+	prt_tw=MsgStrings[msgstr].portrait_tw;
+	prt_th=MsgStrings[msgstr].portrait_th;
+    
+    //transparency needs to occur here. -Z
+    msg_bg(MsgStrings[msgstr]);
+    msg_prt();
+    
+	for(int q = 0; q < 4; ++q)
+	{
+		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
+	}
+    cursor_x=msg_margins[left];
+    cursor_y=msg_margins[up];
 }
 
 // Called to make a message disappear
@@ -925,10 +1044,15 @@ void dismissmsg()
     msgstr = msgclk=msgpos=msgptr=0;
     cursor_x=0;
     cursor_y=0;
+	prt_tile=0;
     msg_onscreen = msg_active = false;
     //Link.finishedmsg(); //Not possible?
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_bg_display_buf, 1);
+    clear_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
 }
 
 void dointro()
@@ -987,18 +1111,10 @@ void hit_close_button()
 // Yay, more extern globals.
 extern byte curScriptType;
 extern word curScriptNum;
-extern std::map<int, std::pair<std::string, std::string> > ffcmap;
-extern std::map<int, std::pair<std::string, std::string> > globalmap;
-extern std::map<int, std::pair<std::string, std::string> > itemmap;
-extern std::map<int, std::pair<std::string, std::string> > npcmap;
-extern std::map<int, std::pair<std::string, std::string> > ewpnmap;
-extern std::map<int, std::pair<std::string, std::string> > lwpnmap;
-extern std::map<int, std::pair<std::string, std::string> > linkmap;
-extern std::map<int, std::pair<std::string, std::string> > dmapmap;
-extern std::map<int, std::pair<std::string, std::string> > screenmap;
-extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
 
+#ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+#endif
 
 void Z_eventlog(const char *format,...)
 {
@@ -1018,6 +1134,9 @@ void Z_eventlog(const char *format,...)
 	#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n";
+			printf("%s", buf);	
 		#endif
     }
 }
@@ -1029,94 +1148,138 @@ void Z_scripterrlog(const char * const format,...)
         switch(curScriptType)
         {
         case SCRIPT_GLOBAL:
-            al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+            al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
-			curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+			curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Global script %u (%s): \n", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
 		#endif
             break;
 	
 	case SCRIPT_LINK:
-            al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
+            al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
-		#endif    
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+		#endif 
 	break;
 	
 	case SCRIPT_LWPN:
-            al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+            al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
-		#endif    
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
+		#endif     
 	break;
 	
 	case SCRIPT_EWPN:
-            al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());
+            al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());}
-		#endif    
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
+		#endif        
 	break;
 	
 	case SCRIPT_NPC:
-            al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
+            al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
-		#endif    
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());	
+		#endif       
 	break;
             
         case SCRIPT_FFC:
-            al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+            al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
 	    
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("FFC script %u (%s): \n", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
             
         case SCRIPT_ITEM:
-            al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Itemdata script %u (%s): \n", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
         
 	case SCRIPT_DMAP:
-            al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
+            al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
 	    
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("DMap script %u (%s): \n", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
 	
 	case SCRIPT_ITEMSPRITE:
-            al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());
+            al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("itemsprite script %u (%s): \n", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());	
+		#endif    
 	break;
         
 	case SCRIPT_SCREEN:
-            al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());
+            al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Screen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
 	break;
 	
 	case SCRIPT_SUBSCREEN:
-            al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
-		#endif
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Subscreen script %u (%s): \n", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
+	break;
+	
+	case SCRIPT_COMBO:
+            al_trace("Subscreen script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf("Combo script %u (%s): \n", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());	
+		#endif   
 	break;
         }
         
@@ -1137,6 +1300,73 @@ void Z_scripterrlog(const char * const format,...)
 		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#endif
+	}
+	
+    }
+}
+
+void zprint(const char * const format,...)
+{
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    {
+        
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+        if(zconsole)
+	{
+            printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+		{
+			
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
+			
+		}
+	
+		#endif
+	}
+	
+    }
+}
+
+//Always prints
+void zprint2(const char * const format,...)
+{
+    {
+        
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+        if(zconsole)
+	{
+            printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#else //Unix
+			std::cout << "ZPrint Test\n" << std::endl;
+			printf("%s", buf);
 		#endif
 	}
 	
@@ -1182,8 +1412,12 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
 {
     if(messagesToo)
     {
-        clear_bitmap(msgdisplaybuf);
-        set_clip_state(msgdisplaybuf, 1);
+        clear_bitmap(msg_bg_display_buf);
+        set_clip_state(msg_bg_display_buf, 1);
+        clear_bitmap(msg_txt_display_buf);
+        set_clip_state(msg_txt_display_buf, 1);
+        clear_bitmap(msg_portrait_display_buf);
+        set_clip_state(msg_portrait_display_buf, 1);
     }
     
     clear_bitmap(pricesdisplaybuf);
@@ -1541,6 +1775,7 @@ int load_quest(gamedata *g, bool report)
     }
     
     int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
+	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
     //setPackfilePassword(NULL);
     
     if(!g->title[0] || g->get_hasplayed() == 0)
@@ -1633,6 +1868,7 @@ int init_game()
     gofast=false;
     FFCore.init();
     FFCore.user_bitmaps_init();
+    FFCore.user_files_init();
     cheat=0;
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
@@ -1661,7 +1897,7 @@ int init_game()
         lens_hint_weapon[x][1]=0;
     }
     
-    
+    /* Disabling to see if this is causing virus scanner redflags. -Z
 //Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
@@ -1671,10 +1907,11 @@ int init_game()
     game->Clear();
     
     zc_free(dummy);
-    
+    */
 //Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
+    
     
 //Load the quest
     //setPackfilePassword(datapwd);
@@ -1836,7 +2073,20 @@ int init_game()
     }
     
     skip_keycheats:
-    
+    //Calculate the quest's script-file-storage path -V
+	{
+		memset(qst_files_path, sizeof(qst_files_path), 0);
+		string str(qstpath);
+		size_t pos = str.find_last_of("/\\");
+		if(pos==string::npos) pos=0;
+		else ++pos;
+		size_t dotpos = str.find_last_of(".");
+		sprintf(qst_files_path,"%sFiles/%s/",get_config_string("zeldadx", qst_dir_name, "./"),str.substr(pos, dotpos-pos).c_str());
+		regulate_path(qst_files_path);
+		// zprint2("Calculated path: '%s'\n",qst_files_path);
+		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
+	}
+	
     bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
@@ -1857,7 +2107,7 @@ int init_game()
     {
         game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), FFCore.getQuestHeaderInfo(vZelda)); }
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda)); }
     }
     
     previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
@@ -1916,6 +2166,7 @@ int init_game()
     //CLear the scripted Link sprites. 
     script_link_sprite = 0; 
     script_link_flip = -1; 
+    script_link_cset = -1; 
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
@@ -1940,7 +2191,12 @@ int init_game()
     }
 */
     global_wait=0;
-    
+    FFCore.init(); ///Initialise new ffscript engine core. 
+    if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	{
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	}
     //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
     putscr(scrollbuf,0,0,&tmpscr[0]);
@@ -1948,13 +2204,16 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-	FFCore.init(); ///Initialise new ffscript engine core. 
+	
 	Link.init();
 	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
 	{
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		if(!get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+			FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
@@ -1996,6 +2255,14 @@ int init_game()
     
     if(firstplay)
         game->set_hasplayed(1);
+    
+    if(firstplay)
+    {
+	game->awpn=0;
+	game->bwpn=0;
+	game->forced_awpn = -1; 
+	game->forced_bwpn = -1;    
+    }
         
     update_subscreens();
     
@@ -2031,6 +2298,7 @@ int init_game()
     game->bwpn = bpos;
     Bwpn = Bweapon(bpos);
     directItemB = directItem;
+    directItemA = directItem;
     update_subscr_items();
     
     reset_subscr_items();
@@ -2054,11 +2322,11 @@ int init_game()
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     //}
     //else
-	if(!firstplay)
-	{
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
-	}
+	//if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	//{
+	//	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+	//	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	//}
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
@@ -2081,7 +2349,22 @@ int init_game()
     
     if(!Quit)
         playLevelMusic();
-        
+     
+    //2.53 timing
+    if(get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+    {
+	    if(firstplay)
+	    {
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+	    }
+	    else
+	    {
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	    }    
+    }
     
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
     FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
@@ -2295,7 +2578,7 @@ void putintro()
         //finish writing out the string
         for(; intropos<72; ++intropos)
         {
-            textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+            textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                           "%c",DMaps[currdmap].intro[intropos]);
         }
     }
@@ -2324,8 +2607,8 @@ void putintro()
     
     //using the clip value to indicate the bitmap is "dirty"
     //rather than add yet another global variable
-    set_clip_state(msgdisplaybuf, 0);
-    textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+    set_clip_state(msg_txt_display_buf, 0);
+    textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                   "%c",DMaps[currdmap].intro[intropos]);
                   
     ++intropos;
@@ -2382,7 +2665,7 @@ void show_ffscript_names()
     {
         if(tmpscr->ffscript[i])
         {
-            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffscript[i]-1].second.c_str(),2,ypos,WHITE,BLACK,-1);
+            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffscript[i]-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
             ypos+=12;
         }
     }
@@ -2453,9 +2736,12 @@ void do_magic_casting()
             
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
-                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+		    //din't fire level fix to go here
+                //Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+		    w->linked_parent = itemsbuf[magicitem].family;
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
@@ -3052,6 +3338,8 @@ void game_loop()
 		    {
 			if(!Quit)
 			{
+			    //set a B item hack
+			    //Bwpn = Bweapon(Bpos);
 			    Quit = qGAMEOVER;
 			}
 			
@@ -3151,6 +3439,11 @@ void game_loop()
 	tmpscr->screen_waitdraw = 0;	    
     }
     
+    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	FFCore.combo_script_engine(false);    
+    }
+    
     for ( int q = 0; q < 32; ++q )
     {
 	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
@@ -3168,9 +3461,12 @@ void game_loop()
     //Waitdraw for item scripts. 
     if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
     
-    //Sprite scripts on Waitdraw
+    //Sprite scripts on Waitdraw in order of : npc, ewpn, lwpn, itemsprite
+    if ( !FFCore.system_suspend[susptNPCSCRIPTS] ) FFCore.npcScriptEngineOnWaitdraw();
     if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
+    if ( !FFCore.system_suspend[susptLWEAPONSCRIPTS] ) FFCore.lweaponScriptEngineOnWaitdraw();
     if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
+    
     
     
     
@@ -3219,8 +3515,12 @@ void game_loop()
         Link.finishedmsg();
         dmapmsgclk=0;
         introclk=72;
-        clear_bitmap(msgdisplaybuf);
-        set_clip_state(msgdisplaybuf, 1);
+        clear_bitmap(msg_bg_display_buf);
+        set_clip_state(msg_bg_display_buf, 1);
+        clear_bitmap(msg_txt_display_buf);
+        set_clip_state(msg_txt_display_buf, 1);
+        clear_bitmap(msg_portrait_display_buf);
+        set_clip_state(msg_portrait_display_buf, 1);
         //    clear_bitmap(pricesdisplaybuf);
     }
     
@@ -3232,9 +3532,20 @@ void game_loop()
             
             if(msgstr)
             {
-                set_clip_state(msgdisplaybuf, 0);
-                blit(msgbmpbuf, msgdisplaybuf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-            }
+                set_clip_state(msg_bg_display_buf, 0);
+                blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+                set_clip_state(msg_txt_display_buf, 0);
+				if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+				}
+				else
+				{
+					blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+				}
+				set_clip_state(msg_portrait_display_buf, 0);
+				blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+			}
         }
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
@@ -3871,6 +4182,7 @@ int main(int argc, char* argv[])
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
+	FFCore.init_combo_doscript();
 
     memset(zc_builddate,0,80);
     memset(zc_aboutstr,0,80);
@@ -3947,26 +4259,7 @@ int main(int argc, char* argv[])
             exit(1);
         }
         
-        int len=strlen(standalone_quest);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(standalone_quest[i]=='/')
-            {
-                standalone_quest[i]='\\';
-            }
-            
-#else
-            
-            if(standalone_quest[i]=='\\')
-            {
-                standalone_quest[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(standalone_quest);
     }
     
     //turn on MSVC memory checks
@@ -3989,7 +4282,85 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
+#else //Unix
+
+    { // Let's try making a console for Linux -Z
+	pt = posix_openpt(O_RDWR);
+	if (pt == -1)
+	{
+		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,O_RDWR);
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		Z_error("Could not redirect standard output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		Z_error("Could not redirect standard error output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+    } //this is in a block because I want it in a block. -Z
+    
+    no_lx_console:
+    {
+	    //Z_error("Could not open Linux console.\n");
+    }
+    
+    
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
+    
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
+	//std::cerr << "Test cerr\n\n";
+	std::cin.ignore(1);
 #endif
+    
+    
     
     PopulateInitDialog();
     //FFScript::init();
@@ -4062,13 +4433,16 @@ int main(int argc, char* argv[])
     }
 #endif
     
+    
     //Set up MODULES: This must occur before trying to load the default quests, as the 
     //data for quest names and so forth is set by the MODULE file!
     //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
-    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name);
-    zcm.init(true);
+    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
+    if ( !(zcm.init(true)) ) 
+    {
+	exit(1);    
+    }
     zcm.load(false);
-    
     
     
 #ifdef _WIN32
@@ -4256,13 +4630,19 @@ int main(int argc, char* argv[])
     tmp_bmp   = create_bitmap_ex(8,32,32);
     fps_undo  = create_bitmap_ex(8,64,16);
     prim_bmp  = create_bitmap_ex(8,512,512);
-    msgdisplaybuf = create_bitmap_ex(8,256, 176);
-    msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
+    msg_bg_display_buf = create_bitmap_ex(8,256, 176);
+    msg_txt_display_buf = create_bitmap_ex(8,256, 176);
+    msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+    msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+    msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
+    msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
+	f6_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
-            || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
+            || !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
+			|| !script_menu_buf || !f6_menu_buf)
     {
         Z_error("Error");
         quit_game();
@@ -4270,8 +4650,12 @@ int main(int argc, char* argv[])
     
     clear_bitmap(scrollbuf);
     clear_bitmap(framebuf);
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_bg_display_buf, 1);
+    clear_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     Z_message("OK\n");
@@ -4346,26 +4730,7 @@ int main(int argc, char* argv[])
         SAVE_FILE = (char *)zc_malloc(2048);
         sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
         
-        int len=strlen(SAVE_FILE);
-        
-        for(int i=0; i<len; i++)
-        {
-#ifdef _ALLEGRO_WINDOWS
-        
-            if(SAVE_FILE[i]=='/')
-            {
-                SAVE_FILE[i]='\\';
-            }
-            
-#else
-            
-            if(SAVE_FILE[i]=='\\')
-            {
-                SAVE_FILE[i]='/';
-            }
-            
-#endif
-        }
+		regulate_path(SAVE_FILE);
     }
     
     
@@ -4551,66 +4916,59 @@ int main(int argc, char* argv[])
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
+        ffscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
+        itemscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
+        guyscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
+        screenscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
+        globalscripts[i] = new script_data();
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
+        linkscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new script_data();
     }
      for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new script_data();
     }
     
      for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        dmapscripts[i] = new ffscript[1];
-        dmapscripts[i][0].command = 0xFFFF;
+        dmapscripts[i] = new script_data();
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        itemspritescripts[i] = new ffscript[1];
-        itemspritescripts[i][0].command = 0xFFFF;
+        itemspritescripts[i] = new script_data();
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        comboscripts[i] = new script_data();
     }
     
     
@@ -4851,6 +5209,8 @@ int main(int argc, char* argv[])
     game = new gamedata;
     game->Clear();
     
+    hangcount = get_config_int("ZSCRIPT","ZASM_Hangcount",1000);
+    
 #ifdef _WIN32
     
     if(use_win32_proc != FALSE)
@@ -4889,6 +5249,7 @@ int main(int argc, char* argv[])
 			
 #endif
 			game_loop();
+			
 			//Perpetual item Script:
 			FFCore.newScriptEngine();
 			
@@ -4907,10 +5268,16 @@ int main(int argc, char* argv[])
 		switch(Quit)
 		{
 			case qSAVE:
-			case qSAVECONT:
-			case qCONT:
+			
 			case qQUIT:
 			case qGAMEOVER:
+			case qRELOAD:
+				//set a B item hack
+				//Bwpn = Bweapon(Bpos);
+				//game->bwpn = Bpos;
+				//directItemB = directItem;
+			case qCONT:
+			case qSAVECONT:
 			{
 				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
 				show_subscreen_dmap_dots=true;
@@ -4991,6 +5358,22 @@ int main(int argc, char* argv[])
 				ending();
 			}
 			break;
+			
+			case qINCQST:
+			{
+				Link.setDontDraw(true);
+				//Link.setCharging(0);//don't have the sword out during the ending. 
+				//Link.setSwordClk(0);
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+		
+				initZScriptGlobalRAM();
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+				ending_scripted();
+			}
+			break;
 		}
         FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
@@ -5001,6 +5384,8 @@ int main(int argc, char* argv[])
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
+			FFCore.user_files_init(); //Clear open FILE*!
+			FFCore.user_bitmaps_init(); //Clear open bitmaps
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();
@@ -5111,8 +5496,15 @@ void quit_game()
     destroy_bitmap(tmp_bmp);
     destroy_bitmap(fps_undo);
     destroy_bitmap(prim_bmp);
-    set_clip_state(msgdisplaybuf, 1);
-    destroy_bitmap(msgdisplaybuf);
+    set_clip_state(msg_bg_display_buf, 1);
+    destroy_bitmap(msg_bg_display_buf);
+    set_clip_state(msg_txt_display_buf, 1);
+    destroy_bitmap(msg_txt_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
+    destroy_bitmap(msg_portrait_display_buf);
+    destroy_bitmap(msg_txt_bmp_buf);
+    destroy_bitmap(msg_bg_bmp_buf);
+    destroy_bitmap(msg_portrait_bmp_buf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);
@@ -5120,6 +5512,7 @@ void quit_game()
 	destroy_bitmap(zcmouse[2]);
 	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
+	destroy_bitmap(f6_menu_buf);
     
     al_trace("Subscreens... \n");
     
@@ -5173,50 +5566,54 @@ void quit_game()
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
+        if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+        if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+        if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+        if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+        if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTLINK; i++)
     {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+        if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
-        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    {
+        if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

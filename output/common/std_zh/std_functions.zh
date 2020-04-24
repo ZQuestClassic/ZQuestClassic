@@ -1,5 +1,5 @@
 //std_functions.zh
-//5th November, 2019 for ZC 2.55.0 Alpha 31
+//31st December, 2019 for ZC 2.55.0 Alpha 48
 
 //A
 
@@ -211,13 +211,6 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 	}
 }
 
-//Raises x to the nearest integer
-int Ceiling(float x) 
-{
-	if(x < 0)
-		return x<<0;
-	return (x+.9999)<<0;
-}
 
 // Get the X and Y coordinates at the center of a sprite
 int CenterLinkX() { return Link->X+8; }
@@ -575,6 +568,14 @@ bool Collision(ffc f)
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
 }
 
+//Only legal from combodata scripts as this->Collision
+bool Collision(combodata f) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	return RectCollision(f->PosX(), f->PosY(), f->PosX()+16, f->PosY()+16, ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
 //Finds the location of a combo, given its (x,y) coordinates on the screen
 int ComboAt(int x, int y) 
 {
@@ -688,14 +689,14 @@ void CopyTileRow(int source, int dest, int length)
 //Add to a counter without rollover.
 void CounterAdd(int counter, int amount)
 {
-	if ( amount + Game->Counter[counter] > MAX_COUNTER ) Game->Counter[counter] = MAX_COUNTER;
+	if ( amount + Game->Counter[counter] > COUNTER_MAX ) Game->Counter[counter] = COUNTER_MAX;
 	else Game->Counter[counter] += amount;
 }
 
 //Reduce a counter without rollvoer. 
 void CounterReduce(int counter, int amount)
 {
-	if ( Game->Counter[counter] - amount < 0 ) Game->Counter[counter] = 0; 
+	if ( Game->Counter[counter] - amount < COUNTER_MIN ) Game->Counter[counter] = COUNTER_MIN; 
 	else Game->Counter[counter] -= amount;
 }
 
@@ -767,14 +768,14 @@ float CrossProduct( float x1, float y1, float x2, float y2 )
 //Add to a drain counter without rollover.
 void DCounterAdd(int counter, int amount)
 {
-	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
+	if ( amount + Game->DCounter[counter] > DCOUNTER_MAX ) Game->DCounter[counter] = DCOUNTER_MAX;
 	else Game->MCounter[counter] += amount;
 }
 
 //Reduce a drain counter without rollvoer. 
 void DCounterReduce(int counter, int amount)
 {
-	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
+	if ( Game->DCounter[counter] - amount < DCOUNTER_MIN ) Game->DCounter[counter] = DCOUNTER_MIN;
 	else Game->DCounter[counter] -= amount;
 }
 
@@ -957,7 +958,8 @@ void DrawToLayer(item i, int layer, int opacity)
 
 
 //Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
-lweapon Duplicate(lweapon a) {
+lweapon Duplicate(lweapon a) 
+{
 	lweapon b = Screen->CreateLWeapon(a->ID);
 	b->X = a->X;
 	b->Y = a->Y;
@@ -1003,12 +1005,14 @@ lweapon Duplicate(lweapon a) {
 	b->Script = a->Script;
 	b->Weapon = a->Weapon;
 	b->Defense = a->Defense;
+	b->Level = a->Level;
 	for ( int q = 0; q < 8; ++q ) b->InitD[q] = a->InitD[q];
 	return b;
 }
 
 //Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
-eweapon Duplicate(eweapon a) {
+eweapon Duplicate(eweapon a) 
+{
 	eweapon b = Screen->CreateEWeapon(a->ID);
 	b->X = a->X;
 	b->Y = a->Y;
@@ -1052,6 +1056,7 @@ eweapon Duplicate(eweapon a) {
 	b->Parent = a->Parent;
 //	b->Level = a->Level;
 	b->Script = a->Script;
+	b->Level = a->Level;
 	//b->Weapon = a->Weapon;
 	//b->Defense = a->Defense;
 	for ( int q = 0; q < 8; ++q ) b->InitD[q] = a->InitD[q];
@@ -1161,12 +1166,6 @@ int FirstComboOf(int t, int layer)
 		}
 	}
 	return -1;
-}
-
-//Truncates x to an integer
-int Floor(float x) 
-{
-	return ( (x<0) ? ((x-.9999)<<0) : (x<<0) );
 }
 
 //G
@@ -2075,6 +2074,16 @@ int longrand(int max)
 int MapToDMap(int screen, int dmap) 
 {
 	return screen-Game->DMapOffset[dmap];
+}
+
+void MakeBlockable(eweapon e)
+{
+	e->Level &= ~1;
+}
+
+void MakeUnblockable(eweapon e)
+{
+	e->Level |= 1;
 }
 
 //Add to a counter max without rollover.

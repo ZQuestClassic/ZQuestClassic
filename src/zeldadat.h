@@ -41,5 +41,10 @@
 #define ZC_MIDI_TRIFORCE                 6        /* MIDI */
 #define ZC_MIDI_COUNT                    7
 
+#define newlogo				1	/*TGA*/
+#define newlogooal				2	/* PAL  */
+#define newlogooal_count				3	/* PAL  */
+
+
 
  

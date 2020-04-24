@@ -35,7 +35,6 @@ void yymsg(string const& message, int row = yyrow, int col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
 
-
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
 // stands in for '$' and 'a' stands in for '@'.
@@ -62,7 +61,6 @@ extern YYLTYPE noloc;
 	ASTExpr* right = (ASTExpr*)d3; \
 	klass* rval = new klass(left->clone(), right, a3);	\
 	dd = new ASTExprAssign(left, rval, ad);
-
 %}
 
 %code requires {
@@ -75,7 +73,6 @@ extern YYLTYPE noloc;
 
 %glr-parser
 %expect 1
-//%expect-rr 26
 %error-verbose
 %start Init
 %parse-param {ZScript::ASTFile*& root}
@@ -114,6 +111,7 @@ extern YYLTYPE noloc;
 %token UNLESS
 %token REPEAT
 %token INLINE
+%token CASSERT
 
  // Types
 %token ZVOID
@@ -151,6 +149,8 @@ extern YYLTYPE noloc;
 %token ITEMSPRITE
 %token FILE
 %token SUBSCREENDATA
+%token PARTICLE
+%token DECORATION
 
  // Syntax
 %token COMMA
@@ -190,19 +190,33 @@ extern YYLTYPE noloc;
 %token ANDASSIGN
 %token ORASSIGN
 %token CAST
+%token RANGE
+%token APPXEQUAL
+%token DOUBLEBANG
+%token PERCENT
+%token BITNOTASSIGN
+%token INVMOD
+%token DOUBLEADDR
+%token DOUBLESTAR
+%token HANDLE
+%token HANDLETOHANDLE
+%token ADDR
 
  // Hash Only
 %token HASH
 %token ENDLINE
+%token NEWLINE
 %token OPTION
 %token INHERIT
 
  // Others
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token CASESTRING
 %token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
+%token SCRIPTSTRUCT
 
 %%
 
@@ -233,9 +247,11 @@ Global_Statement :
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
+	| Annotated_Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| AlwaysUsing SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Global_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -346,8 +362,10 @@ Namespace_Statement :
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
+	| Annotated_Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -392,7 +410,18 @@ Option :
 		ASTExprConst* expr = (ASTExprConst*)$4;
 		$$ = new ASTSetOption(name->getValue(), expr, @$);
 		delete name;}
+	|
+	HASH OPTION IDENTIFIER Expression_Constant NEWLINE {
+		ASTString* name = (ASTString*)$3;
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption(name->getValue(), expr, @$);
+		delete name;}
 	| HASH OPTION IDENTIFIER INHERIT ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Inherit, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER INHERIT NEWLINE {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Inherit, @$);
@@ -402,15 +431,41 @@ Option :
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
 		delete name;}
+	| HASH OPTION IDENTIFIER DEFAULT NEWLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Default, @$);
+		delete name;}
 	| HASH OPTION DEFAULT Expression_Constant ENDLINE {
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption("default", expr, @$);}
+	| HASH OPTION DEFAULT Expression_Constant NEWLINE {
 		ASTExprConst* expr = (ASTExprConst*)$4;
 		$$ = new ASTSetOption("default", expr, @$);}
 	| HASH OPTION DEFAULT INHERIT ENDLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Inherit, @$);}
+	| HASH OPTION DEFAULT INHERIT NEWLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Inherit, @$);}
 	| HASH OPTION DEFAULT DEFAULT ENDLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Default, @$);}
+	| HASH OPTION DEFAULT DEFAULT NEWLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Default, @$);}
+	;
+
+////////////////////////////////////////////////////////////////
+// Assertion
+
+Statement_Assert :
+	CASSERT LPAREN Expression_Constant RPAREN {
+		$$ = new ASTAssert((ASTExprConst*)$3, NULL, @$);
+	}
+	| CASSERT LPAREN Expression_Constant COMMA QUOTEDSTRING RPAREN {
+		$$ = new ASTAssert((ASTExprConst*)$3, (ASTString*)$5, @$);
+	}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -623,16 +678,51 @@ Function_Parameters_Element :
 ////////////////////////////////////////////////////////////////
 // Script Declaration
 
-Script : Script_Type SCRIPT IDENTIFIER Script_Block {
-	ASTScriptType* type = (ASTScriptType*)$1;
-	ASTString* name = (ASTString*)$3;
-	ASTScript* script = (ASTScript*)$4;
-	script->type = type;
-	script->name = name->getValue();
-	script->location = @$;
-	$$ = script;
-	delete name;}
+Annotated_Script :
+	Annotation_List Script {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		owning_vector<ASTAnnotation>& set = list->set;
+		ASTScript* script = (ASTScript*)$2;
+		for(int q = 0; q < set.size(); ++q)
+		{
+			ASTAnnotation* a = set[q];
+			std::string key = a->first->getValue();
+			std::string val = a->second->getValue();
+			if(key == "Author")
+			{
+				script->author = val;
+			}
+			else
+			{
+				yymsg("WARNING: Bad Annotation: \"" + key + "\"");
+			}
+		}
+		delete list;
+		$$ = script;}
 	;
+
+Script : 
+	Script_Type SCRIPT IDENTIFIER Script_Block {
+		ASTScriptType* type = (ASTScriptType*)$1;
+		ASTString* name = (ASTString*)$3;
+		ASTScript* script = (ASTScript*)$4;
+		script->type = type;
+		script->name = name->getValue();
+		script->location = @$;
+		$$ = script;
+		delete name;}
+	
+	| SCRIPTSTRUCT IDENTIFIER Script_Block {
+		ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
+		ASTString* name = (ASTString*)$2;
+		ASTScript* script = (ASTScript*)$3;
+		script->type = type;
+		script->name = name->getValue();
+		script->location = @$;
+		$$ = script;
+		delete name;}
+	;
+
 
 Script_Type :
 	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}
@@ -694,15 +784,51 @@ Script_Block_Element :
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
 		declaration->compileErrorCatches.push_back(errorId);
 		$$ = declaration;}
 	;
+	
+Annotation_List :
+	Annotation_List COMMA Annotation {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		list->set.push_back((ASTAnnotation*)$3);
+		$$ = list;}
+	| Annotation {
+		ASTAnnotationList* list = new ASTAnnotationList(@$);
+		list->set.push_back((ASTAnnotation*)$1);
+		$$ = list;}
+	;
+
+Annotation :
+	HANDLE IDENTIFIER LPAREN QUOTEDSTRING RPAREN {
+		ASTString* key = (ASTString*)$2;
+		ASTString* val = (ASTString*)$4;
+		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
+		$$ = a;}
+	;
 
 ////////////////////////////////////////////////////////////////
 // Statements
+
+Block_Statement :
+	Statement {
+		ASTStmt* stmt = (ASTStmt*)$1;
+		if(ASTBlock* existing_block = dynamic_cast<ASTBlock*>(stmt))
+		{
+			$$ = existing_block;
+		}
+		else
+		{
+			ASTBlock* block = new ASTBlock(@$);
+			block->statements.push_back(stmt);
+			$$ = block;
+		}
+	}
+	;
 
 Statement :
 	// Declarations
@@ -724,6 +850,7 @@ Statement :
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
 	| SEMICOLON {$$ = new ASTStmtEmpty(@$);}
 	| Statement_CompileError SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
 	;
 
 Statement_NoSemicolon:
@@ -786,11 +913,11 @@ Statement_If :
 	;
 	
 If_Body :
-	LPAREN Expression RPAREN Statement {
+	LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* cond = (ASTExpr*)$2;
 		ASTStmt* stmt = (ASTStmt*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
-	| LPAREN Expression RPAREN Statement ELSE Statement {
+	| LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
 		ASTExpr* test = (ASTExpr*)$2;
 		ASTStmt* thenStatement = (ASTStmt*)$4;
 		ASTStmt* elseStatement = (ASTStmt*)$6;
@@ -803,7 +930,6 @@ Statement_Switch :
 		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
 		sw->key = key;
 		$$ = sw;}
-	;
 
 Statement_Switch_Body :
 	Statement_Switch_Body Statement_Switch_Cases Statement_Block_List {
@@ -832,10 +958,34 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		cases->isDefault = true;
 		$$ = cases;}
+	| Statement_Switch_Cases CASE Expression_Range COLON {
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		ASTRange* range = (ASTRange*)$3;
+		cases->ranges.push_back(range);
+		$$ = cases;}
+	| Statement_Switch_Cases CASE CASESTRING COLON {
+		ASTString* rawstring = (ASTString*)$3;
+		ASTStringLiteral* key = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		cases->str_cases.push_back(key);
+		$$ = cases;}
 	| CASE Expression_Constant COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTExprConst* key = (ASTExprConst*)$2;
 		cases->cases.push_back(key);
+		$$ = cases;}
+	| CASE Expression_Range COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTRange* range = (ASTRange*)$2;
+		cases->ranges.push_back(range);
+		$$ = cases;}
+	| CASE CASESTRING COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTString* rawstring = (ASTString*)$2;
+		ASTStringLiteral* key = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		cases->str_cases.push_back(key);
 		$$ = cases;}
 	| DEFAULT COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
@@ -848,7 +998,7 @@ Statement_For :
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
 		Statement_NoSemicolon RPAREN
-		Statement
+		Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
@@ -859,11 +1009,11 @@ Statement_For :
 	;
 
 Statement_While :
-	WHILE LPAREN Expression RPAREN Statement {
+	WHILE LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtWhile(test, body, @$);}
-	| UNTIL LPAREN Expression RPAREN Statement {
+	| UNTIL LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
@@ -872,11 +1022,11 @@ Statement_While :
 	;
 	
 Statement_Do :
-	DO Statement WHILE LPAREN Expression RPAREN {
+	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		$$ = new ASTStmtDo(test, body, @$);}
-	| DO Statement UNTIL LPAREN Expression RPAREN {
+	| DO Block_Statement UNTIL LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
@@ -1192,6 +1342,8 @@ Expr_10 : Expr_9 {$$ = $1;}
 	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
 	// Inequality
 	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	// Approximate Equality
+	| Expr_10 APPXEQUAL Expr_9 {BINARY(ASTExprAppxEQ, $$, $1, $3, @$)}
 	// Logical XOR
 	| Expr_10 XOR Expr_9 {BINARY(ASTExprXOR, $$, $1, $3, @$)}
 	;
@@ -1251,6 +1403,15 @@ Expr_17 : Expr_16 {$$ = $1;}
 	| Expr_16 RSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
 	| Expr_16 BITANDASSIGN Expr_17 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	// BitNot Assignment
+	// `a ~= b` == `a &= ~b` == `a = a & ~b`
+	| Expr_16 BITNOTASSIGN Expr_17 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
+		bitnot->operand = right;
+		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
+		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
 	| Expr_16 BITXORASSIGN Expr_17 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
@@ -1267,6 +1428,13 @@ Expression_Constant :
 	Expression {
 		ASTExpr* content = (ASTExpr*)$1;
 		$$ = new ASTExprConst(content, @$);}
+	;
+
+Expression_Range :
+	Expression_Constant RANGE Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

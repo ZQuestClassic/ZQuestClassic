@@ -407,9 +407,9 @@ const char *roomtype_string[MAXROOMTYPES] =
 
 const char *catchall_string[MAXROOMTYPES] =
 {
-    "Generic Catchall","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
-    "Shop Type","Price","Price"," ","Warp Ring"," "," ", " ", " ",
-    " ", "Price","Shop Type"
+    "Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
+    "Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
+    "Generic Catchall", "Price","Shop Type"
 };
 
 const char *warptype_string[MAXWARPTYPES] =
@@ -615,7 +615,7 @@ const char *itemclass_help_string[(itype_last-20)*3] =
     "Divides the damage that Link takes, and changes his palette.","If a magic cost is set, Link loses magic when he takes","damage, and the item is disabled without magic.",
     "Can provide infinite rupees to Link,","or provide a regenerating supply of rupees.","Typically also set to increase his Rupee max.",
     "Also called the Cross, this makes invisible","enemies visible. Currently does not affect Ganon.","",
-    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed on the Wiki.",
+    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed in Shield Help.",
     "Required to wield the Arrow. This affects the speed of","the arrow fired. The Action settings are not used.","",
     "Allows Link to traverse Raft Paths. When at a Raft","Branch combo flag, hold the arrow keys to","decide which path the raft will take.",
     "Used to cross Water combos and certain combo types.","If Four-Way > 1, Link can step sideways off the ladder.","",
@@ -1240,6 +1240,7 @@ void domouse();
 void init_doorcombosets();
 
 int onNew();
+int PickRuleset();
 int onOpen();
 int onOpen2();
 int onRevert();
@@ -1553,7 +1554,7 @@ int checksave()
     if(saved)
         return 1;
         
-    char buf[80];
+    char buf[256+20];
     char *name = get_filename(filepath);
     
     if(name[0]==0)

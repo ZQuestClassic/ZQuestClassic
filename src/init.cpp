@@ -698,7 +698,9 @@ static int init_misc_list[] =
 
 static int init_const_list[] =
 {
-    1700, 1701, 1702, 1703, 1704, 1705, 1706, -1
+    1700, 1701, 1702, 1703, 1704, 1705, 1706, 
+	3264, 3265,
+	-1
 };
 
 
@@ -810,7 +812,7 @@ TABPANEL init_tabs[] =
     { (char *)"Items",           0,            init_items_list,              0, NULL },
     { (char *)"Level Items",     0,            init_dmap_items_list,         0, NULL },
     { (char *)"Misc",            0,            init_misc_list,               0, NULL },
-    { (char *)"Constants",       0,            init_const_list,              0, NULL },
+    { (char *)"Variables",       0,            init_const_list,              0, NULL },
     { NULL,                      0,            0,                            0, NULL }
 };
 
@@ -875,7 +877,12 @@ char *walkstylelist(int index, int *list_size)
 }
 
 
-DIALOG init_dlg[3265];
+DIALOG init_dlg[3267]; /* 	This array is used instead of a const static dialogue array. 
+				PopulateInitDialog() fills its elements and generates the init dialoigue.
+				The size of this array must be equal to the number of calls to initPopulate in 
+					PopulateInitDialog() + 1.
+				Resize this if you add elements to PopulateInitDialog if you dislike hard crashes.
+			*/
 
 
 void initPopulate(int &i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, int BG, int Key, int Flags, int D1, int D2, void *DP, void *DP2, void *DP3)
@@ -1496,10 +1503,14 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           101,     99,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           101,    117,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     
+    //3264
+    initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
+    //3265
+    initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
-    // 3264
+    // 3266 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-
+    
     /*
     initPopulate(i, jwin_check_proc,          207,    177,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "26",                                         NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1755,12 +1766,14 @@ int doInit(zinitdata *local_zinit)
     char maxsbombstring[6];
     char arrowstring[6];
     char maxarrowstring[6];
+    char herostepstr[6];
     sprintf(bombstring, "%d", local_zinit->nBombs);
     sprintf(maxbombstring, "%d", local_zinit->nBombmax);
     sprintf(sbombstring, "%d", local_zinit->nSbombs);
     sprintf(maxsbombstring, "%d", local_zinit->nBombmax/(local_zinit->bomb_ratio > 0 ? local_zinit->bomb_ratio : 4));
     sprintf(arrowstring, "%d", local_zinit->nArrows);
     sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
+    sprintf(herostepstr, "%d", local_zinit->heroStep);
     
     
     //This is the format for storing values into Init Data. -Z
@@ -1855,7 +1868,8 @@ int doInit(zinitdata *local_zinit)
     init_dlg[1703].dp=gravitystring;
     init_dlg[1704].dp=terminalvstring;
     init_dlg[1705].dp=thresholdstring;
-    
+    //Hero->Step
+    init_dlg[3265].dp=herostepstr;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -1946,6 +1960,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*100),1,255);
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
+        local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
         onInitOK();
     }
     

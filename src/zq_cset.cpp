@@ -29,6 +29,7 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
+#include "zq_class.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -46,11 +47,7 @@ extern PALETTE RAMpal;
 
 #include "gfxpal.h"
 
-int hue_x=96, hue_y=30, hue_h=16;
-int light_x=74, light_y=52, light_w=16;
-int sat_x=230, sat_y=52, sat_w=16;
-int color_x=96, color_y=52, color_w=128, color_h=64;
-int cset_x=96, cset_y=170, cset_h=8, cset_spacing=4;
+int color_index=0, color_copy=-1;
 
 void get_cset(int dataset,int row,RGB *pal)
 {
@@ -64,592 +61,620 @@ void get_cset(int dataset,int row,RGB *pal)
     }
 }
 
-void draw_edit_dataset_specs(int index,int copy)
-{
-    int window_xofs=0;
-    int window_yofs=0;
-    
-    if(is_large)
-    {
-        window_xofs=(zq_screen_w-480)>>1;
-        window_yofs=(zq_screen_h-360)>>1;
-    }
-    
-    jwin_draw_frame(screen, cset_x-2, cset_y+cset_h+cset_spacing-2, int(128*(is_large?1.5:1)+4), cset_h+4, FR_DEEP);
-    
-    for(int i=0; i<16; i++)
-    {
-        rectfill(screen,int((i<<3)*(is_large?1.5:1))+cset_x,cset_y+cset_h+cset_spacing,int((i<<3)*(is_large?1.5:1)+cset_x+cset_h-1),cset_y+cset_h+cset_spacing+cset_h-1,14*16+i);
-    }
-    
-    //  text_mode(ed1);
-    rectfill(screen,int(96*(is_large?1.5:1)+window_xofs),int(193*(is_large?1.5:1)+window_yofs),int(223*(is_large?1.5:1)+window_xofs),int(220*(is_large?1.5:1)+window_yofs),jwin_pal[jcBOX]);
-    textout_ex(screen,(is_large?lfont_l:font),"\x88",int((index<<3)*(is_large?1.5:1)+cset_x),int(193*(is_large?1.5:1)+window_yofs),jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    
-    if(copy>=0)
-    {
-        textout_ex(screen,(is_large?lfont_l:font),"\x81",int((copy<<3)*(is_large?1.5:1)+cset_x),int(193*(is_large?1.5:1)+window_yofs),jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    }
-    
-    textprintf_ex(screen,(is_large?lfont_l:font),88*(is_large?2:1)+window_xofs,int(204*(is_large?1.5:1)+window_yofs),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",index, RAMpal[12*16+index].r,RAMpal[12*16+index].g,RAMpal[12*16+index].b);
-    textprintf_ex(screen,(is_large?lfont_l:font),88*(is_large?2:1)+window_xofs,int(214*(is_large?1.5:1)+window_yofs),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",index, RAMpal[14*16+index].r,RAMpal[14*16+index].g,RAMpal[14*16+index].b);
-}
-
-void init_colormixer()
-{
-    jwin_draw_frame(screen, hue_x-2, hue_y-2, int(128*(is_large?1.5:1)+4), hue_h+4, FR_DEEP);
-    
-    for(int i=0; i<128; i++)
-    {
-        RAMpal[i] = _RGB(gfx_pal+i*3); //hue
-        rectfill(screen,int(floor(i*(is_large?1.5:1))+hue_x),hue_y,int(ceil(i*(is_large?1.5:1))+hue_x),hue_y+hue_h-1,i);
-    }
-    
-    jwin_draw_frame(screen, light_x-2, light_y-2, light_w+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
-    
-    for(int i=0; i<32; i++)
-    {
-        RAMpal[i+128] = _RGB(i<<1,i<<1,i<<1); //lightness
-        rectfill(screen,light_x,((int)floor(i*(is_large?1.5:1))<<1)+light_y,
-                 light_x+light_w-1,((int)ceil(i*(is_large?1.5:1))<<1)+light_y+1,i+128);
-    }
-    
-    //  rect(screen,95,31,224,96,ed15);
-    //  rect(screen,224,31,240,96,ed15);
-    set_palette_range(RAMpal,0,255,false);
-}
-
-void colormixer(int color,int gray,int ratio)
-{
-    int window_xofs=0;
-    int window_yofs=0;
-    
-    if(is_large)
-    {
-        window_xofs=int(zq_screen_w-320*(is_large?1.5:1))>>1;
-        window_yofs=int(zq_screen_h-240*(is_large?1.5:1))>>1;
-        color /= 1.5;
-        ratio /= 1.5;
-        gray /= 1.5;
-    }
-    
-    custom_vsync();
-    scare_mouse();
-    
-    jwin_draw_frame(screen, sat_x-2, sat_y-2, sat_w+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
-    
-    for(int i=0; i<32; i++)
-    {
-        RAMpal[i+160] = mixRGB(gfx_pal[color*3],gfx_pal[color*3+1],
-                               gfx_pal[color*3+2],gray,gray,gray,i<<1); //saturation
-        rectfill(screen,sat_x,((int)floor(i*(is_large?1.5:1))<<1)+sat_y,
-                 sat_x+sat_w-1,((int)ceil(i*(is_large?1.5:1))<<1)+sat_y+1,i+160);
-    }
-    
-    RAMpal[edc] = mixRGB(gfx_pal[color*3],gfx_pal[color*3+1],gfx_pal[color*3+2],gray,gray,gray,ratio);
-    RAMpal[edi] = invRGB(RAMpal[edc]);
-    set_palette_range(RAMpal,160,255,false);
-    
-    jwin_draw_frame(screen, color_x-2, color_y-2, color_w+4, color_h+4, FR_DEEP);
-    rectfill(screen,color_x,color_y,color_x+color_w-1,color_y+color_h-1,edc);
-    
-    if(is_large)
-    {
-        color *=1.5;
-        ratio *=1.5;
-        gray *=1.5;
-    }
-    
-    _allegro_hline(screen,color_x,gray+color_y,color_x+color_w-1,edi);
-    _allegro_vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
-    _allegro_hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
-    //  text_mode(ed1);
-    textprintf_centre_ex(screen,font,zq_screen_w/2,int(color_y+color_h+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
-    unscare_mouse();
-    SCRFIX();
-}
-
 int color = 0;
 int gray  = 0;
 int ratio = 32;
 
+int jwin_hsl_proc(int msg, DIALOG *d, int c);
+int jwin_cset_proc(int msg, DIALOG* d, int c);
+int edit_cset_kb_handler(int msg, DIALOG* d, int c);
+void onInsertColor();
+void onInsertColor_Text();
+void jumpText(int r, int g, int b);
+void onJumpText();
+void onJumpHSL();
 
+static DIALOG edit_cset_dlg[] =
+{
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    320,  240,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Edit CSet", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0, NULL, NULL, NULL },
+	{ jwin_button_proc,    240,  184,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,    240,  152,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	{ edit_cset_kb_handler,  0,    0,     0,    0,         0,       0,      0,      0,          0,             0, NULL, NULL, NULL },
+	// 7
+	{ d_dummy_proc,         160, 140,    61,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Jump", NULL, (void*) onJumpHSL },
+	{ jwin_hsl_proc,        72,   28,   174,   88,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
+	{ jwin_cset_proc,       96,  170,   128,   24,    vc(14),   vc(1),      0,      0,          0,             0, NULL, NULL, NULL },
+    // 10
+	{ jwin_edit_proc,       24,  120,   24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,       24,  140,   24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,       24,  160,   24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
+	{ jwin_func_button_proc,16,  180,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Insert", NULL, (void*) onInsertColor_Text },
+	{ jwin_func_button_proc,16,  205,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Jump", NULL, (void*) onJumpText },
+	// 15
+	{ jwin_func_button_proc,130, 140,    61,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "&Insert", NULL, (void*) onInsertColor },
+    { jwin_text_proc,        16,  124,   8,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "R", NULL, NULL },
+    { jwin_text_proc,        16,  144,   8,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "G", NULL, NULL },
+    { jwin_text_proc,        16,  164,   8,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "B", NULL, NULL },
+    { jwin_check_proc,      230,   30,   8,   9,    vc(0),              vc(11),           0,       0,          0,             0, (void *) "View 8b values", NULL, NULL },
+	// 20
+	
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+int jwin_hsl_proc(int msg, DIALOG *d, int c)
+{
+#define HSL_FLAG_HASMOUSE	1
+#define HSL_FLAG_COLOR		2
+#define HSL_FLAG_SATURATION	4
+#define HSL_FLAGS_CS		(HSL_FLAG_COLOR|HSL_FLAG_SATURATION)
+	ASSERT(d);
+	//d->w and d->h are ignored
+	d->w = (is_large?1.5:1)*174;
+	d->h = (is_large?1.5:1)*88;
+	int ret = D_O_K;
+	static int hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
+		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64, misc_wh = 16;
+	if(d->flags & D_DIRTY)
+	{
+		ret |= D_REDRAWME;
+		d->flags &= ~D_DIRTY;
+	}
+	if(is_large && c_hei == 64)
+	{
+		hue_x_offs *= 1.5;
+		hue_y_offs *= 1.5;
+		light_x_offs *= 1.5;
+		light_y_offs *= 1.5;
+		sat_x_offs *= 1.5;
+		sat_y_offs *= 1.5;
+		c_x_offs *= 1.5;
+		c_y_offs *= 1.5;
+		c_wid *= 1.5;
+		c_hei *= 1.5;
+		misc_wh *= 1.5;
+	}
+	int clr = color, gr = gray, rat = ratio;
+	int x=gui_mouse_x();
+	int y=gui_mouse_y();
+	switch(msg)
+	{
+		case MSG_START:
+			d->d1 = 0;
+			break;
+		case MSG_GOTMOUSE:
+			d->d1 |= HSL_FLAG_HASMOUSE;
+			break;
+		case MSG_LOSTMOUSE:
+			d->d1 &= ~HSL_FLAG_HASMOUSE;
+			break;
+		case MSG_CLICK:
+		case MSG_DCLICK:
+		case MSG_LPRESS:
+			if((d->d1 & HSL_FLAG_HASMOUSE)&&!(d->d1 & HSL_FLAGS_CS))
+			{
+				if(isinRect(x,y,(d->x+c_x_offs),(d->y+c_y_offs),d->x+c_x_offs+c_wid-1,(d->y+c_y_offs)+c_hei-1))
+				{
+					d->d1 |= HSL_FLAG_COLOR;
+				}
+				else if(isinRect(x,y,(d->x+sat_x_offs),(d->y+sat_y_offs),(d->x+sat_x_offs)+misc_wh-1,(d->y+sat_y_offs)+c_hei-1))
+				{
+					d->d1 |= HSL_FLAG_SATURATION;
+				}
+			}
+			break;
+		case MSG_LRELEASE:
+			d->d1 &= ~HSL_FLAGS_CS;
+			break;
+		case MSG_IDLE:
+			if(gui_mouse_b()==1)
+			{
+				if(d->d1 & HSL_FLAG_COLOR)
+				{
+					color = vbound(x-(d->x+c_x_offs),0,c_wid-1);
+					gray = vbound(y-(d->y+c_y_offs),0,c_hei-1);
+				}
+				if(d->d1 & HSL_FLAG_SATURATION)
+				{
+					ratio = vbound(y-(d->y+sat_y_offs),0,c_hei-1);
+				}
+			}
+			else
+			{
+				d->d1 &= ~(HSL_FLAG_COLOR|HSL_FLAG_SATURATION);
+			}
+			//Fallthrough
+		case MSG_DRAW:
+			if(is_large)
+			{
+				clr /= 1.5;
+				gr /= 1.5;
+				rat /= 1.5;
+			}
+			custom_vsync();
+			scare_mouse();
+			//Hue
+			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int(128*(is_large?1.5:1)+4), misc_wh+4, FR_DEEP);
+			for(int i=0; i<128; i++)
+			{
+				rectfill(screen,int(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
+			}
+			//Light
+			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int i=0; i<32; i++)
+			{
+				rectfill(screen,d->x+light_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
+						 d->x+light_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
+			}
+			//Saturation
+			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int i=0; i<32; i++)
+			{
+				RAMpal[i+160] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],
+									   gfx_pal[clr*3+2],gr,gr,gr,i<<1); //saturatn
+				rectfill(screen,d->x + sat_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs,
+						 d->x+sat_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs+1,i+160);
+			}
+			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
+			RAMpal[edi] = invRGB(RAMpal[edc]);
+			set_palette_range(RAMpal,0,255,false);
+			//Color
+			jwin_draw_frame(screen, d->x+c_x_offs-2, d->y+c_y_offs-2, c_wid+4, c_hei+4, FR_DEEP);
+			rectfill(screen,d->x+c_x_offs,d->y+c_y_offs,d->x+c_x_offs+c_wid-1,d->y+c_y_offs+c_hei-1,edc);
+			//
+			_allegro_hline(screen,d->x+c_x_offs,gray+d->y+c_y_offs,d->x+c_x_offs+c_wid-1,edi);
+			_allegro_vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
+			_allegro_hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
+			if((edit_cset_dlg[19].flags & D_SELECTED))
+				textprintf_centre_ex(screen,font,d->x+(d->w/2),int(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
+			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+			unscare_mouse();
+			SCRFIX();
+			break;
+	}
+	return ret;
+}
+
+int jwin_cset_proc(int msg, DIALOG* d, int c)
+{
+	static int cs_hei = 8;
+	static int last_index = 0, last_copy = 0;
+	static int lastshow16 = 0;
+	ASSERT(d);
+	int ret = D_O_K;
+	if(d->flags & D_DIRTY)
+	{
+		ret |= D_REDRAWME;
+		d->flags &= ~D_DIRTY;
+	}
+	if(lastshow16 != (edit_cset_dlg[19].flags & D_SELECTED))
+	{
+		lastshow16 = (edit_cset_dlg[19].flags & D_SELECTED);
+		char* c1 = (char*)edit_cset_dlg[10].dp;
+		char* c2 = (char*)edit_cset_dlg[11].dp;
+		char* c3 = (char*)edit_cset_dlg[12].dp;
+		int r = atoi(c1), g = atoi(c2), b = atoi(c3);
+		
+		if(!lastshow16) //Just turned off
+		{
+			r /= 4;
+			g /= 4;
+			b /= 4;
+		}
+		jumpText(r,g,b);
+		ret |= D_REDRAW | D_REDRAWME;
+	}
+	if(is_large && cs_hei == 8)
+	{
+		cs_hei *= 1.5;
+		d->h = cs_hei * 3;
+	}
+	int x = gui_mouse_x();
+	int y = gui_mouse_y();
+	if(gui_mouse_b()!=1) d->d1 = -1;
+	switch(msg)
+	{
+		case MSG_START:
+			color_index = 0;
+			color_copy = -1;
+			d->d1 = -1;
+			break;
+		case MSG_LPRESS:
+		{
+			int new_index=vbound((int)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+			if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1))
+				d->d1 = new_index;
+			break;
+		}
+		case MSG_LRELEASE:
+			d->d1 = -1;
+			break;
+		case MSG_WANTMOUSE:
+			if(d->d1 > -1)
+				ret |= D_WANTFOCUS;
+			break;
+		case MSG_IDLE:
+			if(gui_mouse_b()==1)
+			{
+				int new_index=vbound((int)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+                
+                if(color_index!=new_index && (d->d1 > -1 || isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1)))
+                {
+					if(d->d1 > -1)
+					{
+						if(color_index<new_index)
+						{
+							for(int i=color_index; i<new_index; ++i)
+								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
+						}
+						else
+						{
+							for(int i=color_index; i>new_index; --i)
+								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
+						}
+					}
+					color_index = new_index;
+                }
+			}
+			else d->d1 = -1;
+			if(color_index != last_index || color_copy != last_copy)
+			{
+				last_index = color_index;
+				last_copy = color_copy;
+				ret |= D_REDRAWME;
+			}
+			break;
+		case MSG_DRAW:
+			rectfill(screen,d->x-2,d->y-2,d->x+d->w+4,d->y+d->h+20,jwin_pal[jcBOX]);
+			// Old colors
+			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, cs_hei+4, FR_DEEP);
+			for(int i=0; i<16; ++i)
+			{
+				rectfill(screen,int((i<<3)*(is_large?1.5:1)+d->x),d->y,int((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
+			}
+			// New colors
+			jwin_draw_frame(screen, d->x-2, d->y-2+(cs_hei*2), d->w+4, cs_hei+4, FR_DEEP);
+			for(int i=0; i<16; ++i)
+			{
+				rectfill(screen,int((i<<3)*(is_large?1.5:1)+d->x),d->y+(cs_hei*2),int((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
+			}
+			//Text
+			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int(d->y + d->h + (32*(is_large?1.5:1))),jwin_pal[jcBOX]);
+			
+			if(color_copy>=0)
+			{
+				textout_ex(screen,(is_large?lfont_l:font),"\x81",int((color_copy<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			}
+			
+			textout_ex(screen,(is_large?lfont_l:font),"\x88",int((color_index<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			
+			if((edit_cset_dlg[19].flags & D_SELECTED))
+			{
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
+			}
+			else
+			{
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
+			}
+			break;
+	}
+	return ret;
+}
+
+int edit_cset_kb_handler(int msg, DIALOG* d, int c)
+{
+	ASSERT(d);
+	int ret = D_O_K;
+	switch(msg)
+	{
+		case MSG_START:
+			d->h = d->w = 0;
+			break;
+		case MSG_XCHAR:
+		case MSG_CHAR:
+			switch(c>>8)
+			{
+				case KEY_LEFT:
+				case KEY_4:
+				case KEY_4_PAD:
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					{
+						zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index-1)&15)]);
+					}
+					if(color_index==0)
+						color_index = 15;
+					else --color_index;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+				case KEY_RIGHT:
+				case KEY_6:
+				case KEY_6_PAD:
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					{
+						zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index+1)&15)]);
+					}
+					if(color_index==15)
+						color_index = 0;
+					else ++color_index;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+				case KEY_HOME:
+				case KEY_7:
+				case KEY_7_PAD:
+					++RAMpal[14*16+color_index].r;
+					RAMpal[14*16+color_index].r&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_END:
+				case KEY_1:
+				case KEY_1_PAD:
+					--RAMpal[14*16+color_index].r;
+					RAMpal[14*16+color_index].r&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_UP:
+				case KEY_8:
+				case KEY_8_PAD:
+					++RAMpal[14*16+color_index].g;
+					RAMpal[14*16+color_index].g&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_DOWN:
+				case KEY_2:
+				case KEY_2_PAD:
+					--RAMpal[14*16+color_index].g;
+					RAMpal[14*16+color_index].g&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_PGUP:
+				case KEY_9:
+				case KEY_9_PAD:
+					++RAMpal[14*16+color_index].b;
+					RAMpal[14*16+color_index].b&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_PGDN:
+				case KEY_3:
+				case KEY_3_PAD:
+					--RAMpal[14*16+color_index].b;
+					RAMpal[14*16+color_index].b&=0x3F;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_C:
+					color_copy=color_index;
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_V:
+					if(color_copy>=0)
+					{
+						RAMpal[14*16+color_index]=RAMpal[14*16+color_copy];
+						color_copy=-1;
+						edit_cset_dlg[9].flags |= D_DIRTY;
+					}
+					break;
+					
+				case KEY_M:
+					if(color_copy>=0)
+					{
+						RGB temp=RAMpal[14*16+color_index];
+						RAMpal[14*16+color_index]=RAMpal[14*16+color_copy];
+						RAMpal[14*16+color_copy]=temp;
+						color_copy=-1;
+						edit_cset_dlg[9].flags |= D_DIRTY;
+					}
+					break;
+					
+				case KEY_I:
+				case KEY_INSERT:
+					RAMpal[14*16+color_index]=RAMpal[edc];
+					edit_cset_dlg[9].flags |= D_DIRTY;
+					break;
+					
+				case KEY_S:
+					onSnapshot();
+					break;
+				default:
+				{
+					switch(c&255)
+					{
+						case '4':
+						{
+							if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+							{
+								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index-1)&15)]);
+							}
+							
+							color_index=(color_index-1)&15;
+							break;
+						}
+						
+						case '6':
+						{
+							if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+							{
+								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index+1)&15)]);
+							}
+							
+							color_index=(color_index+1)&15;
+							break;
+						}
+						
+						case '7':
+							++RAMpal[14*16+color_index].r;
+							RAMpal[14*16+color_index].r&=0x3F;
+							break;
+							
+						case '1':
+							--RAMpal[14*16+color_index].r;
+							RAMpal[14*16+color_index].r&=0x3F;
+							break;
+							
+						case '8':
+							++RAMpal[14*16+color_index].g;
+							RAMpal[14*16+color_index].g&=0x3F;
+							break;
+							
+						case '2':
+							--RAMpal[14*16+color_index].g;
+							RAMpal[14*16+color_index].g&=0x3F;
+							break;
+							
+						case '9':
+							++RAMpal[14*16+color_index].b;
+							RAMpal[14*16+color_index].b&=0x3F;
+							break;
+							
+						case '3':
+							--RAMpal[14*16+color_index].b;
+							RAMpal[14*16+color_index].b&=0x3F;
+							break;
+						
+						default:
+							return ret;
+					}
+					edit_cset_dlg[9].flags |= D_DIRTY;
+				}
+			}
+			ret |= D_USED_CHAR;
+			broadcast_dialog_message(MSG_IDLE,0);
+			
+	}
+	return ret;
+}
+
+void onInsertColor()
+{
+	RAMpal[14*16+color_index] = RAMpal[edc];
+	set_palette_range(RAMpal,0,255,false);
+	edit_cset_dlg[9].flags |= D_DIRTY;
+}
+
+void onInsertColor_Text()
+{
+	int r = atoi((char*)edit_cset_dlg[10].dp),
+		g = atoi((char*)edit_cset_dlg[11].dp),
+		b = atoi((char*)edit_cset_dlg[12].dp);
+	if(edit_cset_dlg[19].flags & D_SELECTED)
+	{
+		r = vbound(r, 0, 252)/4;
+		g = vbound(g, 0, 252)/4;
+		b = vbound(b, 0, 252)/4;
+	}
+	else
+	{
+		r = vbound(r, 0, 63);
+		g = vbound(g, 0, 63);
+		b = vbound(b, 0, 63);
+	}
+	RAMpal[14*16+color_index].r = r;
+	RAMpal[14*16+color_index].g = g;
+	RAMpal[14*16+color_index].b = b;
+	set_palette_range(RAMpal,0,255,false);
+	edit_cset_dlg[9].flags |= D_DIRTY;
+}
+
+void jumpText(int r, int g, int b)
+{
+	if(edit_cset_dlg[19].flags & D_SELECTED)
+	{
+		r*=4;
+		g*=4;
+		b*=4;
+	}
+	char* c1 = (char*)edit_cset_dlg[10].dp;
+	char* c2 = (char*)edit_cset_dlg[11].dp;
+	char* c3 = (char*)edit_cset_dlg[12].dp;
+	for(int q = 0; q < 2; ++q)
+	{
+		c1[q] = 0;
+		c2[q] = 0;
+		c3[q] = 0;
+	}
+	sprintf(c1, "%d", r);
+	sprintf(c2, "%d", g);
+	sprintf(c3, "%d", b);
+	object_message(&edit_cset_dlg[10], MSG_DRAW, 0);
+	object_message(&edit_cset_dlg[11], MSG_DRAW, 0);
+	object_message(&edit_cset_dlg[12], MSG_DRAW, 0);
+}
+
+void onJumpText()
+{
+	jumpText(RAMpal[14*16+color_index].r, RAMpal[14*16+color_index].g, RAMpal[14*16+color_index].b);
+}
+
+void onJumpHSL()
+{
+	
+}
+
+void init_gfxpal()
+{
+	for(int i=0; i<128; i++)
+	{
+		RAMpal[i] = _RGB(gfx_pal+i*3); //hue
+	}
+	for(int i=0; i<32; i++)
+	{
+		RAMpal[i+128] = _RGB(i<<1,i<<1,i<<1); //lightness
+	}
+}
 
 void edit_dataset(int dataset)
 {
-    PALETTE holdpal;
-    memcpy(holdpal,RAMpal,sizeof(RAMpal));
-    int index = 0;
-    
-    hue_x=96;
-    hue_y=30;
-    hue_h=16;
-    light_x=74;
-    light_y=52;
-    light_w=16;
-    sat_x=230;
-    sat_y=52;
-    sat_w=16;
-    color_x=96;
-    color_y=52;
-    color_w=128;
-    color_h=64;
-    cset_x=96;
-    cset_y=170;
-    cset_h=8;
-    cset_spacing=4;
-    int ok_button_x=240, ok_button_y=152, ok_button_w=61, ok_button_h=21;
-    int cancel_button_x=240, cancel_button_y=184, cancel_button_w=61, cancel_button_h=21;
-    int insert_button_x=130, insert_button_y=140, insert_button_w=61, insert_button_h=21;
-    int window_xofs=0;
-    int window_yofs=0;
-    bool just_clicked=false;
-    
-    if(is_large)
-    {
-        window_xofs=(zq_screen_w-480)>>1;
-        window_yofs=(zq_screen_h-360)>>1;
-        hue_x = int(hue_x*1.5);
-        hue_y = int(hue_y*1.5);
-        hue_h = int(hue_h*1.5);
-        hue_x+=window_xofs;
-        hue_y+=window_yofs;
-        light_x = int(light_x*1.5);
-        light_y = int(light_y*1.5);
-        light_w = int(light_w*1.5);
-        light_x+=window_xofs;
-        light_y+=window_yofs;
-        sat_x = int(sat_x*1.5);
-        sat_y = int(sat_y*1.5);
-        sat_x+=window_xofs;
-        sat_y+=window_yofs;
-        sat_w = int(sat_w*1.5);
-        color_x = int(color_x*1.5);
-        color_y = int(color_y*1.5);
-        color_w =int(color_w*1.5);
-        color_h = int(color_h*1.5);
-        color_x+=window_xofs;
-        color_y+=window_yofs;
-        cset_x = int(cset_x*1.5);
-        cset_y = int(cset_y*1.5);
-        cset_h = int(cset_h*1.5);
-        cset_x+=window_xofs;
-        cset_y+=window_yofs;
-        cset_spacing = int(cset_spacing*1.5);
-        ok_button_x = int(ok_button_x*1.5);
-        ok_button_y = int(ok_button_y*1.5);
-        ok_button_x+=window_xofs;
-        ok_button_y+=window_yofs;
-        ok_button_w = int(ok_button_w*1.5);
-        ok_button_h = int(ok_button_h*1.5);
-        cancel_button_x = int(cancel_button_x*1.5);
-        cancel_button_y = int(cancel_button_y*1.5);
-        cancel_button_x+=window_xofs;
-        cancel_button_y+=window_yofs;
-        cancel_button_w = int(cancel_button_w*1.5);
-        cancel_button_h = int(cancel_button_h*1.5);
-        insert_button_x = int(insert_button_x*1.5);
-        insert_button_y = int(insert_button_y*1.5);
-        insert_button_x+=window_xofs;
-        insert_button_y+=window_yofs;
-        insert_button_w = int(insert_button_w*1.5);
-        insert_button_h = int(insert_button_h*1.5);
-    }
-    
-    custom_vsync();
-    scare_mouse();
-    
-    if(is_large)
-        rectfill(screen, 0, 0, screen->w, screen->h, 128);
-        
-    jwin_draw_win(screen, window_xofs, window_yofs, int(320*(is_large?1.5:1)), int(240*(is_large?1.5:1)), FR_WIN);
-    FONT *oldfont=is_large?lfont_l:nfont;
-    font=lfont;
-    jwin_draw_titlebar(screen, 3+window_xofs, 3+window_yofs, int((320*(is_large?1.5:1))-6), 18, "Edit CSet", true);
-    font = oldfont;
-    //draw_x_button(screen, 320 - 21, 5, 0);
-    load_cset(RAMpal,12,dataset);
-    load_cset(RAMpal,14,dataset);
-    set_palette_range(RAMpal,0,255,false);
-    
-    init_colormixer();
-    colormixer(color,gray,ratio);
-    
-    jwin_draw_frame(screen, cset_x-2, cset_y-2, int(128*(is_large?1.5:1)+4), cset_h+4, FR_DEEP);
-    
-    for(int i=0; i<16; i++)
-    {
-        rectfill(screen,int((i<<3)*(is_large?1.5:1)+cset_x),cset_y,int((i<<3)*(is_large?1.5:1)+cset_x+cset_h-1),cset_y+cset_h-1,12*16+i);
-    }
-    
-    draw_edit_dataset_specs(index,-1);
-    
-    draw_text_button(screen,ok_button_x,ok_button_y,ok_button_w,ok_button_h,"OK",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen,cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen,insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    
-    unscare_mouse();
-    //if(zqwin_scale > 1)
-    {
-        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    //else
-    {
-        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
-    
-    bool bdown=false;
-    int doing=0;
-    //doing:
-    //1=hue
-    //2=color index
-    //3=saturation
-    
-    int copy=-1;
-    
-    int done=0;
-    
-    do
-    {
-        rest(4);
-        bool setpal=false;
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
-        
-        if(gui_mouse_b()==1 && !bdown)
-        {
-            just_clicked=true;
-            
-            if(isinRect(x,y,color_x,color_y,color_x+color_w-1,color_y+color_h-1))
-            {
-                doing=1; //hue/lightness (color)
-            }
-            
-            if(isinRect(x,y,sat_x,sat_y,sat_x+sat_w-1,sat_y+(is_large?96:64)-1))
-            {
-                doing=3; //saturation
-            }
-            
-            if(isinRect(x,y,cset_x,cset_y,cset_x+(is_large?192:128)-1,cset_y+(cset_h*2)+cset_spacing+10))
-            {
-                doing=2; //color index
-            }
-            
-            if(isinRect(x,y,ok_button_x,ok_button_y,ok_button_x+ok_button_w-1,ok_button_y+ok_button_h-1))
-            {
-                if(do_text_button(ok_button_x,ok_button_y,ok_button_w,ok_button_h,"OK",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    done=2;
-                }
-            }
-            
-            if(!doing && isinRect(x,y,cancel_button_x,cancel_button_y,cancel_button_x+cancel_button_w-1,cancel_button_y+cancel_button_h-1))
-            {
-                if(do_text_button(cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    done=1;
-                }
-            }
-            
-            if(isinRect(x,y,int(320*(is_large?1.5:1) - 21+window_xofs), 5+window_yofs, int(320*(is_large?1.5:1) - 21 + 15+window_xofs), 5 + 13+window_yofs))
-            {
-                if(do_x_button(screen, int(320*(is_large?1.5:1) - 21+window_xofs), 5+window_yofs))
-                {
-                    done=1;
-                }
-            }
-            
-            if(isinRect(x,y,insert_button_x,insert_button_y,insert_button_x+insert_button_w-1,insert_button_y+insert_button_h-1))
-            {
-                if(do_text_button_reset(insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    RAMpal[14*16+index] = RAMpal[edc];
-                    setpal=true;
-                }
-            }
-            
-            bdown=true;
-        }
-        
-        if(gui_mouse_b()==1)
-        {
-            switch(doing)
-            {
-            case 1: // hue/lightness
-                color = vbound(x-color_x,0,is_large?191:127);
-                gray = vbound(y-light_y,0,is_large?95:63);
-                break;
-                
-            case 2: // color index
-            {
-                int new_index=vbound((int)((x-cset_x)/(is_large?1.5:1))>>3,0,15);
-                
-                if(index!=new_index && !just_clicked)
-                {
-                    if(index<new_index)
-                    {
-                        for(int i=index; i<new_index; i++)
-                            zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
-                    }
-                    else
-                    {
-                        for(int i=index; i>new_index; i--)
-                            zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
-                    }
-                    
-                    setpal=true;
-                }
-                
-                index = new_index;
-                break;
-            }
-            
-            case 3: // saturation
-                ratio = vbound(y-sat_y,0,is_large?95:63);
-                break;
-            }
-        }
-        
-        just_clicked=false;
-        
-        if(gui_mouse_b()==0)
-        {
-            bdown=false;
-            doing=0;
-        }
-        
-        if(keypressed())
-        {
-            int k = readkey();
-            
-            switch(k>>8)
-            {
-            case KEY_ESC:
-                done=1;
-                break;
-                
-            case KEY_ENTER:
-                done=2;
-                break;
-                
-            case KEY_LEFT:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index-1)&15)]);
-                    setpal=true;
-                }
-                
-                index=(index-1)&15;
-                break;
-            }
-            
-            case KEY_RIGHT:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index+1)&15)]);
-                    setpal=true;
-                }
-                
-                index=(index+1)&15;
-                break;
-            }
-            
-            case KEY_HOME:
-                ++RAMpal[14*16+index].r;
-                RAMpal[14*16+index].r&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_END:
-                --RAMpal[14*16+index].r;
-                RAMpal[14*16+index].r&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_UP:
-                ++RAMpal[14*16+index].g;
-                RAMpal[14*16+index].g&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_DOWN:
-                --RAMpal[14*16+index].g;
-                RAMpal[14*16+index].g&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_PGUP:
-                ++RAMpal[14*16+index].b;
-                RAMpal[14*16+index].b&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_PGDN:
-                --RAMpal[14*16+index].b;
-                RAMpal[14*16+index].b&=0x3F;
-                setpal=true;
-                break;
-                
-            case KEY_C:
-                copy=index;
-                break;
-                
-            case KEY_V:
-                if(copy>=0)
-                {
-                    RAMpal[14*16+index]=RAMpal[14*16+copy];
-                    setpal=true;
-                    copy=-1;
-                }
-                
-                break;
-                
-            case KEY_M:
-                if(copy>=0)
-                {
-                    RGB temp=RAMpal[14*16+index];
-                    RAMpal[14*16+index]=RAMpal[14*16+copy];
-                    RAMpal[14*16+copy]=temp;
-                    setpal=true;
-                    copy=-1;
-                }
-                
-                break;
-                
-            case KEY_I:
-            case KEY_INSERT:
-                RAMpal[14*16+index]=RAMpal[edc];
-                setpal=true;
-                break;
-                
-            case KEY_F1:
-                doHelp(jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG]);
-                break;
-                
-            case KEY_S:
-                onSnapshot();
-                break;
-                
-            default:
-                switch(k&255)
-                {
-                case '4':
-                {
-                    if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                    {
-                        zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index-1)&15)]);
-                        setpal=true;
-                    }
-                    
-                    index=(index-1)&15;
-                    break;
-                }
-                
-                case '6':
-                {
-                    if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                    {
-                        zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index+1)&15)]);
-                        setpal=true;
-                    }
-                    
-                    index=(index+1)&15;
-                    break;
-                }
-                
-                case '7':
-                    ++RAMpal[14*16+index].r;
-                    RAMpal[14*16+index].r&=0x3F;
-                    setpal=true;
-                    break;
-                    
-                case '1':
-                    --RAMpal[14*16+index].r;
-                    RAMpal[14*16+index].r&=0x3F;
-                    setpal=true;
-                    break;
-                    
-                case '8':
-                    ++RAMpal[14*16+index].g;
-                    RAMpal[14*16+index].g&=0x3F;
-                    setpal=true;
-                    break;
-                    
-                case '2':
-                    --RAMpal[14*16+index].g;
-                    RAMpal[14*16+index].g&=0x3F;
-                    setpal=true;
-                    break;
-                    
-                case '9':
-                    ++RAMpal[14*16+index].b;
-                    RAMpal[14*16+index].b&=0x3F;
-                    setpal=true;
-                    break;
-                    
-                case '3':
-                    --RAMpal[14*16+index].b;
-                    RAMpal[14*16+index].b&=0x3F;
-                    setpal=true;
-                    break;
-                }
-            }
-        }
-        
-        if(gui_mouse_b() && (doing==1 || doing==3))
-        {
-            colormixer(color,gray,ratio);
-        }
-        else
-        {
-            custom_vsync();
-            scare_mouse();
-            
-            if(setpal)
-                set_palette_range(RAMpal,14*16,15*16,false);
-                
-            draw_edit_dataset_specs(index,copy);
-            unscare_mouse();
-            SCRFIX();
-        }
-        
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        // else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
-        
-    }
-    while(!done);
-    
-    if(done==2)
-    {
-        get_cset(dataset,14,RAMpal);
-        saved=false;
-    }
-    
-    font = nfont;
-    
-    //  RAMpal = holdpal;
-    
-    memcpy(RAMpal, holdpal, sizeof(holdpal));
-    
-    set_palette(RAMpal);
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
+	PALETTE holdpal;
+	memcpy(holdpal,RAMpal,sizeof(RAMpal));
+	
+	if(is_large)
+	{
+		rectfill(screen, 0, 0, screen->w, screen->h, 128);
+		large_dialog(edit_cset_dlg);
+	}
+	
+	load_cset(RAMpal,12,dataset);
+	load_cset(RAMpal,14,dataset);
+	set_palette_range(RAMpal,0,255,false);
+	FONT* old = font;
+	font = is_large?lfont_l:nfont;
+	
+	init_gfxpal();
+	char bufr[4] = "0", bufg[4] = "0", bufb[4] = "0";
+	edit_cset_dlg[10].dp = (void*)bufr;
+	edit_cset_dlg[11].dp = (void*)bufg;
+	edit_cset_dlg[12].dp = (void*)bufb;
+	
+	while(gui_mouse_b()) {} //Do nothing
+	edit_cset_dlg[0].dp2 = lfont;
+	int ret = zc_popup_dialog(edit_cset_dlg,3);
+	al_trace("DLG RETURN VAL -------------------------- %d", ret);
+	switch(ret)
+	{
+		case 3: //Cancel
+			break;
+		case 4: //OK
+			get_cset(dataset,14,RAMpal);
+			saved=false;
+			break;
+	}
+	
+	memcpy(RAMpal, holdpal, sizeof(holdpal));
+	
+	set_palette(RAMpal);
+	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
+	while(gui_mouse_b()) {} //Do nothing
+	font = old;
 }
 
 int pal_index(RGB *pal,RGB c)
@@ -985,6 +1010,7 @@ static DIALOG cycle_dlg[] =
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_button_proc,     90,   176,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     170,  176,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_text_proc,       152,  72,   96,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "1   2   3", NULL, NULL },
     { jwin_text_proc,       152,  72,   96,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "1   2   3", NULL, NULL },
     { jwin_text_proc,       88,   88,   56,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "CSet:", NULL, NULL },
     { jwin_text_proc,       88,   104,  56,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "First:", NULL, NULL },
@@ -1530,7 +1556,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         }
 	if ( ret == 43 )
 	{
-		if(getname("Export Subscreen (.sub)",".png",NULL,datapath,false))
+		if(getname("Save Palette (.png)","png",NULL,datapath,false))
 		{
 			//bool cancel;
 			//char buf[80],buf2[80],
@@ -1609,7 +1635,7 @@ void copyPal(int src, int dest)
 int onColors_Levels()
 {
     int cycle = get_bit(quest_rules,qr_FADE);
-    int index=0;
+    int index=Map.getcolor();
     
     while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
     {
@@ -1669,5 +1695,6 @@ void center_zq_cset_dialogs()
 {
     jwin_center_dialog(cycle_dlg);
     jwin_center_dialog(colors_dlg);
+	jwin_center_dialog(edit_cset_dlg);
 }
 
