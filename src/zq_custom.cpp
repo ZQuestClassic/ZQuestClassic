@@ -2049,7 +2049,7 @@ void test_item(itemdata test, int x, int y)
     BITMAP *buf = create_bitmap_ex(8,16,16);
     BITMAP *buf2 = create_bitmap_ex(8,64,64);
     
-    item temp((fix)0,(fix)0,(fix)0,0,0,0);
+    item temp((zfix)0,(zfix)0,(zfix)0,0,0,0);
     temp.yofs = 0;
     go();
     scare_mouse();

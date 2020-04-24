@@ -1397,14 +1397,14 @@ LinkClass   Link;
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
 {
-    Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,-1,parentid));
+    Lwpns.add(new weapon((zfix)x,(zfix)y,(zfix)z,id,type,power,dir,-1,parentid));
 }
 
 
 void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentitem, int parentid, byte script_gen)
 {
-	//weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, byte script_gen, bool isDummy)
-    Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,parentitem,parentid,false,1));
+	//weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, byte script_gen, bool isDummy)
+    Lwpns.add(new weapon((zfix)x,(zfix)y,(zfix)z,id,type,power,dir,parentitem,parentid,false,1));
 	
 }
 
@@ -1495,15 +1495,15 @@ void centerLink()
     Link.setX(120);
     Link.setY(80);
 }
-fix  LinkX()
+zfix  LinkX()
 {
     return Link.getX();
 }
-fix  LinkY()
+zfix  LinkY()
 {
     return Link.getY();
 }
-fix  LinkZ()
+zfix  LinkZ()
 {
     return Link.getZ();
 }
@@ -1555,11 +1555,11 @@ byte LinkGetDontDraw()
 {
     return Link.getDontDraw();
 }
-fix  GuyX(int j)
+zfix  GuyX(int j)
 {
     return guys.getX(j);
 }
-fix  GuyY(int j)
+zfix  GuyY(int j)
 {
     return guys.getY(j);
 }
@@ -1596,11 +1596,11 @@ void StunGuy(int j,int stun)
     }
 }
 
-fix LinkModifiedX()
+zfix LinkModifiedX()
 {
     return Link.getModifiedX();
 }
-fix LinkModifiedY()
+zfix LinkModifiedY()
 {
     return Link.getModifiedY();
 }
@@ -1612,13 +1612,13 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid)
 {
     if(size)
     {
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wSBomb,0,16*DAMAGE_MULTIPLIER,LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*DAMAGE_MULTIPLIER,LinkDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wSBomb;
     }
     else
     {
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBomb,0,4*DAMAGE_MULTIPLIER,LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBomb,0,4*DAMAGE_MULTIPLIER,LinkDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wBomb;
     }
@@ -1627,10 +1627,10 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid)
     Lwpns.spr(Lwpns.Count()-1)->misc=50;
 }
 
-fix distance(int x1, int y1, int x2, int y2)
+zfix distance(int x1, int y1, int x2, int y2)
 
 {
-    return (fix)sqrt(pow((double)abs(x1-x2),2)+pow((double)abs(y1-y2),2));
+    return (zfix)sqrt(pow((double)abs(x1-x2),2)+pow((double)abs(y1-y2),2));
 }
 
 bool getClock()
@@ -2706,7 +2706,7 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
+            Lwpns.add(new weapon((zfix)LinkX(),(zfix)(-32),(zfix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=29;
@@ -2737,8 +2737,8 @@ void do_magic_casting()
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
 		    //din't fire level fix to go here
-                //Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                //Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		    w->linked_parent = itemsbuf[magicitem].family;
@@ -2869,10 +2869,10 @@ void do_magic_casting()
         // See also Link.cpp, LinkClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(LinkX(),LinkY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(LinkX(),LinkY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
@@ -2897,10 +2897,10 @@ void do_magic_casting()
             }
             
             int d=zc_max(LinkX(),256-LinkX())+32;
-            Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
+            Lwpns.add(new weapon((zfix)(LinkX()-d),(zfix)LinkY(),(zfix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
+            Lwpns.add(new weapon((zfix)(LinkX()+d),(zfix)LinkY(),(zfix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=29;
@@ -3000,12 +3000,12 @@ void update_hookshot()
                 if(abs(hs_dx)>=hs_xdist+8)
                 {
                     hs_xdist=abs(hs_x-hs_startx);
-                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
                 }
                 else if(abs(hs_dy)>=hs_ydist+8)
                 {
                     hs_ydist=abs(hs_y-hs_starty);
-                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
                 }
             }                                                     //stretching chain
             else

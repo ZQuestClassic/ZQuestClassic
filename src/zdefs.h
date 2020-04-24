@@ -25,7 +25,6 @@
 #define DEVLOGGING	false
 #endif
 
-
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG

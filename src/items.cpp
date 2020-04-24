@@ -236,7 +236,7 @@ void item::draw(BITMAP *dest)
     }
 }
 
-item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
+item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 {
     x=X;
     y=Y;
@@ -344,7 +344,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 
 void putitem(BITMAP *dest,int x,int y,int item_id)
 {
-    item temp((fix)x,(fix)y,(fix)0,item_id,0,0);
+    item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0);
     temp.yofs=0;
 	
     if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
@@ -372,7 +372,7 @@ void item::setScriptUID(int new_id) { script_UID = new_id; }
 
 void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash)
 {
-    item temp((fix)x,(fix)y,(fix)0,item_id,0,0,true);
+    item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
     temp.yofs=0;
     temp.aclk=aclk;
     temp.aframe=aframe;

@@ -17,17 +17,18 @@
 
 #include "sprite.h"
 #include "zdefs.h"
+#include "zfix.h"
 
 
 extern char *item_string[ITEMCNT];
 
 extern int fairy_cnt;
-void movefairy(fix &x,fix &y,int misc);
+void movefairy(zfix &x,zfix &y,int misc);
 void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
-bool addfairy(fix x, fix y, int misc3, int id);
-bool can_drop(fix x, fix y);
-void item_fall(fix& x, fix& y, fix& fall);
+bool addfairy(zfix x, zfix y, int misc3, int id);
+bool can_drop(zfix x, zfix y);
+void item_fall(zfix& x, zfix& y, zfix& fall);
 int select_dropitem(int item_set);
 int select_dropitem(int item_set, int x, int y);
 
@@ -56,7 +57,7 @@ public:
     void setScriptUID(int new_id);
     #endif
 //
-    item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
+    item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);

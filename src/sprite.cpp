@@ -250,7 +250,7 @@ do_animation(other.do_animation)
     }
 }
 
-sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
+sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
     uid = getNextUID();
@@ -347,15 +347,15 @@ bool sprite::animate(int)
     ++c_clk;
     return false;
 }
-int sprite::real_x(fix fx)
+int sprite::real_x(zfix fx)
 {
-    int rx=fx.v>>16;
+    int rx = fx.getInt();
     
     switch(dir)
     {
     case 9:
     case 13:
-        if(fx.v&0xFFFF)
+        if(fx.dpart != 0)
             ++rx;
             
         break;
@@ -364,14 +364,14 @@ int sprite::real_x(fix fx)
     return rx;
 }
 
-int sprite::real_y(fix fy)
+int sprite::real_y(zfix fy)
 {
-    return fy.v>>16;
+    return fy.getInt();
 }
 
-int sprite::real_z(fix fz)
+int sprite::real_z(zfix fz)
 {
-    return fz.v>>16;
+    return fz.getInt();
 }
 
 bool sprite::hit(sprite *s)
@@ -417,13 +417,13 @@ int sprite::hitdir(int tx,int ty,int txsz2,int tysz2,int dir2)
     return (cy2-cy1<0)?up:down;
 }
 
-void sprite::move(fix dx,fix dy)
+void sprite::move(zfix dx,zfix dy)
 {
     x+=dx;
     y+=dy;
 }
 
-void sprite::move(fix s)
+void sprite::move(zfix s)
 {
     if(angular)
     {
@@ -928,7 +928,7 @@ void sprite::draw(BITMAP* dest)
 		}
 		else //extend == 3?
 		{
-			sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+			sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
 			w.xofs = xofs;
 			w.yofs = yofs;
 			w.zofs = zofs;
@@ -1195,7 +1195,7 @@ void sprite::drawzcboss(BITMAP* dest)
         }
         else
         {
-            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -1451,7 +1451,7 @@ void sprite::old_draw(BITMAP* dest)
         }
         else
         {
-            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -1769,7 +1769,7 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -2024,7 +2024,7 @@ void sprite::old_draw(BITMAP* dest)
         }
         else
         {
-            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -2259,21 +2259,21 @@ gotit:
     return true;
 }
 
-fix sprite_list::getX(int j)
+zfix sprite_list::getX(int j)
 {
     if((j>=count)||(j<0))
     {
-        return (fix)1000000;
+        return (zfix)1000000;
     }
     
     return sprites[j]->x;
 }
 
-fix sprite_list::getY(int j)
+zfix sprite_list::getY(int j)
 {
     if((j>=count)||(j<0))
     {
-        return (fix)1000000;
+        return (zfix)1000000;
     }
     
     return sprites[j]->y;

@@ -2953,9 +2953,9 @@ long get_register(const long arg)
 				//Z_scripterrlog("lx: %f\n", lx);
 				
 				//ret = lx * 10000;
-				//fix lx = Link.getX();
+				//zfix lx = Link.getX();
 				//Z_scripterrlog("lx: %d\n", lx);
-				ret = (double)Link.getX()*10000;
+				ret = Link.getX().getZLong();
 			}
 			else ret = long(Link.getX()) * 10000;
 
@@ -2966,7 +2966,7 @@ long get_register(const long arg)
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
-				ret = (double)Link.getY()*10000;
+				ret = Link.getY().getZLong();
 			}
 			else ret = long(Link.getY()) * 10000;
 
@@ -2976,7 +2976,7 @@ long get_register(const long arg)
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
-				ret = (double)Link.getZ()*10000;
+				ret = Link.getZ().getZLong();
 			}
 			else ret = long(Link.getZ()) * 10000;
 
@@ -3640,7 +3640,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((item*)(s))->x)*10000;    
+					ret=(((item*)(s))->x).getZLong();    
 				}
 				else ret=((int)((item*)(s))->x)*10000;
 			}
@@ -3694,7 +3694,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((item*)(s))->y)*10000;    
+					ret=(((item*)(s))->y).getZLong();    
 				}
 				else 
 					ret=((int)((item*)(s))->y)*10000;
@@ -3706,7 +3706,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((item*)(s))->z)*10000;    
+					ret=(((item*)(s))->z).getZLong();    
 				}
 				else 
 					ret=((int)((item*)(s))->z)*10000;
@@ -4459,7 +4459,7 @@ long get_register(const long arg)
 		case NPCTYSZ:
 			GET_NPC_VAR_INT(tysz, "npc->TileHeight") break;
 			
-		//And fix
+		//And zfix
 		#define GET_NPC_VAR_FIX(member, str) \
 		{ \
 			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
@@ -4479,7 +4479,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = (double(GuyH::getNPC()->x) * 10000); 
+					ret = ((GuyH::getNPC()->x).getZLong()); 
 				}
 				else
 				{
@@ -4522,7 +4522,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = (double(GuyH::getNPC()->y) * 10000); 
+					ret = ((GuyH::getNPC()->y).getZLong()); 
 				}
 				else
 				{
@@ -4544,7 +4544,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = (double(GuyH::getNPC()->z) * 10000); 
+					ret = ((GuyH::getNPC()->z).getZLong()); 
 				}
 				else
 				{
@@ -4620,7 +4620,7 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
+				ret = long(GuyH::getNPC()->step * zfix(100.0)) * 10000;
 				
 			break;
 		
@@ -4961,7 +4961,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->x)*10000;  
+					ret=(((weapon*)(s))->x).getZLong();  
 				}
 				else 
 					ret=((int)((weapon*)(s))->x)*10000;
@@ -4981,7 +4981,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->y)*10000;  
+					ret=(((weapon*)(s))->y).getZLong();  
 				}
 				else 
 					ret=((int)((weapon*)(s))->y)*10000;
@@ -4993,7 +4993,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->z)*10000;  
+					ret=(((weapon*)(s))->z).getZLong();  
 				}
 				else 
 					ret=((int)((weapon*)(s))->z)*10000;
@@ -5314,7 +5314,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->x)*10000;
+					ret=(((weapon*)(s))->x).getZLong();
 				}
 				else 
 					ret=((int)((weapon*)(s))->x)*10000;
@@ -5333,7 +5333,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->y)*10000;
+					ret=(((weapon*)(s))->y).getZLong();
 				}
 				else 
 					 ret=((int)((weapon*)(s))->y)*10000;
@@ -5345,7 +5345,7 @@ long get_register(const long arg)
 			{
 				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=((double)((weapon*)(s))->z)*10000;
+					ret=(((weapon*)(s))->z).getZLong();
 				}
 				else 
 					ret=((int)((weapon*)(s))->z)*10000;
@@ -6710,7 +6710,7 @@ long get_register(const long arg)
 			//Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
 			if ( Lwpns.Count() < 256 )
 			{
-				Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
+				Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
 				ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 				//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //not needed here because this has access to wpn->prent
@@ -6765,7 +6765,7 @@ long get_register(const long arg)
 			Z_scripterrlog("CollisionDx ri->d[5] is (%i), trying to use for '%s'\n", dir, "dir");
 			Z_scripterrlog("CollisionDx ri->d[0] is (%i), trying to use for '%s'\n", parentitem, "parentitem");
 			
-			weapon *w = new weapon((fix)wpnx,(fix)wpny,(fix)0,lweapon_type,0,power,dir,parentitem,-1,false);
+			weapon *w = new weapon((zfix)wpnx,(zfix)wpny,(zfix)0,lweapon_type,0,power,dir,parentitem,-1,false);
 			int retval = ((enemy*)guys.spr(index))->takehit(w); 
 				//TakeHit, as I recall, applies damage and returns the hit status. Gold.
 			delete w;
@@ -9505,7 +9505,7 @@ void set_register(const long arg, const long value)
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setXdbl(value/10000.0);
+				Link.setXfix(zslongToFix(value));
 			}
 			else
 			{
@@ -9518,7 +9518,7 @@ void set_register(const long arg, const long value)
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setYdbl(value/10000.0);
+				Link.setYfix(zslongToFix(value));
 			}
 			else
 			{
@@ -9531,7 +9531,7 @@ void set_register(const long arg, const long value)
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setZdbl(value/10000.0);
+				Link.setZfix(zslongToFix(value));
 			}
 			else
 			{
@@ -9541,7 +9541,7 @@ void set_register(const long arg, const long value)
 		break;
 			
 		case LINKJUMP:
-			Link.setFall(fix((-value * (100.0)) / 10000.0));
+			Link.setFall(zfix((-value * (100.0)) / 10000.0));
 			break;
 			
 		case LINKDIR:
@@ -9882,7 +9882,7 @@ void set_register(const long arg, const long value)
 			break;
 			
 		case LINKHXOFS:
-			(Link.hxofs)=(fix)(value/10000);
+			(Link.hxofs)=(zfix)(value/10000);
 			break;
 
 		case LINKROTATION:
@@ -9910,47 +9910,47 @@ void set_register(const long arg, const long value)
 		}
 
 		case LINKHYOFS:
-			(Link.hyofs)=(fix)(value/10000);
+			(Link.hyofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKXOFS:
-			(Link.xofs)=(fix)(value/10000);
+			(Link.xofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKYOFS:
-			(Link.yofs)=(fix)(value/10000)+playing_field_offset;
+			(Link.yofs)=(zfix)(value/10000)+playing_field_offset;
 			break;
 			
 		case LINKZOFS:
-			(Link.zofs)=(fix)(value/10000);
+			(Link.zofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKHXSZ:
-			(Link.hxsz)=(fix)(value/10000);
+			(Link.hxsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKHYSZ:
-			(Link.hysz)=(fix)(value/10000);
+			(Link.hysz)=(zfix)(value/10000);
 			break;
 			
 		case LINKHZSZ:
-			(Link.hzsz)=(fix)(value/10000);
+			(Link.hzsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTXSZ:
-			(Link.txsz)=(fix)(value/10000);
+			(Link.txsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTYSZ:
-			(Link.tysz)=(fix)(value/10000);
+			(Link.tysz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTILE:
-			(Link.tile)=(fix)(value/10000);
+			(Link.tile)=(zfix)(value/10000);
 			break;
 			
 		case LINKFLIP:
-			(Link.flip)=(fix)(value/10000);
+			(Link.flip)=(zfix)(value/10000);
 			break;
 		
 		
@@ -10487,7 +10487,7 @@ void set_register(const long arg, const long value)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->x)=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				(s->x)=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -10513,7 +10513,7 @@ void set_register(const long arg, const long value)
 			}
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->scale)=(fix)(value/100.0);
+				(s->scale)=(zfix)(value/100.0);
 			}
 			
 			break;
@@ -10521,7 +10521,7 @@ void set_register(const long arg, const long value)
 		case ITEMY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->y)=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				(s->y)=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -10533,7 +10533,7 @@ void set_register(const long arg, const long value)
 		case ITEMZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->z)=(fix)(value/10000);
+				(s->z)=(zfix)(value/10000);
 				
 				if(s->z < 0)
 					s->z = 0;
@@ -10751,7 +10751,7 @@ void set_register(const long arg, const long value)
 		case ITEMXOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->xofs=(fix)(value/10000);
+				((item*)(s))->xofs=(zfix)(value/10000);
 			}
 			
 			break;
@@ -10759,7 +10759,7 @@ void set_register(const long arg, const long value)
 		case ITEMYOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->yofs=(fix)(value/10000)+playing_field_offset;
+				((item*)(s))->yofs=(zfix)(value/10000)+playing_field_offset;
 			}
 			
 			break;
@@ -10767,7 +10767,7 @@ void set_register(const long arg, const long value)
 		case ITEMZOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->zofs=(fix)(value/10000);
+				((item*)(s))->zofs=(zfix)(value/10000);
 			}
 			
 			break;
@@ -11313,13 +11313,13 @@ void set_register(const long arg, const long value)
 				break;
 			}
 			if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
-				((weapon*)s)->scale=(fix)(value/100.0);
+				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case LWPNX:
 			if(0!=(s=checkLWpn(ri->lwpn,"X")))
-				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->x=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 			break;
 		
 		case SPRITEMAXLWPN:
@@ -11331,13 +11331,16 @@ void set_register(const long arg, const long value)
 			
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->y=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case LWPNZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
+			{
+				((weapon*)s)->z=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
+			}
 				
 			break;
 			
@@ -11523,19 +11526,19 @@ void set_register(const long arg, const long value)
 			
 		case LWPNXOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
-				(((weapon*)s)->xofs)=(fix)(value/10000);
+				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case LWPNYOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(fix)(value/10000)+playing_field_offset;
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
 				
 			break;
 			
 		case LWPNZOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
-				(((weapon*)s)->zofs)=(fix)(value/10000);
+				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
@@ -11651,13 +11654,13 @@ void set_register(const long arg, const long value)
 				break;
 			}
 			if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
-				((weapon*)s)->scale=(fix)(value/100.0);
+				((weapon*)s)->scale=(zfix)(value/100.0);
 				
 			break;
 		
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn,"X")))
-				((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->x=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 		
@@ -11670,13 +11673,16 @@ void set_register(const long arg, const long value)
 		
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-				((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				((weapon*)s)->y=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case EWPNZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
-				((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
+			{
+				((weapon*)s)->z=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
+			}
 				
 			break;
 			
@@ -11856,19 +11862,19 @@ void set_register(const long arg, const long value)
 			
 		case EWPNXOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
-				(((weapon*)s)->xofs)=(fix)(value/10000);
+				(((weapon*)s)->xofs)=(zfix)(value/10000);
 				
 			break;
 			
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(fix)(value/10000)+playing_field_offset;
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
 				
 			break;
 			
 		case EWPNZOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
-				(((weapon*)s)->zofs)=(fix)(value/10000);
+				(((weapon*)s)->zofs)=(zfix)(value/10000);
 				
 			break;
 			
@@ -11966,10 +11972,10 @@ void set_register(const long arg, const long value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
 			{
-				GuyH::getNPC()->x = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+				GuyH::getNPC()->x = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				if(GuyH::hasLink())
-					Link.setX(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
+					Link.setXfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
@@ -12042,12 +12048,12 @@ void set_register(const long arg, const long value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
 			{
-				fix oldy = GuyH::getNPC()->y;
-				GuyH::getNPC()->y = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
-				GuyH::getNPC()->floor_y += ((value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)) - oldy);
+				zfix oldy = GuyH::getNPC()->y;
+				GuyH::getNPC()->y = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				GuyH::getNPC()->floor_y += ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
 				
 				if(GuyH::hasLink())
-					Link.setY(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
+					Link.setYfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
@@ -12059,12 +12065,12 @@ void set_register(const long arg, const long value)
 				if(!never_in_air(GuyH::getNPC()->id))
 				{
 					if(value < 0)
-						GuyH::getNPC()->z = fix(0);
+						GuyH::getNPC()->z = zfix(0);
 					else
-						GuyH::getNPC()->z = fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000));
+						GuyH::getNPC()->z = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 						
 					if(GuyH::hasLink())
-						Link.setZ(fix(value / ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT)) ? 10000.0 : 10000)));
+						Link.setZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				}
 			}
 		}
@@ -12075,10 +12081,10 @@ void set_register(const long arg, const long value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
 			{
 				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
+					GuyH::getNPC()->fall = -zfix(value * 100.0 / 10000.0);
 					
 				if(GuyH::hasLink())
-					Link.setFall(value / fix(10000.0));
+					Link.setFall(value / zfix(10000.0));
 			}
 		}
 		break;
@@ -12086,7 +12092,7 @@ void set_register(const long arg, const long value)
 		case NPCSTEP:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
-				GuyH::getNPC()->step = fix(value / 10000) / fix(100.0);
+				GuyH::getNPC()->step = zfix(value / 10000) / zfix(100.0);
 		}
 		break;
 		
@@ -12100,14 +12106,14 @@ void set_register(const long arg, const long value)
 		case NPCXOFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->DrawXOffset") == SH::_NoError)
-				GuyH::getNPC()->xofs = fix(value / 10000);
+				GuyH::getNPC()->xofs = zfix(value / 10000);
 		}
 		break;
 		
 		case NPCYOFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
-				GuyH::getNPC()->yofs = fix(value / 10000) + playing_field_offset;
+				GuyH::getNPC()->yofs = zfix(value / 10000) + playing_field_offset;
 		}
 		break;
 		
@@ -12127,7 +12133,7 @@ void set_register(const long arg, const long value)
 		case NPCZOFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->DrawZOffset") == SH::_NoError)
-				GuyH::getNPC()->zofs = fix(value / 10000);
+				GuyH::getNPC()->zofs = zfix(value / 10000);
 		}
 		break;
 		
@@ -18491,7 +18497,7 @@ void do_createlweapon(const bool v)
 	
 	if ( Lwpns.has_space() )
 	{
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		//Lwpns.spr(Lwpns.Count() - 1)->LOADGFX(0);
 		//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
@@ -18511,7 +18517,7 @@ void do_createlweapon(const bool v)
 		//old version is below
 	if ( Lwpns.has_space() )
 	{
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
 	}
@@ -19495,8 +19501,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			
 			loadscr(0,currdmap,currscr,-1,overlay);
 			
-			Link.x = (fix)wx;
-			Link.y = (fix)wy;
+			Link.x = (zfix)wx;
+			Link.y = (zfix)wy;
 			
 			switch(linkFacesDir)
 			{
@@ -19507,21 +19513,21 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 					Link.dir = linkFacesDir;
 					break;
 				default:
-					if((int)Link.x==(fix)0)  
+					if((int)Link.x==(zfix)0)  
 					{
 						Link.dir=right;
 					}
-					if((int)Link.x==(fix)240) 
+					if((int)Link.x==(zfix)240) 
 					{
 						Link.dir=left;
 					}
 					
-					if((int)Link.y==(fix)0)   
+					if((int)Link.y==(zfix)0)   
 					{
 						Link.dir=down;
 					}
 					
-					if((int)Link.y==(fix)160) 
+					if((int)Link.y==(zfix)160) 
 					{
 						Link.dir=up;
 					}
@@ -19615,8 +19621,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 				
 			
 			//Move Link's coordinates
-			Link.x = (fix)wx;
-			Link.y = (fix)wy;
+			Link.x = (zfix)wx;
+			Link.y = (zfix)wy;
 			//set his dir
 			switch(linkFacesDir)
 			{
@@ -19628,21 +19634,21 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 					break;
 				default:
 					Link.dir=down;
-					if((int)Link.x==(fix)0)  
+					if((int)Link.x==(zfix)0)  
 					{
 						Link.dir=right;
 					}
-					if((int)Link.x==(fix)240) 
+					if((int)Link.x==(zfix)240) 
 					{
 						Link.dir=left;
 					}
 					
-					if((int)Link.y==(fix)0)   
+					if((int)Link.y==(zfix)0)   
 					{
 						Link.dir=down;
 					}
 					
-					if((int)Link.y==(fix)160) 
+					if((int)Link.y==(zfix)160) 
 					{
 						Link.dir=up;
 					}
@@ -29071,14 +29077,14 @@ void FFScript::do_npc_floatwalk()
 		{
 			
 			GuyH::getNPC()->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
-				(fix)(FFCore.getElement(arrayptr, 2)/10000));
+				(zfix)(FFCore.getElement(arrayptr, 2)/10000));
 		
 		}
 		else if ( sz == 7 ) 
 		{
 			
 			GuyH::getNPC()->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
-				(fix)(FFCore.getElement(arrayptr, 2)/10000), (fix)(FFCore.getElement(arrayptr, 3)/10000),
+				(zfix)(FFCore.getElement(arrayptr, 2)/10000), (zfix)(FFCore.getElement(arrayptr, 3)/10000),
 				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000),
 				(FFCore.getElement(arrayptr, 6)/10000));
 		}
@@ -30084,28 +30090,28 @@ void FFScript::do_npc_canmove(const bool v)
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
 			//zprint("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			//return;
 		}
-		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		else if ( sz == 3 ) //bool canmove(int ndir,zfix s,int special) : I'm pretty sure that 'zfix s' is 'step' here. 
 		{
 			//zprint("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
-			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
 			//return;
 		}
-		else if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		else if ( sz == 7 ) //bool canmove(int ndir,zfix s,int special) : I'm pretty sure that 'zfix s' is 'step' here. 
 		{
 			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
-			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
 			
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
-			//(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
+			//(zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
 			//(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
 			//(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
 			//set_register(sarg1, ( can_mv ? 10000 : 0));

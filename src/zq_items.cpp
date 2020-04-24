@@ -26,7 +26,7 @@
 #include "zdefs.h"
 #include "items.h"
 
-void movefairy(fix&,fix&,int)
+void movefairy(zfix&,zfix&,int)
 {
     return;
 }
@@ -36,17 +36,17 @@ void killfairy(int)
     return;
 }
 
-bool addfairy(fix, fix, int, int)
+bool addfairy(zfix, zfix, int, int)
 {
     return false;
 }
 
-bool can_drop(fix, fix)
+bool can_drop(zfix, zfix)
 {
     return false;
 }
 
-void item_fall(fix&, fix&, fix&)
+void item_fall(zfix&, zfix&, zfix&)
 {
 	return;
 }

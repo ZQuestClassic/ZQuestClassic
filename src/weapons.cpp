@@ -1067,13 +1067,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
-				decorations.add(new dBushLeaves((fix)ComboX(scombo), (fix)ComboY(scombo),dBUSHLEAVES, 0, 0));
+				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
-				decorations.add(new dFlowerClippings((fix)ComboX(scombo), (fix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
+				decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 3 ) )
-				decorations.add(new dGrassClippings((fix)ComboX(scombo), (fix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+				decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
 			else if ( c[cid].attribytes[0] > 0 )
-				decorations.add(new comboSprite((fix)ComboX(scombo), (fix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		}
 		int it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
@@ -1091,7 +1091,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		//zprint("it: %d\n", it);
 		if( it != -1 )
 		{
-			items.add(new item((fix)ComboX(scombo), (fix)ComboY(scombo),(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
 		//drop special room item
 
@@ -1099,11 +1099,11 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			if(tmpscr->hasitem==1)
 				sfx(WAV_CLEARED);
-			items.add(new item((fix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (fix)-170 : (fix)tmpscr->itemy+1,
-				(fix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (fix)170 : (fix)0,
-				(fix)0,
+			items.add(new item((zfix)ComboX(scombo),
+				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+				(zfix)ComboY(scombo),
+				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+				(zfix)0,
 				tmpscr->item,ipONETIME+ipBIGRANGE+((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
 		}
@@ -1434,8 +1434,8 @@ void weapon::seekLink()
 void weapon::seekEnemy(int j)
 {
     angular = true;
-    fix mindistance=(fix)1000000;
-    fix tempdistance;
+    zfix mindistance=(zfix)1000000;
+    zfix tempdistance;
     
     if((j==-1)||(j>=GuyCount()))
     {
@@ -1474,8 +1474,8 @@ void weapon::seekEnemy(int j)
 int weapon::seekEnemy2(int j)
 {
     angular = true;
-    fix mindistance=(fix)1000000;
-    fix tempdistance;
+    zfix mindistance=(zfix)1000000;
+    zfix tempdistance;
     
     if((j==-1)||(j>=GuyCount()))
     {
@@ -1540,7 +1540,7 @@ weapon::weapon(weapon const & other):
     parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
     parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
     dragging(other.dragging),		//int draggong		?
-    step(other.step),			//fix		Speed of movement
+    step(other.step),			//zfix		Speed of movement
     bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
     ignoreLink(other.ignoreLink),	//bool		?
     flash(other.flash),			//word		Is it flashing?
@@ -1777,7 +1777,7 @@ weapon::~weapon()
     }
 }
 
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1839,7 +1839,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	for ( int q = 0; q < 8; q++ )
 	{
 		//load InitD
-		//Z_scripterrlog("(weapon::weapon(fix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+		//Z_scripterrlog("(weapon::weapon(zfix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
 		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
 		    
 	}
@@ -4267,8 +4267,8 @@ bool weapon::animate(int index)
         else
             dir=up;
             
-        x = (fix)((double)LinkX() + xdiff);
-        y = (fix)((double)LinkY() + ydiff);
+        x = (zfix)((double)LinkX() + xdiff);
+        y = (zfix)((double)LinkY() + ydiff);
         z = LinkZ();
         
 	if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
@@ -6791,8 +6791,8 @@ bool weapon::animateandrunscript(int ii)
         else
             dir=up;
             
-        x = (fix)((double)LinkX() + xdiff);
-        y = (fix)((double)LinkY() + ydiff);
+        x = (zfix)((double)LinkX() + xdiff);
+        y = (zfix)((double)LinkY() + ydiff);
         z = LinkZ();
         
         if(parentitem>-1)
@@ -9516,7 +9516,7 @@ void weapon::draw(BITMAP *dest)
 
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe, int parentid)
 {
-    weapon temp((fix)x,(fix)y,(fix)0,weapon_id,type,0,dir,-1,parentid,true);
+    weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
     temp.ignorecombo=((dir==up?y+8:y)&0xF0)+((dir==left?x+8:x)>>4); // Lens hints can sometimes create real weapons without this
     temp.ignoreLink=true;
     temp.yofs=0;
@@ -9613,7 +9613,7 @@ int weapon::run_script(int mode)
 }
 
 //Dummy weapon for visual effects.
-weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g) : sprite(), parentid(prntid)
 {
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "X", (int)X);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Y", (int)Y);

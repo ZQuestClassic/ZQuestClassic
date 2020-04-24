@@ -67,8 +67,8 @@ extern bool active_subscreen_waitdraw;
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
 int z3step = 2;
-static fix link_newstep(1.5);
-static fix link_newstep_diag(1.5);
+static zfix link_newstep(1.5);
+static zfix link_newstep_diag(1.5);
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
@@ -474,27 +474,27 @@ int LinkClass::getEaten()
 {
     return inlikelike;
 }
-fix  LinkClass::getX()
+zfix  LinkClass::getX()
 {
     return x;
 }
-fix  LinkClass::getY()
+zfix  LinkClass::getY()
 {
     return y;
 }
-fix  LinkClass::getZ()
+zfix  LinkClass::getZ()
 {
     return z;
 }
-fix  LinkClass::getFall()
+zfix  LinkClass::getFall()
 {
     return fall;
 }
-fix  LinkClass::getXOfs()
+zfix  LinkClass::getXOfs()
 {
     return xofs;
 }
-fix  LinkClass::getYOfs()
+zfix  LinkClass::getYOfs()
 {
     return yofs;
 }
@@ -522,11 +522,11 @@ int  LinkClass::getHYSz()
 {
     return hysz;
 }
-fix  LinkClass::getClimbCoverX()
+zfix  LinkClass::getClimbCoverX()
 {
     return climb_cover_x;
 }
-fix  LinkClass::getClimbCoverY()
+zfix  LinkClass::getClimbCoverY()
 {
     return climb_cover_y;
 }
@@ -541,7 +541,7 @@ int  LinkClass::getLadderY()
 
 void LinkClass::setX(int new_x)
 {
-    fix dx=new_x-x;
+    zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -569,7 +569,7 @@ void LinkClass::setX(int new_x)
 
 void LinkClass::setY(int new_y)
 {
-    fix dy=new_y-y;
+    zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -637,10 +637,10 @@ void LinkClass::setZ(int new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setXdbl(double new_x)
+void LinkClass::setXfix(zfix new_x)
 {
 	//Z_scripterrlog("setxdbl: %f\n",new_x);
-    fix dx=(fix)new_x-x;
+    zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -659,16 +659,16 @@ void LinkClass::setXdbl(double new_x)
         }
 	}
     
-    x=(fix)new_x;
+    x=new_x;
     
     // A kludge
     if(!diagonalMovement && dir<=down)
         is_on_conveyor=true;
 }
 
-void LinkClass::setYdbl(double new_y)
+void LinkClass::setYfix(zfix new_y)
 {
-    fix dy=(fix)new_y-y;
+    zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -687,14 +687,14 @@ void LinkClass::setYdbl(double new_y)
         }
 	}
     
-    y=(fix)new_y;
+    y=new_y;
     
     // A kludge
     if(!diagonalMovement && dir>=left)
         is_on_conveyor=true;
 }
 
-void LinkClass::setZdbl(double new_z)
+void LinkClass::setZfix(zfix new_z)
 {
     if(isSideViewLink())
         return;
@@ -736,7 +736,7 @@ void LinkClass::setZdbl(double new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setFall(fix new_fall)
+void LinkClass::setFall(zfix new_fall)
 {
     fall=new_fall;
     jumping=-1;
@@ -789,9 +789,9 @@ void LinkClass::setItemClk(int newclk)
 {
     itemclk=newclk;
 }
-fix  LinkClass::getModifiedX()
+zfix  LinkClass::getModifiedX()
 {
-    fix tempx=x;
+    zfix tempx=x;
     
     if(screenscrolling&&(dir==left))
     {
@@ -801,9 +801,9 @@ fix  LinkClass::getModifiedX()
     return tempx;
 }
 
-fix  LinkClass::getModifiedY()
+zfix  LinkClass::getModifiedY()
 {
-    fix tempy=y;
+    zfix tempy=y;
     
     if(screenscrolling&&(dir==up))
     {
@@ -1664,7 +1664,7 @@ attack:
 		    //else paymagiccost(itemid);
 			//placing this here causes the sword to use magic more than one time per use, and when Link
 			//is out of MP, he flickers and the sword slash sound still plays. 
-                    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
+                    Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
                     w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                     
                     positionSword(w,itemid);
@@ -1755,7 +1755,7 @@ attack:
             
             if(!found)
             {
-                Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
                 w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                 found = true;
             }
@@ -2380,7 +2380,7 @@ bool LinkClass::checkstab()
 				
 				if(attackclk==12 && z==0 && sideviewhammerpound())
 				{
-			//decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+			//decorations.add(new dHammerSmack((zfix)wx, (zfix)wy, dHAMMERSMACK, 0));
 					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
 			switch(dir)
 					{
@@ -2913,7 +2913,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -2929,7 +2929,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 		}
             if(it!=-1)
             {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -2958,16 +2958,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -2977,16 +2977,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -2996,16 +2996,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3015,14 +3015,14 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3208,7 +3208,7 @@ void LinkClass::check_slash_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3242,7 +3242,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -3271,16 +3271,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -3290,16 +3290,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -3309,16 +3309,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3328,14 +3328,14 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3371,7 +3371,7 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -3397,16 +3397,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -3416,16 +3416,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -3435,16 +3435,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -3454,14 +3454,14 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3647,7 +3647,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3663,7 +3663,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 		}
             if(it!=-1)
             {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -3692,16 +3692,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -3711,16 +3711,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -3730,16 +3730,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3749,14 +3749,14 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3967,7 +3967,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
 	else if(isCuttableItemType(type))
@@ -4001,7 +4001,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -4030,16 +4030,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -4049,16 +4049,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -4068,16 +4068,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -4087,14 +4087,14 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4131,7 +4131,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -4157,16 +4157,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -4176,16 +4176,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -4195,16 +4195,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -4214,14 +4214,14 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4445,7 +4445,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -4643,7 +4643,7 @@ void LinkClass::check_slash_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -4677,7 +4677,7 @@ void LinkClass::check_slash_block(weapon *w)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -4705,16 +4705,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -4724,16 +4724,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -4743,16 +4743,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -4762,14 +4762,14 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
         }
@@ -4809,7 +4809,7 @@ void LinkClass::check_slash_block(weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -4835,16 +4835,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -4854,16 +4854,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -4873,16 +4873,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -4892,14 +4892,14 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
         }
@@ -5078,7 +5078,7 @@ void LinkClass::check_pound_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -5303,7 +5303,7 @@ void LinkClass::check_pound_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -6358,8 +6358,8 @@ void LinkClass::addsparkle(int wpn)
                 direction=oppositeDir[direction];
         }
         
-        Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
-                             (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
+        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
+                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		    w->linked_parent = sparkle_type;
@@ -6389,8 +6389,8 @@ void LinkClass::addsparkle2(int type1, int type2)
         return;
     }
     
-    Lwpns.add(new weapon((fix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
-                         (fix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
+    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
+                         (zfix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
@@ -7799,8 +7799,8 @@ bool LinkClass::startwpn(int itemid)
             
             if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
                     itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
-                Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
-                                     (fix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(where==left?240:where==right?0:x),(zfix)(where==down?0:where==up?160:y),
+                                     (zfix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
                                      
             whistleitem=itemid;
         }
@@ -7856,7 +7856,7 @@ bool LinkClass::startwpn(int itemid)
             wy=zc_max(wy,16);
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,itemsbuf[itemid].fam_type,
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itemsbuf[itemid].fam_type,
                              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
@@ -7901,7 +7901,7 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -7948,7 +7948,7 @@ bool LinkClass::startwpn(int itemid)
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
 	    {
-		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
+		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->linkedItem = bookid;
                 Lwpns.add(magic);
 	    }
@@ -7966,7 +7966,7 @@ bool LinkClass::startwpn(int itemid)
     }
     /*
     //    Fireball Wand
-    Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
+    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
     switch (dir)
     {
     case up:
@@ -8019,9 +8019,9 @@ bool LinkClass::startwpn(int itemid)
             temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
         }
         
-        //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+        //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
 	//Add weapon script to sword beams.
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
 	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
 	//w->weaponscript = itemsbuf[itemid].weaponscript;
 	//w->canrunscript = 0;
@@ -8050,7 +8050,7 @@ bool LinkClass::startwpn(int itemid)
         
         if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff|=did_candle;
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
                              //(itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              (itemsbuf[itemid].fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
@@ -8067,7 +8067,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8082,7 +8082,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8097,7 +8097,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8112,7 +8112,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8127,7 +8127,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8142,7 +8142,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8157,7 +8157,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8172,7 +8172,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8187,7 +8187,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8202,7 +8202,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8217,7 +8217,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8249,7 +8249,7 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8267,7 +8267,7 @@ bool LinkClass::startwpn(int itemid)
         
         if(tmpscr->room==rGRUMBLE && !getmapflag())
         {
-            items.add(new item((fix)wx,(fix)wy,(fix)0,iBait,ipDUMMY+ipFADE,0));
+            items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
             fadeclk=66;
             dismissmsg();
             clear_bitmap(pricesdisplaybuf);
@@ -8280,7 +8280,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
         break;
         
     case itype_brang:
@@ -8293,7 +8293,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
     }
     break;
     
@@ -8357,9 +8357,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==up)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy-4;
@@ -8369,9 +8369,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy;
@@ -8380,9 +8380,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==left)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx-4;
                 hs_starty=wy;
@@ -8391,9 +8391,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==right)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
@@ -8466,8 +8466,8 @@ bool LinkClass::startwpn(int itemid)
 		//zprint("Added byrna weapon %d.\n", i);
 		//the iterator isn passed to 'type'. weapons.cpp converts thisd to
 		//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
-		Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-            //Lwpns.add(new weapon((fix)wx+cos(2 * PI / (i+1)),(fix)wy+sin(2 * PI / (i+1)),(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
 		//wy += sin(2 * PI / (itemsbuf[itemid].misc3-i));
 	}
@@ -9384,9 +9384,9 @@ void LinkClass::movelink()
 	int push=pushing;
 	int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
 	pushing=0;
-	fix temp_step(link_newstep);
-	fix temp_x(x);
-	fix temp_y(y);
+	zfix temp_step(link_newstep);
+	zfix temp_x(x);
+	zfix temp_y(y);
 	
 	int flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
@@ -10332,7 +10332,7 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
@@ -10341,7 +10341,7 @@ void LinkClass::movelink()
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-										sprite::move((fix)1,(fix)0);
+										sprite::move((zfix)1,(zfix)0);
 								}
 								else
 								{
@@ -10554,14 +10554,14 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1)&&
 									!_walkflag(x+7, y+15+1,1)&&
 									!_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-									sprite::move((fix)1,(fix)0);
+									sprite::move((zfix)1,(zfix)0);
 							}
 							else
 							{
@@ -10766,14 +10766,14 @@ void LinkClass::movelink()
 									_walkflag(x-1,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1)&&
 									!_walkflag(x-1,y+v2-1,1)&&
 									!_walkflag(x-1,y+15,  1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else
 							{
@@ -10982,14 +10982,14 @@ void LinkClass::movelink()
 								   _walkflag(x+16,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x+16,y+v1,1)&&
 									   !_walkflag(x+16,y+v2-1,1)&&
 									   !_walkflag(x+16,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else
 							{
@@ -11151,7 +11151,7 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
@@ -11160,7 +11160,7 @@ void LinkClass::movelink()
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-										sprite::move((fix)1,(fix)0);
+										sprite::move((zfix)1,(zfix)0);
 								}
 								else
 								{
@@ -11320,14 +11320,14 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1)&&
 									!_walkflag(x+7, y+15+1,1)&&
 									!_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-									sprite::move((fix)1,(fix)0);
+									sprite::move((zfix)1,(zfix)0);
 							}
 							else //if(shiftdir==-1)
 							{
@@ -11487,14 +11487,14 @@ void LinkClass::movelink()
 									_walkflag(x-1,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1)&&
 									!_walkflag(x-1,y+v2-1,1)&&
 									!_walkflag(x-1,y+15,  1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else //if(shiftdir==-1)
 							{
@@ -11657,7 +11657,7 @@ void LinkClass::movelink()
 							if(info.isUnwalkable())
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else
 							{
@@ -11668,7 +11668,7 @@ void LinkClass::movelink()
 								if(info.isUnwalkable())
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-										sprite::move((fix)0,(fix)1);
+										sprite::move((zfix)0,(zfix)1);
 								}
 								else //if(shiftdir==-1)
 								{
@@ -11912,14 +11912,14 @@ void LinkClass::movelink()
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12042,14 +12042,14 @@ void LinkClass::movelink()
 								_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1)&&
 								!_walkflag(x+7, y+15+1,1)&&
 								!_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12169,14 +12169,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x-1,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,1)&&
 								!_walkflag(x-1,y+v2-1,1)&&
 								!_walkflag(x-1,y+15,  1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12286,14 +12286,14 @@ LEFTRIGHT_NEWMOVE:
 							   _walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1)&&
 								   !_walkflag(x+16,y+v2-1,1)&&
 								   !_walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12412,14 +12412,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12517,14 +12517,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1)&&
 								!_walkflag(x+7, y+15+1,1)&&
 								!_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12617,14 +12617,14 @@ LEFTRIGHT_OLDMOVE:
 								_walkflag(x-1,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,  1)&&
 								!_walkflag(x-1,y+v2-1,1)&&
 								!_walkflag(x-1,y+15,  1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12709,14 +12709,14 @@ LEFTRIGHT_OLDMOVE:
 							   _walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1)&&
 								   !_walkflag(x+16,y+v2-1,1)&&
 								   !_walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12759,10 +12759,10 @@ void LinkClass::move(int d2, int forceRate)
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.link_swim_speed>60);
-	fix dx, dy;
-	fix movepix(steprate / 100.0);
-	fix step(movepix);
-	fix step_diag(movepix);
+	zfix dx, dy;
+	zfix movepix(steprate / 100.0);
+	zfix step(movepix);
+	zfix step_diag(movepix);
 	if(link_newstep > movepix) link_newstep = movepix;
 	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
 	//2/3 speed
@@ -12893,12 +12893,12 @@ void LinkClass::move(int d2, int forceRate)
 			case right:
 			case r_up:
 			case r_down:
-				dx = fix(forceRate) / 100;
+				dx = zfix(forceRate) / 100;
 				break;
 			case left:
 			case l_up:
 			case l_down:
-				dx = fix(-forceRate) / 100;
+				dx = zfix(-forceRate) / 100;
 				break;
 			default:
 				dx = 0;
@@ -12908,12 +12908,12 @@ void LinkClass::move(int d2, int forceRate)
 			case down:
 			case r_down:
 			case l_down:
-				dy = fix(forceRate) / 100;
+				dy = zfix(forceRate) / 100;
 				break;
 			case up:
 			case r_up:
 			case l_up:
-				dy = fix(-forceRate) / 100;
+				dy = zfix(-forceRate) / 100;
 				break;
 			default:
 				dy = 0;
@@ -13238,11 +13238,11 @@ void LinkClass::moveOld(int d2)
     
     if(charging==0 || attack!=wHammer)
     {
-        sprite::move((fix)dx,(fix)dy);
+        sprite::move((zfix)dx,(zfix)dy);
     }
 }
 
-LinkClass::WalkflagInfo LinkClass::walkflag(fix fx,fix fy,int cnt,byte d2)
+LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int cnt,byte d2)
 {
 	return walkflag(int(floor(double(fx))), int(floor(double(fy))), cnt, d2);
 }
@@ -13829,7 +13829,7 @@ void LinkClass::checkpushblock()
 		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
 		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
 		{
-			checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
+			checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
                                          x+8+(zc_max(tmpscr->csensitive-1,0)),
                                          y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
                                          y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
@@ -13952,7 +13952,7 @@ void LinkClass::checkpushblock()
             //}
             if(mblock2.clk<=0)
             {
-                mblock2.push((fix)bx,(fix)by,dir,f);
+                mblock2.push((zfix)bx,(zfix)by,dir,f);
                 
                 if(get_bit(quest_rules,qr_MORESOUNDS))
                     sfx(WAV_ZN1PUSHBLOCK,(int)x);
@@ -14327,7 +14327,7 @@ void LinkClass::checkchest(int type)
     
     if(itemflag && !getmapflag())
     {
-        items.add(new item(x, y,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+        items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
     }
 }
 
@@ -15367,9 +15367,9 @@ void LinkClass::checkspecial()
                 if(hasitem==1)
                     sfx(WAV_CLEARED);
                     
-                items.add(new item((fix)tmpscr->itemx,
-                                   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (fix)-170 : (fix)tmpscr->itemy+1,
-                                   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (fix)170 : (fix)0,
+                items.add(new item((zfix)tmpscr->itemx,
+                                   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+                                   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
                                    Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
             }
@@ -16974,8 +16974,8 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             wrx=tmpscr->warpreturnx[0];
         else wrx=tmpscr->warparrivalx;
         
-        Lwpns.add(new weapon((fix)(index==left?240:index==right?0:wrx),(fix)(index==down?0:index==up?160:wry),
-                             (fix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
+        Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
+                             (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
         whirlwind=255;
         whistleitem=-1;
     }
@@ -17519,10 +17519,10 @@ void LinkClass::stepforward(int steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
-    fix tx=x;           //temp x
-    fix ty=y;           //temp y
-    fix tstep(0);        //temp single step distance
-    fix s(0);            //calculated step distance for all steps
+    zfix tx=x;           //temp x
+    zfix ty=y;           //temp y
+    zfix tstep(0);        //temp single step distance
+    zfix s(0);            //calculated step distance for all steps
     z3step=2;
     int sh=shiftdir;
     shiftdir=-1;
@@ -18702,7 +18702,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	actiontype lastaction = action;
 	action=scrolling; FFCore.setLinkAction(scrolling);
 	
-	fix storex = x, storey = y;
+	zfix storex = x, storey = y;
 	switch(scrolldir)
 	{
 	case up:
