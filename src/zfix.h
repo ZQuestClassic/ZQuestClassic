@@ -5,34 +5,50 @@
 
 #ifndef ZFIX_H
 #define ZFIX_H
+#include <math.h>
 
 typedef int32_t zslong;
 
-zfix zslongToFix(zslong val); //forward decl
+class zfix;
+inline zfix zslongToFix(zslong val);
+inline zslong floatToZLong(double val);
+inline zfix floor(zfix fx);
+inline zfix abs(zfix fx);
 
 class zfix
 {
 public:
 	int16_t ipart, dpart;
 	
-	long getInt()
+	long getInt() const
 	{
 		if(ipart < 0)
 			return dpart >= 5000 ? ipart-1 : ipart;
 		return dpart >= 5000 ? ipart+1 : ipart;
 	}
-	double getFloat()
+	double getFloat() const
 	{
 		if(ipart < 0)
 			return ipart - (dpart / 10000.0);
 		return ipart + (dpart / 10000.0);
 	}
-	zslong getZLong()
+	zslong getZLong() const
 	{
 		zslong val = ipart * 10000L;
 		if(ipart < 0) val -= dpart;
 		else val += dpart;
 		return val;
+	}
+	
+	zfix& doFloor()
+	{
+		dpart = 0;
+		return *this;
+	}
+	zfix& doAbs()
+	{
+		ipart = abs(ipart);
+		return *this;
 	}
 private:
 	void update()
@@ -55,12 +71,12 @@ public:
 	
 	zfix() : ipart(0), dpart(0)											{}
 	zfix(const zfix &x) : ipart(x.ipart), dpart(x.dpart)					{}
-	explicit zfix(const int x) ipart(x), dpart(0)						{}
+	explicit zfix(const int x) : ipart(x), dpart(0)						{}
 	explicit zfix(const long x) : ipart(x), dpart(0)		  			{}
 	explicit zfix(const unsigned int x) : ipart(x), dpart(0)			{}
 	explicit zfix(const unsigned long x) : ipart(x), dpart(0)			{}
-	explicit zfix(const float x) : ipart(floor(x)), dpart(abs((x%1)*10000))	{}
-	explicit zfix(const double x) : ipart(floor(x), dpart(abs((x%1)*10000))	{}
+	explicit zfix(const float x) : ipart(::floor(x)), dpart(abs(floatToZLong(x) % 10000))	{}
+	explicit zfix(const double x) : ipart(::floor(x)), dpart(abs(floatToZLong(x) % 10000))	{}
 	explicit zfix(const int ip, const int dp)
 	{
 		ipart = ip;
@@ -80,28 +96,31 @@ public:
 	zfix& operator = (const long x)				{ ipart = x; dpart = 0; return *this; }
 	zfix& operator = (const unsigned int x)		{ ipart = x; dpart = 0; return *this; }
 	zfix& operator = (const unsigned long x)	{ ipart = x; dpart = 0; return *this; }
-	zfix& operator = (const float x)			{ ipart = floor(x); dpart = abs((x%1)*10000); return *this; }
-	zfix& operator = (const double x)			{ ipart = floor(x); dpart = abs((x%1)*10000); return *this; }
+	zfix& operator = (const float x)			{ ipart = floor(x); dpart = abs(floatToZLong(x) % 10000); return *this; }
+	zfix& operator = (const double x)			{ ipart = floor(x); dpart = abs(floatToZLong(x) % 10000); return *this; }
 	
 	zfix& operator +=  (const zfix x)
 	{
 		ipart += x.ipart;
 		dpart += x.dpart;
 		update();
+		return *this;
 	}
 	zfix& operator +=  (const int x)			{ ipart += x; return *this; }
 	zfix& operator +=  (const long x)			{ ipart += x; return *this; }
 	zfix& operator +=  (const float x)
 	{
 		ipart += floor(x);
-		dpart += abs((x%1)*10000);
+		dpart += abs(floatToZLong(x) % 10000);
 		update();
+		return *this;
 	}
 	zfix& operator +=  (const double x)
 	{
 		ipart += floor(x);
-		dpart += abs((x%1)*10000);
+		dpart += abs(floatToZLong(x) % 10000);
 		update();
+		return *this;
 	}
 	
 	zfix& operator -=  (const zfix x)
@@ -109,20 +128,23 @@ public:
 		ipart -= x.ipart;
 		dpart -= x.dpart;
 		update();
+		return *this;
 	}
 	zfix& operator -=  (const int x)			{ ipart -= x; return *this; }
 	zfix& operator -=  (const long x)			{ ipart -= x; return *this; }
 	zfix& operator -=  (const float x)
 	{
 		ipart -= floor(x);
-		dpart -= (x%1)*10000;
+		dpart -= floatToZLong(x) % 10000;
 		update();
+		return *this;
 	}
 	zfix& operator -=  (const double x)
 	{
 		ipart -= floor(x);
-		dpart -= (x%1)*10000;
+		dpart -= floatToZLong(x) % 10000;
 		update();
+		return *this;
 	}
 	
 	zfix& operator *=  (const zfix x)
@@ -213,7 +235,7 @@ public:
 	{
 		long val = getZLong() << x;
 		ipart = val/10000L;
-		dpart = abs(val%10000);
+		dpart = abs(floatToZLong(x) % 10000);
 		update();
 		return *this;
 	}
@@ -221,7 +243,7 @@ public:
 	{
 		long val = getZLong() >> x;
 		ipart = val/10000L;
-		dpart = abs(val%10000);
+		dpart = abs(floatToZLong(x) % 10000);
 		update();
 		return *this;
 	}
@@ -338,10 +360,8 @@ public:
 	inline friend int operator >= (const double x, const zfix y);
 };
 
-zfix zslongToFix(zslong val)
-{
-	zfix t(val/10000L, abs(val)%10000);
-	return t;
-}
+
+#include "zfix.inl"
+
 #endif		  /* ifndef ZFIX_H */
 
