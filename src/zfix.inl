@@ -144,28 +144,145 @@ inline zfix operator -  (const double x, const zfix y)
 	return t;
 }
 
-/*inline zfix operator *  (const zfix x, const zfix y)	{ zfix t;  t.v = fixmul(x.v, y.v);		 return t; }
-inline zfix operator *  (const zfix x, const int y)	{ zfix t;  t.v = x.v * y;				  return t; }
-inline zfix operator *  (const int x, const zfix y)	{ zfix t;  t.v = x * y.v;				  return t; }
-inline zfix operator *  (const zfix x, const long y)   { zfix t;  t.v = x.v * y;				  return t; }
-inline zfix operator *  (const long x, const zfix y)   { zfix t;  t.v = x * y.v;				  return t; }
-inline zfix operator *  (const zfix x, const float y)  { zfix t;  t.v = ftofix(fixtof(x.v) * y);  return t; }
-inline zfix operator *  (const float x, const zfix y)  { zfix t;  t.v = ftofix(x * fixtof(y.v));  return t; }
-inline zfix operator *  (const zfix x, const double y) { zfix t;  t.v = ftofix(fixtof(x.v) * y);  return t; }
-inline zfix operator *  (const double x, const zfix y) { zfix t;  t.v = ftofix(x * fixtof(y.v));  return t; }
+inline zfix operator *  (const zfix x, const zfix y)
+{
+	zfix t;
+	t.dpart = ((x.dpart * y.dpart) / 10000) + (x.ipart * y.dpart) + (y.ipart * x.dpart);
+	t.ipart = (x.ipart * y.ipart) + (t.dpart / 10000);
+	t.dpart %= 10000;
+	t.update();
+	return t;
+}
 
-inline zfix operator /  (const zfix x, const zfix y)	{ zfix t;  t.v = fixdiv(x.v, y.v);		 return t; }
-inline zfix operator /  (const zfix x, const int y)	{ zfix t;  t.v = x.v / y;				  return t; }
-inline zfix operator /  (const int x, const zfix y)	{ zfix t;  t.v = fixdiv(itofix(x), y.v);   return t; }
-inline zfix operator /  (const zfix x, const long y)   { zfix t;  t.v = x.v / y;				  return t; }
-inline zfix operator /  (const long x, const zfix y)   { zfix t;  t.v = fixdiv(itofix(x), y.v);   return t; }
-inline zfix operator /  (const zfix x, const float y)  { zfix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
-inline zfix operator /  (const float x, const zfix y)  { zfix t;  t.v = ftofix(x / fixtof(y.v));  return t; }
-inline zfix operator /  (const zfix x, const double y) { zfix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
-inline zfix operator /  (const double x, const zfix y) { zfix t;  t.v = ftofix(x / fixtof(y.v));  return t; }
+inline zfix operator *  (const zfix x, const int y)
+{
+	zfix t;
+	t.dpart = (y * x.dpart);
+	t.ipart = (x.ipart * y) + (t.dpart / 10000);
+	t.dpart %= 10000;
+	t.update();
+	return t;
+}
 
-inline zfix operator << (const zfix x, const int y)	{ zfix t;  t.v = x.v << y;   return t; }
-inline zfix operator >> (const zfix x, const int y)	{ zfix t;  t.v = x.v >> y;   return t; }*/
+inline zfix operator *  (const int x, const zfix y)
+{
+	zfix t;
+	t.dpart = (x * y.dpart);
+	t.ipart = (y.ipart * x) + (t.dpart / 10000);
+	t.dpart %= 10000;
+	t.update();
+	return t;
+}
+
+inline zfix operator *  (const zfix x, const long y)
+{
+	zfix t;
+	t.dpart = (y * x.dpart);
+	t.ipart = (x.ipart * y) + (t.dpart / 10000);
+	t.dpart %= 10000;
+	t.update();
+	return t;
+}
+
+inline zfix operator *  (const long x, const zfix y)
+{
+	zfix t;
+	t.dpart = (x * y.dpart);
+	t.ipart = (y.ipart * x) + (t.dpart / 10000);
+	t.dpart %= 10000;
+	t.update();
+	return t;
+}
+
+inline zfix operator *  (const zfix x, const float y)
+{
+	zfix t(y);
+	return t * x;
+}
+
+inline zfix operator *  (const float x, const zfix y)
+{
+	zfix t(x);
+	return t * y;
+}
+
+inline zfix operator *  (const zfix x, const double y)
+{
+	zfix t(y);
+	return t * x;
+}
+
+inline zfix operator *  (const double x, const zfix y)
+{
+	zfix t(x);
+	return t * y;
+}
+
+inline zfix operator /  (const zfix x, const zfix y)
+{
+	zfix t(double(x) / double(y));
+	return t;
+}
+
+inline zfix operator /  (const zfix x, const int y)
+{
+	zfix t(double(x) / y);
+	return t;
+}
+
+inline zfix operator /  (const int x, const zfix y)
+{
+	zfix t(x / double(y));
+	return t;
+}
+
+inline zfix operator /  (const zfix x, const long y)
+{
+	zfix t(double(x) / y);
+	return t;
+}
+
+inline zfix operator /  (const long x, const zfix y)
+{
+	zfix t(x / double(y));
+	return t;
+}
+
+inline zfix operator /  (const zfix x, const float y)
+{
+	zfix t(double(x) / y);
+	return t;
+}
+
+inline zfix operator /  (const float x, const zfix y)
+{
+	zfix t(x / double(y));
+	return t;
+}
+
+inline zfix operator /  (const zfix x, const double y)
+{
+	zfix t(double(x) / y);
+	return t;
+}
+
+inline zfix operator /  (const double x, const zfix y)
+{
+	zfix t(x / double(y));
+	return t;
+}
+
+inline zfix operator << (const zfix x, const int y)
+{
+	long val = x.getZLong();
+	return zslongToFix(val << y);
+}
+
+inline zfix operator >> (const zfix x, const int y)
+{
+	long val = x.getZLong();
+	return zslongToFix(val >> y);
+}
 
 inline int operator == (const zfix x, const zfix y)
 {
@@ -248,47 +365,172 @@ inline int operator != (const double x, const zfix y)
 	zfix t(x);
 	return y.ipart != t.ipart || y.dpart != t.dpart;
 }
+
+inline int operator <  (const zfix x, const zfix y)
+{
+	return (x.ipart < y.ipart || (x.ipart == y.ipart && x.dpart < y.dpart));
+}
+inline int operator <  (const zfix x, const int y)
+{
+	return (x.ipart < y);
+}
+inline int operator <  (const int x, const zfix y)
+{
+	return (x < y.ipart);
+}
+inline int operator <  (const zfix x, const long y)
+{
+	return (x.ipart < y);
+}
+inline int operator <  (const long x, const zfix y)
+{
+	return (x < y.ipart);
+}
+inline int operator <  (const zfix x, const float y)
+{
+	zfix t(y);
+	return (x.ipart < t.ipart || (x.ipart == t.ipart && x.dpart < t.dpart));
+}
+inline int operator <  (const float x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart < y.ipart || (t.ipart == y.ipart && t.dpart < y.dpart));
+}
+inline int operator <  (const zfix x, const double y)
+{
+	zfix t(y);
+	return (x.ipart < t.ipart || (x.ipart == t.ipart && x.dpart < t.dpart));
+}
+inline int operator <  (const double x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart < y.ipart || (t.ipart == y.ipart && t.dpart < y.dpart));
+}
+
+inline int operator >  (const zfix x, const zfix y)
+{
+	return (x.ipart > y.ipart || (x.ipart == y.ipart && x.dpart > y.dpart));
+}
+inline int operator >  (const zfix x, const int y)
+{
+	return (x.ipart > y || (x.ipart == y && x.dpart > 0));
+}
+inline int operator >  (const int x, const zfix y)
+{
+	return (x > y.ipart));
+}
+inline int operator >  (const zfix x, const long y)
+{
+	return (x.ipart > y || (x.ipart == y && x.dpart > 0));
+}
+inline int operator >  (const long x, const zfix y)
+{
+	return (x > y.ipart));
+}
+inline int operator >  (const zfix x, const float y)
+{
+	zfix t(y);
+	return (x.ipart > t.ipart || (x.ipart == t.ipart && x.dpart > t.dpart));
+}
+inline int operator >  (const float x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart > y.ipart || (t.ipart == y.ipart && t.dpart > y.dpart));
+}
+inline int operator >  (const zfix x, const double y)
+{
+	zfix t(y);
+	return (x.ipart > t.ipart || (x.ipart == t.ipart && x.dpart > t.dpart));
+}
+inline int operator >  (const double x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart > y.ipart || (t.ipart == y.ipart && t.dpart > y.dpart));
+}
+
+inline int operator <=  (const zfix x, const zfix y)
+{
+	return (x.ipart < y.ipart || (x.ipart == y.ipart && x.dpart <= y.dpart));
+}
+inline int operator <=  (const zfix x, const int y)
+{
+	return (x.ipart < y || (x.ipart == y && x.dpart <= 0));
+}
+inline int operator <=  (const int x, const zfix y)
+{
+	return (x <= y.ipart);
+}
+inline int operator <=  (const zfix x, const long y)
+{
+	return (x.ipart < y || (x.ipart == y && x.dpart <= 0));
+}
+inline int operator <=  (const long x, const zfix y)
+{
+	return (x <= y.ipart);
+}
+inline int operator <=  (const zfix x, const float y)
+{
+	zfix t(y);
+	return (x.ipart < t.ipart || (x.ipart == t.ipart && x.dpart <= t.dpart));
+}
+inline int operator <=  (const float x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart < y.ipart || (t.ipart == y.ipart && t.dpart <= y.dpart));
+}
+inline int operator <=  (const zfix x, const double y)
+{
+	zfix t(y);
+	return (x.ipart < t.ipart || (x.ipart == t.ipart && x.dpart <= t.dpart));
+}
+inline int operator <=  (const double x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart < y.ipart || (t.ipart == y.ipart && t.dpart <= y.dpart));
+}
+
+inline int operator >=  (const zfix x, const zfix y)
+{
+	return (x.ipart > y.ipart || (x.ipart == y.ipart && x.dpart >= y.dpart));
+}
+inline int operator >=  (const zfix x, const int y)
+{
+	return (x.ipart >= y);
+}
+inline int operator >=  (const int x, const zfix y)
+{
+	return (x > y.ipart || (x == y.ipart && 0 >= y.dpart));
+}
+inline int operator >=  (const zfix x, const long y)
+{
+	return (x.ipart >= y);
+}
+inline int operator >=  (const long x, const zfix y)
+{
+	return (x > y.ipart || (x == y.ipart && 0 >= y.dpart));
+}
+inline int operator >=  (const zfix x, const float y)
+{
+	zfix t(y);
+	return (x.ipart > t.ipart || (x.ipart == t.ipart && x.dpart >= t.dpart));
+}
+inline int operator >=  (const float x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart > y.ipart || (t.ipart == y.ipart && t.dpart >= y.dpart));
+}
+inline int operator >=  (const zfix x, const double y)
+{
+	zfix t(y);
+	return (x.ipart > t.ipart || (x.ipart == t.ipart && x.dpart >= t.dpart));
+}
+inline int operator >=  (const double x, const zfix y)
+{
+	zfix t(x);
+	return (t.ipart > y.ipart || (t.ipart == y.ipart && t.dpart >= y.dpart));
+}
+
 /*
-inline int operator <  (const zfix x, const zfix y)	{ return (x.v < y.v);		}
-inline int operator <  (const zfix x, const int y)	{ return (x.v < itofix(y));  }
-inline int operator <  (const int x, const zfix y)	{ return (itofix(x) < y.v);  }
-inline int operator <  (const zfix x, const long y)   { return (x.v < itofix(y));  }
-inline int operator <  (const long x, const zfix y)   { return (itofix(x) < y.v);  }
-inline int operator <  (const zfix x, const float y)  { return (x.v < ftofix(y));  }
-inline int operator <  (const float x, const zfix y)  { return (ftofix(x) < y.v);  }
-inline int operator <  (const zfix x, const double y) { return (x.v < ftofix(y));  }
-inline int operator <  (const double x, const zfix y) { return (ftofix(x) < y.v);  }
-
-inline int operator >  (const zfix x, const zfix y)	{ return (x.v > y.v);		}
-inline int operator >  (const zfix x, const int y)	{ return (x.v > itofix(y));  }
-inline int operator >  (const int x, const zfix y)	{ return (itofix(x) > y.v);  }
-inline int operator >  (const zfix x, const long y)   { return (x.v > itofix(y));  }
-inline int operator >  (const long x, const zfix y)   { return (itofix(x) > y.v);  }
-inline int operator >  (const zfix x, const float y)  { return (x.v > ftofix(y));  }
-inline int operator >  (const float x, const zfix y)  { return (ftofix(x) > y.v);  }
-inline int operator >  (const zfix x, const double y) { return (x.v > ftofix(y));  }
-inline int operator >  (const double x, const zfix y) { return (ftofix(x) > y.v);  }
-
-inline int operator <= (const zfix x, const zfix y)	{ return (x.v <= y.v);	   }
-inline int operator <= (const zfix x, const int y)	{ return (x.v <= itofix(y)); }
-inline int operator <= (const int x, const zfix y)	{ return (itofix(x) <= y.v); }
-inline int operator <= (const zfix x, const long y)   { return (x.v <= itofix(y)); }
-inline int operator <= (const long x, const zfix y)   { return (itofix(x) <= y.v); }
-inline int operator <= (const zfix x, const float y)  { return (x.v <= ftofix(y)); }
-inline int operator <= (const float x, const zfix y)  { return (ftofix(x) <= y.v); }
-inline int operator <= (const zfix x, const double y) { return (x.v <= ftofix(y)); }
-inline int operator <= (const double x, const zfix y) { return (ftofix(x) <= y.v); }
-
-inline int operator >= (const zfix x, const zfix y)	{ return (x.v >= y.v);	   }
-inline int operator >= (const zfix x, const int y)	{ return (x.v >= itofix(y)); }
-inline int operator >= (const int x, const zfix y)	{ return (itofix(x) >= y.v); }
-inline int operator >= (const zfix x, const long y)   { return (x.v >= itofix(y)); }
-inline int operator >= (const long x, const zfix y)   { return (itofix(x) >= y.v); }
-inline int operator >= (const zfix x, const float y)  { return (x.v >= ftofix(y)); }
-inline int operator >= (const float x, const zfix y)  { return (ftofix(x) >= y.v); }
-inline int operator >= (const zfix x, const double y) { return (x.v >= ftofix(y)); }
-inline int operator >= (const double x, const zfix y) { return (ftofix(x) >= y.v); }
-
 inline zfix sqrt(zfix x)		  { zfix t;  t.v = fixsqrt(x.v);		return t; }
 inline zfix cos(zfix x)		   { zfix t;  t.v = fixcos(x.v);		 return t; }
 inline zfix sin(zfix x)		   { zfix t;  t.v = fixsin(x.v);		 return t; }
