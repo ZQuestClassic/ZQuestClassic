@@ -32553,6 +32553,7 @@ string zs_sprintf(char const* format, int num_args)
 						for(int i = 0; i < 3; ++i)
 						{
 							if(argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
+							else break;
 						}
 						++next_arg;
 						oss << buf << argbuf;
