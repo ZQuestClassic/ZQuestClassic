@@ -34006,11 +34006,11 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll                              },
     { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings                             },
     { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath                             },
+    { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
     { "Rules - Hero",                       0, (intF) onHeroRules                                      },
-    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  }
+    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        }
 };
 
 /********************************/

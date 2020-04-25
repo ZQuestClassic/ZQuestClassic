@@ -760,11 +760,11 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
+    cmdFindBuggyNext,
     cmdZScriptRules,
     cmdExportZASM,
     cmdHeroRules,
     cmdZScriptCompilerRules,
-    cmdFindBuggyNext,
     cmdMAX
 };
 
