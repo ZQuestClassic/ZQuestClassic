@@ -355,7 +355,7 @@ int sprite::real_x(zfix fx)
     {
     case 9:
     case 13:
-        if(fx.dpart != 0)
+        if(fx.getDPart() != 0)
             ++rx;
             
         break;
@@ -429,7 +429,7 @@ void sprite::move(zfix s)
     {
         x += cos(angle)*s;
         y += sin(angle)*s;
-        return;
+		return;
     }
     
     switch(dir)
