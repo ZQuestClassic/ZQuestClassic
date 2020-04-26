@@ -67,8 +67,8 @@ extern bool active_subscreen_waitdraw;
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
 int z3step = 2;
-static fix link_newstep(1.5);
-static fix link_newstep_diag(1.5);
+static zfix link_newstep(1.5);
+static zfix link_newstep_diag(1.5);
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
@@ -474,27 +474,27 @@ int LinkClass::getEaten()
 {
     return inlikelike;
 }
-fix  LinkClass::getX()
+zfix  LinkClass::getX()
 {
     return x;
 }
-fix  LinkClass::getY()
+zfix  LinkClass::getY()
 {
     return y;
 }
-fix  LinkClass::getZ()
+zfix  LinkClass::getZ()
 {
     return z;
 }
-fix  LinkClass::getFall()
+zfix  LinkClass::getFall()
 {
     return fall;
 }
-fix  LinkClass::getXOfs()
+zfix  LinkClass::getXOfs()
 {
     return xofs;
 }
-fix  LinkClass::getYOfs()
+zfix  LinkClass::getYOfs()
 {
     return yofs;
 }
@@ -522,11 +522,11 @@ int  LinkClass::getHYSz()
 {
     return hysz;
 }
-fix  LinkClass::getClimbCoverX()
+zfix  LinkClass::getClimbCoverX()
 {
     return climb_cover_x;
 }
-fix  LinkClass::getClimbCoverY()
+zfix  LinkClass::getClimbCoverY()
 {
     return climb_cover_y;
 }
@@ -541,7 +541,7 @@ int  LinkClass::getLadderY()
 
 void LinkClass::setX(int new_x)
 {
-    fix dx=new_x-x;
+    zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -569,7 +569,7 @@ void LinkClass::setX(int new_x)
 
 void LinkClass::setY(int new_y)
 {
-    fix dy=new_y-y;
+    zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -637,10 +637,10 @@ void LinkClass::setZ(int new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setXdbl(double new_x)
+void LinkClass::setXfix(zfix new_x)
 {
 	//Z_scripterrlog("setxdbl: %f\n",new_x);
-    fix dx=(fix)new_x-x;
+    zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -659,16 +659,16 @@ void LinkClass::setXdbl(double new_x)
         }
 	}
     
-    x=(fix)new_x;
+    x=new_x;
     
     // A kludge
     if(!diagonalMovement && dir<=down)
         is_on_conveyor=true;
 }
 
-void LinkClass::setYdbl(double new_y)
+void LinkClass::setYfix(zfix new_y)
 {
-    fix dy=(fix)new_y-y;
+    zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -687,14 +687,14 @@ void LinkClass::setYdbl(double new_y)
         }
 	}
     
-    y=(fix)new_y;
+    y=new_y;
     
     // A kludge
     if(!diagonalMovement && dir>=left)
         is_on_conveyor=true;
 }
 
-void LinkClass::setZdbl(double new_z)
+void LinkClass::setZfix(zfix new_z)
 {
     if(isSideViewLink())
         return;
@@ -736,7 +736,7 @@ void LinkClass::setZdbl(double new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setFall(fix new_fall)
+void LinkClass::setFall(zfix new_fall)
 {
     fall=new_fall;
     jumping=-1;
@@ -789,9 +789,9 @@ void LinkClass::setItemClk(int newclk)
 {
     itemclk=newclk;
 }
-fix  LinkClass::getModifiedX()
+zfix  LinkClass::getModifiedX()
 {
-    fix tempx=x;
+    zfix tempx=x;
     
     if(screenscrolling&&(dir==left))
     {
@@ -801,9 +801,9 @@ fix  LinkClass::getModifiedX()
     return tempx;
 }
 
-fix  LinkClass::getModifiedY()
+zfix  LinkClass::getModifiedY()
 {
-    fix tempy=y;
+    zfix tempy=y;
     
     if(screenscrolling&&(dir==up))
     {
@@ -1664,7 +1664,7 @@ attack:
 		    //else paymagiccost(itemid);
 			//placing this here causes the sword to use magic more than one time per use, and when Link
 			//is out of MP, he flickers and the sword slash sound still plays. 
-                    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
+                    Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
                     w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                     
                     positionSword(w,itemid);
@@ -1755,7 +1755,7 @@ attack:
             
             if(!found)
             {
-                Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
                 w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                 found = true;
             }
@@ -1880,7 +1880,7 @@ attack:
             
             if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideViewLink()))
             {
-                sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
+                sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
             }
             
             xofs=oxofs;
@@ -2380,7 +2380,7 @@ bool LinkClass::checkstab()
 				
 				if(attackclk==12 && z==0 && sideviewhammerpound())
 				{
-			//decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+			//decorations.add(new dHammerSmack((zfix)wx, (zfix)wy, dHAMMERSMACK, 0));
 					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
 			switch(dir)
 					{
@@ -2644,7 +2644,7 @@ bool LinkClass::checkstab()
                 set_bit(ffcgrid, q, 0);
         }
         
-        if(dir==up && ((FIX_FLOOR(x)&15)==0))
+        if(dir==up && ((x.getInt()&15)==0))
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
@@ -2663,7 +2663,7 @@ bool LinkClass::checkstab()
 		
 		
         }
-        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
@@ -2681,7 +2681,7 @@ bool LinkClass::checkstab()
             check_slash_block_layer(wx+8,wy+8,2);
         }
         
-        if(dir==down && ((FIX_FLOOR(x)&15)==0))
+        if(dir==down && ((x.getInt()&15)==0))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
@@ -2693,7 +2693,7 @@ bool LinkClass::checkstab()
 	    check_slash_block_layer(wx,wy+wysz-8,2);
             check_slash_block_layer(wx,wy+wysz,2);
         }
-        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
@@ -2751,12 +2751,12 @@ bool LinkClass::checkstab()
         }
         
         // cutable blocks
-        if(dir==up && (FIX_FLOOR(x)&15)==0)
+        if(dir==up && (x.getInt()&15)==0)
         {
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
         }
-        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
@@ -2764,12 +2764,12 @@ bool LinkClass::checkstab()
             check_wand_block(wx+8,wy+8);
         }
         
-        if(dir==down && (FIX_FLOOR(x)&15)==0)
+        if(dir==down && (x.getInt()&15)==0)
         {
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
         }
-        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
@@ -2805,12 +2805,12 @@ bool LinkClass::checkstab()
         for(int q=0; q<32; q++)
             set_bit(ffcgrid, q, 0);
             
-        if(dir==up && (FIX_FLOOR(x)&15)==0)
+        if(dir==up && (x.getInt()&15)==0)
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
         }
-        else if(dir==up && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
@@ -2818,12 +2818,12 @@ bool LinkClass::checkstab()
             check_pound_block(wx+8,wy+8);
         }
         
-        if(dir==down && (FIX_FLOOR(x)&15)==0)
+        if(dir==down && (x.getInt()&15)==0)
         {
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
         }
-        else if(dir==down && ((FIX_FLOOR(x)&15)==8||diagonalMovement||NO_GRIDLOCK))
+        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
         {
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
@@ -2913,7 +2913,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -2929,7 +2929,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 		}
             if(it!=-1)
             {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -2958,16 +2958,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -2977,16 +2977,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -2996,16 +2996,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3015,14 +3015,14 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3208,7 +3208,7 @@ void LinkClass::check_slash_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3242,7 +3242,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -3271,16 +3271,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -3290,16 +3290,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -3309,16 +3309,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3328,14 +3328,14 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3371,7 +3371,7 @@ void LinkClass::check_slash_block(int bx, int by)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -3397,16 +3397,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -3416,16 +3416,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -3435,16 +3435,16 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -3454,14 +3454,14 @@ void LinkClass::check_slash_block(int bx, int by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3647,7 +3647,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3663,7 +3663,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 		}
             if(it!=-1)
             {
-                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -3692,16 +3692,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -3711,16 +3711,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -3730,16 +3730,16 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -3749,14 +3749,14 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -3967,7 +3967,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
 	else if(isCuttableItemType(type))
@@ -4001,7 +4001,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -4030,16 +4030,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -4049,16 +4049,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -4068,16 +4068,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -4087,14 +4087,14 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4131,7 +4131,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -4157,16 +4157,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -4176,16 +4176,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -4195,16 +4195,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -4214,14 +4214,14 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
         }
@@ -4445,7 +4445,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -4643,7 +4643,7 @@ void LinkClass::check_slash_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -4677,7 +4677,7 @@ void LinkClass::check_slash_block(weapon *w)
 		}
 		if(it!=-1)
 		{
-			items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
         }
         
@@ -4705,16 +4705,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type))
             {
@@ -4724,16 +4724,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type))
             {
@@ -4743,16 +4743,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type))
 	    {
@@ -4762,14 +4762,14 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
         }
@@ -4809,7 +4809,7 @@ void LinkClass::check_slash_block(weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
         }
         
@@ -4835,16 +4835,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
+		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
             }
             else if(isFlowersType(type2))
             {
@@ -4854,16 +4854,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
+		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
             }
             else if(isGrassType(type2))
             {
@@ -4873,16 +4873,16 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-                else decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
+                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
 	    else if (isGenericType(type2))
 	    {
@@ -4892,14 +4892,14 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 				}
 			}
 			else 
-				decorations.add(new comboSprite((fix)fx, (fix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
         }
@@ -5078,7 +5078,7 @@ void LinkClass::check_pound_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -5303,7 +5303,7 @@ void LinkClass::check_pound_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((fix)bx, (fix)by, (fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -5487,7 +5487,7 @@ int LinkClass::EwpnHit()
                 ew->ignorecombo=-1;
             }
             
-            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
+            sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
         }
     }
     
@@ -5594,7 +5594,7 @@ int LinkClass::LwpnHit()                                    //only here to check
             lw->onhit(false, 1+reflect, dir);
             lw->ignoreLink=true;
             lw->ignorecombo=-1;
-            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
+            sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
         }
         
     return -1;
@@ -5646,7 +5646,7 @@ void LinkClass::checkhit()
                 switch(hitdir)
                 {
                 case up:
-                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(FIX_FLOOR(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
+                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(x.getInt()&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5655,7 +5655,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case down:
-                    if(hit_walkflag(x,y+16,2)||(FIX_FLOOR(x)&7?hit_walkflag(x+16,y+16,1):0))   
+                    if(hit_walkflag(x,y+16,2)||(x.getInt()&7?hit_walkflag(x+16,y+16,1):0))   
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5664,7 +5664,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case left:
-                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(FIX_FLOOR(y)&7?hit_walkflag(x-1,y+16,1):0))  
+                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(y.getInt()&7?hit_walkflag(x-1,y+16,1):0))  
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5673,7 +5673,7 @@ void LinkClass::checkhit()
                     break;
                     
                 case right:
-                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(FIX_FLOOR(y)&7?hit_walkflag(x+16,y+16,1):0))
+                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(y.getInt()&7?hit_walkflag(x+16,y+16,1):0))
 		    {
 			    action=none; FFCore.setLinkAction(none);
 		    }
@@ -5729,7 +5729,7 @@ void LinkClass::checkhit()
                 }
                 
                 hclk=48;
-                sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+                sfx(getHurtSFX(),pan(x.getInt()));
                 return;
             }
         }
@@ -5879,7 +5879,7 @@ killweapon:
                 }
                 
                 hclk=48;
-                sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+                sfx(getHurtSFX(),pan(x.getInt()));
                 return;
             }
         }
@@ -5953,7 +5953,7 @@ killweapon:
             tapping = false;
         }
         
-        sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+        sfx(getHurtSFX(),pan(x.getInt()));
         return;
     }
     
@@ -5993,7 +5993,7 @@ killweapon:
             tapping = false;
         }
         
-        sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+        sfx(getHurtSFX(),pan(x.getInt()));
         return;
     }
     //else { sethitLinkUID(HIT_BY_EWEAPON,(0)); } //fails to clear
@@ -6153,7 +6153,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
                 tapping = false;
             }
             
-            sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+            sfx(getHurtSFX(),pan(x.getInt()));
             return true;
         }
         else paymagiccost(itemid); // Boots are successful
@@ -6216,7 +6216,7 @@ void LinkClass::hitlink(int hit2)
     }
         
     hclk=48;
-    sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+    sfx(getHurtSFX(),pan(x.getInt()));
     
     if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
     {
@@ -6358,8 +6358,8 @@ void LinkClass::addsparkle(int wpn)
                 direction=oppositeDir[direction];
         }
         
-        Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
-                             (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
+        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
+                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		    w->linked_parent = sparkle_type;
@@ -6389,8 +6389,8 @@ void LinkClass::addsparkle2(int type1, int type2)
         return;
     }
     
-    Lwpns.add(new weapon((fix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
-                         (fix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
+    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
+                         (zfix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
@@ -6475,7 +6475,7 @@ bool LinkClass::animate(int)
 	if(isSideViewLink() && obeys_gravity)  // Sideview gravity
 	{
 		//Handle falling through a platform
-		if((FIX_FLOOR(y)%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
+		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
 		{
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
@@ -6492,7 +6492,7 @@ bool LinkClass::animate(int)
 					&& fall < 0)
 			{
 				fall = jumping = 0; // Bumped his head
-				y -= FIX_FLOOR(y)%8; //fix coords
+				y -= y.getInt()%8; //fix coords
 				// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 				if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 				{
@@ -6505,9 +6505,9 @@ bool LinkClass::animate(int)
 		{
 			int ydiff = fall/(spins && fall<0 ? 200:100);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((FIX_FLOOR(y)+ydiff+15)&0xF0)!=((FIX_FLOOR(y)+15)&0xF0)) && !platform_fallthrough())
+			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
-				ydiff -= (FIX_FLOOR(y)+ydiff)%16;
+				ydiff -= (y.getInt()+ydiff)%16;
 			}
 			y+=ydiff;
 			hs_starty+=ydiff;
@@ -6580,7 +6580,7 @@ bool LinkClass::animate(int)
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
-					y -= FIX_FLOOR(y)%8; //fix coords
+					y -= y.getInt()%8; //fix coords
 					// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 					if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 					{
@@ -6610,7 +6610,7 @@ bool LinkClass::animate(int)
 				if(itemsbuf[itemid].wpn)
 					decorations.add(new dHover(x, y, dHOVER, 0));
 					
-				sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
+				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder())
 			{
@@ -6670,7 +6670,7 @@ bool LinkClass::animate(int)
 			if(fall > 0)
 			{
 				if((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-					sfx(WAV_ZN1SPLASH,FIX_FLOOR(x));
+					sfx(WAV_ZN1SPLASH,x.getInt());
 					
 				stomping = true;
 			}
@@ -6700,7 +6700,7 @@ bool LinkClass::animate(int)
 				int itemid = current_item_id(itype_hoverboots);
 				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
 				decorations.add(new dHover(x, y, dHOVER, 0));
-				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(FIX_FLOOR(x)));
+				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(x.getInt()));
 			}
 			else fall += zinit.gravity;
 		}
@@ -6746,12 +6746,12 @@ bool LinkClass::animate(int)
         {
         case up:
         case down:
-            x=(FIX_FLOOR(x)+4)&0xFFF8;
+            x=(x.getInt()+4)&0xFFF8;
             break;
             
         case left:
         case right:
-            y=(FIX_FLOOR(y)+4)&0xFFF8;
+            y=(y.getInt()+4)&0xFFF8;
             break;
         }
     }
@@ -7212,14 +7212,14 @@ bool LinkClass::animate(int)
         {
             if(ladderdir==up)
             {
-                if((laddery-FIX_FLOOR(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-FIX_FLOOR(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-FIX_FLOOR(x))>8))
+                if((laddery-y.getInt()>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-y.getInt()<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-x.getInt())>8))
                 {
                     reset_ladder();
                 }
             }
             else
             {
-                if((abs(laddery-FIX_FLOOR(y))>8) || (ladderx-FIX_FLOOR(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-FIX_FLOOR(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
+                if((abs(laddery-y.getInt())>8) || (ladderx-x.getInt()>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-x.getInt()<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
                 {
                     reset_ladder();
                 }
@@ -7228,7 +7228,7 @@ bool LinkClass::animate(int)
     }
     else
     {
-        if((abs(laddery-FIX_FLOOR(y))>=16) || (abs(ladderx-FIX_FLOOR(x))>=16))
+        if((abs(laddery-y.getInt())>=16) || (abs(ladderx-x.getInt())>=16))
         {
             reset_ladder();
         }
@@ -7724,7 +7724,7 @@ bool LinkClass::startwpn(int itemid)
             if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
                 reset_ladder();
                 
-            sfx(itemsbuf[itemid].usesound,pan(FIX_FLOOR(x)));
+            sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
         }
         
         ret = false;
@@ -7799,8 +7799,8 @@ bool LinkClass::startwpn(int itemid)
             
             if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
                     itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
-                Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
-                                     (fix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(where==left?240:where==right?0:x),(zfix)(where==down?0:where==up?160:y),
+                                     (zfix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
                                      
             whistleitem=itemid;
         }
@@ -7856,7 +7856,7 @@ bool LinkClass::startwpn(int itemid)
             wy=zc_max(wy,16);
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,itemsbuf[itemid].fam_type,
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itemsbuf[itemid].fam_type,
                              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
@@ -7901,7 +7901,7 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -7948,7 +7948,7 @@ bool LinkClass::startwpn(int itemid)
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
 	    {
-		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
+		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->linkedItem = bookid;
                 Lwpns.add(magic);
 	    }
@@ -7966,7 +7966,7 @@ bool LinkClass::startwpn(int itemid)
     }
     /*
     //    Fireball Wand
-    Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
+    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
     switch (dir)
     {
     case up:
@@ -8019,9 +8019,9 @@ bool LinkClass::startwpn(int itemid)
             temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
         }
         
-        //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+        //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
 	//Add weapon script to sword beams.
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
 	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
 	//w->weaponscript = itemsbuf[itemid].weaponscript;
 	//w->canrunscript = 0;
@@ -8050,7 +8050,7 @@ bool LinkClass::startwpn(int itemid)
         
         if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff|=did_candle;
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
                              //(itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              (itemsbuf[itemid].fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
@@ -8067,7 +8067,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8082,7 +8082,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8097,7 +8097,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8112,7 +8112,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8127,7 +8127,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8142,7 +8142,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8157,7 +8157,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8172,7 +8172,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8187,7 +8187,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8202,7 +8202,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8217,7 +8217,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8249,7 +8249,7 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8267,7 +8267,7 @@ bool LinkClass::startwpn(int itemid)
         
         if(tmpscr->room==rGRUMBLE && !getmapflag())
         {
-            items.add(new item((fix)wx,(fix)wy,(fix)0,iBait,ipDUMMY+ipFADE,0));
+            items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
             fadeclk=66;
             dismissmsg();
             clear_bitmap(pricesdisplaybuf);
@@ -8280,7 +8280,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
         break;
         
     case itype_brang:
@@ -8293,7 +8293,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
     }
     break;
     
@@ -8311,7 +8311,7 @@ bool LinkClass::startwpn(int itemid)
             if(dir==up)
             {
                 if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
-                        (_walkflag(x+2,y+4,1) && !ishookshottable(FIX_FLOOR(x),int(y+4))))
+                        (_walkflag(x+2,y+4,1) && !ishookshottable(x.getInt(),int(y+4))))
                 {
                     use_hookshot=false;
                 }
@@ -8357,9 +8357,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==up)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy-4;
@@ -8369,9 +8369,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy;
@@ -8380,9 +8380,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==left)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx-4;
                 hs_starty=wy;
@@ -8391,9 +8391,9 @@ bool LinkClass::startwpn(int itemid)
             if(dir==right)
             {
                 hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-                Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
                                      hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
@@ -8466,8 +8466,8 @@ bool LinkClass::startwpn(int itemid)
 		//zprint("Added byrna weapon %d.\n", i);
 		//the iterator isn passed to 'type'. weapons.cpp converts thisd to
 		//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
-		Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-            //Lwpns.add(new weapon((fix)wx+cos(2 * PI / (i+1)),(fix)wy+sin(2 * PI / (i+1)),(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
 		//wy += sin(2 * PI / (itemsbuf[itemid].misc3-i));
 	}
@@ -8605,7 +8605,7 @@ bool LinkClass::doattack()
         if(charging==normalcharge)
         {
             paymagiccost(itemid);
-            sfx(WAV_ZN1CHARGE,pan(FIX_FLOOR(x)));
+            sfx(WAV_ZN1CHARGE,pan(x.getInt()));
         }
         else if(charging==magiccharge)
         {
@@ -8615,7 +8615,7 @@ bool LinkClass::doattack()
             {
                 paymagiccost(itemid);
                 charging++; // charging>magiccharge signifies a successful supercharge.
-                sfx(WAV_ZN1CHARGE2,pan(FIX_FLOOR(x)));
+                sfx(WAV_ZN1CHARGE2,pan(x.getInt()));
             }
         }
     }
@@ -8675,7 +8675,7 @@ bool LinkClass::doattack()
                 spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
                        : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
                 attackclk=1;
-                sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(FIX_FLOOR(x)));
+                sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
             }
             /*
             else if(attack==wWand)
@@ -8688,7 +8688,7 @@ bool LinkClass::doattack()
             {
                 spins=1; //signifies the quake hammer
                 bool super = (charging>magiccharge && current_item(itype_quakescroll2));
-                sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(FIX_FLOOR(x)));
+                sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(x.getInt()));
                 quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
                 
                 // general area stun
@@ -8941,7 +8941,7 @@ void LinkClass::do_hopping()
                 diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
         }
         
-        if((!(FIX_FLOOR(x)&7) && !(FIX_FLOOR(y)&7)) || (diagonalMovement||NO_GRIDLOCK))
+        if((!(x.getInt()&7) && !(y.getInt()&7)) || (diagonalMovement||NO_GRIDLOCK))
         {
             action=swimming; FFCore.setLinkAction(swimming);
             hopclk = 0;
@@ -9002,7 +9002,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
+                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9026,7 +9026,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
+                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9050,7 +9050,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
+                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9074,7 +9074,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(!iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
+                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9103,7 +9103,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
+                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9126,7 +9126,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+15)))
+                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9150,7 +9150,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
+                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9174,7 +9174,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(FIX_FLOOR(x)+15,FIX_FLOOR(y)+8)))
+                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9186,13 +9186,13 @@ void LinkClass::do_hopping()
         }
         else
         {
-            if(dir<left ? !(FIX_FLOOR(x)&7) && !(FIX_FLOOR(y)&15) : !(FIX_FLOOR(x)&15) && !(FIX_FLOOR(y)&7))
+            if(dir<left ? !(x.getInt()&7) && !(y.getInt()&15) : !(x.getInt()&15) && !(y.getInt()&7))
             {
                 action=none; FFCore.setLinkAction(none);
                 hopclk = 0;
                 diveclk = 0;
                 
-                if(iswater(MAPCOMBO(FIX_FLOOR(x),FIX_FLOOR(y)+8)))
+                if(iswater(MAPCOMBO(x.getInt(),y.getInt()+8)))
                 {
                     // hopped in
                     attackclk = charging = spins = 0;
@@ -9207,8 +9207,8 @@ void LinkClass::do_hopping()
                 if(++link_count>(16*link_animation_speed))
                     link_count=0;
                     
-                int xofs2 = FIX_FLOOR(x)&15;
-                int yofs2 = FIX_FLOOR(y)&15;
+                int xofs2 = x.getInt()&15;
+                int yofs2 = y.getInt()&15;
                 int s = 1 + (frame&1);
                 
                 switch(dir)
@@ -9257,7 +9257,7 @@ void LinkClass::do_rafting()
     
     linkstep();
     
-    if(!(FIX_FLOOR(x)&15) && !(FIX_FLOOR(y)&15))
+    if(!(x.getInt()&15) && !(y.getInt()&15))
     {
         // this sections handles switching to raft branches
         if((MAPFLAG(x,y)==mfRAFT_BRANCH||MAPCOMBOFLAG(x,y)==mfRAFT_BRANCH))
@@ -9327,9 +9327,9 @@ skip:
     switch(dir)
     {
     case up:
-        if(FIX_FLOOR(x)&15)
+        if(x.getInt()&15)
         {
-            if(FIX_FLOOR(x)&8)
+            if(x.getInt()&8)
                 x++;
             else x--;
         }
@@ -9338,9 +9338,9 @@ skip:
         break;
         
     case down:
-        if(FIX_FLOOR(x)&15)
+        if(x.getInt()&15)
         {
-            if(FIX_FLOOR(x)&8)
+            if(x.getInt()&8)
                 x++;
             else x--;
         }
@@ -9349,9 +9349,9 @@ skip:
         break;
         
     case left:
-        if(FIX_FLOOR(y)&15)
+        if(y.getInt()&15)
         {
-            if(FIX_FLOOR(y)&8)
+            if(y.getInt()&8)
                 y++;
             else y--;
         }
@@ -9360,9 +9360,9 @@ skip:
         break;
         
     case right:
-        if(FIX_FLOOR(y)&15)
+        if(y.getInt()&15)
         {
-            if(FIX_FLOOR(y)&8)
+            if(y.getInt()&8)
                 y++;
             else y--;
         }
@@ -9374,8 +9374,8 @@ skip:
 
 void LinkClass::movelink()
 {
-	int xoff=FIX_FLOOR(x)&7;
-	int yoff=FIX_FLOOR(y)&7;
+	int xoff=x.getInt()&7;
+	int yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
@@ -9384,9 +9384,9 @@ void LinkClass::movelink()
 	int push=pushing;
 	int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
 	pushing=0;
-	fix temp_step(link_newstep);
-	fix temp_x(x);
-	fix temp_y(y);
+	zfix temp_step(link_newstep);
+	zfix temp_x(x);
+	zfix temp_y(y);
 	
 	int flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
@@ -9462,7 +9462,7 @@ void LinkClass::movelink()
 			attack=wSword;
 			
 			attackclk=0;
-			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(FIX_FLOOR(x)));
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
 			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn) && !item_doscript[dowpn])
 			{
@@ -9698,7 +9698,7 @@ void LinkClass::movelink()
 				spins--;
 				
 				if(spins%5==0)
-					sfx(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(FIX_FLOOR(x)));
+					sfx(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
 					
 				attackclk=1;
 				
@@ -9752,9 +9752,9 @@ void LinkClass::movelink()
 			{
 				if(dir==up&&yoff)
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
 					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]));
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -9771,8 +9771,8 @@ void LinkClass::movelink()
 								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
 								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
 								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int(lsteps[FIX_FLOOR(y)&7] is %d\n",int(lsteps[FIX_FLOOR(y)&7]));
-								//if ( (int)y - int(lsteps[FIX_FLOOR(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
+								//al_trace("int(lsteps[y.getInt()&7] is %d\n",int(lsteps[y.getInt()&7]));
+								//if ( (int)y - int(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
 								if ( (int)y == max_y ) //if the ffc bottom edge is in the step range
 								{
 									//al_trace("Link is under the ffc\n");
@@ -9800,9 +9800,9 @@ void LinkClass::movelink()
 				
 				if(dir==down&&yoff)
 				{
-					info = walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
+					info = walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
 					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+15+int(lsteps[FIX_FLOOR(y)&7]));
+						info = info || walkflagMBlock(x+8,y+15+int(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -9815,7 +9815,7 @@ void LinkClass::movelink()
 							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
 							{
 								int min_y = (((int)tmpscr->ffy[0])/10000);
-								//if ( (int)y+(int)hysz + int(lsteps[FIX_FLOOR(y)&7]) > min_y ) //if the ffc bottom edge is in the step range
+								//if ( (int)y+(int)hysz + int(lsteps[y.getInt()&7]) > min_y ) //if the ffc bottom edge is in the step range
 								//if ( (int)y+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
 								if ( (int)y+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
 								{
@@ -9845,7 +9845,7 @@ void LinkClass::movelink()
 				
 				if(dir==left&&xoff)
 				{
-					info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8,1,left);
+					info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[x.getInt()&7]),y+8,1,left);
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -9862,7 +9862,7 @@ void LinkClass::movelink()
 				
 				if(dir==right&&xoff)
 				{
-					info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+8,1,right);
+					info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[x.getInt()&7]),y+8,1,right);
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -9901,14 +9901,14 @@ void LinkClass::movelink()
 								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
 								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
 								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int(lsteps[FIX_FLOOR(y)&7] is %d\n",int(lsteps[FIX_FLOOR(y)&7]));
-								//if ( (int)y - int(lsteps[FIX_FLOOR(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
-								if ( FIX_FLOOR(temp_y) == max_y ) //if the ffc bottom edge is in the step range
+								//al_trace("int(lsteps[y.getInt()&7] is %d\n",int(lsteps[y.getInt()&7]));
+								//if ( (int)y - int(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
+								if ( temp_y.getInt() == max_y ) //if the ffc bottom edge is in the step range
 								{
 									//al_trace("Link is under the ffc\n");
-									int linkwidthx = FIX_FLOOR(temp_x)+(int)hxsz;
+									int linkwidthx = temp_x.getInt()+(int)hxsz;
 									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && FIX_FLOOR(temp_x) < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
 									{
 										al_trace("Link is under X border of ffc\n");
 										//Link is under the ffc
@@ -9966,14 +9966,14 @@ void LinkClass::movelink()
 								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
 								{
 									int min_y = (((int)tmpscr->ffy[0])/10000);
-									//if ( FIX_FLOOR(temp_y)+(int)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
-									//if ( FIX_FLOOR(temp_y)+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-									if ( FIX_FLOOR(temp_y)+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+									//if ( temp_y.getInt()+(int)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
+									//if ( temp_y.getInt()+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+									if ( temp_y.getInt()+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
 									{
 										//al_trace("Link is under the ffc\n");
-										int linkwidthx = FIX_FLOOR(temp_x)+(int)hxsz;
+										int linkwidthx = temp_x.getInt()+(int)hxsz;
 										//al_trace("linkwidthx is: %d\n",linkwidthx);
-										if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && FIX_FLOOR(temp_x) < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+										if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
 										{
 										//	al_trace("Link is under X border of ffc\n");
 											//Link is under the ffc
@@ -10175,7 +10175,7 @@ void LinkClass::movelink()
 						{
 							info = walkflag(x,(bigHitbox?0:8)+(y-link_newstep),2,up);
 							
-							if(FIX_FLOOR(x) & 7)
+							if(x.getInt() & 7)
 								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-link_newstep),1,up);
 							else if(blockmoving)
 								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-link_newstep));
@@ -10184,7 +10184,7 @@ void LinkClass::movelink()
 							
 							if(info.isUnwalkable())
 							{
-								if(y != FIX_FLOOR(y))
+								if(y != y.getInt())
 								{
 									y = floor((double)y);
 								}
@@ -10220,7 +10220,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(x != FIX_FLOOR(x))
+									if(x != x.getInt())
 									{
 										x = floor((double)x);
 									}
@@ -10241,7 +10241,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(x != FIX_FLOOR(x))
+											if(x != x.getInt())
 											{
 												x = floor((double)x);
 											}
@@ -10273,7 +10273,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(x != FIX_FLOOR(x))
+									if(x != x.getInt())
 									{
 										x = floor((double)x);
 									}
@@ -10294,7 +10294,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(x != FIX_FLOOR(x))
+											if(x != x.getInt())
 											{
 												x = floor((double)x);
 											}
@@ -10325,14 +10325,14 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							x = FIX_FLOOR(x);
-							y = FIX_FLOOR(y);
+							x = x.getInt();
+							y = y.getInt();
 							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
 									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
@@ -10341,7 +10341,7 @@ void LinkClass::movelink()
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-										sprite::move((fix)1,(fix)0);
+										sprite::move((zfix)1,(zfix)0);
 								}
 								else
 								{
@@ -10397,7 +10397,7 @@ void LinkClass::movelink()
 						{
 							info = walkflag(x,15+(y+link_newstep),2,down);
 							
-							if(FIX_FLOOR(x) & 7)
+							if(x.getInt() & 7)
 								info = info || walkflag(x+16,15+(y+link_newstep),1,down);
 							else if(blockmoving)
 								info = info || walkflagMBlock(x+16, 15+(y+link_newstep));
@@ -10406,7 +10406,7 @@ void LinkClass::movelink()
 							
 							if(info.isUnwalkable())
 							{
-								if(y != FIX_FLOOR(y))
+								if(y != y.getInt())
 								{
 									y = floor((double)y);
 								}
@@ -10442,7 +10442,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(x != FIX_FLOOR(x))
+									if(x != x.getInt())
 									{
 										x = floor((double)x);
 									}
@@ -10463,7 +10463,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(x != FIX_FLOOR(x))
+											if(x != x.getInt())
 											{
 												x = floor((double)x);
 											}
@@ -10495,7 +10495,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(x != FIX_FLOOR(x))
+									if(x != x.getInt())
 									{
 										x = floor((double)x);
 									}
@@ -10516,7 +10516,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(x != FIX_FLOOR(x))
+											if(x != x.getInt())
 											{
 												x = floor((double)x);
 											}
@@ -10547,21 +10547,21 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							x = FIX_FLOOR(x);
-							y = FIX_FLOOR(y);
+							x = x.getInt();
+							y = y.getInt();
 							if(!_walkflag(x,   y+15+1,1)&&
 									!_walkflag(x+8, y+15+1,1)&&
 									_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1)&&
 									!_walkflag(x+7, y+15+1,1)&&
 									!_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-									sprite::move((fix)1,(fix)0);
+									sprite::move((zfix)1,(zfix)0);
 							}
 							else
 							{
@@ -10609,14 +10609,14 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x-link_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep,y+8,1,left);
 						
-						if(FIX_FLOOR(y) & 7)
+						if(y.getInt() & 7)
 							info = info || walkflag(x-link_newstep,y+16,1,left);
 							
 						execute(info);
 						
 						if(info.isUnwalkable())
 						{
-							if(x != FIX_FLOOR(x))
+							if(x != x.getInt())
 							{
 								x = floor((double)x);
 							}
@@ -10651,7 +10651,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(y != FIX_FLOOR(y))
+									if(y != y.getInt())
 									{
 										y = floor((double)y);
 									}
@@ -10672,7 +10672,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(y != FIX_FLOOR(y))
+											if(y != y.getInt())
 											{
 												y = floor((double)y);
 											}
@@ -10704,7 +10704,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(y != FIX_FLOOR(y))
+									if(y != y.getInt())
 									{
 										y = floor((double)y);
 									}
@@ -10725,7 +10725,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(y != FIX_FLOOR(y))
+											if(y != y.getInt())
 											{
 												y = floor((double)y);
 											}
@@ -10756,8 +10756,8 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							x = FIX_FLOOR(x);
-							y = FIX_FLOOR(y);
+							x = x.getInt();
+							y = y.getInt();
 							int v1=bigHitbox?0:8;
 							int v2=bigHitbox?8:12;
 							
@@ -10766,14 +10766,14 @@ void LinkClass::movelink()
 									_walkflag(x-1,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1)&&
 									!_walkflag(x-1,y+v2-1,1)&&
 									!_walkflag(x-1,y+15,  1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else
 							{
@@ -10825,14 +10825,14 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep,y+8,1,right);;
 						
-						if(FIX_FLOOR(y) & 7)
+						if(y.getInt() & 7)
 							info = info || walkflag(x+15+link_newstep,y+16,1,right);
 							
 						execute(info);
 						
 						if(info.isUnwalkable())
 						{
-							if(x != FIX_FLOOR(x))
+							if(x != x.getInt())
 							{
 								x = floor((double)x);
 							}
@@ -10867,7 +10867,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(y != FIX_FLOOR(y))
+									if(y != y.getInt())
 									{
 										y = floor((double)y);
 									}
@@ -10888,7 +10888,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(y != FIX_FLOOR(y))
+											if(y != y.getInt())
 											{
 												y = floor((double)y);
 											}
@@ -10920,7 +10920,7 @@ void LinkClass::movelink()
 								
 								if(info.isUnwalkable())
 								{
-									if(y != FIX_FLOOR(y))
+									if(y != y.getInt())
 									{
 										y = floor((double)y);
 									}
@@ -10941,7 +10941,7 @@ void LinkClass::movelink()
 										execute(info);
 										if(info.isUnwalkable())
 										{
-											if(y != FIX_FLOOR(y))
+											if(y != y.getInt())
 											{
 												y = floor((double)y);
 											}
@@ -10972,8 +10972,8 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							x = FIX_FLOOR(x);
-							y = FIX_FLOOR(y);
+							x = x.getInt();
+							y = y.getInt();
 							int v1=bigHitbox?0:8;
 							int v2=bigHitbox?8:12;
 								   
@@ -10982,14 +10982,14 @@ void LinkClass::movelink()
 								   _walkflag(x+16,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x+16,y+v1,1)&&
 									   !_walkflag(x+16,y+v2-1,1)&&
 									   !_walkflag(x+16,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else
 							{
@@ -11049,7 +11049,7 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 						
-						if(FIX_FLOOR(x) & 7)
+						if(x.getInt() & 7)
 							info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
 						else if(blockmoving)
 							info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
@@ -11063,7 +11063,7 @@ void LinkClass::movelink()
 								z3step=1;
 								info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 								
-								if(FIX_FLOOR(x)&7)
+								if(x.getInt()&7)
 									info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
 								else if(blockmoving)
 									info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
@@ -11151,7 +11151,7 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
@@ -11160,7 +11160,7 @@ void LinkClass::movelink()
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-										sprite::move((fix)1,(fix)0);
+										sprite::move((zfix)1,(zfix)0);
 								}
 								else
 								{
@@ -11217,7 +11217,7 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x,y+15+z3step,2,down);
 						
-						if(FIX_FLOOR(x)&7)
+						if(x.getInt()&7)
 							info = info || walkflag(x+16,y+15+z3step,1,down);
 						else if(blockmoving)
 							info = info || walkflagMBlock(x+16, y+15+z3step);
@@ -11231,7 +11231,7 @@ void LinkClass::movelink()
 								z3step=1;
 								info = walkflag(x,y+15+z3step,2,down);
 								
-								if(FIX_FLOOR(x)&7)
+								if(x.getInt()&7)
 									info = info || walkflag(x+16,y+15+z3step,1,down);
 								else if(blockmoving)
 									info = info || walkflagMBlock(x+16, y+15+z3step);
@@ -11320,14 +11320,14 @@ void LinkClass::movelink()
 									_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-									sprite::move((fix)-1,(fix)0);
+									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1)&&
 									!_walkflag(x+7, y+15+1,1)&&
 									!_walkflag(x+15,y+15+1,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-									sprite::move((fix)1,(fix)0);
+									sprite::move((zfix)1,(zfix)0);
 							}
 							else //if(shiftdir==-1)
 							{
@@ -11386,7 +11386,7 @@ void LinkClass::movelink()
 					//bool walkable;
 					info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
 					
-					if(FIX_FLOOR(y)&7)
+					if(y.getInt()&7)
 						info = info || walkflag(x-z3step,y+16,1,left);
 						
 					execute(info);
@@ -11398,7 +11398,7 @@ void LinkClass::movelink()
 							z3step=1;
 							info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
 							
-							if(FIX_FLOOR(y)&7)
+							if(y.getInt()&7)
 								info = info || walkflag(x-z3step,y+16,1,left);
 								
 							execute(info);
@@ -11487,14 +11487,14 @@ void LinkClass::movelink()
 									_walkflag(x-1,y+15,1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1)&&
 									!_walkflag(x-1,y+v2-1,1)&&
 									!_walkflag(x-1,y+15,  1))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-									sprite::move((fix)0,(fix)1);
+									sprite::move((zfix)0,(zfix)1);
 							}
 							else //if(shiftdir==-1)
 							{
@@ -11553,7 +11553,7 @@ void LinkClass::movelink()
 					//bool walkable;
 					info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
 					
-					if(FIX_FLOOR(y)&7)
+					if(y.getInt()&7)
 						info = info || walkflag(x+15+z3step,y+16,1,right);
 						
 					execute(info);
@@ -11565,7 +11565,7 @@ void LinkClass::movelink()
 							z3step=1;
 							info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
 							
-							if(FIX_FLOOR(y)&7)
+							if(y.getInt()&7)
 								info = info || walkflag(x+15+z3step,y+16,1,right);
 								
 							execute(info);
@@ -11657,7 +11657,7 @@ void LinkClass::movelink()
 							if(info.isUnwalkable())
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-									sprite::move((fix)0,(fix)-1);
+									sprite::move((zfix)0,(zfix)-1);
 							}
 							else
 							{
@@ -11668,7 +11668,7 @@ void LinkClass::movelink()
 								if(info.isUnwalkable())
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-										sprite::move((fix)0,(fix)1);
+										sprite::move((zfix)0,(zfix)1);
 								}
 								else //if(shiftdir==-1)
 								{
@@ -11866,7 +11866,7 @@ void LinkClass::movelink()
 					else
 					{
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
-						if(FIX_FLOOR(x) & 7)
+						if(x.getInt() & 7)
 							info = info || walkflag(temp_x+16,temp_y+(bigHitbox?0:8)-temp_step,1,up);
 						else if(blockmoving)
 							info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
@@ -11905,21 +11905,21 @@ void LinkClass::movelink()
 				{
 					if(NO_GRIDLOCK)
 					{
-						x = FIX_FLOOR(x);
-						y = FIX_FLOOR(y);
+						x = x.getInt();
+						y = y.getInt();
 						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -11996,7 +11996,7 @@ void LinkClass::movelink()
 					else
 					{
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
-						if(FIX_FLOOR(x) & 7)
+						if(x.getInt() & 7)
 							info = info || walkflag(temp_x+16,temp_y+15+temp_step,1,down);
 						else if(blockmoving)
 							 info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
@@ -12035,21 +12035,21 @@ void LinkClass::movelink()
 				{
 					if(NO_GRIDLOCK)
 					{
-						x = FIX_FLOOR(x);
-						y = FIX_FLOOR(y);
+						x = x.getInt();
+						y = y.getInt();
 						if(!_walkflag(x,   y+15+1,1)&&
 								!_walkflag(x+8, y+15+1,1)&&
 								_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1)&&
 								!_walkflag(x+7, y+15+1,1)&&
 								!_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12123,7 +12123,7 @@ LEFTRIGHT_NEWMOVE:
 					info = walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left) ||
 						   walkflag(temp_x-temp_step,temp_y+(isSideViewLink() ?0:8), 1,left);
 					   
-					if(FIX_FLOOR(y) & 7)
+					if(y.getInt() & 7)
 						info = info || walkflag(temp_x-temp_step,temp_y+16,1,left);
 					
 					if(info.isUnwalkable())
@@ -12159,8 +12159,8 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						x = FIX_FLOOR(x);
-						y = FIX_FLOOR(y);
+						x = x.getInt();
+						y = y.getInt();
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 						
@@ -12169,14 +12169,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x-1,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,1)&&
 								!_walkflag(x-1,y+v2-1,1)&&
 								!_walkflag(x-1,y+15,  1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12240,7 +12240,7 @@ LEFTRIGHT_NEWMOVE:
 					info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) || 
 							walkflag(temp_x+15+temp_step,temp_y+(isSideViewLink() ?0:8),1,right);
 					
-					if(FIX_FLOOR(y) & 7)
+					if(y.getInt() & 7)
 						info = info || walkflag(temp_x+15+temp_step,y+16,1,right);
 					
 					if(info.isUnwalkable())
@@ -12276,8 +12276,8 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						x = FIX_FLOOR(x);
-						y = FIX_FLOOR(y);
+						x = x.getInt();
+						y = y.getInt();
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 							   
@@ -12286,14 +12286,14 @@ LEFTRIGHT_NEWMOVE:
 							   _walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1)&&
 								   !_walkflag(x+16,y+v2-1,1)&&
 								   !_walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12319,8 +12319,8 @@ LEFTRIGHT_NEWMOVE:
 	}
 	else
 	{
-		info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) ||
-			   walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8,1,left);
+		info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
+			   walkflag(x-int(lsteps[x.getInt()&7]),y+8,1,left);
 		
 		if(isdungeon() && DrunkLeft() && !info.isUnwalkable() && (x==32 && y==80))
 		{
@@ -12331,8 +12331,8 @@ LEFTRIGHT_NEWMOVE:
 			return;
 		}
 		
-		info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right) ||
-			   walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+8,1,right);
+		info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) ||
+			   walkflag(x+15+int(lsteps[x.getInt()&7]),y+8,1,right);
 		
 		if(isdungeon() && DrunkRight() && !info.isUnwalkable() && x==208 && y==80)
 		{
@@ -12379,20 +12379,20 @@ LEFTRIGHT_NEWMOVE:
 			{
 				if(action==swimming)
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
 					
-					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]), 1) &&
-							!(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]))) &&
-							  iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7])))))
+					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]), 1) &&
+							!(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]))) &&
+							  iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])))))
 						info.setUnwalkable(true);
 				}
 				else
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),2,up);
-					if(FIX_FLOOR(x) & 7)
-						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]),1,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
+					if(x.getInt() & 7)
+						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),1,up);
 					else if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[FIX_FLOOR(y)&7]));
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]));
 				}
 				
 				execute(info);
@@ -12412,14 +12412,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12484,20 +12484,20 @@ LEFTRIGHT_NEWMOVE:
 			{
 				if(action==swimming)
 				{
-					info=walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
+					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
 					
-					if(_walkflag(x+15, y+15+int(lsteps[FIX_FLOOR(y)&7]), 1) &&
-							!(iswater(MAPCOMBO(x, y+15+int(lsteps[FIX_FLOOR(y)&7]))) &&
-							  iswater(MAPCOMBO(x+15, y+15+int(lsteps[FIX_FLOOR(y)&7])))))
+					if(_walkflag(x+15, y+15+int(lsteps[y.getInt()&7]), 1) &&
+							!(iswater(MAPCOMBO(x, y+15+int(lsteps[y.getInt()&7]))) &&
+							  iswater(MAPCOMBO(x+15, y+15+int(lsteps[y.getInt()&7])))))
 						info.setUnwalkable(true);
 				}
 				else
 				{
-					info=walkflag(x,y+15+int(lsteps[FIX_FLOOR(y)&7]),2,down);
-					if(FIX_FLOOR(x) & 7)
-						info = info || walkflag(x+16,y+15+int(lsteps[FIX_FLOOR(y)&7]),1,down);
+					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
+					if(x.getInt() & 7)
+						info = info || walkflag(x+16,y+15+int(lsteps[y.getInt()&7]),1,down);
 					else if(blockmoving)
-						 info = info || walkflagMBlock(x+8,y+15+int(lsteps[FIX_FLOOR(y)&7]));
+						 info = info || walkflagMBlock(x+8,y+15+int(lsteps[y.getInt()&7]));
 				}
 				
 				execute(info);
@@ -12517,14 +12517,14 @@ LEFTRIGHT_NEWMOVE:
 								_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
-								sprite::move((fix)-1,(fix)0);
+								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1)&&
 								!_walkflag(x+7, y+15+1,1)&&
 								!_walkflag(x+15,y+15+1,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
-								sprite::move((fix)1,(fix)0);
+								sprite::move((zfix)1,(zfix)0);
 						}
 						else
 						{
@@ -12591,11 +12591,11 @@ LEFTRIGHT_OLDMOVE:
 			}
 			else
 			{
-				info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,left) ||
-					   walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+(isSideViewLink() ?0:8), 1,left);
+				info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
+					   walkflag(x-int(lsteps[x.getInt()&7]),y+(isSideViewLink() ?0:8), 1,left);
 					   
-				if(FIX_FLOOR(y) & 7)
-					info = info || walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+16,1,left);
+				if(y.getInt() & 7)
+					info = info || walkflag(x-int(lsteps[x.getInt()&7]),y+16,1,left);
 				
 				execute(info);
 				
@@ -12617,14 +12617,14 @@ LEFTRIGHT_OLDMOVE:
 								_walkflag(x-1,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,  1)&&
 								!_walkflag(x-1,y+v2-1,1)&&
 								!_walkflag(x-1,y+15,  1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12683,11 +12683,11 @@ LEFTRIGHT_OLDMOVE:
 			}
 			else
 			{
-				info = walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(bigHitbox?0:8),1,right)
-					|| walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+(isSideViewLink()?0:8),1,right);
+				info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
+					|| walkflag(x+15+int(lsteps[x.getInt()&7]),y+(isSideViewLink()?0:8),1,right);
 				
-				if(FIX_FLOOR(y) & 7)
-					info = info || walkflag(x+15+int(lsteps[FIX_FLOOR(x)&7]),y+16,1,right);
+				if(y.getInt() & 7)
+					info = info || walkflag(x+15+int(lsteps[x.getInt()&7]),y+16,1,right);
 				
 				execute(info);
 				
@@ -12709,14 +12709,14 @@ LEFTRIGHT_OLDMOVE:
 							   _walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
-								sprite::move((fix)0,(fix)-1);
+								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1)&&
 								   !_walkflag(x+16,y+v2-1,1)&&
 								   !_walkflag(x+16,y+15,1))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
-								sprite::move((fix)0,(fix)1);
+								sprite::move((zfix)0,(zfix)1);
 						}
 						else
 						{
@@ -12759,10 +12759,10 @@ void LinkClass::move(int d2, int forceRate)
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.link_swim_speed>60);
-	fix dx, dy;
-	fix movepix(steprate / 100.0);
-	fix step(movepix);
-	fix step_diag(movepix);
+	zfix dx, dy;
+	zfix movepix(steprate / 100.0);
+	zfix step(movepix);
+	zfix step_diag(movepix);
 	if(link_newstep > movepix) link_newstep = movepix;
 	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
 	//2/3 speed
@@ -12893,12 +12893,12 @@ void LinkClass::move(int d2, int forceRate)
 			case right:
 			case r_up:
 			case r_down:
-				dx = fix(forceRate) / 100;
+				dx = zfix(forceRate) / 100;
 				break;
 			case left:
 			case l_up:
 			case l_down:
-				dx = fix(-forceRate) / 100;
+				dx = zfix(-forceRate) / 100;
 				break;
 			default:
 				dx = 0;
@@ -12908,12 +12908,12 @@ void LinkClass::move(int d2, int forceRate)
 			case down:
 			case r_down:
 			case l_down:
-				dy = fix(forceRate) / 100;
+				dy = zfix(forceRate) / 100;
 				break;
 			case up:
 			case r_up:
 			case l_up:
-				dy = fix(-forceRate) / 100;
+				dy = zfix(-forceRate) / 100;
 				break;
 			default:
 				dy = 0;
@@ -12950,8 +12950,8 @@ void LinkClass::moveOld(int d2)
         return;
 	
     int dx=0,dy=0;
-    int xstep=lsteps[FIX_FLOOR(x)&7];
-    int ystep=lsteps[FIX_FLOOR(y)&7];
+    int xstep=lsteps[x.getInt()&7];
+    int ystep=lsteps[y.getInt()&7];
     int z3skip=0;
     int z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
@@ -13238,11 +13238,11 @@ void LinkClass::moveOld(int d2)
     
     if(charging==0 || attack!=wHammer)
     {
-        sprite::move((fix)dx,(fix)dy);
+        sprite::move((zfix)dx,(zfix)dy);
     }
 }
 
-LinkClass::WalkflagInfo LinkClass::walkflag(fix fx,fix fy,int cnt,byte d2)
+LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int cnt,byte d2)
 {
 	return walkflag(int(floor(double(fx))), int(floor(double(fy))), cnt, d2);
 }
@@ -13462,7 +13462,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 switch(d2)
                 {
                 case up:
-                    if(FIX_FLOOR(y)<=laddery)
+                    if(y.getInt()<=laddery)
                     {
                         ret.setUnwalkable(_walkflag(ladderx,laddery-8,1) ||
                                           _walkflag(ladderx+8,laddery-8,1));
@@ -13637,7 +13637,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                                 laddery = y;
                                 ladderdir = left;
                                 ladderstart = d2;
-                                ret.setUnwalkable(laddery!=FIX_FLOOR(y));
+                                ret.setUnwalkable(laddery!=y.getInt());
                                 return ret;
                             }
                         }
@@ -13651,7 +13651,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                             laddery = wy&0xF0;
                             ladderdir = up;
                             ladderstart = d2;
-                            ret.setUnwalkable(ladderx!=FIX_FLOOR(x));
+                            ret.setUnwalkable(ladderx!=x.getInt());
                             return ret;
                         }
                         
@@ -13663,7 +13663,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                                 laddery = wy&0xF0;
                                 ladderdir = up;
                                 ladderstart = d2;
-                                ret.setUnwalkable(ladderx!=FIX_FLOOR(x));
+                                ret.setUnwalkable(ladderx!=x.getInt());
                                 return ret;
                             }
                         }
@@ -13679,20 +13679,20 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                         // Deploy the ladder vertically even if Link is only half on water.
                         || (d2<=down && ((wtrx && !flgx8) || (wtrx8 && !flgx))))
                 {
-                    if(((FIX_FLOOR(y)+15) < wy) || ((FIX_FLOOR(y)+8) > wy))
+                    if(((y.getInt()+15) < wy) || ((y.getInt()+8) > wy))
                         ladderdir = up;
                     else
                         ladderdir = left;
                         
                     if(ladderdir==up)
                     {
-                        ladderx = FIX_FLOOR(x)&0xF8;
+                        ladderx = x.getInt()&0xF8;
                         laddery = wy&0xF0;
                     }
                     else
                     {
                         ladderx = wx&0xF0;
-                        laddery = FIX_FLOOR(y)&0xF8;
+                        laddery = y.getInt()&0xF8;
                     }
                     
                     ret.setUnwalkable(false);
@@ -13724,13 +13724,13 @@ void LinkClass::checkpushblock()
     bool earlyReturn=false;
     
     if(!(diagonalMovement||NO_GRIDLOCK) || dir==left)
-        if(FIX_FLOOR(x)&15) earlyReturn=true;
+        if(x.getInt()&15) earlyReturn=true;
         
     // if(y<16) return;
     if(isSideViewLink() && !on_sideview_solid(x,y)) return;
     
-    int bx = FIX_FLOOR(x)&0xF0;
-    int by = (FIX_FLOOR(y)&0xF0);
+    int bx = x.getInt()&0xF0;
+    int by = (y.getInt()&0xF0);
     
     switch(dir)
     {
@@ -13772,7 +13772,7 @@ void LinkClass::checkpushblock()
         {
             bx-=16;
             
-            if(FIX_FLOOR(y)&8)
+            if(y.getInt()&8)
             {
                 by+=16;
             }
@@ -13790,7 +13790,7 @@ void LinkClass::checkpushblock()
         {
             bx+=16;
             
-            if(FIX_FLOOR(y)&8)
+            if(y.getInt()&8)
             {
                 by+=16;
             }
@@ -13829,7 +13829,7 @@ void LinkClass::checkpushblock()
 		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
 		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
 		{
-			checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
+			checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
                                          x+8+(zc_max(tmpscr->csensitive-1,0)),
                                          y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
                                          y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
@@ -13952,7 +13952,7 @@ void LinkClass::checkpushblock()
             //}
             if(mblock2.clk<=0)
             {
-                mblock2.push((fix)bx,(fix)by,dir,f);
+                mblock2.push((zfix)bx,(zfix)by,dir,f);
                 
                 if(get_bit(quest_rules,qr_MORESOUNDS))
                     sfx(WAV_ZN1PUSHBLOCK,(int)x);
@@ -14023,9 +14023,9 @@ void LinkClass::checklockblock()
 {
     if(toogam) return;
     
-    int bx = FIX_FLOOR(x)&0xF0;
+    int bx = x.getInt()&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = FIX_FLOOR(y)&0xF0;
+    int by = y.getInt()&0xF0;
     
     switch(dir)
     {
@@ -14042,7 +14042,7 @@ void LinkClass::checklockblock()
         if((((int)x)&0x0F)<8)
             bx-=16;
         
-        if(FIX_FLOOR(y)&8)
+        if(y.getInt()&8)
         {
             by+=16;
         }
@@ -14053,7 +14053,7 @@ void LinkClass::checklockblock()
     case right:
         bx+=16;
         
-        if(FIX_FLOOR(y)&8)
+        if(y.getInt()&8)
         {
             by+=16;
         }
@@ -14163,9 +14163,9 @@ void LinkClass::checkbosslockblock()
 {
     if(toogam) return;
     
-    int bx = FIX_FLOOR(x)&0xF0;
+    int bx = x.getInt()&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = FIX_FLOOR(y)&0xF0;
+    int by = y.getInt()&0xF0;
     
     switch(dir)
     {
@@ -14182,7 +14182,7 @@ void LinkClass::checkbosslockblock()
         if((((int)x)&0x0F)<8)
             bx-=16;
         
-        if(FIX_FLOOR(y)&8)
+        if(y.getInt()&8)
         {
             by+=16;
         }
@@ -14193,7 +14193,7 @@ void LinkClass::checkbosslockblock()
     case right:
         bx+=16;
         
-        if(FIX_FLOOR(y)&8)
+        if(y.getInt()&8)
         {
             by+=16;
         }
@@ -14240,9 +14240,9 @@ void LinkClass::checkchest(int type)
     // chests aren't affected by tmpscr->flags2&fAIRCOMBOS
     if(toogam || z>0) return;
     
-    int bx = FIX_FLOOR(x)&0xF0;
+    int bx = x.getInt()&0xF0;
     int bx2 = int(x+8)&0xF0;
-    int by = FIX_FLOOR(y)&0xF0;
+    int by = y.getInt()&0xF0;
     
     switch(dir)
     {
@@ -14327,7 +14327,7 @@ void LinkClass::checkchest(int type)
     
     if(itemflag && !getmapflag())
     {
-        items.add(new item(x, y,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+        items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
     }
 }
 
@@ -14791,7 +14791,7 @@ void LinkClass::checkswordtap()
                     break;
                 }
                 
-        sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(FIX_FLOOR(x)));
+        sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(x.getInt()));
     }
     
 }
@@ -15367,9 +15367,9 @@ void LinkClass::checkspecial()
                 if(hasitem==1)
                     sfx(WAV_CLEARED);
                     
-                items.add(new item((fix)tmpscr->itemx,
-                                   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (fix)-170 : (fix)tmpscr->itemy+1,
-                                   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (fix)170 : (fix)0,
+                items.add(new item((zfix)tmpscr->itemx,
+                                   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+                                   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
                                    Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
             }
@@ -15436,10 +15436,10 @@ void LinkClass::checkspecial2(int *ls)
 {
     if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
     {
-        if(FIX_FLOOR(y)&7)
+        if(y.getInt()&7)
             return;
             
-        if(FIX_FLOOR(x)&7)
+        if(x.getInt()&7)
             return;
     }
     
@@ -15620,7 +15620,7 @@ void LinkClass::checkspecial2(int *ls)
         flag = types[0];
         
     // 2.10 compatibility...
-    else if(FIX_FLOOR(y)%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
+    else if(y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
         flag = types[0];
         
         
@@ -16645,7 +16645,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         kill_enemy_sfx();
         ALLOFF();
 	//play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));
+	if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
         homescr=currscr;
         currscr=0x81;
         specialcave = PASSAGEWAY;
@@ -16974,8 +16974,8 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             wrx=tmpscr->warpreturnx[0];
         else wrx=tmpscr->warparrivalx;
         
-        Lwpns.add(new weapon((fix)(index==left?240:index==right?0:wrx),(fix)(index==down?0:index==up?160:wry),
-                             (fix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
+        Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
+                             (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
         whirlwind=255;
         whistleitem=-1;
     }
@@ -17028,7 +17028,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             kill_sfx();
         }
         //play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));
+	if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
         if(wtype==wtIWARPZAP)
         {
             zapout();
@@ -17174,7 +17174,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		    kill_sfx();
 		}
 		//play sound
-		if(warpsfx > 0) sfx(warpsfx,pan(FIX_FLOOR(x)));	
+		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));	
 		if(wtype==wtIWARPZAP)
 		{
 		    zapout();
@@ -17519,10 +17519,10 @@ void LinkClass::stepforward(int steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
-    fix tx=x;           //temp x
-    fix ty=y;           //temp y
-    fix tstep(0);        //temp single step distance
-    fix s(0);            //calculated step distance for all steps
+    zfix tx=x;           //temp x
+    zfix ty=y;           //temp y
+    zfix tstep(0);        //temp single step distance
+    zfix s(0);            //calculated step distance for all steps
     z3step=2;
     int sh=shiftdir;
     shiftdir=-1;
@@ -17577,19 +17577,19 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     z3step=2;
     
-	x = FIX_FLOOR(x);
-	y = FIX_FLOOR(y);
+	x = x.getInt();
+	y = y.getInt();
     while(s>=0)
     {
         if(diagonalMovement)
         {
-            if((dir<left?FIX_FLOOR(x)&7:FIX_FLOOR(y)&7)&&adjust==true)
+            if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
 				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 				{
 					walkable = false;
 					shiftdir = -1;
-					int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					int tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
 					switch(tdir)
 					{
 						case left:
@@ -17609,7 +17609,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 				else
 				{
 					walkable=false;
-					shiftdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+					shiftdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
 					move(dir, 150);
 				}
             }
@@ -17631,10 +17631,10 @@ void LinkClass::stepforward(int steps, bool adjust)
         }
         else
         {
-			if((dir<left?FIX_FLOOR(x)&7:FIX_FLOOR(y)&7)&&adjust==true)
+			if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
                 walkable=false;
-                int tdir=dir<left?(FIX_FLOOR(x)&8?left:right):(FIX_FLOOR(y)&8?down:up);
+                int tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
 				switch(tdir)
 				{
 					case left:
@@ -17659,11 +17659,11 @@ void LinkClass::stepforward(int steps, bool adjust)
 				}
 				else if(dir<left)
 				{
-					s-=lsteps[FIX_FLOOR(y)&7];
+					s-=lsteps[y.getInt()&7];
 				}
 				else
 				{
-					s-=lsteps[FIX_FLOOR(x)&7];
+					s-=lsteps[x.getInt()&7];
 				}
 				
 				move(dir, 150);
@@ -17749,8 +17749,8 @@ void LinkClass::stepforward(int steps, bool adjust)
 	}
 	else
 	{
-		x = FIX_FLOOR(x);
-		y = FIX_FLOOR(y);
+		x = x.getInt();
+		y = y.getInt();
 	}
     setEntryPoints(x,y);
     draw_screen(tmpscr);
@@ -17767,17 +17767,17 @@ void LinkClass::walkdown(bool opening) //entering cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
+    sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int cmby=(FIX_FLOOR(y)&0xF0)+16;
+    //  int cmby=(y.getInt()&0xF0)+16;
     // Fix Link's position to the grid
-    y=FIX_FLOOR(y)&0xF0;
+    y=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=FIX_FLOOR(x)&0xF0;
-    climb_cover_y=(FIX_FLOOR(y)&0xF0)+16;
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=(y.getInt()&0xF0)+16;
     
     guys.clear();
     chainlinks.clear();
@@ -17814,7 +17814,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
         
     dir=down;
     // Fix Link's position to the grid
-    y=FIX_FLOOR(y)&0xF0;
+    y=y.getInt()&0xF0;
     z=fall=0;
     
     if(opening)
@@ -17824,15 +17824,15 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
+    sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int cmby=FIX_FLOOR(y)&0xF0;
+    //  int cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=FIX_FLOOR(x)&0xF0;
-    climb_cover_y=FIX_FLOOR(y)&0xF0;
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=y.getInt()&0xF0;
     
     guys.clear();
     chainlinks.clear();
@@ -17868,7 +17868,7 @@ void LinkClass::walkup(bool opening) //exiting cave
         y+=16;
         
     // Fix Link's position to the grid
-    y=FIX_FLOOR(y)&0xF0;
+    y=y.getInt()&0xF0;
     z=fall=0;
     
     if(opening)
@@ -17878,16 +17878,16 @@ void LinkClass::walkup(bool opening) //exiting cave
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
+    sfx(WAV_STAIRS,pan(x.getInt()));
     dir=down;
     clk=0;
-    //  int cmby=FIX_FLOOR(y)&0xF0;
+    //  int cmby=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=FIX_FLOOR(x)&0xF0;
-    climb_cover_y=FIX_FLOOR(y)&0xF0;
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=y.getInt()&0xF0;
     
     guys.clear();
     chainlinks.clear();
@@ -17926,16 +17926,16 @@ void LinkClass::walkup2(bool opening) //entering cave2
     
     hclk=0;
     stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(FIX_FLOOR(x)));
+    sfx(WAV_STAIRS,pan(x.getInt()));
     dir=up;
     clk=0;
-    //  int cmby=FIX_FLOOR(y)&0xF0;
+    //  int cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=FIX_FLOOR(x)&0xF0;
-    climb_cover_y=(FIX_FLOOR(y)&0xF0)-16;
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=(y.getInt()&0xF0)-16;
     
     guys.clear();
     chainlinks.clear();
@@ -18702,7 +18702,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	actiontype lastaction = action;
 	action=scrolling; FFCore.setLinkAction(scrolling);
 	
-	fix storex = x, storey = y;
+	zfix storex = x, storey = y;
 	switch(scrolldir)
 	{
 	case up:
@@ -19349,9 +19349,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
                 // If the ladder moves on both axes, the player can
                 // gradually shift it by going back and forth
                 if(scrolldir==up || scrolldir==down)
-                    laddery = FIX_FLOOR(y);
+                    laddery = y.getInt();
                 else
-                    ladderx = FIX_FLOOR(x);
+                    ladderx = x.getInt();
             }
         }
 		
@@ -22149,7 +22149,7 @@ void LinkClass::heroDeathAnimation()
 		switch(f)
 		{
 		case   0:
-			sfx(getHurtSFX(),pan(FIX_FLOOR(x)));
+			sfx(getHurtSFX(),pan(x.getInt()));
 			break;
 			//Death sound.
 		case  60:
@@ -22480,7 +22480,7 @@ void LinkClass::check_conveyor()
         
         if(deltax<0)
         {
-            info = walkflag(x-int(lsteps[FIX_FLOOR(x)&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+            info = walkflag(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
             execute(info);
             
             if(!info.isUnwalkable())
@@ -22521,7 +22521,7 @@ void LinkClass::check_conveyor()
                     Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
                 }
             }
-            else checkdamagecombos(x-int(lsteps[FIX_FLOOR(x)&7]),y+8-(bigHitbox ? 8 : 0));
+            else checkdamagecombos(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
         }
         else if(deltax>0)
         {

@@ -39,7 +39,7 @@ void particle::draw(BITMAP *dest)
     putpixel(dest, x, y+yofs, tcs+color);
 }
 
-particle::particle(fix X,fix Y,int L,int CS,int C) : sprite()
+particle::particle(zfix X,zfix Y,int L,int CS,int C) : sprite()
 {
     x=X;
     y=Y;
@@ -50,7 +50,7 @@ particle::particle(fix X,fix Y,int L,int CS,int C) : sprite()
 }
 
 
-pFaroresWindDust::pFaroresWindDust(fix X,fix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
+pFaroresWindDust::pFaroresWindDust(zfix X,zfix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
 {
     initialized=false;
     timer=T;
@@ -78,7 +78,7 @@ bool pFaroresWindDust::animate(int index)
     return (!timer);
 }
 
-pTwilight::pTwilight(fix X,fix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
+pTwilight::pTwilight(zfix X,zfix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
 {
     dir = up;
     delay = T;

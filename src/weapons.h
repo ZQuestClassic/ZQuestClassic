@@ -17,6 +17,7 @@
 
 #include "zdefs.h"
 #include "sprite.h"
+#include "zfix.h"
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -45,7 +46,7 @@ public:
     int parentid, //Enemy who created it
         parentitem; //Item which created it
     int dragging;
-    fix step;
+    zfix step;
     bool bounce, ignoreLink;
     word flash,wid,aframe,csclk;
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
@@ -107,9 +108,9 @@ public:
     
     void convertType(bool toLW);
     weapon(weapon const &other);
-    //weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
-    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0);
-    weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
+    //weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
+    weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0);
+    weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
     virtual ~weapon();
     void LOADGFX(int wpn);
     void findcombotriggers();

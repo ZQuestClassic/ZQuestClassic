@@ -15,6 +15,7 @@
 #ifndef _DECORATIONS_H_
 #define _DECORATIONS_H_
 
+#include "zfix.h"
 /***************************************/
 /*******  Decoration Base Class  *******/
 /***************************************/
@@ -22,7 +23,7 @@
 class decoration : public sprite
 {
 public:
-	decoration(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	decoration(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	int the_deco_sprite; 
 	virtual ~decoration();
 };
@@ -37,7 +38,7 @@ public:
     int timer;
     bool initialized;
 	int tframes, spd;
-    comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+    comboSprite(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual void draw2(BITMAP *dest);
@@ -50,7 +51,7 @@ class dBushLeaves : public decoration
 public:
 	static int ft[4][8][3]; //[leaf][frame][x/y/flip]
 	int ox, oy;
-	dBushLeaves(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dBushLeaves(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -60,7 +61,7 @@ class dFlowerClippings : public decoration
 public:
 	static int ft[4][8][3]; //[leaf][frame][x/y/flip]
 	int ox, oy;
-	dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dFlowerClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -70,7 +71,7 @@ class dGrassClippings : public decoration
 public:
 	static int ft[3][4][4]; //[leaf][frame][x/y/flip/size(0=large, 1=small)]
 	int ox, oy;
-	dGrassClippings(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dGrassClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -80,7 +81,7 @@ class dHammerSmack : public decoration
 public:
 	static int ft[2][4][3]; //[leaf][frame][x/y/icon(0=spark, 1=star)]
 	int ox, oy, wpnid;
-	dHammerSmack(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dHammerSmack(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -88,7 +89,7 @@ public:
 class dTallGrass : public decoration
 {
 public:
-	dTallGrass(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dTallGrass(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -96,7 +97,7 @@ public:
 class dRipples : public decoration
 {
 public:
-	dRipples(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dRipples(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -105,7 +106,7 @@ class dHover : public decoration
 {
 	int wpnid;
 public:
-	dHover(fix X,fix Y,int Id,int Clk, int wpnSpr=0);
+	dHover(zfix X,zfix Y,int Id,int Clk, int wpnSpr=0);
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -113,7 +114,7 @@ public:
 class dNayrusLoveShield : public decoration
 {
 public:
-	dNayrusLoveShield(fix X,fix Y,int Id,int Clk);
+	dNayrusLoveShield(zfix X,zfix Y,int Id,int Clk);
 	virtual bool animate(int index);
 	virtual void realdraw(BITMAP *dest, int draw_what);
 	virtual void draw(BITMAP *dest);

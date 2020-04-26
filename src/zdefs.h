@@ -25,7 +25,6 @@
 #define DEVLOGGING	false
 #endif
 
-
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
@@ -323,7 +322,6 @@ extern bool fake_pack_writing;
 #define DIAG_TO_SIDE		0.7071
 #define SIDE_TO_DIAG		1.4142
 #define STEP_DIAGONAL(s)	(s*DIAG_TO_SIDE)
-#define FIX_FLOOR(fx)		(int(floor(double(fx))))
 
 #define SINGLE_TILE_SIZE    128
 #define TILES_PER_ROW       20

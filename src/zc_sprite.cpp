@@ -93,7 +93,7 @@ void sprite::check_conveyor()
     }
 }
 
-void movingblock::push(fix bx,fix by,int d2,int f)
+void movingblock::push(zfix bx,zfix by,int d2,int f)
 {
     trigger=false;
     endx=x=bx;
@@ -124,7 +124,7 @@ bool movingblock::animate(int index)
     if(clk<=0)
         return false;
         
-    move((fix)0.5);
+    move((zfix)0.5);
     
     if(--clk==0)
     {

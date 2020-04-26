@@ -26,6 +26,7 @@
 #include "gamedata.h"
 #include "zsys.h"
 #include "script_drawing.h"
+#include "zfix.h"
 
 int isFullScreen();
 int onFullscreen();
@@ -123,9 +124,9 @@ void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
 void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentitem, int parentid, byte script_gen);
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
 void centerLink();
-fix  LinkX();
-fix  LinkY();
-fix  LinkZ();
+zfix  LinkX();
+zfix  LinkY();
+zfix  LinkZ();
 int  LinkHClk();
 int  LinkNayrusLoveShieldClk();
 int  LinkHoverClk();
@@ -138,10 +139,10 @@ void setSwordClk(int newclk);
 void setItemClk(int newclk);
 int  LinkLStep();
 void LinkCheckItems();
-fix  LinkModifiedX();
-fix  LinkModifiedY();
-fix  GuyX(int j);
-fix  GuyY(int j);
+zfix  LinkModifiedX();
+zfix  LinkModifiedY();
+zfix  GuyX(int j);
+zfix  GuyY(int j);
 int  GuyID(int j);
 int  GuyMisc(int j);
 void StunGuy(int j,int stun);
@@ -149,7 +150,7 @@ bool  GuySuperman(int j);
 int  GuyCount();
 int  LinkDir();
 void add_grenade(int wx, int wy, int wz, int size, int parentid);
-fix distance(int x1, int y1, int x2, int y2);
+zfix distance(int x1, int y1, int x2, int y2);
 bool getClock();
 void setClock(bool state);
 void CatchBrang();;

@@ -2946,7 +2946,7 @@ void update_subscr_items()
         
         if(Bwpn > 0)
         {
-            Bitem = new item((fix)0, (fix)0, (fix)0, Bwpn&0x0FFF, 0, 0);
+            Bitem = new item((zfix)0, (zfix)0, (zfix)0, Bwpn&0x0FFF, 0, 0);
             Bitem->dummy_bool[0]=false;
             
             switch(itemsbuf[Bwpn&0x0FFF].family)
@@ -2961,7 +2961,7 @@ void update_subscr_items()
 		//default: break;
             }
             
-            //      Bitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?124:136), (fix)24,(fix)0, Bwpn, 0, 0);
+            //      Bitem = new item((zfix)(zinit.subscreen<ssdtBSZELDA?124:136), (zfix)24,(zfix)0, Bwpn, 0, 0);
             if(Bitem != NULL)
             {
                 Bid = Bwpn;
@@ -2983,7 +2983,7 @@ void update_subscr_items()
         
         if(Awpn > 0)
         {
-            Aitem = new item((fix)0, (fix)0,(fix)0,Awpn&0x0FFF, 0, 0);
+            Aitem = new item((zfix)0, (zfix)0,(zfix)0,Awpn&0x0FFF, 0, 0);
             
             switch(itemsbuf[Awpn&0x0FFF].family)
             {
@@ -3123,7 +3123,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         {
 	    //al_trace("Found an override item at subscreen.cpp linere 3120, itemtype: %d\n",itemtype);
 
-            add_subscr_item(new item((fix)x,(fix)y,(fix)0,(itemtype&0xFFF),0,0));
+            add_subscr_item(new item((zfix)x,(zfix)y,(zfix)0,(itemtype&0xFFF),0,0));
             overridecheck = Sitems.Count()-1;
             Sitems.spr(overridecheck)->misc = -1;
         }
@@ -3454,10 +3454,10 @@ void animate_selectors()
     }
     
     if(!sel_a)
-        sel_a = new item((fix)0, (fix)0, (fix)0, iSelectA, 0, 0);
+        sel_a = new item((zfix)0, (zfix)0, (zfix)0, iSelectA, 0, 0);
         
     if(!sel_b)
-        sel_b = new item((fix)0, (fix)0, (fix)0, iSelectB, 0, 0);
+        sel_b = new item((zfix)0, (zfix)0, (zfix)0, iSelectB, 0, 0);
         
     sel_a->yofs=0;
     sel_a->animate(0);
@@ -3475,12 +3475,12 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
     set_trans_blender(0, 0, 0, 128);
     
     //doing animation here leads to 2x speed when drawing both active and passive subscreen -DD
-    /*static item sel_a((fix)0,(fix)0,(fix)0,iSelectA,0,0);
-    static item sel_b((fix)0,(fix)0,(fix)0,iSelectB,0,0);
+    /*static item sel_a((zfix)0,(zfix)0,(zfix)0,iSelectA,0,0);
+    static item sel_b((zfix)0,(zfix)0,(zfix)0,iSelectB,0,0);
     if (new_sel)
     {
-      sel_a=item((fix)0,(fix)0,(fix)0,iSelectA,0,0);
-      sel_b=item((fix)0,(fix)0,(fix)0,iSelectB,0,0);
+      sel_a=item((zfix)0,(zfix)0,(zfix)0,iSelectA,0,0);
+      sel_b=item((zfix)0,(zfix)0,(zfix)0,iSelectB,0,0);
       new_sel=false;
     }
     sel_a.yofs=0;
@@ -4796,8 +4796,8 @@ void load_Sitems(miscQdata *misc)
     // HC Pieces
     if(misc->colors.new_HCpieces_tile)
     {
-        //      item *HCP = new item((fix)(inventory_x[5]-ofs),(fix)y,iMax,0,0);
-        item *HCP = new item((fix)0,(fix)0,(fix)0,iHCPiece,0,0);
+        //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
+        item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
         
         if(HCP)
         {
@@ -4812,17 +4812,17 @@ void load_Sitems(miscQdata *misc)
     
     if(has_item(itype_map, get_dlevel()))
     {
-        add_subscr_item(new item((fix)0,(fix)0,(fix)0,iMap,0,0));
+        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iMap,0,0));
     }
     
     if(has_item(itype_compass, get_dlevel()))
     {
-        add_subscr_item(new item((fix)0,(fix)0,(fix)0,iCompass,0,0));
+        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iCompass,0,0));
     }
     
     if(has_item(itype_bosskey, get_dlevel()))
     {
-        add_subscr_item(new item((fix)0,(fix)0,(fix)0,iBossKey,0,0));
+        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
     }
     
     for(int i=0; i<itype_max; i++)
@@ -4837,7 +4837,7 @@ void load_Sitems(miscQdata *misc)
             int j = current_item_id(i,false);
             //al_trace("About to check itemsbuf[j].tile in subscreen.cpp, line 4634, loop[%d]\n",j);
             if(itemsbuf[j].tile)
-                add_subscr_item(new item((fix)0, (fix)0,(fix)0,j,0,0));
+                add_subscr_item(new item((zfix)0, (zfix)0,(zfix)0,j,0,0));
         }
     }
     //al_trace("Finished load_Sitems(%d)\n",0);

@@ -3350,7 +3350,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     set_clip_rect(framebuf,0,0,256,224);
     
     //Jumping Link and jumping enemies are drawn on this layer.
-    if(Link.getZ() > (fix)zinit.jump_link_layer_threshold)
+    if(Link.getZ() > (zfix)zinit.jump_link_layer_threshold)
     {
         decorations.draw2(framebuf,false);
         Link.draw(framebuf);
@@ -3358,7 +3358,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         
         for(int i=0; i<Lwpns.Count(); i++)
         {
-            if(Lwpns.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
+            if(Lwpns.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
             {
                 Lwpns.spr(i)->draw(framebuf);
             }
@@ -3369,7 +3369,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
         {
-            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
+            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
             {
                 guys.spr(i)->draw(framebuf);
             }

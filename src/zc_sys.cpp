@@ -10915,7 +10915,7 @@ bool zc_disablekey(int k, bool val)
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer)
 {
     timer=timer;
-    particles.add(new particle(fix(x), fix(y), layer, cset, color));
+    particles.add(new particle(zfix(x), zfix(y), layer, cset, color));
 }
 
 // these are here so that copy_dialog won't choke when compiling zelda

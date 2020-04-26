@@ -32,6 +32,7 @@
 #include "sprite.h"
 #include "zc_custom.h"
 #include "subscr.h"
+#include "zfix.h"
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -234,9 +235,9 @@ public:
     actiontype action, tempaction; // current action, cached action.
     int hshandle_id, hshead_id;
     byte conveyor_flags;
-    fix climb_cover_x, climb_cover_y;
-    fix entry_x, entry_y; // When drowning, re-create Link here
-    fix falling_oldy; // Used by the Stomp Boots in sideview
+    zfix climb_cover_x, climb_cover_y;
+    zfix entry_x, entry_y; // When drowning, re-create Link here
+    zfix falling_oldy; // Used by the Stomp Boots in sideview
     byte dontdraw;
     byte warp_sound;
     bool diagonalMovement;
@@ -294,7 +295,7 @@ public:
     bool can_attack();
     void do_rafting();
     void do_hopping();
-    WalkflagInfo walkflag(fix fx,fix fy,int cnt,byte d);
+    WalkflagInfo walkflag(zfix fx,zfix fy,int cnt,byte d);
     WalkflagInfo walkflag(int wx,int wy,int cnt,byte d);
     WalkflagInfo walkflagMBlock(int wx,int wy);
     bool edge_of_dmap(int side);
@@ -370,30 +371,30 @@ public:
     void Drown();
     int getEaten();
     void setEaten(int i);
-    fix  getX();
-    fix  getY();
-    fix  getZ();
-    fix  getFall();
-    fix  getXOfs();
-    fix  getYOfs();
+    zfix  getX();
+    zfix  getY();
+    zfix  getZ();
+    zfix  getFall();
+    zfix  getXOfs();
+    zfix  getYOfs();
     void setXOfs(int newxofs);
     void setYOfs(int newyofs);
     int  getHXOfs();
     int  getHYOfs();
     int  getHXSz();
     int  getHYSz();
-    fix  getClimbCoverX();
-    fix  getClimbCoverY();
+    zfix  getClimbCoverX();
+    zfix  getClimbCoverY();
     int  getLadderX();
     int  getLadderY();
     void setX(int new_x);
     void setY(int new_y);
     void setZ(int new_Z);
     
-    void setXdbl(double new_x);
-    void setYdbl(double new_y);
-    void setZdbl(double new_Z);
-    void setFall(fix new_fall);
+    void setXfix(zfix new_x);
+    void setYfix(zfix new_y);
+    void setZfix(zfix new_Z);
+    void setFall(zfix new_fall);
     void setClimbCoverX(int new_x);
     void setClimbCoverY(int new_y);
     int  getLStep();
@@ -406,8 +407,8 @@ public:
     int  getItemClk();
     void  setSwordClk(int newclk);
     void  setItemClk(int newclk);
-    fix  getModifiedX();
-    fix  getModifiedY();
+    zfix  getModifiedX();
+    zfix  getModifiedY();
     int  getDir();
     void setDir(int new_dir);
     int  getHitDir();

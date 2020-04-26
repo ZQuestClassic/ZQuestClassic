@@ -27,7 +27,7 @@ void sprite::check_conveyor()
     return;
 }
 
-void movingblock::push(fix bx,fix by,int d2,int f)
+void movingblock::push(zfix bx,zfix by,int d2,int f)
 {
     //these are here to bypass compiler warnings about unused arguments
     bx=bx;

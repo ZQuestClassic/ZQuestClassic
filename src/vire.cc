@@ -1,6 +1,6 @@
 class eVire : public enemy {
 public:
-  eVire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+  eVire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   {
     dp=wdp=2;
     hp=4;
@@ -47,7 +47,7 @@ public:
     move(step);
     if(dir>=left)
     {
-      fix h = (31-clk3)*0.125 - 2.0;
+      zfix h = (31-clk3)*0.125 - 2.0;
       y+=h;
     }
   }
