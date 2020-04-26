@@ -15382,7 +15382,7 @@ void LinkClass::checkspecial()
         { 
             hidden_entrance(0,true,true,-2);
             
-            if(tmpscr->flags4&fENEMYSCRTPERM && !isdungeon())
+            if(tmpscr->flags4&fENEMYSCRTPERM && canPermSecret())
             {
                 if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
             }
@@ -15527,7 +15527,7 @@ void LinkClass::checkspecial2(int *ls)
             if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
             {
 		zprint("Step Secs\n");
-                if(stype==cSTRIGFLAG && !isdungeon())
+                if(stype==cSTRIGFLAG && canPermSecret())
                 { 
                     if(!didstrig)
                     {
@@ -16061,7 +16061,7 @@ void LinkClass::checkspecial2(int *ls)
 	    sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int)x));
 	    //zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
             
-            if(type==cTRIGFLAG && !isdungeon())
+            if(type==cTRIGFLAG && canPermSecret())
             { 
                 if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
                 
@@ -16340,7 +16340,7 @@ void LinkClass::checkspecial2(int *ls)
             homescr = (code&0xFF) + DMaps[currdmap].xoff;
             init_dmap();
             
-            if(!isdungeon())
+            if(canPermSecret())
                 setmapflag(mSECRET);
         }
         

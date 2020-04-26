@@ -233,7 +233,7 @@ bool movingblock::animate(int index)
                 opendoors=8;
             }
             
-            if(!isdungeon())
+            if(canPermSecret())
             {
                 if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
                         || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)

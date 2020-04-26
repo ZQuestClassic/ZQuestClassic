@@ -9506,7 +9506,7 @@ void build_bic_list()
     
     for(int i=start; i<cmdMAX; i++)
     {
-        if(commands[i].name[strlen(commands[i].name)-1]!=' ')
+        if(commands[i].name[0]!=' ')
         {
             bic[bic_cnt].s = (char *)commands[i].name;
             bic[bic_cnt].i = i;
@@ -31361,6 +31361,14 @@ int main(int argc,char **argv)
     {
         sprintf(cmdnametitle, "command%02d", x+1);
         favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
+		if(favorite_commands[x] >= cmdMAX || favorite_commands[x] < 0)
+		{
+			favorite_commands[x] = 0;
+		}
+		else if(commands[favorite_commands[x]].name[0] == ' ')
+		{
+			favorite_commands[x] = 0;
+		}
     }
     
     
@@ -33838,9 +33846,11 @@ int onCmdExit()
 
 //remember to adjust this number in zquest.h if it changes here!
 //P.S: Must be listed in the same order as the enum in zquest.h. No exceptions! -L
+//These auto-alphabetize in the dialog! Don't add in the middle! -V
+//Starting with a space in the name invalidates it- it will not appear in the dialog, and will be set to 0 in configs. -V
 command_pair commands[cmdMAX]=
 {
-    { "(None)",                             0,                     NULL                                                    },
+    { "(None)",                             0, NULL                                                    },
     { "About",                              0, (intF) onAbout                                          },
     { "Catch All",                          0, (intF) onCatchall                                       },
     { "Change track",                       0, (intF) changeTrack                                      },
@@ -33861,10 +33871,10 @@ command_pair commands[cmdMAX]=
     { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon                             },
     { "End String",                         0, (intF) onEndString                                      },
     { "Enemy Editor",                       0, (intF) onCustomEnemies                                  },
-    { "Default Enemies",				  0, (intF) onDefault_Guys                                   },
+    { "Default Enemies",                    0, (intF) onDefault_Guys                                   },
     { "Set Enemies",                        0, (intF) onEnemies                                        },
     { "Paste Enemies",                      0, (intF) onPasteEnemies                                   },
-    { "Enhanced Music ",                    0, (intF) onEnhancedMusic                                  },
+    { " Enhanced Music",                    0, (intF) onEnhancedMusic                                  },
     { "Exit",                               0, (intF) onCmdExit                                        },
     { "Export Combos",                      0, (intF) onExport_Combos                                  },
     { "Export DMaps",                       0, (intF) onExport_DMaps                                   },
@@ -33886,8 +33896,9 @@ command_pair commands[cmdMAX]=
     { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
     { "Header",                             0, (intF) onHeader                                         },
     { "Help",                               0, (intF) onHelp                                           },
-    { "Import ZASM",                      0, (intF) onImportZASM                                  },
-    { "Export ZASM",                      0, (intF) onExportZASM                                  },
+    { "Import ZASM",                        0, (intF) onImportZASM                                     },
+    { " Import Global ASM Script",          0, NULL                                                    },
+    { " Import Item ASM Script",            0, NULL                                                    },
     { "Import Combos",                      0, (intF) onImport_Combos                                  },
     { "Import DMaps",                       0, (intF) onImport_DMaps                                   },
     { "Import Graphics Pack",               0, (intF) onImport_ZGP                                     },
@@ -33900,9 +33911,9 @@ command_pair commands[cmdMAX]=
     { "Import Unencoded Quest",             0, (intF) onImport_UnencodedQuest                          },
     { "Info Types",                         0, (intF) onInfoTypes                                      },
     { "Init Data",                          0, (intF) onInit                                           },
-    { "Integ. Check (All)",             0, (intF) onIntegrityCheckAll                              },
-    { "Integ. Check (Screens)",         0, (intF) onIntegrityCheckRooms                            },
-    { "Integ. Check (Warps)",           0, (intF) onIntegrityCheckWarps                            },
+    { "Integ. Check (All)",                 0, (intF) onIntegrityCheckAll                              },
+    { "Integ. Check (Screens)",             0, (intF) onIntegrityCheckRooms                            },
+    { "Integ. Check (Warps)",               0, (intF) onIntegrityCheckWarps                            },
     { "Set Item",                           0, (intF) onItem                                           },
     { "Item Editor",                        0, (intF) onCustomItems                                    },
     { "Layers",                             0, (intF) onLayers                                         },
@@ -33918,9 +33929,9 @@ command_pair commands[cmdMAX]=
     { "Message String",                     0, (intF) onString                                         },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
-    { "New",                                0, (intF) do_NewQuest                                            },
+    { "New",                                0, (intF) do_NewQuest                                      },
     { "Normal Mode",                        0, (intF) onDrawingModeNormal                              },
-    { "Open",                               0, (intF) do_OpenQuest                                           },
+    { "Open",                               0, (intF) do_OpenQuest                                     },
     { "Options",                            0, (intF) onOptions                                        },
     { "Palette",                            0, (intF) onScreenPalette                                  },
     { "Default Palettes",                   0, (intF) onDefault_Pals                                   },
@@ -33953,7 +33964,7 @@ command_pair commands[cmdMAX]=
     { "Strings",                            0, (intF) onStrings                                        },
     { "Subscreens",                         0, (intF) onEditSubscreens                                 },
     { "Take Snapshot",                      0, (intF) onSnapshot                                       },
-    { "Ambient Music",                0, (intF) playTune1                                        },
+    { "Ambient Music",                      0, (intF) playTune1                                        },
     { "NES Dungeon Template",               0, (intF) onTemplate                                       },
     { "Edit Templates",                     0, (intF) onTemplates                                      },
     { "Tile Warp",                          0, (intF) onTileWarp                                       },
@@ -33977,29 +33988,29 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "Rules - Hero",                     0, (intF) onHeroRules                                    },
     { "Rules - Combos",                     0, (intF) onComboRules                                     },
     { "Rules - Items",                      0, (intF) onItemRules                                      },
     { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
     { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
     { "Rules - Other",                      0, (intF) onMiscRules                                      },
-    { "Rules - ZScript",                      0, (intF) onZScriptSettings                                      },
-    { "Rules - Compiler",                      0, (intF) onZScriptCompilerSettings                                      },
-    { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
+    { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
     { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
-    { "Report: Combo Locations",              0, (intF) onComboLocationReport                                    },
-    { "Report: Combo Type Locs.",              0, (intF) onComboTypeLocationReport                                    },
-    { "Report: Enemy Locations",              0, (intF) onEnemyLocationReport                                    },
-    { "Report: Item Locations",              0, (intF) onItemLocationReport                             },
-    { "Report: Script Locations",              0, (intF) onScriptLocationReport                                    },
-    { "Report: What Links Here",              0, (intF) onWhatWarpsReport                                    },
-    { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
-    { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
-    { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
-    { "Find Buggy Next->",              0, (intF) onBuggedNextComboLocationReport                                    }
-    
+    { "Report: Combo Locations",            0, (intF) onComboLocationReport                            },
+    { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport                        },
+    { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport                            },
+    { "Report: Item Locations",             0, (intF) onItemLocationReport                             },
+    { "Report: Script Locations",           0, (intF) onScriptLocationReport                           },
+    { "Report: What Links Here",            0, (intF) onWhatWarpsReport                                },
+    { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll                              },
+    { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings                             },
+    { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath                             },
+    { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
+    { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
+    { "Export ZASM",                        0, (intF) onExportZASM                                     },
+    { "Rules - Hero",                       0, (intF) onHeroRules                                      },
+    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        }
 };
 
 /********************************/

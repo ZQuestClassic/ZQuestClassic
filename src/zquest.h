@@ -651,7 +651,8 @@ enum
     cmdHeader,
     cmdHelp,
     cmdImportZASM,
-    cmdExportZASM,
+	cmdImportGScript, //Deprecated
+	cmdImportItemScript, //Deprecated
     cmdImport_Combos,
     cmdImport_DMaps,
     cmdImport_ZGP,
@@ -741,16 +742,13 @@ enum
     cmdShowFlags,
     cmdShowCSet,
     cmdShowType,
-    cmdHeroRules,
     cmdComboRules,
     cmdItemRules,
     cmdEnemyRules,
     cmdFixesRules,
     cmdMiscRules,
-    cmdZScriptRules,
-    cmdZScriptCompilerRules,
-    cmdItemDropSets,
     cmdDefault_Items,
+    cmdItemDropSets,
     cmdPastePalette,
     cmdCompatRules,
     cmdComboLocations,
@@ -763,6 +761,10 @@ enum
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
     cmdFindBuggyNext,
+    cmdZScriptRules,
+    cmdExportZASM,
+    cmdHeroRules,
+    cmdZScriptCompilerRules,
     cmdMAX
 };
 

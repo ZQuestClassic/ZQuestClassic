@@ -164,6 +164,11 @@ int isdungeon(int dmap, int scr) // The arg is only used by loadscr2 and loadscr
     return 0;
 }
 
+bool canPermSecret(int dmap, int scr)
+{
+	return (!isdungeon(dmap, scr) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
+}
+
 int MAPCOMBO(int x,int y)
 {
     //extend combos outwards if out of bounds -DD
@@ -1890,7 +1895,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
         }
     }
     
-    if(setflag && !isdungeon())
+    if(setflag && canPermSecret())
         if(!(tmpscr->flags5&fTEMPSECRETS))
             setmapflag(mSECRET);
             
@@ -4156,7 +4161,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         }
     }
     
-    if(!isdungeon(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
+    if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
     {
         if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
         {
@@ -4328,7 +4333,7 @@ void loadscr2(int tmp,int scr,int)
         }
     }
     
-    if(!isdungeon(scr))
+    if(canPermSecret(-1,scr))
     {
         if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
         {

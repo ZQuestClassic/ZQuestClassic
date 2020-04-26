@@ -186,10 +186,20 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		}
 		//
 		string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
+		FILE* f = fopen(filename.c_str(), "r");
+		if(f)
+		{
+			fclose(f);
+		}
+		else
+		{
+			box_out_err(CompileError::CantOpenImport(&importDecl, filename));
+			return false;
+		}
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
-			box_out_err(CompileError::CantOpenImport(&importDecl, filename));
+			box_out_err(CompileError::CantParseImport(&importDecl, filename));
 			return false;
 		}
 

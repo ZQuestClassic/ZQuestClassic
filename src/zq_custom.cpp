@@ -2526,7 +2526,7 @@ void edit_itemdata(int index)
     }
     for(int j=0; j<biedefs_cnt; j++)
     {
-        if(biedefs[j].i == itemsbuf[index].useweapon)
+        if(biedefs[j].i == itemsbuf[index].usedefence)
             itemdata_dlg[296].d1 = j;
     }
     //itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
