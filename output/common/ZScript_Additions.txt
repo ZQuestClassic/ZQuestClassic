@@ -3626,7 +3626,7 @@ bool Gravity;
  * If set true, the itemsprite will fall in sideview gravity.
  * Itemsprites have gravity set true by default.
 `
-int Scale;
+float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
@@ -3634,7 +3634,7 @@ int Scale;
  * You can only scale sprites if you disable the Compatibility Quest rule 
  *   'Old (Faster) Sprite Drawing'.
  
-int Rotation;
+float Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
  *  'Old (Faster) Sprite Drawing'.
@@ -3858,7 +3858,7 @@ int SlideSpeed;
  * The number of pixels per frame this NPC will move during ENGINE knockback
  * Range: 0 to 255
 
-int Scale;
+float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
@@ -3866,7 +3866,7 @@ int Scale;
  * You can only scale sprites if you disable the Compatibility Quest rule 
  *  'Old (Faster) Sprite Drawing'.
  
-int Rotation;
+float Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
  *   'Old (Faster) Sprite Drawing'.
@@ -4157,7 +4157,7 @@ bool Climbing;
  * Setting to 'false' will let go of the ladder, and setting 'true' will grab the ladder
  * While 'true', gravity does not affect the hero
  
-int Scale;
+float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
@@ -4165,7 +4165,7 @@ int Scale;
  * You can only scale sprites if you disable the Compatibility Quest rule 
    'Old (Faster) Sprite Drawing'.
  
-int Rotation;
+float Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
    'Old (Faster) Sprite Drawing'.
