@@ -3968,7 +3968,8 @@ bool SimulateHit(int array[]);
 int LinedUp(int range, bool dir8);
  * Checks if enemy is lined up with Link.
  * If so, returns direction Link is at as compared to enemy.
-	
+ * Returns -1 if not lined up. Range is inclusive.
+ 
 npc Create(int array[]); 
  * Similar to Screen->CreateNPC(), except:
  * (1) It uses an arry literal for its args, with varying size.
@@ -3976,7 +3977,6 @@ npc Create(int array[]);
  * 	that and set its spawn coordinates at the same time.
  * (3) It works based on an existing pointer, such as:
  * 	npc n; n->Create{args});
- * Returns -1 if not lined up. Range is inclusive.
  * 	{ int id } 
  * 	{ int id, int x, int y }
 	
