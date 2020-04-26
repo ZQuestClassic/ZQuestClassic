@@ -4085,6 +4085,9 @@ bool HasItem;
 bool Ringleader;			
  * Returns if the enemy is a 'ringleader'.
 
+int ItemSet;
+int Dropset;
+ * The Dropset ID that this enemy will drop from when killed
 
 /* The following commands are valid, but do not yet have in-engine use, */
 
