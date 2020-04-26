@@ -958,6 +958,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "STRCMPR",           2,   0,   0,   0},
 	{ "STRICMPR",           2,   0,   0,   0},
+	{ "STRINGICOMPARE",		       1,   0,   0,   0},
+	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

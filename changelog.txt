@@ -1,6 +1,8 @@
 //2.55 Changes
 
 //Alpha 67
+Add 'stricmp()' and 'strnicmp()'
+Add 'npc->Dropset', as another name for 'npc->ItemSet'
 Add mid-air jumps to the Roc's Feather, number based on Attributes[0]
 Add flag to hover boots to make it's timer not reset until you land
 New internal type 'zfix', replaces Allegro's 'fix' type.

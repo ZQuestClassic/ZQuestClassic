@@ -2388,6 +2388,12 @@ int strncmp(string_a[], string_b[], int num_chars);
  * The old string.zh version of this function is still available as:
  * std::string::strncmp(*a, *b, int).
 
+int stricmp(string_a[], string_b[]);
+ * As strcmp(*a, *b), but case-insensitive.
+
+int strnicmp(string_a[], string_b[], int num_chars);
+ * As strncmp(*a, *b, num_chars), but case-insensitive.
+
 int strlen(string[]);
  * Returns the length of a string in characters.
  * The old string.zh version of this function is still available as:

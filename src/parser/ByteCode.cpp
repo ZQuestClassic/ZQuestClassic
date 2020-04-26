@@ -4876,10 +4876,19 @@ string OStrCmp::toString()
     return "STRINGCOMPARE " + getArgument()->toString();
 }
 
-
 string OStrNCmp::toString()
 {
     return "STRINGNCOMPARE " + getArgument()->toString();
+}
+
+string OStrICmp::toString()
+{
+    return "STRINGICOMPARE " + getArgument()->toString();
+}
+
+string OStrNICmp::toString()
+{
+    return "STRINGNICOMPARE " + getArgument()->toString();
 }
 
 //based on Ostrcpy

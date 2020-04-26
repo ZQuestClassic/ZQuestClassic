@@ -21564,9 +21564,11 @@ int run_script(const byte type, const word script, const long i)
 			
 			//String.h functions 2.55 Alpha 23
 			case STRINGCOMPARE: FFCore.do_strcmp(); break;
+			case STRINGICOMPARE: FFCore.do_stricmp(); break;
 			case STRINGCOPY: FFCore.do_strcpy(false,false); break;
 			case ARRAYCOPY: FFCore.do_arraycpy(false,false); break;
 			case STRINGNCOMPARE: FFCore.do_strncmp(); break;
+			case STRINGNICOMPARE: FFCore.do_strnicmp(); break;
 			
 			//More string.h functions, 19th May, 2019 
 			case XLEN: FFCore.do_xlen(false); break;
@@ -29478,7 +29480,6 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 
 void FFScript::do_strcmp()
 {
-	
 	long arrayptr_a = ri->d[0]/10000;
 	long arrayptr_b = ri->d[1]/10000;
 	string strA;
@@ -29486,6 +29487,17 @@ void FFScript::do_strcmp()
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_stricmp()
+{
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (stricmp(strA.c_str(), strB.c_str()) * 10000));
 }
 
 void FFScript::do_LowerToUpper(const bool v)
@@ -30062,21 +30074,26 @@ void FFScript::do_strlen(const bool v)
 
 void FFScript::do_strncmp()
 {
-	
 	long arrayptr_a = ri->d[0]/10000;
 	long arrayptr_b = ri->d[3]/10000;
 	long len = ri->d[2]/10000;
-	//for ( int q = 0; q < 8; q++ )
-	//{
-	//	zprint("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
-	//	
-	//}
-	
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strncmp(strA.c_str(), strB.c_str(), len) * 10000));
+}
+
+void FFScript::do_strnicmp()
+{
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[3]/10000;
+	long len = ri->d[2]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strnicmp(strA.c_str(), strB.c_str(), len) * 10000));
 }
 
 void FFScript::do_npc_canmove(const bool v)
@@ -31083,6 +31100,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	
 	{ "STRCMPR",           2,   0,   0,   0},
 	{ "STRICMPR",           2,   0,   0,   0},
+	{ "STRINGICOMPARE",		       1,   0,   0,   0},
+	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

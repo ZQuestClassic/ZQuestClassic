@@ -8290,6 +8290,26 @@ namespace ZScript
 			return new OStrNCmp(a->clone());
 		}
 	};
+	class OStrICmp : public UnaryOpcode
+	{
+	public:
+		OStrICmp(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStrICmp(a->clone());
+		}
+	};
+	class OStrNICmp : public UnaryOpcode
+	{
+	public:
+		OStrNICmp(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStrNICmp(a->clone());
+		}
+	};
 	
 	class Oxlen : public BinaryOpcode
 	{
