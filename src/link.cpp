@@ -92,6 +92,8 @@ extern sprite_list particles;
 
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+#define isStanding()		(z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0)
+
 static int isNextType(int type)
 {
 	//return true here, if an emulation bit says to use buggy code
@@ -405,6 +407,7 @@ void LinkClass::resetflags(bool all)
         
         nayruitem = -1;
         hoverclk=jumping=0;
+		hoverflags = 0;
     }
     
     hopclk=0;
@@ -1140,6 +1143,8 @@ void LinkClass::init()
 	misc_internal_link_flags = 0;
 	last_cane_of_byrna_item_id = -1;
 	on_sideview_ladder = false;
+	extra_jump_count = 0;
+	hoverflags = 0;
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -6472,6 +6477,20 @@ bool LinkClass::animate(int)
 		}
 	}
 	
+	if(isStanding())
+	{
+		if(extra_jump_count > 0)
+			extra_jump_count = 0;
+	}
+	if(can_use_item(itype_hoverboots,i_hoverboots))
+	{
+		int hoverid = current_item_id(itype_hoverboots);
+		if(!(itemsbuf[hoverid].flags & ITEM_FLAG1))
+		{
+			if(hoverclk < 0) hoverclk = 0;
+			hoverflags &= ~HOV_OUT;
+		}
+	}
 	if(isSideViewLink() && obeys_gravity)  // Sideview gravity
 	{
 		//Handle falling through a platform
@@ -6532,23 +6551,24 @@ bool LinkClass::animate(int)
 		{
 			stop_item_sfx(itype_hoverboots);
 			fall = hoverclk = jumping = 0;
+			hoverflags = 0;
 			if(!getOnSideviewLadder()) y-=(int)y%8; //fix position
 			
 			if(y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = 160;
 		}
 		// Stop hovering if you press down.
-		else if((hoverclk || ladderx || laddery) && DrunkDown())
+		else if((hoverclk>0 || ladderx || laddery) && DrunkDown())
 		{
 			stop_item_sfx(itype_hoverboots);
-			hoverclk = 0;
+			hoverclk = -hoverclk;
 			reset_ladder();
 			fall = zinit.gravity;
 		}
 		// Continue falling.
 		else if(fall <= (int)zinit.terminalv)
 		{
-			if(fall != 0 || hoverclk)
+			if(fall != 0 || hoverclk>0)
 				jumping++;
 				
 			// Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
@@ -6589,28 +6609,40 @@ bool LinkClass::animate(int)
 				}
 			}
 			
-			if(hoverclk)
+			if(hoverclk > 0)
 			{
-				if(hoverclk > 0)
+				if(hoverclk > 0 && !(hoverflags&HOV_INF))
 				{
-					hoverclk--;
+					--hoverclk;
 				}
 				
 				if(!hoverclk && !ladderx && !laddery)
 				{
 					fall += zinit.gravity;
+					hoverflags |= HOV_OUT;
 				}
 			}
-			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery)
+			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 			{
-				fall = jumping = 0;
 				int itemid = current_item_id(itype_hoverboots);
-				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
-				
+				if(hoverclk < 0)
+					hoverclk = -hoverclk;
+				else
+				{
+					fall = jumping = 0;
+					if(itemsbuf[itemid].misc1)
+						hoverclk = itemsbuf[itemid].misc1;
+					else
+					{
+						hoverclk = 1;
+						hoverflags |= HOV_INF;
+					}
+					
+						
+					sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+				}
 				if(itemsbuf[itemid].wpn)
 					decorations.add(new dHover(x, y, dHOVER, 0));
-					
-				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder())
 			{
@@ -6676,31 +6708,44 @@ bool LinkClass::animate(int)
 			}
 			
 			z = fall = jumping = hoverclk = 0;
+			hoverflags = 0;
 		}
 		else if(fall <= (int)zinit.terminalv)
 		{
-			if(fall != 0 || hoverclk)
+			if(fall != 0 || hoverclk>0)
 				jumping++;
 				
-			if(hoverclk)
+			if(hoverclk > 0)
 			{
-				if(hoverclk > 0)
+				if(hoverclk > 0 && !(hoverflags&HOV_INF))
 				{
-					hoverclk--;
+					--hoverclk;
 				}
 				
 				if(!hoverclk)
 				{
 					fall += zinit.gravity;
+					hoverflags |= HOV_OUT;
 				}
 			}
-			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots))
+			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
-				fall = 0;
-				int itemid = current_item_id(itype_hoverboots);
-				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+				if(hoverclk < 0)
+					hoverclk = -hoverclk;
+				else
+				{
+					fall = 0;
+					int itemid = current_item_id(itype_hoverboots);
+					if(itemsbuf[itemid].misc1)
+						hoverclk = itemsbuf[itemid].misc1;
+					else
+					{
+						hoverclk = 1;
+						hoverflags |= HOV_INF;
+					}
+					sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(x.getInt()));
+				}
 				decorations.add(new dHover(x, y, dHOVER, 0));
-				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(x.getInt()));
 			}
 			else fall += zinit.gravity;
 		}
@@ -7707,24 +7752,37 @@ bool LinkClass::startwpn(int itemid)
         
     case itype_rocs:
     {
-        if(!inlikelike && z==0 && charging==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0)
+        if(!inlikelike && charging==0)
         {
-            if(!checkmagiccost(itemid))
-                return false;
-                
-            paymagiccost(itemid);
-			if(itemsbuf[itemid].flags & ITEM_FLAG1)
-				setFall(fall - itemsbuf[itemid].power);
-			else
-				setFall(fall - FEATHERJUMP*(itemsbuf[itemid].power+2));
-			
-			setOnSideviewLadder(false);
-            
-            // Reset the ladder, unless on an unwalkable combo
-            if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
-                reset_ladder();
-                
-            sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+			bool standing = isStanding();
+			if(standing || extra_jump_count < itemsbuf[itemid].misc1)
+			{
+				if(!checkmagiccost(itemid))
+					return false;
+				
+				paymagiccost(itemid);
+				
+				
+				if(!standing)
+				{
+					++extra_jump_count;
+					fall = 0;
+					if(hoverclk > 0)
+						hoverclk = -hoverclk;
+				}
+				if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					setFall(fall - itemsbuf[itemid].power);
+				else
+					setFall(fall - FEATHERJUMP*(itemsbuf[itemid].power+2));
+				
+				setOnSideviewLadder(false);
+				
+				// Reset the ladder, unless on an unwalkable combo
+				if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
+					reset_ladder();
+					
+				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+			}
         }
         
         ret = false;
@@ -16086,7 +16144,7 @@ void LinkClass::checkspecial2(int *ls)
     // * Not swimming,
     // * Not swallowed,
     // * Not a dried lake.
-    if(water && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && !hoverclk && action!=rafting && !isSwimming() && !inlikelike && !DRIEDLAKE)
+    if(water && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !isSwimming() && !inlikelike && !DRIEDLAKE)
     {
         if(!current_item(itype_flippers))
         {
@@ -22619,6 +22677,7 @@ void LinkClass::setOnSideviewLadder(bool val)
 	if(val)
 	{
 		fall = hoverclk = jumping = 0;
+		hoverflags = 0;
 	}
 	on_sideview_ladder = val;
 }

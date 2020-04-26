@@ -1832,6 +1832,7 @@ string ZScript::VarToString(long ID)
 	case FILEERR: return "FILEERR";
 	
 	case INCQST: return "INCQST";
+	case HEROJUMPCOUNT: return "HEROJUMPCOUNT";
 	
 	
 	default:

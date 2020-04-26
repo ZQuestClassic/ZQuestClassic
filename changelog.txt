@@ -1,6 +1,9 @@
 //2.55 Changes
 
 //Alpha 66
+Add mid-air jumps to the Roc's Feather, number based on Attributes[0]
+Add flag to hover boots to make it's timer not reset until you land
+	( Venrob, 23rd April, 2020 )
 Allow scripts to overwrite Link's action when it is LA_HOPPING (with compat QR)
 	( Venrob, 22nd April, 2020 )
 Added a new Quest Report type: Bugged Next-> Combos.

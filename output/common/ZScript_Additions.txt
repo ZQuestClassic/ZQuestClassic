@@ -4156,7 +4156,12 @@ bool Climbing;
  * Returns as 'true' when the hero is climbing a sideview ladder
  * Setting to 'false' will let go of the ladder, and setting 'true' will grab the ladder
  * While 'true', gravity does not affect the hero
- 
+
+int JumpCount;
+ * Returns the number of times the hero has jumped in mid-air since last landing.
+ * If this is positive, it will be reset to 0 the next frame the hero is on the ground.
+ * Used by Roc's Feather items to determine how many extra jumps the hero has left
+
 float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
