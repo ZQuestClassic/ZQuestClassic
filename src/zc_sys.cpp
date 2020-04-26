@@ -264,10 +264,10 @@ void load_game_configs()
     analog_movement = get_config_int(cfg_sect,"analog_movement",1);
     
      //cheat modifier keya
-    cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",0);
+    cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_LSHIFT);
     cheat_modifier_keys[1] = get_config_int(cfg_sect,"key_cheatmod_a2",0);
-    cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_LSHIFT);
-    cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",KEY_RSHIFT);
+    cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_RSHIFT);
+    cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",0);
    
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
