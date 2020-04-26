@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 64
-Document Revision: 21st April, 2020
+Document Revision: 26th April, 2020
 
 
  __           _   _                 
@@ -3632,12 +3632,12 @@ int Scale;
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
  * Negative values are undefined.
  * You can only scale sprites if you disable the Compatibility Quest rule 
- *   'Old (Faster) Sprite Drawing.
+ *   'Old (Faster) Sprite Drawing'.
  
 int Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
- *  'Old (Faster) Sprite Drawing.
+ *  'Old (Faster) Sprite Drawing'.
 
 int Script;
  * The itemsprite script attached to this itemsprite.
@@ -3724,12 +3724,12 @@ int Scale;
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
  * Negative values are undefined.
  * You can only scale sprites if you disable the Compatibility Quest rule 
-   'Old (Faster) Sprite Drawing.
+   'Old (Faster) Sprite Drawing'.
  
 int Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
- *   'Old (Faster) Sprite Drawing.
+ *   'Old (Faster) Sprite Drawing'.
    
 int Script;
  * The weapon script assigned to this weapon.
@@ -3864,12 +3864,12 @@ int Scale;
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
  * Negative values are undefined.
  * You can only scale sprites if you disable the Compatibility Quest rule 
- *  'Old (Faster) Sprite Drawing.
+ *  'Old (Faster) Sprite Drawing'.
  
 int Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
- *   'Old (Faster) Sprite Drawing.
+ *   'Old (Faster) Sprite Drawing'.
 
 bool isDead();
  * Returns if the NPC is dead, or dying
@@ -4163,12 +4163,12 @@ int Scale;
  * Scale values are a multiplier: 1.5 == 50% larger (150%).
  * Negative values are undefined.
  * You can only scale sprites if you disable the Compatibility Quest rule 
-   'Old (Faster) Sprite Drawing.
+   'Old (Faster) Sprite Drawing'.
  
 int Rotation;
  * The rotation factor for this sprited object, in degrees.
  * You can only rotate sprites if you disable the Compatibility Quest rule 
-   'Old (Faster) Sprite Drawing.
+   'Old (Faster) Sprite Drawing'.
 
 bool Item[256];
  * Reading from, or writing to this array no longer causes lag.
