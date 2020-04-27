@@ -32543,7 +32543,7 @@ string zs_sprintf(char const* format, int num_args)
 					{
 					zsprintf_float:
 						char argbuf[16] = {0};
-						zc_itoa(arg_val/10000, argbuf);
+						zc_itoa(arg_val, argbuf);
 						int inx = 0; for(;argbuf[inx]!=0;++inx);
 						argbuf[inx++] = '.';
 						argbuf[inx++] = '0' + ((arg_val / 1000) % 10);
