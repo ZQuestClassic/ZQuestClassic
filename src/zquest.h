@@ -10,6 +10,7 @@
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
+#include "zfix.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -257,8 +258,8 @@ extern unsigned char console_is_open;
 
 // qst.cc helpers
 bool bad_version(int ver);
-fix LinkModifiedX();
-fix LinkModifiedY();
+zfix LinkModifiedX();
+zfix LinkModifiedY();
 
 extern MENU colors_menu[];
 

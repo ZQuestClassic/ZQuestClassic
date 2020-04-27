@@ -38,8 +38,8 @@ int animated_combos2;
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
-extern fix  LinkModifiedX();
-extern fix  LinkModifiedY();
+extern zfix  LinkModifiedX();
+extern zfix  LinkModifiedY();
 
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 

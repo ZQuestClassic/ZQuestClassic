@@ -25,7 +25,7 @@
 /*******  Decoration Base Class  *******/
 /***************************************/
 
-decoration::decoration(fix X,fix Y,int Id,int Clk, int wpnSpr) : sprite()
+decoration::decoration(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : sprite()
 {
 	x=X;
 	y=Y;
@@ -47,7 +47,7 @@ int dFlowerClippings::ft[4][8][3];
 int dGrassClippings::ft[3][4][4];
 int dHammerSmack::ft[2][4][3];
 
-dBushLeaves::dBushLeaves(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dBushLeaves::dBushLeaves(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -199,7 +199,7 @@ void dBushLeaves::draw(BITMAP *dest)
 }
 
 
-comboSprite::comboSprite(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+comboSprite::comboSprite(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -272,7 +272,7 @@ void comboSprite::draw2(BITMAP *dest)
 	realdraw(dest,1);
 }
 
-dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -426,7 +426,7 @@ void dFlowerClippings::draw(BITMAP *dest)
 	}
 }
 
-dGrassClippings::dGrassClippings(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dGrassClippings::dGrassClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -530,7 +530,7 @@ void dGrassClippings::draw(BITMAP *dest)
 	}
 }
 
-dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dHammerSmack::dHammerSmack(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -599,7 +599,7 @@ void dHammerSmack::draw(BITMAP *dest)
 	}
 }
 
-dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dTallGrass::dTallGrass(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -650,7 +650,7 @@ void dTallGrass::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dRipples::dRipples(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dRipples::dRipples(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -694,7 +694,7 @@ void dRipples::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dHover::dHover(fix X,fix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dHover::dHover(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -722,7 +722,7 @@ bool dHover::animate(int index)
 	return LinkHoverClk()<=0;
 }
 
-dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;

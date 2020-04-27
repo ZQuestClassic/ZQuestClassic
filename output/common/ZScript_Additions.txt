@@ -2388,6 +2388,12 @@ int strncmp(string_a[], string_b[], int num_chars);
  * The old string.zh version of this function is still available as:
  * std::string::strncmp(*a, *b, int).
 
+int stricmp(string_a[], string_b[]);
+ * As strcmp(*a, *b), but case-insensitive.
+
+int strnicmp(string_a[], string_b[], int num_chars);
+ * As strncmp(*a, *b, num_chars), but case-insensitive.
+
 int strlen(string[]);
  * Returns the length of a string in characters.
  * The old string.zh version of this function is still available as:
@@ -4085,6 +4091,9 @@ bool HasItem;
 bool Ringleader;			
  * Returns if the enemy is a 'ringleader'.
 
+int ItemSet;
+int Dropset;
+ * The Dropset ID that this enemy will drop from when killed
 
 /* The following commands are valid, but do not yet have in-engine use, */
 
@@ -4156,7 +4165,12 @@ bool Climbing;
  * Returns as 'true' when the hero is climbing a sideview ladder
  * Setting to 'false' will let go of the ladder, and setting 'true' will grab the ladder
  * While 'true', gravity does not affect the hero
- 
+
+int JumpCount;
+ * Returns the number of times the hero has jumped in mid-air since last landing.
+ * If this is positive, it will be reset to 0 the next frame the hero is on the ground.
+ * Used by Roc's Feather items to determine how many extra jumps the hero has left
+
 float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.

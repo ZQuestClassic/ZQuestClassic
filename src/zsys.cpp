@@ -950,6 +950,7 @@ static FONT *box_message_font=font;
 static int box_style=0;
 static int box_titlebar_height=0;
 static int box_message_height=0;
+static unsigned char box_text_scale=1;
 static int box_w=304;
 static int box_h=176;
 static int box_l=8;
@@ -960,6 +961,7 @@ static bool box_log=true;
 static char box_log_msg[480];
 static int box_msg_pos=0;
 static int box_store_pos=0;
+static BITMAP* box_bg=NULL;
 /*
   static int jwin_pal[jcMAX] =
   {
@@ -1006,16 +1008,38 @@ void set_default_box_size()
     box_r=box_l+box_w;
     box_b=box_t+box_h;
 }
+/* resizes the box */
+void set_box_size(int w, int h)
+{
+	int screen_w=SCREEN_W;
+	int screen_h=SCREEN_H;
+	
+	if(zqwin_scale>1)
+	{
+		screen_w/=zqwin_scale;
+		screen_h/=zqwin_scale;
+	}
+	if(w <= 0) w = 512;
+	if(h <= 0) h = 256;
+	box_w=MIN(w, screen_w-16);
+	box_h=MIN(h, (screen_h-64)&0xFFF0);
+	
+	box_l=(screen_w-box_w)/2;
+	box_t=(screen_h-box_h)/2;
+	box_r=box_l+box_w;
+	box_b=box_t+box_h;
+}
 
 /* starts outputting a progress message */
-void box_start(int style, const char *title, FONT *title_font, FONT *message_font, bool log)
+void box_start(int style, const char *title, FONT *title_font, FONT *message_font, bool log, int w, int h, unsigned char scale)
 {
+    box_text_scale=scale;
     box_style=style;
     box_title_font=(title_font!=NULL)?title_font:font;
     box_message_font=(message_font!=NULL)?message_font:font;
-    box_message_height=text_height(box_message_font);
+    box_message_height=text_height(box_message_font)*scale;
     box_titlebar_height=title?text_height(box_title_font)+2:0;
-    set_default_box_size();
+    set_box_size(w,h);
     /*
     box_w=BOX_W;
     box_h=BOX_H;
@@ -1030,6 +1054,12 @@ void box_start(int style, const char *title, FONT *title_font, FONT *message_fon
     box_store_pos=0;
     scare_mouse();
     
+    if(box_bg)
+    {
+        destroy_bitmap(box_bg);
+    }
+    box_bg = create_bitmap_ex(8, box_w, box_h);
+    blit(screen, box_bg, box_l, box_t, 0, 0, box_w, box_h);
     jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
     
     if(title!=NULL)
@@ -1063,10 +1093,9 @@ void box_out(const char *msg)
         scare_mouse();
         //do primitive text wrapping
         unsigned int i;
-        
         for(i=0; i<temp.size(); i++)
         {
-            int length = text_length(box_message_font,temp.substr(0,i).c_str());
+            int length = text_length(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
             
             if(length > box_r-box_l-16)
             {
@@ -1076,7 +1105,17 @@ void box_out(const char *msg)
         }
         
         set_clip_rect(screen, box_l+8, box_t+1, box_r-8, box_b-1);
-        textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
+        if(box_text_scale == 1)
+            textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
+        else
+        {
+            int length = text_length(box_message_font,temp.substr(0,i).c_str());
+            BITMAP* tempbit = create_bitmap_ex(8, length, box_message_height);
+            clear_bitmap(tempbit);
+            textout_ex(tempbit, box_message_font, temp.substr(0,i).c_str(), 0, 0, gui_fg_color, gui_bg_color);
+            stretch_blit(tempbit, screen, 0, 0, length, box_message_height/box_text_scale, box_l+8+box_x, box_t+(box_y+1)*box_message_height, length*box_text_scale, box_message_height);
+            destroy_bitmap(tempbit);
+        }
         set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
         unscare_mouse();
         remainder = temp.substr(i,temp.size()-i);
@@ -1238,6 +1277,12 @@ void box_end(bool pause)
         }
         
         box_active = false;
+        if(box_bg)
+        {
+            blit(box_bg, screen, 0, 0, box_l, box_t-box_titlebar_height, box_w, box_h+box_titlebar_height);
+            destroy_bitmap(box_bg);
+            box_bg = NULL;
+        }
     }
 }
 

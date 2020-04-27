@@ -477,6 +477,8 @@ int atox(char *ip_str);
 void do_LowerToUpper(const bool v);
 void do_UpperToLower(const bool v);
 void do_ConvertCase(const bool v);
+void do_stricmp();
+void do_strnicmp();
 
 void do_getnpcscript();
 void do_getlweaponscript();
@@ -2692,6 +2694,8 @@ enum ASM_DEFINE
 	
 	STRCMPR,
 	STRICMPR,
+	STRINGICOMPARE,
+	STRINGNICOMPARE,
 
 	NUMCOMMANDS           //0x018E
 };
@@ -3985,8 +3989,9 @@ enum ASM_DEFINE
 #define MESSAGEDATATEXTWID					0x13A7
 #define MESSAGEDATATEXTHEI					0x13A8
 #define SWITCHKEY					0x13A9
+#define HEROJUMPCOUNT					0x13AA
 
-#define NUMVARIABLES         	0x13AA
+#define NUMVARIABLES         	0x13AB
 
 //} End variables
 

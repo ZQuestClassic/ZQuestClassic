@@ -1,8 +1,49 @@
 //2.55 Changes
 
+//Alpha 67
+Add 'stricmp()' and 'strnicmp()'
+Add 'npc->Dropset', as another name for 'npc->ItemSet'
+Add mid-air jumps to the Roc's Feather, number based on Attributes[0]
+Add flag to hover boots to make it's timer not reset until you land
+New internal type 'zfix', replaces Allegro's 'fix' type.
+	This gives perfect precision to 4 decimal places, unlike Allegro's,
+		which had poor precision.
+	This now means there will not be floating-point rounding error on
+		internal values such as 'X','Y','Z','Step'.
+	The QR 'Sprite Coordinates Are Float' now gives PERFECT precision
+		access to ZScript for X/Y/Z of sprites.
+Alpha is now 67
+	( Venrob, 26th April, 2020 )
+	
 //Alpha 66
+Make default cheat modifier keys 'SHIFT', not 'CTRL+SHIFT'
+	( ZoriaRPG, 26th April, 2020 )
+
+Fix the Favorite Commands list; Zoria offset it MORE in his
+	prior commit. Now it should line up properly.
+Made old favorite commands which have been removed reset to '(None)'
+	upon loading ZQ. This prevents invalid commands from being usable.
+	( Venrob, 25th April, 2020 )
+
+Fix 'Default Defense' on weapons being reset when opening the item editor
+	( Venrob, 24th April, 2020 )
+	
+Update ZScript compiler errors to be more clear about included files
+	( Venrob and ZoriaRPG, 23rd April, 2020 )
+	
+Allow permanent secrets in Dungeon dmaps
+	( Venrob, 23rd April, 2020 )
+
+Fixed the Favourite Commands list: It was offset.
+	Condensed the existing Import ASM commands into Import ZASM,
+	and Export ZASM. Added missing commands for Compiler Settings and
+	for hero Rules. Made naming uniform.
+	Fixed Integrity Favourite Commands Check being too long for the array.
+	( ZoriaRPG, 23rd April, 2020 )
+	
 Allow scripts to overwrite Link's action when it is LA_HOPPING (with compat QR)
 	( Venrob, 22nd April, 2020 )
+	
 Added a new Quest Report type: Bugged Next-> Combos.
 	This will scan a quest for any Next-> combo type that also has a secret
 	flag on it, and report that this may be erroneous. (It is legal to

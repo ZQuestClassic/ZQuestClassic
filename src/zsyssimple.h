@@ -5,7 +5,7 @@ struct FONT;
 
 void box_out(const char *msg);
 void box_out_nl(const char *msg);
-void box_start(int style, const char *title, FONT *title_font, FONT *message_font, bool log);
+void box_start(int style, const char *title, FONT *title_font, FONT *message_font, bool log, int w = -1, int h = -1, unsigned char scale = 1);
 void box_end(bool pause);
 void box_eol();
 void Z_message(char *format,...);

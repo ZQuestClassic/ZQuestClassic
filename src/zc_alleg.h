@@ -16,6 +16,7 @@
 #include "allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
 #include "alleg_compat.h"
+#include "zfix.h"
 
 #ifdef __cplusplus
 INLINE fix abs(fix f)

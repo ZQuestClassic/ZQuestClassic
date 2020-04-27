@@ -1208,8 +1208,9 @@
 #define MESSAGEDATATEXTHEI					1136
 #define SWITCHKEY				1137
 #define INCQST				1138
+#define HEROJUMPCOUNT				1139
 
-#define LAST_BYTECODE 		1139
+#define LAST_BYTECODE 		1140
 
 //} END OF BYTECODE
 
@@ -8287,6 +8288,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OStrNCmp(a->clone());
+		}
+	};
+	class OStrICmp : public UnaryOpcode
+	{
+	public:
+		OStrICmp(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStrICmp(a->clone());
+		}
+	};
+	class OStrNICmp : public UnaryOpcode
+	{
+	public:
+		OStrNICmp(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStrNICmp(a->clone());
 		}
 	};
 	

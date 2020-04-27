@@ -34,7 +34,7 @@ extern sprite_list  guys;
 extern sprite_list  items;
 
 /*
-  void movefairy(fix &x,fix &y,int misc) {
+  void movefairy(zfix &x,zfix &y,int misc) {
   return;
   }
 
@@ -42,7 +42,7 @@ extern sprite_list  items;
   return;
   }
   */
-bool addfairy(fix x, fix y, int misc3, int id)
+bool addfairy(zfix x, zfix y, int misc3, int id)
 {
     addenemy(x,y,eITEMFAIRY,id);
     ((enemy*)guys.spr(guys.Count()-1))->dstep=misc3;
@@ -51,14 +51,14 @@ bool addfairy(fix x, fix y, int misc3, int id)
     return true;
 }
 
-bool can_drop(fix x, fix y)
+bool can_drop(zfix x, zfix y)
 {
     return !(_walkflag(x,y+16,0) ||
 		((!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int(y)%16==0) &&
 		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
 }
 
-void item_fall(fix& x, fix& y, fix& fall)
+void item_fall(zfix& x, zfix& y, zfix& fall)
 {
 	if(!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
 	{

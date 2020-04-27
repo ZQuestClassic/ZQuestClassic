@@ -19,6 +19,7 @@
 #include "zdefs.h"
 #include <set>
 #include <map>
+#include "zfix.h"
 
 using std::map;
 // this code needs some patching for use in zquest.cc
@@ -57,9 +58,9 @@ public:
     
    
     
-    fix x,y,z,fall;
+    zfix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
-    fix xofs,yofs,zofs;
+    zfix xofs,yofs,zofs;
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
@@ -74,7 +75,7 @@ public:
     double angle;
     int lasthit, lasthitclk;
     int dummy_int[10];
-    fix dummy_fix[10];
+    zfix dummy_fix[10];
     float dummy_float[10];
     bool dummy_bool[10];
     int drawstyle;                                          //0=normal, 1=translucent, 2=cloaked
@@ -129,7 +130,7 @@ public:
     
     sprite();
     sprite(sprite const & other);
-    sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
+    sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
     virtual void draw(BITMAP* dest);                        // main layer
     virtual void drawzcboss(BITMAP* dest);                        // main layer
@@ -141,17 +142,17 @@ public:
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int index);
     virtual void check_conveyor();
-    int real_x(fix fx);
-    int real_y(fix fy);
-    int real_ground_y(fix fy);
-    int real_z(fix fz);
+    int real_x(zfix fx);
+    int real_y(zfix fy);
+    int real_ground_y(zfix fy);
+    int real_z(zfix fz);
     virtual bool hit(sprite *s);
     virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
     
     
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
-    virtual void move(fix dx,fix dy);
-    virtual void move(fix s);
+    virtual void move(zfix dx,zfix dy);
+    virtual void move(zfix s);
 	virtual bool knockback(int time, int dir, int speed);
 	virtual bool runKnockback();
     void explode(int mode);
@@ -195,8 +196,8 @@ public:
     bool add(sprite *s);
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);
-    fix getX(int j);
-    fix getY(int j);
+    zfix getX(int j);
+    zfix getY(int j);
     int getID(int j);
     int getMisc(int j);
 	long getMax() {return max_sprites;}
@@ -246,7 +247,7 @@ public:
     byte undercset;
     
     movingblock();
-    void push(fix bx,fix by,int d,int f);
+    void push(zfix bx,zfix by,int d,int f);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
 };

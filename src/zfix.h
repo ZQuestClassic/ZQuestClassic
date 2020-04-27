@@ -1,0 +1,229 @@
+/*
+ * Custom ZFix: because Allegro's zfix is not precise
+ */
+
+
+#ifndef ZFIX_H
+#define ZFIX_H
+#include "zdefs.h"
+#include <math.h>
+
+typedef int32_t ZLong;
+
+class zfix;
+inline zfix zslongToFix(ZLong val);
+inline ZLong toZLong(float val);
+inline ZLong toZLong(double val);
+inline ZLong toZLong(int val);
+inline ZLong toZLong(long val);
+inline zfix floor(zfix fx);
+inline zfix abs(zfix fx);
+
+class zfix
+{
+public:
+	ZLong val;
+	
+	long getInt() const
+	{
+		return val/10000L;
+	}
+	double getFloat() const
+	{
+		return val/10000.0;
+	}
+	ZLong getZLong() const
+	{
+		return val;
+	}
+	int getDPart() const
+	{
+		return val%10000;
+	}
+	
+	zfix& doFloor()
+	{
+		val = (val / 10000) * 10000;
+		return *this;
+	}
+	zfix& doAbs()
+	{
+		val = abs(val);
+		return *this;
+	}
+public:
+	
+	zfix() : val(0)											{}
+	zfix(const zfix &v) : val(v.val)						{}
+	explicit zfix(const int v) : val(v*10000L)				{}
+	explicit zfix(const long v) : val(v*10000L)				{}
+	explicit zfix(const unsigned int v) : val(v*10000L)		{}
+	explicit zfix(const unsigned long v) : val(v*10000L)	{}
+	explicit zfix(const float v) : val(v*10000L)			{}
+	explicit zfix(const double v) : val(v*10000L)			{}
+	explicit zfix(const int ip, const int dp)
+	{
+		val = ip*10000L + dp;
+	}
+	
+	zfix copy() const							{ zfix t; t.val = val; return t; }
+	
+	operator int() const						{ return getInt(); }
+	operator long() const						{ return getInt(); }
+	operator unsigned int() const				{ return getInt(); }
+	operator unsigned long() const				{ return getInt(); }
+	operator float() const						{ return getFloat(); }
+	operator double() const						{ return getFloat(); }
+	
+	zfix& operator = (const zfix &fx)			{ val = fx.val; return *this; }
+	zfix& operator = (const int v)				{ val = v*10000L; return *this; }
+	zfix& operator = (const long v)				{ val = v*10000L; return *this; }
+	zfix& operator = (const unsigned int v)		{ val = v*10000L; return *this; }
+	zfix& operator = (const unsigned long v)	{ val = v*10000L; return *this; }
+	zfix& operator = (const float v)			{ val = v*10000L; return *this; }
+	zfix& operator = (const double v)			{ val = v*10000L; return *this; }
+	
+	zfix& operator +=  (const zfix fx)	{ val += fx.val; return *this; }
+	zfix& operator +=  (const int v)	{ val += v*10000L; return *this; }
+	zfix& operator +=  (const long v)	{ val += v*10000L; return *this; }
+	zfix& operator +=  (const float v)	{ val += v*10000L; return *this; }
+	zfix& operator +=  (const double v)	{ val += v*10000L; return *this; }
+	
+	zfix& operator -=  (const zfix fx)	{ val -= fx.val; return *this; }
+	zfix& operator -=  (const int v)	{ val -= v*10000L; return *this; }
+	zfix& operator -=  (const long v)	{ val -= v*10000L; return *this; }
+	zfix& operator -=  (const float v)	{ val -= v*10000L; return *this; }
+	zfix& operator -=  (const double v)	{ val -= v*10000L; return *this; }
+	
+	zfix& operator *=  (const zfix fx)	{ val = (val * fx.val) / 10000L; return *this; }
+	zfix& operator *=  (const int v)	{ val *= v; return *this; }
+	zfix& operator *=  (const long v)	{ val *= v; return *this; }
+	zfix& operator *=  (const float v)	{ val = (val * toZLong(v)) / 10000L; return *this; }
+	zfix& operator *=  (const double v)	{ val = (val * toZLong(v)) / 10000L; return *this; }
+	
+	zfix& operator /=  (const zfix fx)	{ val = (val*10000L) / fx.val; return *this; }
+	zfix& operator /=  (const int v)	{ val /= v; return *this; }
+	zfix& operator /=  (const long v)	{ val /= v; return *this; }
+	zfix& operator /=  (const float v)	{ val = (val*10000L) / toZLong(v); return *this; }
+	zfix& operator /=  (const double v)	{ val = (val*10000L) / toZLong(v); return *this; }
+	
+	zfix& operator <<= (const int v)	{ val <<= v; return *this; }
+	zfix& operator >>= (const int v)	{ val >>= v; return *this; }
+	
+	zfix& operator ++ ()				{ val += 10000; return *this; }
+	zfix& operator -- ()				{ val -= 10000; return *this; }
+	
+	zfix operator ++ (int)				{ zfix t = copy(); val += 10000; return t; }
+	zfix operator -- (int)				{ zfix t = copy(); val -= 10000; return t; }
+	
+	zfix operator - () const			{ zfix t; t.val = -val; return t; }
+	
+	inline friend zfix operator +  (const zfix fx, const zfix fx2);
+	inline friend zfix operator +  (const zfix fx, const int v);
+	inline friend zfix operator +  (const int v, const zfix fy);
+	inline friend zfix operator +  (const zfix fx, const long v);
+	inline friend zfix operator +  (const long v, const zfix fy);
+	inline friend zfix operator +  (const zfix fx, const float v);
+	inline friend zfix operator +  (const float v, const zfix fy);
+	inline friend zfix operator +  (const zfix fx, const double v);
+	inline friend zfix operator +  (const double v, const zfix fy);
+	
+	inline friend zfix operator -  (const zfix fx, const zfix fx2);
+	inline friend zfix operator -  (const zfix fx, const int v);
+	inline friend zfix operator -  (const int v, const zfix fx);
+	inline friend zfix operator -  (const zfix fx, const long v);
+	inline friend zfix operator -  (const long v, const zfix fx);
+	inline friend zfix operator -  (const zfix fx, const float v);
+	inline friend zfix operator -  (const float v, const zfix fx);
+	inline friend zfix operator -  (const zfix fx, const double v);
+	inline friend zfix operator -  (const double v, const zfix fx);
+	
+	inline friend zfix operator *  (const zfix fx, const zfix fx2);
+	inline friend zfix operator *  (const zfix fx, const int v);
+	inline friend zfix operator *  (const int v, const zfix fx);
+	inline friend zfix operator *  (const zfix fx, const long v);
+	inline friend zfix operator *  (const long v, const zfix fx);
+	inline friend zfix operator *  (const zfix fx, const float v);
+	inline friend zfix operator *  (const float v, const zfix fx);
+	inline friend zfix operator *  (const zfix fx, const double v);
+	inline friend zfix operator *  (const double v, const zfix fx);
+	
+	inline friend zfix operator /  (const zfix fx, const zfix fx2);
+	inline friend zfix operator /  (const zfix fx, const int v);
+	inline friend zfix operator /  (const int v, const zfix fx);
+	inline friend zfix operator /  (const zfix fx, const long v);
+	inline friend zfix operator /  (const long v, const zfix fx);
+	inline friend zfix operator /  (const zfix fx, const float v);
+	inline friend zfix operator /  (const float v, const zfix fx);
+	inline friend zfix operator /  (const zfix fx, const double v);
+	inline friend zfix operator /  (const double v, const zfix fx);
+	
+	inline friend zfix operator << (const zfix fx, const int v);
+	inline friend zfix operator >> (const zfix fx, const int v);
+	
+	inline friend int operator == (const zfix fx, const zfix fx2);
+	inline friend int operator == (const zfix fx, const int v);
+	inline friend int operator == (const int v, const zfix fx);
+	inline friend int operator == (const zfix fx, const long v);
+	inline friend int operator == (const long v, const zfix fx);
+	inline friend int operator == (const zfix fx, const float v);
+	inline friend int operator == (const float v, const zfix fx);
+	inline friend int operator == (const zfix fx, const double v);
+	inline friend int operator == (const double v, const zfix fx);
+	
+	inline friend int operator != (const zfix fx, const zfix fx2);
+	inline friend int operator != (const zfix fx, const int v);
+	inline friend int operator != (const int v, const zfix fx);
+	inline friend int operator != (const zfix fx, const long v);
+	inline friend int operator != (const long v, const zfix fx);
+	inline friend int operator != (const zfix fx, const float v);
+	inline friend int operator != (const float v, const zfix fx);
+	inline friend int operator != (const zfix fx, const double v);
+	inline friend int operator != (const double v, const zfix fx);
+	
+	inline friend int operator <  (const zfix fx, const zfix fx2);
+	inline friend int operator <  (const zfix fx, const int v);
+	inline friend int operator <  (const int v, const zfix fx);
+	inline friend int operator <  (const zfix fx, const long v);
+	inline friend int operator <  (const long v, const zfix fx);
+	inline friend int operator <  (const zfix fx, const float v);
+	inline friend int operator <  (const float v, const zfix fx);
+	inline friend int operator <  (const zfix fx, const double v);
+	inline friend int operator <  (const double v, const zfix fx);
+	
+	inline friend int operator >  (const zfix fx, const zfix fx2);
+	inline friend int operator >  (const zfix fx, const int v);
+	inline friend int operator >  (const int v, const zfix fx);
+	inline friend int operator >  (const zfix fx, const long v);
+	inline friend int operator >  (const long v, const zfix fx);
+	inline friend int operator >  (const zfix fx, const float v);
+	inline friend int operator >  (const float v, const zfix fx);
+	inline friend int operator >  (const zfix fx, const double v);
+	inline friend int operator >  (const double v, const zfix fx);
+	
+	inline friend int operator <= (const zfix fx, const zfix fx2);
+	inline friend int operator <= (const zfix fx, const int v);
+	inline friend int operator <= (const int v, const zfix fx);
+	inline friend int operator <= (const zfix fx, const long v);
+	inline friend int operator <= (const long v, const zfix fx);
+	inline friend int operator <= (const zfix fx, const float v);
+	inline friend int operator <= (const float v, const zfix fx);
+	inline friend int operator <= (const zfix fx, const double v);
+	inline friend int operator <= (const double v, const zfix fx);
+	
+	inline friend int operator >= (const zfix fx, const zfix fx2);
+	inline friend int operator >= (const zfix fx, const int v);
+	inline friend int operator >= (const int v, const zfix fx);
+	inline friend int operator >= (const zfix fx, const long v);
+	inline friend int operator >= (const long v, const zfix fx);
+	inline friend int operator >= (const zfix fx, const float v);
+	inline friend int operator >= (const float v, const zfix fx);
+	inline friend int operator >= (const zfix fx, const double v);
+	inline friend int operator >= (const double v, const zfix fx);
+};
+
+
+#include "zfix.inl"
+
+#endif		  /* ifndef ZFIX_H */
+

@@ -1455,27 +1455,27 @@ bool bad_version(int ver)
     return false;
 }
 
-fix LinkModifiedX()
+zfix LinkModifiedX()
 {
     if(resize_mouse_pos)
     {
-        return (fix)((gui_mouse_x()/mapscreensize)-((8*mapscreensize)-1)+(showedges?8:0));
+        return (zfix)((gui_mouse_x()/mapscreensize)-((8*mapscreensize)-1)+(showedges?8:0));
     }
     else
     {
-        return (fix)(gui_mouse_x()-7);
+        return (zfix)(gui_mouse_x()-7);
     }
 }
 
-fix LinkModifiedY()
+zfix LinkModifiedY()
 {
     if(resize_mouse_pos)
     {
-        return (fix)((gui_mouse_y()/mapscreensize)-((8*mapscreensize)-1)-16+(showedges?16:0));
+        return (zfix)((gui_mouse_y()/mapscreensize)-((8*mapscreensize)-1)-16+(showedges?16:0));
     }
     else
     {
-        return (fix)(gui_mouse_y()-7);
+        return (zfix)(gui_mouse_y()-7);
     }
 }
 

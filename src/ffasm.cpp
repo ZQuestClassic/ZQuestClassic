@@ -958,6 +958,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "STRCMPR",           2,   0,   0,   0},
 	{ "STRICMPR",           2,   0,   0,   0},
+	{ "STRINGICOMPARE",		       1,   0,   0,   0},
+	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
@@ -2109,6 +2111,7 @@ script_variable variable_list[]=
 	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
 	{ "SWITCHKEY", SWITCHKEY, 0, 0 },
 	{"INCQST", INCQST, 0, 0 },
+	{"HEROJUMPCOUNT", HEROJUMPCOUNT, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
