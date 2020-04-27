@@ -7099,6 +7099,97 @@ int onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
+static enum uKey
+{
+	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
+	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
+	num_ukey
+};
+
+static void load_ukeys(int* arr)
+{
+	arr[ukey_a] = Akey;
+	arr[ukey_b] = Bkey;
+	arr[ukey_s] = Skey;
+	arr[ukey_l] = Lkey;
+	arr[ukey_r] = Rkey;
+	arr[ukey_p] = Pkey;
+	arr[ukey_ex1] = Exkey1;
+	arr[ukey_ex2] = Exkey2;
+	arr[ukey_ex3] = Exkey3;
+	arr[ukey_ex4] = Exkey4;
+	arr[ukey_du] = DUkey;
+	arr[ukey_dd] = DDkey;
+	arr[ukey_dl] = DLkey;
+	arr[ukey_dr] = DRkey;
+	arr[ukey_mod1a] = cheat_modifier_keys[0];
+	arr[ukey_mod1b] = cheat_modifier_keys[1];
+	arr[ukey_mod2a] = cheat_modifier_keys[2];
+	arr[ukey_mod2b] = cheat_modifier_keys[3];
+};
+
+static std::string get_ukey_name(int k)
+{
+	switch(k)
+	{
+		case ukey_a:
+			return "A";
+			break;
+		case ukey_b:
+			return "B";
+			break;
+		case ukey_s:
+			return "Start";
+			break;
+		case ukey_l:
+			return "L";
+			break;
+		case ukey_r:
+			return "R";
+			break;
+		case ukey_p:
+			return "Map";
+			break;
+		case ukey_ex1:
+			return "Ex1";
+			break;
+		case ukey_ex2:
+			return "Ex2";
+			break;
+		case ukey_ex3:
+			return "Ex3";
+			break;
+		case ukey_ex4:
+			return "Ex4";
+			break;
+		case ukey_du:
+			return "Up";
+			break;
+		case ukey_dd:
+			return "Down";
+			break;
+		case ukey_dl:
+			return "Left";
+			break;
+		case ukey_dr:
+			return "Right";
+			break;
+		case ukey_mod1a:
+			return "Cheat Mod L1";
+			break;
+		case ukey_mod1b:
+			return "Cheat Mod L2";
+			break;
+		case ukey_mod2a:
+			return "Cheat Mod R1";
+			break;
+		case ukey_mod2b:
+			return "Cheat Mod R2";
+			break;
+	}
+	return "";
+}
+
 int onKeyboard()
 {
 	int a = Akey;
@@ -7133,6 +7224,36 @@ int onKeyboard()
 		
 		if(ret==3) // OK
 		{
+			int ukeys[num_ukey];
+			load_ukeys(ukeys);
+			std::vector<std::string> uniqueError;
+			for(int q = 0; q < num_ukey; ++q)
+			{
+				for(int p = q+1; p < num_ukey; ++p)
+				{
+					if(ukeys[q] == ukeys[p] && ukeys[q] != 0)
+					{
+						char buf[64];
+						sprintf(buf, "'%s' conflicts with '%s'", get_ukey_name(q).c_str(), get_ukey_name(p).c_str());
+						std::string str(buf);
+						uniqueError.push_back(str);
+					}
+				}
+			}
+			if(uniqueError.size() == 0)
+				done = true;
+			else
+			{
+				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_out("Cannot have duplicate keybinds!"); box_eol();
+				for(std::vector<std::string>::iterator it = uniqueError.begin();
+					it != uniqueError.end(); ++it)
+				{
+					box_out((*it).c_str()); box_eol();
+				}
+				box_end(true);
+			}
+			/* Old uniqueness check
 			std::map<int,bool> *keyhash = new std::map<int,bool>();
 			bool unique = true;
 			addToHash(A,unique,keyhash);
@@ -7221,6 +7342,7 @@ int onKeyboard()
 				done=true;
 			else
 				jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
+			*/
 		}
 		else // Cancel
 		{
