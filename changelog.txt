@@ -3,6 +3,7 @@
 
 
 //Alpha 67
+ghost.zh: Updated to version 2.8.15.
 std.zh: v1.7050
 	Updated ffrules.zh
 	The printf() and sprintf() functions from std.zh
