@@ -1,8 +1,20 @@
-//2.55 Changes
+// 2.55 Change Log
+// Updated 28th April, 2020
+
 
 //Alpha 67
+Fix enemies moving slowly with fixed point update.
+Report duplicate keybinds explicitly.
+'box_out' can now use set height/width, and scale text
+	( Venrob, 28th April, 2020 )
+
+Docs updates and fixes to ZScript_Additions.txt.
+Fix signing issues and hopefully make ZScript printf() safe for Linux.
+	( ZoriaRPG, 28th April, 2020 )
+	
 Add 'stricmp()' and 'strnicmp()'
 Add 'npc->Dropset', as another name for 'npc->ItemSet'
+Set 'fix' QR in Modern ruleset.
 Add mid-air jumps to the Roc's Feather, number based on Attributes[0]
 Add flag to hover boots to make it's timer not reset until you land
 New internal type 'zfix', replaces Allegro's 'fix' type.
@@ -25,12 +37,18 @@ Made old favorite commands which have been removed reset to '(None)'
 	upon loading ZQ. This prevents invalid commands from being usable.
 	( Venrob, 25th April, 2020 )
 
+Fix printf '%f' error
+Replace Allegro 'fix', using floating point, with 'zfix', as true integer fixed type. 
 Fix 'Default Defense' on weapons being reset when opening the item editor
 	( Venrob, 24th April, 2020 )
 	
+Separate errors for file missing and file errored
 Update ZScript compiler errors to be more clear about included files
+	Changed compiler error P0 a bit, too.
+	Clean up the message of compiler error P1 for include directives.
 	( Venrob and ZoriaRPG, 23rd April, 2020 )
 	
+Fix hover decoration timing
 Allow permanent secrets in Dungeon dmaps
 	( Venrob, 23rd April, 2020 )
 
@@ -41,6 +59,8 @@ Fixed the Favourite Commands list: It was offset.
 	Fixed Integrity Favourite Commands Check being too long for the array.
 	( ZoriaRPG, 23rd April, 2020 )
 	
+Add mid-air jumps to the Roc's Feather, number based on Attributes[0]
+Add flag to hover boots to make it's timer not reset until you land
 Allow scripts to overwrite Link's action when it is LA_HOPPING (with compat QR)
 	( Venrob, 22nd April, 2020 )
 	
@@ -71,12 +91,33 @@ Added a termination to the quit state enum as qQUITLAST, and added qINCQST.
 	( ZoriaRPG, 20th April, 2020 )
 
 //Alpha 63
+
+Fixed a longstanding issue where if the player runs a quest with an A_B subscreen,
+	and the last item set inside an active subscreen wrote the value of button item 'A',
+	then they exit the quest and load a quest with only B-item subscreens, that the A-button
+	would become unresponsive (swords fail to work, and so forth).
+	This was caused by DD making an oversight for setting directItemA = directItem on quest 
+	load. 
+	Quests sould now clear properly, and you should be able to use A+B and B-only quests
+	freely, without needing to resrt/exit ZC Player.
+Fully initialise all global vars; set game-> values on firstplay. This may be trivial, but it 
+	prevents C memory holes in the assembled x86 code. 
+Fix Overlays in Item Editor
+	( ZoriaRPG, 19th April, 2020 )
+
 Fix graphical bug with droplists
 	( Venrob, 19th April, 2020 )
 	
+Port: Allegro config.c to C++ and insert into ffscript.cpp/h.
+	All of the allegro 'get_config_ type functions are nor accessible inside ffscript.cpp
+	using fully C++03 compliant functions. 
+	( ZoriaRPG, 18th April, 2020 )
+	
+Fix dialog centering.
 Added 'Export ZASM' menu
 Added 'Import ZASM' menu
 	Replaces the old individual 'Import [type] ZASM Script' menus
+Fix some typos, and change debug messages to use 'zprint()'
 	( Venrob, 18th April, 2020 )
 
 Alpha is now 63
@@ -106,6 +147,7 @@ Internalize 'sprintf' and 'printf' functions.
 		This matches the behavior of the ZScript function for <16 args, though the ZScript function used
 		a size 16 buffer, thus going beyond that caused avoidable script errors.
 	( Venrob, 13th April, 2020 )
+	
 Fix minor errors with 'file'->
 	Remove a debug trace
 	Fix file->OpenMode not reassigning pointer
@@ -114,6 +156,15 @@ Add new ZASM Debugger modes
 	the normal operation of the given combination, but will skip all ZASM printing until
 	it reaches the next break- allowing higher FPS during that time.
 	( Venrob, 12th April, 2020 )
+	
+Add last-known version of LISP.zh by Grayswandir, to ./headers. 
+	This allows writing ZScript in LISP syntax, and it is unsupported, but a rather
+	remarkable technical achievement. It is a custom parser and AST, written in ZScript:
+	I do not know the current status of it, nor its limitations, as I do not use LISP.
+	( ZoriaRPG, 11th April, 2020 )
+
+
+
 Heavily optimize array initialization, and somewhat optimize array access.
 	Arrays now use new ZASM instructions:
 		WRITEPODARRAYRR, WRITEPODARRAYRV, WRITEPODARRAYVR, WRITEPODARRAYVV
