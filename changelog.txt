@@ -3,14 +3,19 @@
 
 
 //Alpha 67
+std.zh: v1.7050
+	Updated ffrules.zh
+	The printf() and sprintf() functions from std.zh
+		now are in the namespace std::string. 
+		They have been replaced by internal instructions.
+Docs updates and fixes to ZScript_Additions.txt.
+Fix signing issues and hopefully make ZScript printf() safe for Linux.
+	( ZoriaRPG, 28th April, 2020 )
+
 Fix enemies moving slowly with fixed point update.
 Report duplicate keybinds explicitly.
 'box_out' can now use set height/width, and scale text
 	( Venrob, 28th April, 2020 )
-
-Docs updates and fixes to ZScript_Additions.txt.
-Fix signing issues and hopefully make ZScript printf() safe for Linux.
-	( ZoriaRPG, 28th April, 2020 )
 	
 Add 'stricmp()' and 'strnicmp()'
 Add 'npc->Dropset', as another name for 'npc->ItemSet'
