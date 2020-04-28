@@ -24326,7 +24326,7 @@ void FFScript::do_file_writechars()
 		ArrayH::getString(arrayptr, output, count, pos);
 		//const char* out = output.c_str();
 		//ri->d[2] = 10000L * fwrite((const void*)output.c_str(), 1, output.length(), f->file);
-		int q = 0;
+		unsigned int q = 0;
 		for(; q < output.length(); ++q)
 		{
 			if(fputc(output[q], f->file)<0)
@@ -24347,7 +24347,7 @@ void FFScript::do_file_writestring()
 		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
 		//const char* out = output.c_str();
 		//ri->d[2] = 10000L * fwrite((const void*)output.data, sizeof(char), output.length(), f->file);
-		int q = 0;
+		unsigned int q = 0;
 		for(; q < output.length(); ++q)
 		{
 			if(fputc(output[q], f->file)<0)
@@ -32541,14 +32541,14 @@ void FFScript::do_tracestring()
 
 string zs_sprintf(char const* format, int num_args)
 {
-	int arg_offset = ri->sp + num_args - 1;
+	int arg_offset = ((ri->sp + num_args) - 1);
 	int next_arg = 0;
 	ostringstream oss;
 	while(format[0] != '\0')
 	{
-		long arg_val = ((next_arg >= num_args) ? 0 : SH::read_stack(arg_offset - next_arg));
+		long arg_val = ( (next_arg >= num_args) ? 0 : (SH::read_stack(arg_offset - next_arg)) );
 		char buf[256] = {0};
-		for(int q = 0; q < 256; ++q)
+		for ( int q = 0; q < 256; ++q )
 		{
 			if(format[0] == '\0') //done
 			{
@@ -32559,51 +32559,58 @@ string zs_sprintf(char const* format, int num_args)
 			{
 				++format;
 				bool hex_upper = true;
-				switch(format[0])
+				switch( format[0] )
 				{
-					case 'i':
-					case 'p':
-					{
-					zsprintf_int:
-						char argbuf[16] = {0};
-						zc_itoa(arg_val / 10000, argbuf);
-						++next_arg;
-						oss << buf << argbuf;
-						q = 300; //break main loop
-						break;
-					}
-					case 'f':
-					{
-					zsprintf_float:
-						char argbuf[16] = {0};
-						zc_itoa(arg_val, argbuf);
-						int inx = 0; for(;argbuf[inx]!=0;++inx);
-						argbuf[inx++] = '.';
-						argbuf[inx++] = '0' + ((arg_val / 1000) % 10);
-						argbuf[inx++] = '0' + ((arg_val / 100) % 10);
-						argbuf[inx++] = '0' + ((arg_val / 10) % 10);
-						argbuf[inx] = '0' + (arg_val % 10);
-						for(int i = 0; i < 3; ++i)
-						{
-							if(argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
-							else break;
-						}
-						++next_arg;
-						oss << buf << argbuf;
-						q = 300; //break main loop
-						break;
-					}
 					case 'd':
 					{
-						if((arg_val % 10000) != 0)
+						if( (arg_val % 10000) )
 						{
 							goto zsprintf_float;
 						}
-						goto zsprintf_int;
+						else
+						{
+							goto zsprintf_int;
+						}
+					}
+					case 'i':
+					case 'p':
+					{
+						zsprintf_int:
+						{
+							char argbuf[16] = {0};
+							zc_itoa(arg_val / 10000, argbuf);
+							++next_arg;
+							oss << buf << argbuf;
+							q = 300; //break main loop
+							break;
+						}
+					}
+					case 'f':
+					{
+						zsprintf_float:
+						{
+							char argbuf[16] = {0};
+							zc_itoa( (arg_val / 10000), argbuf );
+							int inx = 0; for( ; argbuf[inx]; ++inx );
+							argbuf[inx++] = '.';
+							argbuf[inx++] = '0' + ( (arg_val / 1000) % 10 );
+							argbuf[inx++] = '0' + ( (arg_val / 100) % 10 );
+							argbuf[inx++] = '0' + ( (arg_val / 10) % 10 );
+							argbuf[inx] = '0' + (arg_val % 10);
+							for ( int i = 0; i < 3; ++i )
+							{
+								if( argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
+								else break;
+							}
+							++next_arg;
+							oss << buf << argbuf;
+							q = 300; //break main loop
+							break;
+						}
 					}
 					case 's':
 					{
-						long strptr = arg_val / 10000;
+						long strptr = (arg_val / 10000);
 						string str;
 						ArrayH::getString(strptr, str, MAX_ZC_ARRAY_SIZE);
 						oss << buf << str.c_str();
@@ -32613,14 +32620,14 @@ string zs_sprintf(char const* format, int num_args)
 					}
 					case 'c':
 					{
-						int c = arg_val / 10000;
+						int c = (arg_val / 10000);
 						++next_arg;
-						if(char(c) != c)
+						if ( (char(c)) != c )
 						{
 							Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
 							Z_scripterrlog("Value of invalid char will overflow.\n");
 						}
-						buf[q] = char(c);
+						buf[q] = (char(c));
 						oss << buf;
 						q = 300; //break main loop
 						break;
@@ -32631,10 +32638,10 @@ string zs_sprintf(char const* format, int num_args)
 					case 'X':
 					{
 						char argbuf[16] = {0};
-						zc_itoa(arg_val/10000, argbuf, 16); //base 16; hex
-						for(int inx = 0; inx < 16; ++inx) //set chosen caps
+						zc_itoa( (arg_val/10000), argbuf, 16 ); //base 16; hex
+						for ( int inx = 0; inx < 16; ++inx ) //set chosen caps
 						{
-							argbuf[inx] = (hex_upper ? toupper(argbuf[inx]) : tolower(argbuf[inx]));
+							argbuf[inx] = ( hex_upper ? toupper(argbuf[inx]) : tolower(argbuf[inx]) );
 						}
 						oss << buf << "0x" << argbuf;
 						q = 300; //break main loop
