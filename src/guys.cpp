@@ -402,7 +402,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
     if(dstep==62.0) dstep+=0.5;
     else if(dstep==89) dstep-=1/9;
     
-    step = dstep/100.0;
+    step = zslongToFix(dstep*100);
     
     
     item_set = d->item_set;
@@ -1953,7 +1953,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].misc1)); i++)
 				{
 				    //christ this is messy -DD
-				    int segclk = -i*((int)(8.0/(zfix(guysbuf[new_id&0xFFF].step/100.0))));
+				    int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[new_id&0xFFF].step*100))));
 				    
 				    if(!guys.add(new esMoldorm((zfix)x,(zfix)y,new_id+0x1000,segclk)))
 				    {
@@ -7312,7 +7312,7 @@ bool eGhini::animate(int index)
             if(clk4>160)
                 misc=2;
                 
-            floater_walk((misc==1)?0:rate,hrate,dstep/100.0,dstep/1000.0,10,dmisc16,dmisc17); //120,10);
+            floater_walk((misc==1)?0:rate,hrate,zslongToFix(dstep*100),zslongToFix(dstep*10),10,dmisc16,dmisc17); //120,10);
             removearmos(x,y);
         }
         else if(clk4>=60)
@@ -7395,7 +7395,7 @@ bool eTektite::animate(int index)
             {
                 int r=rand();
                 misc=2;
-                step=0-((dstep)/100.0);                           // initial speed
+                step=0-(zslongToFix(dstep*100));                           // initial speed
                 clk3=(r&1)+2;                                       // left or right
                 clk2start=clk2=(r&31)+10;                           // flight time
                 
@@ -7491,9 +7491,9 @@ bool eTektite::animate(int index)
             
             --c;
             
-            if(c<0 && step<(dstep/100.0))
+            if(c<0 && step<zslongToFix(dstep*100))
             {
-                step+=(dmisc3/100.0);
+                step+=zslongToFix(dmisc3*100);
             }
             
             int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
@@ -7594,7 +7594,7 @@ void eTektite::draw(BITMAP *dest)
 
 eItemFairy::eItemFairy(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-    step=(zfix)(guysbuf[id&0xFFF].step)/100;
+    step=zslongToFix(guysbuf[id&0xFFF].step*100);
     superman=1;
     dir=8;
     hxofs=1000;
@@ -7632,7 +7632,7 @@ void eItemFairy::draw(BITMAP *dest)
 ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     //floater_walk(int rate,int newclk,zfix ms,zfix ss,int s,int p, int g)
-    floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10, dmisc16,dmisc17); // 80, 16);
+    floater_walk(misc?rate:0,      hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10, dmisc16,dmisc17); // 80, 16);
     dir=8;
     movestatus=1;
     clk=0;
@@ -7660,11 +7660,11 @@ bool ePeahat::animate(int index)
         misc=1;
     
     if(!watch)
-        floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
+        floater_walk(misc?rate:0,      hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10,  80, 16);
     
     if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
     {
-        z=int(step*1.1/(zfix)((dstep/1000.0)*1.1));
+        z=int(step*1.1/((zslongToFix(dstep*10))*1.1));
     }
     
     if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
@@ -7694,7 +7694,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
     {
         yofs+=8;
-        yofs+=int(step/(dstep/1000.0));
+        yofs+=int(step/zslongToFix(dstep*10));
     }
     
     enemy::drawshadow(dest,translucent);
@@ -7864,7 +7864,7 @@ bool eLeever::animate(int index)
                 if(scored) dir^=1;
                 
                 if(!canmove(dir)) misc=4;
-                else move((zfix)(dstep/100.0));
+                else move(zslongToFix(dstep*100));
                 
                 break;
                 
@@ -7890,7 +7890,7 @@ bool eLeever::animate(int index)
         default:  //random
 //      step=d->misc3/100.0;
 	   
-            step=dmisc3/100.0;
+            step=zslongToFix(dmisc3*100);
             ++clk2;
             
             if(clk2<32)    misc=1;
@@ -7902,7 +7902,7 @@ bool eLeever::animate(int index)
                   fix_coords();
                 }*/
                 misc=3;
-                step = dstep/100.0;
+                step = zslongToFix(dstep*100);
             }
             else if(clk2<316)   misc=2;
             else if(clk2<412)   misc=1;
@@ -9213,7 +9213,7 @@ bool eSpinTile::animate(int index)
         double ddir=atan2(double((Link.y)-y),double(Link.x-x));
         angular=true;
         angle=ddir;
-        step=(dstep/100.0);
+        step=zslongToFix(dstep*100);
     }
     
     if(y>186 || y<=-16 || x>272 || x<=-16)
@@ -9406,7 +9406,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     obeys_gravity = 1;
     if(dmisc9==e9tARMOS && rand()&1)
     {
-        step=(dmisc10)/100.0;
+        step=zslongToFix(dstep*100);
         
         if(anim==aARMOS4) o_tile+=20;
     }
@@ -9884,7 +9884,7 @@ bool eStalfos::animate(int index)
         if(id>>12 && misc>=4) //recently spawned by a split enemy
         {
             id&=0xFFF;
-            step = dstep/100.0;
+            step = zslongToFix(dstep*100);
             
             if(x<32) x=32;
             
@@ -10178,14 +10178,14 @@ void eStalfos::charge_attack()
             {
                 dir=ldir;
                 dashing=true;
-                step=(dstep/100.0)+1;
+                step=zslongToFix(dstep*100)+1;
             }
             else newdir(4,0,0);
         }
         
         if(!canmove(dir))
         {
-            step=dstep/100.0;
+            step=zslongToFix(dstep*100);
             newdir();
             dashing=false;
         }
@@ -10462,7 +10462,7 @@ bool eKeese::animate(int index)
     // Keese Tribbles stay on the ground, so there's no problem when they transform.
     else if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
     {
-        z=int(step/(dstep/100.0));
+        z=int(step/zslongToFix(dstep*100));
         // Some variance in keese flight heights when away from Link
         z+=int(step*zc_max(0,(distance(x,y,LinkX(),LinkY())-128)/10));
     }
@@ -10478,7 +10478,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
     yofs+=8;
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
-        yofs+=int(step/(dstep/1000.0));
+        yofs+=int(step/zslongToFix(dstep*10));
         
     enemy::drawshadow(dest, translucent);
     yofs=tempy;
@@ -10933,7 +10933,7 @@ void eWizzrobe::wizzrobe_attack()
     {
     case 1:
     case 3:
-        step=1.0;
+        step=1;
         break;
         
     case 2:
@@ -13138,7 +13138,7 @@ bool eManhandla::animate(int index)
     else
     {
         // Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-        step=zc_min(4.5,(((!dmisc2)?4:8)-armcnt)*0.5+(dstep/100.0));
+        step=zc_min(4.5,(((!dmisc2)?4:8)-armcnt)*0.5+zslongToFix(dstep*100));
         int dx1=0, dy1=-8, dx2=15, dy2=15;
         
         if(!dmisc2)
@@ -15331,7 +15331,7 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
         for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
         {
             //christ this is messy -DD
-            int segclk = -i*((int)(8.0/(zfix(guysbuf[id&0xFFF].step/100.0))));
+            int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
             
             if(!guys.add(new esMoldorm((zfix)x,(zfix)y,id+0x1000,segclk)))
             {
@@ -15764,7 +15764,7 @@ int addenemy(int x,int y,int z,int id,int clk)
         for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
         {
             //christ this is messy -DD
-            int segclk = -i*((int)(8.0/(zfix(guysbuf[id&0xFFF].step/100.0))));
+            int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
             
             if(!guys.add(new esMoldorm((zfix)x,(zfix)y,id+0x1000,segclk)))
             {
