@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 64
-Document Revision: 26th April, 2020
+Document for: 2.55, Alpha 67
+Document Revision: 28th April, 2020
 
 
  __           _   _                 
@@ -3819,7 +3819,12 @@ int AClock
 
 /////////////
 ///  NPC  ///
-/////////////									// NPC
+/////////////	
+								// NPC
+
+int Dropset;
+ * Alias for npc->ItemSet. 
+ * Read or write the item dropset used by the npc.
 
 int Random;
  * Corresponds to the Enemy Editor Random Rate value.
