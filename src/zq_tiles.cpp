@@ -6402,11 +6402,11 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                     
                     if(rect)
                     {
-                        move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
+                        i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
+                        i = move_intersection_ss(combobuf[u], selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(combobuf[u].tile!=0))
@@ -8041,11 +8041,11 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                     
                     if(rect)
                     {
-                        move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
+                        i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
+                        i = move_intersection_ss(combobuf[u], selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(combobuf[u].tile!=0))
@@ -11240,11 +11240,11 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                     
                     if(rect)
                     {
-                        move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
+                        i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
+                        i = move_intersection_ss(combobuf[u], selection_first, selection_last);
                     }
                     
                     if((i!=ti_none)&&(combobuf[u].tile!=0))
