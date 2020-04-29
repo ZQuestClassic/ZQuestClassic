@@ -11086,8 +11086,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
 bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
 {
-    bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
-    bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+    
     bool ignore_frames=false;
     
     // if tile>tile2 then swap them
@@ -11115,150 +11114,41 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
     int dest_width=0, dest_height=0;
     int rows=0, cols=0;
     
+    
+    
     if(rect)
     {
         dest_top=TILEROW(dest_first);
         dest_bottom=TILEROW(dest_last);
-        src_top=TILEROW(src_first);
-        src_bottom=TILEROW(src_last);
+        //src_top=TILEROW(src_first);
+        //src_bottom=TILEROW(src_last);
         
-        src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
-        src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
-        src_first=(src_top  * TILES_PER_ROW)+src_left;
-        src_last= (src_bottom*TILES_PER_ROW)+src_right;
+        //src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
+        //src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
+        //src_first=(src_top  * TILES_PER_ROW)+src_left;
+        //src_last= (src_bottom*TILES_PER_ROW)+src_right;
         
         dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
         dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
         dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
         dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
         
-        //if no dest range set, then set one
-        if((dest_first==dest_last)&&(src_first!=src_last))
-        {
-            if(alt)
-            {
-                dest_left=dest_right-(src_right-src_left);
-            }
-            else
-            {
-                dest_right=dest_left+(src_right-src_left);
-            }
-            
-            if(shift)
-            {
-                dest_top=dest_bottom-(src_bottom-src_top);
-            }
-            else
-            {
-                dest_bottom=dest_top+(src_bottom-src_top);
-            }
-            
-            dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-            dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-        }
-        else
-        {
-            if(dest_right-dest_left<src_right-src_left) //destination is shorter than source
-            {
-                if(alt) //copy from right tile instead of left
-                {
-                    src_left=src_right-(dest_right-dest_left);
-                }
-                else //copy from left tile
-                {
-                    src_right=src_left+(dest_right-dest_left);
-                }
-            }
-            else if(dest_right-dest_left>src_right-src_left)  //destination is longer than source
-            {
-                if(alt) //copy from right tile instead of left
-                {
-                    dest_left=dest_right-(src_right-src_left);
-                }
-                else //copy from left tile
-                {
-                    dest_right=dest_left+(src_right-src_left);
-                }
-            }
-            
-            if(dest_bottom-dest_top<src_bottom-src_top) //destination is shorter than source
-            {
-                if(shift) //copy from bottom tile instead of top
-                {
-                    src_top=src_bottom-(dest_bottom-dest_top);
-                }
-                else //copy from top tile
-                {
-                    src_bottom=src_top+(dest_bottom-dest_top);
-                }
-            }
-            else if(dest_bottom-dest_top>src_bottom-src_top)  //destination is longer than source
-            {
-                if(shift) //copy from bottom tile instead of top
-                {
-                    dest_top=dest_bottom-(src_bottom-src_top);
-                }
-                else //copy from top tile
-                {
-                    dest_bottom=dest_top+(src_bottom-src_top);
-                }
-            }
-            
-            src_first=(src_top  * TILES_PER_ROW)+src_left;
-            src_last= (src_bottom*TILES_PER_ROW)+src_right;
-            dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-            dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-        }
         
-        cols=src_right-src_left+1;
-        rows=src_bottom-src_top+1;
         
-        dest_width=dest_right-dest_left+1;
-        dest_height=dest_bottom-dest_top+1;
-        src_width=src_right-src_left+1;
-        src_height=src_bottom-src_top+1;
+        
+        dest_width=dest_right-dest_left;
+        dest_height=dest_bottom-dest_top;
+	    
+	cols=dest_width+1;
+        rows=dest_height+1;
+	
+	al_trace("rows: %d\n", rows);
+	al_trace("cols: %d\n", cols);
+
         
     }
     else  //!rect
     {
-        //if no dest range set, then set one
-        if((dest_first==dest_last)&&(src_first!=src_last))
-        {
-            if(alt)
-            {
-                dest_first=dest_last-(src_last-src_first);
-            }
-            else
-            {
-                dest_last=dest_first+(src_last-src_first);
-            }
-        }
-        else
-        {
-            if(dest_last-dest_first<src_last-src_first) //destination is shorter than source
-            {
-                if(alt) //copy from last tile instead of first
-                {
-                    src_first=src_last-(dest_last-dest_first);
-                }
-                else //copy from first tile
-                {
-                    src_last=src_first+(dest_last-dest_first);
-                }
-            }
-            else if(dest_last-dest_first>src_last-src_first)  //destination is longer than source
-            {
-                if(alt) //copy from last tile instead of first
-                {
-                    dest_first=dest_last-(src_last-src_first);
-                }
-                else //copy from first tile
-                {
-                    dest_last=dest_first+(src_last-src_first);
-                }
-            }
-        }
-        
         copies=dest_last-dest_first+1;
     }
     
@@ -11350,14 +11240,14 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(combobuf[u], selection_first, selection_last);
+                        i=move_intersection_ss(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(combobuf[u].o_tile!=0))
+                    if((i!=ti_none)&&(combobuf[u].tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
@@ -11609,14 +11499,14 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
+                        i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(wpnsbuf[biw[u].i].newtile!=0))
+                    if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
@@ -11823,17 +11713,17 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 found=false;
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
-                map_styles_items[0].tile=misc.colors.new_blueframe_tile;
-                map_styles_items[1].tile=misc.colors.new_HCpieces_tile;
+                map_styles_items[0].tile=misc.colors.blueframe_tile;
+                map_styles_items[1].tile=misc.colors.HCpieces_tile;
                 map_styles_items[1].width=zinit.hcp_per_hc;
-                map_styles_items[2].tile=misc.colors.new_triforce_tile;
+                map_styles_items[2].tile=misc.colors.triforce_tile;
                 map_styles_items[2].width=BSZ2?2:1;
                 map_styles_items[2].height=BSZ2?3:1;
-                map_styles_items[3].tile=misc.colors.new_triframe_tile;
+                map_styles_items[3].tile=misc.colors.triframe_tile;
                 map_styles_items[3].width=BSZ2?7:6;
                 map_styles_items[3].height=BSZ2?7:3;
-                map_styles_items[4].tile=misc.colors.new_overworld_map_tile;
-                map_styles_items[5].tile=misc.colors.new_dungeon_map_tile;
+                map_styles_items[4].tile=misc.colors.overworld_map_tile;
+                map_styles_items[5].tile=misc.colors.dungeon_map_tile;
                 
                 for(int u=0; u<6; u++)
                 {
@@ -12487,12 +12377,15 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
         
         if(rect)
         {
+	    al_trace("floodfill, rect\n");
+		al_trace("rows: %d\n", rows);
+		al_trace("cols: %d\n", cols);
             for(int r=0; r<rows; ++r)
             {
                 for(int c=0; c<cols; ++c)
                 {
                     int dt=(dest_first+((r*TILES_PER_ROW)+c));
-                    int st=(src_first+((r*TILES_PER_ROW)+c));
+                    //int st=(src_first+((r*TILES_PER_ROW)+c));
                     
                     if(dt>=NEWMAXTILES)
                         continue;
@@ -14332,20 +14225,30 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 {
                     bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 		    go_tiles();
-                    if(alt)
-		    {
-			    saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
-			    
-		    }
-		    else 
-		    {
-			    saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
-		    }
+                    saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
                 }
                 
                 redraw=true;
                 break;
                 
+		
+		
+	    case KEY_F:
+                if(copy==-1)
+                {
+                    break;
+                }
+                else
+                {
+		    go_tiles();
+		    {
+			    saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
+		    }
+                }
+                
+                redraw=true;
+                break;
+		
             case KEY_DEL:
                 delete_tiles(tile,tile2,rect_sel);
                 redraw=true;
