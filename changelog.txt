@@ -1,6 +1,15 @@
 // 2.55 Change Log
-// Updated 28th April, 2020
+// Updated 29th April, 2020
 
+//Alpha 68
+
+In the Tile Editor, electing multiple tiles, pressing C, 
+	then selecting multiple tiles and pressing O will now overlay
+	the copied selection tot he dest selection, triming overflow.
+Mass Overlay now works properly, overlaying to each tile space, rather
+	than overlaying to the first tile and copying the result of that
+	overlay to the remaining spaces.
+	( ZoriaRPG, 29th April, 2020 )
 
 //Alpha 67
 ghost.zh: Updated to version 2.8.15.
