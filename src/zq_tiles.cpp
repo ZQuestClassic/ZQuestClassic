@@ -7653,12 +7653,6 @@ bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, b
     
     if(copied)
     {
-        if(!ctrl)
-        {
-            copy=-1;
-            tile2=tile;
-        }
-        
         saved=false;
     }
     
