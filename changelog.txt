@@ -3,6 +3,9 @@
 
 //Alpha 68
 
+You can now press C in the Tile Editor to copy a tile, then
+	select a range of tiles and press F to FLOODFILL paste the copied
+	tile to every position.
 In the Tile Editor, electing multiple tiles, pressing C, 
 	then selecting multiple tiles and pressing O will now overlay
 	the copied selection tot he dest selection, triming overflow.
