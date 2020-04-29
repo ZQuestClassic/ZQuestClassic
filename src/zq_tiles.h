@@ -112,6 +112,8 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
 //void reset_tile(tiledata *buf, int t, int format);
 bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
+bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards);
+bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards);
 void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy);
 void move_combos(int &tile,int &tile2,int &copy,int &copycnt);
 void delete_tiles(int &tile,int &tile2,bool rect_sel);

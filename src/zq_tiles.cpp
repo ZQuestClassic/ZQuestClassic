@@ -7645,6 +7645,1665 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 }
 //
 
+bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards)
+{
+    bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+    bool copied=false;
+    copied=overlay_tiles_united(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
+    
+    if(copied)
+    {
+        if(!ctrl)
+        {
+            copy=-1;
+            tile2=tile;
+        }
+        
+        saved=false;
+    }
+    
+    return copied;
+}
+
+bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards)
+{
+    bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
+    bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+    bool ignore_frames=false;
+    
+    // if tile>tile2 then swap them
+    if(tile>tile2)
+    {
+        zc_swap(tile, tile2);
+    }
+    
+    // alt=copy from right
+    // shift=copy from bottom
+    
+    int copies=copycnt;
+    int dest_first=tile;
+    int dest_last=tile2;
+    int src_first=copy;
+    int src_last=copy+copies-1;
+    
+    int dest_top=0;
+    int dest_bottom=0;
+    int src_top=0;
+    int src_bottom=0;
+    int src_left=0, src_right=0;
+    int src_width=0, src_height=0;
+    int dest_left=0, dest_right=0;
+    int dest_width=0, dest_height=0;
+    int rows=0, cols=0;
+    
+    if(rect)
+    {
+        dest_top=tile_row(dest_first);
+        dest_bottom=tile_row(dest_last);
+        src_top=tile_row(src_first);
+        src_bottom=tile_row(src_last);
+        
+        src_left= zc_min(tile_col(src_first),tile_col(src_last));
+        src_right=zc_max(tile_col(src_first),tile_col(src_last));
+        src_first=(src_top  * TILES_PER_ROW)+src_left;
+        src_last= (src_bottom*TILES_PER_ROW)+src_right;
+        
+        dest_left= zc_min(tile_col(dest_first),tile_col(dest_last));
+        dest_right=zc_max(tile_col(dest_first),tile_col(dest_last));
+        dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
+        dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
+        
+        //if no dest range set, then set one
+        if((dest_first==dest_last)&&(src_first!=src_last))
+        {
+            if(alt)
+            {
+                dest_left=dest_right-(src_right-src_left);
+            }
+            else
+            {
+                dest_right=dest_left+(src_right-src_left);
+            }
+            
+            if(shift)
+            {
+                dest_top=dest_bottom-(src_bottom-src_top);
+            }
+            else
+            {
+                dest_bottom=dest_top+(src_bottom-src_top);
+            }
+            
+            dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
+            dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
+        }
+        else
+        {
+            if(dest_right-dest_left<src_right-src_left) //destination is shorter than source
+            {
+                if(alt) //copy from right tile instead of left
+                {
+                    src_left=src_right-(dest_right-dest_left);
+                }
+                else //copy from left tile
+                {
+                    src_right=src_left+(dest_right-dest_left);
+                }
+            }
+            else if(dest_right-dest_left>src_right-src_left)  //destination is longer than source
+            {
+                if(alt) //copy from right tile instead of left
+                {
+                    dest_left=dest_right-(src_right-src_left);
+                }
+                else //copy from left tile
+                {
+                    dest_right=dest_left+(src_right-src_left);
+                }
+            }
+            
+            if(dest_bottom-dest_top<src_bottom-src_top) //destination is shorter than source
+            {
+                if(shift) //copy from bottom tile instead of top
+                {
+                    src_top=src_bottom-(dest_bottom-dest_top);
+                }
+                else //copy from top tile
+                {
+                    src_bottom=src_top+(dest_bottom-dest_top);
+                }
+            }
+            else if(dest_bottom-dest_top>src_bottom-src_top)  //destination is longer than source
+            {
+                if(shift) //copy from bottom tile instead of top
+                {
+                    dest_top=dest_bottom-(src_bottom-src_top);
+                }
+                else //copy from top tile
+                {
+                    dest_bottom=dest_top+(src_bottom-src_top);
+                }
+            }
+            
+            src_first=(src_top  * TILES_PER_ROW)+src_left;
+            src_last= (src_bottom*TILES_PER_ROW)+src_right;
+            dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
+            dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
+        }
+        
+        cols=src_right-src_left+1;
+        rows=src_bottom-src_top+1;
+        
+        dest_width=dest_right-dest_left+1;
+        dest_height=dest_bottom-dest_top+1;
+        src_width=src_right-src_left+1;
+        src_height=src_bottom-src_top+1;
+        
+    }
+    else  //!rect
+    {
+        //if no dest range set, then set one
+        if((dest_first==dest_last)&&(src_first!=src_last))
+        {
+            if(alt)
+            {
+                dest_first=dest_last-(src_last-src_first);
+            }
+            else
+            {
+                dest_last=dest_first+(src_last-src_first);
+            }
+        }
+        else
+        {
+            if(dest_last-dest_first<src_last-src_first) //destination is shorter than source
+            {
+                if(alt) //copy from last tile instead of first
+                {
+                    src_first=src_last-(dest_last-dest_first);
+                }
+                else //copy from first tile
+                {
+                    src_last=src_first+(dest_last-dest_first);
+                }
+            }
+            else if(dest_last-dest_first>src_last-src_first)  //destination is longer than source
+            {
+                if(alt) //copy from last tile instead of first
+                {
+                    dest_first=dest_last-(src_last-src_first);
+                }
+                else //copy from first tile
+                {
+                    dest_last=dest_first+(src_last-src_first);
+                }
+            }
+        }
+        
+        copies=dest_last-dest_first+1;
+    }
+    
+    
+    
+    char buf[80], buf2[80], buf3[80], buf4[80];
+    sprintf(buf, " ");
+    sprintf(buf2, " ");
+    sprintf(buf3, " ");
+    sprintf(buf4, " ");
+    
+    // warn if range extends beyond last tile
+    sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
+    
+    if(dest_last>=NEWMAXTILES)
+    {
+        sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
+        jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
+        return false;
+//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
+        //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
+        //{
+        //  return false;
+        //}
+    }
+    
+    char *tile_move_list_text = new char[65535];
+    char temptext[80];
+    
+    sprintf(buf, "Destination Warning");
+    tile_move_list_dlg[0].dp=buf;
+    tile_move_list_dlg[0].dp2=lfont;
+    bool found;
+    bool flood;
+    
+    int i;
+    bool *move_combo_list = new bool[MAXCOMBOS];
+    bool *move_items_list = new bool[iMax];
+    bool *move_weapons_list = new bool[wMAX];
+    bool move_link_sprites_list[41];
+    bool move_mapstyles_list[6];
+    //bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
+    bool move_game_icons_list[4];
+    bool move_dmap_maps_list[MAXDMAPS][4];
+    //    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
+    
+    // warn if paste overwrites other defined tiles or
+    // if delete erases other defined tiles
+    int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+    bool done = false;
+    
+    for(int q=0; q<2 && !done; ++q)
+    {
+    
+        switch(q)
+        {
+        case 0:
+            selection_first=dest_first;
+            selection_last=dest_last;
+            selection_left=dest_left;
+            selection_top=dest_top;
+            selection_width=dest_width;
+            selection_height=dest_height;
+            break;
+            
+        case 1:
+            selection_first=src_first;
+            selection_last=src_last;
+            selection_left=src_left;
+            selection_top=src_top;
+            selection_width=src_width;
+            selection_height=src_height;
+            break;
+        }
+        
+        if(move||q==0)
+        {
+            //check combos
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                
+                for(int u=0; u<MAXCOMBOS; u++)
+                {
+                    move_combo_list[u]=false;
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_sr(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_ss(combobuf[u].tile, combobuf[u].tile+zc_max(combobuf[u].frames,1)-1, selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(combobuf[u].tile!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%d\n", u);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_combo_list[u]=true;
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following combos");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check items
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                build_bii_list(false);
+                
+                for(int u=0; u<iMax; u++)
+                {
+                    move_items_list[u]=false;
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%s\n", bii[u].s);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_items_list[u]=true;
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following items");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check weapons/misc
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                build_biw_list();
+                bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+                
+                for(int u=0; u<wMAX; u++)
+                {
+                    ignore_frames=false;
+                    move_weapons_list[u]=false;
+                    int m=0;
+                    
+                    switch(biw[u].i)
+                    {
+                    case wSWORD:
+                    case wWSWORD:
+                    case wMSWORD:
+                    case wXSWORD:
+                        m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
+                        break;
+                        
+                    case wSWORDSLASH:
+                    case wWSWORDSLASH:
+                    case wMSWORDSLASH:
+                    case wXSWORDSLASH:
+                        m=4;
+                        break;
+                        
+                    case iwMMeter:
+                        m=9;
+                        break;
+                        
+                    case wBRANG:
+                    case wMBRANG:
+                    case wFBRANG:
+                        m=BSZ2?1:3;
+                        break;
+                        
+                    case wBOOM:
+                    case wSBOOM:
+                    case ewBOOM:
+                    case ewSBOOM:
+                        ignore_frames=true;
+                        m=2;
+                        break;
+                        
+                    case wWAND:
+                        m=1;
+                        break;
+                        
+                    case wMAGIC:
+                        m=1;
+                        break;
+                        
+                    case wARROW:
+                    case wSARROW:
+                    case wGARROW:
+                    case ewARROW:
+                        m=1;
+                        break;
+                        
+                    case wHAMMER:
+                        m=8;
+                        break;
+                        
+                    case wHSHEAD:
+                        m=1;
+                        break;
+                        
+                    case wHSCHAIN_H:
+                        m=1;
+                        break;
+                        
+                    case wHSCHAIN_V:
+                        m=1;
+                        break;
+                        
+                    case wHSHANDLE:
+                        m=1;
+                        break;
+                        
+                    case iwDeath:
+                        m=BSZ2?4:2;
+                        break;
+                        
+                    case iwSpawn:
+                        m=3;
+                        break;
+                        
+                    default:
+                        m=0;
+                        break;
+                    }
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%s\n", biw[u].s);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_weapons_list[u]=true;
+                        }
+                    }
+                    
+                    if((u==3)||(u==9))
+                    {
+                        if(rect)
+                        {
+                            i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
+                        }
+                        else
+                        {
+                            i=move_intersection_ss(54, 55, selection_first, selection_last);
+                        }
+                        
+                        if(i!=ti_none)
+                        {
+                            sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following weapons");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check Link sprites
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                setup_link_sprite_items();
+                
+                for(int u=0; u<41; u++)
+                {
+                    move_link_sprites_list[u]=false;
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_rr(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%s\n", link_sprite_items[u].name);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_link_sprites_list[u]=true;
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following Link sprites");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "sprites will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done =true;
+                        }
+                    }
+                }
+            }
+            
+            //Check subscreen objects
+            //Tried to have a go at this but I think it's a bit too complicated for me at the moment.
+            //Might come back to it another time and see what I can do ~Joe123
+            /*if(!done){
+                 for(int u=0;u<MAXCUSTOMSUBSCREENS;u++){
+                     if(!custom_subscreen[u].ss_type) continue;
+                     for(int v=0;v<MAXSUBSCREENITEMS;v++){
+                          if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
+                          subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
+                          subscreen_items[0].width = custom_subscreen[u].objects[v].w;
+                          subscreen_items[0].height = custom_subscreen[u].objects[v].h;
+                     }
+                 }
+            }*/
+            
+            //check map styles
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                bool BSZ2=(zinit.subscreen>2);
+                map_styles_items[0].tile=misc.colors.blueframe_tile;
+                map_styles_items[1].tile=misc.colors.HCpieces_tile;
+                map_styles_items[1].width=zinit.hcp_per_hc;
+                map_styles_items[2].tile=misc.colors.triforce_tile;
+                map_styles_items[2].width=BSZ2?2:1;
+                map_styles_items[2].height=BSZ2?3:1;
+                map_styles_items[3].tile=misc.colors.triframe_tile;
+                map_styles_items[3].width=BSZ2?7:6;
+                map_styles_items[3].height=BSZ2?7:3;
+                map_styles_items[4].tile=misc.colors.overworld_map_tile;
+                map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+                
+                for(int u=0; u<6; u++)
+                {
+                    move_mapstyles_list[u]=false;
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_rr(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_rs(tile_col(map_styles_items[u].tile), tile_row(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(map_styles_items[u].tile!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%s\n", map_styles_items[u].name);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_mapstyles_list[u]=true;
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following map style");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "items will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "items will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check game icons
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                const char *icon_title[4]=
+                {
+                    "No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
+                };
+                
+                for(int u=0; u<4; u++)
+                {
+                    move_game_icons_list[u]=false;
+                    
+                    if(rect)
+                    {
+                        i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+                    }
+                    else
+                    {
+                        i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+                    }
+                    
+                    if((i!=ti_none)&&(misc.icons[u]!=0))
+                    {
+                        if(i==ti_broken || q==0)
+                        {
+                            sprintf(temptext, "%s\n", icon_title[u]);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        else if(i==ti_encompass)
+                        {
+                            move_game_icons_list[u]=true;
+                        }
+                    }
+                }
+                
+                if(rect)
+                {
+                    i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
+                }
+                else
+                {
+                    i=move_intersection_ss(41, 41, selection_first, selection_last);
+                }
+                
+                if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
+                {
+                    sprintf(temptext, "Quest Sword");
+                    
+                    if(strlen(tile_move_list_text)<65000)
+                    {
+                        strcat(tile_move_list_text, temptext);
+                    }
+                    else
+                    {
+                        if(!flood)
+                        {
+                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                            flood=true;
+                        }
+                    }
+                    
+                    found=true;
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following quest icons");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "will be overwritten by this process.  Proceed?");
+                        sprintf(buf4, " ");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check dmap maps
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                bool BSZ2=(zinit.subscreen>2);
+                
+                for(int t=0; t<MAXDMAPS; t++)
+                {
+                    dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
+                    dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
+                    dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
+                    dmap_map_items[2].width=BSZ2?7:9;
+                    dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
+                    dmap_map_items[3].width=BSZ2?7:9;
+                    
+                    for(int u=0; u<4; u++)
+                    {
+                        move_dmap_maps_list[t][u]=false;
+                        
+                        if(rect)
+                        {
+                            i=move_intersection_rr(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
+                        }
+                        else
+                        {
+                            i=move_intersection_rs(tile_col(dmap_map_items[u].tile), tile_row(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
+                        }
+                        
+                        if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
+                        {
+                            if(i==ti_broken || q==0)
+                            {
+                                sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
+                                
+                                if(strlen(tile_move_list_text)<65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if(!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood=true;
+                                    }
+                                }
+                                
+                                found=true;
+                            }
+                            else if(i==ti_encompass)
+                            {
+                                move_dmap_maps_list[t][u]=true;
+                            }
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following dmap-specific");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "subscreen maps will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "subscreen maps will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            
+            //check enemies
+            if(!done)
+            {
+                //this is here to allow this section to fold
+                tile_move_list_text[0]=0;
+                found=false;
+                flood=false;
+                build_bie_list(false);
+                bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+                int u;
+                
+                for(u=0; u<eMAXGUYS; u++)
+                {
+                    const guydata& enemy=guysbuf[bie[u].i];
+                    bool darknut=false;
+                    int gleeok=0;
+                    
+                    if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
+                        darknut=true;
+                    else if(enemy.family==eeGLEEOK)
+                    {
+                        // Not certain this is the right thing to check...
+                        if(enemy.misc3==0)
+                            gleeok=1;
+                        else
+                            gleeok=2;
+                    }
+                    
+                    // Dummied out enemies
+                    if(bie[u].i>=eOCTO1S && bie[u].i<e177)
+                    {
+                        if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
+                        {
+                            continue;
+                        }
+                    }
+                    
+                    if(newtiles)
+                    {
+                        if(guysbuf[bie[u].i].e_tile==0)
+                        {
+                            continue;
+                        }
+                        
+                        if(guysbuf[bie[u].i].e_height==0)
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
+                            }
+                        }
+                        else
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                            }
+                        }
+                        
+                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                        {
+                            sprintf(temptext, "%s\n", bie[u].s);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        
+                        if(darknut)
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                            }
+                            
+                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            {
+                                sprintf(temptext, "%s (broken shield)\n", bie[u].s);
+                                
+                                if(strlen(tile_move_list_text)<65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if(!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood=true;
+                                    }
+                                }
+                                
+                                found=true;
+                            }
+                        }
+                        else if(enemy.family==eeGANON && i==ti_none)
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
+                            }
+                            
+                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            {
+                                sprintf(temptext, "%s\n", bie[u].s);
+                                
+                                if(strlen(tile_move_list_text)<65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if(!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood=true;
+                                    }
+                                }
+                                
+                                found=true;
+                            }
+                        }
+                        else if(gleeok && i==ti_none)
+                        {
+                            for(int j=0; j<4 && i==ti_none; ++j)
+                            {
+                                if(rect)
+                                {
+                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
+                                }
+                            }
+                            
+                            if(i==ti_none)
+                            {
+                                int c=tile_col(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int r=tile_row(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                
+                                if(rect)
+                                {
+                                    i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
+                                }
+                                
+                                if(i==ti_none)
+                                {
+                                    if(rect)
+                                    {
+                                        i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
+                                    }
+                                }
+                            }
+                            
+                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            {
+                                sprintf(temptext, "%s\n", bie[u].s);
+                                
+                                if(strlen(tile_move_list_text)<65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if(!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood=true;
+                                    }
+                                }
+                                
+                                found=true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if((guysbuf[bie[u].i].tile==0))
+                        {
+                            continue;
+                        }
+                        else if(guysbuf[bie[u].i].height==0)
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
+                            }
+                        }
+                        else
+                        {
+                            if(rect)
+                            {
+                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
+                            }
+                            else
+                            {
+                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
+                            }
+                        }
+                        
+                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                        {
+                            sprintf(temptext, "%s\n", bie[u].s);
+                            
+                            if(strlen(tile_move_list_text)<65000)
+                            {
+                                strcat(tile_move_list_text, temptext);
+                            }
+                            else
+                            {
+                                if(!flood)
+                                {
+                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                    flood=true;
+                                }
+                            }
+                            
+                            found=true;
+                        }
+                        
+                        if(guysbuf[bie[u].i].s_tile!=0)
+                        {
+                            if(guysbuf[bie[u].i].s_height==0)
+                            {
+                                if(rect)
+                                {
+                                    i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
+                                }
+                            }
+                            else
+                            {
+                                if(rect)
+                                {
+                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
+                                }
+                            }
+                            
+                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            {
+                                sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
+                                
+                                if(strlen(tile_move_list_text)<65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if(!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood=true;
+                                    }
+                                }
+                                
+                                found=true;
+                            }
+                        }
+                    }
+                }
+                
+                if(found)
+                {
+                    sprintf(buf2, "The tiles used by the following enemies");
+                    
+                    if(move)
+                    {
+                        sprintf(buf3, "will be partially cleared by the move.");
+                        sprintf(buf4, "Proceed?");
+                    }
+                    else
+                    {
+                        sprintf(buf3, "will be partially or completely");
+                        sprintf(buf4, "overwritten by this process.  Proceed?");
+                    }
+                    
+                    tile_move_list_dlg[1].dp=buf2;
+                    tile_move_list_dlg[2].dp=buf3;
+                    tile_move_list_dlg[3].dp=buf4;
+                    tile_move_list_dlg[4].dp=tile_move_list_text;
+                    tile_move_list_dlg[4].d2=0;
+                    
+                    if(TileProtection)
+                    {
+                        if(is_large)
+                            large_dialog(tile_move_list_dlg);
+                            
+                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        position_mouse_z(0);
+                        
+                        if(ret!=5)
+                        {
+                            done = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //
+    // copy tiles and delete if needed (move)
+    
+    if(!done)
+    {
+        go_tiles();
+        
+        int diff=dest_first-src_first;
+        
+        if(rect)
+        {
+            for(int r=0; r<rows; ++r)
+            {
+                for(int c=0; c<cols; ++c)
+                {
+                    int dt=(dest_first+((r*TILES_PER_ROW)+c));
+                    int st=(src_first+((r*TILES_PER_ROW)+c));
+                    
+                    if(dt>=NEWMAXTILES)
+                        continue;
+                    
+		    overlay_tile(newtilebuf,dt,st,cs,backwards);
+		    
+                }
+            }
+        }
+        else
+        {
+            for(int c=0; c<copies; ++c)
+            {
+                int dt=(dest_first+c);
+                int st=(src_first+c);
+                
+                if(dt>=NEWMAXTILES)
+                    continue;
+		
+		overlay_tile(newtilebuf,dt,st,cs,backwards);
+		
+                if(move)
+                {
+                    if(st<dest_first||st>(dest_first+c-1))
+                        reset_tile(newtilebuf, st, tf4Bit);
+                }
+            }
+        }
+        
+        if(move)
+        {
+            for(int u=0; u<MAXCOMBOS; u++)
+            {
+                if(move_combo_list[u])
+                {
+                    combobuf[u].tile+=diff;
+                }
+            }
+            
+            for(int u=0; u<iMax; u++)
+            {
+                if(move_items_list[u])
+                {
+                    itemsbuf[bii[u].i].tile+=diff;
+                }
+            }
+            
+            for(int u=0; u<wMAX; u++)
+            {
+                if(move_weapons_list[u])
+                {
+                    wpnsbuf[biw[u].i].tile+=diff;
+                }
+            }
+            
+            for(int u=0; u<41; u++)
+            {
+                if(move_link_sprites_list[u])
+                {
+                    switch(u)
+                    {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        walkspr[u][spr_tile]+=diff;
+                        break;
+                        
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                        slashspr[u-4][spr_tile]+=diff;
+                        break;
+                        
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                        stabspr[u-8][spr_tile]+=diff;
+                        break;
+                        
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                        poundspr[u-12][spr_tile]+=diff;
+                        break;
+                        
+                    case 16:
+                    case 17:
+                        holdspr[0][u-16][spr_tile]+=diff;
+                        break;
+                        
+                    case 18:
+                        castingspr[spr_tile]+=diff;
+                        break;
+                        
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                        floatspr[u-19][spr_tile]+=diff;
+                        break;
+                        
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                        swimspr[u-23][spr_tile]+=diff;
+                        break;
+                        
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                        divespr[u-27][spr_tile]+=diff;
+                        break;
+                        
+                    case 31:
+                    case 32:
+                        holdspr[1][u-31][spr_tile]+=diff;
+                        break;
+                        
+                    case 33:
+                    case 34:
+                    case 35:
+                    case 36:
+                        jumpspr[u-33][spr_tile]+=diff;
+                        break;
+                        
+                    case 37:
+                    case 38:
+                    case 39:
+                    case 40:
+                        chargespr[u-37][spr_tile]+=diff;
+                        break;
+                    }
+                }
+            }
+            
+            for(int u=0; u<6; u++)
+            {
+                if(move_mapstyles_list[u])
+                {
+                    switch(u)
+                    {
+                    case 0:
+                        misc.colors.blueframe_tile+=diff;
+                        break;
+                        
+                    case 1:
+                        misc.colors.HCpieces_tile+=diff;
+                        break;
+                        
+                    case 2:
+                        misc.colors.triforce_tile+=diff;
+                        break;
+                        
+                    case 3:
+                        misc.colors.triframe_tile+=diff;
+                        break;
+                        
+                    case 4:
+                        misc.colors.overworld_map_tile+=diff;
+                        break;
+                        
+                    case 5:
+                        misc.colors.dungeon_map_tile+=diff;
+                        break;
+                    }
+                }
+            }
+            
+            for(int u=0; u<4; u++)
+            {
+                if(move_game_icons_list[u])
+                {
+                    misc.icons[u]+=diff;
+                }
+            }
+            
+            for(int t=0; t<MAXDMAPS; t++)
+            {
+                for(int u=0; u<4; u++)
+                {
+                    move_dmap_maps_list[t][u]=false;
+                    
+                    if(move_dmap_maps_list[t][u])
+                    {
+                        switch(u)
+                        {
+                        case 0:
+                            DMaps[t].minimap_1_tile+=diff;
+                            break;
+                            
+                        case 1:
+                            DMaps[t].minimap_2_tile+=diff;
+                            break;
+                            
+                        case 2:
+                            DMaps[t].largemap_1_tile+=diff;
+                            break;
+                            
+                        case 3:
+                            DMaps[t].largemap_2_tile+=diff;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //now that tiles have moved, fix these buffers -DD
+    register_blank_tiles();
+    register_used_tiles();
+    
+    delete[] tile_move_list_text;
+    delete[] move_combo_list;
+    delete[] move_items_list;
+    delete[] move_weapons_list;
+    
+    if(done)
+        return false;
+        
+    return true;
+}
+//
+
 bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move)
 {
     bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
@@ -9443,7 +11102,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     }
                     else
                     {
-                        overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+                        saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+			    //overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
                     }
                     
                     saved=false;
