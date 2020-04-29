@@ -1,5 +1,32 @@
 ChangeLog for 2.53.1
 
+//Beta 44
+You can now press C in the Tile Editor to copy a tile, then
+	select a range of tiles and press F to FLOODFILL paste the copied
+	tile to every position.
+In the Tile Editor, electing multiple tiles, pressing C, 
+	then selecting multiple tiles and pressing O will now overlay
+	the copied selection tot he dest selection, triming overflow.
+Mass Overlay now works properly, overlaying to each tile space, rather
+	than overlaying to the first tile and copying the result of that
+	overlay to the remaining spaces.
+	
+//Beta 43
+Make default cheat modkeys SHIFT, not CTL+SHIFT.
+	( ZoriaRPG, 26th April, 2020 )
+	
+//Beta 42: The Meaning of Life, the Universe, and Everything.
+Added a new Quest Report type: Bugged Next-> Combos.
+	This will scan a quest for any Next-> combo type that also has a secret
+	flag on it, and report that this may be erroneous. (It is legal to
+	place these flags, but they must be EXTERNALLY triggered. They no
+	longer trigger when the Next-> combo is activated.)
+Added extra sanity guards and reports to Link->Warp, PitWarp, and WarpEx.
+	( ZoriaRPG, 22nd April, 2020 )
+	
+//Beta 41
+Intermediate changes included in the 40 and 42 sections to do with Quest Reports.
+	
 //Beta 40
 Fixed a bug where finishing a custom quest advanted to 1st.qst.
 Added Game->IncrementQuest().
