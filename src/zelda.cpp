@@ -1743,7 +1743,9 @@ int init_game()
     game->bwpn = bpos;
     Bwpn = Bweapon(bpos);
     directItemB = directItem;
-    directItemA = directItem;
+    //directItemA = directItem; 
+    //Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
+    if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
     update_subscr_items();
     
     reset_subscr_items();

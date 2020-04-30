@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 45
+Slight timing fix to directItemA, for B-only quests. 
+	( ZoriaRPG, 30th April, 2020 )
+
 //Beta 44
 You can now press C in the Tile Editor to copy a tile, then
 	select a range of tiles and press F to FLOODFILL paste the copied
