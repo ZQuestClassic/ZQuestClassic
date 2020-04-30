@@ -564,6 +564,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		owning_ptr<ASTExprConst> iter;
+		owning_vector<ASTStmt> bodies;
 		owning_ptr<ASTStmt> body;
 	};
 

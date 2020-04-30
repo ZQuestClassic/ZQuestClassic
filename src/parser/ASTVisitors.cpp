@@ -194,26 +194,29 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 	visit(*host.iter, param);
 	if(breakRecursion(host, param)) return;
 	optional<long> repeats = (*host.iter).getCompileTimeValue(this, scope);
-	if(repeats)
+	if(host.bodies.size() == 0)
 	{
-		int rep = *repeats / 10000L;
-		if(rep>0)
+		if(repeats)
 		{
-			for(int q = rep - 1; q > 0; --q)
+			int rep = *repeats / 10000L;
+			if(rep>0)
 			{
-				visit((*host.body).clone(), param);
+				for(int q = 0; q < rep; ++q)
+				{
+					host.bodies.push_back((*host.body).clone());
+				}
 			}
-			visit(&*host.body, param);
+			else if(rep < 0)
+			{
+				handleError(CompileError::ConstantBadSize(&*host.iter, ">= 0"));
+			}
 		}
-		else if(rep < 0)
+		else
 		{
-			handleError(CompileError::ConstantBadSize(&*host.iter, ">= 0"));
+			handleError(CompileError::ExprNotConstant(&*host.iter));
 		}
 	}
-	else
-	{
-		handleError(CompileError::ExprNotConstant(&*host.iter));
-	}
+	visit(host, host.bodies, param);
 }
 
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
