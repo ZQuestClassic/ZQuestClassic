@@ -1,8 +1,14 @@
 // 2.55 Change Log
 // Updated 29th April, 2020
 
+//Alpha 69
+Slight timing fix to directItemA, for B-only quests. 
+	( ZoriaRPG, 30th April, 2020 )
+	
+Fixed repeat() copying data extraneous to its contents. 
+	( Venrob, 30th April, 2020 )
+	
 //Alpha 68
-
 You can now press C in the Tile Editor to copy a tile, then
 	select a range of tiles and press F to FLOODFILL paste the copied
 	tile to every position.
