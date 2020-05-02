@@ -24,7 +24,7 @@
 
 #define PROJECT_NAME "AEternal"
 #define COMPANY_NAME "Armageddon Games"
-#define ZQ_EDITOR_NAME "ZQuest Creator Editor"
+#define ZQ_EDITOR_NAME "ZQuest Creator"
 #define ZQ_EDITOR_V "2.55"
 #define ZQ_EDITOR_COPYRIGHT "Copyright (C) 2020"
 
