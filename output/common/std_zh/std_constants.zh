@@ -1,5 +1,5 @@
 // std_constants.zh
-// 24th March, 2020 for ZC 2.55 Alpha 52
+// 2nd May, 2020 for ZC 2.55 Alpha 69
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -2087,7 +2087,7 @@ const int CF_SCRIPT_DROP_BOSS_KEY 	= 158; // Drop Boss Key (Scripted)",
 const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
 const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
 const int CF_SIDEVIEW_LADDER 	= 161; // Sideview Ladder
-const int CF_SIDEVIEW_PLATFORM 	= 161; // Sideview Platform
+const int CF_SIDEVIEW_PLATFORM 	= 162; // Sideview Platform
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 

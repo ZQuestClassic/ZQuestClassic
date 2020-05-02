@@ -1,6 +1,6 @@
 //std.zh metadata
 
-const float STD_VERSION = 1.7050;
+const float STD_VERSION = 1.7051;
 const int STD_DATE_YEAR = 2020;
 const int STD_DATE_MONTH = 4;
 const int STD_DATE_DAY = 15;
