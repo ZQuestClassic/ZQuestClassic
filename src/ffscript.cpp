@@ -32593,10 +32593,10 @@ string zs_sprintf(char const* format, int num_args)
 							zc_itoa( (arg_val / 10000), argbuf );
 							int inx = 0; for( ; argbuf[inx]; ++inx );
 							argbuf[inx++] = '.';
-							argbuf[inx++] = '0' + ( (arg_val / 1000) % 10 );
-							argbuf[inx++] = '0' + ( (arg_val / 100) % 10 );
-							argbuf[inx++] = '0' + ( (arg_val / 10) % 10 );
-							argbuf[inx] = '0' + (arg_val % 10);
+							argbuf[inx++] = '0' + abs( ( (arg_val / 1000) % 10 ) );
+							argbuf[inx++] = '0' + abs( ( (arg_val / 100) % 10 ) );
+							argbuf[inx++] = '0' + abs( ( (arg_val / 10) % 10 ) );
+							argbuf[inx] = '0' + abs( (arg_val % 10) );
 							for ( int i = 0; i < 3; ++i )
 							{
 								if( argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
