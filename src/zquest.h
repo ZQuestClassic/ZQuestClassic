@@ -766,6 +766,9 @@ enum
     cmdExportZASM,
     cmdHeroRules,
     cmdZScriptCompilerRules,
+    cmdWeaponRules,
+    cmdScreenScript,
+    cmdZQSNapshot,
     cmdMAX
 };
 

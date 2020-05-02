@@ -34010,7 +34010,10 @@ command_pair commands[cmdMAX]=
     { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
     { "Rules - Hero",                       0, (intF) onHeroRules                                      },
-    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        }
+    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
+    { "Rules - Weapons",                   0, (intF) onWeaponRules                        },
+    { "Screen Script",                   0, (intF) onScreenScript                        },
+    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                        }
 };
 
 /********************************/
