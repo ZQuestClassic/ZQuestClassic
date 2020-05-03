@@ -1979,7 +1979,7 @@ static MENU etc_menu_smallmode[] =
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-MENU the_menu_large[] =
+MENU the_menu_large_old[] =
 {
     
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
@@ -2006,6 +2006,34 @@ MENU the_menu[] =
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
 
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu_large[] =
+{
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
+    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu_small[] =
+{
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -29989,6 +30017,7 @@ void switch_in()
         
     BITMAP *ts=screen;
     screen=menu1;
+    
     /*
     if (!is_large) 
 	{
@@ -29996,7 +30025,9 @@ void switch_in()
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
     */
+    //dialogs[0].dp2 = z3font;
     jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+    
     screen=ts;
     zcmusic_pause(zcmusic, ZCM_RESUME);
     midi_resume();
@@ -30108,7 +30139,7 @@ sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 long exittimer = 10000, exittimer2 = 100;
 
 int main(int argc,char **argv)
-{
+{ 
     
 	
 	if ( V_ZC_ALPHA )
@@ -31071,6 +31102,7 @@ int main(int argc,char **argv)
     
     if(is_large)
     {
+	memcpy(the_menu, the_menu_large, sizeof(the_menu));
         blackout_color=8;
         zq_screen_w=800;
         zq_screen_h=600;
@@ -31240,6 +31272,8 @@ int main(int argc,char **argv)
     }
     else
     {
+	//the_menu[8] = the_menu[9]; //end menus at visible length
+	memcpy(the_menu, the_menu_small, sizeof(the_menu));
         blackout_color=0;
         zq_screen_w=320;
         zq_screen_h=240;
@@ -32422,6 +32456,8 @@ int main(int argc,char **argv)
     FFCore.init();
 	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
+	
+	
 	/*
 	if (!is_large) 
 	{
@@ -32429,6 +32465,7 @@ int main(int argc,char **argv)
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
         */
+	
     while(!quit)
     {
     
@@ -33156,6 +33193,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
     domouse();
     do_animations();
     refresh(rALL);
+	//d.dp2 = 5;
     
     //  if (msg!=MSG_IDLE)
     if(msg==MSG_GOTMOUSE||msg==MSG_XCHAR)
