@@ -1341,6 +1341,7 @@ int CurrentLayer=0;
 int DuplicateAction[4];
 int OnlyCheckNewTilesForDuplicates;
 int try_recovering_missing_scripts = 0;
+int zc_menu_on_left = 0;
 /*
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
@@ -2033,6 +2034,34 @@ MENU the_menu_small[] =
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu_large_zcleft[] =
+{
+    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu_small_zcleft[] =
+{
+    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   }, 
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -31080,6 +31109,7 @@ int main(int argc,char **argv)
 	
 	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
 	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
+	zc_menu_on_left = get_config_int("zquest", "zc_menu_on_left",0);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -31102,7 +31132,11 @@ int main(int argc,char **argv)
     
     if(is_large)
     {
-	memcpy(the_menu, the_menu_large, sizeof(the_menu));
+	if ( zc_menu_on_left ) 
+	{
+		memcpy(the_menu, the_menu_large_zcleft, sizeof(the_menu));
+	}
+	else memcpy(the_menu, the_menu_large, sizeof(the_menu));
         blackout_color=8;
         zq_screen_w=800;
         zq_screen_h=600;
@@ -31273,7 +31307,11 @@ int main(int argc,char **argv)
     else
     {
 	//the_menu[8] = the_menu[9]; //end menus at visible length
-	memcpy(the_menu, the_menu_small, sizeof(the_menu));
+	if ( zc_menu_on_left ) 
+	{
+		memcpy(the_menu, the_menu_small_zcleft, sizeof(the_menu));
+	}
+	else memcpy(the_menu, the_menu_small, sizeof(the_menu));
         blackout_color=0;
         zq_screen_w=320;
         zq_screen_h=240;
