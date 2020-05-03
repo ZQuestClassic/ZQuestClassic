@@ -3720,7 +3720,7 @@ long get_register(const long arg)
 		case ITEMJUMP:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret = long(((item*)(s))->fall) * -100.0;
+				ret = ((item*)(s))->fall.getZLong() / -100;
 			}
 			break;
 			
@@ -4573,7 +4573,7 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = long(GuyH::getNPC()->fall) * -100.0;
+				ret = GuyH::getNPC()->fall.getZLong() / -100;
 				
 			break;
 		
@@ -4624,7 +4624,7 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = long(GuyH::getNPC()->step * zfix(100.0)) * 10000;
+				ret = (GuyH::getNPC()->step).getZLong() * 100;
 				
 			break;
 		
@@ -5007,7 +5007,7 @@ long get_register(const long arg)
 			
 		case LWPNJUMP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
-				ret = long(((weapon*)(s))->fall) * -100.0;
+				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				
 			break;
 			
@@ -5025,7 +5025,7 @@ long get_register(const long arg)
 			
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
-				ret=(int)((float)((weapon*)s)->step * 1000000.0);
+				ret=((weapon*)s)->step.getZLong() * 100;
 				
 			break;
 			
@@ -5358,7 +5358,7 @@ long get_register(const long arg)
 			
 		case EWPNJUMP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
-				ret = long(((weapon*)(s))->fall) * -100.0;
+				ret = ((weapon*)(s))->fall.getZLong() / -100;
 				
 			break;
 			
@@ -5382,7 +5382,7 @@ long get_register(const long arg)
 			
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
-				ret=(int)((float)((weapon*)s)->step * 1000000.0);
+				ret=((weapon*)s)->step.getZLong() * 100;
 				
 			break;
 			
@@ -9545,7 +9545,7 @@ void set_register(const long arg, const long value)
 		break;
 			
 		case LINKJUMP:
-			Link.setFall(zfix((-value * (100.0)) / 10000.0));
+			Link.setFall(zslongToFix(value) / -100);
 			break;
 			
 		case LINKDIR:
@@ -10552,7 +10552,7 @@ void set_register(const long arg, const long value)
 		case ITEMJUMP:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(((item *)s)->fall)=-value*100.0/10000.0;
+				(((item *)s)->fall)=zslongToFix(value)*-100;
 			}
 			
 			break;
@@ -11354,7 +11354,7 @@ void set_register(const long arg, const long value)
 			
 		case LWPNJUMP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
-				((weapon*)s)->fall=((-value*100.0)/10000.0);
+				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
@@ -11372,7 +11372,7 @@ void set_register(const long arg, const long value)
 			
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
-				((weapon*)s)->step=(value/10000)/100.0;
+				((weapon*)s)->step= zslongToFix(value / 100);
 				
 			break;
 			
@@ -11696,7 +11696,7 @@ void set_register(const long arg, const long value)
 			
 		case EWPNJUMP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Jump")))
-				((weapon*)s)->fall=(-value*100.0/10000.0);
+				((weapon*)s)->fall=zslongToFix(value)*-100;
 				
 			break;
 			
@@ -11720,7 +11720,7 @@ void set_register(const long arg, const long value)
 			
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
-				((weapon*)s)->step=(value/10000)/100.0;
+				((weapon*)s)->step= zslongToFix(value / 100);
 				
 			break;
 			
@@ -12089,10 +12089,10 @@ void set_register(const long arg, const long value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
 			{
 				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fall = -zfix(value * 100.0 / 10000.0);
+					GuyH::getNPC()->fall =zslongToFix(value)*-100;
 					
 				if(GuyH::hasLink())
-					Link.setFall(value / zfix(10000.0));
+					Link.setFall(zslongToFix(value)*-100);
 			}
 		}
 		break;
@@ -12100,7 +12100,7 @@ void set_register(const long arg, const long value)
 		case NPCSTEP:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
-				GuyH::getNPC()->step = zfix(value / 10000) / zfix(100.0);
+				GuyH::getNPC()->step = zslongToFix(value / 100);
 		}
 		break;
 		
