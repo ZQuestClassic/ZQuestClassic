@@ -1694,24 +1694,25 @@ static MENU script_menu[] =
 
 static MENU rules_menu[] =
 {
+    { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
+    { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
+    { (char *)"&Pick Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
+    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
     { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
-    { (char *)"&Hero",                      onHeroRules,               NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
+    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
-    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
+    { (char *)"&Player",                      onHeroRules,               NULL,                     0,            NULL   },
+    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU quest_menu[] =
 {
-    { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
-    { (char *)"&Rules\t ",                  NULL,                      rules_menu,               0,            NULL   },
-    { (char *)"&Pick Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
-    { (char *)"Ma&p Count",                 onMapCount,                NULL,                     0,            NULL   },
+    { (char *)"&Options\t ",                  NULL,                      rules_menu,               0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
     { (char *)"Ene&mies",                   onCustomEnemies,           NULL,                     0,            NULL   },
@@ -1723,7 +1724,6 @@ static MENU quest_menu[] =
     { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
     { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
@@ -1771,29 +1771,29 @@ static MENU edit_menu[] =
 static MENU drawing_mode_menu[] =
 {
     { (char *)"&Normal",                    onDrawingModeNormal,       NULL,                     0,            NULL   },
-    { (char *)"&Relational",                onDrawingModeRelational,   NULL,                     0,            NULL   },
-    { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
+    { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
+    { (char *)"&Relational",                onDrawingModeRelational,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU integrity_check_menu[] =
 {
     { (char *)"&All ",                      onIntegrityCheckAll,       NULL,                     0,            NULL   },
-    { (char *)"&Warps ",                    onIntegrityCheckWarps,     NULL,                     0,            NULL   },
     { (char *)"&Screens ",                  onIntegrityCheckRooms,     NULL,                     0,            NULL   },
+    { (char *)"&Warps ",                    onIntegrityCheckWarps,     NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU quest_reports_menu[] =
 {
+    { (char *)"&Bugged Next-> Combo Locations",           onBuggedNextComboLocationReport,         NULL,                     0,            NULL   },
     { (char *)"&Combo Locations",           onComboLocationReport,     NULL,                     0,            NULL   },
     { (char *)"&Combo Type Locations",      onComboTypeLocationReport, NULL,                     0,            NULL   },
     { (char *)"&Enemy Locations",           onEnemyLocationReport,     NULL,                     0,            NULL   },
     { (char *)"&Item Locations",            onItemLocationReport,      NULL,                     0,            NULL   },
     { (char *)"&Script Locations",          onScriptLocationReport,    NULL,                     0,            NULL   },
     { (char *)"&What Links Here",           onWhatWarpsReport,         NULL,                     0,            NULL   },
-    { (char *)"&Bugged Next-> Combo Locations",           onBuggedNextComboLocationReport,         NULL,                     0,            NULL   },
     { (char *)"In&tegrity Check\t ",        NULL,                      integrity_check_menu,     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1889,6 +1889,18 @@ static MENU tunes_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+//New Modules Menu for 2.55+
+static MENU module_menu[] =
+{
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"&About Module",        onAbout_Module,           NULL,                     0,            NULL   },
+    //divider
+    { (char *)"",                               NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
+
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU etc_menu[] =
 {
     { (char *)"&Help",                      NULL /*onHelp*/,                    zq_help_menu,                     0,            NULL   },
@@ -1904,10 +1916,10 @@ static MENU etc_menu[] =
     { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
     { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
-    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+    { (char *)"Save ZQuest &Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+    { (char *)"C&lear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"Mo&dules",        NULL,           module_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1943,15 +1955,7 @@ static MENU zscript_menu[] =
 	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
 };
 
-//New Modules Menu for 2.55+
-static MENU module_menu[] =
-{
-    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
-    { (char *)"&About Module",        onAbout_Module,           NULL,                     0,            NULL   },
-    //divider
-   
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
+
 
 static MENU etc_menu_smallmode[] =
 {
@@ -1993,7 +1997,7 @@ MENU the_menu_large[] =
 
 MENU the_menu[] =
 {
-    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
