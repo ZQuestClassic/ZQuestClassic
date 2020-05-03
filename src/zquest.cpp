@@ -1697,7 +1697,7 @@ static MENU rules_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
     { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"&Pick Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
+    { (char *)"Pick &Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
