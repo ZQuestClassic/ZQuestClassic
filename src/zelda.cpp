@@ -166,6 +166,7 @@ int draw_screen_clip_rect_y2=223;
 extern int script_link_sprite; 
 extern int script_link_cset; 
 extern int script_link_flip; 
+int zc_menu_on_left = 0;
 
 volatile int logic_counter=0;
 bool trip=false;
@@ -1392,6 +1393,10 @@ LinkClass   Link;
 #include "ending.h"
 
 #include "zc_sys.h"
+//extern MENU the_player_menu;
+//extern MENU the_player_menu_zc_on_left;
+//extern MENU the_player_menu2;
+//extern MENU the_player_menu_zc_on_left2;
 //extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
@@ -4435,6 +4440,13 @@ int main(int argc, char* argv[])
     }
 #endif
     
+    //ZC Menu Position
+    zc_menu_on_left = get_config_int("zeldadx","zc_menu_on_left",0);
+    if ( zc_menu_on_left )
+    {
+	memcpy(the_player_menu, the_player_menu_zc_on_left, sizeof(MENU)*(DEVLEVEL>0 ? 9 : 8) );
+	memcpy(the_player_menu2, the_player_menu_zc_on_left2, sizeof(MENU)*(DEVLEVEL>0 ? 8 : 7));    
+    }
     
     //Set up MODULES: This must occur before trying to load the default quests, as the 
     //data for quest names and so forth is set by the MODULE file!

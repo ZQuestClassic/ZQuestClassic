@@ -8526,19 +8526,81 @@ int setCheat()
 #endif //DEVLEVEL > 1
 #endif //DEVLEVEL > 0
 
-MENU the_menu[] =
+/* NOTICE: zelda.cpp uses memcpy on the following MENU arrays using hardcoded
+	literal values:
+		memcpy(the_player_menu, the_player_menu_zc_on_left, sizeof(MENU)*(DEVLEVEL>0 ? 9 : 8) );
+		memcpy(the_player_menu2, the_player_menu_zc_on_left2, sizeof(MENU)*(DEVLEVEL>0 ? 8 : 7));  
+	If you add entries to these arrays, be sure to update these lines in zelda.cpp with the new sizes!
+*/
+
+MENU the_player_menu[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
     { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"&Modules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
+    #if DEVLEVEL > 0
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #else
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #endif
+};
+
+MENU the_player_menu_zc_on_left[] =
+{
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
+    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
+    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+    { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"&Modules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
+    #if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #else
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #endif
+};
+
+MENU the_player_menu2[] =
+{
+    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
+    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
     { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
     { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
-    { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
-	#if DEVLEVEL > 0
+    
+    #if DEVLEVEL > 0
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
     { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
-	#endif
     { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #else
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #endif
+    
+};
+
+MENU the_player_menu_zc_on_left2[] =
+{
+    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
+    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
+    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
+    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
+    #if DEVLEVEL > 0
+    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #else
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    #endif
 };
 
 int onMIDIPatch()
@@ -8565,20 +8627,6 @@ int onMIDIPatch()
 	save_game_configs();
     return D_O_K;
 }
-
-MENU the_menu2[] =
-{
-    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
-    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Emulation",                 NULL,                    compat_patch_menu,         0, NULL },
-    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
-    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
-    { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
-	#if DEVLEVEL > 0
-    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
-	#endif
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
-};
 
 int onKeyboardEntry()
 {
@@ -8614,7 +8662,7 @@ void fix_menu()
 static DIALOG system_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)      (d2)     (dp) */
-    { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu, NULL,  NULL },
+    { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_player_menu, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
@@ -8634,7 +8682,7 @@ static DIALOG system_dlg[] =
 static DIALOG system_dlg2[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)      (d2)     (dp) */
-    { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu2, NULL,  NULL },
+    { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_player_menu2, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },

@@ -14,7 +14,10 @@
 
 #include "zdefs.h"
 #include "jwinfsel.h"
-extern MENU the_menu[];
+extern MENU the_player_menu[];
+extern MENU the_player_menu2[];
+extern MENU the_player_menu_zc_on_left[];
+extern MENU the_player_menu_zc_on_left2[];
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
