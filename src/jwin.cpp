@@ -3210,7 +3210,9 @@ static void draw_menu_item(MENU_INFO *m, int c)
         }
     }
     
+    
     get_menu_pos(m, c, &x, &y, &w);
+    if ( m->bar ) { /* */ }
     
     rectfill(screen, x, y, x+w-1, y+h-1, bg);
     //   text_mode(-1);
@@ -3227,10 +3229,20 @@ static void draw_menu_item(MENU_INFO *m, int c)
             
         buf[i] = 0;
         
-        if(d)
-            gui_textout_ex(screen, buf, x+9, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
-            
-        gui_textout_ex(screen, buf, x+8+g, y+yofs+1+g, fg, -1, FALSE);
+	if ( m->bar )
+	{
+		if(d)
+		    gui_textout_ex(screen, buf, x+9, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
+		    
+		gui_textout_ex(screen, buf, x+8+g, y+yofs+1+g, fg, -1, FALSE); //main menu
+	}
+	else
+	{
+		if(d)
+		    gui_textout_ex(screen, buf, x+9, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
+		    
+		gui_textout_ex(screen, buf, x+8+g, y+yofs+1+g, fg, -1, FALSE);
+	}
         
         if(m->menu[c].text[i] == '\t')
         {
