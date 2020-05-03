@@ -1974,7 +1974,6 @@ static MENU etc_menu_smallmode[] =
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
-	{ (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
 	
 	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
