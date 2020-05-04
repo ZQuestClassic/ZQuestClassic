@@ -227,16 +227,19 @@ void strlist_rclick_func(int index, int x, int y)
 	
 	case 2: // Paste Style
 		MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
+		saved = false;
 		break;
 	
 	case 3: //Paste Text
 		MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
 		strlist_dlg[2].flags|=D_DIRTY;
+		saved = false;
 		break;
 	
 	case 4: //Paste Both
 		MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc]; //Overloaded assignment copies both
 		strlist_dlg[2].flags|=D_DIRTY;
+		saved = false;
 		break;
 	
 	case 5: //Paste Style to All
@@ -246,6 +249,7 @@ void strlist_rclick_func(int index, int x, int y)
 			{
 				MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
 			}
+			saved = false;
 		}
 		break;
 	
@@ -862,6 +866,7 @@ int onStrings()
 					++msg_count;
 					
 				MsgStrings[index]=MsgStrings[zqstr_copysrc];
+				saved = false;
 			}
 			
 			break;
