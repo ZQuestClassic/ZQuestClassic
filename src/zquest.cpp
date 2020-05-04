@@ -2258,7 +2258,8 @@ void onSKey()
 		}
 		else
 		{
-			onSave();
+			if(!saved)
+				onSave();
 		}
 	}
 	else onString();
@@ -32554,7 +32555,7 @@ int main(int argc,char **argv)
         
         file_menu[2].flags =
             file_menu[4].flags =
-                dialogs[18].flags =
+                dialogs[16].flags =
                     commands[cmdSave].flags =
                         commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
                         
