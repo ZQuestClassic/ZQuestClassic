@@ -3203,8 +3203,8 @@ int GetRenderTarget();
  * set a new one, draw, then reset it to its prior value.
 
 bool LayerInvisible[7]; 
- * If true, the current layer is visible. 
- * Writing this false for layers 1 through 6 will make those layers invisible.
+ * If true, the current layer is invisible.
+ * Writing this true for layers 1 through 6 will make those layers invisible.
  
 bool ScriptDraws[8];
  * If true, the ZC engine will perform script draws on the given
@@ -4860,9 +4860,9 @@ int Screen;
  * Returns the screen that this mapdata points to
  * Read-Only
 
-bool LayerInvisible[7]; 
- * If true, the current layer is visible. 
- * Writing this false for layers 1 through 6 will make those layers invisible.
+bool LayerInvisible[7];
+ * If true, the current layer is invisible.
+ * Writing this true for layers 1 through 6 will make those layers invisible.
  
 bool ScriptDraws[8];
  * If true, the ZC engine will perform script draws ont he given
