@@ -916,8 +916,9 @@ void msg_bg(MsgStr const& msg)
 	}
 	else
 	{
+		int add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
         frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
-                 (msg.w>>3)+2,(msg.h>>3)+2,0,true,0);
+                 (msg.w>>3)+add,(msg.h>>3)+add,0,true,0);
 	}
 }
 void msg_prt()

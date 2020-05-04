@@ -779,7 +779,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, -1
+	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -798,7 +798,7 @@ static int compatrules[] =
    qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6, qr_BROKEN_ASKIP_Y_FRAMES,
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
-   qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,
+   qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
 	-1 
 };
 
@@ -848,6 +848,7 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Check Clip for Custom / Script Type Weapons on Screen Edge", NULL, NULL },
 	{ jwin_check_proc,      10, 13+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "1.92 Diagonal Walk Speed", NULL, NULL },
 	{ jwin_check_proc,      10, 13+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Margins", NULL, NULL },
+	{ jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Frame Width/Height", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 

@@ -1330,7 +1330,8 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 			}
 			else
 			{
-				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+2,(h/8)+2,0,0,0);
+				int add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
+				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
 			}
 		}
 			
