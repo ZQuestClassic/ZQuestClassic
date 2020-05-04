@@ -2265,6 +2265,10 @@ void onSKey()
 	else onString();
 }
 
+/* Notice: If you insert or remove entries from dialogs[], you will need
+	to adjust hardcoded values to indices of dialogs[] in main(). 
+*/
+
 static DIALOG dialogs[] =
 {
     // still unused:  jm
@@ -32553,6 +32557,18 @@ int main(int argc,char **argv)
             room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
         }
         
+	/* Notice: Adjust and Update these values if you hae modified any of the following, where
+		your modifications hae inserted or removed ANY entries. 
+		dialogs[]
+		paste_item_menu[]
+		commands[]
+		file_menu[]
+		tool_menu[]
+		defs_menu[]
+		view_menu[]
+		maps_menu[]
+	*/
+	
         file_menu[2].flags =
             file_menu[4].flags =
                 dialogs[16].flags =
