@@ -1316,6 +1316,8 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
     BITMAP *buf = create_bitmap_ex(8,zc_max(w+16,256+16),zc_max(h+16,32+16));
     clear_bitmap(buf);
     
+	bool done = false;
+	
     if(buf)
     {
         clear_bitmap(buf);
@@ -1340,7 +1342,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
         {
             i=0;
             
-            while((*(s2+i)))
+            while((*(s2+i)) && !done)
             {
                 char s3[145]; // Stores a complete word
                 int j;
@@ -1409,13 +1411,14 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				        ? 1 : strcmp(s3," ")!=0))
                 {
                     cursor_y += text_height(workfont) + vspace;
+					if(cursor_y >= (h - msg_margins[down])) break;
                     cursor_x=msg_margins[left];
                     //if(space) s3[0]=0;
                 }
                 
                 // Evaluate what control code the character is, and skip over the CC's arguments by incrementing i (NOT k).
                 // Interpret the control codes which affect text display (currently just MSGC_COLOR). -L
-                for(int k=0; k < s3length; k++)
+                for(int k=0; k < s3length && !done; k++)
                 {
                     switch(s3[k]-1)
                     {
@@ -1424,6 +1427,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
                         if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
                         {
                             cursor_y += text_height(workfont) + vspace;
+							if(cursor_y >= (h - msg_margins[down])) done = true;
                             cursor_x=msg_margins[left];
                         }
                         
