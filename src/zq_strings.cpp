@@ -602,11 +602,10 @@ int onStrings()
 			for(int i=0; i<MSGSIZE; i++)
 				MsgStrings[msg_count].s[i]='\0';
 				
-			strcpy(MsgStrings[msg_count++].s,"<New String>");
 			MsgStrings[msg_count].x=24;
 			MsgStrings[msg_count].y=32;
-			MsgStrings[msg_count].w=24*8;
-			MsgStrings[msg_count].h=3*8;
+			MsgStrings[msg_count].w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
+			MsgStrings[msg_count].h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
 			MsgStrings[msg_count].hspace=0;
 			MsgStrings[msg_count].vspace=0;
 			MsgStrings[msg_count].stringflags=0;
@@ -622,6 +621,7 @@ int onStrings()
 			MsgStrings[msg_count].portrait_y = 0;
 			MsgStrings[msg_count].portrait_tw = 1;
 			MsgStrings[msg_count].portrait_th = 1;
+			strcpy(MsgStrings[msg_count++].s,"<New String>");
 		}
 		
 		strlist_dlg[7].dp=msgmore_xstring;
