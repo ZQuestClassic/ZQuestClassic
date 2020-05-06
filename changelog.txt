@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 46
+Fixed possible crash and bad error message for Screen->Combo[] errors.
+
+
 //Beta 45
 Slight timing fix to directItemA, for B-only quests. 
 	( ZoriaRPG, 30th April, 2020 )

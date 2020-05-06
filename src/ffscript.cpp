@@ -3085,7 +3085,7 @@ public:
     
     static INLINE int checkComboPos(const long pos, const char * const str)
     {
-        return checkBounds(pos, 0, 175, str);
+        return checkBoundsPos(pos, 0, 175, str);
     }
     
     static INLINE int checkTile(const long pos, const char * const str)
@@ -3163,6 +3163,17 @@ public:
         if(n < boundlow || n > boundup)
         {
             Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
+            return _OutOfBounds;
+        }
+        
+        return _NoError;
+    }
+    
+    static INLINE int checkBoundsPos(const long n, const long boundlow, const long boundup, const char * const funcvar)
+    {
+        if(n < boundlow || n > boundup)
+        {
+            Z_scripterrlog("Invalid position [%i] passed to '%s'\n", n, funcvar);
             return _OutOfBounds;
         }
         
@@ -5522,7 +5533,6 @@ long get_register(const long arg)
 int pos = ri->d[0] / 10000; \
 if(BC::checkComboPos(pos, str) != SH::_NoError) \
 { \
-    Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
     ret = -10000; \
 } \
 else \
@@ -5543,8 +5553,7 @@ else \
     int pos = ri->d[0] / 10000; \
     if(BC::checkComboPos(pos, str) != SH::_NoError) \
     { \
-        Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
-        ret = -10000; \
+	ret = -10000; \
     } \
     else \
         ret = combobuf[tmpscr->data[pos]].member * 10000; \
