@@ -6022,7 +6022,7 @@ long get_register(const long arg)
 		int pos = ri->d[0] / 10000; \
 		if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		{ \
-		    Z_scripterrlog("Invalid pos used to read %s\n"); \
+		    Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
 		    ret = -10000; \
 		} \
 		else \
@@ -6043,7 +6043,7 @@ long get_register(const long arg)
 		    int pos = ri->d[0] / 10000; \
 		    if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		    { \
-			Z_scripterrlog("Invalid pos used to read %s\n"); \
+			Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
 			ret = -10000; \
 		    } \
 		    else \
