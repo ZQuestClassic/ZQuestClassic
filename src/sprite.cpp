@@ -1020,43 +1020,46 @@ void sprite::drawzcboss(BITMAP* dest)
             
             if(drawstyle==0 || drawstyle==3)
             {
+		int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
 		if ( scripttile > -1 )
 		{
-			overtile16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,cs,flip);
-			overtile16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,cs,flip);
+			overtile16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,cs,tmpflip);
+			overtile16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,cs,tmpflip);
 		}
 		else
 		{
-			overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
-			overtile16(temp,tile,0,16,cs,flip);
+			overtile16(temp,tile-TILES_PER_ROW,0,0,cs,tmpflip);
+			overtile16(temp,tile,0,16,cs,tmpflip);
 		}
             }
             
             if(drawstyle==1)
             {
+		int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
 		if ( scripttile > -1 )
 		{
-			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,cs,flip,128);
+			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,cs,tmpflip,128);
 		}
 		else
 		{
-			overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,flip,128);
-			overtiletranslucent16(temp,tile,0,16,cs,flip,128);
+			overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile,0,16,cs,tmpflip,128);
 		}
             }
             
             if(drawstyle==2)
             {
+		int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
 		if ( scripttile > -1 )
 		{
-			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,flip);
-			overtilecloaked16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,flip);
+			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),0,16,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile,0,NEWMAXTILES),0,16,tmpflip);
 		}
 		else
 		{
-			overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,flip);
-			overtilecloaked16(temp,tile,0,16,flip);
+			overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,tmpflip);
+			overtilecloaked16(temp,tile,0,16,tmpflip);
 		}
             }
             
@@ -1072,40 +1075,47 @@ void sprite::drawzcboss(BITMAP* dest)
             {
 		if ( scripttile > -1 )
 		{
-			overtile16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,cs,flip);
-			overtile16(temp,vbound(scripttile-TILES_PER_ROW-(flip?-1:1),0,NEWMAXTILES),0,0,cs,flip);
-			overtile16(temp,vbound(scripttile-TILES_PER_ROW+(flip?-1:1),0,NEWMAXTILES),32,0,cs,flip);
-			overtile16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,flip);
-			overtile16(temp,vbound(scripttile-(flip?-1:1),0,NEWMAXTILES),0,16,cs,flip);
-			overtile16(temp,vbound(scripttile+(flip?-1:1),0,NEWMAXTILES),32,16,cs,flip);
-		}    
-                overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
-                overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
-                overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
-                overtile16(temp,tile,16,16,cs,flip);
-                overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
-                overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtile16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,cs,tmpflip);
+			overtile16(temp,vbound(scripttile-TILES_PER_ROW-(tmpflip?-1:1),0,NEWMAXTILES),0,0,cs,tmpflip);
+			overtile16(temp,vbound(scripttile-TILES_PER_ROW+(tmpflip?-1:1),0,NEWMAXTILES),32,0,cs,tmpflip);
+			overtile16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,tmpflip);
+			overtile16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,cs,tmpflip);
+			overtile16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,cs,tmpflip);
+		}   
+		else
+		{
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtile16(temp,tile-TILES_PER_ROW,16,0,cs,tmpflip);
+			overtile16(temp,tile-TILES_PER_ROW-(tmpflip?-1:1),0,0,cs,tmpflip);
+			overtile16(temp,tile-TILES_PER_ROW+(tmpflip?-1:1),32,0,cs,tmpflip);
+			overtile16(temp,tile,16,16,cs,tmpflip);
+			overtile16(temp,tile-(tmpflip?-1:1),0,16,cs,tmpflip);
+			overtile16(temp,tile+(tmpflip?-1:1),32,16,cs,tmpflip);
+		}
             }
             
             if(drawstyle==1)
             {
 		if ( scripttile > -1 )
 		{
-			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW-(flip?-1:1),0,NEWMAXTILES),0,0,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW+(flip?-1:1),0,NEWMAXTILES),32,0,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile-(flip?-1:1),0,NEWMAXTILES),0,16,cs,flip,128);
-			overtiletranslucent16(temp,vbound(scripttile+(flip?-1:1),0,NEWMAXTILES),32,16,cs,flip,128);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW-(tmpflip?-1:1),0,NEWMAXTILES),0,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile-TILES_PER_ROW+(tmpflip?-1:1),0,NEWMAXTILES),32,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,cs,tmpflip,128);
+			overtiletranslucent16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,cs,tmpflip,128);
 		}    
 		else
 		{
-			overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,flip,128);
-			overtiletranslucent16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip,128);
-			overtiletranslucent16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip,128);
-			overtiletranslucent16(temp,tile,16,16,cs,flip,128);
-			overtiletranslucent16(temp,tile-(flip?-1:1),0,16,cs,flip,128);
-			overtiletranslucent16(temp,tile+(flip?-1:1),32,16,cs,flip,128);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile-TILES_PER_ROW-(tmpflip?-1:1),0,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile-TILES_PER_ROW+(tmpflip?-1:1),32,0,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile,16,16,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile-(tmpflip?-1:1),0,16,cs,tmpflip,128);
+			overtiletranslucent16(temp,tile+(tmpflip?-1:1),32,16,cs,tmpflip,128);
 		}
             }
             
@@ -1113,21 +1123,23 @@ void sprite::drawzcboss(BITMAP* dest)
             {
 		if ( scripttile > -1 )
 		{
-			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,flip);
-			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW-(flip?-1:1),0,NEWMAXTILES),0,0,flip);
-			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW+(flip?-1:1),0,NEWMAXTILES),32,0,flip);
-			overtilecloaked16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,flip);
-			overtilecloaked16(temp,vbound(scripttile-(flip?-1:1),0,NEWMAXTILES),0,16,flip);
-			overtilecloaked16(temp,vbound(scripttile+(flip?-1:1),0,NEWMAXTILES),32,16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW,0,NEWMAXTILES),16,0,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW-(tmpflip?-1:1),0,NEWMAXTILES),0,0,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile-TILES_PER_ROW+(tmpflip?-1:1),0,NEWMAXTILES),32,0,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,tmpflip);
+			overtilecloaked16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,tmpflip);
 		}    
 		else
 		{
-			overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,flip);
-			overtilecloaked16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,flip);
-			overtilecloaked16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,flip);
-			overtilecloaked16(temp,tile,16,16,flip);
-			overtilecloaked16(temp,tile-(flip?-1:1),0,16,flip);
-			overtilecloaked16(temp,tile+(flip?-1:1),32,16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+			overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,tmpflip);
+			overtilecloaked16(temp,tile-TILES_PER_ROW-(tmpflip?-1:1),0,0,tmpflip);
+			overtilecloaked16(temp,tile-TILES_PER_ROW+(tmpflip?-1:1),32,0,tmpflip);
+			overtilecloaked16(temp,tile,16,16,tmpflip);
+			overtilecloaked16(temp,tile-(tmpflip?-1:1),0,16,tmpflip);
+			overtilecloaked16(temp,tile+(tmpflip?-1:1),32,16,tmpflip);
 		}
             }
             
@@ -1152,10 +1164,10 @@ void sprite::drawzcboss(BITMAP* dest)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
 			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
-                            
-                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
-                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
-                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,tmpflip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,tmpflip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,tmpflip);
                     }
                 }
                 
@@ -1172,10 +1184,10 @@ void sprite::drawzcboss(BITMAP* dest)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
 			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
-                            
-                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
-                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
-                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,tmpflip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,tmpflip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,tmpflip);
                     }
                 }
                 
@@ -1192,10 +1204,10 @@ void sprite::drawzcboss(BITMAP* dest)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
 			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
-                            
-                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
-                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
-                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,tmpflip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,tmpflip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,tmpflip);
                     }
                 }
                 
@@ -1212,10 +1224,10 @@ void sprite::drawzcboss(BITMAP* dest)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
 			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
-                            
-                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip);
-                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip,128);
-                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip);
+			int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,tmpflip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,tmpflip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,tmpflip);
                     }
                 }
                 
@@ -1225,11 +1237,20 @@ void sprite::drawzcboss(BITMAP* dest)
             case 0:
             default:
                 if(drawstyle==0 || drawstyle==3)
-                    overtile16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,cs,flip);
+		{
+		    int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                    overtile16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,cs,tmpflip);
+		}
                 else if(drawstyle==1)
-                    overtiletranslucent16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,cs,flip,128);
+		{
+		    int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                    overtiletranslucent16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,cs,tmpflip,128);
+		}
                 else if(drawstyle==2)
-                    overtilecloaked16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,flip);
+		{
+		    int tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
+                    overtilecloaked16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,tmpflip);
+		}
                     
                 break;
             }
