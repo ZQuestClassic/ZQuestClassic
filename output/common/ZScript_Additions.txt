@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 68
-Document Revision: 30th April, 2020
+Document for: 2.55, Alpha 69
+Document Revision: 6th May, 2020
 
 
  __           _   _                 
@@ -2489,7 +2489,15 @@ __________      .__        __                    _____                ___.
 //  Game  //
 ////////////								// Game
 
-Adds ZScript:
+bool Suspend[susptLAST];
+ * Each index represents an aspect of the game engine that you 
+ * can suspend or resume by writing to this array.
+ * See the enum in std.zh containing suspt* constants
+ * for a list that you may use. 
+ * Reading from this array will return false if the aspect of the
+ * game engine is unning; or true if it is suspended.
+ * Write eleents true to suspend them, or false to resume a 
+ * suspended element.
 
 int IncrementQuest();
  * Ends the current quest, incrementing the quest ID by +1, and
