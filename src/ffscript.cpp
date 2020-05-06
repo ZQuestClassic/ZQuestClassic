@@ -5522,7 +5522,7 @@ long get_register(const long arg)
 int pos = ri->d[0] / 10000; \
 if(BC::checkComboPos(pos, str) != SH::_NoError) \
 { \
-    Z_scripterrlog("Inalid pos used to read %s\n"); \
+    Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
     ret = -10000; \
 } \
 else \
@@ -5543,7 +5543,7 @@ else \
     int pos = ri->d[0] / 10000; \
     if(BC::checkComboPos(pos, str) != SH::_NoError) \
     { \
-        Z_scripterrlog("Inalid pos used to read %s\n"); \
+        Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
         ret = -10000; \
     } \
     else \
@@ -7654,11 +7654,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	int val = (value/10000);
         if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboD[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= MAXCOMBOS )
 	{
-		Z_scripterrlog("Inalid combo ID %d used to write to Screen->ComboD[]\n", val);
+		Z_scripterrlog("Invalid combo ID %d used to write to Screen->ComboD[]\n", val);
 	}
         else
         {
@@ -7675,11 +7675,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int val = (value/10000); //cset
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 15 )
 	{
-		Z_scripterrlog("Inalid CSet ID %d used to write to Screen->ComboC[]\n", val);
+		Z_scripterrlog("Invalid CSet ID %d used to write to Screen->ComboC[]\n", val);
 	}
         else
         {
@@ -7696,11 +7696,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int val = (value/10000); //flag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboF[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboF[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboF[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboF[]\n", val);
 	}
         
         else
@@ -7714,11 +7714,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int val = (value/10000); //type
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
 	}
         else
         {
@@ -7750,11 +7750,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int val = (value/10000); //iflag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboI[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboI[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 256 )
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboI[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboI[]\n", val);
 	}
         
         else
@@ -7768,11 +7768,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int val = (value/10000); //iflag
 	if ( ((unsigned) pos) > 175 )
 	{
-		Z_scripterrlog("Inalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
 	}
 	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
 	{
-		Z_scripterrlog("Inalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
 	}
         else
             combobuf[tmpscr->data[pos]].walk=(val)&15;
