@@ -3173,7 +3173,7 @@ public:
     {
         if(n < boundlow || n > boundup)
         {
-            Z_scripterrlog("Invalid position [%i] passed to '%s'\n", n, funcvar);
+            Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
             return _OutOfBounds;
         }
         
@@ -5540,13 +5540,13 @@ else \
 }
 
     case COMBODD:
-        GET_COMBO_VAR(data,  "Screen->ComboD") break;
+        GET_COMBO_VAR(data,  "Screen->ComboD[]") break;
         
     case COMBOCD:
-        GET_COMBO_VAR(cset,  "Screen->ComboC") break;
+        GET_COMBO_VAR(cset,  "Screen->ComboC[]") break;
         
     case COMBOFD:
-        GET_COMBO_VAR(sflag, "Screen->ComboF") break;
+        GET_COMBO_VAR(sflag, "Screen->ComboF[]") break;
         
 #define GET_COMBO_VAR_BUF(member, str) \
 { \
@@ -5560,16 +5560,16 @@ else \
 }
         
     case COMBOTD:
-        GET_COMBO_VAR_BUF(type, "Screen->ComboT") break;
+        GET_COMBO_VAR_BUF(type, "Screen->ComboT[]") break;
         
     case COMBOID:
-        GET_COMBO_VAR_BUF(flag, "Screen->ComboI") break;
+        GET_COMBO_VAR_BUF(flag, "Screen->ComboI[]") break;
         
     case COMBOSD:
     {
         int pos = ri->d[0] / 10000;
         
-        if(BC::checkComboPos(pos, "Screen->ComboS") != SH::_NoError)
+        if(BC::checkComboPos(pos, "Screen->ComboS[]") != SH::_NoError)
             ret = -10000;
         else
             ret = (combobuf[tmpscr->data[pos]].walk & 0xF) * 10000;
