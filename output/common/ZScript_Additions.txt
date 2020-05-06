@@ -2495,8 +2495,8 @@ bool Suspend[susptLAST];
  * See the enum in std.zh containing suspt* constants
  * for a list that you may use. 
  * Reading from this array will return false if the aspect of the
- * game engine is unning; or true if it is suspended.
- * Write eleents true to suspend them, or false to resume a 
+ * game engine is running; or true if it is suspended.
+ * Write elements true to suspend them, or false to resume a 
  * suspended element.
 
 int IncrementQuest();
