@@ -1714,7 +1714,7 @@ public:
 	
 	static INLINE int checkComboPos(const long pos, const char * const str)
 	{
-		return checkBounds(pos, 0, 175, str);
+		return checkBoundsPos(pos, 0, 175, str);
 	}
 	
 	static INLINE int checkTile(const long pos, const char * const str)
@@ -1808,6 +1808,18 @@ public:
 		
 		return _NoError;
 	}
+	
+	static INLINE int checkBoundsPos(const long n, const long boundlow, const long boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] passed to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
+	
 	static INLINE int checkBoundsOneIndexed(const long n, const long boundlow, const long boundup, const char * const funcvar)
 	{
 		if(n < boundlow || n > boundup)
@@ -6022,7 +6034,6 @@ long get_register(const long arg)
 		int pos = ri->d[0] / 10000; \
 		if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		{ \
-		    Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
 		    ret = -10000; \
 		} \
 		else \
@@ -6043,7 +6054,6 @@ long get_register(const long arg)
 		    int pos = ri->d[0] / 10000; \
 		    if(BC::checkComboPos(pos, str) != SH::_NoError) \
 		    { \
-			Z_scripterrlog("Invalid pos [%d] used to read %s\n",pos,str); \
 			ret = -10000; \
 		    } \
 		    else \
@@ -7650,7 +7660,6 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboD[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7679,7 +7688,6 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboC[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7707,7 +7715,6 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboF[%d]\n", pos);
 					ret = -10000; break;
 				}
 				else
@@ -7737,7 +7744,6 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboT[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7767,7 +7773,6 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboI[%d]\n", pos);
 					ret = -10000; break;
 					
 				}
@@ -7798,7 +7803,7 @@ long get_register(const long arg)
 				int pos = ri->d[0] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
 				{
-					Z_scripterrlog("Invalid pos used to read mapdata->ComboS[%d]\n", pos);
+					
 					ret = -10000; break;
 					
 				}
