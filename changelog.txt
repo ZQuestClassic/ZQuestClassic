@@ -1,7 +1,46 @@
 // 2.55 Change Log
-// Updated 29th April, 2020
+// Updated 6th May, 2020
+
+//Alpha 70
+Fixed wallmasters not emerging from walls 
+	This was due to a maths issue caused by converting to zfix.
+Enemies should now obey scripttile and scriptflip if > -1, with
+	old sprite draws
+	( ZoriaRPG, 6th May, 2020 )
 
 //Alpha 69
+Fix pasting strings not setting 'saved=false'
+Fix broken 'saved' checks; F4 not responding issue
+Fix default new string settings based on compat QR
+Fix 2x2 frame using incorrect width/height values
+Re-space 'zq_strings.cpp'
+Fix inconsistent ZQ string display
+	( Venrob, 4th May, 2020 )
+	
+Feat: Added zc.cfg setting zc_menu_on_left; to align with ZQE.
+Fix: Hotkey conflict on Pick Ruleset.
+Addeed config int: zc_menu_on_left
+Rework of main ZQ menu. 
+	If in small mode, change from the_menu to the_menu_small.
+	If in large mode, use the_menu_large.
+Prune 'ZScript' submenu under ZC menu; it now fits small mode.
+	( ZoriaRPG, 2nd May, 2020 )
+	
+Fix fixed-point errors in ffscript.cpp
+	( Venrob, 2nd May, 2020 )
+	
+Remove 'Editor' from ZQ programme name.
+<std, 1.7051> Fixed the value for CF_SIDEVIEW_PLATFORM.
+Added the following Favourite Commands that Avataro requested:
+	Take ZQ Screenshot
+	Screen Script
+	Rules - Weapons
+The internal printf() was converting the decimal portion of
+	negatively signed floating point values using format %f and %d
+	improperly, by wrapping them backwards from '0'.
+	I fixed this with some discrete calls to abs().
+	( ZoriaRPG, 1st May, 2020 )
+
 Slight timing fix to directItemA, for B-only quests. 
 	( ZoriaRPG, 30th April, 2020 )
 	
