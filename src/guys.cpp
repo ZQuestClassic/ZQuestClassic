@@ -186,8 +186,12 @@ int count_layer_enemies()
 
 int link_on_wall()
 {
-    int lx = Link.getX();
-    int ly = Link.getY();
+    zfix lx = Link.getX();
+    zfix ly = Link.getY();
+	
+	
+	zprint2("link_on_wall x is: %d\n", lx);
+	zprint2("link_on_wall y is: %d\n", ly);
     
     if(lx>=48 && lx<=192)
     {
@@ -7992,6 +7996,7 @@ void eLeever::draw(BITMAP *dest)
 
 eWallM::eWallM(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
+    zprint2("eWallM::eWallM\n");
     haslink=false;
     //nets+1000;
 }
@@ -8010,9 +8015,14 @@ bool eWallM::animate(int index)
     obeys_gravity = 1;
     if(misc==0) //inside wall, ready to spawn?
     {
+	//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
+	//zprint2("frame is: %d\n",frame);
+	//zprint2("wallm_load_clk is: %d\n",wallm_load_clk);
         if(frame-wallm_load_clk>80 && clk>=0)
         {
+	    //zprint2("getting wall\n");
             int wall=link_on_wall();
+		zprint2("Wallmaster wall is %d\n",wall);
             int wallm_cnt=0;
             
             for(int i=0; i<guys.Count(); i++)
@@ -8030,6 +8040,7 @@ bool eWallM::animate(int index)
             {
                 --wall;
                 misc=1; //emerging from the wall?
+		zprint2("Wallmaster is emerging\n");
                 clk2=0;
                 clk3=wall^1;
                 wallm_load_clk=frame;
@@ -8067,29 +8078,35 @@ bool eWallM::animate(int index)
                     x=240;
                     break;
                 }
+		
+		zprint2("Wallmaster (p1) x is %d\n",x);
+		zprint2("Wallmaster (p1) y is %d\n",y);
                 
                 switch(dir)
                 {
                 case up:
-                    y=LinkY()+48-(wallm_cnt&1)*12;
+                    y=(LinkY()+48-(wallm_cnt&1)*12);
                     flip=wall&1;
                     break;
                     
                 case down:
-                    y=LinkY()-48+(wallm_cnt&1)*12;
+                    y=(LinkY()-48+(wallm_cnt&1)*12);
                     flip=((wall&1)^1)+2;
                     break;
                     
                 case left:
-                    x=LinkX()+48-(wallm_cnt&1)*12;
+                    x=(LinkX()+48-(wallm_cnt&1)*12);
                     flip=(wall==up?2:0)+1;
                     break;
                     
                 case right:
-                    x=LinkX()-48+(wallm_cnt&1)*12;
+                    x=(LinkX()-48+(wallm_cnt&1)*12);
                     flip=(wall==up?2:0);
                     break;
                 }
+		
+		zprint2("Wallmaster (p2) x is %d\n",x);
+		zprint2("Wallmaster (p2) y is %d\n",y);
             }
         }
     }
@@ -8118,7 +8135,17 @@ void eWallM::wallm_crawl()
     watch=false;
     ++clk2;
     // Misc1: slightly different movement
-    misc=(clk2/(dmisc1==1?40:int((40.0/dstep)*40)))+1;
+    zprint2("wallmaster crawl\n");
+    int tmpdstep = dstep;
+    zprint2("wallmaster tmpdstep is %d\n",tmpdstep);
+    float tmpmisc2 = (float)tmpdstep;
+    float tmpmisc3 = 40.0/tmpdstep;
+    tmpmisc3 *= 40.0;
+    int tmpmisc4 = (int)tmpmisc3;
+    int tmpmisc = int((40.0/dstep)*40);
+    zprint2("wallmaster crawl tmpmisc is: %d\n", tmpmisc);
+    zprint2("wallmaster crawl tmpmisc4 is: %d\n", tmpmisc4);
+    misc=(clk2/(dmisc1==1?40:tmpmisc))+1;
     
     if(w&&misc>=3&&misc<=5)
     {
