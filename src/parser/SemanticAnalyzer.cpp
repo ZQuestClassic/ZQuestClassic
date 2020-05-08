@@ -708,6 +708,11 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 	}
 }
 
+void SemanticAnalyzer::caseImportCondDecl(ASTImportCondDecl& host, void* param)
+{
+	RecursiveVisitor::caseImportCondDecl(host, param);
+}
+
 void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
 {
 	visit(host.expr.get(), param);

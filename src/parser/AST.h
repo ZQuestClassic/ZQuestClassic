@@ -79,6 +79,7 @@ namespace ZScript
 	class ASTScript;
 	class ASTNamespace;
 	class ASTImportDecl;
+	class ASTImportCondDecl;
 	class ASTFuncDecl;
 	class ASTDataDeclList;
 	class ASTDataDecl;
@@ -287,6 +288,7 @@ namespace ZScript
 
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTImportDecl> imports;
+		owning_vector<ASTImportCondDecl> condimports;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> dataTypes;
@@ -637,7 +639,8 @@ namespace ZScript
 			TYPE_SCRIPTTYPE,
 			TYPE_NAMESPACE,
 			TYPE_USING,
-			TYPE_ASSERT
+			TYPE_ASSERT,
+			TYPE_IMPORT_COND
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -731,7 +734,24 @@ namespace ZScript
 		bool include_;
 		owning_ptr<ASTFile> tree_;
 	};
+	
+	class ASTImportCondDecl : public ASTDecl
+	{
+	public:
+		ASTImportCondDecl(ASTExprConst* cond, ASTImportDecl* import, LocationData const& location = LocationData::NONE);
+		ASTImportCondDecl* clone() const /*override*/ {
+			return new ASTImportCondDecl(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
+		Type getDeclarationType() const /*override*/ {return TYPE_IMPORT_COND;}
+		
+		owning_ptr<ASTExprConst> cond;
+		owning_ptr<ASTImportDecl> import;
+		
+		bool preprocessed;
+	};
+	
 	class ASTFuncDecl : public ASTDecl
 	{
 	public:

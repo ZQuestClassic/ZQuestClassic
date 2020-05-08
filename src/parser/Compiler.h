@@ -22,6 +22,7 @@ namespace ZScript
 
 	// AST.h
 	class ASTFile;
+	class ASTImportDecl;
 
 	// ByteCode.h
 	class ArgumentVisitor;
@@ -141,6 +142,7 @@ namespace ZScript
 		{
 			return gid++;
 		}
+		static bool preprocess_one(ASTImportDecl& decl, int reclevel);
 		static bool preprocess(ASTFile* root, int reclevel);
 		static IntermediateData* generateOCode(FunctionData& fdata);
 		static void assemble(IntermediateData* id);

@@ -20,6 +20,7 @@
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
 int yyrow, yycol;
+bool doImportStr = false;
 
 enum {st_none, st_case};
 int special_state = st_none;
@@ -298,6 +299,7 @@ appx_equal	TOKEN( APPXEQUAL );
 	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
+	includeif			doImportStr = true; BEGIN( INITIAL ); TOKEN( INCLUDEIF );
 	inherit			TOKEN( INHERIT );
 	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );
 	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
@@ -307,7 +309,12 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Strings */
 <INITIAL>\"		{
-	BEGIN( STRING );
+	if(doImportStr)
+	{
+		BEGIN( IMPORTSTR );
+		doImportStr = false;
+	}
+	else BEGIN( STRING );
 	qstr.str(""); /* Clear qstr */
 	srow = yyrow;
 	scol = yycol;
@@ -390,6 +397,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		return TOK_QUOTEDSTRING;
 	}
 }
+
  /* Import String */
  <IMPORTING>{
 	<<EOF>>			{
@@ -523,6 +531,8 @@ appx_equal	TOKEN( APPXEQUAL );
 
 void resetLexer() {
 	YY_FLUSH_BUFFER;
+	BEGIN( INITIAL );
 	yyrow = 1;
 	yycol = 1;
+	doImportStr = false;
 }
