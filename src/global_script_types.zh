@@ -1,0 +1,136 @@
+//////////////////////
+/// Global Scripts ///
+//////////////////////
+
+Global scripts run without context to a specific pointer or datatype.
+There are six, fixed slota; of which you may directly assign scripts
+to five. 
+
+Slot assignment during compilation to the ~Init Slot (1) is automatic.
+
+Global scripts do not have InitD args, and parameters listed within the 
+braces of the normal run(...) function are initialised to 0.
+
+Global scripts are executed automatically when their conditions are valid, 
+based on the script slot to which the user assigns them.
+
+//////////////////
+// 1. Init Slot //
+//////////////////
+
+This script runs for exactly one frame, on the first play of a quest.
+It is used to initialise global arrays, and the user can create additional
+context for it by creating a script named 'global script Init'. 
+	
+During post-compilation slot assignment, any global script with the
+EXACT IDENTIFIER 'Init' will be assigned to this slot.
+
+Manual slot assignment to ~Init is possible for ASM script imports,
+but doing this may have unintended side-effects.
+	
+Any instructions within the body of the run() function of the script
+will execute during game initialisation, but only if the player has not
+saved the game.
+
+////////////////////
+// 2. Active Slot //
+////////////////////
+
+This script can run for multiple frames, and runs during the normal action of the game.
+	
+The typical purpose of this script slot is to tailor the game engine to your needs, and 
+the body of its run() function serves as the ZScript equivalent to a main() loop in C.
+
+Generally, the body of this script is an infinite loop, ending in a Waitframe(), although
+it may consist of a conditional loop or series of loops, each with instructions to process
+during different stages of your game.
+
+Normally, if the player is still playing the quest, then this script is running:
+	It automatically terminates if you issue a Quit() instruction, if it runs out of scope, 
+	or under one of the following conditions:
+	
+	The player HP falls below '1'. 
+		Under this circumstance, the script runs for ONE additional frame to allow
+		your scripts to restore the player HP.
+		Failing to revive the player will exit this script, and the Hero Scrit Death Slot
+			will run, followed by the Global Exit Slot (3).
+			!!VERIFY TIMING
+	The player triggers the F6 menu.
+	Any script calls Game->Continue(), or Game->End().
+
+The global active script can run for multiple frames, and supports the Waitdraw() command.
+
+//////////////////
+// 3. Exit Slot //
+//////////////////
+
+This script runs for exactly one frame, after the player dies, or otherwise after the 
+game action ends via calling the game over menu.
+
+The purpose of this script slot is to modify global variables or array values prior to 
+writing the game save, such as the number of times the polayer has saved his adventure.
+
+////////////////////////////
+// 4. Load from Save Slot //
+////////////////////////////
+
+This script runs for exactly one frame, on every load of a quest from the file select 
+screen, AFTER the player has saved the game at least one time.
+
+This script does not run when continuing a game with F6>>>Contunue from the game over
+menu, nor when continuing a game with the Game->Continue() ZScript command.
+
+The purpose of this script slot is to reinitialise any user-created conditions, such as re-init
+of user bitmaps, re-priming global pointers, or otherwie ensuring that your global or internal
+values are correct before the game resumes from a file where values to these variables / pointers
+may now be stale, but were saved to the .sav file.
+
+////////////////////
+// 5. Launch Slot //
+////////////////////
+
+This script runs for exactly one frame, on every load of a quest from the file select 
+screen, whether the quest has been previously played, or not. 
+
+This script does not run when continuing a game with F6>>>Contunue from the game over
+menu, nor when continuing a game with the Game->Continue() ZScript command.
+
+It is similar to slots (1) and (4), and can take the place of either, unless you have timing-specific 
+issues that require two scripts to execute.
+
+This script runs directly after (1) on a virgin save slot, or directly after slot (4) if the
+	game has previously been saved.
+
+The purpose of this script slot is to reinitialise any user-created conditions, such as re-init
+of user bitmaps, re-priming global pointers, or otherwie ensuring that your global or internal
+values are correct before the game resumes from a file where values to these variables / pointers
+may now be stale, but were saved to the .sav file.
+
+////////////////////////////////
+// 6. Continue Game from Menu //
+////////////////////////////////
+
+This script runs for exactly one frame, when the user resumes/reloads an already-running
+game either via F6>>>Contunue from the game over menu, or by continuing a game with the 
+Game->Continue() ZScript command.
+
+on every load of a quest from the file select 
+screen, whether the quest has been previously played, or not. 
+
+This script does not run when loading a game from the file select screen.
+
+The purpose of this script slot is similar to that of slots (2), (4) and (5), but it may also 
+be useful in setting minor conditions, such as the player health/magic.
+
+This script runs prior to the opening wipe.
+
+//////////////////
+// 7. Menu Slot //
+//////////////////
+
+This script runs for multiple frames, whenever the player presses F6 to display the save screen
+menu, (but not when the player dies?) -- tTiming here?
+
+The purpose of this script slot is to permit making a drop-in, scripted  replacement for the standard 
+Continue/Save/Retry menu screen.
+   

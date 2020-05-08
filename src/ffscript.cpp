@@ -12191,6 +12191,11 @@ void set_register(const long arg, const long value)
 		case NPCDP:
 			SET_NPC_VAR_INT(dp, "npc->Damage") break;
 			
+		case NPCTYPE:
+		{
+			SET_NPC_VAR_INT(family, "npc->Type") break;
+		}
+		
 		case NPCWDP:
 			SET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
 			

@@ -898,6 +898,18 @@ void enemy::death_sfx()
 
 void enemy::move(zfix dx,zfix dy)
 {
+    /*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
+    {
+	switch(family)
+	{
+		case eeFIRE:
+		case eeOTHER:
+			return;
+		default: break;
+	}
+	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
+    }
+    */
     if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)))
     {
         x+=dx;
@@ -907,6 +919,17 @@ void enemy::move(zfix dx,zfix dy)
 
 void enemy::move(zfix s)
 {
+    /*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
+    {
+	switch(family)
+	{
+		case eeFIRE:
+		case eeOTHER:
+			return;
+		default: break;
+	}
+	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
+    }*/
     if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)))
         sprite::move(s);
 }
@@ -6971,6 +6994,7 @@ void eFire::break_shield()
 
 eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
+    //zprint2("npct other::other\n");
     clk4=0;
     obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
@@ -6995,6 +7019,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eOther::animate(int index)
 {
+    //zprint2("npct other::animate\n");
     if(fading)
     {
         if(++clk4 > 60)
