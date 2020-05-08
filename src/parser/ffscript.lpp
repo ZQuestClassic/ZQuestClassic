@@ -38,7 +38,7 @@ using namespace ZScript;
 int srow, scol;
 std::ostringstream qstr;
 
-#define NEWLINE ++yyrow; yycol = 1
+#define NEWLINE ++yyrow; yycol = 1; doImportStr = false
 #define ADVANCE yycol += yyleng
 
 #define UPDATE_YYLLOC \
