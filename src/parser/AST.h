@@ -1888,7 +1888,7 @@ namespace ZScript
 		virtual std::string asString() const;
 
 		virtual bool isConstant() const {return true;}
-		bool isLiteral() const {return false;} //Despite being an `ASTLiteral`, this is NOT a literal. Why is this under ASTLiteral? -V
+		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
 
 		
 		optional<long> getCompileTimeValue(
@@ -1901,7 +1901,27 @@ namespace ZScript
 		CompileOption option;
 		optional<long> value;
 	};
-
+	
+	class ASTIsIncluded : public ASTLiteral
+	{
+	public:
+		ASTIsIncluded(std::string const& name = "",
+		               LocationData const& location = LocationData::NONE);
+		ASTIsIncluded* clone() const {return new ASTIsIncluded(*this);}
+		
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		virtual bool isConstant() const {return true;}
+		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return &DataType::BOOL;}
+		
+		std::string name;
+	};
 	// Types
 
 	class ASTScriptType : public AST

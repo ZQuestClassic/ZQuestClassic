@@ -16,6 +16,7 @@ using std::string;
 using std::ostringstream;
 using std::vector;
 using namespace ZScript;
+using namespace util;
 
 ////////////////////////////////////////////////////////////////
 // LocationData
@@ -2089,6 +2090,28 @@ optional<long> ASTOptionValue::getCompileTimeValue(
 std::string ASTOptionValue::asString() const
 {
 	return "OPTION_VALUE(" + *option.getName() + ")";
+}
+
+// ASTIsIncluded
+
+ASTIsIncluded::ASTIsIncluded(
+		string const& str, LocationData const& location)
+	: ASTLiteral(location)
+{
+	name = cropPath(str);
+	lowerstr(name);
+}
+
+void ASTIsIncluded::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseIsIncluded(*this, param);
+}
+
+optional<long> ASTIsIncluded::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	RootScope* root = getRoot(*scope);
+	return root->isImported(name) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0;
 }
 
 ////////////////////////////////////////////////////////////////

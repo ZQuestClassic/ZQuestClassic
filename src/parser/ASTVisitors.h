@@ -182,6 +182,9 @@ namespace ZScript
 		virtual void caseOptionValue(
 				ASTOptionValue& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseIsIncluded(
+				ASTIsIncluded& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Types
 		virtual void caseScriptType(ASTScriptType& host, void* param = NULL) {
 			caseDefault(host, param);}

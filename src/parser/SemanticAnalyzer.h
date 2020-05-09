@@ -82,6 +82,7 @@ namespace ZScript
 		void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 		void caseOptionValue(ASTOptionValue& host, void* = NULL);
+		void caseIsIncluded(ASTIsIncluded& host, void* = NULL);
 
 	private:
 		ZScript::Program& program;

@@ -1321,6 +1321,9 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 		handleError(CompileError::UnknownOption(&host, host.name));*/
 }
 
+void SemanticAnalyzer::caseIsIncluded(ASTIsIncluded& host, void*)
+{}
+
 void SemanticAnalyzer::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
 {

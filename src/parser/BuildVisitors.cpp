@@ -2194,6 +2194,12 @@ void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
 	                            new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 }
 
+void BuildOpcodes::caseIsIncluded(ASTIsIncluded& host, void*)
+{
+	addOpcode(new OSetImmediate(new VarArgument(EXP1),
+	                            new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 // LValBOHelper
 

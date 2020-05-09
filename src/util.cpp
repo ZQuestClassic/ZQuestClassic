@@ -19,6 +19,15 @@ namespace util
 			str[q] = tolower(str[q]);
 	}
 	
+	string cropPath(string filepath)
+	{
+		size_t lastslash = filepath.find_last_of("/");
+		size_t lastbslash = filepath.find_last_of("\\");
+		size_t last = (lastslash == string::npos) ? lastbslash : (lastbslash == string::npos ? lastslash : (lastslash > lastbslash ? lastslash : lastbslash));
+		if(last != string::npos) filepath = filepath.substr(last+1);
+		return filepath;
+	}
+	
 	void replchar(std::string& str, char from, char to)
 	{
 		for(int q = str.size() - 1; q >= 0; --q)

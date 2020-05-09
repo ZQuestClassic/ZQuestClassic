@@ -94,6 +94,7 @@ typedef		TOKEN( TYPEDEF );
 
 catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
+IS_INCLUDED		doImportStr = true; TOKEN( ISINCLUDED );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
