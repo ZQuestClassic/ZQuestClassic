@@ -96,8 +96,6 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 static int isNextType(int type)
 {
-	//return true here, if an emulation bit says to use buggy code
-	if (FFCore.emulation[emuBUGGYNEXTCOMBOS]) return false; 
 	switch(type)
 	{
 		case cLIFTSLASHNEXT:
@@ -3103,7 +3101,12 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
-		skipsecrets = 1; ;
+		//if an emulation bit says to use buggy code
+		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
+		{
+			skipsecrets = 0;
+		}
+		else skipsecrets = 1; ;
     }
     
     if(!ignorescreen && !skipsecrets)
@@ -3866,7 +3869,12 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
-		skipsecrets = 1; 
+		//if an emulation bit says to use buggy code
+		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
+		{
+			skipsecrets = 0;
+		}
+		else skipsecrets = 1; 
     }
     if(!skipsecrets && (!ignorescreen || dontignore))
     {

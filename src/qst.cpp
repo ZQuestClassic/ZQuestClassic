@@ -2920,6 +2920,17 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             set_bit(quest_rules, qr_BROKENSTATUES, 1);
     }
     
+    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
+    {
+	FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
+	set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
+    }
+    
+    if ( tempheader.zelda_version < 0x250 ) 
+    {
+	FFCore.emulation[emu8WAYSHOTSFX] = 1;    
+    }
+    
     if(s_version < 3)
     {
         set_bit(quest_rules, qr_HOLDNOSTOPMUSIC, 1);
