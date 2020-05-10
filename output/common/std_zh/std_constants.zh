@@ -1,5 +1,5 @@
 // std_constants.zh
-// 2nd May, 2020 for ZC 2.55 Alpha 69
+// 10th May, 2020 for ZC 2.55 Alpha 71
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -2197,6 +2197,22 @@ const int CT_SCRIPT2		= 143;
 const int CT_SCRIPT3		= 144;
 const int CT_SCRIPT4		= 145;
 const int CT_SCRIPT5		= 146;
+const int CT_SCRIPT6		= 147;
+const int CT_SCRIPT7		= 148;
+const int CT_SCRIPT8		= 149;
+const int CT_SCRIPT9		= 150;
+const int CT_SCRIPT10		= 151;
+const int CT_SCRIPT11		= 152;
+const int CT_SCRIPT12		= 153;
+const int CT_SCRIPT13		= 154;
+const int CT_SCRIPT14		= 155;
+const int CT_SCRIPT15		= 156;
+const int CT_SCRIPT16		= 157;
+const int CT_SCRIPT17		= 158;
+const int CT_SCRIPT18		= 159;
+const int CT_SCRIPT19		= 160;
+const int CT_SCRIPT20		= 161;
+const int CT_GENERIC		= 162;
 const int CT_SHALLOWWATER       = 58;
 const int CT_SLASH              = 24;
 const int CT_SLASHC             = 132;
