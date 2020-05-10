@@ -55,6 +55,17 @@ void playLevelMusic();
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
 
+void do_fix(zfix& coord, int val, bool nearest_half = false)
+{
+	int c = coord.getInt();
+	if(nearest_half)
+	{
+		c += (val/2);
+	}
+	c -= c % val;
+	coord = c;
+}
+
 bool NEWOUTOFBOUNDS(zfix x, zfix y, zfix z)
 {
 	return 
@@ -603,7 +614,8 @@ bool enemy::animate(int index)
 				if(willHitSVPlatform)
 				{
 					y+=fall/100;
-					y-=int(y)%16; //Fix to top of SV Ladder
+					//y-=int(y)%16; //Fix to top of SV Ladder
+					do_fix(y, 16); //Fix to top of SV Ladder
 					fall = 0;
 				}
 				else
@@ -616,8 +628,11 @@ bool enemy::animate(int index)
             else
             {
                 if(fall!=0)   // Only fix pos once
-                    y-=(int)y%8; // Fix position
-                    
+				{
+                    //y-=(int)y%8; // Fix position
+                    do_fix(y, 8); //Fix position
+				}
+					
                 fall = 0;
             }
         }
@@ -3922,7 +3937,7 @@ bool enemy::hit(weapon *w)
 
 void enemy::fix_coords(bool bound)
 {
-    if (get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES || (editorflags&ENEMY_FLAG11) )) return;
+    if ((get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES) ? 1 : 0) ^ ((editorflags&ENEMY_FLAG11)?1:0)) return;
 	
     
     
@@ -3942,12 +3957,17 @@ void enemy::fix_coords(bool bound)
     
     if(!OUTOFBOUNDS)
     {
-        x=(zfix)((int(x)&0xF0)+((int(x)&8)?16:0));
+        /*x=((int(x)&0xF0)+((int(x)&8)?16:0));
         
         if(isSideViewGravity())
-            y=(zfix)((int(y)&0xF8)+((int(y)&4)?8:0));
+            y=((int(y)&0xF8)+((int(y)&4)?8:0));
         else
-            y=(zfix)((int(y)&0xF0)+((int(y)&8)?16:0));
+            y=((int(y)&0xF0)+((int(y)&8)?16:0));
+		*/
+		do_fix(x, 16, true);
+		if(isSideViewGravity())
+			do_fix(y,8,true);
+		else do_fix(y,16,true);
     }
 }
 bool enemy::cannotpenetrate()
@@ -4603,8 +4623,10 @@ int enemy::slide()
 		if(!OFFGRID_ENEMY)
 		{
 			//Fix to grid
-			x = (int(x)+8)-((int(x)+8)%16);
-			y = (int(y)+8)-((int(y)+8)%16);
+			//x = (int(x)+8)-((int(x)+8)%16);
+			//y = (int(y)+8)-((int(y)+8)%16);
+			do_fix(x, 16, true);
+			do_fix(y, 16, true);
 		}
 		return 0;
 	}
