@@ -1,5 +1,22 @@
 // 2.55 Change Log
-// Updated 6th May, 2020
+// Updated 10th May, 2020
+
+//Alpha 71
+<std 1.7052> Added missing constants for CT_SCRIPT6 to CT_SCRIPT20, 
+	and CT_GENERIC.
+	( ZoriaRPG, 10th May, 2020 )
+	
+Fix enemies walking through walls.
+	( Venrob, 10th May, 2020 )
+	
+Allow writing npc->Type, although this has no immediate effect at present.
+	( ZoriaRPG, 8th May, 2020 )
+
+Slight improvement on read combo error messages.
+Revise the bounds check routine for combo positions.
+Fix: Possible crash and bad error message for Screen->Combo[] errors.
+	* These may have been in Alpha 70, or might be 71.
+	( ZoriaRPG, 6th May, 2020 )
 
 //Alpha 70
 Fixed wallmasters not emerging from walls 
@@ -102,6 +119,8 @@ Made old favorite commands which have been removed reset to '(None)'
 
 Fix printf '%f' error
 Replace Allegro 'fix', using floating point, with 'zfix', as true integer fixed type. 
+	NOTE: This was not in Alpha 66. It was in 67, as although it was committed on this
+		date, it was NOT MERGED for a few days. 
 Fix 'Default Defense' on weapons being reset when opening the item editor
 	( Venrob, 24th April, 2020 )
 	
