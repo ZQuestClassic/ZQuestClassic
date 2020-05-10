@@ -259,6 +259,1890 @@ bool flyerblocked(int dx, int dy, int special)
 
   */
 
+eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    shield(shield)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    shield(shield)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+
+
+
+eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    shield(shield)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    shield(shield)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    ox(ox),
+    oy(oy),
+    c(c)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    old_y(old_y),
+    clk2start(clk2start),
+    cstart(cstart),
+    c(c)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    ox(ox),
+    oy(oy),
+    c(c)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    temprule(temprule)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    haslink(haslink)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4),
+    clk5(clk5),
+    fired(fired),
+    shield(shield),
+    dashing(dashing),
+    haslink(haslink),
+    multishot(multishot),
+    fy(fy),
+    shadowdistance(shadowdistance)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    minRange(minRange)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    ox(ox),
+    oy(oy)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+
+
+
+eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    ox(ox),
+    c(c),
+    clk4(clk4),
+    oy(oy)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    charging(charging),
+    firing(firing),
+    fclk(fclk)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    previous_dir(previous_dir)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    fbx(fbx),
+    clk4(clk4)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    clk4(clk4)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    Stunclk(Stunclk)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    segcnt(segcnt),
+    segid(segid)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    parentclk(parentclk)
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+/*
+eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    armcnt(armcnt),
+    adjusted(adjusted),
+    arm[0](arm[0]),
+    arm[1](arm[1]),
+    arm[2](arm[2]),
+    arm[3](arm[3]),
+    arm[4](arm[4]),
+    arm[5](arm[5]),
+    arm[6](arm[6]),
+    arm[7](arm[7])
+{
+	
+	//arrays
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+{
+	
+	//arrays
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    flameclk(flameclk),
+    flamehead(flamehead),
+    necktile(necktile)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    headtile(headtile),
+    flyingheadtile(flyingheadtile),
+    necktile(necktile),
+    xoffset(xoffset),
+    yoffset(yoffset),
+    nx(nx),
+    ny(ny),
+    nxoffset(nxoffset),
+    nyoffset(nyoffset),
+    parent(parent)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	//for ( int q = 0; q < 255; q++ ) 
+	//{
+	//	nx[q] = other.nx[q];
+	//	ny[q] = other.ny[q];
+	//	nxoffset[q] = other.nxoffset[q];
+	//	nyoffset[q] = other.nyoffset[q];
+	//}
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    flycnt(flycnt),
+    flycnt2(flycnt2),
+    loopcnt(loopcnt),
+    lookat(lookat),
+    circle_x(circle_x),
+    circle_y(circle_y),
+    temp_x(temp_x),
+    temp_y(temp_y),
+    adjusted(adjusted)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other),
+    flycnt(flycnt),
+    flycnt2(flycnt2),
+    loopcnt(loopcnt),
+    lookat(lookat),
+    adjusted(adjusted)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for ( int q = 0; q < 255; q++ ) 
+	{
+		nx[q] = other.nx[q];
+		ny[q] = other.ny[q];
+		nxoffset[q] = other.nxoffset[q];
+		nyoffset[q] = other.nyoffset[q];
+	}
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    //sprite(other),
+    enemy(other)
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for ( int q = 0; q < 255; q++ ) 
+	{
+		nx[q] = other.nx[q];
+		ny[q] = other.ny[q];
+		nxoffset[q] = other.nxoffset[q];
+		nyoffset[q] = other.nyoffset[q];
+	}
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+*/
+
 enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 {
     x=X;
