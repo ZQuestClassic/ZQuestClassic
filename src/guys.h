@@ -119,7 +119,7 @@ public:
     zfix  getY();
     int  getID();
     
-    
+    enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
     enemy(zfix X,zfix Y,int Id,int Clk);                      // : sprite()
     virtual ~enemy();
     

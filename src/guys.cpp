@@ -460,6 +460,188 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
     if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
 }
 
+//base clone constructor
+
+enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+     //Struct Element			Type		Purpose
+    sprite(other),
+    //x(other.x), 		//int
+    //y(other.y), 			//int
+    //id(other.id),			//int
+    //clk(other.clk),			//int
+    floor_y(other.floor_y),			//int
+    fading(other.fading),			//int
+    //misc(other.misc),			//int
+    clk2(other.clk2),			//int
+    clk3(other.clk3),			//int
+    stunclk(other.stunclk),			//int
+    hclk(other.hclk),			//int
+    sclk(other.sclk),			//int
+    superman(other.superman),			//int
+    //grumble(other.grumble),			//int
+    movestatus(other.movestatus),			//int
+    posframe(other.posframe),			//int
+    timer(other.timer),			//int
+    ox(other.ox),			//int
+    oy(other.oy),			//int
+    //yofs(other.yofs),			//int
+    did_armos(other.did_armos),			//int
+    script_spawned(other.script_spawned),			//int
+    d(other.d),			//int
+    hp(other.hp),			//int
+    starting_hp(other.starting_hp),			//int
+    //flags(other.flags),			//int
+    
+    flags2(other.flags2),			//int
+    s_tile(other.s_tile),			//int
+    family(other.family),			//int
+    dcset(other.dcset),			//int
+    //cs(other.cs),			//int
+    anim(other.anim),			//int
+    dp(other.dp),			//int
+    wdp(other.wdp),			//int
+    wpnsprite(other.wpnsprite),			//int
+    rate(other.rate),			//int
+    hrate(other.hrate),			//int
+    dstep(other.dstep),			//int
+    
+    homing(other.homing),			//int
+    dmisc1(other.dmisc1),			//int
+    dmisc2(other.dmisc2),			//int
+    dmisc3(other.dmisc3),			//int
+    dmisc4(other.dmisc4),			//int
+    dmisc5(other.dmisc5),			//int
+    dmisc6(other.dmisc6),			//int
+    dmisc7(other.dmisc7),			//int
+    dmisc8(other.dmisc8),			//int
+    dmisc9(other.dmisc9),			//int
+    dmisc10(other.dmisc10),			//int
+    dmisc11(other.dmisc11),			//int
+    dmisc12(other.dmisc12),			//int
+    dmisc13(other.dmisc13),			//int
+    dmisc14(other.dmisc14),			//int
+    dmisc15(other.dmisc15),			//int
+    dmisc16(other.dmisc16),			//int
+    dmisc17(other.dmisc17),			//int
+    dmisc18(other.dmisc18),			//int
+    dmisc19(other.dmisc19),			//int
+    dmisc20(other.dmisc20),			//int
+    dmisc21(other.dmisc21),			//int
+    dmisc22(other.dmisc22),			//int
+    dmisc23(other.dmisc23),			//int
+    dmisc24(other.dmisc24),			//int
+    dmisc25(other.dmisc25),			//int
+    dmisc26(other.dmisc26),			//int
+    dmisc27(other.dmisc27),			//int
+    dmisc28(other.dmisc28),			//int
+    dmisc29(other.dmisc29),			//int
+    dmisc30(other.dmisc30),			//int
+    dmisc31(other.dmisc31),			//int
+    dmisc32(other.dmisc32),			//int
+    bgsfx(other.bgsfx),			//int
+    hitsfx(other.hitsfx),			//int
+    deadsfx(other.deadsfx),			//int
+    bosspal(other.bosspal),			//int
+    parent_script_UID(other.parent_script_UID),			//int
+    frozentile(other.frozentile),			//int
+    frozencset(other.frozencset),			//int
+    frozenclock(other.frozenclock),			//int
+    isCore(other.isCore),			//int
+    parentCore(other.parentCore),			//int
+    script_UID(other.script_UID),			//int
+    firesfx(other.firesfx),			//int
+    //script(other.script),			//int
+    //waitdraw(other.waitdraw),			//int
+    weaponscript(other.weaponscript),			//int
+    stickclk(other.stickclk),			//int
+    submerged(other.submerged),			//int
+    
+    dialogue_str(other.dialogue_str),			//int
+    editorflags(other.editorflags),			//int
+    //drawflags(other.drawflags),			//int
+    o_tile(other.o_tile),			//int
+    frate(other.frate),			//int
+    //tile(other.tile),			//int
+    //scripttile(other.scripttile),			//int
+    //scriptflip(other.scriptflip),			//int
+    //do_animation(other.do_animation),			//int
+    immortal(other.immortal),			//int
+    flags(other.flags),			//int
+    step(other.step),			//int
+    
+    item_set(other.item_set),			//int
+    grumble(other.grumble),			//int
+    leader(other.leader),			//int
+    itemguy(other.itemguy),			//int
+    dying(other.dying),			//int
+    scored(other.scored),			//int
+    //canfreeze(other.canfreeze),			//int
+    count_enemy(other.count_enemy),			//int
+    mainguy(other.mainguy),			//int
+    //dir(other.dir),			//int
+    
+    //txsz(other.txsz),			//int
+    //tysz(other.tysz),			//int
+    //hxsz(other.hxsz),			//int
+    //hysz(other.hysz),			//int
+    //hzsz(other.hzsz),			//int
+    //hxofs(other.hxofs),			//int
+    //hxofs(other.hxofs),			//int
+    //xofs(other.xofs),			//int
+    //yofs(other.yofs),			//int
+    //hzofs(other.hzofs),			//int
+    //zofs(other.zofs),			//int
+   
+    wpn(other.wpn)			//int
+    //stack(other.stack),			//int
+    //scriptData(other.scriptData)			//int
+
+{
+	
+	//arrays
+	
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+	
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+	
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+	
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+    
+	for ( int q = 0; q < 8; q++ ) 
+	{
+	    initD[q] = other.initD[q];
+	    weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ ) 
+	{
+	    initA[q] = other.initA[q];
+	    weap_initiala[q] = other.weap_initiala[q];
+	}
+	
+	
+	
+    
+    
+}
+
 /*
 void enemy::explode(int type)
 {
