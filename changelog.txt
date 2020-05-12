@@ -2,6 +2,9 @@
 // Updated 10th May, 2020
 
 //Alpha 71
+Added sanity guard to inline bool get_item(int id).
+	( ZoriaRPG, 12th May, 2020 )
+	
 <std 1.7052> Added missing constants for CT_SCRIPT6 to CT_SCRIPT20, 
 	and CT_GENERIC.
 	( ZoriaRPG, 10th May, 2020 )
