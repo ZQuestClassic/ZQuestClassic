@@ -1,8 +1,11 @@
 ChangeLog for 2.53.1
 
+//Beta 47 
+Added sanity guard to inline bool get_item(int id).
+	( ZoriaRPG, 12th May, 2020 )
+
 //Beta 46
 Fixed possible crash and bad error message for Screen->Combo[] errors.
-
 
 //Beta 45
 Slight timing fix to directItemA, for B-only quests. 

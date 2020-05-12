@@ -2501,6 +2501,7 @@ struct gamedata
     void set_item_no_flush(int id, bool value);
     inline bool get_item(int id)
     {
+	if ( ((unsigned)id) >= MAXITEMS ) return false;
         return item[id];
     }
     
