@@ -1442,7 +1442,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         }
         
         colors_dlg[3+i].dp=buf[i];
-        colors_dlg[3+i].y=int(((i<<3)*((is_large && colors_dlg[0].d1)?1.5:1))+colors_dlg[0].y+36*((is_large && colors_dlg[0].d1)?1.5:1));
+        colors_dlg[3+i].y=colors_dlg[0].y+int(((i<<3)+36-(is_large?3:0))*((is_large && colors_dlg[0].d1)?1.5:1));
         //sniggles
         //    colors_dlg[3+i].fg=rc[label[i+count]];
     }
