@@ -6874,7 +6874,7 @@ int enemy::defenditemclass(int wpnId, int *power)
 // -1: damage (if any) dealt
 // 1: blocked
 // 0: weapon passes through unhindered
-int enemy::takehit(weapon *w)
+int basic_takehit(weapon *w)
 {
 	int wpnId = w->id;
 	//al_trace("takehit() wpnId is %d\n",wpnId);
@@ -6907,7 +6907,6 @@ int enemy::takehit(weapon *w)
 	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
 	
 	//Weapon Editor -Z
-	
 	
 	// If it's a boomerang that just bounced, use the opposite direction;
 	// otherwise, it might bypass a shield. This probably won't handle
@@ -7311,6 +7310,11 @@ hitclock:
 	return ret;
 }
 
+int enemy::takehit(weapon *w)
+{
+	return basic_takehit(w);
+}
+
 bool enemy::dont_draw()
 {
 	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1)))
@@ -7410,7 +7414,7 @@ void enemy::old_draw(BITMAP *dest)
 #define DRAW_INVIS 0
 // base drawing function to be used by all derived classes instead of
 // sprite::draw()
-void enemy::draw(BITMAP *dest)
+void basic_draw(BITMAP *dest)
 {
 	//Temporary fix for bugs when drawing some enemies. -Z
 	//Statues need the invis flag set by the quest loader.
@@ -7425,27 +7429,26 @@ void enemy::draw(BITMAP *dest)
 	byte canSee = DRAW_INVIS;
 	if ( editorflags & ENEMY_FLAG1 )
 	{
-	if ( dmisc13 >= 0 )
-	{
-		if  (!( game->item[dmisc13] ))
+		if ( dmisc13 >= 0 )
 		{
-			if ( editorflags & ENEMY_FLAG16 )
+			if  (!( game->item[dmisc13] ))
 			{
-				canSee = DRAW_CLOAKED;
+				if ( editorflags & ENEMY_FLAG16 )
+				{
+					canSee = DRAW_CLOAKED;
+				}
+				else canSee = DRAW_NORMAL;
 			}
-			else canSee = DRAW_NORMAL;
+			//else if ( lensclk && getlensid.flags SHOWINVIS )
+			//{
+			//
+			//}
+			//else
+			//{
+			//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
+			//	//otherwisem invisible
+			//}
 		}
-		//else if ( lensclk && getlensid.flags SHOWINVIS )
-		//{
-		//
-		//}
-		//else
-		//{
-		//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
-		//	//otherwisem invisible
-		//}
-	}
-		
 	}
 	
 	/*
@@ -7478,41 +7481,40 @@ void enemy::draw(BITMAP *dest)
 	if(dont_draw())
 	{
 		//new enemy editor behaviour flags for Ganon
-	
-	if ( family == eeGANON ) return;
-	/*
-	{
-		//if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
-		if ( editorflags & ENEMY_FLAG1 && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
+		if ( family == eeGANON ) return;
+		/*
 		{
+			//if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
+			if ( editorflags & ENEMY_FLAG1 && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
+			{
+			
+			if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+			{
+				sprite::drawcloaked(dest);
+			}
+			else
+			{
+				sprite::draw(dest);
+			}
+			
+			}
+			else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
+			{
+			if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+			{
+				sprite::drawcloaked(dest);
+			}
+			else
+			{
+				sprite::draw(dest);
+			}
+			}
+			
+		}
 		
-		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
-		{
-			sprite::drawcloaked(dest);
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		
-		}
-		else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
-		{
-		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
-		{
-			sprite::drawcloaked(dest);
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		}
-		
-	}
-	
-	else return;
-	*/
-	return;
+		else return;
+		*/
+		return;
 	}
 		
 	int cshold=cs;
@@ -7522,49 +7524,49 @@ void enemy::draw(BITMAP *dest)
 		if(clk2>=19)
 		{
 			if(!(clk2&2))
-		{
-		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
 			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+				if ( (editorflags & ENEMY_FLAG1) )
 				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
+					if (!(game->item[dmisc13]))
+					{
+						if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+						{
+							sprite::drawcloaked(dest);
+						}
+						//al_trace("Required invisibility item id is: %d\n",dmisc13);
+					}
+					else
+					{
+						if ( (editorflags & ENEMY_FLAG16) )
+						{
+							sprite::drawcloaked(dest);
+						}
+						else
+						{
+							sprite::draw(dest);
+						}
+					}
 				}
 				else
 				{
 					sprite::draw(dest);
 				}
 			}
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		}
 				
 			return;
 		}
 		
 		flip = 0;
 		tile = wpnsbuf[iwDeath].newtile;
-	//The scale of this tile shouldx be based on the enemy size. -Z
+		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
-	{
-		if(BSZ)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12)
-			++tile;
-	}
+		{
+			if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		/* trying to get more death frames here
 		  if(wpnsbuf[wid].frames)
 		  {
@@ -7602,31 +7604,37 @@ void enemy::draw(BITMAP *dest)
 	{
 		if ( frozenclock < 0 )
 		{
-		if ( frozentile > 0 ) tile = frozentile;
-		loadpalset(csBOSS,frozencset);
+			if ( frozentile > 0 ) tile = frozentile;
+			loadpalset(csBOSS,frozencset);
 		}
 		
 		//draw every other frame for flickering enemies
 		if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
 		{
 			if((frame&1)==1)
-		{
-		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
 			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+				if ( (editorflags & ENEMY_FLAG1) )
 				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
+					if (!(game->item[dmisc13]))
+					{
+						if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+						{
+							sprite::drawcloaked(dest);
+						}
+						//al_trace("Required invisibility item id is: %d\n",dmisc13);
+					}
+					else
+					{
+						if ( (editorflags & ENEMY_FLAG16) )
+						{
+							sprite::drawcloaked(dest);
+						}
+						else
+						{
+							sprite::draw(dest);
+						}
+					}
 				}
 				else
 				{
@@ -7636,47 +7644,177 @@ void enemy::draw(BITMAP *dest)
 		}
 		else
 		{
-			sprite::draw(dest);
-		}
-		}
-		}
-		else
-	{
 			//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
+			if ( (editorflags & ENEMY_FLAG1) )
 			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				if (!(game->item[dmisc13]))
 				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
+					if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+					{
+						sprite::drawcloaked(dest);
+					}
+					//al_trace("Required invisibility item id is: %d\n",dmisc13);
 				}
 				else
 				{
-					sprite::draw(dest);
+					if ( (editorflags & ENEMY_FLAG16) )
+					{
+						sprite::drawcloaked(dest);
+					}
+					else
+					{
+						sprite::draw(dest);
+					}
 				}
 			}
-		}
-		else
-		{
-			sprite::draw(dest);
+			else
+			{
+				sprite::draw(dest);
+			}
 		}
 	}
-	}
-	
-	
-	
 	cs=cshold;
-	
+}
 
+void enemy::draw(BITMAP *dest)
+{
+	switch(family)
+	{
+		case eeFIRE:
+		case eeOTHER:
+		case eeSCRIPT01:
+		case eeSCRIPT02:
+		case eeSCRIPT03:
+		case eeSCRIPT04:
+		case eeSCRIPT05:
+		case eeSCRIPT06:
+		case eeSCRIPT07:
+		case eeSCRIPT08:
+		case eeSCRIPT09:
+		case eeSCRIPT10:
+		case eeSCRIPT11:
+		case eeSCRIPT12:
+		case eeSCRIPT13:
+		case eeSCRIPT14:
+		case eeSCRIPT15:
+		case eeSCRIPT16:
+		case eeSCRIPT17:
+		case eeSCRIPT18:
+		case eeSCRIPT19:
+		case eeSCRIPT20:
+		case eeFFRIENDLY01:
+		case eeFFRIENDLY02:
+		case eeFFRIENDLY03:
+		case eeFFRIENDLY04:
+		case eeFFRIENDLY05:
+		case eeFFRIENDLY06:
+		case eeFFRIENDLY07:
+		case eeFFRIENDLY08:
+		case eeFFRIENDLY09:
+		case eeFFRIENDLY10:
+		case eeGHINI:
+		case eeTEK:
+		case eePEAHAT:
+		case eeTRAP:
+		case eePROJECTILE:
+		case eeKEESE:
+		{
+			update_enemy_frame();
+			break;
+		}
+		case eeLEV:
+		{
+			cs=dcset;
+			update_enemy_frame();
+			
+			switch(misc)
+			{
+				case -1:
+				case 0:
+					return;
+			}
+			break;
+		}
+		case eeWALLM:
+		{
+			dummy_bool[1]=haslink;
+			update_enemy_frame();
+			
+			if(misc>0)
+			{
+				masked_draw(dest,16,playing_field_offset+16,224,144);
+			}
+			return;
+		}
+		case eeROCK:
+		{
+			if(typeMisc == emtBOULDER)
+			{
+				if(clk2>=0)
+				{
+					int tempdir=dir;
+					dir=dummy_int[2];
+					update_enemy_frame();
+					dir=tempdir;
+					xofs-=8;
+					yofs-=8;
+					drawblock(dest,15);
+					xofs+=8;
+					yofs+=8;
+				}
+			}
+			else
+			{
+				if(clk2>=0)
+				{
+					int tempdir=dir;
+					dir=dummy_int[2];
+					update_enemy_frame();
+					enemy::draw(dest);
+					dir=tempdir;
+				}
+			}
+			return;
+		}
+		case eeSPINTILE:
+		{
+			update_enemy_frame();
+			y-=(misc>>4);
+			yofs+=2;
+			basic_draw(dest);
+			yofs-=2;
+			y+=(misc>>4);
+			return;
+		}
+		case eeWALK:
+		{
+			update_enemy_frame();
+			
+			if((dmisc2==e2tBOMBCHU)&&dashing)
+			{
+				if ( do_animation )tile+=20;
+			}
+			break;
+		}
+		case eeWIZZ:
+		{
+			if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk && !frozenclock) // phasing
+				return;
+				
+			int tempint=dummy_int[1];
+			bool tempbool1=dummy_bool[1];
+			bool tempbool2=dummy_bool[2];
+			dummy_int[1]=fclk;
+			dummy_bool[1]=charging;
+			dummy_bool[2]=firing;
+			update_enemy_frame();
+			dummy_int[1]=tempint;
+			dummy_bool[1]=tempbool1;
+			dummy_bool[2]=tempbool2;
+			break;
+		}
+	}
+	basic_draw(dest);
 }
 
 //old zc bosses
@@ -7751,7 +7889,6 @@ void enemy::drawzcboss(BITMAP *dest)
 	
 	cs=cshold;
 }
-
 
 // similar to the overblock function--can do up to a 32x32 sprite
 //will this play nicely with scripttile, solely using the modifications in sprite::draw()?
@@ -7828,7 +7965,7 @@ void enemy::drawblock(BITMAP *dest,int mask)
 	tile=thold;
 }
 
-void enemy::drawshadow(BITMAP *dest, bool translucent)
+void basic_drawshadow(BITMAP *dest, bool translucent)
 {
 	if(dont_draw() || isSideViewGravity())
 	{
@@ -7863,6 +8000,141 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		if(z>0 || !enemycanfall(id))
 			sprite::drawshadow(dest,translucent);
 	}
+}
+
+void enemy::drawshadow(BITMAP *dest, bool translucent)
+{
+	switch(family)
+	{
+		case eePEAHAT:
+		{
+			int tempy=yofs;
+			flip = 0;
+			shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+			
+			if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
+			{
+				yofs+=8;
+				yofs+=int(step/zslongToFix(dstep*10));
+			}
+			
+			basic_drawshadow(dest,translucent);
+			yofs=tempy;
+			return;
+		}
+		case eeROCK:
+		{
+			if(typeMisc == emtBOULDER)
+			{
+				if(clk2>=0)
+				{
+					int tempy=yofs;
+					flip = 0;
+					int f2=((clk<<2)/frate)<<1;
+					shadowtile = wpnsbuf[iwLargeShadow].newtile+f2;
+					yofs+=zc_max(0,zc_min(29-clk3,clk3));
+					
+					yofs+=8;
+					xofs-=8;
+					basic_drawshadow(dest, translucent);
+					xofs+=16;
+					++shadowtile;
+					basic_drawshadow(dest, translucent);
+					yofs+=16;
+					shadowtile+=20;
+					basic_drawshadow(dest, translucent);
+					xofs-=16;
+					--shadowtile;
+					basic_drawshadow(dest, translucent);
+					xofs+=8;
+					yofs=tempy;
+				}
+			}
+			else
+			{
+				if(clk2>=0)
+				{
+					int tempy=yofs;
+					flip = 0;
+					int fdiv = frate/4;
+					int efrate = fdiv == 0 ? 0 : clk/fdiv;
+					int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
+						   efrate:((clk>=(frate>>1))?1:0);
+					shadowtile = wpnsbuf[iwShadow].newtile+f2;
+					
+					yofs+=8;
+					yofs+=zc_max(0,zc_min(29-clk3,clk3));
+					basic_drawshadow(dest, translucent);
+					yofs=tempy;
+				}
+			}
+			return;
+		}
+		case eeSPINTILE:
+		{
+			flip = 0;
+			shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
+			yofs+=4;
+			basic_drawshadow(dest, translucent);
+			yofs-=4;
+			return;
+		}
+		case eeWALK:
+		{
+			int tempy=yofs;
+			/*
+			  if (clk6 && dir>=left && !get_bit(quest_rules,qr_ENEMIESZAXIS)) {
+				flip = 0;
+				int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
+				  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
+				shadowtile = wpnsbuf[iwShadow].tile+f2;
+				yofs+=(((int)y+17)&0xF0)-y;
+				yofs+=8;
+			  }
+			*/
+			if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
+			{
+				flip = 0;
+				int fdiv = frate/4;
+				int efrate = fdiv == 0 ? 0 : clk/fdiv;
+				
+				int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
+					   efrate:((clk>=(frate>>1))?1:0);
+				shadowtile = wpnsbuf[iwShadow].newtile;
+				
+				if(get_bit(quest_rules,qr_NEWENEMYTILES))
+				{
+					shadowtile+=f2;
+				}
+				else
+				{
+					shadowtile+=f2?1:0;
+				}
+				
+				yofs+=shadowdistance;
+				yofs+=8;
+			}
+			
+			basic_drawshadow(dest, translucent);
+			yofs=tempy;
+			return;
+		}
+		case eeKEESE:
+		{
+			int tempy=yofs;
+			flip = 0;
+			shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+			yofs+=8;
+			
+			if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
+				yofs+=int(step/zslongToFix(dstep*10));
+				
+			basic_drawshadow(dest, translucent);
+			yofs=tempy;
+			return;
+		}
+	}
+	basic_drawshadow(dest, translucent);
 }
 
 void enemy::masked_draw(BITMAP *dest,int mx,int my,int mw,int mh)
@@ -10918,12 +11190,6 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 }
 
-void eFire::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 int eFire::takehit(weapon *w)
 {
 	int wpnId = w->id;
@@ -10978,12 +11244,6 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-void eOther::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
 }
 
 int eOther::takehit(weapon *w)
@@ -11042,12 +11302,6 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 }
 
-void eScript::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 int eScript::takehit(weapon *w)
 {
 	int wpnId = w->id;
@@ -11080,7 +11334,6 @@ void eScript::break_shield()
 		o_tile=s_tile;
 }
 
-
 eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	hyofs = -32768; //No hitbox initially.
@@ -11103,12 +11356,6 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-void eFriendly::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
 }
 
 int eFriendly::takehit(weapon *w)
@@ -11198,12 +11445,6 @@ eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	obeys_gravity = 1;
 }
 
-void eGhini::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 void eGhini::kickbucket()
 {
 	hp=-1000;                                                 // don't call death_sfx()
@@ -11275,12 +11516,6 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	yofs=tempy;
 }
 
-void eTektite::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 eItemFairy::eItemFairy(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	step=zslongToFix(guysbuf[id&0xFFF].step*100);
@@ -11328,28 +11563,6 @@ ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	step=0;
 	obeys_gravity = 0;
 	//nets+720;
-}
-
-void ePeahat::drawshadow(BITMAP *dest, bool translucent)
-{
-	int tempy=yofs;
-	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
-	
-	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
-	{
-		yofs+=8;
-		yofs+=int(step/zslongToFix(dstep*10));
-	}
-	
-	enemy::drawshadow(dest,translucent);
-	yofs=tempy;
-}
-
-void ePeahat::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
 }
 
 int ePeahat::takehit(weapon *w)
@@ -11461,22 +11674,6 @@ bool eLeever::canplace(int d2)
 	return true;
 }
 
-void eLeever::draw(BITMAP *dest)
-{
-//  cs=d->cset;
-	cs=dcset;
-	update_enemy_frame();
-	
-	switch(misc)
-	{
-	case -1:
-	case 0:
-		return;
-	}
-	
-	enemy::draw(dest);
-}
-
 eWallM::eWallM(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("eWallM::eWallM\n");
@@ -11559,20 +11756,6 @@ void eWallM::grablink()
 {
 	haslink=true;
 	superman=1;
-}
-
-void eWallM::draw(BITMAP *dest)
-{
-	dummy_bool[1]=haslink;
-	update_enemy_frame();
-	
-	if(misc>0)
-	{
-		masked_draw(dest,16,playing_field_offset+16,224,144);
-	}
-	
-	//    enemy::draw(dest);
-	//    tile = clk&8 ? 128:129;
 }
 
 bool eWallM::isSubmerged()
@@ -11737,12 +11920,6 @@ bool eTrap::clip()
 	}
 }
 
-void eTrap::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 int eTrap::takehit(weapon*)
 {
 	return 0;
@@ -11810,12 +11987,6 @@ bool eTrap2::clip()
 	return false;
 }
 
-void eTrap2::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
 int eTrap2::takehit(weapon*)
 {
 	return 0;
@@ -11850,37 +12021,6 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   
 		if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;																
 	//nets+1640;
-}
-
-void eRock::drawshadow(BITMAP *dest, bool translucent)
-{
-	if(clk2>=0)
-	{
-		int tempy=yofs;
-		flip = 0;
-		int fdiv = frate/4;
-		int efrate = fdiv == 0 ? 0 : clk/fdiv;
-		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile+f2;
-		
-		yofs+=8;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		enemy::drawshadow(dest, translucent);
-		yofs=tempy;
-	}
-}
-
-void eRock::draw(BITMAP *dest)
-{
-	if(clk2>=0)
-	{
-		int tempdir=dir;
-		dir=dummy_int[2];
-		update_enemy_frame();
-		enemy::draw(dest);
-		dir=tempdir;
-	}
 }
 
 int eRock::takehit(weapon*)
@@ -11919,50 +12059,6 @@ eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//nets+1680;
 }
 
-void eBoulder::drawshadow(BITMAP *dest, bool translucent)
-{
-	if(clk2>=0)
-	{
-		int tempy=yofs;
-		flip = 0;
-		int f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[iwLargeShadow].newtile+f2;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		
-		yofs+=8;
-		xofs-=8;
-		enemy::drawshadow(dest, translucent);
-		xofs+=16;
-		++shadowtile;
-		enemy::drawshadow(dest, translucent);
-		yofs+=16;
-		shadowtile+=20;
-		enemy::drawshadow(dest, translucent);
-		xofs-=16;
-		--shadowtile;
-		enemy::drawshadow(dest, translucent);
-		xofs+=8;
-		yofs=tempy;
-	}
-}
-
-void eBoulder::draw(BITMAP *dest)
-{
-	if(clk2>=0)
-	{
-		int tempdir=dir;
-		dir=dummy_int[2];
-		update_enemy_frame();
-		dir=tempdir;
-		xofs-=8;
-		yofs-=8;
-		drawblock(dest,15);
-		xofs+=8;
-		yofs+=8;
-		//    enemy::draw(dest);
-	}
-}
-
 int eBoulder::takehit(weapon*)
 {
 	return 0;
@@ -11986,12 +12082,6 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 		superman=1;
 		hxofs=1000;
 	}
-}
-
-void eProjectile::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
 }
 
 eTrigger::eTrigger(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -12145,25 +12235,6 @@ void eSpinTile::facelink()
 			dir=left;
 		}
 	}
-}
-
-void eSpinTile::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	y-=(misc>>4);
-	yofs+=2;
-	enemy::draw(dest);
-	yofs-=2;
-	y+=(misc>>4);
-}
-
-void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
-{
-	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
-	yofs+=4;
-	enemy::drawshadow(dest, translucent);
-	yofs-=4;
 }
 
 eZora::eZora(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
@@ -12354,69 +12425,6 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	shadowdistance = 0;
 	clk4 = clk5 = 0;
 	//nets+2380;
-}
-
-void eStalfos::draw(BITMAP *dest)
-{
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc<=0) //Submerged
-	{
-	  clk4--; //Kludge
-	  return;
-	}*/
-	
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc>1)
-	{
-	  cs = dcset;
-	}*/
-	update_enemy_frame();
-	
-	if((dmisc2==e2tBOMBCHU)&&dashing)
-	{
-		if ( do_animation )tile+=20;
-	}
-	
-	enemy::draw(dest);
-}
-
-void eStalfos::drawshadow(BITMAP *dest, bool translucent)
-{
-	int tempy=yofs;
-	
-	/*
-	  if (clk6 && dir>=left && !get_bit(quest_rules,qr_ENEMIESZAXIS)) {
-		flip = 0;
-		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-		  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].tile+f2;
-		yofs+=(((int)y+17)&0xF0)-y;
-		yofs+=8;
-	  }
-	*/
-	if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
-	{
-		flip = 0;
-		int fdiv = frate/4;
-		int efrate = fdiv == 0 ? 0 : clk/fdiv;
-		
-		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile;
-		
-		if(get_bit(quest_rules,qr_NEWENEMYTILES))
-		{
-			shadowtile+=f2;
-		}
-		else
-		{
-			shadowtile+=f2?1:0;
-		}
-		
-		yofs+=shadowdistance;
-		yofs+=8;
-	}
-	
-	enemy::drawshadow(dest, translucent);
-	yofs=tempy;
 }
 
 int eStalfos::takehit(weapon *w)
@@ -12690,26 +12698,6 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	//nets;
 	dummy_int[1]=0;
-}
-
-void eKeese::drawshadow(BITMAP *dest, bool translucent)
-{
-	int tempy=yofs;
-	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
-	yofs+=8;
-	
-	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
-		yofs+=int(step/zslongToFix(dstep*10));
-		
-	enemy::drawshadow(dest, translucent);
-	yofs=tempy;
-}
-
-void eKeese::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	enemy::draw(dest);
 }
 
 eWizzrobe::eWizzrobe(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -13035,25 +13023,6 @@ void eWizzrobe::wizzrobe_newdir(int homing)
 		dir=up;
 	else
 		newdir(4,homing,spw_wizzrobe);
-}
-
-void eWizzrobe::draw(BITMAP *dest)
-{
-//  if(d->misc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
-	if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk && !frozenclock)                          // phasing
-		return;
-		
-	int tempint=dummy_int[1];
-	bool tempbool1=dummy_bool[1];
-	bool tempbool2=dummy_bool[2];
-	dummy_int[1]=fclk;
-	dummy_bool[1]=charging;
-	dummy_bool[2]=firing;
-	update_enemy_frame();
-	dummy_int[1]=tempint;
-	dummy_bool[1]=tempbool1;
-	dummy_bool[2]=tempbool2;
-	enemy::draw(dest);
 }
 
 /*********************************/

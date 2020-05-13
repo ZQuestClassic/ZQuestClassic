@@ -309,11 +309,11 @@ public:
 /*********   Enemies   *********/
 /*******************************/
 
+//{ To merge
 class eFire : public enemy
 {
 public:
 	eFire(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void break_shield();
 	eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
@@ -324,7 +324,6 @@ class eOther : public enemy
 public:
 	eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eOther(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void break_shield();
 };
@@ -334,7 +333,6 @@ class eScript : public enemy
 public:
 	eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eScript(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void break_shield();
 };
@@ -344,7 +342,6 @@ class eFriendly : public enemy
 public:
 	eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eFriendly(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void break_shield();
 };
@@ -357,7 +354,6 @@ public:
 	int ox, oy, c;
 	eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eGhini(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	virtual void kickbucket();
 };
 
@@ -371,17 +367,6 @@ public:
 	eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 
 	eTektite(zfix X,zfix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
-	virtual void drawshadow(BITMAP *dest,bool translucent);
-	virtual void draw(BITMAP *dest);
-};
-
-class eItemFairy : public enemy
-{
-public:
-	eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eItemFairy(zfix X,zfix Y,int Id,int Clk);                 // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
 };
 
 class ePeahat : public enemy
@@ -390,8 +375,6 @@ public:
 	int ox, oy, c;
 	ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePeahat(zfix X,zfix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void kickbucket();
 };
@@ -403,7 +386,6 @@ public:
 	eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eLeever(zfix X,zfix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
 	bool canplace(int d);
-	virtual void draw(BITMAP *dest);
 	virtual bool isSubmerged();
 };
 
@@ -415,7 +397,6 @@ public:
 	eWallM(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	void wallm_crawl();
 	void grablink();
-	virtual void draw(BITMAP *dest);
 	virtual bool isSubmerged();
 };
 
@@ -427,7 +408,6 @@ public:
 	eTrap(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
 	bool trapmove(int ndir);
 	bool clip();
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon* w);
 };
 
@@ -438,7 +418,6 @@ public:
 	eTrap2(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	bool trapmove(int ndir);
 	bool clip();
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 };
 
@@ -447,8 +426,6 @@ class eRock : public enemy
 public:
 	eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eRock(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 };
 
@@ -457,8 +434,6 @@ class eBoulder : public enemy
 public:
 	eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eBoulder(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 };
 
@@ -470,9 +445,68 @@ class eProjectile : public enemy
 public:
 	eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eProjectile(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual void draw(BITMAP *dest);
 	
 	const int minRange;
+};
+
+class eSpinTile : public enemy
+{
+public:
+	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eSpinTile(zfix X,zfix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
+	virtual void facelink();
+};
+
+class eStalfos : public enemy
+{
+public:
+	int clk5; // Like Like clock
+	bool fired; // Darknut5, Bombchu
+	bool dashing; // Rope
+	bool haslink; // Like Like
+	int multishot; // Shoot twice/thrice/n times in one halt
+	zfix fy, shadowdistance; // Pols Voice
+	eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eStalfos(zfix X,zfix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
+	bool WeaponOut();
+	void KillWeapon();
+	void charge_attack();
+	void eatlink();
+	virtual int takehit(weapon *w);
+	void vire_hop();
+	virtual void break_shield();
+};
+
+class eKeese : public enemy
+{
+public:
+	int ox, oy, c;
+	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eKeese(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
+};
+
+class eWizzrobe : public enemy
+{
+public:
+	bool charging;
+	bool firing;
+	int fclk;
+	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eWizzrobe(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
+	void wizzrobe_attack_phasing();
+	void wizzrobe_attack_teleporting();
+	void wizzrobe_newdir(int homing);
+};
+
+//} End merge
+
+class eItemFairy : public enemy
+{
+public:
+	eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eItemFairy(zfix X,zfix Y,int Id,int Clk);                 // : enemy(X,Y,Id,Clk)
+	virtual bool animate(int index);
+	virtual void draw(BITMAP *dest);
 };
 
 class eTrigger : public enemy
@@ -494,16 +528,6 @@ public:
 	virtual int takehit(weapon *w);
 };
 
-class eSpinTile : public enemy
-{
-public:
-	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eSpinTile(zfix X,zfix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
-	virtual void facelink();
-	virtual void draw(BITMAP *dest);
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-};
-
 class eZora : public enemy
 {
 public:
@@ -513,52 +537,6 @@ public:
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual bool isSubmerged();
-};
-
-class eStalfos : public enemy
-{
-public:
-	int clk5; // Like Like clock
-	bool fired; // Darknut5, Bombchu
-	bool dashing; // Rope
-	bool haslink; // Like Like
-	int multishot; // Shoot twice/thrice/n times in one halt
-	zfix fy, shadowdistance; // Pols Voice
-	eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eStalfos(zfix X,zfix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
-	bool WeaponOut();
-	void KillWeapon();
-	void charge_attack();
-	void eatlink();
-	virtual void draw(BITMAP *dest);
-	virtual int takehit(weapon *w);
-	void vire_hop();
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void break_shield();
-};
-
-class eKeese : public enemy
-{
-public:
-	int ox, oy, c;
-	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eKeese(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
-};
-
-class eWizzrobe : public enemy
-{
-public:
-	bool charging;
-	bool firing;
-	int fclk;
-	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eWizzrobe(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
-	void wizzrobe_attack_phasing();
-	void wizzrobe_attack_teleporting();
-	void wizzrobe_newdir(int homing);
-	virtual void draw(BITMAP *dest);
 };
 
 /*********************************/
