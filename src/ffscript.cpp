@@ -11377,7 +11377,19 @@ void set_register(const long arg, const long value)
 			
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
-				((weapon*)s)->step= zslongToFix(value / 100);
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{
+					((weapon*)s)->step= zslongToFix(value / 100);
+				}
+				else
+				{
+					zfix val = zslongToFix(value);
+					val.doFloor();
+					((weapon*)s)->step = val / 100;
+				}
+				
+			}
 				
 			break;
 			
@@ -11725,7 +11737,18 @@ void set_register(const long arg, const long value)
 			
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
-				((weapon*)s)->step= zslongToFix(value / 100);
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{
+					((weapon*)s)->step= zslongToFix(value / 100);
+				}
+				else
+				{
+					zfix val = zslongToFix(value);
+					val.doFloor();
+					((weapon*)s)->step = val / 100;
+				}
+			}
 				
 			break;
 			
@@ -12105,7 +12128,18 @@ void set_register(const long arg, const long value)
 		case NPCSTEP:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
-				GuyH::getNPC()->step = zslongToFix(value / 100);
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{	
+					GuyH::getNPC()->step = zslongToFix(value / 100);
+				}
+				else
+				{
+					zfix val = zslongToFix(value);
+					val.doFloor();
+					GuyH::getNPC()->step = val / 100;
+				}
+			}
 		}
 		break;
 		
