@@ -2645,11 +2645,11 @@ bool basic_animate(int index)
 	//Check offscreen settings. I wrote it this way for clarity and to simplify testing. -Z
 	if ( immortal )
 	{
-	//skip, as it can go out of bounds, from immortality
+		//skip, as it can go out of bounds, from immortality
 	}
 	else if (   ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z)   )
 	{
-	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
+		//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
 	else if ( (OUTOFBOUNDS) )
 	{
@@ -3785,6 +3785,915 @@ bool enemy::animate(int index)
 			
 			break;
 		}
+		case eeSPINTILE:
+		{
+			if(dying)
+			{
+				return Dead(index);
+			}
+			
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			++misc;
+			
+			if(misc==96)
+			{
+				facelink();
+				double ddir=atan2(double((Link.y)-y),double(Link.x-x));
+				angular=true;
+				angle=ddir;
+				step=zslongToFix(dstep*100);
+			}
+			
+			if(y>186 || y<=-16 || x>272 || x<=-16)
+				kickbucket();
+				
+			sprite::move(step);
+			break;
+		}
+		case eeWALK:
+		{
+			if(dying)
+			{
+				if(haslink)
+				{
+					Link.setEaten(0);
+					haslink=false;
+				}
+				
+				if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
+				{
+					hp=-1000;
+					//weapon *ew=new weapon(x,y,z, ewBomb, 0, d->wdp, dir);
+					weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+						ew->step=0;
+						ew->id=wpn;
+						ew->misc=50;
+						ew->clk=48;
+					}
+					
+					fired=true;
+				}
+				else if(wpn && wpn!=ewBrang && dmisc2==e2tFIREOCTO)  // Fire Octo
+				{
+					if(!dummy_bool[0])
+					{
+						int wpn2 = wpn+dmisc3;
+						
+						if(wpn2 <= wEnemyWeapons || wpn2 >= wMax)
+						{
+							wpn2=wpn;
+						}
+						
+						dummy_bool[0]=true;
+						addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
+						addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
+						sfx(wpnsfx(wpn2),pan(int(x)));
+					}
+				}
+				
+				KillWeapon();
+				return Dead(index);
+			}
+			//vire split
+			//2.10 checked !fslide(), but nothing uses that now anyway. -Z
+			//Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
+			else if(((hp<=0 && !immortal) && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
+			{
+				stop_bgsfx(index);
+				int kids = guys.Count();
+				int id2=dmisc3;
+				
+				for(int i=0; i < dmisc4; i++)
+				{
+					//if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
+					if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
+						((enemy*)guys.spr(kids+i))->count_enemy = false;
+				}
+				
+				if(itemguy) // Hand down the carried item
+				{
+					guycarryingitem = guys.Count()-1;
+					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+					itemguy = false;
+				}
+				
+				if(haslink)
+				{
+					Link.setEaten(0);
+					haslink=false;
+				}
+				
+				if(deadsfx > 0 && dmisc2==e2tSPLIT)
+					sfx(deadsfx,pan(int(x)));
+					
+				return true;
+			}
+			/*
+			else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
+			{
+				stop_bgsfx(index);
+				int kids = guys.Count();
+				int id2=dmisc3;
+				
+				for(int i=0; i < dmisc4; i++)
+				{
+		//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
+					if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
+						((enemy*)guys.spr(kids+i))->count_enemy = false;
+				}
+				
+				if(itemguy) // Hand down the carried item
+				{
+					guycarryingitem = guys.Count()-1;
+					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+					itemguy = false;
+				}
+				
+				if(haslink)
+				{
+					Link.setEaten(0);
+					haslink=false;
+				}
+							
+				return true;
+			}
+			*/
+			if(fading)
+			{
+				if(++clk4 > 60)
+				{
+					clk4=0;
+					superman=0;
+					fading=0;
+					
+					if(flags2&cmbflag_armos && z==0)
+					{
+						//if a custom size (not 16px by 16px)
+						if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+						{
+							//zprint("spawn big enemy from armos\n");
+							//if removing a block, then adjust y by -1 as the enemy spawns at y+1
+							for(int dx = 0; dx < tysz; dx ++)
+							{
+								for(int dy = 0; dy < tysz; dy++)
+								{
+									removearmos((int)x+(dx*16),(int)y+(dy*16)+1);
+									did_armos = false;
+								}
+								removearmos((int)x+(dx*16), (int)y+((tysz-1)*16)+1);
+								did_armos = false;
+							}
+							for(int dy = 0; dy < tysz; dy ++)
+							{
+								removearmos((int)x+((txsz-1)*16), (int)y+(dy*16)+1);
+								did_armos = false;
+							}
+							removearmos((int)x+((txsz-1)*16), (int)y+((tysz-1)*16)+1);
+						}
+						else removearmos(x,y); 
+						/*
+						if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+						{
+							 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
+							for(int dx = 0; dx < hxsz; dx += 16)
+							{
+								for(int dy = 0; dy < hysz; dy += 16)
+								{
+									removearmos((int)x+dx+hxofs,(int)y+dy+hyofs+1);
+									did_armos = false;
+								}
+								removearmos((int)x+dx+hxofs, (int)y+hyofs+(hysz-1)-1);
+								did_armos = false;
+							}
+							for(int dy = 0; dy < hysz; dy += 16)
+							{
+								removearmos((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs-1);
+								did_armos = false;
+							}
+							removearmos((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1)-1);
+						}
+								else removearmos(x,y);
+						*/		
+						
+					}
+						
+					clk2=0;
+					
+					newdir();
+				}
+				else break;
+			}
+			else if(flags2&cmbflag_armos && z==0 && clk==0)
+				removearmos(x,y);
+			
+			if(haslink)
+			{
+				Link.setX(x);
+				Link.setY(y);
+				++clk2;
+				
+				if(clk2==(dmisc8==0 ? 95 : dmisc8))
+				{
+					switch(dmisc7)
+					{
+					case e7tEATITEMS:
+					{
+						for(int i=0; i<MAXITEMS; i++)
+						{
+							if(itemsbuf[i].flags&ITEM_EDIBLE)
+								game->set_item(i, false);
+						}
+						
+						break;
+					}
+					
+					case e7tEATMAGIC:
+						game->change_dmagic(-1*game->get_magicdrainrate());
+						break;
+						
+					case e7tEATRUPEES:
+						game->change_drupy(-1);
+						break;
+					}
+					
+					clk2=0;
+				}
+				
+				if((clk&0x18)==8)                                       // stop its animation on the middle frame
+					--clk;
+			}
+			else if(!(wpn==ewBrang && WeaponOut()))  //WeaponOut uses misc
+			{
+				// Movement engine
+				if(clk>=0)
+					switch(id>>12)
+					{
+						case 0: // Normal movement
+						{
+							/*
+							if((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && !slide()) //Leever
+							{
+							  // Overloading clk4 (Tribble clock) here...
+							  step=17/100.0;
+							  if(clk4<32)    misc=1;
+							  else if(clk4<48)    misc=2;
+							  else if(clk4<300) { misc=3; step = dstep/100.0; }
+							  else if(clk4<316)   misc=2;
+							  else if(clk4<412)   misc=1;
+							  else if(clk4<540) { misc=0; step=0; }
+							  else clk4=0;
+							  if(clk4==48) clk=0;
+							  hxofs=(misc>=2)?0:1000;
+							  if (dmisc9==e9tLEEVER)
+								variable_walk(rate, homing, 0);
+							  else
+								variable_walk_8(rate, homing, 4, 0);
+							  break;
+							}
+							*/
+							if(dmisc9==e9tVIRE || dmisc9==e9tPOLSVOICE) //Vire
+							{
+								vire_hop();
+								break;
+							}
+							else if(dmisc9==e9tROPE) //Rope charge
+							{
+								if(!fired && dashing && !stunclk && !watch && !frozenclock)
+								{
+									if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
+									{
+										if (  FFCore.emulation[emu210BOMBCHU] || get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
+										{
+											hp=-1000;
+													
+											if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+											{
+												weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
+												Ewpns.add(ew);
+												
+												if(wpn==ewSBomb || wpn==ewBomb)
+												{
+													ew->step=0;
+													ew->id=wpn+dmisc3;
+													ew->misc=50;
+													ew->clk=48;
+												}
+												
+												fired=true;
+											}
+											else
+											{
+												weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
+												Ewpns.add(ew);
+												
+												if(wpn==ewSBomb || wpn==ewBomb)
+												{
+													ew->step=0;
+													ew->id=wpn;
+													ew->misc=50;
+													ew->clk=48;
+												}
+												
+												fired=true;
+											}
+										}
+										else
+										{
+											hp=-1000;
+											
+											int wpn2;
+											if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+											wpn2=wpn;
+											else
+											wpn2=wpn;
+											
+											weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
+											Ewpns.add(ew);
+											
+											if(wpn2==ewSBomb || wpn2==ewBomb)
+											{
+												ew->step=0;
+												ew->id=wpn2;
+												ew->misc=50;
+												ew->clk=48;
+											}
+											
+											fired=true;
+										}
+									}
+								}
+								
+								charge_attack();
+								break;
+							}
+							/*
+							 * Boomerang-throwers have a halt count of 1
+							 * Zols have a halt count of (rand()&7)<<4
+							 * Gels have a halt count of ((rand()&7)<<3)+2
+							 * Everything else has 48
+							 */
+							else
+							{
+								if(wpn==ewBrang) // Goriya
+								{
+									halting_walk(rate,homing,0,hrate, 1);
+								}
+								else if(dmisc9==e9tNORMAL && wpn==0)
+								{
+									if(dmisc2==e2tSPLITHIT) // Zol
+									{
+										halting_walk(rate,homing,0,hrate,(rand()&7)<<4);
+									}
+									else if(frate<=8 && starting_hp==1) // Gel
+									{
+										halting_walk(rate,homing,0,hrate,((rand()&7)<<3)+2);
+									}
+									else // Other
+									{
+										halting_walk(rate,homing,0,hrate, 48);
+									}
+								}
+								else // Other
+								{
+									halting_walk(rate,homing,0,hrate, 48);
+								}
+							}
+							
+							//if not in midair, and Link's swinging sword is nearby, jump.
+							/*if (dmisc9==e9tZ3STALFOS && z==0 && (!(isSideViewGravity()) || !_walkflag(x,y+16,0))
+							  && Link.getAttackClk()==5 && Link.getAttack()==wSword && distance(x,y,Link.getX(),Link.getY())<32)
+								{
+								  facelink(false);
+								  sclk=16+((dir^1)<<8);
+								fall=-FEATHERJUMP;
+								  sfx(WAV_ZN1JUMP,pan(int(x)));
+								}*/
+							break;
+						}
+						// Following cases are for just after creation-by-splitting.
+						case 1:
+						{
+							if(misc==1)
+							{
+								dir=up;
+								step=8;
+							}
+							
+							if(misc<=2)
+							{
+								move(step);
+								
+								if(!canmove(dir,(zfix)0,0))
+									dir=down;
+							}
+							
+							if(misc==3)
+							{
+								if(canmove(right,(zfix)16,0))
+									x+=16;
+							}
+							
+							++misc;
+							break;
+						}
+						case 2:
+						{
+							if(misc==1)
+							{
+								dir=down;
+								step=8;
+							}
+							
+							if(misc<=2)
+							{
+								move(step);
+								/*
+										  if(!canmove(dir,(zfix)0,0))
+											dir=up;
+								*/
+							}
+							
+							if(misc==3)
+							{
+								if(canmove(left,(zfix)16,0))
+									x-=16;
+							}
+							
+							++misc;
+							break;
+						}
+						default:
+						{
+							if(misc==1)
+							{
+								dir=(rand()%4);
+								step=8;
+							}
+							
+							if(misc<=2)
+							{
+								move(step);
+								
+								if(!canmove(dir,(zfix)0,0))
+									dir=dir^1;
+							}
+							
+							if(misc==3)
+							{
+								if(dir >= left && canmove(dir,(zfix)16,0))
+									x+=(dir==left ? -16 : 16);
+							}
+							
+							++misc;
+							break;
+						}
+					}
+					
+				if(id>>12 && misc>=4) //recently spawned by a split enemy
+				{
+					id&=0xFFF;
+					step = zslongToFix(dstep*100);
+					
+					if(x<32) x=32;
+					
+					if(x>208) x=208;
+					
+					if(y<32) y=32;
+					
+					if(y>128) y=128;
+					
+					misc=3;
+				}
+			}
+			else
+			{
+				//sfx(wpnsfx(wpn),pan(int(x)));
+				if(clk2>2) --clk2;
+			}
+			
+			// Fire Zol
+			if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
+			{
+				addEwpn(x,y,z,wpn,0,wdp,dir, getUID());
+				sfx(wpnsfx(wpn),pan(int(x)));
+				
+				int i=Ewpns.Count()-1;
+				weapon *ew = (weapon*)(Ewpns.spr(i));
+				
+				if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
+				{
+					ew->aframe=rand()%wpnsbuf[ewFIRETRAIL].frames;
+					if ( ew->do_animation ) ew->tile+=ew->aframe;
+				}
+			}
+			// Goriya
+			else if(wpn==ewBrang && clk2==1 && sclk==0 && !stunclk && !frozenclock && !watch && wpn && !WeaponOut())
+			{
+				misc=index+100;
+				Ewpns.add(new weapon(x,y,z,wpn,misc,wdp,dir, -1,getUID(),false));
+				((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=false;
+				
+				if(dmisc1==2)
+				{
+					int ndir=dir;
+					
+					if(Link.x-x==0)
+					{
+						ndir=(Link.y+8<y)?up:down;
+					}
+					else //turn to face Link
+					{
+						double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+						
+						if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
+						{
+							ndir=down;
+						}
+						else if((ddir<=(((2)*PI)/8))&&(ddir>(((-2)*PI)/8)))
+						{
+							ndir=right;
+						}
+						else if((ddir<=(((6)*PI)/8))&&(ddir>(((2)*PI)/8)))
+						{
+							ndir=up;
+						}
+						else
+						{
+							ndir=left;
+						}
+					}
+					
+					((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=true;
+					
+					if(canmove(ndir))
+					{
+						dir=ndir;
+					}
+				}
+			}
+			else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !frozenclock && !watch)
+				switch(dmisc1)
+				{
+					case e1tCONSTANT: //Deathnut
+					{
+						// Overloading clk5 (Like Like clock) to avoid making another clock just for this attack...
+						if(clk5>64)
+						{
+							clk5=0;
+							fired=false;
+						}
+						
+						clk5+=(rand()&3);
+						
+						if((clk5>24)&&(clk5<52))
+						{
+							if ( do_animation )tile+=20;                                         //firing
+							
+							if(!fired&&(clk5>=38))
+							{
+								Ewpns.add(new weapon(x,y,z, wpn, 0, wdp, dir, -1,getUID(),false));
+								sfx(wpnsfx(wpn),pan(int(x)));
+								fired=true;
+							}
+						}
+						
+						break;
+					}
+					
+					case e1tFIREOCTO: //Fire Octo
+						timer=rand()%50+50;
+						break;
+						
+					default:
+						FireWeapon();
+						break;
+				}
+				
+			/* Fire again if:
+			 * - clk2 about to run out
+			 * - not already double-firing (dmisc1 is 1)
+			 * - not carrying Link
+			 * - one in 0xF chance
+			 */
+			if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(rand()&15))
+			{
+				newdir(rate, homing, grumble);
+				//dir^=2;
+				clk2=28;
+				++multishot;
+			}
+			
+			if(clk2==0)
+			{
+				multishot = 0;
+			}
+			
+			if(timer)  //Fire Octo
+			{
+				clk2=15; //this keeps the octo in place until he's done firing
+				
+				if(!(timer%4))
+				{
+					FireBreath(false);
+				}
+				
+				--timer;
+			}
+			
+			if(dmisc2==e2tTRIBBLE)
+				++clk4;
+				
+			if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
+			{
+				int kids = guys.Count();
+				int id2=dmisc3;
+				
+				for(int i=0; i<dmisc4; i++)
+				{
+					if(addenemy(x,y,id2,-24))
+					{
+						if(itemguy) // Hand down the carried item
+						{
+							guycarryingitem = guys.Count()-1;
+							((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+							itemguy = false;
+						}
+						
+						((enemy*)guys.spr(kids+i))->count_enemy = false;
+					}
+				}
+				
+				if(haslink)
+				{
+					Link.setEaten(0);
+					haslink=false;
+				}
+				
+				stop_bgsfx(index);
+				return true;
+			}
+			
+			break;
+		}
+		case eeKEESE:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(dmisc1)
+			{
+				floater_walk(rate,hrate,dstep/100,(zfix)0,10,dmisc16,dmisc17);
+			}
+			else
+			{
+				floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
+			}
+			
+			if(dmisc2 == e2tKEESETRIB)
+			{
+				if(++clk4==256)
+				{
+					if(!m_walkflag(x,y,0, dir))
+					{
+						int kids = guys.Count();
+						bool success = false;
+						int id2=dmisc3;
+						success = 0 != addenemy((zfix)x,(zfix)y,id2,-24);
+						
+						if(success)
+						{
+							if(itemguy) // Hand down the carried item
+							{
+								guycarryingitem = guys.Count()-1;
+								((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+								itemguy = false;
+							}
+							
+							((enemy*)guys.spr(kids))->count_enemy = count_enemy;
+						}
+						
+						stop_bgsfx(index);
+						return true;
+					}
+					else
+					{
+						clk4=0;
+					}
+				}
+			}
+			// Keese Tribbles stay on the ground, so there's no problem when they transform.
+			else if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
+			{
+				z=int(step/zslongToFix(dstep*100));
+				// Some variance in keese flight heights when away from Link
+				z+=int(step*zc_max(0,(distance(x,y,LinkX(),LinkY())-128)/10));
+			}
+			break;
+		}
+		case eeWIZZ:
+		{
+			if(dying)
+			{
+				return Dead(index);
+			}
+			
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(dmisc1) // Floating
+			{
+				wizzrobe_attack_phasing();
+			}
+			else // Teleporting
+			{
+				if(watch)
+				{
+					fading=0;
+					hxofs=0;
+				}
+				else switch(clk)
+					{
+					case 0:
+					{
+						if(!dmisc2)
+						{
+							// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
+							// but should not appear on dungeon walls.	
+							if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
+							else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] ) 
+							{
+								//2.10 Windrobe
+								//randomise location and face Link
+								int t=0;
+								bool placed=false;
+										
+								while(!placed && t<160)
+								{
+									if(isdungeon())
+									{
+										x=((rand()%12)+2)*16;
+										y=((rand()%7)+2)*16;
+									}
+									else
+									{
+										x=((rand()%14)+1)*16;
+										y=((rand()%9)+1)*16;
+									}
+											
+									if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+									{
+										placed=true;
+									}
+											
+									++t;
+								}
+										
+								if(abs(x-Link.getX())<abs(y-Link.getY()))
+								{
+									if(y<Link.getY())
+									{
+										dir=down;
+									}
+									else
+									{
+										dir=up;
+									}
+								}
+								else
+								{
+									if(x<Link.getX())
+									{
+										dir=right;
+									}
+									else
+									{
+										dir=left;
+									}
+								}
+								if(!placed)                                       // can't place him, he's gone
+									return true;
+								//wizzrobe_attack_phasing(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+								//wizzrobe_attack_teleporting(); //doing this makes them fire twice. The rest is correct.
+							}
+							else place_on_axis(true, dmisc4!=0);
+						}
+						else
+						{
+							int t=0;
+							bool placed=false;
+							
+							while(!placed && t<160)
+							{
+								if(isdungeon())
+								{
+									x=((rand()%12)+2)*16;
+									y=((rand()%7)+2)*16;
+								}
+								else
+								{
+									x=((rand()%14)+1)*16;
+									y=((rand()%9)+1)*16;
+								}
+								
+								if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+								{
+									placed=true;
+								}
+								
+								++t;
+							}
+							
+							if(abs(x-Link.getX())<abs(y-Link.getY()))
+							{
+								if(y<Link.getY())
+								{
+									dir=down;
+								}
+								else
+								{
+									dir=up;
+								}
+							}
+							else
+							{
+								if(x<Link.getX())
+								{
+									dir=right;
+								}
+								else
+								{
+									dir=left;
+								}
+							}
+							
+							if(!placed)                                       // can't place him, he's gone
+								return true;
+						}
+						
+						fading=fade_flicker;
+						hxofs=0;
+						break;
+					}
+					
+					case 64:
+						fading=0;
+						charging=true;
+						break;
+						
+					case 73:
+						charging=false;
+						firing=40;
+						break;
+						
+					case 83:
+						wizzrobe_attack_teleporting();
+						break;
+						
+					case 119:
+						firing=false;
+						charging=true;
+						break;
+						
+					case 128:
+						fading=fade_flicker;
+						charging=false;
+						break;
+						
+					case 146:
+						fading=fade_invisible;
+						hxofs=1000;
+						
+						//Fall through
+					default:
+						if(clk>=(146+zc_max(0,dmisc5)))
+							clk=-1;
+							
+						break;
+					}
+			}
+			break;
+		}
 	}
 	return basic_animate(index);
 }
@@ -3837,9 +4746,6 @@ bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
 	return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
 		   groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
 }
-
-
-
 
 bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y)
 {
@@ -3971,7 +4877,6 @@ void enemy::stop_bgsfx(int index)
 	
 	stop_sfx(bgsfx);
 }
-
 
 // to allow for different sfx on defeating enemy
 void enemy::death_sfx()
@@ -11242,37 +12147,6 @@ void eSpinTile::facelink()
 	}
 }
 
-
-bool eSpinTile::animate(int index)
-{
-	if(dying)
-	{
-		return Dead(index);
-	}
-	
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	++misc;
-	
-	if(misc==96)
-	{
-		facelink();
-		double ddir=atan2(double((Link.y)-y),double(Link.x-x));
-		angular=true;
-		angle=ddir;
-		step=zslongToFix(dstep*100);
-	}
-	
-	if(y>186 || y<=-16 || x>272 || x<=-16)
-		kickbucket();
-		
-	sprite::move(step);
-	return enemy::animate(index);
-}
-
 void eSpinTile::draw(BITMAP *dest)
 {
 	update_enemy_frame();
@@ -11480,645 +12354,6 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	shadowdistance = 0;
 	clk4 = clk5 = 0;
 	//nets+2380;
-}
-
-bool eStalfos::animate(int index)
-{
-	if(dying)
-	{
-		if(haslink)
-		{
-			Link.setEaten(0);
-			haslink=false;
-		}
-		
-		if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
-		{
-			hp=-1000;
-//        weapon *ew=new weapon(x,y,z, ewBomb, 0, d->wdp, dir);
-			weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
-			Ewpns.add(ew);
-			
-			if(wpn==ewSBomb || wpn==ewBomb)
-			{
-				ew->step=0;
-				ew->id=wpn;
-				ew->misc=50;
-				ew->clk=48;
-			}
-			
-			fired=true;
-		}
-		else if(wpn && wpn!=ewBrang && dmisc2==e2tFIREOCTO)  // Fire Octo
-		{
-			if(!dummy_bool[0])
-			{
-				int wpn2 = wpn+dmisc3;
-				
-				if(wpn2 <= wEnemyWeapons || wpn2 >= wMax)
-				{
-					wpn2=wpn;
-				}
-				
-				dummy_bool[0]=true;
-				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
-				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
-				sfx(wpnsfx(wpn2),pan(int(x)));
-			}
-		}
-		
-		KillWeapon();
-		return Dead(index);
-	}
-	//vire split
-	//2.10 checked !fslide(), but nothing uses that now anyway. -Z
-	//Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
-	else if(((hp<=0 && !immortal) && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
-	{
-		stop_bgsfx(index);
-		int kids = guys.Count();
-		int id2=dmisc3;
-		
-		for(int i=0; i < dmisc4; i++)
-		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-		}
-		
-		if(itemguy) // Hand down the carried item
-		{
-			guycarryingitem = guys.Count()-1;
-			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-			itemguy = false;
-		}
-		
-		if(haslink)
-		{
-			Link.setEaten(0);
-			haslink=false;
-		}
-		
-		if(deadsfx > 0 && dmisc2==e2tSPLIT)
-			sfx(deadsfx,pan(int(x)));
-			
-		return true;
-	}
-	/*
-	else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
-	{
-		stop_bgsfx(index);
-		int kids = guys.Count();
-		int id2=dmisc3;
-		
-		for(int i=0; i < dmisc4; i++)
-		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-		}
-		
-		if(itemguy) // Hand down the carried item
-		{
-			guycarryingitem = guys.Count()-1;
-			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-			itemguy = false;
-		}
-		
-		if(haslink)
-		{
-			Link.setEaten(0);
-			haslink=false;
-		}
-					
-		return true;
-	}
-	*/
-	if(fading)
-	{
-		if(++clk4 > 60)
-		{
-			clk4=0;
-			superman=0;
-			fading=0;
-			
-			if(flags2&cmbflag_armos && z==0)
-		{
-		//if a custom size (not 16px by 16px)
-			
-		//if a custom size (not 16px by 16px)
-		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
-		{
-			//zprint("spawn big enemy from armos\n");
-			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-			for(int dx = 0; dx < tysz; dx ++)
-			{
-				for(int dy = 0; dy < tysz; dy++)
-				{
-					removearmos((int)x+(dx*16),(int)y+(dy*16)+1);
-					did_armos = false;
-				}
-				removearmos((int)x+(dx*16), (int)y+((tysz-1)*16)+1);
-				did_armos = false;
-			}
-			for(int dy = 0; dy < tysz; dy ++)
-			{
-				removearmos((int)x+((txsz-1)*16), (int)y+(dy*16)+1);
-				did_armos = false;
-			}
-			removearmos((int)x+((txsz-1)*16), (int)y+((tysz-1)*16)+1);
-		}
-				else removearmos(x,y); 
-		/*
-		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
-		{
-			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-			for(int dx = 0; dx < hxsz; dx += 16)
-			{
-				for(int dy = 0; dy < hysz; dy += 16)
-				{
-					removearmos((int)x+dx+hxofs,(int)y+dy+hyofs+1);
-					did_armos = false;
-				}
-				removearmos((int)x+dx+hxofs, (int)y+hyofs+(hysz-1)-1);
-				did_armos = false;
-			}
-			for(int dy = 0; dy < hysz; dy += 16)
-			{
-				removearmos((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs-1);
-				did_armos = false;
-			}
-			removearmos((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1)-1);
-		}
-				else removearmos(x,y);
-		*/		
-	   
-		}
-				
-			clk2=0;
-			
-			newdir();
-		}
-		else return enemy::animate(index);
-	}
-	else if(flags2&cmbflag_armos && z==0 && clk==0)
-		removearmos(x,y);
-		
-	
-	if(haslink)
-	{
-		Link.setX(x);
-		Link.setY(y);
-		++clk2;
-		
-		if(clk2==(dmisc8==0 ? 95 : dmisc8))
-		{
-			switch(dmisc7)
-			{
-			case e7tEATITEMS:
-			{
-				for(int i=0; i<MAXITEMS; i++)
-				{
-					if(itemsbuf[i].flags&ITEM_EDIBLE)
-						game->set_item(i, false);
-				}
-				
-				break;
-			}
-			
-			case e7tEATMAGIC:
-				game->change_dmagic(-1*game->get_magicdrainrate());
-				break;
-				
-			case e7tEATRUPEES:
-				game->change_drupy(-1);
-				break;
-			}
-			
-			clk2=0;
-		}
-		
-		if((clk&0x18)==8)                                       // stop its animation on the middle frame
-			--clk;
-	}
-	else if(!(wpn==ewBrang && WeaponOut()))  //WeaponOut uses misc
-	{
-		// Movement engine
-		if(clk>=0) switch(id>>12)
-			{
-			case 0: // Normal movement
-			
-				/*
-				if((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && !slide()) //Leever
-				{
-				  // Overloading clk4 (Tribble clock) here...
-				  step=17/100.0;
-				  if(clk4<32)    misc=1;
-				  else if(clk4<48)    misc=2;
-				  else if(clk4<300) { misc=3; step = dstep/100.0; }
-				  else if(clk4<316)   misc=2;
-				  else if(clk4<412)   misc=1;
-				  else if(clk4<540) { misc=0; step=0; }
-				  else clk4=0;
-				  if(clk4==48) clk=0;
-				  hxofs=(misc>=2)?0:1000;
-				  if (dmisc9==e9tLEEVER)
-					variable_walk(rate, homing, 0);
-				  else
-					variable_walk_8(rate, homing, 4, 0);
-				  break;
-				}
-				*/
-				if(dmisc9==e9tVIRE || dmisc9==e9tPOLSVOICE) //Vire
-				{
-					vire_hop();
-					break;
-				}
-				else if(dmisc9==e9tROPE) //Rope charge
-				{
-					if(!fired && dashing && !stunclk && !watch && !frozenclock)
-					{
-						if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
-						{
-				
-				if (  FFCore.emulation[emu210BOMBCHU] || get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
-				{
-					hp=-1000;
-							
-					if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-					{
-					weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
-					Ewpns.add(ew);
-					
-					if(wpn==ewSBomb || wpn==ewBomb)
-					{
-						ew->step=0;
-						ew->id=wpn+dmisc3;
-						ew->misc=50;
-						ew->clk=48;
-					}
-					
-					fired=true;
-					}
-					else
-					{
-					weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
-					Ewpns.add(ew);
-					
-					if(wpn==ewSBomb || wpn==ewBomb)
-					{
-						ew->step=0;
-						ew->id=wpn;
-						ew->misc=50;
-						ew->clk=48;
-					}
-					
-					fired=true;
-					}
-				}
-				
-				else
-				{
-					hp=-1000;
-					
-					int wpn2;
-					if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-					wpn2=wpn;
-					else
-					wpn2=wpn;
-					
-					weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
-					Ewpns.add(ew);
-					
-					if(wpn2==ewSBomb || wpn2==ewBomb)
-					{
-					ew->step=0;
-					ew->id=wpn2;
-					ew->misc=50;
-					ew->clk=48;
-					}
-					
-					fired=true;
-				}
-						}
-					}
-					
-					charge_attack();
-					break;
-				}
-				/*
-				 * Boomerang-throwers have a halt count of 1
-				 * Zols have a halt count of (rand()&7)<<4
-				 * Gels have a halt count of ((rand()&7)<<3)+2
-				 * Everything else has 48
-				 */
-				else
-				{
-					if(wpn==ewBrang) // Goriya
-					{
-						halting_walk(rate,homing,0,hrate, 1);
-					}
-					else if(dmisc9==e9tNORMAL && wpn==0)
-					{
-						if(dmisc2==e2tSPLITHIT) // Zol
-						{
-							halting_walk(rate,homing,0,hrate,(rand()&7)<<4);
-						}
-						else if(frate<=8 && starting_hp==1) // Gel
-						{
-							halting_walk(rate,homing,0,hrate,((rand()&7)<<3)+2);
-						}
-						else // Other
-						{
-							halting_walk(rate,homing,0,hrate, 48);
-						}
-					}
-					else // Other
-					{
-						halting_walk(rate,homing,0,hrate, 48);
-					}
-				}
-				
-				//if not in midair, and Link's swinging sword is nearby, jump.
-				/*if (dmisc9==e9tZ3STALFOS && z==0 && (!(isSideViewGravity()) || !_walkflag(x,y+16,0))
-				  && Link.getAttackClk()==5 && Link.getAttack()==wSword && distance(x,y,Link.getX(),Link.getY())<32)
-					{
-					  facelink(false);
-					  sclk=16+((dir^1)<<8);
-					fall=-FEATHERJUMP;
-					  sfx(WAV_ZN1JUMP,pan(int(x)));
-					}*/
-				break;
-				
-				// Following cases are for just after creation-by-splitting.
-			case 1:
-				if(misc==1)
-				{
-					dir=up;
-					step=8;
-				}
-				
-				if(misc<=2)
-				{
-					move(step);
-					
-					if(!canmove(dir,(zfix)0,0))
-						dir=down;
-				}
-				
-				if(misc==3)
-				{
-					if(canmove(right,(zfix)16,0))
-						x+=16;
-				}
-				
-				++misc;
-				break;
-				
-			case 2:
-				if(misc==1)
-				{
-					dir=down;
-					step=8;
-				}
-				
-				if(misc<=2)
-				{
-					move(step);
-					/*
-							  if(!canmove(dir,(zfix)0,0))
-								dir=up;
-					*/
-				}
-				
-				if(misc==3)
-				{
-					if(canmove(left,(zfix)16,0))
-						x-=16;
-				}
-				
-				++misc;
-				break;
-				
-			default:
-				if(misc==1)
-				{
-					dir=(rand()%4);
-					step=8;
-				}
-				
-				if(misc<=2)
-				{
-					move(step);
-					
-					if(!canmove(dir,(zfix)0,0))
-						dir=dir^1;
-				}
-				
-				if(misc==3)
-				{
-					if(dir >= left && canmove(dir,(zfix)16,0))
-						x+=(dir==left ? -16 : 16);
-				}
-				
-				++misc;
-				break;
-			}
-			
-		if(id>>12 && misc>=4) //recently spawned by a split enemy
-		{
-			id&=0xFFF;
-			step = zslongToFix(dstep*100);
-			
-			if(x<32) x=32;
-			
-			if(x>208) x=208;
-			
-			if(y<32) y=32;
-			
-			if(y>128) y=128;
-			
-			misc=3;
-		}
-	}
-	else
-	{
-		//sfx(wpnsfx(wpn),pan(int(x)));
-		if(clk2>2) clk2--;
-	}
-	
-	// Fire Zol
-	if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
-	{
-		addEwpn(x,y,z,wpn,0,wdp,dir, getUID());
-		sfx(wpnsfx(wpn),pan(int(x)));
-		
-		int i=Ewpns.Count()-1;
-		weapon *ew = (weapon*)(Ewpns.spr(i));
-		
-		if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
-		{
-			ew->aframe=rand()%wpnsbuf[ewFIRETRAIL].frames;
-			if ( ew->do_animation ) ew->tile+=ew->aframe;
-		}
-	}
-	// Goriya
-	else if(wpn==ewBrang && clk2==1 && sclk==0 && !stunclk && !frozenclock && !watch && wpn && !WeaponOut())
-	{
-		misc=index+100;
-		Ewpns.add(new weapon(x,y,z,wpn,misc,wdp,dir, -1,getUID(),false));
-		((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=false;
-		
-		if(dmisc1==2)
-		{
-			int ndir=dir;
-			
-			if(Link.x-x==0)
-			{
-				ndir=(Link.y+8<y)?up:down;
-			}
-			else //turn to face Link
-			{
-				double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-				
-				if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
-				{
-					ndir=down;
-				}
-				else if((ddir<=(((2)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-				{
-					ndir=right;
-				}
-				else if((ddir<=(((6)*PI)/8))&&(ddir>(((2)*PI)/8)))
-				{
-					ndir=up;
-				}
-				else
-				{
-					ndir=left;
-				}
-			}
-			
-			((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=true;
-			
-			if(canmove(ndir))
-			{
-				dir=ndir;
-			}
-		}
-	}
-	else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !frozenclock && !watch)
-		switch(dmisc1)
-		{
-		case e1tCONSTANT: //Deathnut
-		{
-			// Overloading clk5 (Like Like clock) to avoid making another clock just for this attack...
-			if(clk5>64)
-			{
-				clk5=0;
-				fired=false;
-			}
-			
-			clk5+=(rand()&3);
-			
-			if((clk5>24)&&(clk5<52))
-			{
-				if ( do_animation )tile+=20;                                         //firing
-				
-				if(!fired&&(clk5>=38))
-				{
-					Ewpns.add(new weapon(x,y,z, wpn, 0, wdp, dir, -1,getUID(),false));
-					sfx(wpnsfx(wpn),pan(int(x)));
-					fired=true;
-				}
-			}
-			
-			break;
-		}
-		
-		case e1tFIREOCTO: //Fire Octo
-			timer=rand()%50+50;
-			break;
-			
-		default:
-			FireWeapon();
-			break;
-		}
-		
-	/* Fire again if:
-	 * - clk2 about to run out
-	 * - not already double-firing (dmisc1 is 1)
-	 * - not carrying Link
-	 * - one in 0xF chance
-	 */
-	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(rand()&15))
-	{
-#if 1
-		newdir(rate, homing, grumble);
-#else
-		dir^=2;
-#endif
-		clk2=28;
-		++multishot;
-	}
-	
-	if(clk2==0)
-	{
-		multishot = 0;
-	}
-	
-	if(timer)  //Fire Octo
-	{
-		clk2=15; //this keeps the octo in place until he's done firing
-		
-		if(!(timer%4))
-		{
-			FireBreath(false);
-		}
-		
-		--timer;
-	}
-	
-	if(dmisc2==e2tTRIBBLE)
-		++clk4;
-		
-	if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
-	{
-		int kids = guys.Count();
-		int id2=dmisc3;
-		
-		for(int i=0; i<dmisc4; i++)
-		{
-			if(addenemy(x,y,id2,-24))
-			{
-				if(itemguy) // Hand down the carried item
-				{
-					guycarryingitem = guys.Count()-1;
-					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-					itemguy = false;
-				}
-				
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-			}
-		}
-		
-		if(haslink)
-		{
-			Link.setEaten(0);
-			haslink=false;
-		}
-		
-		stop_bgsfx(index);
-		return true;
-	}
-	
-	return enemy::animate(index);
 }
 
 void eStalfos::draw(BITMAP *dest)
@@ -12457,68 +12692,6 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	dummy_int[1]=0;
 }
 
-bool eKeese::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(dmisc1)
-	{
-		floater_walk(rate,hrate,dstep/100,(zfix)0,10,dmisc16,dmisc17);
-	}
-	else
-	{
-		floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
-	}
-	
-	if(dmisc2 == e2tKEESETRIB)
-	{
-		if(++clk4==256)
-		{
-			if(!m_walkflag(x,y,0, dir))
-			{
-				int kids = guys.Count();
-				bool success = false;
-				int id2=dmisc3;
-				success = 0 != addenemy((zfix)x,(zfix)y,id2,-24);
-				
-				if(success)
-				{
-					if(itemguy) // Hand down the carried item
-					{
-						guycarryingitem = guys.Count()-1;
-						((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-						itemguy = false;
-					}
-					
-					((enemy*)guys.spr(kids))->count_enemy = count_enemy;
-				}
-				
-				stop_bgsfx(index);
-				return true;
-			}
-			else
-			{
-				clk4=0;
-			}
-		}
-	}
-	// Keese Tribbles stay on the ground, so there's no problem when they transform.
-	else if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
-	{
-		z=int(step/zslongToFix(dstep*100));
-		// Some variance in keese flight heights when away from Link
-		z+=int(step*zc_max(0,(distance(x,y,LinkX(),LinkY())-128)/10));
-	}
-	
-	return enemy::animate(index);
-}
-
 void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
 	int tempy=yofs;
@@ -12565,195 +12738,7 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
 }
 
-bool eWizzrobe::animate(int index)
-{
-	if(dying)
-	{
-		return Dead(index);
-	}
-	
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(dmisc1) // Floating
-	{
-		wizzrobe_attack();
-	}
-	else // Teleporting
-	{
-		if(watch)
-		{
-			fading=0;
-			hxofs=0;
-		}
-		else switch(clk)
-			{
-			case 0:
-				if(!dmisc2)
-				{
-			// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
-			// but should not appear on dungeon walls.	
-					if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
-					else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] ) 
-			{
-				//2.10 Windrobe
-				//randomise location and face Link
-			int t=0;
-			bool placed=false;
-					
-			while(!placed && t<160)
-			{
-				if(isdungeon())
-				{
-					x=((rand()%12)+2)*16;
-					y=((rand()%7)+2)*16;
-				}
-				else
-				{
-					x=((rand()%14)+1)*16;
-					y=((rand()%9)+1)*16;
-				}
-						
-				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
-				{
-					placed=true;
-				}
-						
-				++t;
-			}
-					
-			if(abs(x-Link.getX())<abs(y-Link.getY()))
-			{
-				if(y<Link.getY())
-				{
-					dir=down;
-				}
-				else
-				{
-					dir=up;
-				}
-			}
-			else
-			{
-				if(x<Link.getX())
-				{
-					dir=right;
-				}
-				else
-				{
-					dir=left;
-				}
-			}
-					
-			if(!placed)                                       // can't place him, he's gone
-				return true;
-				
-				
-			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
-			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
-			}
-			else place_on_axis(true, dmisc4!=0);
-				}
-				else
-				{
-					int t=0;
-					bool placed=false;
-					
-					while(!placed && t<160)
-					{
-						if(isdungeon())
-						{
-							x=((rand()%12)+2)*16;
-							y=((rand()%7)+2)*16;
-						}
-						else
-						{
-							x=((rand()%14)+1)*16;
-							y=((rand()%9)+1)*16;
-						}
-						
-						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
-						{
-							placed=true;
-						}
-						
-						++t;
-					}
-					
-					if(abs(x-Link.getX())<abs(y-Link.getY()))
-					{
-						if(y<Link.getY())
-						{
-							dir=down;
-						}
-						else
-						{
-							dir=up;
-						}
-					}
-					else
-					{
-						if(x<Link.getX())
-						{
-							dir=right;
-						}
-						else
-						{
-							dir=left;
-						}
-					}
-					
-					if(!placed)                                       // can't place him, he's gone
-						return true;
-				}
-				
-				fading=fade_flicker;
-				hxofs=0;
-				break;
-				
-			case 64:
-				fading=0;
-				charging=true;
-				break;
-				
-			case 73:
-				charging=false;
-				firing=40;
-				break;
-				
-			case 83:
-				wizzrobe_attack_for_real();
-				break;
-				
-			case 119:
-				firing=false;
-				charging=true;
-				break;
-				
-			case 128:
-				fading=fade_flicker;
-				charging=false;
-				break;
-				
-			case 146:
-				fading=fade_invisible;
-				hxofs=1000;
-				
-				//Fall through
-			default:
-				if(clk>=(146+zc_max(0,dmisc5)))
-					clk=-1;
-					
-				break;
-			}
-	}
-	
-	return enemy::animate(index);
-}
-
-void eWizzrobe::wizzrobe_attack_for_real()
+void eWizzrobe::wizzrobe_attack_teleporting()
 {
 	if(wpn==0)  // Edited enemies
 		return;
@@ -12874,7 +12859,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 }
 
 
-void eWizzrobe::wizzrobe_attack()
+void eWizzrobe::wizzrobe_attack_phasing()
 {
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
@@ -13006,7 +12991,7 @@ void eWizzrobe::wizzrobe_attack()
 			{
 //        addEwpn(x,y,z,wpn,0,wdp,dir,getUID());
 //        sfx(WAV_WAND,pan(int(x)));
-				wizzrobe_attack_for_real();
+				wizzrobe_attack_teleporting();
 				fclk=30;
 			}
 		}
@@ -13014,7 +12999,7 @@ void eWizzrobe::wizzrobe_attack()
 		{
 			if((rand()%500)>=400)
 			{
-				wizzrobe_attack_for_real();
+				wizzrobe_attack_teleporting();
 				fclk=30;
 			}
 		}

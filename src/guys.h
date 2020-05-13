@@ -413,7 +413,6 @@ public:
 	bool haslink;
 	eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eWallM(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	void wallm_crawl();
 	void grablink();
 	virtual void draw(BITMAP *dest);
@@ -426,7 +425,6 @@ public:
 	int  ox, oy;
 	eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eTrap(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	bool trapmove(int ndir);
 	bool clip();
 	virtual void draw(BITMAP *dest);
@@ -438,7 +436,6 @@ class eTrap2 : public enemy                                 //trap that goes bac
 public:
 	eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eTrap2(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	bool trapmove(int ndir);
 	bool clip();
 	virtual void draw(BITMAP *dest);
@@ -450,7 +447,6 @@ class eRock : public enemy
 public:
 	eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eRock(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
@@ -461,7 +457,6 @@ class eBoulder : public enemy
 public:
 	eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eBoulder(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
@@ -475,7 +470,6 @@ class eProjectile : public enemy
 public:
 	eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eProjectile(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	
 	const int minRange;
@@ -506,7 +500,6 @@ public:
 	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eSpinTile(zfix X,zfix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
 	virtual void facelink();
-	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 };
@@ -537,7 +530,6 @@ public:
 	void KillWeapon();
 	void charge_attack();
 	void eatlink();
-	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	void vire_hop();
@@ -551,7 +543,6 @@ public:
 	int ox, oy, c;
 	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eKeese(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 };
@@ -564,9 +555,8 @@ public:
 	int fclk;
 	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eWizzrobe(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	void wizzrobe_attack();
-	void wizzrobe_attack_for_real();
+	void wizzrobe_attack_phasing();
+	void wizzrobe_attack_teleporting();
 	void wizzrobe_newdir(int homing);
 	virtual void draw(BITMAP *dest);
 };
