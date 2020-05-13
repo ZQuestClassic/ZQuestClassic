@@ -2151,7 +2151,8 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	clk=Clk;
 	floor_y=y;
 	ceiling=false;
-	fading = misc = clk2 = clk3 = stunclk = hclk = sclk = superman = 0;
+	fading = misc = clk2 = clk3 = stunclk = hclk = sclk = superman = clk4 = 0;
+	typeMisc = 0;
 	grumble = movestatus = posframe = timer = ox = oy = 0;
 	yofs = playing_field_offset - ((isSideViewGravity()) ? 0 : 2);
 	did_armos=true;
@@ -2342,12 +2343,13 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	
 	//tile should never be 0 after init --Z (failsafe)
 	if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
+	shield = (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 }
 
 //base clone constructor
 
 enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
+	//{Struct Element			Type		Purpose
 	sprite(other),
 	//x(other.x), 		//int
 	//y(other.y), 			//int
@@ -2358,6 +2360,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//misc(other.misc),			//int
 	clk2(other.clk2),			//int
 	clk3(other.clk3),			//int
+	clk4(other.clk4),			//int
 	stunclk(other.stunclk),			//int
 	hclk(other.hclk),			//int
 	sclk(other.sclk),			//int
@@ -2475,15 +2478,13 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//yofs(other.yofs),			//int
 	//hzofs(other.hzofs),			//int
 	//zofs(other.zofs),			//int
-   
+	shield(other.shield),			//bool
 	wpn(other.wpn)			//int
 	//stack(other.stack),			//int
 	//scriptData(other.scriptData)			//int
-
+	//}
 {
-	
 	//arrays
-	
 	//stack(other.stack),			//int
 	//scriptData(other.scriptData)			//int
 	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
@@ -2519,11 +2520,6 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 		initA[q] = other.initA[q];
 		weap_initiala[q] = other.weap_initiala[q];
 	}
-	
-	
-	
-	
-	
 }
 
 /*
@@ -2631,7 +2627,7 @@ bool enemy::Dead(int index)
 // Basic animation code that all derived classes should call.
 // The one with an index is the one that is called by
 // the guys sprite list; index is the enemy's index in the list.
-bool enemy::animate(int index)
+bool basic_animate(int index)
 {
 	int nx = real_x(x);
 	int ny = real_y(y);
@@ -2787,6 +2783,1012 @@ bool enemy::animate(int index)
 	// returns true when enemy is defeated
 	return Dead(index);
 }
+bool enemy::animate(int index)
+{
+	switch(family)
+	{
+		case eeFIRE:
+		case eeOTHER:
+		case eeSCRIPT01:
+		case eeSCRIPT02:
+		case eeSCRIPT03:
+		case eeSCRIPT04:
+		case eeSCRIPT05:
+		case eeSCRIPT06:
+		case eeSCRIPT07:
+		case eeSCRIPT08:
+		case eeSCRIPT09:
+		case eeSCRIPT10:
+		case eeSCRIPT11:
+		case eeSCRIPT12:
+		case eeSCRIPT13:
+		case eeSCRIPT14:
+		case eeSCRIPT15:
+		case eeSCRIPT16:
+		case eeSCRIPT17:
+		case eeSCRIPT18:
+		case eeSCRIPT19:
+		case eeSCRIPT20:
+		case eeFFRIENDLY01:
+		case eeFFRIENDLY02:
+		case eeFFRIENDLY03:
+		case eeFFRIENDLY04:
+		case eeFFRIENDLY05:
+		case eeFFRIENDLY06:
+		case eeFFRIENDLY07:
+		case eeFFRIENDLY08:
+		case eeFFRIENDLY09:
+		case eeFFRIENDLY10:
+		{
+			if(fading)
+			{
+				if(++clk4 > 60)
+				{
+					clk4=0;
+					superman=0;
+					fading=0;
+					
+					if(flags2&cmbflag_armos && z==0)
+						removearmos(x,y);
+						
+					clk2=0;
+					
+					if(!canmove(down,(zfix)8,spw_none))
+					{
+						dir=0;
+						y = y.getInt() & 0xF0;
+					}
+					
+					return Dead(index);
+				}
+				else if(flags2&cmbflag_armos && z==0 && clk==0)
+					removearmos(x,y);
+			}
+			break;
+		}
+		case eeGHINI:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(dmisc1)
+			{
+				if(misc)
+				{
+					if(clk4>160)
+						misc=2;
+						
+					floater_walk((misc==1)?0:rate,hrate,zslongToFix(dstep*100),zslongToFix(dstep*10),10,dmisc16,dmisc17); //120,10);
+					removearmos(x,y);
+				}
+				else if(clk4>=60)
+				{
+					misc=1;
+					clk3=32;
+					fading=0;
+					guygrid[(int(y)&0xF0)+(int(x)>>4)]=0;
+					removearmos(x,y);
+				}
+			}
+			
+			++clk4;
+			break;
+		}
+		case eeTEK:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(get_bit(quest_rules,qr_ENEMIESZAXIS))
+			{
+				y=floor_y;
+			}
+			
+			if(clk>=0 && !stunclk && !frozenclock && (!watch || misc==0))
+			{
+				switch(misc)
+				{
+					case 0:                                               // normal
+					{
+						if(!(rand()%dmisc1))
+						{
+							misc=1;
+							clk2=32;
+						}
+						break;
+					}
+						
+					case 1:                                               // waiting to pounce
+					{
+						if(--clk2<=0)
+						{
+							int r=rand();
+							misc=2;
+							step=0-(zslongToFix(dstep*100));                           // initial speed
+							clk3=(r&1)+2;                                       // left or right
+							clk2start=clk2=(r&31)+10;                           // flight time
+							
+							if(y<32)  clk2+=2;                                  // make them come down from top of screen
+							
+							if(y>112) clk2-=2;                                  // make them go back up
+							
+							cstart=c = 9-((r&31)>>3);                           // time before gravity kicks in
+						}
+						break;
+					}
+						
+					case 2:                                                 // in flight
+					{
+						move(step);
+						
+						if(step>0)                                            //going down
+						{
+							if(COMBOTYPE(x+8,y+16)==cNOJUMPZONE)
+							{
+								step=0-step;
+							}
+							else if(COMBOTYPE(x+8,y+16)==cNOENEMY)
+							{
+								step=0-step;
+							}
+							else if(MAPFLAG(x+8,y+16)==mfNOENEMY)
+							{
+								step=0-step;
+							}
+							else if(MAPCOMBOFLAG(x+8,y+16)==mfNOENEMY)
+							{
+								step=0-step;
+							}
+						}
+						else if(step<0)
+						{
+							if(COMBOTYPE(x+8,y)==cNOJUMPZONE)
+							{
+								step=0-step;
+							}
+							else if(COMBOTYPE(x+8,y)==cNOENEMY)
+							{
+								step=0-step;
+							}
+							else if(MAPFLAG(x+8,y)==mfNOENEMY)
+							{
+								step=0-step;
+							}
+							else if(MAPCOMBOFLAG(x+8,y)==mfNOENEMY)
+							{
+								step=0-step;
+							}
+						}
+						
+						if(clk3==left)
+						{
+							if(COMBOTYPE(x,y+8)==cNOJUMPZONE)
+							{
+								clk3^=1;
+							}
+							else if(COMBOTYPE(x,y+8)==cNOENEMY)
+							{
+								clk3^=1;
+							}
+							else if(MAPFLAG(x,y+8)==mfNOENEMY)
+							{
+								clk3^=1;
+							}
+							else if(MAPCOMBOFLAG(x,y+8)==mfNOENEMY)
+							{
+								clk3^=1;
+							}
+						}
+						else
+						{
+							if(COMBOTYPE(x+16,y+8)==cNOJUMPZONE)
+							{
+								clk3^=1;
+							}
+							else if(COMBOTYPE(x+16,y+8)==cNOENEMY)
+							{
+								clk3^=1;
+							}
+							else if(MAPFLAG(x+16,y+8)==mfNOENEMY)
+							{
+								clk3^=1;
+							}
+							else if(MAPCOMBOFLAG(x+16,y+8)==mfNOENEMY)
+							{
+								clk3^=1;
+							}
+						}
+						
+						--c;
+						
+						if(c<0 && step<zslongToFix(dstep*100))
+						{
+							step+=zslongToFix(dmisc3*100);
+						}
+						
+						int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+						
+						if(x<=16-nb)  clk3=right;
+						
+						if(x>=224+nb) clk3=left;
+						
+						x += (clk3==left) ? -1 : 1;
+						
+						if((--clk2<=0 && y>=16-nb) || y>=144+nb)
+						{
+							if(y>=144+nb && get_bit(quest_rules,qr_ENEMIESZAXIS))
+							{
+								step=0-step;
+								y--;
+							}
+							else if(rand()%dmisc2)                                 //land and wait
+							{
+								clk=misc=0;
+							}                                                   //land and jump again
+							else
+							{
+								misc=1;
+								clk2=0;
+							}
+						}
+						break;
+					}
+				}                                                         // switch
+			}
+			
+			if(get_bit(quest_rules,qr_ENEMIESZAXIS) && misc==2)
+			{
+				int tempy = floor_y;
+				z=zc_max(0,zc_min(clk2start-clk2,clk2));
+				floor_y = y;
+				y=tempy-z;
+				old_y = y;
+			}
+			
+			if(stunclk && (clk&31)==1)
+				clk=0;
+			break;
+		}
+		case eePEAHAT:
+		{
+			if(slide())
+			{
+				return false;
+			}
+			
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(stunclk==0 && clk>96)
+				misc=1;
+			
+			if(!watch)
+				floater_walk(misc?rate:0, hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10,  80, 16);
+			
+			if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
+			{
+				z=int(step*1.1/((zslongToFix(dstep*10))*1.1));
+			}
+			
+			if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
+				superman=0;
+			else superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
+			//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+			{
+				if ( stunclk ) --stunclk;
+			}
+			else stunclk = 0; //Was probably this way in 2.10 quests. if not, then we never need to clear it. -Z
+			//Pretty sure this was always an error. -Z ( 14FEB2019 )
+			
+			if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
+			
+			break;
+		}
+		case eeLEV:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(clk>=0 && !slide())
+			{
+				//switch(d->misc1)
+				switch(dmisc1)
+				{
+					case 0:      //line of sight
+					case 2:
+					{
+						switch(misc) //is this leever active
+						{
+							case -1:  //submerged
+							{
+								if((dmisc1==2)&&(rand()&255))
+								{
+									break;
+								}
+								
+								int active=0;
+								
+								for(int i=0; i<guys.Count(); i++)
+								{
+									if(guys.spr(i)->id==id && (((enemy*)guys.spr(i))->misc>=0))
+									{
+										++active;
+									}
+								}
+								
+								if(active<((dmisc1==2)?1:2))
+								{
+									misc=0; //activate this one
+								}
+								break;
+							}
+							
+							case 0:
+							{
+								int s=0;
+								
+								for(int i=0; i<guys.Count(); i++)
+								{
+									if(guys.spr(i)->id==id && ((enemy*)guys.spr(i))->misc==1)
+									{
+										++s;
+									}
+								}
+								
+								if(s>0)
+								{
+									break;
+								}
+								
+								int d2=rand()&1;
+								
+								if(LinkDir()>=left)
+								{
+									d2+=2;
+								}
+								
+								if(canplace(d2) || canplace(d2^1))
+								{
+									misc=1;
+									clk2=0;
+									clk=0;
+								}
+								break;
+							}
+							
+							case 1:
+							{
+								if(++clk2>16) misc=2;
+								break;
+							}
+							
+							case 2:
+							{
+								if(++clk2>24) misc=3;
+								break;
+							}
+							
+							//case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((zfix)(d->step/100.0)); break;
+							case 3:
+							{
+								if(stunclk || frozenclock) break;
+								
+								if(scored) dir^=1;
+								
+								if(!canmove(dir)) misc=4;
+								else move(zslongToFix(dstep*100));
+								
+								break;
+							}
+							
+							case 4:
+							{
+								if(--clk2==16)
+								{
+									misc=5;
+									clk=8;
+								}
+								
+								break;
+							}
+							
+							case 5:
+							{
+								if(--clk2==0)  misc=((dmisc1==2)?-1:0);
+								
+								break;
+							}
+						}                                                       // switch(misc)
+						
+						break;
+					}
+					default:  //random
+					{
+						//step=d->misc3/100.0;
+						
+						step=zslongToFix(dmisc3*100);
+						++clk2;
+						
+						if(clk2<32)    misc=1;
+						else if(clk2<48)    misc=2;
+						else if(clk2<300)
+						{
+							/*if(misc==2 && (int)(dmisc3*0.48)%8)
+							{
+							  fix_coords();
+							}*/
+							misc=3;
+							step = zslongToFix(dstep*100);
+						}
+						else if(clk2<316)   misc=2;
+						else if(clk2<412)   misc=1;
+						else if(clk2<540)
+						{
+							misc=0;
+							step=0;
+						}
+						else clk2=0;
+						
+						if(clk2==48) clk=0;
+						
+						//variable_walk(d->rate, d->homing, 0);
+						variable_walk(rate, homing, 0);
+					}
+				}                                                         // switch(dmisc1)
+			}
+			
+			hxofs=(misc>=2)?0:1000;
+			break;
+		}
+		case eeWALLM:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			hxofs=1000;
+			obeys_gravity = 1;
+			if(misc==0) //inside wall, ready to spawn?
+			{
+				//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
+				//zprint2("frame is: %d\n",frame);
+				//zprint2("wallm_load_clk is: %d\n",wallm_load_clk);
+				if(frame-wallm_load_clk>80 && clk>=0)
+				{
+					//zprint2("getting wall\n");
+					int wall=link_on_wall();
+					//zprint2("Wallmaster wall is %d\n",wall);
+					int wallm_cnt=0;
+					
+					for(int i=0; i<guys.Count(); ++i)
+						if(((enemy*)guys.spr(i))->family==eeWALLM)
+						{
+							register int m=((enemy*)guys.spr(i))->misc;
+							
+							if(m && ((enemy*)guys.spr(i))->clk3==(wall^1))
+							{
+								++wallm_cnt;
+							}
+						}
+						
+					if(wall>0)
+					{
+						--wall;
+						misc=1; //emerging from the wall?
+						//zprint2("Wallmaster is emerging\n");
+						clk2=0;
+						clk3=wall^1;
+						wallm_load_clk=frame;
+						
+						if(wall<=down)
+						{
+							if(LinkDir()==left)
+								dir=right;
+							else
+								dir=left;
+						}
+						else
+						{
+							if(LinkDir()==up)
+								dir=down;
+							else
+								dir=up;
+						}
+						
+						switch(wall)
+						{
+							case up:
+								y=0;
+								break;
+								
+							case down:
+								y=160;
+								break;
+								
+							case left:
+								x=0;
+								break;
+								
+							case right:
+								x=240;
+								break;
+						}
+				
+						//zprint2("Wallmaster (p1) x is %d\n",x);
+						//zprint2("Wallmaster (p1) y is %d\n",y);
+						
+						switch(dir)
+						{
+							case up:
+								y=(LinkY()+48-(wallm_cnt&1)*12);
+								flip=wall&1;
+								break;
+								
+							case down:
+								y=(LinkY()-48+(wallm_cnt&1)*12);
+								flip=((wall&1)^1)+2;
+								break;
+								
+							case left:
+								x=(LinkX()+48-(wallm_cnt&1)*12);
+								flip=(wall==up?2:0)+1;
+								break;
+								
+							case right:
+								x=(LinkX()-48+(wallm_cnt&1)*12);
+								flip=(wall==up?2:0);
+								break;
+						}
+				
+						//zprint2("Wallmaster (p2) x is %d\n",x);
+						//zprint2("Wallmaster (p2) y is %d\n",y);
+					}
+				}
+			}
+			else
+				wallm_crawl();
+			break;
+		}
+		case eeTRAP:
+		{
+			if(clk<0)
+				break;
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(typeMisc == emtTRAP2) //Trap 2
+			{
+				if(!get_bit(quest_rules,qr_PHANTOMPLACEDTRAPS))
+				{
+					if(lasthitclk>0)
+					{
+						--lasthitclk;
+					}
+					else
+					{
+						lasthit=-1;
+					}
+					
+					bool hitenemy=false;
+					
+					for(int j=0; j<guys.Count(); j++)
+					{
+						if((j!=index) && (lasthit!=j))
+						{
+							if(hit(guys.spr(j)))
+							{
+								lasthit=j;
+								lasthitclk=10;
+								hitenemy=true;
+								guys.spr(j)->lasthit=index;
+								guys.spr(j)->lasthitclk=10;
+								//guys.spr(j)->dir=guys.spr(j)->dir^1;
+							}
+						}
+					}
+					
+					if(!trapmove(dir) || clip() || hitenemy)
+					{
+						if(!trapmove(dir) || clip())
+						{
+							lasthit=-1;
+							lasthitclk=0;
+						}
+						
+						if(get_bit(quest_rules,qr_MORESOUNDS))
+							sfx(WAV_ZN1TAP,pan(int(x)));
+							
+						dir=dir^1;
+					}
+					
+					sprite::move(step);
+				}
+				else
+				{
+					if(!trapmove(dir) || clip())
+					{
+						if(get_bit(quest_rules,qr_MORESOUNDS))
+							sfx(WAV_ZN1TAP,pan(int(x)));
+							
+						dir=dir^1;
+					}
+					
+					sprite::move(step);
+				}
+			}
+			else
+			{
+				if(misc==0)                                               // waiting
+				{
+					ox = x;
+					oy = y;
+					double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+					
+					if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
+					{
+						dir=down;
+					}
+					else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
+					{
+						dir=right;
+					}
+					else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
+					{
+						dir=up;
+					}
+					else
+					{
+						dir=left;
+					}
+					
+					int d2=lined_up(15,true);
+					
+					if(((d2<left || d2 > right) && (dmisc1==1)) ||
+							((d2>down) && (dmisc1==2)) ||
+							((d2>right) && (!dmisc1)) ||
+							((d2<l_up) && (dmisc1==4)) ||
+							((d2!=r_up) && (d2!=l_down) && (dmisc1==6)) ||
+							((d2!=l_up) && (d2!=r_down) && (dmisc1==8)))
+					{
+						d2=-1;
+					}
+					
+					if(d2!=-1 && trapmove(d2))
+					{
+						dir=d2;
+						misc=1;
+						clk2=(dir==down)?3:0;
+					}
+				}
+				
+				if(misc==1)                                               // charging
+				{
+					clk2=(clk2+1)&3;
+					step=(clk2==3)?1:2;
+					
+					if(!trapmove(dir) || clip())
+					{
+						misc=2;
+						
+						if(dir<l_up)
+						{
+							dir=dir^1;
+						}
+						else
+						{
+							dir=dir^3;
+						}
+					}
+					else
+					{
+						sprite::move(step);
+					}
+				}
+				
+				if(misc==2)                                               // retreating
+				{
+					step=(++clk2&1)?1:0;
+					
+					switch(dir)
+					{
+						case up:
+							if(int(y)<=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case left:
+							if(int(x)<=ox) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case down:
+							if(int(y)>=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case right:
+							if(int(x)>=ox) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case l_up:
+							if(int(x)<=ox && int(y)<=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case r_up:
+							if(int(x)>=ox && int(y)<=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case l_down:
+							if(int(x)<=ox && int(y)>=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+							
+						case r_down:
+							if(int(x)>=ox && int(y)>=oy) goto trap_rest;
+							else sprite::move(step);
+							
+							break;
+			trap_rest:
+							{
+								x=ox;
+								y=oy;
+								misc=0;
+							}
+					}
+				}
+			}
+			break;
+		}
+		case eROCK:
+		{
+			if(dying)
+				return Dead(index);
+				
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			if(typeMisc == emtBOULDER)
+			{
+				zfix *vert;
+				vert = get_bit(quest_rules,qr_ENEMIESZAXIS) ? &z : &y;
+				
+				if(++clk2==0)                                             // start it
+				{
+					x=rand()&0xF0;
+					y=-32;
+					clk3=0;
+					clk2=rand()&15;
+				}
+				
+				if(clk2>16)                                               // move it
+				{
+					if(clk3<=0)                                             // start bounce
+					{
+						dir=rand()&1;
+						
+						if(x<32)  dir=1;
+						
+						if(x>208) dir=0;
+					}
+					
+					if(clk3<13+16)
+					{
+						x += dir ? 1 : -1;                                    //right, left
+						dummy_int[1]=dir;
+						
+						if(clk3<2)
+						{
+							y-=2;    //up
+							dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
+						}
+						else if(clk3<5)
+						{
+							y--;    //up
+							dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
+						}
+						else if(clk3<8)
+						{
+							dummy_int[2]=(dummy_int[1]==1)?right:left;
+						}
+						else if(clk3<11)
+						{
+							y++;     //down
+							dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
+						}
+						else
+						{
+							y+=2; //down
+							dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
+						}
+						
+						++clk3;
+					}
+					else if(y<176)
+						clk3=0;                                               // next bounce
+					else
+						clk2 = -(rand()&63);                                  // back to top
+				}
+			}
+			else
+			{
+				if(++clk2==0)                                             // start it
+				{
+					x=rand()&0xF0;
+					y=0;
+					clk3=0;
+					clk2=rand()&15;
+				}
+				
+				if(clk2>16)                                               // move it
+				{
+					if(clk3<=0)                                             // start bounce
+					{
+						dir=rand()&1;
+						
+						if(x<32)  dir=1;
+						
+						if(x>208) dir=0;
+					}
+					
+					if(clk3<13+16)
+					{
+						x += dir ? 1 : -1;                                    //right, left
+						dummy_int[1]=dir;
+						
+						if(clk3<2)
+						{
+							y-=2;    //up
+							dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
+						}
+						else if(clk3<5)
+						{
+							y--;    //up
+							dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
+						}
+						else if(clk3<8)
+						{
+							dummy_int[2]=(dummy_int[1]==1)?right:left;
+						}
+						else if(clk3<11)
+						{
+							y++;   //down
+							dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
+						}
+						else
+						{
+							y+=2; //down
+							dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
+						}
+						
+						++clk3;
+					}
+					else if(y<176)
+						clk3=0;                                               // next bounce
+					else
+						clk2 = -(rand()&63);                                  // back to top
+				}
+			}
+			break;
+		}
+		case eePROJECTILE:
+		{
+			if(clk==0)
+			{
+				removearmos(x,y);
+			}
+			
+			double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+			
+			if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
+			{
+				dir=down;
+			}
+			else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
+			{
+				dir=right;
+			}
+			else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
+			{
+				dir=up;
+			}
+			else
+			{
+				dir=left;
+			}
+			
+			if(++clk3>80)
+			{
+				if(dmisc1==9) // Breath type
+				{
+					if(timer==0)
+					{
+						unsigned r=rand();
+						
+						if(!(r&63))
+						{
+							timer=rand()%50+50;
+						}
+					}
+					
+					if(timer>0)
+					{
+						if(timer%4==0)
+						{
+							FireBreath(false);
+						}
+						
+						if(--timer==0)
+						{
+							clk3=0;
+						}
+					}
+				}
+				
+				else // Not breath type
+				{
+					unsigned r=rand();
+					
+					if(!(r&63) && !LinkInRange(minRange))
+					{
+						FireWeapon();
+						
+						if(get_bit(quest_rules, qr_BROKENSTATUES)==0 &&
+						  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
+						{
+							if(!((r>>7)&15))
+							{
+								x-=4;
+								FireWeapon();
+								x+=4;
+							}
+						}
+						
+						clk3=0;
+					}
+				}
+			}
+			
+			break;
+		}
+	}
+	return basic_animate(index);
+}
+
 bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
 {
 	int yg = (special==spw_floater)?8:0;
@@ -8974,7 +9976,7 @@ bool guy::animate(int index)
 		}
 	}
 	
-	return enemy::animate(index);
+	return basic_animate(index);
 }
 
 void guy::draw(BITMAP *dest)
@@ -8991,7 +9993,6 @@ void guy::draw(BITMAP *dest)
 
 eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	clk4=0;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	obeys_gravity = 0; //used for enemy type 'Other (Floating)' in 2.50, and these ignore gravity. Used by ghost.zh. -Z 23rd June, 2019
 	// Spawn type
@@ -9010,36 +10011,6 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-bool eFire::animate(int index)
-{
-	if(fading)
-	{
-		if(++clk4 > 60)
-		{
-			clk4=0;
-			superman=0;
-			fading=0;
-			
-			if(flags2&cmbflag_armos && z==0)
-				removearmos(x,y);
-				
-			clk2=0;
-			
-			if(!canmove(down,(zfix)8,spw_none))
-			{
-				dir=0;
-				y = y.getInt() & 0xF0;
-			}
-			
-			return Dead(index);
-		}
-		else if(flags2&cmbflag_armos && z==0 && clk==0)
-			removearmos(x,y);
-	}
-	
-	return enemy::animate(index);
 }
 
 void eFire::draw(BITMAP *dest)
@@ -9083,7 +10054,6 @@ void eFire::break_shield()
 eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("npct other::other\n");
-	clk4=0;
 	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	
@@ -9103,37 +10073,6 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-bool eOther::animate(int index)
-{
-	//zprint2("npct other::animate\n");
-	if(fading)
-	{
-		if(++clk4 > 60)
-		{
-			clk4=0;
-			superman=0;
-			fading=0;
-			
-			if(flags2&cmbflag_armos && z==0)
-				removearmos(x,y);
-				
-			clk2=0;
-			
-			if(!canmove(down,(zfix)8,spw_none))
-			{
-				dir=0;
-				y = y.getInt() & 0xF0;
-			}
-			
-			return Dead(index);
-		}
-		else if(flags2&cmbflag_armos && z==0 && clk==0)
-			removearmos(x,y);
-	}
-	
-	return enemy::animate(index);
 }
 
 void eOther::draw(BITMAP *dest)
@@ -9177,7 +10116,6 @@ void eOther::break_shield()
 
 eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	clk4=0;
 	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	
@@ -9197,36 +10135,6 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-bool eScript::animate(int index)
-{
-	if(fading)
-	{
-		if(++clk4 > 60)
-		{
-			clk4=0;
-			superman=0;
-			fading=0;
-			
-			if(flags2&cmbflag_armos && z==0)
-				removearmos(x,y);
-				
-			clk2=0;
-			
-			if(!canmove(down,(zfix)8,spw_none))
-			{
-				dir=0;
-				y = y.getInt() & 0xF0;
-			}
-			
-			return Dead(index);
-		}
-		else if(flags2&cmbflag_armos && z==0 && clk==0)
-			removearmos(x,y);
-	}
-	
-	return enemy::animate(index);
 }
 
 void eScript::draw(BITMAP *dest)
@@ -9270,7 +10178,6 @@ void eScript::break_shield()
 
 eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	clk4=0;
 	hyofs = -32768; //No hitbox initially.
 	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
@@ -9291,36 +10198,6 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-bool eFriendly::animate(int index)
-{
-	if(fading)
-	{
-		if(++clk4 > 60)
-		{
-			clk4=0;
-			superman=0;
-			fading=0;
-			
-			if(flags2&cmbflag_armos && z==0)
-				removearmos(x,y);
-				
-			clk2=0;
-			
-			if(!canmove(down,(zfix)8,spw_none))
-			{
-				dir=0;
-				y = y.getInt() & 0xF0;
-			}
-			
-			return Dead(index);
-		}
-		else if(flags2&cmbflag_armos && z==0 && clk==0)
-			removearmos(x,y);
-	}
-	
-	return enemy::animate(index);
 }
 
 void eFriendly::draw(BITMAP *dest)
@@ -9413,38 +10290,7 @@ eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	movestatus=1;
 	step=0;
 	clk=0;
-	clk4=0;
 	obeys_gravity = 1;
-}
-
-bool eGhini::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(dmisc1)
-	{
-		if(misc)
-		{
-			if(clk4>160)
-				misc=2;
-				
-			floater_walk((misc==1)?0:rate,hrate,zslongToFix(dstep*100),zslongToFix(dstep*10),10,dmisc16,dmisc17); //120,10);
-			removearmos(x,y);
-		}
-		else if(clk4>=60)
-		{
-			misc=1;
-			clk3=32;
-			fading=0;
-			guygrid[(int(y)&0xF0)+(int(x)>>4)]=0;
-			removearmos(x,y);
-		}
-	}
-	
-	clk4++;
-	
-	return enemy::animate(index);
 }
 
 void eGhini::draw(BITMAP *dest)
@@ -9477,185 +10323,6 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		dmisc2 = 3;
 		
 	//nets+760;
-}
-
-bool eTektite::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(get_bit(quest_rules,qr_ENEMIESZAXIS))
-	{
-		y=floor_y;
-	}
-	
-	if(clk>=0 && !stunclk && !frozenclock && (!watch || misc==0))
-	{
-		switch(misc)
-		{
-		case 0:                                               // normal
-			if(!(rand()%dmisc1))
-			{
-				misc=1;
-				clk2=32;
-			}
-			
-			break;
-			
-		case 1:                                               // waiting to pounce
-			if(--clk2<=0)
-			{
-				int r=rand();
-				misc=2;
-				step=0-(zslongToFix(dstep*100));                           // initial speed
-				clk3=(r&1)+2;                                       // left or right
-				clk2start=clk2=(r&31)+10;                           // flight time
-				
-				if(y<32)  clk2+=2;                                  // make them come down from top of screen
-				
-				if(y>112) clk2-=2;                                  // make them go back up
-				
-				cstart=c = 9-((r&31)>>3);                           // time before gravity kicks in
-			}
-			
-			break;
-			
-		case 2:                                                 // in flight
-			move(step);
-			
-			if(step>0)                                            //going down
-			{
-				if(COMBOTYPE(x+8,y+16)==cNOJUMPZONE)
-				{
-					step=0-step;
-				}
-				else if(COMBOTYPE(x+8,y+16)==cNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPFLAG(x+8,y+16)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPCOMBOFLAG(x+8,y+16)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-			}
-			else if(step<0)
-			{
-				if(COMBOTYPE(x+8,y)==cNOJUMPZONE)
-				{
-					step=0-step;
-				}
-				else if(COMBOTYPE(x+8,y)==cNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPFLAG(x+8,y)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-				else if(MAPCOMBOFLAG(x+8,y)==mfNOENEMY)
-				{
-					step=0-step;
-				}
-			}
-			
-			if(clk3==left)
-			{
-				if(COMBOTYPE(x,y+8)==cNOJUMPZONE)
-				{
-					clk3^=1;
-				}
-				else if(COMBOTYPE(x,y+8)==cNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPFLAG(x,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPCOMBOFLAG(x,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-			}
-			else
-			{
-				if(COMBOTYPE(x+16,y+8)==cNOJUMPZONE)
-				{
-					clk3^=1;
-				}
-				else if(COMBOTYPE(x+16,y+8)==cNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPFLAG(x+16,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-				else if(MAPCOMBOFLAG(x+16,y+8)==mfNOENEMY)
-				{
-					clk3^=1;
-				}
-			}
-			
-			--c;
-			
-			if(c<0 && step<zslongToFix(dstep*100))
-			{
-				step+=zslongToFix(dmisc3*100);
-			}
-			
-			int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-			
-			if(x<=16-nb)  clk3=right;
-			
-			if(x>=224+nb) clk3=left;
-			
-			x += (clk3==left) ? -1 : 1;
-			
-			if((--clk2<=0 && y>=16-nb) || y>=144+nb)
-			{
-				if(y>=144+nb && get_bit(quest_rules,qr_ENEMIESZAXIS))
-				{
-					step=0-step;
-					y--;
-				}
-				else if(rand()%dmisc2)                                 //land and wait
-				{
-					clk=misc=0;
-				}                                                   //land and jump again
-				else
-				{
-					misc=1;
-					clk2=0;
-				}
-			}
-			
-			break;
-		}                                                         // switch
-	}
-	
-	if(get_bit(quest_rules,qr_ENEMIESZAXIS) && misc==2)
-	{
-		int tempy = floor_y;
-		z=zc_max(0,zc_min(clk2start-clk2,clk2));
-		floor_y = y;
-		y=tempy-z;
-		old_y = y;
-	}
-	
-	if(stunclk && (clk&31)==1)
-		clk=0;
-		
-	return enemy::animate(index);
 }
 
 void eTektite::drawshadow(BITMAP *dest,bool translucent)
@@ -9737,7 +10404,7 @@ bool eItemFairy::animate(int index)
 		removearmos(x,y);
 	}
 	
-	return enemy::animate(index);
+	return basic_animate(index);
 }
 
 void eItemFairy::draw(BITMAP *dest)
@@ -9756,50 +10423,6 @@ ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	step=0;
 	obeys_gravity = 0;
 	//nets+720;
-}
-
-bool ePeahat::animate(int index)
-{
-	if(slide())
-	{
-		return false;
-	}
-	
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(stunclk==0 && clk>96)
-		misc=1;
-	
-	if(!watch)
-		floater_walk(misc?rate:0,      hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10,  80, 16);
-	
-	if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
-	{
-		z=int(step*1.1/((zslongToFix(dstep*10))*1.1));
-	}
-	
-	if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
-		superman=0;
-	else
-	superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
-	//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
-	{
-	if ( stunclk ) --stunclk;
-	}
-	else stunclk = 0; //Was probably this way in 2.10 quests. if not, then we never need to clear it. -Z
-	//Pretty sure this was always an error. -Z ( 14FEB2019 )
-	
-	
-	if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
-	
-	return enemy::animate(index);
 }
 
 void ePeahat::drawshadow(BITMAP *dest, bool translucent)
@@ -9883,164 +10506,6 @@ bool eLeever::isSubmerged()
 	
 }
 
-bool eLeever::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(clk>=0 && !slide())
-	{
-//    switch(d->misc1)
-		switch(dmisc1)
-		{
-		case 0:      //line of sight
-		case 2:
-			switch(misc) //is this leever active
-			{
-			case -1:  //submerged
-			{
-		
-				if((dmisc1==2)&&(rand()&255))
-				{
-					break;
-				}
-				
-				int active=0;
-				
-				for(int i=0; i<guys.Count(); i++)
-				{
-					if(guys.spr(i)->id==id && (((enemy*)guys.spr(i))->misc>=0))
-					{
-						++active;
-					}
-				}
-				
-				if(active<((dmisc1==2)?1:2))
-				{
-					misc=0; //activate this one
-				}
-			}
-			break;
-			
-			case 0:
-			{
-		
-				int s=0;
-				
-				for(int i=0; i<guys.Count(); i++)
-				{
-					if(guys.spr(i)->id==id && ((enemy*)guys.spr(i))->misc==1)
-					{
-						++s;
-					}
-				}
-				
-				if(s>0)
-				{
-					break;
-				}
-				
-				int d2=rand()&1;
-				
-				if(LinkDir()>=left)
-				{
-					d2+=2;
-				}
-				
-				if(canplace(d2) || canplace(d2^1))
-				{
-					misc=1;
-					clk2=0;
-					clk=0;
-				}
-			}
-			break;
-			
-			case 1:
-		
-				if(++clk2>16) misc=2;
-				
-				break;
-				
-			case 2:
-		
-				if(++clk2>24) misc=3;
-				
-				break;
-				
-//        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((zfix)(d->step/100.0)); break;
-			case 3:
-		
-				if(stunclk || frozenclock) break;
-				
-				if(scored) dir^=1;
-				
-				if(!canmove(dir)) misc=4;
-				else move(zslongToFix(dstep*100));
-				
-				break;
-				
-			case 4:
-		
-				if(--clk2==16)
-				{
-					misc=5;
-					clk=8;
-				}
-				
-				break;
-				
-			case 5:
-		
-				if(--clk2==0)  misc=((dmisc1==2)?-1:0);
-				
-				break;
-			}                                                       // switch(misc)
-			
-			break;
-			
-		default:  //random
-//      step=d->misc3/100.0;
-	   
-			step=zslongToFix(dmisc3*100);
-			++clk2;
-			
-			if(clk2<32)    misc=1;
-			else if(clk2<48)    misc=2;
-			else if(clk2<300)
-			{
-				/*if(misc==2 && (int)(dmisc3*0.48)%8)
-				{
-				  fix_coords();
-				}*/
-				misc=3;
-				step = zslongToFix(dstep*100);
-			}
-			else if(clk2<316)   misc=2;
-			else if(clk2<412)   misc=1;
-			else if(clk2<540)
-			{
-				misc=0;
-				step=0;
-			}
-			else clk2=0;
-			
-			if(clk2==48) clk=0;
-			
-//      variable_walk(d->rate, d->homing, 0);
-			variable_walk(rate, homing, 0);
-		}                                                         // switch(dmisc1)
-	}
-	
-	hxofs=(misc>=2)?0:1000;
-	return enemy::animate(index);
-}
-
 bool eLeever::canplace(int d2)
 {
 	int nx=LinkX();
@@ -10112,121 +10577,6 @@ eWallM::eWallM(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//zprint2("eWallM::eWallM\n");
 	haslink=false;
 	//nets+1000;
-}
-
-bool eWallM::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	hxofs=1000;
-	obeys_gravity = 1;
-	if(misc==0) //inside wall, ready to spawn?
-	{
-	//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
-	//zprint2("frame is: %d\n",frame);
-	//zprint2("wallm_load_clk is: %d\n",wallm_load_clk);
-		if(frame-wallm_load_clk>80 && clk>=0)
-		{
-		//zprint2("getting wall\n");
-			int wall=link_on_wall();
-		//zprint2("Wallmaster wall is %d\n",wall);
-			int wallm_cnt=0;
-			
-			for(int i=0; i<guys.Count(); i++)
-				if(((enemy*)guys.spr(i))->family==eeWALLM)
-				{
-					register int m=((enemy*)guys.spr(i))->misc;
-					
-					if(m && ((enemy*)guys.spr(i))->clk3==(wall^1))
-					{
-						++wallm_cnt;
-					}
-				}
-				
-			if(wall>0)
-			{
-				--wall;
-				misc=1; //emerging from the wall?
-		//zprint2("Wallmaster is emerging\n");
-				clk2=0;
-				clk3=wall^1;
-				wallm_load_clk=frame;
-				
-				if(wall<=down)
-				{
-					if(LinkDir()==left)
-						dir=right;
-					else
-						dir=left;
-				}
-				else
-				{
-					if(LinkDir()==up)
-						dir=down;
-					else
-						dir=up;
-				}
-				
-				switch(wall)
-				{
-				case up:
-					y=0;
-					break;
-					
-				case down:
-					y=160;
-					break;
-					
-				case left:
-					x=0;
-					break;
-					
-				case right:
-					x=240;
-					break;
-				}
-		
-		//zprint2("Wallmaster (p1) x is %d\n",x);
-		//zprint2("Wallmaster (p1) y is %d\n",y);
-				
-				switch(dir)
-				{
-				case up:
-					y=(LinkY()+48-(wallm_cnt&1)*12);
-					flip=wall&1;
-					break;
-					
-				case down:
-					y=(LinkY()-48+(wallm_cnt&1)*12);
-					flip=((wall&1)^1)+2;
-					break;
-					
-				case left:
-					x=(LinkX()+48-(wallm_cnt&1)*12);
-					flip=(wall==up?2:0)+1;
-					break;
-					
-				case right:
-					x=(LinkX()-48+(wallm_cnt&1)*12);
-					flip=(wall==up?2:0);
-					break;
-				}
-		
-		//zprint2("Wallmaster (p2) x is %d\n",x);
-		//zprint2("Wallmaster (p2) y is %d\n",y);
-			}
-		}
-	}
-	else
-		wallm_crawl();
-		
-	return enemy::animate(index);
 }
 
 void eWallM::wallm_crawl()
@@ -10339,148 +10689,6 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	count_enemy=false;
 	//nets+420;
 	dummy_int[1]=0;
-}
-
-bool eTrap::animate(int index)
-{
-	if(clk<0)
-		return enemy::animate(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(misc==0)                                               // waiting
-	{
-		ox = x;
-		oy = y;
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-		
-		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
-		{
-			dir=down;
-		}
-		else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
-		{
-			dir=right;
-		}
-		else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
-		{
-			dir=up;
-		}
-		else
-		{
-			dir=left;
-		}
-		
-		int d2=lined_up(15,true);
-		
-		if(((d2<left || d2 > right) && (dmisc1==1)) ||
-				((d2>down) && (dmisc1==2)) ||
-				((d2>right) && (!dmisc1)) ||
-				((d2<l_up) && (dmisc1==4)) ||
-				((d2!=r_up) && (d2!=l_down) && (dmisc1==6)) ||
-				((d2!=l_up) && (d2!=r_down) && (dmisc1==8)))
-		{
-			d2=-1;
-		}
-		
-		if(d2!=-1 && trapmove(d2))
-		{
-			dir=d2;
-			misc=1;
-			clk2=(dir==down)?3:0;
-		}
-	}
-	
-	if(misc==1)                                               // charging
-	{
-		clk2=(clk2+1)&3;
-		step=(clk2==3)?1:2;
-		
-		if(!trapmove(dir) || clip())
-		{
-			misc=2;
-			
-			if(dir<l_up)
-			{
-				dir=dir^1;
-			}
-			else
-			{
-				dir=dir^3;
-			}
-		}
-		else
-		{
-			sprite::move(step);
-		}
-	}
-	
-	if(misc==2)                                               // retreating
-	{
-		step=(++clk2&1)?1:0;
-		
-		switch(dir)
-		{
-		case up:
-			if(int(y)<=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case left:
-			if(int(x)<=ox) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case down:
-			if(int(y)>=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case right:
-			if(int(x)>=ox) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case l_up:
-			if(int(x)<=ox && int(y)<=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case r_up:
-			if(int(x)>=ox && int(y)<=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case l_down:
-			if(int(x)<=ox && int(y)>=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-			
-		case r_down:
-			if(int(x)>=ox && int(y)>=oy) goto trap_rest;
-			else sprite::move(step);
-			
-			break;
-trap_rest:
-			{
-				x=ox;
-				y=oy;
-				misc=0;
-			}
-		}
-	}
-	
-	return enemy::animate(index);
 }
 
 bool eTrap::trapmove(int ndir)
@@ -10661,77 +10869,6 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	dummy_int[1]=0;
 }
 
-bool eTrap2::animate(int index)
-{
-	if(clk<0)
-		return enemy::animate(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(!get_bit(quest_rules,qr_PHANTOMPLACEDTRAPS))
-	{
-		if(lasthitclk>0)
-		{
-			--lasthitclk;
-		}
-		else
-		{
-			lasthit=-1;
-		}
-		
-		bool hitenemy=false;
-		
-		for(int j=0; j<guys.Count(); j++)
-		{
-			if((j!=index) && (lasthit!=j))
-			{
-				if(hit(guys.spr(j)))
-				{
-					lasthit=j;
-					lasthitclk=10;
-					hitenemy=true;
-					guys.spr(j)->lasthit=index;
-					guys.spr(j)->lasthitclk=10;
-//          guys.spr(j)->dir=guys.spr(j)->dir^1;
-				}
-			}
-		}
-		
-		if(!trapmove(dir) || clip() || hitenemy)
-		{
-			if(!trapmove(dir) || clip())
-			{
-				lasthit=-1;
-				lasthitclk=0;
-			}
-			
-			if(get_bit(quest_rules,qr_MORESOUNDS))
-				sfx(WAV_ZN1TAP,pan(int(x)));
-				
-			dir=dir^1;
-		}
-		
-		sprite::move(step);
-	}
-	else
-	{
-		if(!trapmove(dir) || clip())
-		{
-			if(get_bit(quest_rules,qr_MORESOUNDS))
-				sfx(WAV_ZN1TAP,pan(int(x)));
-				
-			dir=dir^1;
-		}
-		
-		sprite::move(step);
-	}
-	
-	return enemy::animate(index);
-}
-
 bool eTrap2::trapmove(int ndir)
 {
 	if(tmpscr->flags2&fFLOATTRAPS)
@@ -10810,76 +10947,6 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//nets+1640;
 }
 
-bool eRock::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(++clk2==0)                                             // start it
-	{
-		x=rand()&0xF0;
-		y=0;
-		clk3=0;
-		clk2=rand()&15;
-	}
-	
-	if(clk2>16)                                               // move it
-	{
-		if(clk3<=0)                                             // start bounce
-		{
-			dir=rand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
-		}
-		
-		if(clk3<13+16)
-		{
-			x += dir ? 1 : -1;                                    //right, left
-			dummy_int[1]=dir;
-			
-			if(clk3<2)
-			{
-				y-=2;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<5)
-			{
-				y--;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<8)
-			{
-				dummy_int[2]=(dummy_int[1]==1)?right:left;
-			}
-			else if(clk3<11)
-			{
-				y++;   //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			else
-			{
-				y+=2; //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			
-			++clk3;
-		}
-		else if(y<176)
-			clk3=0;                                               // next bounce
-		else
-			clk2 = -(rand()&63);                                  // back to top
-	}
-	
-	return enemy::animate(index);
-}
-
 void eRock::drawshadow(BITMAP *dest, bool translucent)
 {
 	if(clk2>=0)
@@ -10945,79 +11012,6 @@ eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	//nets+1680;
-}
-
-bool eBoulder::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	zfix *vert;
-	vert = get_bit(quest_rules,qr_ENEMIESZAXIS) ? &z : &y;
-	
-	if(++clk2==0)                                             // start it
-	{
-		x=rand()&0xF0;
-		y=-32;
-		clk3=0;
-		clk2=rand()&15;
-	}
-	
-	if(clk2>16)                                               // move it
-	{
-		if(clk3<=0)                                             // start bounce
-		{
-			dir=rand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
-		}
-		
-		if(clk3<13+16)
-		{
-			x += dir ? 1 : -1;                                    //right, left
-			dummy_int[1]=dir;
-			
-			if(clk3<2)
-			{
-				y-=2;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<5)
-			{
-				y--;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<8)
-			{
-				dummy_int[2]=(dummy_int[1]==1)?right:left;
-			}
-			else if(clk3<11)
-			{
-				y++;     //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			else
-			{
-				y+=2; //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			
-			++clk3;
-		}
-		else if(y<176)
-			clk3=0;                                               // next bounce
-		else
-			clk2 = -(rand()&63);                                  // back to top
-	}
-	
-	return enemy::animate(index);
 }
 
 void eBoulder::drawshadow(BITMAP *dest, bool translucent)
@@ -11087,87 +11081,6 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 		superman=1;
 		hxofs=1000;
 	}
-}
-
-bool eProjectile::animate(int index)
-{
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-	
-	if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
-	{
-		dir=down;
-	}
-	else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
-	{
-		dir=right;
-	}
-	else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
-	{
-		dir=up;
-	}
-	else
-	{
-		dir=left;
-	}
-	
-	if(++clk3>80)
-	{
-		if(dmisc1==9) // Breath type
-		{
-			if(timer==0)
-			{
-				unsigned r=rand();
-				
-				if(!(r&63))
-				{
-					timer=rand()%50+50;
-				}
-			}
-			
-			if(timer>0)
-			{
-				if(timer%4==0)
-				{
-					FireBreath(false);
-				}
-				
-				if(--timer==0)
-				{
-					clk3=0;
-				}
-			}
-		}
-		
-		else // Not breath type
-		{
-			unsigned r=rand();
-			
-			if(!(r&63) && !LinkInRange(minRange))
-			{
-				FireWeapon();
-				
-				if(get_bit(quest_rules, qr_BROKENSTATUES)==0 &&
-				  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
-				{
-					if(!((r>>7)&15))
-					{
-						x-=4;
-						FireWeapon();
-						x+=4;
-					}
-				}
-				
-				clk3=0;
-			}
-		}
-	}
-	
-	return enemy::animate(index);
 }
 
 void eProjectile::draw(BITMAP *dest)
@@ -12540,7 +12453,6 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
-	clk4=0;
 	//nets;
 	dummy_int[1]=0;
 }
@@ -13661,7 +13573,6 @@ eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,0)
 	obeys_gravity = 0;
 	hxofs=-16;
 	hxsz=48;
-	clk4=0;
 	yofs=playing_field_offset+1;
 	dir=rand()%3+1;
 	
