@@ -4636,7 +4636,14 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->step).getZLong() * 100;
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{
+					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
+				}
+				//old, buggy code replication, round two: Go! -Z
+				else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
+			}
 				
 			break;
 		
@@ -5037,8 +5044,14 @@ long get_register(const long arg)
 			
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
-				ret=((weapon*)s)->step.getZLong() * 100;
-				
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{
+					ret=((weapon*)s)->step.getZLong() * 100;
+				}
+				//old, buggy code replication, round two: Go! -Z
+				else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+			}
 			break;
 			
 		case LWPNANGLE:
@@ -5394,8 +5407,14 @@ long get_register(const long arg)
 			
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
-				ret=((weapon*)s)->step.getZLong() * 100;
-				
+			{
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				{
+					ret=((weapon*)s)->step.getZLong() * 100;
+				}
+				//old, buggy code replication, round two: Go! -Z
+				else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+			}
 			break;
 			
 		case EWPNANGLE:
@@ -11384,9 +11403,10 @@ void set_register(const long arg, const long value)
 				}
 				else
 				{
+					//old, buggy code replication, round two: Go! -Z
 					zfix val = zslongToFix(value);
 					val.doFloor();
-					((weapon*)s)->step = val / 100;
+					((weapon*)s)->step = ((val / 100.0).getFloat());
 				}
 				
 			}
@@ -11744,9 +11764,10 @@ void set_register(const long arg, const long value)
 				}
 				else
 				{
+					//old, buggy code replication, round two: Go! -Z
 					zfix val = zslongToFix(value);
 					val.doFloor();
-					((weapon*)s)->step = val / 100;
+					((weapon*)s)->step = ((val / 100.0).getFloat());
 				}
 			}
 				
@@ -12135,9 +12156,10 @@ void set_register(const long arg, const long value)
 				}
 				else
 				{
+					//old, buggy code replication, round two: Go! -Z
 					zfix val = zslongToFix(value);
 					val.doFloor();
-					GuyH::getNPC()->step = val / 100;
+					GuyH::getNPC()->step = ((val / 100.0).getFloat());
 				}
 			}
 		}
