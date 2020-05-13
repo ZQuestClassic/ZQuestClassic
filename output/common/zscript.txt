@@ -1,5 +1,5 @@
 // Docs for 2.55.0
-// Rev. 0.8.0; 3rd March, 2020
+// Rev. 0.8.1; 11th May, 2020
 
 Search for !#! to find areas that require completion. 
 
@@ -3971,7 +3971,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	int Step;			ZASM Instruction: 
+	float Step;			ZASM Instruction: 
 					NPCSTEP
 	/**
 	* The NPC's movement speed. A Step of 100 usually means that
@@ -4477,7 +4477,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int Step;			ZASM Instruction: 
+	float Step;			ZASM Instruction: 
 					LWPNSTEP
 					EWPNSTEP
 	
