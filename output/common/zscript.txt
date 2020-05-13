@@ -3971,7 +3971,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	float Step;			ZASM Instruction: 
+	int Step;			ZASM Instruction: 
 					NPCSTEP
 	/**
 	* The NPC's movement speed. A Step of 100 usually means that
@@ -4477,7 +4477,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	float Step;			ZASM Instruction: 
+	int Step;			ZASM Instruction: 
 					LWPNSTEP
 					EWPNSTEP
 	
