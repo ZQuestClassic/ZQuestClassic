@@ -91,6 +91,18 @@ public:
 	
 	int clk4;
 	bool shield;
+	bool charging;
+	bool firing;
+	int fclk;
+	int c;
+	zfix old_y; // a kludge used to check for ZScript modification of Y
+	int clk2start;
+	int clk5; // Like Like clock
+	bool fired; // Darknut5, Bombchu
+	bool dashing; // Rope
+	bool haslink; // Like Like
+	int multishot; // Shoot twice/thrice/n times in one halt
+	zfix shadowdistance; // Pols Voice
 	byte typeMisc;
 	
 	long hitby[NUM_HIT_TYPES_USED];
@@ -136,7 +148,7 @@ public:
 	enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	enemy(zfix X,zfix Y,int Id,int Clk);                      // : sprite()
 	virtual ~enemy();
-	
+	void init_family();
 	// Supplemental animation code that all derived classes should call
 	// as a return value for animate().
 	// Handles the death animation and returns true when enemy is finished.
@@ -158,7 +170,7 @@ public:
 	virtual bool hit(sprite *s);
 	virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 	virtual bool hit(weapon *w);
-	virtual void break_shield() {}; // Overridden by types that can have shields
+	void break_shield();
 	
 	 // returns true if next step is ok, false if there is something there
 	bool canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2);
@@ -314,8 +326,6 @@ class eFire : public enemy
 {
 public:
 	eFire(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
-	virtual void break_shield();
 	eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 };
 
@@ -324,8 +334,6 @@ class eOther : public enemy
 public:
 	eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eOther(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
-	virtual void break_shield();
 };
 
 class eScript : public enemy
@@ -333,8 +341,6 @@ class eScript : public enemy
 public:
 	eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eScript(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
-	virtual void break_shield();
 };
 
 class eFriendly : public enemy
@@ -342,8 +348,6 @@ class eFriendly : public enemy
 public:
 	eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eFriendly(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
-	virtual void break_shield();
 };
 
 void removearmos(int ax,int ay);
@@ -351,17 +355,13 @@ void removearmos(int ax,int ay);
 class eGhini : public enemy
 {
 public:
-	int ox, oy, c;
 	eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eGhini(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	virtual void kickbucket();
 };
 
 class eTektite : public enemy
 {
-	zfix old_y; // a kludge used to check for ZScript modification of Y
 public:
-	int c;
 	int clk2start;
 	int cstart;
 	eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
@@ -372,17 +372,13 @@ public:
 class ePeahat : public enemy
 {
 public:
-	int ox, oy, c;
 	ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePeahat(zfix X,zfix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
-	virtual void kickbucket();
 };
 
 class eLeever : public enemy
 {
 public:
-	bool temprule;
 	eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eLeever(zfix X,zfix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
 	bool canplace(int d);
@@ -392,7 +388,6 @@ public:
 class eWallM : public enemy
 {
 public:
-	bool haslink;
 	eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eWallM(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	void wallm_crawl();
@@ -403,12 +398,10 @@ public:
 class eTrap : public enemy
 {
 public:
-	int  ox, oy;
 	eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eTrap(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
 	bool trapmove(int ndir);
 	bool clip();
-	virtual int takehit(weapon* w);
 };
 
 class eTrap2 : public enemy                                 //trap that goes back and forth constantly
@@ -418,7 +411,6 @@ public:
 	eTrap2(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	bool trapmove(int ndir);
 	bool clip();
-	virtual int takehit(weapon *w);
 };
 
 class eRock : public enemy
@@ -426,7 +418,6 @@ class eRock : public enemy
 public:
 	eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eRock(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
 };
 
 class eBoulder : public enemy
@@ -434,7 +425,6 @@ class eBoulder : public enemy
 public:
 	eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eBoulder(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual int takehit(weapon *w);
 };
 
 // Helper for launching fireballs from statues, etc.
@@ -445,7 +435,6 @@ class eProjectile : public enemy
 public:
 	eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eProjectile(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-	
 	const int minRange;
 };
 
@@ -460,27 +449,18 @@ public:
 class eStalfos : public enemy
 {
 public:
-	int clk5; // Like Like clock
-	bool fired; // Darknut5, Bombchu
-	bool dashing; // Rope
-	bool haslink; // Like Like
-	int multishot; // Shoot twice/thrice/n times in one halt
-	zfix fy, shadowdistance; // Pols Voice
 	eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eStalfos(zfix X,zfix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
 	bool WeaponOut();
 	void KillWeapon();
 	void charge_attack();
 	void eatlink();
-	virtual int takehit(weapon *w);
 	void vire_hop();
-	virtual void break_shield();
 };
 
 class eKeese : public enemy
 {
 public:
-	int ox, oy, c;
 	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eKeese(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 };
@@ -488,9 +468,6 @@ public:
 class eWizzrobe : public enemy
 {
 public:
-	bool charging;
-	bool firing;
-	int fclk;
 	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eWizzrobe(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
 	void wizzrobe_attack_phasing();

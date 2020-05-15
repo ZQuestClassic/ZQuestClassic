@@ -172,6 +172,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define PI 3.14159265358979323846
 #endif
 
+#define HP_SILENT -1000
+
 #define HP_PER_HEART          16 //We should make this a global quest setting.
 #define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
 //same for magic.

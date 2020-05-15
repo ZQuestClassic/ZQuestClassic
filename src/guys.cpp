@@ -457,12 +457,7 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	ox(ox),
-	oy(oy),
-	c(c)
-
+	enemy(other)
 {
 	
 	//arrays
@@ -507,11 +502,7 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	old_y(old_y),
-	clk2start(clk2start),
-	cstart(cstart),
-	c(c)
+	enemy(other)
 
 {
 	
@@ -602,10 +593,7 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	ox(ox),
-	oy(oy),
-	c(c)
+	enemy(other)
 {
 	
 	//arrays
@@ -650,8 +638,7 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	temprule(temprule)
+	enemy(other)
 {
 	
 	//arrays
@@ -742,16 +729,7 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	clk5(clk5),
-	fired(fired),
-	shield(shield),
-	dashing(dashing),
-	haslink(haslink),
-	multishot(multishot),
-	fy(fy),
-	shadowdistance(shadowdistance)
+	enemy(other)
 {
 	
 	//arrays
@@ -1157,9 +1135,7 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	ox(ox),
-	oy(oy)
+	enemy(other)
 {
 	
 	//arrays
@@ -1207,11 +1183,7 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	ox(ox),
-	c(c),
-	clk4(clk4),
-	oy(oy)
+	enemy(other)
 {
 	
 	//arrays
@@ -1256,10 +1228,7 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	charging(charging),
-	firing(firing),
-	fclk(fclk)
+	enemy(other)
 {
 	
 	//arrays
@@ -2147,11 +2116,17 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 {
 	x=X;
 	y=Y;
+	ox=X;
+	oy=Y;
+	old_y=Y;
 	id=Id;
 	clk=Clk;
 	floor_y=y;
 	ceiling=false;
-	fading = misc = clk2 = clk3 = stunclk = hclk = sclk = superman = clk4 = 0;
+	fading = misc = clk2 = clk3 = stunclk = hclk = sclk = superman = clk4 = fclk = c = clk2start = clk5 = multishot = 0;
+	fired = dashing = haslink = false;
+	shadowdistance = 0;
+	
 	typeMisc = 0;
 	grumble = movestatus = posframe = timer = ox = oy = 0;
 	yofs = playing_field_offset - ((isSideViewGravity()) ? 0 : 2);
@@ -2161,8 +2136,8 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	d = guysbuf + (id & 0xFFF);
 	hp = d->hp;
 	starting_hp = hp;
-//  cs = d->cset;
-//d variables
+	//cs = d->cset;
+	//d variables
 
 	flags=d->flags;
 	flags2=d->flags2;
@@ -2297,7 +2272,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	if(o_tile==0 && family!=eeSPINTILE)
 		flags |= guy_invisible;
 		
-//  step = d->step/100.0;
+	//step = d->step/100.0;
 	// To preserve the odd step values for Keese & Gleeok heads. -L
 	if(dstep==62.0) dstep+=0.5;
 	else if(dstep==89) dstep-=1/9;
@@ -2344,6 +2319,11 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	//tile should never be 0 after init --Z (failsafe)
 	if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
 	shield = (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	init_family();
+}
+
+void enemy::init_family()
+{
 }
 
 //base clone constructor
@@ -2479,6 +2459,17 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//hzofs(other.hzofs),			//int
 	//zofs(other.zofs),			//int
 	shield(other.shield),			//bool
+	charging(other.charging),			//bool
+	firing(other.firing),			//bool
+	fclk(other.fclk),			//int
+	old_y(other.old_y),			//zfix
+	clk2start(other.clk2start),			//int
+	clk5(other.clk5),			//int
+	fired(other.fired),			//bool
+	dashing(other.dashing),			//bool
+	haslink(other.haslink),			//bool
+	multishot(other.multishot),			//int
+	shadowdistance(other.shadowdistance),			//zfix
 	wpn(other.wpn)			//int
 	//stack(other.stack),			//int
 	//scriptData(other.scriptData)			//int
@@ -2917,7 +2908,7 @@ bool enemy::animate(int index)
 							
 							if(y>112) clk2-=2;                                  // make them go back up
 							
-							cstart=c = 9-((r&31)>>3);                           // time before gravity kicks in
+							c = 9-((r&31)>>3);                           // time before gravity kicks in
 						}
 						break;
 					}
@@ -4936,8 +4927,21 @@ void enemy::leave_item()
 // auomatically kill off enemy (for rooms with ringleaders)
 void enemy::kickbucket()
 {
-	if(!superman)
-		hp=-1000;                                               // don't call death_sfx()
+	switch(family)
+	{
+		case eePEAHAT:
+		case eeGHINI:
+		{
+			hp = HP_SILENT;
+			break;
+		}
+		default:
+		{
+			if(!superman)
+				hp = HP_SILENT;
+			break;
+		}
+	}
 }
 
 bool enemy::isSubmerged()
@@ -5221,10 +5225,8 @@ bool enemy::hitshield(int wpnx, int wpny, int xdir)
 	return ret;
 }
 
-
 //! Weapon Editor for 2.6
 //To hell with this. I'm writing new functions to resolve weapon type and defence. -Z
-
 
 //converts a wqeapon ID to its defence index. 
 int enemy::weaponToDefence(int wid)
@@ -5289,8 +5291,6 @@ int enemy::weaponToDefence(int wid)
 		default: return -1;
 	}
 }
-	
-
 
 int enemy::getWeaponID(weapon *w)
 {
@@ -5454,8 +5454,6 @@ int enemy::resolveEnemyDefence(weapon *w)
 	return weaponToDefence(wid);
 }
 
-
-
 // Do we do damage?
 // 0: takehit returns 0
 // 1: takehit returns 1
@@ -5517,7 +5515,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		return 1;
 	}
 	
-   // al_trace("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
+	//al_trace("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
 	//Z_message("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
 	//al_trace("defendNew() is at: %s\n", "switch(the_defence)");
 	//al_trace("defendNew() the_defence is: %d\n", the_defence);
@@ -6069,7 +6067,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					c-=guysbuf[new_id].misc4;
 					*/
 					
-				//}
+				// }
 				}
 				break;
 				
@@ -6401,7 +6399,6 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	return -1;
 }
 
-
 // Defend against a particular item class.
 int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 //int useDefense, int weapon_override)
@@ -6538,7 +6535,6 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		return def;
 	// }
 }
-
 
 // Check defenses without actually acting on them.
 bool enemy::candamage(int power, int edef)
@@ -7312,7 +7308,127 @@ hitclock:
 
 int enemy::takehit(weapon *w)
 {
+	switch(family)
+	{
+		case eeFIRE:
+		case eeOTHER:
+		case eeSCRIPT01:
+		case eeSCRIPT02:
+		case eeSCRIPT03:
+		case eeSCRIPT04:
+		case eeSCRIPT05:
+		case eeSCRIPT06:
+		case eeSCRIPT07:
+		case eeSCRIPT08:
+		case eeSCRIPT09:
+		case eeSCRIPT10:
+		case eeSCRIPT11:
+		case eeSCRIPT12:
+		case eeSCRIPT13:
+		case eeSCRIPT14:
+		case eeSCRIPT15:
+		case eeSCRIPT16:
+		case eeSCRIPT17:
+		case eeSCRIPT18:
+		case eeSCRIPT19:
+		case eeSCRIPT20:
+		case eeFFRIENDLY01:
+		case eeFFRIENDLY02:
+		case eeFFRIENDLY03:
+		case eeFFRIENDLY04:
+		case eeFFRIENDLY05:
+		case eeFFRIENDLY06:
+		case eeFFRIENDLY07:
+		case eeFFRIENDLY08:
+		case eeFFRIENDLY09:
+		case eeFFRIENDLY10:
+		{
+			int wpnId = w->id;
+			int wpnDir = w->dir;
+			
+			if(wpnId==wHammer && shield && (flags & guy_bkshield)
+					&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
+						|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			{
+				shield = false;
+				flags &= ~(inv_left|inv_right|inv_back|inv_front);
+				
+				if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+					o_tile=s_tile;
+			}
+			break;
+		}
+		case eePEAHAT:
+		{
+			int wpnId = w->id;
+			int enemyHitWeapon = w->parentitem;
+			
+			if(dying || clk<0 || hclk>0)
+				return 0;
+				
+			if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
+					// fire boomerang, for nailing peahats
+					&& !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
+				return 0;
+				
+			// Time for a kludge...
+			int s = superman;
+			superman = 0;
+			int ret = basic_takehit(w);
+			superman = s;
+			
+			// Anyway...
+			if(stunclk == 160)
+			{
+				clk2=0;
+				movestatus=0;
+				misc=0;
+				clk=0;
+				step=0;
+			}
+			
+			return ret;
+		}
+		case eeWALK:
+		{
+			int wpnId = w->id;
+			int wpnDir = w->dir;
+			
+			if(wpnId==wHammer && shield && (flags & guy_bkshield)
+					&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
+						|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			{
+				shield = false;
+				flags &= ~(inv_left|inv_right|inv_back|inv_front);
+				
+				if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+					o_tile=s_tile;
+			}
+			
+			int ret = basic_takehit(w);
+			
+			if(sclk && dmisc2==e2tSPLITHIT)
+				sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
+				
+			return ret;
+		}
+		case eeTRAP:
+		case eeROCK:
+			return 0;
+	}
 	return basic_takehit(w);
+}
+
+void enemy::break_shield()
+{
+	if(!shield)
+		return;
+		
+	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	shield=false;
+	
+	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+		o_tile=s_tile;
 }
 
 bool enemy::dont_draw()
@@ -8305,9 +8421,6 @@ bool enemy::canmove_old(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int 
 	return ok;
 }
 
-
-
-
 // returns true if next step is ok, false if there is something there
 bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 {
@@ -8607,7 +8720,6 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 	//Z_eventlog("\n");
 	return ok;
 }
-
 
 bool enemy::canmove(int ndir,zfix s,int special)
 {
@@ -11190,38 +11302,6 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 }
 
-int eFire::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int wpnDir = w->dir;
-	
-	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
-	{
-		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
-		
-		if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-			o_tile=s_tile;
-	}
-	
-	int ret = enemy::takehit(w);
-	return ret;
-}
-
-void eFire::break_shield()
-{
-	if(!shield)
-		return;
-		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
-	shield=false;
-	
-	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-		o_tile=s_tile;
-}
-
 eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("npct other::other\n");
@@ -11246,39 +11326,6 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 }
 
-int eOther::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int wpnDir = w->dir;
-	
-	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
-	{
-		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
-		
-		if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-			o_tile=s_tile;
-	}
-	
-	int ret = enemy::takehit(w);
-	return ret;
-}
-
-void eOther::break_shield()
-{
-	if(!shield)
-		return;
-		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
-	shield=false;
-	
-	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-		o_tile=s_tile;
-}
-
-
 eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
@@ -11300,38 +11347,6 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	{
 		clk=0;
 	}
-}
-
-int eScript::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int wpnDir = w->dir;
-	
-	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
-	{
-		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
-		
-		if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-			o_tile=s_tile;
-	}
-	
-	int ret = enemy::takehit(w);
-	return ret;
-}
-
-void eScript::break_shield()
-{
-	if(!shield)
-		return;
-		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
-	shield=false;
-	
-	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-		o_tile=s_tile;
 }
 
 eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -11357,39 +11372,6 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 	}
 }
-
-int eFriendly::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int wpnDir = w->dir;
-	
-	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
-	{
-		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
-		
-		if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-			o_tile=s_tile;
-	}
-	
-	int ret = enemy::takehit(w);
-	return ret;
-}
-
-void eFriendly::break_shield()
-{
-	if(!shield)
-		return;
-		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
-	shield=false;
-	
-	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-		o_tile=s_tile;
-}
-
 
 void enemy::removearmos(int ax,int ay)
 {
@@ -11443,11 +11425,6 @@ eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	step=0;
 	clk=0;
 	obeys_gravity = 1;
-}
-
-void eGhini::kickbucket()
-{
-	hp=-1000;                                                 // don't call death_sfx()
 }
 
 eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -11565,44 +11542,6 @@ ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//nets+720;
 }
 
-int ePeahat::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int enemyHitWeapon = w->parentitem;
-	
-	if(dying || clk<0 || hclk>0)
-		return 0;
-		
-	if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
-			// fire boomerang, for nailing peahats
-			&& !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
-		return 0;
-		
-	// Time for a kludge...
-	int s = superman;
-	superman = 0;
-	int ret = enemy::takehit(w);
-	superman = s;
-	
-	// Anyway...
-	if(stunclk == 160)
-	{
-		clk2=0;
-		movestatus=0;
-		misc=0;
-		clk=0;
-		step=0;
-	}
-	
-	return ret;
-}
-
-// auomatically kill off enemy (for rooms with ringleaders)
-void ePeahat::kickbucket()
-{
-	hp=-1000;                                               // don't call death_sfx()
-}
-
 eLeever::eLeever(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 //  if(d->misc1==0) { misc=-1; clk-=16; } //Line of Sight leevers
@@ -11613,7 +11552,6 @@ eLeever::eLeever(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 	obeys_gravity = 0; //Seems that Leevers STUPIDLY ignored gravity in 2.50. -Z ( 23rd June, 2019 )
 	//nets+1460;
-	temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
 	submerged = 0;
 }
 
@@ -11920,11 +11858,6 @@ bool eTrap::clip()
 	}
 }
 
-int eTrap::takehit(weapon*)
-{
-	return 0;
-}
-
 eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	lasthit=-1;
@@ -11987,11 +11920,6 @@ bool eTrap2::clip()
 	return false;
 }
 
-int eTrap2::takehit(weapon*)
-{
-	return 0;
-}
-
 eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	//do not show "enemy appering" anim -DD
@@ -12023,11 +11951,6 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//nets+1640;
 }
 
-int eRock::takehit(weapon*)
-{
-	return 0;
-}
-
 eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	clk=0;
@@ -12057,11 +11980,6 @@ eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	//nets+1680;
-}
-
-int eBoulder::takehit(weapon*)
-{
-	return 0;
 }
 
 eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
@@ -12427,30 +12345,6 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//nets+2380;
 }
 
-int eStalfos::takehit(weapon *w)
-{
-	int wpnId = w->id;
-	int wpnDir = w->dir;
-	
-	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
-	{
-		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
-		
-		if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-			o_tile=s_tile;
-	}
-	
-	int ret = enemy::takehit(w);
-	
-	if(sclk && dmisc2==e2tSPLITHIT)
-		sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
-		
-	return ret;
-}
-
 void eStalfos::charge_attack()
 {
 	if(slide())
@@ -12647,18 +12541,6 @@ void eStalfos::KillWeapon()
 	{
 		stop_sfx(WAV_BRANG);
 	}
-}
-
-void eStalfos::break_shield()
-{
-	if(!shield)
-		return;
-		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
-	shield=false;
-	
-	if(get_bit(quest_rules,qr_BRKNSHLDTILES))
-		o_tile=s_tile;
 }
 
 eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -13698,7 +13580,7 @@ int eGohma::takehit(weapon *w)
 		}
 	}
 	
-	return enemy::takehit(w);
+	return basic_takehit(w);
 }
 
 eLilDig::eLilDig(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -14122,7 +14004,7 @@ int eGanon::takehit(weapon *w)
 		//otherwise, resolve his defence. 
 		else 
 		{
-				int def = enemy::takehit(w); //This works, but it instantly kills him if it does enough damage.
+				int def = basic_takehit(w); //This works, but it instantly kills him if it does enough damage.
 			if(hp>0)
 			{
 				misc=1;
@@ -14765,7 +14647,7 @@ bool esMoldorm::animate(int index)
 
 int esMoldorm::takehit(weapon *w)
 {
-	if(enemy::takehit(w))
+	if(basic_takehit(w))
 		return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
 		
 	return 0;
@@ -15006,7 +14888,7 @@ bool esLanmola::animate(int index)
 
 int esLanmola::takehit(weapon *w)
 {
-	if(enemy::takehit(w))
+	if(basic_takehit(w))
 		return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
 		
 	return 0;
@@ -16016,7 +15898,7 @@ bool esGleeok::animate(int index)
 
 int esGleeok::takehit(weapon *w)
 {
-	int ret = enemy::takehit(w);
+	int ret = basic_takehit(w);
 	
 	if(ret==-1)
 		return 2; // force it to wait a frame before checking sword attacks again
