@@ -22741,6 +22741,10 @@ int onCompileScript()
 	
     if(is_large)
         large_dialog(compile_dlg);
+    
+    FILE *zscript = NULL;
+    FILE *tempfile = NULL;
+    ScriptsData *result = NULL;
         
     for(;;) //while(true)
     {
@@ -22752,6 +22756,15 @@ int onCompileScript()
         case 0:
         case 1:
             //Cancel
+	    if(zscript!=NULL) fclose(zscript);
+	    if(tempfile!=NULL) fclose(tempfile);
+	    if(result!=NULL) delete result;
+	    asffcscripts.clear();
+            asffcscripts.push_back("<none>");
+            asglobalscripts.clear();
+            asglobalscripts.push_back("<none>");
+            asitemscripts.clear();
+            asitemscripts.push_back("<none>");
             return D_O_K;
             
         case 2:
@@ -22773,7 +22786,7 @@ int onCompileScript()
             if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
                 break;
                 
-            FILE *zscript = fopen(temppath,"r");
+            zscript = fopen(temppath,"r");
             
             if(zscript == NULL)
             {
@@ -22806,7 +22819,7 @@ int onCompileScript()
                     break;
             }
             
-            FILE *zscript = fopen(temppath,"w");
+            zscript = fopen(temppath,"w");
             
             if(!zscript)
             {
@@ -22829,7 +22842,7 @@ int onCompileScript()
 	    
 	
 	
-            FILE *tempfile = fopen("tmp","w");
+            tempfile = fopen("tmp","w");
             
             if(!tempfile)
             {
@@ -22842,7 +22855,7 @@ int onCompileScript()
             box_start(1, "Compile Progress", lfont, sfont,true);
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
             al_trace("HEADER_GUARD: %d\n", headerguard);
-	    ScriptsData *result = ( headerguard ) ? compile_headerguards("tmp") : compile("tmp");
+	    result = ( headerguard ) ? compile_headerguards("tmp") : compile("tmp");
 	    //ScriptsData *result = compile_headerguards("tmp");
 	   
             unlink("tmp");
@@ -23009,6 +23022,22 @@ int onCompileScript()
                 case 0:
                 case 2:
                     //Cancel
+		    al_trace("Cancel\n");
+			//Do not leak memory if the user cancels out! -Z 1th May, 2020
+		    fclose(tempfile);
+		    //asffcscripts.clear();
+		    //asffcscripts.push_back("<none>");
+		    //asglobalscripts.clear();
+		    //asglobalscripts.push_back("<none>");
+		    //asitemscripts.clear();
+		    //asitemscripts.push_back("<none>");
+		    for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+                    {
+                        for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+                        {
+                            delete *it2;
+                        }
+                    }
                     return D_O_K;
                     
                 case 3:
