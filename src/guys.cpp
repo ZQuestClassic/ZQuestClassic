@@ -2333,11 +2333,11 @@ bool default_gravity(int family)
 		case eeWALK:
 		case eeWIZZ:
 		case eeDONGO:
+		case eeWALLM:
 			return true;
 		case eeTEK:
 		case eeFIRE: //used for enemy type 'Other (Floating)' in 2.50, and these ignore gravity. Used by ghost.zh. -Z 23rd June, 2019
 		case eeLEV:
-		case eeWALLM:
 		case eeTRAP:
 		case eeROCK:
 		case eePROJECTILE:
@@ -3580,6 +3580,7 @@ bool enemy::animate(int index)
 			}
 			
 			hxofs=1000;
+			obeys_gravity = 1;
 			if(misc==0) //inside wall, ready to spawn?
 			{
 				//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
