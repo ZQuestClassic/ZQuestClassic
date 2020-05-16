@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <malloc.h>
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -25724,6 +25725,18 @@ int onCompileScript()
 			{
 				//fail
 			}
+			//Need to manually delete the contents of the map here.
+			//2.53.x has this, to do it:
+			/*for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+			{
+				for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+				{
+				    delete *it2;
+				}
+			}*/	
+			//scripts.clear(); //Doesn't release it back to Windows. 
+			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
+			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
 			return D_O_K;
 		}
 	}
