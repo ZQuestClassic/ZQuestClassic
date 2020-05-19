@@ -25729,6 +25729,15 @@ int onCompileScript()
 			}
 			//Need to manually delete the contents of the map here.
 			//2.53.x has this, to do it:
+			//for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
+			//{
+			//    al_trace("Iterating 1\n");
+			//    for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
+			//    {
+			//	al_trace("Iterating 2\n");
+				//delete *it2;
+			//    }
+			//}
 			/*for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
 			{
 				for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
@@ -26727,12 +26736,20 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 	{
 		ret = zc_popup_dialog(assignscript_dlg,ret);
 		
-		FILE* tempfile;
+		FILE* tempfile = NULL;
 		switch(ret)
 		{
 			case 0:
 			case 2:
 				//Cancel
+				if(tempfile!=NULL) fclose(tempfile);
+				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
+				{
+					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
+					{
+						delete *it2;
+					}
+				}
 				return false;
 				
 			case 3:
@@ -27245,7 +27262,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				build_biffs_list();
 				build_biitems_list();
-				
+				if(tempfile!=NULL) fclose(tempfile);
 				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
 				{
 					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
