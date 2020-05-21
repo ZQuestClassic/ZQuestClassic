@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <malloc.h>
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -1308,7 +1309,7 @@ static int do_NewQuest()
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
+int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, NoScreenPreview, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 bool Vsync, ShowFPS;
 int ComboBrush;                                             //show the brush instead of the normal mouse
@@ -3578,7 +3579,7 @@ static int options_1_list[] =
 static int options_2_list[] =
 {
     // dialog control number
-	50, -1
+	50, 51, -1
 };
 
 static int options_3_list[] =
@@ -3671,7 +3672,7 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     // 50
     { jwin_check_proc,         12,     44,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Listers use Pattern-Matching Search",                          NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    { jwin_check_proc,         12,     54,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "No Next-Screen Preview",                                       NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
@@ -3717,6 +3718,7 @@ int onOptions()
     options_dlg[43].dp = kbdelay;
     options_dlg[45].dp = kbrate;
     options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
+    options_dlg[51].flags = NoScreenPreview ? D_SELECTED : 0;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -3748,6 +3750,7 @@ int onOptions()
         KeyboardRepeatDelay        = atoi(kbdelay);
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
+		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
         
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
@@ -6287,7 +6290,7 @@ void refresh(int flags)
             if(Map.getCurrScr()<128)
             {
                 //not the first row of screens
-                if(Map.getCurrScr()>15)
+                if(Map.getCurrScr()>15 && !NoScreenPreview)
                 {
                     Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
                 }
@@ -6297,7 +6300,7 @@ void refresh(int flags)
                 }
                 
                 //not the last row of screens
-                if(Map.getCurrScr()<112)
+                if(Map.getCurrScr()<112 && !NoScreenPreview)
                 {
                     Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
                 }
@@ -6307,7 +6310,7 @@ void refresh(int flags)
                 }
                 
                 //not the first column of screens
-                if(Map.getCurrScr()&0x0F)
+                if(Map.getCurrScr()&0x0F && !NoScreenPreview)
                 {
                     Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
                 }
@@ -6317,7 +6320,7 @@ void refresh(int flags)
                 }
                 
                 //not the last column of screens
-                if((Map.getCurrScr()&0x0F)<15)
+                if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
                 {
                     Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
                 }
@@ -6327,7 +6330,7 @@ void refresh(int flags)
                 }
                 
                 //not the first row or first column of screens
-                if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F))
+                if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
                 {
                     Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
                 }
@@ -6337,7 +6340,7 @@ void refresh(int flags)
                 }
                 
                 //not the first row or last column of screens
-                if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15))
+                if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
                 {
                     Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
                 }
@@ -6347,7 +6350,7 @@ void refresh(int flags)
                 }
                 
                 //not the last row or first column of screens
-                if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F))
+                if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
                 {
                     Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
                 }
@@ -6357,7 +6360,7 @@ void refresh(int flags)
                 }
                 
                 //not the last row or last column of screens
-                if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15))
+                if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
                 {
                     Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
                 }
@@ -24837,7 +24840,7 @@ static DIALOG zscript_settings_dlg[] =
 	//40
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
 	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step is float", NULL, NULL },
+	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -25724,6 +25727,27 @@ int onCompileScript()
 			{
 				//fail
 			}
+			//Need to manually delete the contents of the map here.
+			//2.53.x has this, to do it:
+			//for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
+			//{
+			//    al_trace("Iterating 1\n");
+			//    for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
+			//    {
+			//	al_trace("Iterating 2\n");
+				//delete *it2;
+			//    }
+			//}
+			/*for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+			{
+				for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+				{
+				    delete *it2;
+				}
+			}*/	
+			//scripts.clear(); //Doesn't release it back to Windows. 
+			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
+			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
 			return D_O_K;
 		}
 	}
@@ -26712,12 +26736,20 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 	{
 		ret = zc_popup_dialog(assignscript_dlg,ret);
 		
-		FILE* tempfile;
+		FILE* tempfile = NULL;
 		switch(ret)
 		{
 			case 0:
 			case 2:
 				//Cancel
+				if(tempfile!=NULL) fclose(tempfile);
+				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
+				{
+					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
+					{
+						delete *it2;
+					}
+				}
 				return false;
 				
 			case 3:
@@ -27230,7 +27262,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				}
 				build_biffs_list();
 				build_biitems_list();
-				
+				if(tempfile!=NULL) fclose(tempfile);
 				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
 				{
 					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
@@ -31114,6 +31146,8 @@ int main(int argc,char **argv)
     midi_volume                    = get_config_int("zquest", "midi", 255);
 	
 	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
+	NoScreenPreview               = get_config_int("zquest", "no_preview", 1);
+	
 	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
 	zc_menu_on_left = get_config_int("zquest", "zc_menu_on_left",0);
     //We need to remove all of the zeldadx refs to the config file for zquest. 
@@ -33776,6 +33810,7 @@ int save_config_file()
     set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
     set_config_int("zquest","gui_colorset",gui_colorset);
     set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
+    set_config_int("zquest","no_preview",NoScreenPreview);
 	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
     for(int x=0; x<MAXFAVORITECOMMANDS; ++x)

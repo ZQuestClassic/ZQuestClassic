@@ -151,7 +151,7 @@ extern bool combo_cols;
 extern int alignment_arrow_timer;
 extern int  Flip,Combo,CSet,First[3];
 extern int  Flags,Flag,menutype;
-extern int MouseScroll, SavePaths, CycleOn, InvalidStatic;
+extern int MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview;
 extern int Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS;
 extern int ComboBrush;                                      //show the brush instead of the normal mouse
