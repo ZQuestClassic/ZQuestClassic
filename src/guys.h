@@ -147,7 +147,7 @@ public:
 	int  getID();
 	
 	enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	enemy(zfix X,zfix Y,int Id,int Clk,int type_id = 0);                      // : sprite()
+	enemy(zfix X,zfix Y,int Id,int Clk,int fam = -1,int type_id = 0);                      // : sprite()
 	virtual ~enemy();
 	void init_family();
 	// Supplemental animation code that all derived classes should call
@@ -157,6 +157,7 @@ public:
 	// Basic animation code that all derived classes should call.
 	// The one with an index is the one that is called by
 	// the guys sprite list; index is the enemy's index in the list.
+	bool basic_animate(int index);
 	virtual bool animate(int index);
 	
 	// auomatically kill off enemy (for rooms with ringleaders)
@@ -166,6 +167,7 @@ public:
 	void stop_bgsfx(int index);
 	bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
 	// Take damage or ignore it
+	int basic_takehit(weapon *w);
 	virtual int takehit(weapon *w);
 	// override hit detection to check for invicibility, stunned, etc
 	virtual bool hit(sprite *s);
@@ -253,7 +255,23 @@ public:
 	}
 	
 	virtual int run_script(int mode);
-
+	
+	//Subclass functions merged in 2.55:
+	bool canplace(int d);
+	void wallm_crawl();
+	void grablink();
+	bool WeaponOut();
+	void KillWeapon();
+	void charge_attack();
+	void eatlink();
+	void vire_hop();
+	void wizzrobe_attack_phasing();
+	void wizzrobe_attack_teleporting();
+	void wizzrobe_newdir(int homing);
+	bool trapmove(int ndir);
+	bool trapclip();
+	void facelink();
+	
 protected:
 	
 	
@@ -280,11 +298,13 @@ protected:
 	bool dont_draw();
 	// base drawing function to be used by all derived classes instead of
 	// sprite::draw()
+	void basic_draw(BITMAP *dest);
 	virtual void draw(BITMAP *dest);
 	virtual void drawzcboss(BITMAP *dest);
 	virtual void old_draw(BITMAP *dest);
 	// similar to the overblock function--can do up to a 32x32 sprite
 	void drawblock(BITMAP *dest,int mask);
+	void basic_drawshadow(BITMAP *dest, bool translucent);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
 	
@@ -321,140 +341,6 @@ public:
 /*******************************/
 /*********   Enemies   *********/
 /*******************************/
-
-//{ To merge
-class eFire : public enemy
-{
-public:
-	eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eOther : public enemy
-{
-public:
-	eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eScript : public enemy
-{
-public:
-	eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eFriendly : public enemy
-{
-public:
-	eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-void removearmos(int ax,int ay);
-
-class eGhini : public enemy
-{
-public:
-	eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eTektite : public enemy
-{
-public:
-	eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class ePeahat : public enemy
-{
-public:
-	ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eLeever : public enemy
-{
-public:
-	eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	bool canplace(int d);
-	virtual bool isSubmerged();
-};
-
-class eWallM : public enemy
-{
-public:
-	eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	void wallm_crawl();
-	void grablink();
-	virtual bool isSubmerged();
-};
-
-class eTrap : public enemy
-{
-public:
-	eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	bool trapmove(int ndir);
-	bool clip();
-};
-
-class eTrap2 : public enemy                                 //trap that goes back and forth constantly
-{
-public:
-	eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	bool trapmove(int ndir);
-	bool clip();
-};
-
-class eRock : public enemy
-{
-public:
-	eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eBoulder : public enemy
-{
-public:
-	eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-// Helper for launching fireballs from statues, etc.
-// It's invisible and can't be hit.
-// Pass the range value through the clk variable in the constuctor.
-class eProjectile : public enemy
-{
-public:
-	eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eSpinTile : public enemy
-{
-public:
-	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	virtual void facelink();
-};
-
-class eStalfos : public enemy
-{
-public:
-	eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	bool WeaponOut();
-	void KillWeapon();
-	void charge_attack();
-	void eatlink();
-	void vire_hop();
-};
-
-class eKeese : public enemy
-{
-public:
-	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-};
-
-class eWizzrobe : public enemy
-{
-public:
-	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	void wizzrobe_attack_phasing();
-	void wizzrobe_attack_teleporting();
-	void wizzrobe_newdir(int homing);
-};
-
-//} End merge
 
 class eItemFairy : public enemy
 {

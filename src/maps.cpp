@@ -3268,7 +3268,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     {
         if(((enemy*)guys.spr(i))->family == eeWALK)
         {
-            if(((eStalfos*)guys.spr(i))->haslink)
+            if(((enemy*)guys.spr(i))->haslink)
             {
                 guys.spr(i)->draw(framebuf);
             }
@@ -3276,7 +3276,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         
         if(((enemy*)guys.spr(i))->family == eeWALLM)
         {
-            if(((eWallM*)guys.spr(i))->haslink)
+            if(((enemy*)guys.spr(i))->haslink)
             {
                 guys.spr(i)->draw(framebuf);
             }

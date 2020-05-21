@@ -255,296 +255,6 @@ bool flyerblocked(int dx, int dy, int special)
 /*******  Enemy Base Class  *******/
 /**********************************/
 
-/* ROM data flags
-
-  */
-
-eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	shield(shield)
-
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	shield(shield)
-
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-
-
-
-eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	shield(shield)
-
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	clk4(clk4),
-	shield(shield)
-
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
 eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
@@ -590,233 +300,7 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	}
 }
 
-ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	haslink(haslink)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
 eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -907,325 +391,6 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 }
 
 eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other),
-	minRange(minRange)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-
-
-
-eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1365,8 +530,7 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	fbx(fbx),
-	clk4(clk4)
+	fbx(fbx)
 {
 	
 	//arrays
@@ -1411,8 +575,7 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	clk4(clk4)
+	enemy(other)
 {
 	
 	//arrays
@@ -2112,8 +1275,9 @@ esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent
 
 */
 
-enemy::enemy(zfix X,zfix Y,int Id,int Clk,int type_id) : sprite()
+enemy::enemy(zfix X,zfix Y,int Id,int Clk,int fam,int type_id) : sprite()
 {
+	if(fam > -1) family = fam;
 	x=X;
 	y=Y;
 	ox=X;
@@ -2967,7 +2131,7 @@ bool enemy::Dead(int index)
 // Basic animation code that all derived classes should call.
 // The one with an index is the one that is called by
 // the guys sprite list; index is the enemy's index in the list.
-bool basic_animate(int index)
+bool enemy::basic_animate(int index)
 {
 	int nx = real_x(x);
 	int ny = real_y(y);
@@ -3723,9 +2887,9 @@ bool enemy::animate(int index)
 						}
 					}
 					
-					if(!trapmove(dir) || clip() || hitenemy)
+					if(!trapmove(dir) || trapclip() || hitenemy)
 					{
-						if(!trapmove(dir) || clip())
+						if(!trapmove(dir) || trapclip())
 						{
 							lasthit=-1;
 							lasthitclk=0;
@@ -3741,7 +2905,7 @@ bool enemy::animate(int index)
 				}
 				else
 				{
-					if(!trapmove(dir) || clip())
+					if(!trapmove(dir) || trapclip())
 					{
 						if(get_bit(quest_rules,qr_MORESOUNDS))
 							sfx(WAV_ZN1TAP,pan(int(x)));
@@ -3802,7 +2966,7 @@ bool enemy::animate(int index)
 					clk2=(clk2+1)&3;
 					step=(clk2==3)?1:2;
 					
-					if(!trapmove(dir) || clip())
+					if(!trapmove(dir) || trapclip())
 					{
 						misc=2;
 						
@@ -5268,6 +4432,18 @@ void enemy::kickbucket()
 
 bool enemy::isSubmerged()
 {
+	switch(family)
+	{
+		case eeLEV:
+		{
+			zprint("Leever submerged: misc is: %d\n", misc);
+			return misc <= 0;
+		}
+		case eeWALLM:
+		{
+			return ( !misc );
+		}
+	}
 	return submerged;
 }
 
@@ -5789,7 +4965,6 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	if ( edef < 0 ) //we are using a specific base default defence for a weapon
 	{
 		the_defence = edef*-1; //A specific defence type. 
-		
 	}
 	else the_defence = defense[edef];
 	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
@@ -5825,12 +5000,12 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		//switch(the_defence)
 		switch(the_defence) //usedefence should be set as part of the edef input to this function
 		{
-		case edIGNORE:
-			return 0;
-		case edIGNOREL1:
-		case edSTUNORIGNORE:
-			if(*power <= 0)
+			case edIGNORE:
 				return 0;
+			case edIGNOREL1:
+			case edSTUNORIGNORE:
+				if(*power <= 0)
+					return 0;
 		}
 		//al_trace("defendNew() is at: %s\n", "playing shield block sound");
 		sfx(WAV_CHINK,pan(int(x)));
@@ -5854,93 +5029,59 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	
 	switch(the_defence) //usedefence should be set as part of the edef input to this function
 	{
-	case edREPLACE:
-	{
-		sclk = 0;
-		if ( dmisc16 > 0 ) new_id = dmisc16;
-		else new_id = id+1; 
-		if ( new_id > 511 ) new_id = id; //Sanity bound to legal enemy IDs.
-		if ( dmisc17 > 0 ) delay_timer = dmisc17;
-		//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
-		
-		//Z_scripterrlog("new id is %d\n", new_id);
+		case edREPLACE:
+		{
+			sclk = 0;
+			if ( dmisc16 > 0 ) new_id = dmisc16;
+			else new_id = id+1; 
+			if ( new_id > 511 ) new_id = id; //Sanity bound to legal enemy IDs.
+			if ( dmisc17 > 0 ) delay_timer = dmisc17;
+			//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
+			
+			//Z_scripterrlog("new id is %d\n", new_id);
 			switch(guysbuf[new_id&0xFFF].family)
 			{
 				//Fixme: possible enemy memory leak. (minor)
 				case eeWALK:
-				{
-				enemy *e = new eStalfos(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-			
 				case eeLEV:
-				{
-				enemy *e = new eLeever(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-			
 				case eeTEK:
+				case eePEAHAT:
+				case eeGHINI:
+				case eeKEESE:
+				case eeWIZZ:
+				case eePROJECTILE:
+				case eeWALLM:
 				{
-				enemy *e = new eTektite(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new enemy(x,y,new_id,clk,guysbuf[new_id&0xFFF].family);
+					guys.add(e);
 				}
 				break;
-			
-				case eePEAHAT:
+				
+				case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
+				case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
+				case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
+				case eeOTHER:
+				case eeSPINTILE:
+				case eeFIRE:
 				{
-				enemy *e = new ePeahat(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new enemy(x,y,new_id,clk,guysbuf[new_id&0xFFF].family);
+					guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 			
 				case eeZORA:
 				{
-				enemy *e = new eZora(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-			
-				case eeGHINI:
-				{
-				enemy *e = new eGhini(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-				
-				case eeKEESE:
-				{
-				enemy *e = new eKeese(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-				
-				case eeWIZZ:
-				{
-				enemy *e = new eWizzrobe(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-				
-				case eePROJECTILE:
-				{
-				enemy *e = new eProjectile(x,y,new_id,clk);
-				guys.add(e);
-				}
-				break;
-				
-				case eeWALLM:
-				{
-				enemy *e = new eWallM(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eZora(x,y,new_id,clk);
+					guys.add(e);
 				}
 				break;
 				
 				case eeAQUA:
 				{
-				enemy *e = new eAquamentus(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eAquamentus(x,y,new_id,clk);
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -5948,8 +5089,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeMOLD:
 				{
-				enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
-				guys.add(e);
+					enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -5957,8 +5098,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeMANHAN:
 				{
-				enemy *e = new eManhandla(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eManhandla(x,y,new_id,clk);
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -5973,25 +5114,25 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 					new_id &= 0xFFF;
 					int head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
-						Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
+					zprint("Gleeok head count is %d\n",head_cnt);
 					for(int i=0; i<head_cnt; i++)
 					{
 						//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
 						if(!guys.add(new esGleeok((zfix)x,(zfix)y,new_id+0x1000,c, gleeok)))
 						{
-						al_trace("Gleeok head %d could not be created!\n",i+1);
-						
-						for(int j=0; j<i+1; j++)
-						{
-							guys.del(guys.Count()-1);
-						}
-						
-						break;
+							al_trace("Gleeok head %d could not be created!\n",i+1);
+							
+							for(int j=0; j<i+1; j++)
+							{
+								guys.del(guys.Count()-1);
+							}
+							
+							break;
 						}
 						else
 						{
-						((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
-						//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
+							((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
+							//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 						}
 						
 						c-=guysbuf[new_id].misc4;
@@ -6004,8 +5145,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeGHOMA:
 				{
-				enemy *e = new eGohma(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eGohma(x,y,new_id,clk);
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -6013,8 +5154,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeLANM:
 				{
-				enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
-				guys.add(e);
+					enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -6022,8 +5163,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeGANON:
 				{
-				enemy *e = new eGanon(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eGanon(x,y,new_id,clk);
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -6031,35 +5172,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeFAIRY:
 				{
-				enemy *e = new eItemFairy(x,y,new_id+0x1000*clk,clk);
-				guys.add(e);
-					e->x = x;
-					e->y = y;
-				}
-				break;
-				
-				case eeFIRE:
-				{
-				enemy *e = new eFire(x,y,new_id,clk);
-				guys.add(e);
-					e->x = x;
-					e->y = y;
-				}
-				break;
-				
-				case eeOTHER: 
-				{
-				enemy *e = new eOther(x,y,new_id,clk);
-				guys.add(e);
-					e->x = x;
-					e->y = y;
-				}
-				break;
-				
-				case eeSPINTILE:
-				{
-				enemy *e = new eSpinTile(x,y,new_id,clk);
-				guys.add(e);
+					enemy *e = new eItemFairy(x,y,new_id+0x1000*clk,clk);
+					guys.add(e);
 					e->x = x;
 					e->y = y;
 				}
@@ -6072,8 +5186,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new eBoulder(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new enemy(x,y,new_id,clk,eeROCK,emtBOULDER);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6082,8 +5196,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						case 0:
 						default:
 						{
-						enemy *e = new eRock(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new enemy(x,y,new_id,clk,eeROCK);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6099,8 +5213,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new eTrap2(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new enemy(x,y,new_id,clk,eeTRAP,emtTRAP2);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6109,8 +5223,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						case 0:
 						default:
 						{
-						enemy *e = new eTrap(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new enemy(x,y,new_id,clk,eeTRAP);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6126,8 +5240,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new eDodongo2(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eDodongo2(x,y,new_id,clk);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6136,8 +5250,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						case 0:
 						default:
 						{
-						enemy *e = new eDodongo(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eDodongo(x,y,new_id,clk);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6153,8 +5267,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new eLilDig(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eLilDig(x,y,new_id,clk);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6163,8 +5277,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						case 0:
 						default:
 						{
-						enemy *e = new eBigDig(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eBigDig(x,y,new_id,clk);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6180,8 +5294,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new ePatraBS(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new ePatraBS(x,y,new_id,clk);
+							guys.add(e);
 							e->x = x;
 							e->y = y;
 						}
@@ -6207,16 +5321,16 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					{
 						case 1:
 						{
-						enemy *e = new eTrigger(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eTrigger(x,y,new_id,clk);
+							guys.add(e);
 						}
 						break;
 					
 						case 0:
 						default:
 						{
-						enemy *e = new eNPC(x,y,new_id,clk);
-						guys.add(e);
+							enemy *e = new eNPC(x,y,new_id,clk);
+							guys.add(e);
 						}
 						break;
 					}
@@ -6224,472 +5338,442 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					break;
 				}
 				
-				case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
-				case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
-				
-				{
-					enemy *e = new eScript(x,y,new_id,clk);
-					guys.add(e);
-					e->x = x;
-					e->y = y;
-					break;
-				}
-				
-				
-				case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-				{
-					enemy *e = new eFriendly(x,y,new_id,clk);
-					guys.add(e);
-					e->x = x;
-					e->y = y;
-					break;
-				}
-				
-				
 				default: break;
 			}
 			
-				// add segments of segmented enemies
+			// add segments of segmented enemies
 			int c=0;
 			
 			switch(guysbuf[new_id&0xFFF].family)
 			{
 				case eeMOLD:
 				{
-				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-				new_id &= 0xFFF;
-				
-				for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].misc1)); i++)
-				{
-					//christ this is messy -DD
-					int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[new_id&0xFFF].step*100))));
+					byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+					new_id &= 0xFFF;
 					
-					if(!guys.add(new esMoldorm((zfix)x,(zfix)y,new_id+0x1000,segclk)))
+					for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].misc1)); i++)
 					{
-					al_trace("Moldorm segment %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-						guys.del(guys.Count()-1);
+						//christ this is messy -DD
+						int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[new_id&0xFFF].step*100))));
 						
-					return 0;
+						if(!guys.add(new esMoldorm((zfix)x,(zfix)y,new_id+0x1000,segclk)))
+						{
+						al_trace("Moldorm segment %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1; j++)
+							guys.del(guys.Count()-1);
+							
+						return 0;
+						}
+						
+						if(i>0)
+						((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+						
+						
 					}
 					
-					if(i>0)
-					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-					
-					
-				}
-				
-				break;
+					break;
 				}
 				
 				case eeLANM:
 				{
-				new_id &= 0xFFF;
-				int shft = guysbuf[new_id].misc2;
-				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-				
-				if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0)))
-				{
-					al_trace("Lanmola segment 1 could not be created!\n");
-					guys.del(guys.Count()-1);
-					return 0;
-				}
-				
-				
-				
-				for(int i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
-				{
-					if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft))))
-					{
-					al_trace("Lanmola segment %d could not be created!\n",i+1);
+					new_id &= 0xFFF;
+					int shft = guysbuf[new_id].misc2;
+					byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 					
-					for(int j=0; j<i+1; j++)
+					if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0)))
+					{
+						al_trace("Lanmola segment 1 could not be created!\n");
 						guys.del(guys.Count()-1);
-						
-					return 0;
+						return 0;
 					}
 					
-					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-					
-				}
+					for(int i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
+					{
+						if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft))))
+						{
+						al_trace("Lanmola segment %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1; j++)
+							guys.del(guys.Count()-1);
+							
+						return 0;
+						}
+						
+						((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+						
+					}
 				}
 				break;
 				
 				case eeMANHAN:
-				new_id &= 0xFFF;
-				
-				for(int i=0; i<((!(guysbuf[new_id].misc2))?4:8); i++)
-				{
-					if(!guys.add(new esManhandla((zfix)x,(zfix)y,new_id+0x1000,i)))
+					new_id &= 0xFFF;
+					
+					for(int i=0; i<((!(guysbuf[new_id].misc2))?4:8); i++)
 					{
-					al_trace("Manhandla head %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-					{
-						guys.del(guys.Count()-1);
+						if(!guys.add(new esManhandla((zfix)x,(zfix)y,new_id+0x1000,i)))
+						{
+						al_trace("Manhandla head %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1; j++)
+						{
+							guys.del(guys.Count()-1);
+						}
+						
+						return 0;
+						}
+						
+						
+						((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].misc1;
 					}
-					
-					return 0;
-					}
-					
-					
-					((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].misc1;
-				}
 				
 				break;
 				
 				case eeGLEEOK:
 				{
-				/*
-				new_id &= 0xFFF;
-				int head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
-					Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
-				for(int i=0; i<head_cnt; i++)
-				{
-					//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
-					if(!guys.add(new esGleeok((zfix)x,(zfix)y,new_id+0x1000,c, gleeok)))
+					/*
+					new_id &= 0xFFF;
+					int head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
+						Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
+					for(int i=0; i<head_cnt; i++)
 					{
-					al_trace("Gleeok head %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-					{
-						guys.del(guys.Count()-1);
-					}
-					
-					break;
-					}
-					
-					c-=guysbuf[new_id].misc4;
-					*/
-					
-				// }
+						//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
+						if(!guys.add(new esGleeok((zfix)x,(zfix)y,new_id+0x1000,c, gleeok)))
+						{
+						al_trace("Gleeok head %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1; j++)
+						{
+							guys.del(guys.Count()-1);
+						}
+						
+						break;
+						}
+						
+						c-=guysbuf[new_id].misc4;
+						*/
+						
+					// }
 				}
 				break;
 				
 				
 				case eePATRA:
 				{
-				new_id &= 0xFFF;
-				int outeyes = 0;
-				
-				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
-				{
-					if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i))))
+					new_id &= 0xFFF;
+					int outeyes = 0;
+					
+					for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
 					{
-					al_trace("Patra outer eye %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-						guys.del(guys.Count()-1);
+						if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i))))
+						{
+						al_trace("Patra outer eye %d could not be created!\n",i+1);
 						
-					return 0;
-					}
-					else
-					outeyes++;
-					
-					
-				}
-				
-				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc2); i++)
-				{
-					if(!guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i)))
-					{
-					al_trace("Patra inner eye %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1+zc_min(254,outeyes); j++)
-						guys.del(guys.Count()-1);
+						for(int j=0; j<i+1; j++)
+							guys.del(guys.Count()-1);
+							
+						return 0;
+						}
+						else
+						outeyes++;
 						
-					return 0;
+						
 					}
 					
+					for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc2); i++)
+					{
+						if(!guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i)))
+						{
+						al_trace("Patra inner eye %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1+zc_min(254,outeyes); j++)
+							guys.del(guys.Count()-1);
+							
+						return 0;
+						}
+						
+						
+					}
+					
+					break;
+				}
+			}
+			
+				
+			
+			((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
+			((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
+			((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
+			((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
+			((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
+			((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
+			((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
+			//((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy; //This might mean that it is a core. 
+			((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
+			((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
+			((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
+			((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
+			((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
+			((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
+			
+			
+			item_set = 0; //Do not make a drop. 
+			
+			switch(effect_type)
+			{
+				case -7:
+				{
+					weapon *w = new weapon(x,y,z,wBomb,0,wdp,0,-1,getUID(),false, 0);
+					Lwpns.add(w);
+				}
+				case -6:
+				{
+					weapon *w = new weapon(x,y,z,wSBomb,0,wdp,0,-1,getUID(),false, 0);
+					Lwpns.add(w);
+				}
+				case -5: 
+				{
+					weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+					Lwpns.add(w);
+				}
+				case -4:
+				{
+					weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+					Lwpns.add(w);
+				}
+				case -3: explode(1); break;
+				case -2: explode(2); break;
+				case -1: explode(0); break;
+				case 0: break;
+				
+				default:
+				{
+					//Dummy weapon function
+					if ( effect_type > 255 ) effect_type = 0; //Sanity bound the sprite ID.
+					//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Link.getUID(), txsz, tysz);
+					weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz,0,0,0,0,0,0,0);
+					Lwpns.add(w);
+					break;
+				}
+			}
+			
+			
+			yofs = -32768;
+			switch(guysbuf[new_id&0xFFF].family)
+			{
+				case eeGLEEOK:
+				{
+					Z_scripterrlog("Replacing a gleeok.\n");
+					enemy *tempenemy = (enemy *) guys.getByUID(parentCore);
+					hp = -999;
+					tempenemy->hp = -999; 
+					break;
 					
 				}
-				
-				break;
-				}
+				default:
+					hp = -1000; break;
 			}
+			++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
+			return 1;
 			
-			
-		
-		((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
-		((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
-		((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
-		((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
-		((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
-		((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
-		((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
-		//((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy; //This might mean that it is a core. 
-		((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
-		((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
-		((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
-		((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
-		((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
-		((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
-		
-		
-		item_set = 0; //Do not make a drop. 
-		
-		switch(effect_type)
-		{
-			case -7:
-			{
-				weapon *w = new weapon(x,y,z,wBomb,0,wdp,0,-1,getUID(),false, 0);
-				Lwpns.add(w);
-			}
-			case -6:
-			{
-				weapon *w = new weapon(x,y,z,wSBomb,0,wdp,0,-1,getUID(),false, 0);
-				Lwpns.add(w);
-			}
-			case -5: 
-			{
-				weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
-				Lwpns.add(w);
-			}
-			case -4:
-			{
-				weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
-				Lwpns.add(w);
-			}
-			case -3: explode(1); break;
-			case -2: explode(2); break;
-			case -1: explode(0); break;
-			case 0: break;
-			
-			default:
-			{
-				//Dummy weapon function
-				if ( effect_type > 255 ) effect_type = 0; //Sanity bound the sprite ID.
-				//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Link.getUID(), txsz, tysz);
-				weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz,0,0,0,0,0,0,0);
-				Lwpns.add(w);
-				break;
-			}
 		}
-		
-		
-		yofs = -32768;
-		switch(guysbuf[new_id&0xFFF].family)
+		case edSPLIT:
 		{
-			case eeGLEEOK:
+			//int ex = x; int ey = y;
+			//al_trace("edSplit dmisc3: %d\n", dmisc3);
+			//al_trace("edSplit dmisc4: %d\n", dmisc4);
+			/*
+			if ( txsx > 1 ) 
 			{
-				Z_scripterrlog("Replacing a gleeok.\n");
-				enemy *tempenemy = (enemy *) guys.getByUID(parentCore);
-				hp = -999;
-				tempenemy->hp = -999; 
-				break;
+				ex += ( txsz-1 ) * 8; //from its middle
+			}
+			if ( tysx > 1 ) 
+			{
+				ey += ( tysz-1 ) * 8; //from its middle
+			}
+			*/
+			for ( int q = 0; q < dmisc4; q++ )
+			{
+				
+				//addenemy((x+(txsz*16)/2),(y+(tysz*16)/2),dmisc3+0x1000,-15);
+				addenemy(
+					//ex,ey,
+					x,y,
+						dmisc3+0x1000,-15);
+				//addenemy(ex,ey,dmisc3,0);
 				
 			}
-			default:
-				hp = -1000; break;
-		}
-		++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
-		return 1;
-		
-	}
-	case edSPLIT:
-	{
-		//int ex = x; int ey = y;
-		//al_trace("edSplit dmisc3: %d\n", dmisc3);
-		//al_trace("edSplit dmisc4: %d\n", dmisc4);
-		/*
-		if ( txsx > 1 ) 
-		{
-			ex += ( txsz-1 ) * 8; //from its middle
-		}
-		if ( tysx > 1 ) 
-		{
-			ey += ( tysz-1 ) * 8; //from its middle
-		}
-		*/
-		for ( int q = 0; q < dmisc4; q++ )
-		{
-			
-			//addenemy((x+(txsz*16)/2),(y+(tysz*16)/2),dmisc3+0x1000,-15);
-			addenemy(
-				//ex,ey,
-				x,y,
-					dmisc3+0x1000,-15);
-			//addenemy(ex,ey,dmisc3,0);
+			item_set = 0; //Do not make a drop. 
+			hp = -1000;
+			return -1;
 			
 		}
-		item_set = 0; //Do not make a drop. 
-		hp = -1000;
-		return -1;
-		
-	}
-	case edSUMMON: 
-	{
-		
-		
-		//al_trace("edSplit dmisc3: %d\n", dmisc3);
-		//al_trace("edSplit dmisc4: %d\n", dmisc4);
-		int summon_count = (rand()%dmisc4)+1;
-		for ( int q = 0; q < summon_count; q++ )
+		case edSUMMON: 
 		{
-			int x2=16*((rand()%12)+2);
-			int y2=16*((rand()%7)+2);
-			addenemy(
-				//(x+(txsz*16)/2),(y+(tysz*16)/2)
-				x2,y2,
-					dmisc3+0x1000,-15);
-			//addenemy(ex,ey,dmisc3,0);
-			
+			//al_trace("edSplit dmisc3: %d\n", dmisc3);
+			//al_trace("edSplit dmisc4: %d\n", dmisc4);
+			int summon_count = (rand()%dmisc4)+1;
+			for ( int q = 0; q < summon_count; q++ )
+			{
+				int x2=16*((rand()%12)+2);
+				int y2=16*((rand()%7)+2);
+				addenemy(
+					//(x+(txsz*16)/2),(y+(tysz*16)/2)
+					x2,y2,
+						dmisc3+0x1000,-15);
+				//addenemy(ex,ey,dmisc3,0);
+				
+			}
+			sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
+			return -1;
 		}
-		sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
-		return -1;
 		
-	}
-	
-	case edEXPLODESMALL:
-	{
-		weapon *ew=new weapon(x,y,z, ewBomb, 0, dmisc4, dir,-1,getUID(),false);
-		Ewpns.add(ew);
-		item_set = 0; //Should we make a drop?
-		hp = -1000;
-		return -1;
-	}
-	
-	
-	case edEXPLODEHARMLESS:
-	{
-		weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
-		Ewpns.add(ew);
-		ew->hyofs = -32768;
-		item_set = 0; //Should we make a drop?
-		hp = -1000;
-		return -1;
-	}
-	
-	
-	case edEXPLODELARGE:
-	{
-		weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
-		Ewpns.add(ew);
-		
-		hp = -1000;
-		return -1;
-	}
-	
-	
-	case edTRIGGERSECRETS:
-	{
-		hidden_entrance(0, true, false, -4);
-		return -1;
-	}
-	
-	case edSTUNORCHINK:
-		if(*power <= 0)
+		case edEXPLODESMALL:
 		{
-		//al_trace("defendNew() is at: %s\n", "returning edSTUNORCHINK");
+			weapon *ew=new weapon(x,y,z, ewBomb, 0, dmisc4, dir,-1,getUID(),false);
+			Ewpns.add(ew);
+			item_set = 0; //Should we make a drop?
+			hp = -1000;
+			return -1;
+		}
+		
+		case edEXPLODEHARMLESS:
+		{
+			weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
+			Ewpns.add(ew);
+			ew->hyofs = -32768;
+			item_set = 0; //Should we make a drop?
+			hp = -1000;
+			return -1;
+		}
+		
+		case edEXPLODELARGE:
+		{
+			weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
+			Ewpns.add(ew);
+			
+			hp = -1000;
+			return -1;
+		}
+		
+		case edTRIGGERSECRETS:
+		{
+			hidden_entrance(0, true, false, -4);
+			return -1;
+		}
+		
+		case edSTUNORCHINK:
+			if(*power <= 0)
+			{
+			//al_trace("defendNew() is at: %s\n", "returning edSTUNORCHINK");
+				sfx(WAV_CHINK,pan(int(x)));
+				return 1;
+			}
+			
+		case edSTUNORIGNORE:
+			if(*power <= 0)
+				return 0;
+				
+		case edSTUNONLY:
+			if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
+			{
+				//al_trace("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
+				// Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
+				return 1;
+			}
+			stunclk=160;
+			sfx(WAV_EHIT,pan(int(x)));
+			return 1;
+			
+		case edCHINKL1:
+			if(*power >= 1*DAMAGE_MULTIPLIER) break;
+			
+		case edCHINKL2:
+			if(*power >= 2*DAMAGE_MULTIPLIER) break;
+			
+		case edCHINKL4:
+			if(*power >= 4*DAMAGE_MULTIPLIER) break;
+			
+		case edCHINKL6:
+			if(*power >= 6*DAMAGE_MULTIPLIER) break;
+			
+		case edCHINKL8:
+			if(*power >= 8*DAMAGE_MULTIPLIER) break;
+		
+		case edCHINKL10:
+			if(*power >= 10*DAMAGE_MULTIPLIER) break;
+			
+		case edCHINK:
+			//al_trace("defendNew() is at: %s\n", "returning edCHINK");
 			sfx(WAV_CHINK,pan(int(x)));
 			return 1;
-		}
-		
-	case edSTUNORIGNORE:
-		if(*power <= 0)
+			
+		case edIGNOREL1:
+			if(*power > 0)  break;
+			
+		case edIGNORE:
 			return 0;
 			
-	case edSTUNONLY:
-		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159){
-		//al_trace("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
-	   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
-			return 1;
-	}
-		stunclk=160;
-	sfx(WAV_EHIT,pan(int(x)));
+		case ed1HKO:
+			*power = hp;
+			return -2;
+			
+		case ed2x:
+		{
+			*power = zc_max(1,*power*2);
+			//int pow = *power;
+			//*power = vbound((pow*2),0,214747);
+			return -1; 
+		}
+		case ed3x:
+		{
+			*power = zc_max(1,*power*3);
+			//int pow = *power;
+			//*power = vbound((pow*3),0,214747);
+			return -1;
+		}
 		
-		return 1;
+		case ed4x:
+		{
+			*power = zc_max(1,*power*4);
+			//int pow = *power;
+			//*power = vbound((pow*4),0,214747);
+			return -1;
+		}
 		
-	case edCHINKL1:
-		if(*power >= 1*DAMAGE_MULTIPLIER) break;
 		
-	case edCHINKL2:
-		if(*power >= 2*DAMAGE_MULTIPLIER) break;
+		case edHEAL:
+		{ //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
+			//int pow = *power;
+			//*power = vbound((pow*-1),0,214747);
+			//break;
+			*power = zc_min(0,*power*-1);
+			return -1;
+		}
+		/*
+		case edLEVELDAMAGE: 
+		{
+			int pow = *power;
+			int lvl  = *level;
+			*power = vbound((pow*lvl),0,214747);
+			break;
+		}
+		case edLEVELREDUCTION:
+		{
+			int pow = *power;
+			int lvl  = *level;
+			*power = vbound((pow/lvl),0,214747);
+			break;
+		}
+		*/
 		
-	case edCHINKL4:
-		if(*power >= 4*DAMAGE_MULTIPLIER) break;
-		
-	case edCHINKL6:
-		if(*power >= 6*DAMAGE_MULTIPLIER) break;
-		
-	case edCHINKL8:
-		if(*power >= 8*DAMAGE_MULTIPLIER) break;
-	
-	case edCHINKL10:
-		if(*power >= 10*DAMAGE_MULTIPLIER) break;
-		
-	case edCHINK:
-		//al_trace("defendNew() is at: %s\n", "returning edCHINK");
-		sfx(WAV_CHINK,pan(int(x)));
-		return 1;
-		
-	case edIGNOREL1:
-		if(*power > 0)  break;
-		
-	case edIGNORE:
-		return 0;
-		
-	case ed1HKO:
-		*power = hp;
-		return -2;
-		
-	case ed2x:
-	{
-		*power = zc_max(1,*power*2);
-	//int pow = *power;
-		//*power = vbound((pow*2),0,214747);
-	return -1; 
-	}
-	case ed3x:
-	{
-		*power = zc_max(1,*power*3);
-	//int pow = *power;
-		//*power = vbound((pow*3),0,214747);
-	return -1;
-	}
-	
-	case ed4x:
-	{
-		*power = zc_max(1,*power*4);
-	//int pow = *power;
-		//*power = vbound((pow*4),0,214747);
-	return -1;
-	}
-	
-	
-	case edHEAL:
-	{ //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
-	//int pow = *power;
-		//*power = vbound((pow*-1),0,214747);
-	//break;
-		*power = zc_min(0,*power*-1);
-		return -1;
-	}
-	/*
-	case edLEVELDAMAGE: 
-	{
-	int pow = *power;
-	int lvl  = *level;
-		*power = vbound((pow*lvl),0,214747);
-	break;
-	}
-	case edLEVELREDUCTION:
-	{
-	int pow = *power;
-	int lvl  = *level;
-		*power = vbound((pow/lvl),0,214747);
-	break;
-	}
-	*/
-	
-	case edQUARTDAMAGE:
-		*power = zc_max(1,*power/2);
-		
-		//fallthrough
-	case edHALFDAMAGE:
-		*power = zc_max(1,*power/2);
-		break;
+		case edQUARTDAMAGE:
+			*power = zc_max(1,*power/2);
+			
+			//fallthrough
+		case edHALFDAMAGE:
+			*power = zc_max(1,*power/2);
+			break;
 	}
 	
 	return -1;
@@ -7166,7 +6250,7 @@ int enemy::defenditemclass(int wpnId, int *power)
 // -1: damage (if any) dealt
 // 1: blocked
 // 0: weapon passes through unhindered
-int basic_takehit(weapon *w)
+int enemy::basic_takehit(weapon *w)
 {
 	int wpnId = w->id;
 	//al_trace("takehit() wpnId is %d\n",wpnId);
@@ -7799,7 +6883,7 @@ void enemy::old_draw(BITMAP *dest)
 #define DRAW_INVIS 0
 // base drawing function to be used by all derived classes instead of
 // sprite::draw()
-void basic_draw(BITMAP *dest)
+void enemy::basic_draw(BITMAP *dest)
 {
 	//Temporary fix for bugs when drawing some enemies. -Z
 	//Statues need the invis flag set by the quest loader.
@@ -8323,7 +7407,7 @@ void enemy::drawblock(BITMAP *dest,int mask)
 	tile=thold;
 }
 
-void basic_drawshadow(BITMAP *dest, bool translucent)
+void enemy::basic_drawshadow(BITMAP *dest, bool translucent)
 {
 	if(dont_draw() || isSideViewGravity())
 	{
@@ -11647,14 +10731,7 @@ void eItemFairy::draw(BITMAP *dest)
 	dest=dest;
 }
 
-bool eLeever::isSubmerged()
-{
-	Z_scripterrlog("misc is: %d\n", misc);
-	return misc <= 0;
-	
-}
-
-bool eLeever::canplace(int d2)
+bool enemy::canplace(int d2)
 {
 	int nx=LinkX();
 	int ny=LinkY();
@@ -11704,7 +10781,7 @@ bool eLeever::canplace(int d2)
 	return true;
 }
 
-void eWallM::wallm_crawl()
+void enemy::wallm_crawl()
 {
 	bool w=watch;
 	hxofs=0;
@@ -11775,103 +10852,88 @@ void eWallM::wallm_crawl()
 	watch=w;
 }
 
-void eWallM::grablink()
+void enemy::grablink()
 {
 	haslink=true;
 	superman=1;
 }
 
-bool eWallM::isSubmerged()
+bool enemy::trapmove(int ndir)
 {
-	return ( !misc );
-}
-
-bool eTrap::trapmove(int ndir)
-{
-	if(get_bit(quest_rules,qr_MEANTRAPS))
+	if(typeMisc == emtTRAP2)
 	{
 		if(tmpscr->flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15);
 	}
-	
-	if(oy==80 && !(ndir==left || ndir == right))
-		return false;
+	else
+	{
+		if(get_bit(quest_rules,qr_MEANTRAPS))
+		{
+			if(tmpscr->flags2&fFLOATTRAPS)
+				return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15);
+				
+			return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15);
+		}
 		
-	if(ox==128 && !(ndir==up || ndir==down))
-		return false;
-		
-	if(oy<80 && ndir==up)
-		return false;
-		
-	if(oy>80 && ndir==down)
-		return false;
-		
-	if(ox<128 && ndir==left)
-		return false;
-		
-	if(ox>128 && ndir==right)
-		return false;
-		
-	if(ox<128 && oy<80 && ndir==l_up)
-		return false;
-		
-	if(ox<128 && oy>80 && ndir==l_down)
-		return false;
-		
-	if(ox>128 && oy<80 && ndir==r_up)
-		return false;
-		
-	if(ox>128 && oy>80 && ndir==r_down)
-		return false;
-		
-	return true;
+		if(oy==80 && !(ndir==left || ndir == right))
+			return false;
+			
+		if(ox==128 && !(ndir==up || ndir==down))
+			return false;
+			
+		if(oy<80 && ndir==up)
+			return false;
+			
+		if(oy>80 && ndir==down)
+			return false;
+			
+		if(ox<128 && ndir==left)
+			return false;
+			
+		if(ox>128 && ndir==right)
+			return false;
+			
+		if(ox<128 && oy<80 && ndir==l_up)
+			return false;
+			
+		if(ox<128 && oy>80 && ndir==l_down)
+			return false;
+			
+		if(ox>128 && oy<80 && ndir==r_up)
+			return false;
+			
+		if(ox>128 && oy>80 && ndir==r_down)
+			return false;
+			
+		return true;
+	}
 }
 
-bool eTrap::clip()
+bool enemy::trapclip()
 {
-	if(get_bit(quest_rules,qr_MEANPLACEDTRAPS))
+	if(typeMisc == emtTRAP2)
 	{
 		switch(dir)
 		{
 		case up:
-			if(y<=0)           return true;
+			if(y<=0) return true;
 			
 			break;
 			
 		case down:
-			if(y>=160)         return true;
+			if(y>=160) return true;
 			
 			break;
 			
 		case left:
-			if(x<=0)           return true;
+			if(x<=0) return true;
 			
 			break;
 			
 		case right:
-			if(x>=240)         return true;
-			
-			break;
-			
-		case l_up:
-			if(y<=0||x<=0)     return true;
-			
-			break;
-			
-		case l_down:
-			if(y>=160||x<=0)   return true;
-			
-			break;
-			
-		case r_up:
-			if(y<=0||x>=240)   return true;
-			
-			break;
-			
-		case r_down:
-			if(y>=160||x>=240) return true;
+			if(x>=240) return true;
 			
 			break;
 		}
@@ -11880,87 +10942,101 @@ bool eTrap::clip()
 	}
 	else
 	{
-		switch(dir)
+		if(get_bit(quest_rules,qr_MEANPLACEDTRAPS))
 		{
-		case up:
-			if(oy>80 && y<=86) return true;
+			switch(dir)
+			{
+			case up:
+				if(y<=0)           return true;
+				
+				break;
+				
+			case down:
+				if(y>=160)         return true;
+				
+				break;
+				
+			case left:
+				if(x<=0)           return true;
+				
+				break;
+				
+			case right:
+				if(x>=240)         return true;
+				
+				break;
+				
+			case l_up:
+				if(y<=0||x<=0)     return true;
+				
+				break;
+				
+			case l_down:
+				if(y>=160||x<=0)   return true;
+				
+				break;
+				
+			case r_up:
+				if(y<=0||x>=240)   return true;
+				
+				break;
+				
+			case r_down:
+				if(y>=160||x>=240) return true;
+				
+				break;
+			}
 			
-			break;
-			
-		case down:
-			if(oy<80 && y>=80) return true;
-			
-			break;
-			
-		case left:
-			if(ox>128 && x<=124) return true;
-			
-			break;
-			
-		case right:
-			if(ox<120 && x>=116) return true;
-			
-			break;
-			
-		case l_up:
-			if(oy>80 && y<=86 && ox>128 && x<=124) return true;
-			
-			break;
-			
-		case l_down:
-			if(oy<80 && y>=80 && ox>128 && x<=124) return true;
-			
-			break;
-			
-		case r_up:
-			if(oy>80 && y<=86 && ox<120 && x>=116) return true;
-			
-			break;
-			
-		case r_down:
-			if(oy<80 && y>=80 && ox<120 && x>=116) return true;
-			
-			break;
+			return false;
 		}
-		
-		return false;
+		else
+		{
+			switch(dir)
+			{
+			case up:
+				if(oy>80 && y<=86) return true;
+				
+				break;
+				
+			case down:
+				if(oy<80 && y>=80) return true;
+				
+				break;
+				
+			case left:
+				if(ox>128 && x<=124) return true;
+				
+				break;
+				
+			case right:
+				if(ox<120 && x>=116) return true;
+				
+				break;
+				
+			case l_up:
+				if(oy>80 && y<=86 && ox>128 && x<=124) return true;
+				
+				break;
+				
+			case l_down:
+				if(oy<80 && y>=80 && ox>128 && x<=124) return true;
+				
+				break;
+				
+			case r_up:
+				if(oy>80 && y<=86 && ox<120 && x>=116) return true;
+				
+				break;
+				
+			case r_down:
+				if(oy<80 && y>=80 && ox<120 && x>=116) return true;
+				
+				break;
+			}
+			
+			return false;
+		}
 	}
-}
-
-bool eTrap2::trapmove(int ndir)
-{
-	if(tmpscr->flags2&fFLOATTRAPS)
-		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15);
-		
-	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15);
-}
-
-bool eTrap2::clip()
-{
-	switch(dir)
-	{
-	case up:
-		if(y<=0) return true;
-		
-		break;
-		
-	case down:
-		if(y>=160) return true;
-		
-		break;
-		
-	case left:
-		if(x<=0) return true;
-		
-		break;
-		
-	case right:
-		if(x>=240) return true;
-		
-		break;
-	}
-	
-	return false;
 }
 
 eTrigger::eTrigger(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -12053,7 +11129,7 @@ int eNPC::takehit(weapon*)
 	return 0;
 }
 
-void eSpinTile::facelink()
+void enemy::facelink() //Only used for eeSPINTILE
 {
 	if(Link.x-x==0)
 	{
@@ -12256,7 +11332,7 @@ bool eZora::isSubmerged()
 	return ( clk < 3 );
 }
 
-void eStalfos::charge_attack()
+void enemy::charge_attack()
 {
 	if(slide())
 		return;
@@ -12301,7 +11377,7 @@ void eStalfos::charge_attack()
 	--clk3;
 }
 
-void eStalfos::vire_hop()
+void enemy::vire_hop()
 {
 	//if ( sclk > 0 ) return; //Don't hop during knockback.
   
@@ -12394,7 +11470,7 @@ void eStalfos::vire_hop()
 		shadowdistance = 0;
 }
 
-void eStalfos::eatlink()
+void enemy::eatlink()
 {
 	if(!haslink && Link.getEaten()==0 && Link.getAction() != hopping && Link.getAction() != swimming)
 	{
@@ -12417,7 +11493,7 @@ void eStalfos::eatlink()
 	}
 }
 
-bool eStalfos::WeaponOut()
+bool enemy::WeaponOut()
 {
 	for(int i=0; i<Ewpns.Count(); i++)
 	{
@@ -12434,7 +11510,7 @@ bool eStalfos::WeaponOut()
 	return false;
 }
 
-void eStalfos::KillWeapon()
+void enemy::KillWeapon()
 {
 	for(int i=0; i<Ewpns.Count(); i++)
 	{
@@ -12454,7 +11530,7 @@ void eStalfos::KillWeapon()
 	}
 }
 
-void eWizzrobe::wizzrobe_attack_teleporting()
+void enemy::wizzrobe_attack_teleporting()
 {
 	if(wpn==0)  // Edited enemies
 		return;
@@ -12575,7 +11651,7 @@ void eWizzrobe::wizzrobe_attack_teleporting()
 }
 
 
-void eWizzrobe::wizzrobe_attack_phasing()
+void enemy::wizzrobe_attack_phasing()
 {
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
@@ -12737,7 +11813,7 @@ void eWizzrobe::wizzrobe_attack_phasing()
 	
 }
 
-void eWizzrobe::wizzrobe_newdir(int homing)
+void enemy::wizzrobe_newdir(int homing)
 {
 	// Wizzrobes shouldn't move to the edge of the screen;
 	// if they're already there, they should move toward the center
@@ -16690,12 +15766,12 @@ bool hasMainGuy()
 
 void EatLink(int index)
 {
-	((eStalfos*)guys.spr(index))->eatlink();
+	((enemy*)guys.spr(index))->eatlink();
 }
 
 void GrabLink(int index)
 {
-	((eWallM*)guys.spr(index))->grablink();
+	((enemy*)guys.spr(index))->grablink();
 }
 
 bool CarryLink()
@@ -16704,11 +15780,11 @@ bool CarryLink()
 	{
 		if(((guy*)(guys.spr(i)))->family==eeWALLM)
 		{
-			if(((eWallM*)guys.spr(i))->haslink)
+			if(((enemy*)guys.spr(i))->haslink)
 			{
 				Link.x=guys.spr(i)->x;
 				Link.y=guys.spr(i)->y;
-				return ((eWallM*)guys.spr(i))->misc > 0;
+				return ((enemy*)guys.spr(i))->misc > 0;
 			}
 		}
 		
@@ -16779,226 +15855,181 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	switch(guysbuf[id&0xFFF].family)
 	{
 		//Fixme: possible enemy memory leak. (minor)
-	case eeWALK:
-		e = new eStalfos((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeLEV:
-		e = new eLeever((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeTEK:
-		e = new eTektite((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eePEAHAT:
-		e = new ePeahat((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeZORA:
-		e = new eZora((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeGHINI:
-		e = new eGhini((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeKEESE:
-		e = new eKeese((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeWIZZ:
-		e = new eWizzrobe((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eePROJECTILE:
-		e = new eProjectile((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeWALLM:
-		e = new eWallM((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeAQUA:
-		e = new eAquamentus((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeMANHAN:
-		e = new eManhandla((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeGHOMA:
-		e = new eGohma((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeGANON:
-		e = new eGanon((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeFAIRY:
-		e = new eItemFairy((zfix)x,(zfix)y,id+0x1000*clk,clk);
-		break;
-		
-	case eeFIRE:
-		e = new eFire((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeOTHER: 
-		e = new eOther((zfix)x,(zfix)y,id,clk);
-		break;
-	
-	
-	case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
-	case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
-	{
-		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
-		{
-			e = new eScript((zfix)x,(zfix)y,id,clk);
+		case eeWALK:
+		case eeLEV:
+		case eeTEK:
+		case eePEAHAT:
+		case eeGHINI:
+		case eeKEESE:
+		case eeWIZZ:
+		case eePROJECTILE:
+		case eeWALLM:
+		case eeFIRE:
+		case eeOTHER: 
+		case eeSPINTILE:
+			e = new enemy((zfix)x,(zfix)y,id,clk,guysbuf[id&0xFFF].family);
 			break;
-		}
-		else return 0;
-	}
-	
-	case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-	{
-		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
-		{
-			e = new eFriendly((zfix)x,(zfix)y,id,clk); break;
-		}
-		else return 0;
-				
-	}	
+			
+		case eeZORA:
+			e = new eZora((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeAQUA:
+			e = new eAquamentus((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeMOLD:
+			e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeMANHAN:
+			e = new eManhandla((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeGLEEOK:
+			e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeGHOMA:
+			e = new eGohma((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeLANM:
+			e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeGANON:
+			e = new eGanon((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeFAIRY:
+			e = new eItemFairy((zfix)x,(zfix)y,id+0x1000*clk,clk);
+			break;
 		
-	case eeSPINTILE:
-		e = new eSpinTile((zfix)x,(zfix)y,id,clk);
-		break;
+		case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
+		case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
+		case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
+		{
+			if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+			{
+				e = new enemy((zfix)x,(zfix)y,id,clk,guysbuf[id&0xFFF].family);
+				break;
+			}
+			else return 0;
+		}
 		
 		// and these enemies use the misc10/misc2 value
-	case eeROCK:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeROCK:
 		{
-		case 1:
-			e = new eBoulder((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeROCK,emtBOULDER);
+					break;
+					
+				case 0:
+				default:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeROCK);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eRock((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeTRAP:
-	{
-		switch(guysbuf[id&0xFFF].misc2)
+		case eeTRAP:
 		{
-		case 1:
-			e = new eTrap2((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc2)
+			{
+				case 1:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeTRAP,emtTRAP2);
+					break;
+					
+				case 0:
+				default:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeTRAP);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eTrap((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeDONGO:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeDONGO:
 		{
-		case 1:
-			e = new eDodongo2((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eDodongo2((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eDodongo((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eDodongo((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeDIG:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeDIG:
 		{
-		case 1:
-			e = new eLilDig((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eLilDig((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eBigDig((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eBigDig((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eePATRA:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eePATRA:
 		{
-		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new ePatra((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new ePatra((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeGUY:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeGUY:
 		{
-		case 1:
-			e = new eTrigger((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eTrigger((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eNPC((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
+			break;
+		}
+		
+		case eeNONE:
+			if(guysbuf[id&0xFFF].misc10 ==1)
+			{
+				e = new eTrigger((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			
 		default:
-			e = new eNPC((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
-		break;
-	}
-	
-	case eeNONE:
-		if(guysbuf[id&0xFFF].misc10 ==1)
-		{
-			e = new eTrigger((zfix)x,(zfix)y,id,clk);
-			break;
-			break;
-		}
-		
-	default:
-	
-		return 0;
+			return 0;
 	}
 	
 	ret++; // Made one enemy.
@@ -17026,155 +16057,154 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	
 	switch(guysbuf[id&0xFFF].family)
 	{
-	case eeMOLD:
-	{
-		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-		id &= 0xFFF;
-		
-		for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
+		case eeMOLD:
 		{
-			//christ this is messy -DD
-			int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
+			byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+			id &= 0xFFF;
 			
-			if(!guys.add(new esMoldorm((zfix)x,(zfix)y,id+0x1000,segclk)))
+			for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
 			{
-				al_trace("Moldorm segment %d could not be created!\n",i+1);
+				//christ this is messy -DD
+				int segclk = -i*((int)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
 				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
+				if(!guys.add(new esMoldorm((zfix)x,(zfix)y,id+0x1000,segclk)))
+				{
+					al_trace("Moldorm segment %d could not be created!\n",i+1);
 					
+					for(int j=0; j<i+1; j++)
+						guys.del(guys.Count()-1);
+						
+					return 0;
+				}
+				
+				if(i>0)
+					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+					
+				ret++;
+			}
+			
+			break;
+		}
+		
+		case eeLANM:
+		{
+			id &= 0xFFF;
+			int shft = guysbuf[id].misc2;
+			byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+			
+			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
+			{
+				al_trace("Lanmola segment 1 could not be created!\n");
+				guys.del(guys.Count()-1);
 				return 0;
 			}
 			
-			if(i>0)
+			ret++;
+			
+			for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
+			{
+				if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
+				{
+					al_trace("Lanmola segment %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+						guys.del(guys.Count()-1);
+						
+					return 0;
+				}
+				
 				((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-				
-			ret++;
-		}
-		
-		break;
-	}
-	
-	case eeLANM:
-	{
-		id &= 0xFFF;
-		int shft = guysbuf[id].misc2;
-		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-		
-		if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
-		{
-			al_trace("Lanmola segment 1 could not be created!\n");
-			guys.del(guys.Count()-1);
-			return 0;
-		}
-		
-		ret++;
-		
-		for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
-		{
-			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
-			{
-				al_trace("Lanmola segment %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
+				ret++;
 			}
-			
-			((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-			ret++;
 		}
-	}
-	break;
-	
-	case eeMANHAN:
-		id &= 0xFFF;
+		break;
 		
-		for(int i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
-		{
-			if(!guys.add(new esManhandla((zfix)x,(zfix)y,id+0x1000,i)))
+		case eeMANHAN:
+			id &= 0xFFF;
+			
+			for(int i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
 			{
-				al_trace("Manhandla head %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
+				if(!guys.add(new esManhandla((zfix)x,(zfix)y,id+0x1000,i)))
 				{
-					guys.del(guys.Count()-1);
+					al_trace("Manhandla head %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					{
+						guys.del(guys.Count()-1);
+					}
+					
+					return 0;
 				}
 				
-				return 0;
+				ret++;
+				((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
 			}
 			
-			ret++;
-			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
-		}
-		
-		break;
-		
-	case eeGLEEOK:
-	{
-		id &= 0xFFF;
-		
-		for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
+			break;
+			
+		case eeGLEEOK:
 		{
-			if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
+			id &= 0xFFF;
+			
+			for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
 			{
-				al_trace("Gleeok head %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
+				if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
 				{
-					guys.del(guys.Count()-1);
+					al_trace("Gleeok head %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					{
+						guys.del(guys.Count()-1);
+					}
+					
+					return false;
 				}
 				
-				return false;
+				c-=guysbuf[id].misc4;
+				ret++;
 			}
-			
-			c-=guysbuf[id].misc4;
-			ret++;
 		}
-	}
-	break;
-	
-	
-	case eePATRA:
-	{
-		id &= 0xFFF;
-		int outeyes = 0;
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
-		{
-			if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i))))
-			{
-				al_trace("Patra outer eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			else
-				outeyes++;
-				
-			ret++;
-		}
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
-		{
-			if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i)))
-			{
-				al_trace("Patra inner eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1+zc_min(254,outeyes); j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			
-			ret++;
-		}
-		
 		break;
-	}
+		
+		case eePATRA:
+		{
+			id &= 0xFFF;
+			int outeyes = 0;
+			
+			for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+			{
+				if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i))))
+				{
+					al_trace("Patra outer eye %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+						guys.del(guys.Count()-1);
+						
+					return 0;
+				}
+				else
+					outeyes++;
+					
+				ret++;
+			}
+			
+			for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
+			{
+				if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i)))
+				{
+					al_trace("Patra inner eye %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1+zc_min(254,outeyes); j++)
+						guys.del(guys.Count()-1);
+						
+					return 0;
+				}
+				
+				ret++;
+			}
+			
+			break;
+		}
 	}
 	
 	return ret;
@@ -17191,227 +16221,181 @@ int addenemy(int x,int y,int z,int id,int clk)
 	switch(guysbuf[id&0xFFF].family)
 	{
 		//Fixme: possible enemy memory leak. (minor)
-	case eeWALK:
-		e = new eStalfos((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeLEV:
-		e = new eLeever((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeTEK:
-		e = new eTektite((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eePEAHAT:
-		e = new ePeahat((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeZORA:
-		e = new eZora((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeGHINI:
-		e = new eGhini((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeKEESE:
-		e = new eKeese((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeWIZZ:
-		e = new eWizzrobe((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eePROJECTILE:
-		e = new eProjectile((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeWALLM:
-		e = new eWallM((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeAQUA:
-		e = new eAquamentus((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeMANHAN:
-		e = new eManhandla((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeGHOMA:
-		e = new eGohma((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
-		break;
-		
-	case eeGANON:
-		e = new eGanon((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeFAIRY:
-		e = new eItemFairy((zfix)x,(zfix)y,id+0x1000*clk,clk);
-		break;
-		
-	case eeFIRE:
-		e = new eFire((zfix)x,(zfix)y,id,clk);
-		break;
-		
-	case eeOTHER: 
-		e = new eOther((zfix)x,(zfix)y,id,clk);
-		break;
-	
-	
-	case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
-	case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
-	
-	{
-		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
-		{
-			e = new eScript((zfix)x,(zfix)y,id,clk);
+		case eeWALK:
+		case eeLEV:
+		case eeTEK:
+		case eePEAHAT:
+		case eeGHINI:
+		case eeKEESE:
+		case eeWIZZ:
+		case eePROJECTILE:
+		case eeWALLM:
+		case eeFIRE:
+		case eeOTHER:
+		case eeSPINTILE:
+			e = new enemy((zfix)x,(zfix)y,id,clk,guysbuf[id&0xFFF].family);
 			break;
-		}
-		else return 0;
-	}
-				
-	case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-	{
-		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+			
+		case eeZORA:
+			e = new eZora((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeAQUA:
+			e = new eAquamentus((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeMOLD:
+			e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeMANHAN:
+			e = new eManhandla((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeGLEEOK:
+			e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeGHOMA:
+			e = new eGohma((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeLANM:
+			e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+			break;
+			
+		case eeGANON:
+			e = new eGanon((zfix)x,(zfix)y,id,clk);
+			break;
+			
+		case eeFAIRY:
+			e = new eItemFairy((zfix)x,(zfix)y,id+0x1000*clk,clk);
+			break;
+		
+		case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05: case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
+		case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15: case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
+		case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05: case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
 		{
-			e = new eFriendly((zfix)x,(zfix)y,id,clk); break;
+			if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+			{
+				e = new enemy((zfix)x,(zfix)y,id,clk,guysbuf[id&0xFFF].family); break;
+			}
+			else return 0;
+					
 		}
-		else return 0;
-				
-	}	
-		
-	case eeSPINTILE:
-		e = new eSpinTile((zfix)x,(zfix)y,id,clk);
-		break;
-		
+			
 		// and these enemies use the misc10/misc2 value
-	case eeROCK:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeROCK:
 		{
-		case 1:
-			e = new eBoulder((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeROCK,emtBOULDER);
+					break;
+					
+				case 0:
+				default:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeROCK);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eRock((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeTRAP:
-	{
-		switch(guysbuf[id&0xFFF].misc2)
+		case eeTRAP:
 		{
-		case 1:
-			e = new eTrap2((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc2)
+			{
+				case 1:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeTRAP,emtTRAP2);
+					break;
+					
+				case 0:
+				default:
+					e = new enemy((zfix)x,(zfix)y,id,clk,eeTRAP);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eTrap((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeDONGO:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeDONGO:
 		{
-		case 1:
-			e = new eDodongo2((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eDodongo2((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eDodongo((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eDodongo((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeDIG:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeDIG:
 		{
-		case 1:
-			e = new eLilDig((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eLilDig((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eBigDig((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new eBigDig((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eePATRA:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eePATRA:
 		{
-		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new ePatra((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
-		default:
-			e = new ePatra((zfix)x,(zfix)y,id,clk);
 			break;
 		}
 		
-		break;
-	}
-	
-	case eeGUY:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
+		case eeGUY:
 		{
-		case 1:
-			e = new eTrigger((zfix)x,(zfix)y,id,clk);
-			break;
+			switch(guysbuf[id&0xFFF].misc10)
+			{
+				case 1:
+					e = new eTrigger((zfix)x,(zfix)y,id,clk);
+					break;
+					
+				case 0:
+				default:
+					e = new eNPC((zfix)x,(zfix)y,id,clk);
+					break;
+			}
 			
-		case 0:
+			break;
+		}
+		
+		case eeNONE:
+			if(guysbuf[id&0xFFF].misc10 ==1)
+			{
+				e = new eTrigger((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			
 		default:
-			e = new eNPC((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
-		break;
-	}
-	
-	case eeNONE:
-		if(guysbuf[id&0xFFF].misc10 ==1)
-		{
-			e = new eTrigger((zfix)x,(zfix)y,id,clk);
-			break;
-			break;
-		}
-		
-	default:
-	
-		return 0;
+			return 0;
 	}
 	
 	ret++; // Made one enemy.
