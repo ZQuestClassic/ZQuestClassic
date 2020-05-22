@@ -36967,7 +36967,7 @@ int FFScript::getEnemyByScriptUID(int sUID)
 int FFScript::getLWeaponByScriptUID(int sUID)
 {
 	
-	for(word i = 0; i < guys.Count(); i++)
+	for(word i = 0; i < Lwpns.Count(); i++)
 		{
 			weapon *w = (weapon*)Lwpns.spr(i);
 			if ( w ->script_UID == sUID ) return i;
@@ -36978,7 +36978,7 @@ int FFScript::getLWeaponByScriptUID(int sUID)
 int FFScript::getEWeaponByScriptUID(int sUID)
 {
 	
-	for(word i = 0; i < guys.Count(); i++)
+	for(word i = 0; i < Ewpns.Count(); i++)
 		{
 			weapon *w = (weapon*)Ewpns.spr(i);
 			if ( w ->script_UID == sUID ) return i;
