@@ -7,6 +7,9 @@
 #define ZFIX_H
 #include "zdefs.h"
 #include <math.h>
+#include <limits>
+#define NAN 0
+//std::numeric_limits<t>::quiet_NaN()
 
 typedef int32_t ZLong;
 
@@ -101,11 +104,21 @@ public:
 	zfix& operator *=  (const float v)	{ val = (val * toZLong(v)) / 10000L; return *this; }
 	zfix& operator *=  (const double v)	{ val = (val * toZLong(v)) / 10000L; return *this; }
 	
-	zfix& operator /=  (const zfix fx)	{ val = (val*10000L) / fx.val; return *this; }
-	zfix& operator /=  (const int v)	{ val /= v; return *this; }
-	zfix& operator /=  (const long v)	{ val /= v; return *this; }
-	zfix& operator /=  (const float v)	{ val = (val*10000L) / toZLong(v); return *this; }
-	zfix& operator /=  (const double v)	{ val = (val*10000L) / toZLong(v); return *this; }
+	zfix& operator /=  (const zfix fx)	{
+		if(fx.val == 0) val = toZLong(NAN);
+		else val = (val*10000L) / fx.val; return *this; }
+	zfix& operator /=  (const int v)	{
+		if(v == 0) val = toZLong(NAN);
+		else val /= v; return *this; }
+	zfix& operator /=  (const long v)	{
+		if(v == 0) val = toZLong(NAN);
+		else val /= v; return *this; }
+	zfix& operator /=  (const float v)	{
+		if(toZLong(v) == 0) val = toZLong(NAN);
+		else val = (val*10000L) / toZLong(v); return *this; }
+	zfix& operator /=  (const double v)	{
+		if(toZLong(v) == 0) val = toZLong(NAN);
+		else val = (val*10000L) / toZLong(v); return *this; }
 	
 	zfix& operator <<= (const int v)	{ val <<= v; return *this; }
 	zfix& operator >>= (const int v)	{ val >>= v; return *this; }
