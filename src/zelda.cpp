@@ -2304,7 +2304,7 @@ int init_game()
 			apos=-1;
 		}
         
-		Awpn = Bweapon(apos);
+		Awpn = Bweapon(apos); //Bweapon() sets directItem
 		directItemA = directItem;
 	}
     
@@ -2340,7 +2340,7 @@ int init_game()
 			apos=-1;
 		}
         
-		Awpn = Bweapon(apos);
+		Awpn = Bweapon(apos); //Bweapon() sets directItem
 		directItemA = directItem;
 	}
     
