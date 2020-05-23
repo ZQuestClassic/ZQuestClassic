@@ -1,9 +1,13 @@
 ChangeLog for 2.53.1
 
+//Beta 50
+Try to properly initialise directItem and directItemA.
+	( ZoriaRPG, 23rd May, 2020 )
+	
 //Beta 49
 Slight changes to the directItem init when loading quests, that
 	now checks if the prior quest was a B+A subscreen type. 
-	( ZoriaRPG, 23rd May, 2020 
+	( ZoriaRPG, 23rd May, 2020 )
 
 //Beta 48
 Fixed a memory leak when compiling scripts and exiting out of

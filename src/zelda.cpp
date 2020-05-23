@@ -1729,6 +1729,8 @@ int init_game()
 		Awpn = selectSword();
 		apos = -1;
 		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+		directItem = -1;
+		directItemA = directItem; 
 	}
 	else
 	{
@@ -1741,7 +1743,7 @@ int init_game()
 			apos=-1;
 		}
         
-		Awpn = Bweapon(apos);
+		Awpn = Bweapon(apos); //this sets directItem
 		directItemA = directItem;
 	}
     
@@ -1751,7 +1753,7 @@ int init_game()
 	directItemB = directItem;
 	//directItemA = directItem; 
 	//Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
-	if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
+	//if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
 	update_subscr_items();
     
 	reset_subscr_items();
@@ -1763,6 +1765,8 @@ int init_game()
 		Awpn = selectSword();
 		apos = -1;
 		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+		directItem = -1;
+		directItemA = directItem; 
 	}
 	else
 	{
