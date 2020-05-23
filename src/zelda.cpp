@@ -113,6 +113,8 @@ char save_file_name[1024] = "zc.sav";
 //char *SAVE_FILE = (char *)"zc.sav";
 char *SAVE_FILE = NULL;
 
+int last_quest_was_BA_subscreen = 0;
+
 CScriptDrawingCommands script_drawing_commands;
 
 using std::string;
@@ -1703,8 +1705,8 @@ int init_game()
         
     if(firstplay)
     {
-	game->awpn=0;
-	game->bwpn=0;
+	//game->awpn=0; //These may need to be a value other than 0 on init?
+	//game->bwpn=0;
 	game->forced_awpn = -1; 
 	game->forced_bwpn = -1;    
     }
@@ -1714,41 +1716,81 @@ int init_game()
     load_Sitems(&QMisc);
     
 //load the previous weapons -DD
+    zprint2("last_quest_was_BA_subscreen prior to init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
+    
     bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
     int apos = 0;
     int bpos = 0;
     
-    if(!get_bit(quest_rules,qr_SELECTAWPN))
+    if(last_quest_was_BA_subscreen) //Will always be false on initialising ZC Player, but will be changed when you load a quest.
     {
-        Awpn = selectSword();
-        apos = -1;
-        bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+	if(!get_bit(quest_rules,qr_SELECTAWPN))
+	{
+		Awpn = selectSword();
+		apos = -1;
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+	}
+	else
+	{
+		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+        
+		if(bpos==0xFF)
+		{
+			bpos=apos;
+			apos=-1;
+		}
+        
+		Awpn = Bweapon(apos);
+		directItemA = directItem;
+	}
+    
+	game->awpn = apos;
+	game->bwpn = bpos;
+	Bwpn = Bweapon(bpos);
+	directItemB = directItem;
+	//directItemA = directItem; 
+	//Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
+	if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
+	update_subscr_items();
+    
+	reset_subscr_items();
     }
-    else
+    else //old stuff from DD, use it if playing a B-Only quest after another B-Only quest
     {
-        apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-        bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+	if(!get_bit(quest_rules,qr_SELECTAWPN))
+	{
+		Awpn = selectSword();
+		apos = -1;
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+	}
+	else
+	{
+		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
         
-        if(bpos==0xFF)
-        {
-            bpos=apos;
-            apos=-1;
-        }
+		if(bpos==0xFF)
+		{
+			bpos=apos;
+			apos=-1;
+		}
         
-        Awpn = Bweapon(apos);
-        directItemA = directItem;
+		Awpn = Bweapon(apos);
+		directItemA = directItem;
+	}
+    
+	game->awpn = apos;
+	game->bwpn = bpos;
+	Bwpn = Bweapon(bpos);
+	directItemB = directItem;
+	update_subscr_items();
+    
+	reset_subscr_items();    
+	    
     }
     
-    game->awpn = apos;
-    game->bwpn = bpos;
-    Bwpn = Bweapon(bpos);
-    directItemB = directItem;
-    //directItemA = directItem; 
-    //Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
-    if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
-    update_subscr_items();
-    
-    reset_subscr_items();
+    last_quest_was_BA_subscreen = get_bit(quest_rules,qr_SELECTAWPN) ? 1 : 0;
+    zprint2("last_quest_was_BA_subscreen after init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
     
     Link.setDontDraw(false);
     show_subscreen_dmap_dots=true;

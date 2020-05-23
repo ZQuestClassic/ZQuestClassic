@@ -14149,17 +14149,17 @@ void verifyAWpn()
 		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
 		return;
 	}
-    if(!get_bit(quest_rules,qr_SELECTAWPN))
-    {
-        Awpn = selectSword();
-        game->awpn = 0xFF;
-    }
-    else
-    {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn);
-        Awpn = Bweapon(game->awpn);
-        directItemA = directItem;
-    }
+	if(!get_bit(quest_rules,qr_SELECTAWPN))
+	{
+		Awpn = selectSword();
+		game->awpn = 0xFF;
+	}
+	else
+	{
+		game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn);
+		Awpn = Bweapon(game->awpn);
+		directItemA = directItem;
+	}
 }
 
 void verifyBWpn()
@@ -14170,9 +14170,9 @@ void verifyBWpn()
 		//zprint2("verifyBWpn(); returning early. game->forced_bwpn is: %d \n",game->forced_bwpn); 
 		return;
 	}
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);;
-    Bwpn = Bweapon(game->bwpn);
-    directItemB = directItem;
+	game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);;
+	Bwpn = Bweapon(game->bwpn);
+	directItemB = directItem;
 }
 
 void verifyBothWeapons()
