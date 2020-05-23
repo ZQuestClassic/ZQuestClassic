@@ -5851,7 +5851,7 @@ void Monochrome(int mode);
  * or uniform colour distribution.
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
-void MonoHue(int red, int green, int blue, bool distributed);
+void MonochromeHue(int red, int green, int blue, bool distributed);
  * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
  * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
  * as `red`, `green`, and `blue`. 
