@@ -20893,15 +20893,15 @@ int run_script(const byte type, const word script, const long i)
 			curscript = comboscripts[script];
 			stack = &(combo_stack[i]);
 			int pos = ((i%176));
+			int lyr = i/176;
 			int id = comboscript_combo_ids[i]; 
 
-			//if(!(combo_initialised[pos]&l))
-			if(!(combo_initialised[pos]))
+			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
 				memset(ri->d, 0, 8 * sizeof(long));
 				for ( int q = 0; q < 2; q++ )
-					//ri->d[q] = combobuf[m->data[id]].initD[q];
 					ri->d[q] = combobuf[id].initd[q];
+				combo_initialised[pos] |= 1<<lyr;
 			}
 
 			ri->combosref = id; //'this' pointer
@@ -24009,22 +24009,11 @@ int run_script(const byte type, const word script, const long i)
 		} 
 		
 		case SCRIPT_COMBO:
-		{	
-			/*int l = 0; //get the layer
-			for (int q = 176; q < 1232; q+= 176 )
-			{
-				if ( i < q )
-				{
-					break;
-				}
-				++l;
-			}
-			int pos = ((i%176));
-			combo_doscript[i] &=  ~(1<<l);
-			combo_initialised[pos] &=  ~(1<<l);*/
-			
+		{
+			int pos = i%176;
+			int lyr = i/176;
 			combo_doscript[i] = 0;
-			combo_initialised[i] = 0;
+			combo_initialised[pos] &= ~(1<<lyr);
 			
 			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
 			break;
