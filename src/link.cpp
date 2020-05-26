@@ -13656,10 +13656,13 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 // * otherwise, walk on ladder(+hookshot) combos.
                 else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(wx, wy)) || isstepable(MAPCOMBO(wx+8,wy)) || wtrx==true))
                 {
-                    //if Link could swim on a tile instead of using the ladder,
-                    //refuse to use the ladder to step over that tile. -DD
-                    wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
-                    wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+		    if(!emulation_patches[emuOLD210WATER])
+		    {
+			//if Link could swim on a tile instead of using the ladder,
+			//refuse to use the ladder to step over that tile. -DD
+			wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
+			wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+		    }
                 }
             }
             // No water; how about ladder combos?

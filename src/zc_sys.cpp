@@ -8096,6 +8096,27 @@ int v250_dmap_intro_repeat()
     return D_O_K;
 }
 
+int old_210_water_emulation()
+{
+	if(jwin_alert3(
+			"EMULATION: Strict 2.10 Ladder/Flippers", 
+			"This action will toggle if ZC Player uses the old, v2.10 ladder/flippers.",
+			"If enabled, some water interaction will change to permit old quests to work.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuOLD210WATER] ) emulation_patches[emuOLD210WATER] = 0;
+	    else emulation_patches[emuOLD210WATER] = 1;
+	}
+    return D_O_K;
+	
+}
 
 int buggy_next_combo_secrets_emulation()
 {
@@ -8403,6 +8424,7 @@ static MENU compat_patch_menu[] =
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
     { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
+    { (char *)"2.10 Water/Ladder Up/Down",                     old_210_water_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -9717,6 +9739,7 @@ void System()
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
+	compat_patch_menu[12].flags = ((emulation_patches[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
