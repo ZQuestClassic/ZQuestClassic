@@ -8255,7 +8255,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     
     else if(wf || isSideview() || get_bit(quest_rules, qr_DROWN))
     {
-	if(emulation_patches[emuOLD210WATER] && wf)
+	/*if(emulation_patches[emuOLD210WATER] && wf)
 	{
 		{
 			// see if it's a good spot for the ladder or for swimming
@@ -8308,7 +8308,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 		}
 	    
 	}
-	else
+	else */
 	{
 		// see if it's a good spot for the ladder or for swimming
 		bool unwalkablex  = _walkflag(wx,wy,1); //will be used later for the ladder -DD
@@ -8388,8 +8388,11 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 			{
 			    //if Link could swim on a tile instead of using the ladder,
 			    //refuse to use the ladder to step over that tile. -DD
-			    wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
-			    wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+			    if(!emulation_patches[emuOLD210WATER])
+			    {
+				wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
+				wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+			    }
 			}
 		    }
 		    // No water; how about ladder combos?
