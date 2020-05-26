@@ -8101,7 +8101,7 @@ int old_210_water_emulation()
 	if(jwin_alert3(
 			"EMULATION: Strict 2.10 Ladder/Flippers", 
 			"This action will toggle if ZC Player uses the old, v2.10 ladder/flippers.",
-			"If enabled, some water interaction will change to permit old quests to work.",
+			"If enabled, the ladder will deploy before swimming when facing up or down.",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
