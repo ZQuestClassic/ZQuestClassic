@@ -7273,7 +7273,7 @@ int old_210_water_emulation()
 	if(jwin_alert3(
 			"EMULATION: Strict 2.10 Ladder/Flippers", 
 			"This action will toggle if ZC Player uses the old, v2.10 ladder/flippers.",
-			"If enabled, some water interaction will change to permit old quests to work.",
+			"If enabled, the ladder will deploy before swimming when facing up or down.",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
@@ -7601,7 +7601,7 @@ static MENU compat_patch_menu[] =
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
     { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
-    { (char *)"Strict 2.10 Water",                     old_210_water_emulation,                 NULL,                      0, NULL },
+    { (char *)"2.10 Water/Ladder Up/Down",                     old_210_water_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
