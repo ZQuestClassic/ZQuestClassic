@@ -1,5 +1,13 @@
 ChangeLog for 2.53.1
 
+//Beta 51
+Added 'Old 2.10 Water' emulation to ZC Player.
+	This is intended as a patch for old 2.10 quests that have
+	very-specific water combo placement where you are expected
+	to use the ladder (while you have the flippers), but the flippers
+	engage.
+	( ZoriaRPG, 26th May, 2020 )
+
 //Beta 50
 Try to properly initialise directItem and directItemA.
 	( ZoriaRPG, 23rd May, 2020 )
