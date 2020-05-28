@@ -8568,6 +8568,238 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 zinit.link_swim_speed=(byte)dummy_byte;
             }
         }
+		
+		if(v_linksprites>6)
+		{
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					frozenspr[q][spr_tile] = (int)tile;
+					frozenspr[q][spr_flip] = (int)flip;
+					frozenspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					onfirespr[q][spr_tile] = (int)tile;
+					onfirespr[q][spr_flip] = (int)flip;
+					onfirespr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					diggingspr[q][spr_tile] = (int)tile;
+					diggingspr[q][spr_flip] = (int)flip;
+					diggingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					usingrodspr[q][spr_tile] = (int)tile;
+					usingrodspr[q][spr_flip] = (int)flip;
+					usingrodspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					usingcanespr[q][spr_tile] = (int)tile;
+					usingcanespr[q][spr_flip] = (int)flip;
+					usingcanespr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					pushingspr[q][spr_tile] = (int)tile;
+					pushingspr[q][spr_flip] = (int)flip;
+					pushingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					liftingspr[q][spr_tile] = (int)tile;
+					liftingspr[q][spr_flip] = (int)flip;
+					liftingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					liftingheavyspr[q][spr_tile] = (int)tile;
+					liftingheavyspr[q][spr_flip] = (int)flip;
+					liftingheavyspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					stunnedspr[q][spr_tile] = (int)tile;
+					stunnedspr[q][spr_flip] = (int)flip;
+					stunnedspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					drowningspr[q][spr_tile] = (int)tile;
+					drowningspr[q][spr_flip] = (int)flip;
+					drowningspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					fallingspr[q][spr_tile] = (int)tile;
+					fallingspr[q][spr_flip] = (int)flip;
+					fallingspr[q][spr_extend] = (int)extend;
+				}
+			}
+		}
+		else if(keepdata)
+		{
+			memset(frozenspr, 0, sizeof(frozenspr));
+			memset(onfirespr, 0, sizeof(onfirespr));
+			memset(diggingspr, 0, sizeof(diggingspr));
+			memset(usingrodspr, 0, sizeof(usingrodspr));
+			memset(usingcanespr, 0, sizeof(usingcanespr));
+			memset(pushingspr, 0, sizeof(pushingspr));
+			memset(liftingspr, 0, sizeof(liftingspr));
+			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(stunnedspr, 0, sizeof(stunnedspr));
+			memset(fallingspr, 0, sizeof(fallingspr));
+			for(int q = 0; q < 4; ++q)
+			{
+				for(int p = 0; p < 3; ++p)
+				{
+					drowningspr[q][p] = divespr[q][p];
+				}
+			}
+		}
     }
     
     return 0;

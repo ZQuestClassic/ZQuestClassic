@@ -10584,7 +10584,109 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         {
             new_return(14);
         }
-        
+		
+		//{ V_LINKSPRITES >= 7
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(frozenspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)frozenspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)frozenspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(onfirespr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)onfirespr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)onfirespr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(diggingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)diggingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)diggingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(usingrodspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)usingrodspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)usingrodspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(usingcanespr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)usingcanespr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)usingcanespr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(pushingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)pushingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)pushingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(liftingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(liftingheavyspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)liftingheavyspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)liftingheavyspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(stunnedspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)stunnedspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)stunnedspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(drowningspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)drowningspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)drowningspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(fallingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)fallingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)fallingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		//}
+		
         if(writecycle==0)
         {
             section_size=writesize;

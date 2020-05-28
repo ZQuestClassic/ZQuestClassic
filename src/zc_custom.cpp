@@ -37,6 +37,17 @@ int jumpspr[4][3];                                   //dir,                    t
 int chargespr[4][3];                                 //dir,                    tile/flip/extend
 int castingspr[3];                                   //                        tile/flip/extend
 int holdspr[2][2][3];                                //     land/water, hands. tile/flip/extend
+int frozenspr[4][3];                                 //dir,                    tile/flip/extend
+int onfirespr[4][3];                                 //dir,                    tile/flip/extend
+int diggingspr[4][3];                                //dir,                    tile/flip/extend
+int usingrodspr[4][3];                               //dir,                    tile/flip/extend
+int usingcanespr[4][3];                              //dir,                    tile/flip/extend
+int pushingspr[4][3];                                //dir,                    tile/flip/extend
+int liftingspr[4][3];                                //dir,                    tile/flip/extend
+int liftingheavyspr[4][3];                           //dir,                    tile/flip/extend
+int stunnedspr[4][3];                                //dir,                    tile/flip/extend
+int drowningspr[4][3];                               //dir,                    tile/flip/extend
+int fallingspr[4][3];                                //dir,                    tile/flip/extend
 //int fallspr[3];                                     //     		       tile/flip/extend
 
 void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
