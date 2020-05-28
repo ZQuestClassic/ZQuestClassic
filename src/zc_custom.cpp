@@ -65,6 +65,10 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
     case ls_dive:
         *extend=divespr[dir][spr_extend];
         break;
+	
+	case ls_drown:
+		*extend=drowningspr[dir][spr_extend];
+		break;
         
     case ls_slash:
         *extend=slashspr[dir][spr_extend];
@@ -139,6 +143,12 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
         divespr[dir][spr_tile] = tile;
         divespr[dir][spr_flip] = flip;
         divespr[dir][spr_extend] = extend;
+        break;
+        
+    case ls_drown:
+        drowningspr[dir][spr_tile] = tile;
+        drowningspr[dir][spr_flip] = flip;
+        drowningspr[dir][spr_extend] = extend;
         break;
         
     case ls_slash:
@@ -231,6 +241,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		*tile=divespr[dir][spr_tile];
 		break;
 		
+	    case ls_drown:
+		*tile=drowningspr[dir][spr_tile];
+		break;
+		
 	    case ls_slash:
 		*tile=slashspr[dir][spr_tile];
 		break;
@@ -295,6 +309,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 	    case ls_dive:
 		*flip=divespr[dir][spr_flip];
+		break;
+		
+	    case ls_drown:
+		*flip=drowningspr[dir][spr_flip];
 		break;
 		
 	    case ls_slash:
@@ -638,3 +656,4 @@ void setuplinktiles(int style)
         break;
     }
 }
+

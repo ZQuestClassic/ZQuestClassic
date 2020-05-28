@@ -112,7 +112,7 @@ public:
 		else val /= v; return *this; }
 	zfix& operator /=  (const long v)	{
 		if(v == 0) val = toZLong(NAN);
-		else val /= v; return *this; }
+		else val /= v; return *this; } 
 	zfix& operator /=  (const float v)	{
 		if(toZLong(v) == 0) val = toZLong(NAN);
 		else val = (val*10000L) / toZLong(v); return *this; }

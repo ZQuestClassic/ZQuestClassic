@@ -7863,6 +7863,7 @@ int init_combo_classes()
 
 int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool keepdata)
 {
+	assert(v_linksprites < 6);
     //these are here to bypass compiler warnings about unused arguments
     cv_linksprites=cv_linksprites;
     
@@ -8211,6 +8212,27 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 zinit.link_swim_speed=(byte)dummy_byte;
             }
         }
+		
+		if(keepdata)
+		{
+			memset(frozenspr, 0, sizeof(frozenspr));
+			memset(onfirespr, 0, sizeof(onfirespr));
+			memset(diggingspr, 0, sizeof(diggingspr));
+			memset(usingrodspr, 0, sizeof(usingrodspr));
+			memset(usingcanespr, 0, sizeof(usingcanespr));
+			memset(pushingspr, 0, sizeof(pushingspr));
+			memset(liftingspr, 0, sizeof(liftingspr));
+			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(stunnedspr, 0, sizeof(stunnedspr));
+			memset(fallingspr, 0, sizeof(fallingspr));
+			for(int q = 0; q < 4; ++q)
+			{
+				for(int p = 0; p < 3; ++p)
+				{
+					drowningspr[q][p] = divespr[q][p];
+				}
+			}
+		}
     }
     
     return 0;
