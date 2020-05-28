@@ -9715,7 +9715,7 @@ static TABPANEL linktile_water_tabs[] =
     { (char *)"Float",      D_SELECTED,  linktile_water_float_list, 0, NULL },
     { (char *)"Swim",       0,           linktile_water_swim_list, 0, NULL },
     { (char *)"Dive",       0,           linktile_water_dive_list, 0, NULL },
-    { (char *)"Drown",       0,           linktile_water_drown_list, 0, NULL },
+    { (char *)"Drown",      0,           linktile_water_drown_list, 0, NULL },
     { (char *)"Hold",       0,           linktile_water_hold_list, 0, NULL },
     { NULL,                 0,           NULL,                     0, NULL }
 };

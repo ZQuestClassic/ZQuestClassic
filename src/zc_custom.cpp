@@ -26,29 +26,40 @@ int script_link_flip = -1;
 int script_link_cset = -1;
 
 int old_floatspr, old_slashspr, linkspr;
-int walkspr[4][3];                                   //dir,                    tile/flip/extend
-int stabspr[4][3];                                   //dir,                    tile/flip/extend
-int slashspr[4][3];                                  //dir,                    tile/flip/extend
-int floatspr[4][3];                                  //dir,                    tile/flip/extend
-int swimspr[4][3];                                   //dir,                    tile/flip/extend
-int divespr[4][3];                                   //dir,                    tile/flip/extend
-int poundspr[4][3];                                  //dir,                    tile/flip/extend
-int jumpspr[4][3];                                   //dir,                    tile/flip/extend
-int chargespr[4][3];                                 //dir,                    tile/flip/extend
-int castingspr[3];                                   //                        tile/flip/extend
-int holdspr[2][2][3];                                //     land/water, hands. tile/flip/extend
-int frozenspr[4][3];                                 //dir,                    tile/flip/extend
-int onfirespr[4][3];                                 //dir,                    tile/flip/extend
-int diggingspr[4][3];                                //dir,                    tile/flip/extend
-int usingrodspr[4][3];                               //dir,                    tile/flip/extend
-int usingcanespr[4][3];                              //dir,                    tile/flip/extend
-int pushingspr[4][3];                                //dir,                    tile/flip/extend
-int liftingspr[4][3];                                //dir,                    tile/flip/extend
-int liftingheavyspr[4][3];                           //dir,                    tile/flip/extend
-int stunnedspr[4][3];                                //dir,                    tile/flip/extend
-int drowningspr[4][3];                               //dir,                    tile/flip/extend
-int fallingspr[4][3];                                //dir,                    tile/flip/extend
-//int fallspr[3];                                     //     		       tile/flip/extend
+int walkspr[4][3];                                   //dir,                           tile/flip/extend
+int stabspr[4][3];                                   //dir,                           tile/flip/extend
+int slashspr[4][3];                                  //dir,                           tile/flip/extend
+int floatspr[4][3];                                  //dir,                           tile/flip/extend
+int swimspr[4][3];                                   //dir,                           tile/flip/extend
+int divespr[4][3];                                   //dir,                           tile/flip/extend
+int poundspr[4][3];                                  //dir,                           tile/flip/extend
+int jumpspr[4][3];                                   //dir,                           tile/flip/extend
+int chargespr[4][3];                                 //dir,                           tile/flip/extend
+int castingspr[3];                                   //                               tile/flip/extend
+int holdspr[2][3][3];                                //land/water, 1hand/2hand/sword, tile/flip/extend
+int frozenspr[4][3];                                 //dir,                           tile/flip/extend
+int frozen_waterspr[4][3];                           //dir,                           tile/flip/extend
+int onfirespr[4][3];                                 //dir,                           tile/flip/extend
+int onfire_waterspr[4][3];                           //dir,                           tile/flip/extend
+int diggingspr[4][3];                                //dir,                           tile/flip/extend
+int usingrodspr[4][3];                               //dir,                           tile/flip/extend
+int usingcanespr[4][3];                              //dir,                           tile/flip/extend
+int pushingspr[4][3];                                //dir,                           tile/flip/extend
+int liftingspr[4][3];                                //dir,                           tile/flip/extend
+int liftingheavyspr[4][3];                           //dir,                           tile/flip/extend
+int stunnedspr[4][3];                                //dir,                           tile/flip/extend
+int stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
+int drowningspr[4][3];                               //dir,                           tile/flip/extend
+int fallingspr[4][3];                                //dir,                           tile/flip/extend
+int shockedspr[4][3];                                //dir,                           tile/flip/extend
+int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
+int pullswordspr[4][3];                              //dir,                           tile/flip/extend
+int readingspr[4][3];                                //dir,                           tile/flip/extend
+int slash180spr[4][3];                               //dir,                           tile/flip/extend
+int slashZ4spr[4][3];                                //dir,                           tile/flip/extend
+int dashspr[4][3];                                   //dir,                           tile/flip/extend
+int bonkspr[4][3];                                   //dir,                           tile/flip/extend
+int medallionsprs[3][3];                             //medallion,                     tile/flip/extend
 
 void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 {
