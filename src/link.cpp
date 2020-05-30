@@ -13656,7 +13656,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 // * otherwise, walk on ladder(+hookshot) combos.
                 else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(wx, wy)) || isstepable(MAPCOMBO(wx+8,wy)) || wtrx==true))
                 {
-		    if(!emulation_patches[emuOLD210WATER])
+		    if(!FFCore.emulation[emuOLD210WATER])
 		    {
 			//if Link could swim on a tile instead of using the ladder,
 			//refuse to use the ladder to step over that tile. -DD
@@ -16174,20 +16174,32 @@ void LinkClass::checkspecial2(int *ls)
     
     if(type==cSTEP)
     { 
+	zprint2("Link.HasHeavyBoots(): is: %s\n", ( (Link.HasHeavyBoots()) ? "true" : "false" ));
         if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
         {
             stepnext=((ty+8)&0xF0)+((tx+8)>>4);
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
-		    (!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) ))
-            {
+            if
+	    (
+		COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
+		    (!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) )
+			&& /*HEAVY*/
+			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+	    )
+		
+	    {
 		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int)x));
                 tmpscr->data[stepnext]++;
 		
             }
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
-		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) ))
+            if
+	    (
+		COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
+		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+			&& /*HEAVY*/
+			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+	    )
             {
                 int stepc = tmpscr->data[stepnext];
                 sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
@@ -16200,8 +16212,13 @@ void LinkClass::checkspecial2(int *ls)
                 }
             }
             
-            if(COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
-		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) ))
+            if
+	    (
+		    COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
+		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+			&& /*HEAVY*/
+			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+	    )
             {
 		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
                 for(int k=0; k<176; k++)
@@ -16507,6 +16524,15 @@ void kill_enemy_sfx()
     
     if(tmpscr->room==rGANON)
         stop_sfx(WAV_ROAR);
+}
+
+bool LinkClass::HasHeavyBoots()
+{
+	for ( int q = 0; q < MAXITEMS; ++q )
+	{
+		if ( game->item[q] && ( itemsbuf[q].family == itype_boots ) && /*iron*/ (itemsbuf[q].flags&ITEM_FLAG2) ) return true;
+	}
+	return false;
 }
 
 void LinkClass::setEntryPoints(int x2, int y2)

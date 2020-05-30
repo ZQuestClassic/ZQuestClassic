@@ -8111,8 +8111,8 @@ int old_210_water_emulation()
 		NULL, 
 		lfont) == 1)
 	{
-	    if (emulation_patches[emuOLD210WATER] ) emulation_patches[emuOLD210WATER] = 0;
-	    else emulation_patches[emuOLD210WATER] = 1;
+	    if (FFCore.emulation[emuOLD210WATER] ) FFCore.emulation[emuOLD210WATER] = 0;
+	    else FFCore.emulation[emuOLD210WATER] = 1;
 	}
     return D_O_K;
 	
@@ -9739,7 +9739,7 @@ void System()
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
-	compat_patch_menu[12].flags = ((emulation_patches[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
+	compat_patch_menu[12].flags = ((FFCore.emulation[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

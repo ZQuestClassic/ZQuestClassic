@@ -1601,6 +1601,17 @@ int HasCompass(int level)
 	return ( ((Game->LItems[level]&LI_COMPASS)) ? 1 : 0 );
 }
 
+bool HasHeavyBoots()
+{
+	itemdata id;
+	for ( int q = 0; q < 256; ++q )
+	{
+		id = Game->LoadItemData(q);
+		if ( id->Family == IC_BOOTS && /*iron*/ id->Flags[1] ) return true;
+	}
+	return false;
+}
+
 //Returns if Link has the map for a given level.
 int HasMap(int level)
 {

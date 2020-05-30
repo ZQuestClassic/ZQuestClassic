@@ -306,7 +306,7 @@ public:
     bool edge_of_dmap(int side);
     bool checkmaze(mapscr *scr, bool sound);
     bool maze_enabled_sizewarp(int scrolldir);
-    
+    bool HasHeavyBoots();
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);

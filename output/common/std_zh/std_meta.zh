@@ -1,11 +1,11 @@
 //std.zh metadata
 
-const float STD_VERSION = 1.7052;
+const float STD_VERSION = 1.7053;
 const int STD_DATE_YEAR = 2020;
-const int STD_DATE_MONTH = 4;
-const int STD_DATE_DAY = 19;
-const int STD_DATE_HOUR = 18;
-const int STD_DATE_MINUTE = 08;
+const int STD_DATE_MONTH = 5;
+const int STD_DATE_DAY = 30;
+const int STD_DATE_HOUR = 1;
+const int STD_DATE_MINUTE = 20;
 
 namespace std
 {
