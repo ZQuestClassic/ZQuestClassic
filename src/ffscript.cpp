@@ -20893,15 +20893,15 @@ int run_script(const byte type, const word script, const long i)
 			curscript = comboscripts[script];
 			stack = &(combo_stack[i]);
 			int pos = ((i%176));
+			int lyr = i/176;
 			int id = comboscript_combo_ids[i]; 
 
-			//if(!(combo_initialised[pos]&l))
-			if(!(combo_initialised[pos]))
+			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
 				memset(ri->d, 0, 8 * sizeof(long));
 				for ( int q = 0; q < 2; q++ )
-					//ri->d[q] = combobuf[m->data[id]].initD[q];
 					ri->d[q] = combobuf[id].initd[q];
+				combo_initialised[pos] |= 1<<lyr;
 			}
 
 			ri->combosref = id; //'this' pointer
@@ -24009,22 +24009,11 @@ int run_script(const byte type, const word script, const long i)
 		} 
 		
 		case SCRIPT_COMBO:
-		{	
-			/*int l = 0; //get the layer
-			for (int q = 176; q < 1232; q+= 176 )
-			{
-				if ( i < q )
-				{
-					break;
-				}
-				++l;
-			}
-			int pos = ((i%176));
-			combo_doscript[i] &=  ~(1<<l);
-			combo_initialised[pos] &=  ~(1<<l);*/
-			
+		{
+			int pos = i%176;
+			int lyr = i/176;
 			combo_doscript[i] = 0;
-			combo_initialised[i] = 0;
+			combo_initialised[pos] &= ~(1<<lyr);
 			
 			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
 			break;
@@ -37151,7 +37140,11 @@ int FFScript::combo_script_engine(const bool preload)
 	{
 		for ( int c = 0; c < 176; ++c )
 		{
-			int cid = FFCore.tempScreens[q]->data[c];
+			int ls = (q ? tmpscr->layerscreen[q-1] : 0);
+			int lm = (q ? tmpscr->layermap[q-1] : 0);
+			if(q && !lm) continue; //No layer for this screen
+			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
+			int cid = m->data[c];
 			int type = combobuf[cid].type;
 			if ( type == cTRIGGERGENERIC )
 			{
@@ -37166,45 +37159,13 @@ int FFScript::combo_script_engine(const bool preload)
 				}
 			}
 			
-			//run its script
 			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
-			// if ( combobuf[cid].script && (combo_doscript[w] & 1<<q))
-			if ( !q )
+			if ( combobuf[cid].script )
 			{
-				//layer 0
-				//not initialised, set it up to run
-				//if ( !(combo_initialised[c] & 1 ))
-				//{
-				//	combo_doscript[c] |= 1;
-				//	combo_initialised[c] |= 1;
-				//}
-				
-				//.script t/b/a
-				if ( combobuf[tmpscr->data[c]].script )
+				if ( (combo_doscript[c]) )
 				{
-					//zprint("combo_doscript[%d] is: %d\n", c, combo_doscript[c]);
-					if ( (combo_doscript[c]) )
-					{
-						//combo_doscript[c] |= 1;
-						comboscript_combo_ids[c+(176*q)] = tmpscr->data[c];
-						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[tmpscr->data[c]].script, c);
-					}
-					//else zprint("no cdoscript\n");
-				}
-			}
-			else //higher layers
-			{
-				int ls = tmpscr->layerscreen[q];
-				int lm = tmpscr->layermap[q];
-				mapscr *m = &TheMaps[(zc_max((lm)-1,0) * MAPSCRS + ls)];
-				if ( combobuf[m->data[c]].script )
-				{
-					if ( combo_doscript[c*q] )
-					{
-						//combo_doscript[c] |= (1<<q);
-						comboscript_combo_ids[c+(176*q)] = m->data[c];
-						ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c=176*q);
-					}
+					comboscript_combo_ids[c+(176*q)] = cid;
+					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c+176*q);
 				}
 			}
 		}
