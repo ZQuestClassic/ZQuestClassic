@@ -3710,7 +3710,6 @@ static void select_game(bool skip = false)
 		
 	bool done=false;
 	refreshpal=true;
-	bool popup_choose_quest = false;
 	do
 	{
 		if ( moduledata.refresh_title_screen ) //refresh
@@ -3726,10 +3725,11 @@ static void select_game(bool skip = false)
 		advanceframe(true);
 		saveslot = pos + listpos;
 		
-		if(popup_choose_quest)
+		if(moduledata.ignore)
 		{
+			zprint2("Ignoring Modules\n");
 			custom_game(saveslot);
-			popup_choose_quest = false;
+			//moduledata.ignore = false;
 		}
 		
 		if(rSbtn())
@@ -3741,7 +3741,6 @@ static void select_game(bool skip = false)
 				else
 				{
 					pos = (savecnt-1)%3;
-					popup_choose_quest = (get_config_int("zeldadx","auto_choose_custom_quest",1) ? true : false);
 				}
 				refreshpal=true;
 				break;

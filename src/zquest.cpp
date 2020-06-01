@@ -36184,7 +36184,7 @@ bool ZModule::init(bool d) //bool default
 		//al_trace("Build Year: %d\n",moduledata.modyear);
 		al_trace("Build Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
-	    
+		moduledata.ignore = 0;
 	}
 	
 	

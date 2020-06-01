@@ -26843,12 +26843,13 @@ bool ZModule::init(bool d) //bool default
 		al_trace("Build Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 		
-		
 	}
 	
 	
 	
 	set_config_file("zc.cfg"); //shift back to the normal config file, when done
+	
+	moduledata.ignore = (get_config_int("zeldadx","ignore_module_quests",0) ? true : false); //ignore module values
 	
 	//int x = get_config_int("zeldadx","gui_colorset",0);
 	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
