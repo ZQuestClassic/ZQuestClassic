@@ -3167,6 +3167,7 @@ static bool register_name()
 			
 		if(moduledata.ignore)
 		{
+			saveslot = pos + listpos;
 			quest = 255;
 			custom_game(saveslot);
 			//moduledata.ignore = 0; //This invalidates it for setting up a new slot. The code for this needs to run during creating a save slot! -Z
