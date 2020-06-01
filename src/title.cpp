@@ -3164,18 +3164,7 @@ static bool register_name()
 	
 	if(done)
 	{
-			
-		if(moduledata.ignore)
-		{
-			saveslot = pos + listpos;
-			quest = 255;
-			custom_game(saveslot);
-			//moduledata.ignore = 0; //This invalidates it for setting up a new slot. The code for this needs to run during creating a save slot! -Z
-		}
-		else
-		{
-			quest=1;
-		}
+		quest=1;
 		char buf[9];
 		strcpy(buf,name);
 		strupr(buf);
@@ -3737,7 +3726,10 @@ static void select_game(bool skip = false)
 		advanceframe(true);
 		saveslot = pos + listpos;
 		
-		//if(moduledata.ignore)
+		if(moduledata.ignore && !saves[saveslot].get_hasplayed()) 
+		{
+			custom_game(saveslot);
+		}
 		//{
 		//	custom_game(saveslot);
 			//moduledata.ignore = 0; //This invalidates it for setting up a new slot. The code for this needs to run during creating a save slot! -Z
