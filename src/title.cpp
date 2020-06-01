@@ -49,7 +49,6 @@ extern ZModule zcm; //modules
 extern zcmodule moduledata;
 //extern byte refresh_select_screen;
 bool load_custom_game(int file);
-static int saveslot = -1;
 
 struct savedicon
 {
@@ -2837,7 +2836,7 @@ static bool register_name()
 	
 	const char *simple_grid="ABCDEFGHIJKLMNOPQRSTUVWXYZ-.,!'&.0123456789 ";
 	const char *complete_grid=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-	int quest = 0;
+	
 	if(NameEntryMode2>0)
 	{
 		//int pos=file%3;
@@ -3164,18 +3163,7 @@ static bool register_name()
 	
 	if(done)
 	{
-			
-		if(moduledata.ignore)
-		{
-			saveslot = pos + listpos;
-			quest = 255;
-			custom_game(saveslot);
-			//moduledata.ignore = 0; //This invalidates it for setting up a new slot. The code for this needs to run during creating a save slot! -Z
-		}
-		else
-		{
-			quest=1;
-		}
+		int quest=1;
 		char buf[9];
 		strcpy(buf,name);
 		strupr(buf);
@@ -3687,7 +3675,7 @@ static int game_details(int file)
 	return 0;
 }
 
-
+static int saveslot = -1;
 
 int getsaveslot()
 {
@@ -3722,6 +3710,7 @@ static void select_game(bool skip = false)
 		
 	bool done=false;
 	refreshpal=true;
+	bool popup_choose_quest = false;
 	do
 	{
 		if ( moduledata.refresh_title_screen ) //refresh
@@ -3737,11 +3726,11 @@ static void select_game(bool skip = false)
 		advanceframe(true);
 		saveslot = pos + listpos;
 		
-		//if(moduledata.ignore)
-		//{
-		//	custom_game(saveslot);
-			//moduledata.ignore = 0; //This invalidates it for setting up a new slot. The code for this needs to run during creating a save slot! -Z
-		//}
+		if(popup_choose_quest)
+		{
+			custom_game(saveslot);
+			popup_choose_quest = false;
+		}
 		
 		if(rSbtn())
 			switch(pos)
@@ -3752,6 +3741,7 @@ static void select_game(bool skip = false)
 				else
 				{
 					pos = (savecnt-1)%3;
+					popup_choose_quest = ((moduledata.ignore) ? true : false);
 				}
 				refreshpal=true;
 				break;
