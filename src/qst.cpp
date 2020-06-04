@@ -2926,6 +2926,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
     }
     
+    if ( (tempheader.zelda_version < 0x211) ) //2.10 water and ladder interaction
+    {
+	FFCore.emulation[emuOLD210WATER] = 1;
+    }
+    
     if ( tempheader.zelda_version < 0x250 ) 
     {
 	FFCore.emulation[emu8WAYSHOTSFX] = 1;    

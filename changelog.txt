@@ -1,5 +1,8 @@
 // 2.55 Change Log
-// Updated 10th May, 2020
+// Updated 4th June, 2020
+
+//Alpha 72
+
 
 //Alpha 71
 Added sanity guard to inline bool get_item(int id).
