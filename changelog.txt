@@ -1,6 +1,10 @@
 ChangeLog for 2.53.1
 
 //Beta 51
+Te old water emulation flag is now enabled whenever loading a quest 
+	oolder than 2.50. 
+	( ZoriaRPG, 4th June, 2020 )
+	
 Added 'Old 2.10 Water' emulation to ZC Player.
 	This is intended as a patch for old 2.10 quests that have
 	very-specific water combo placement where you are expected

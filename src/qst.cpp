@@ -2353,7 +2353,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     if ( quest_header_zelda_version < 0x250 ) 
     {
 	emulation_patches[emu8WAYSHOTSFX] = 1;    
-	emulation_patches[emu210BOMBCHU] = 1;    
+	emulation_patches[emu210BOMBCHU] = 1;   
     }
     if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 29 )
     {
@@ -2363,7 +2363,11 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
     }
-        
+       
+    if ( quest_header_zelda_version < 0x211 ) 
+    {
+	emulation_patches[emuOLD210WATER] = 1; 
+    }    
     
     return 0;
 }
