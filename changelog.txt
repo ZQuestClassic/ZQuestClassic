@@ -2,7 +2,95 @@
 // Updated 4th June, 2020
 
 //Alpha 72
+2.10 Water/Ladder is now set by default on loading a 2.10.x quest.
+	( ZoriaRPG, 4th June, 2020 )
+	
+Made a slight reversion to fix Module>>Ignore.
+	This still creates a visual glitch when creating a quest slot
+	that uses a quest keyword, however this lasts for only the duration
+	of the popup dialogue, and can probably be fixed in the section
+	where special quest icons (e.g. 2nd, 3rd, 4th) are loaded.	
+	
+Moved the config to ignore internal quests to moduledata, and added
+	a menu option to ignore them. This now triggers a popup, but cancel out of
+	that popup opens a new popup.
+	( ZoriaRPG, 1st June, 2020 )
+	
+Allow auto-popup of choose qst dlg on creating new save
+Re-tab title.cpp
+	( Venrob, 30th May, 2020 )
 
+Added functional code for Iron Boots and Step Combos.
+	Step Bombos now have a 'Heavy Flag'. They are not triggered unless
+	the player has a boots item with the 'Iron' flag enabled.
+std.zh v1.7053: Added bool HasHeavyBoots()
+Fixed a compilation error due to copy/paste from 2.53.
+	( ZoriaRPG, 30th May, 2020 )
+	
+Fix combo scripts re-initializing every frame.
+Fix GSymbols error which caused compile errors in ZQ
+Fix crashes relating to combo scripts
+	( Venrob, 26th May, 2020 )
+	
+Slight change to 2.10 water emulation description dialogue.
+Added '2.10 Water/Ladder Up/Down' emulation to ZC Player.
+	This is intended as a patch for old 2.10 quests that have
+	very-specific water combo placement where you are expected
+	to use the ladder (while you have the flippers), but the flippers
+	engage before the ladder deploys, when facing up or down.
+	( ZoriaRPG, 26th May, 2020 )
+	
+<std> Add AStar (A*) library for 2.55.
+	( ZoriaRPG, 24th May, 2020 )
+	
+Fix division by 0 error in zfix, instead of guys.cpp
+	This required returning NaN to respect how fix float model) 
+	used to work. 
+	( Venrob, 23rd May, 2020 )
+
+Try to properly initialise directItem and directItemA.
+Slight changes to the directItem init when loading quests, that
+	now checks if the prior quest was a B+A subscreen type.
+	( ZoriaRPG, 22nd May, 2020 )
+	
+Fix ZSA typo
+	( Venrob, 21st May, 2020 )
+	
+Fixed FFScript::getLWeaponByScriptUID(int sUID) and
+	FFScript::getEWeaponByScriptUID(int sUID).
+	They were iterating based on guys.count() and returning -1
+	when they should have been latching onto a weapon UID.
+	( ZoriaRPG, 21st May, 2020 )
+
+Delete temporary script data that causes a leak if the user
+	cancels out of a compilation.
+	Note, we probably need to do this for metadata, too.
+	( ZoriaRPG, 19th May, 2020 )
+
+Fix Link->Jump
+	( Venrob, 17th May, 2020 )
+	
+Note ZScript Compiler Probably Leak Location
+	( ZoriaRPG, 16th May, 2020 )
+	
+Add option to disable screen preview
+Re-tab 'guys.cpp'/'guys.h'
+Fix row labels in palette editor (large mode)
+	( Venrob, 13th May, 2020 )
+	
+Further modified ->Step for weapons, and npcs, based on the QR,
+	to emulate the prior behaviour.
+Renamed the QR in the dialogue to better reflect its intent.
+
+Added a ZScript Quest Script Instruction Setting:
+	sprite->Step is float.
+	This preserves values without rounding or truncation.
+	Otherwise, ->Step *should* now behave as it always had.
+	This should correct issues in older quests where truncation was
+	either expected, or the result of user-error.
+Docs: Fix int/float type for Step in ZS Docs.
+Don't ever permit div by 0 if step==0.
+	( ZoriaRPG, 12th May, 2020 )
 
 //Alpha 71
 Added sanity guard to inline bool get_item(int id).
