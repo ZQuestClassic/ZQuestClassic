@@ -1,5 +1,5 @@
 // 2.55 Change Log
-// Updated 6th June, 2020
+// Updated 5th June, 2020
 
 //Alpha 73
 Build now 51, Alpha now 73
@@ -7,7 +7,7 @@ Fixed issues where the old system for calculating STEP for sprites from
 	scripts produced incorrect values, including slow projectiles and
 	breaking ghost.zh sine wave weapons.
 Disabled the rule qr_STEP_IS_FLOAT on quest load for quests made before this version.
-	( ZoriaRPG, 7th June, 2020 )
+	( ZoriaRPG, 5th June, 2020 )
 	
 //Alpha 72
 2.10 Water/Ladder is now set by default on loading a 2.10.x quest.
