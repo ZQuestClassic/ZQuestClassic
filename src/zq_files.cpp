@@ -773,7 +773,7 @@ int PickRuleset()
 				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
 				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
 				set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
-				set_bit(quest_rules, qr_STEP_IS_FLOAT, 1);
+				//set_bit(quest_rules, qr_STEP_IS_FLOAT, 1); //Step is broken in A72, needs to be fixed before we can use this. 
 				set_bit(quest_rules, qr_HOLDITEMANIMATION, 1);
 				set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
 				//from Z3

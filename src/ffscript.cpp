@@ -4642,7 +4642,16 @@ long get_register(const long arg)
 					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
 				}
 				//old, buggy code replication, round two: Go! -Z
-				else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
+				//else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
+				else ret = long( ( (GuyH::getNPC()->step) * 100.0 ) * 10000 );
+				//else ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
+				
+				//else 
+				//{
+					//old, buggy code replication, round THREE: Go! -Z
+				//	double tmp = ( (GuyH::getNPC()->step) ) * 1000000.0;
+				//	ret = (long)tmp;
+				//}
 			}
 				
 			break;
@@ -5050,7 +5059,17 @@ long get_register(const long arg)
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
 				//old, buggy code replication, round two: Go! -Z
-				else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				//else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				
+				//else 
+				//{
+					//old, buggy code replication, round THREE: Go! -Z
+				//	double tmp = ( ((weapon*)s)->step.getFloat() ) * 1000000.0;
+				//	ret = (int)tmp;
+				//}
+				
+				//old, buggy code replication, round FOUR: Go! -Z
+				else ret = (int)((float)((weapon*)s)->step * 1000000.0);
 			}
 			break;
 			
@@ -5413,8 +5432,16 @@ long get_register(const long arg)
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
 				//old, buggy code replication, round two: Go! -Z
-				else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				//else ret = ( ( ( ((weapon*)s)->step ) * 100.0 ).getZLong() );
+				//old, buggy code replication, round FOUR: Go! -Z
+				else ret = (int)((float)((weapon*)s)->step * 1000000.0);
 			}
+			//else 
+			//{
+				//old, buggy code replication, round THREE: Go! -Z
+			//	double tmp = ( ((weapon*)s)->step.getFloat() ) * 1000000.0;
+			//	ret = long(tmp);
+			//}
 			break;
 			
 		case EWPNANGLE:
@@ -11404,9 +11431,12 @@ void set_register(const long arg, const long value)
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
-					zfix val = zslongToFix(value);
-					val.doFloor();
-					((weapon*)s)->step = ((val / 100.0).getFloat());
+					//zfix val = zslongToFix(value);
+					//val.doFloor();
+					//((weapon*)s)->step = ((val / 100.0).getFloat());
+					
+					//old, buggy code replication, round THREE: Go! -Z
+					((weapon*)s)->step = ((value/10000)/100.0);
 				}
 				
 			}
@@ -11705,7 +11735,7 @@ void set_register(const long arg, const long value)
 		
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn,"X")))
-				((weapon*)s)->x=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->x = (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 		
@@ -11718,7 +11748,7 @@ void set_register(const long arg, const long value)
 		
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-				((weapon*)s)->y=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->y = (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 			
@@ -11765,9 +11795,13 @@ void set_register(const long arg, const long value)
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
-					zfix val = zslongToFix(value);
-					val.doFloor();
-					((weapon*)s)->step = ((val / 100.0).getFloat());
+					//zfix val = zslongToFix(value);
+					//val.doFloor();
+					//((weapon*)s)->step = ((val / 100.0).getFloat());
+					
+					//old, buggy code replication, round THREE: Go! -Z
+					((weapon*)s)->step = ((value/10000)/100.0);
+					//zprint2("ewpn step is %d\n", ((weapon*)s)->step);
 				}
 			}
 				
@@ -12157,9 +12191,12 @@ void set_register(const long arg, const long value)
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
-					zfix val = zslongToFix(value);
-					val.doFloor();
-					GuyH::getNPC()->step = ((val / 100.0).getFloat());
+					//zfix val = zslongToFix(value);
+					//val.doFloor();
+					//GuyH::getNPC()->step = ((val / 100.0).getFloat());
+					
+					//old, buggy code replication, round THREE: Go! -Z
+					GuyH::getNPC()->step = ((value/10000)/100.0);
 				}
 			}
 		}
