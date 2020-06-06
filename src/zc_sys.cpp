@@ -3650,6 +3650,7 @@ PALETTE sys_pal;
 int onGUISnapshot()
 {
     char buf[200];
+    bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     int num=0;
     
     do
@@ -3667,7 +3668,7 @@ int onGUISnapshot()
     if(b)
     {
         blit(screen,b,0,0,0,0,resx,resy);
-        save_bmp(buf,b,sys_pal);
+	save_bitmap(buf,b,realpal?sys_pal:RAMpal);
         destroy_bitmap(b);
     }
     
@@ -3691,7 +3692,7 @@ int onNonGUISnapshot()
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
     
-    if(tmpscr->flags3&fNOSUBSCR)
+    if(tmpscr->flags3&fNOSUBSCR && !(key[KEY_ALT]))
     {
         clear_to_color(panorama,0);
         blit(framebuf,panorama,0,playing_field_offset,0,0,256,168);
