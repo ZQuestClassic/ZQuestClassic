@@ -2973,6 +2973,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
         tiledata *hold = newtilebuf;
         newtilebuf = grabtilebuf;
         //fixme
+	imagey = vbound(imagey, 0, MAXTILEROWS); //fixed -Z This can no longer crash if you scroll past the end of the tile pages. 6th June, 2020
         int t=imagey*TILES_PER_ROW;
         
         for(int i=0; i<200; i++)                              // 10 rows, down to y=160
@@ -4238,7 +4239,7 @@ void grab_tile(int tile,int &cs)
     int file_button_y = 216;
     int rec_button_x = 141;
     int rec_button_y = 192;
-    
+    int maxpos_qst = 3260;
     if(is_large)
     {
         window_xofs=(zq_screen_w-640-12)>>1;

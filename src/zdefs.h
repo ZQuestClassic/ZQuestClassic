@@ -300,6 +300,8 @@ extern bool fake_pack_writing;
 
 #define COMBOS_PER_ROW      20
 
+#define MAXTILEROWS         (TILE_ROWS_PER_PAGE*TILE_PAGES) //Last row that we can show when trying to grab tiles from  .QST file. -Z
+
 //#define MAGICDRAINRATE  2
 
 // quest stuff

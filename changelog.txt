@@ -1,5 +1,13 @@
 ChangeLog for 2.53.1
 
+//Beta 52
+Fixed a crash reported by ywkls,that when trying to use the
+	tile grabber on .qst and .qsu files, where the tile 
+	grabber would allow the user to scroll outside the 
+	bounds of the .qst tile buffer. 
+	It is now clamped to MAXTILEROWS.
+	( ZoriaRPG, 6th June, 2020 )
+	
 //Beta 51
 Te old water emulation flag is now enabled whenever loading a quest 
 	oolder than 2.50. 
