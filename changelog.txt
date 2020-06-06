@@ -1,5 +1,12 @@
 // 2.55 Change Log
-// Updated 5th June, 2020
+// Updated 6th June, 2020
+
+//Alpha 74
+Fixed a crash reported by ywkls,that when trying to use the
+	tile grabber on .qst and .qsu files, where the tile 
+	grabber would allow the user to scroll outside the 
+	bounds of the .qst tile buffer. 
+	It is now clamped to MAXTILEROWS.
 
 //Alpha 73
 Build now 51, Alpha now 73
