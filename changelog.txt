@@ -2,6 +2,11 @@
 // Updated 6th June, 2020
 
 //Alpha 74
+Allow taking a screenshot in ZC that shows the subscreen area
+	when the NOSUBSCREEN flag is enabled, by holding the
+	ALT key when taking the snapshot.
+Preserve the quest colours when taking a GUI snapshot in ZC Player
+	unless the user holds the CONTROL key when taking the snapshot.
 Fixed a crash reported by ywkls,that when trying to use the
 	tile grabber on .qst and .qsu files, where the tile 
 	grabber would allow the user to scroll outside the 
