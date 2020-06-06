@@ -137,6 +137,9 @@ void do_DwmFlush()
 
 #endif // _WIN32
 
+//Temporary palettes
+PALETTE snappal;
+
 // Dialogue largening
 void large_dialog(DIALOG *d)
 {
@@ -3668,6 +3671,13 @@ int onGUISnapshot()
     if(b)
     {
         blit(screen,b,0,0,0,0,resx,resy);
+	if(MenuOpen)
+	{
+		al_trace("Menu Open\n");
+		//PALETTE temppal;
+		//get_palette(temppal);
+		save_bitmap(buf,b,RAMpal);
+	}	
 	save_bitmap(buf,b,realpal?sys_pal:RAMpal);
         destroy_bitmap(b);
     }
@@ -4245,6 +4255,7 @@ void syskeys()
     
     if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
     {
+	memcpy(snappal,RAMpal, sizeof(PALETTE));
         oldtitle_version=title_version;
         System();
     }
@@ -8808,7 +8819,7 @@ void System()
     {
         p = init_dialog(system_dlg,-1);
     }
-    
+    MenuOpen = true;
     // drop the menu on startup if menu button pressed
     if(joybtn(Mbtn)||key[KEY_ESC])
         simulate_keypress(KEY_G << 8);
@@ -8948,7 +8959,7 @@ void System()
     mouse_down=gui_mouse_b();
     shutdown_dialog(p);
     show_mouse(NULL);
-    
+    MenuOpen = false;
     if(Quit)
     {
         kill_sfx();
