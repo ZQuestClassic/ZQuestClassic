@@ -137,6 +137,9 @@ void do_DwmFlush()
 
 #endif // _WIN32
 
+//Temporary palettes
+//PALETTE snappal;
+
 // Dialogue largening
 void large_dialog(DIALOG *d)
 {
@@ -3667,8 +3670,44 @@ int onGUISnapshot()
     
     if(b)
     {
-        blit(screen,b,0,0,0,0,resx,resy);
-	save_bitmap(buf,b,realpal?sys_pal:RAMpal);
+        
+	if(MenuOpen)
+	{
+		//Cannot load game's palette while GUI elements are in focus. -Z
+		//If there is a way to do this, then I have missed it.
+		/*
+		game_pal();
+		RAMpal[253] = _RGB(0,0,0);
+		RAMpal[254] = _RGB(63,63,63);
+		set_palette_range(RAMpal,0,255,false);
+		memcpy(RAMpal, snappal, sizeof(snappal));
+		create_rgb_table(&rgb_table, RAMpal, NULL);
+		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+		
+		for(int q=0; q<PAL_SIZE; q++)
+		{
+		    trans_table2.data[0][q] = q;
+		    trans_table2.data[q][q] = q;
+		}
+		*/
+		//ringcolor(false);
+		//get_palette(RAMpal);
+		blit(screen,b,0,0,0,0,resx,resy);
+		//al_trace("Menu Open\n");
+		//game_pal();
+		//PALETTE temppal;
+		//get_palette(temppal);
+		//system_pal();
+		save_bitmap(buf,b,sys_pal);
+		//save_bitmap(buf,b,RAMpal);
+		//save_bitmap(buf,b,snappal);
+	}	
+	else 
+	{
+		blit(screen,b,0,0,0,0,resx,resy);
+		save_bitmap(buf,b,realpal?sys_pal:RAMpal);
+	}
         destroy_bitmap(b);
     }
     
@@ -8778,6 +8817,7 @@ void music_stop()
 
 void System()
 {
+    //memcpy(snappal,RAMpal,sizeof(RAMpal));
     mouse_down=gui_mouse_b();
     music_pause();
     pause_all_sfx();
@@ -8808,7 +8848,7 @@ void System()
     {
         p = init_dialog(system_dlg,-1);
     }
-    
+    MenuOpen = true;
     // drop the menu on startup if menu button pressed
     if(joybtn(Mbtn)||key[KEY_ESC])
         simulate_keypress(KEY_G << 8);
@@ -8948,7 +8988,7 @@ void System()
     mouse_down=gui_mouse_b();
     shutdown_dialog(p);
     show_mouse(NULL);
-    
+    MenuOpen = false;
     if(Quit)
     {
         kill_sfx();
