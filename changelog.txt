@@ -1,6 +1,15 @@
 ChangeLog for 2.53.1
 
 //Beta 52
+Don't allow taking ZC GUI snapshot, with menu open, with wonky colours.
+	Use only the tre screen colour with shaded effect.
+ZC GUI snapshot (Shift+F12) uses correct ame colours, as long as the
+	menu isn't active.
+Added a way to detect if the system menu is open (bool MenuOpen).
+	This is enabled and disabled exclusively in System() and
+	writing to it elsewhere is **unefined**. 
+	In theory, alt+tab could call System() to force-pause ZC Player,
+	but win32.cpp cannot access System() during its callbacks.
 Allow taking a screenshot in ZC that shows the subscreen area
 	when the NOSUBSCREEN flag is enabled, by holding the
 	ALT key when taking the snapshot.
