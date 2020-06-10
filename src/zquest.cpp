@@ -1343,6 +1343,9 @@ int DuplicateAction[4];
 int OnlyCheckNewTilesForDuplicates;
 int try_recovering_missing_scripts = 0;
 int zc_menu_on_left = 0;
+
+unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0, DMapEditorLastMaptileUsed = 0;
+
 /*
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
@@ -31095,6 +31098,12 @@ int main(int argc,char **argv)
 //  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
     RequestedFPS                  = get_config_int("zquest","fps",60);
     ForceExit                     = get_config_int("zquest","force_exit",0);
+    
+    //Combo Page, Tile Page, an Map Tile Page Autofill
+    PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
+    PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
+    PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
+    
     
     //This is too much work to fix for 2.5. :| -Gleeok
     //zqColorDepth                  = get_config_int("zquest","zq_color_depth",8);

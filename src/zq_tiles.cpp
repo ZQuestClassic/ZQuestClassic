@@ -14084,7 +14084,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 
             case KEY_P:
             {
-                int whatPage = gettilepagenumber("Goto Page", 0);
+                int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
                 
                 if(whatPage >= 0)
                     sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
@@ -15293,7 +15293,7 @@ int select_combo_2(int &tile,int &cs)
                 
             case KEY_P:
             {
-                int choosepage=getnumber("Goto Page", 0);
+                int choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
                 
                 if(!cancelgetnum)
                     page=(zc_min(choosepage,COMBO_PAGES-1));
@@ -15804,7 +15804,7 @@ int combo_screen(int pg, int tl)
             
             case KEY_P:
             {
-                int choosepage = getnumber("Goto Page", page);
+                int choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
                 
                 if(!cancelgetnum)
                     page=(zc_min(choosepage,COMBO_PAGES-1));
