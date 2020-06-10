@@ -1,6 +1,36 @@
 ChangeLog for 2.53.1
 
 //Beta 52
+
+Added the following configs to ZQuest:
+
+	PreFillTileEditorPage = (0|1)
+	If set to 0, the page field of the Goto Page dialogue in 
+		the Tile Editor will be populated with the current page.
+	If set to 1, the page field of the Goto Page dialogue in 
+		the Tile Editor will be populated '0', as was always
+		the case in the past.
+	If unset, the default value for this config is '0'.
+	
+	PreFillComboEditorPage = (0|1)
+	If set to 1, the page field of the Goto Page dialogue in 
+		the Combo Page Editor will be populated with the current page,
+		as was always the case in the past..
+	If set to 0, the page field of the Goto Page dialogue in 
+		the Combo Page Editor will be populated '0', like the prior 
+		behaviour of the Tile Editor's Goto Page function.
+	If unset, the default value for this config is '0'.
+	
+	PreFillMapTilePage = (0|1)
+	Reserved for a feature request regarding the DMap Editor, when setting
+		Map Tile values for DMaps.
+		The desired outcome is that, if set to '1', that the DMap editor will
+		memorise the last used tile page when selecting Map Tiles.
+		The internal ZQE global variable 'DMapEditorLastMaptileUsed' is 
+		reserved for this purpose.
+	
+	( ZoriaRPG, 10th June, 2020 )
+
 Don't allow taking ZC GUI snapshot, with menu open, with wonky colours.
 	Use only the tre screen colour with shaded effect.
 ZC GUI snapshot (Shift+F12) uses correct ame colours, as long as the

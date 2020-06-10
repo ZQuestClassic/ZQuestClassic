@@ -32,7 +32,9 @@ void setZScriptVersion(int) { } //bleh...
 
 char headerguard = 0;
 
-char __isZQuest = 1; //Shared functionscan reference this. -Z
+char __isZQuest = 1; //Shared functions can reference this. -Z
+
+unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0, DMapEditorLastMaptileUsed = 0;
 
 #include <png.h>
 #include <pngconf.h>
@@ -1810,7 +1812,7 @@ int onZScriptCompilerSettings()
         large_dialog(zscript_parser_dlg);
         
     zscript_parser_dlg[0].dp2=lfont;
-    zscript_parser_dlg[6].d1 = get_config_int("Compiler", "HEADER_GUARD", 1);;
+    zscript_parser_dlg[6].d1 = get_config_int("Compiler", "HEADER_GUARD", 0);;
     int ret = zc_popup_dialog(zscript_parser_dlg,4);
     
     if(ret==3)
@@ -25766,7 +25768,6 @@ int main(int argc,char **argv)
     chop_path(imagepath);
     chop_path(tmusicpath);
     
-    headerguard = get_config_int("Compiler","HEADER_GUARD",1);	
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
     MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
@@ -25805,6 +25806,14 @@ int main(int argc,char **argv)
 //  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
     RequestedFPS                  = get_config_int("zquest","fps",60);
     ForceExit                     = get_config_int("zquest","force_exit",0);
+    
+    //Combo Page, Tile Page, an Map Tile Page Autofill
+    PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
+    PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
+    PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
+    
+    //ZScript Compiler Options
+    headerguard 		   = get_config_int("Compiler","HEADER_GUARD",0);	
     
     //This is too much work to fix for 2.5. :| -Gleeok
     //zqColorDepth                  = get_config_int("zquest","zq_color_depth",8);
