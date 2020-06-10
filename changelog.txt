@@ -2,8 +2,8 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
+Header Guard for the ZScript compiler is now defaulted to off. 
 Added the following configs to ZQuest:
-
 	PreFillTileEditorPage = (0|1)
 	If set to 0, the page field of the Goto Page dialogue in 
 		the Tile Editor will be populated with the current page.
