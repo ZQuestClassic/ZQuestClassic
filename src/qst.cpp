@@ -17058,6 +17058,8 @@ void portBombRules()
 
 int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
 {
+	
+    DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;

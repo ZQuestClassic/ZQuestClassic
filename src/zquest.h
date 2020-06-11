@@ -49,7 +49,8 @@ extern int zq_scale, TileProtection;
 
 void setZScriptVersion(int); //Intentionally does nothing >_<
 
-extern unsigned char PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage, DMapEditorLastMaptileUsed;
+extern unsigned char PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
+extern int DMapEditorLastMaptileUsed;
 
 enum
 {

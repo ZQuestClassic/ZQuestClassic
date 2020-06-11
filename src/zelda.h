@@ -156,6 +156,8 @@ void setClock(bool state);
 void CatchBrang();;
 int LinkAction();
 
+extern int DMapEditorLastMaptileUsed;
+
 void do_dcounters();
 void game_loop();
 

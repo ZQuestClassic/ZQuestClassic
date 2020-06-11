@@ -82,6 +82,8 @@ extern byte dmapscriptInitialised;
 extern char zc_builddate[80];
 extern char zc_aboutstr[80];
 
+int DMapEditorLastMaptileUsed = 0;
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"

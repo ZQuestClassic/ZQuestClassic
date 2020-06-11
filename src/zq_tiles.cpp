@@ -21035,3 +21035,1390 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
 	
 }
 
+int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
+{
+    reset_combo_animations();
+    reset_combo_animations2();
+    bound(tile,0,NEWMAXTILES-1);
+    ex=exnow;
+    tile = DMapEditorLastMaptileUsed;
+    int done=0;
+    int oflip=flip;
+    int otile=tile;
+    int ocs=cs;
+    int first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
+    int copy=-1;
+    int tile2=tile,copycnt=0;
+    int tile_clicked=-1;
+    bool rect_sel=true;
+    bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
+    position_mouse_z(0);
+    
+    go();
+    
+    register_used_tiles();
+    int window_xofs=0;
+    int window_yofs=0;
+    int screen_xofs=0;
+    int screen_yofs=0;
+    int panel_yofs=0;
+    int w = 320;
+    int h = 240;
+    int mul = 1;
+    FONT *tfont = pfont;
+    
+    if(is_large)
+    {
+        w *= 2;
+        h *= 2;
+        mul = 2; // multiply dimensions by 2
+        window_xofs=(zq_screen_w-w-12)>>1;
+        window_yofs=(zq_screen_h-h-25-6)>>1;
+        screen_xofs=window_xofs+6;
+        screen_yofs=window_yofs+25;
+        panel_yofs=3;
+        tfont = lfont_l;
+    }
+    
+    draw_tile_list_window();
+    int f=0;
+    draw_tiles(first,cs,f);
+    
+    if(type==0)
+    {
+        tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
+    }
+    else
+    {
+        tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
+    }
+    
+    go_tiles();
+    
+    while(gui_mouse_b())
+    {
+        /* do nothing */
+    }
+    
+    bool bdown=false;
+    
+    #define FOREACH_START_DMAPTILE(_t) \
+    { \
+        int _first, _last; \
+        if(is_rect) \
+        { \
+            _first=top*TILES_PER_ROW+left; \
+            _last=_first+rows*TILES_PER_ROW|+columns-1; \
+        } \
+        else \
+        { \
+            _first=zc_min(tile, tile2); \
+            _last=zc_max(tile, tile2); \
+        } \
+        for(int _t=_first; _t<=_last; _t++) \
+        { \
+            if(is_rect) \
+            { \
+                int row=TILEROW(_t); \
+                if(row<top || row>=top+rows) \
+                    continue; \
+                int col=TILECOL(_t); \
+                if(col<left || col>=left+columns) \
+                    continue; \
+            } \
+        
+    #define FOREACH_DMAPTILE_END\
+        } \
+    }
+    
+    
+    do
+    {
+        rest(4);
+        int top=TILEROW(zc_min(tile, tile2));
+        int left=zc_min(TILECOL(tile), TILECOL(tile2));
+        int rows=TILEROW(zc_max(tile, tile2))-top+1;
+        int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
+        bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
+        bool redraw=false;
+        
+        if(mouse_z!=0)
+        {
+            sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
+            position_mouse_z(0);
+            redraw=true;
+        }
+        
+        if(keypressed())
+        {
+            switch(readkey()>>8)
+            {
+            case KEY_ENTER_PAD:
+            case KEY_ENTER:
+                done=2;
+                break;
+                
+            case KEY_ESC:
+                done=1;
+                break;
+                
+            case KEY_F1:
+                onHelp();
+                break;
+                
+            case KEY_EQUALS:
+            case KEY_PLUS_PAD:
+            {
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+                        key[KEY_ALT] || key[KEY_ALTGR])
+                {
+                    FOREACH_START_DMAPTILE(t)
+                        if(key[KEY_ALT] || key[KEY_ALTGR])
+                            shift_tile_colors(t, 16, false);
+                        else
+                            shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                    FOREACH_DMAPTILE_END
+                    
+                    register_blank_tiles();
+                }
+                else if(edit_cs)
+                    cs = (cs<15) ? cs+1:0;
+                    
+                redraw=true;
+                break;
+            }
+	    case KEY_Z:
+	    {
+		    onSnapshot();
+		    break;
+	    }
+            case KEY_S:
+	    {
+		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		writetilefile(f,tile,1);
+		pack_fclose(f);
+		break;
+	    }
+	    case KEY_L:
+	    {
+		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		if (!readtilefile(f))
+		{
+			al_trace("Could not read from .ztile packfile %s\n", temppath);
+			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	
+		pack_fclose(f);
+		//register_blank_tiles();
+		//register_used_tiles();
+		redraw=true;
+		break;
+	    }
+            case KEY_MINUS:
+            case KEY_MINUS_PAD:
+            {
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+                        key[KEY_ALT] || key[KEY_ALTGR])
+                {
+                    FOREACH_START_DMAPTILE(t)
+                        if(key[KEY_ALT] || key[KEY_ALTGR])
+                            shift_tile_colors(t, -16, false);
+                        else
+                            shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                    FOREACH_DMAPTILE_END
+                    
+                    register_blank_tiles();
+                }
+                else if(edit_cs)
+                    cs = (cs>0)  ? cs-1:15;
+                    
+                redraw=true;
+                break;
+            }
+            
+            case KEY_UP:
+            {
+                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+                {
+                case 3:  //ALT and CTRL
+                case 2:  //ALT
+                    if(is_rect)
+                    {
+                        saved=false;
+                        go_slide_tiles(columns, rows, top, left);
+                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        bool same = true;
+                        
+                        for(int d=0; d<columns; d++)
+                        {
+                            for(int s=0; s<rows; s++)
+                            {
+                                int t=((top+s)*TILES_PER_ROW)+left+d;
+                                
+                                if(newtilebuf[t].format!=bitcheck) same = false;
+                            }
+                        }
+                        
+                        if(!same) break;
+                        
+                        for(int c=0; c<columns; c++)
+                        {
+                            for(int r=0; r<rows; r++)
+                            {
+                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
+                                qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
+                                
+                                for(int pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
+                                {
+                                    if(pixelrow==15*bitcheck)
+                                    {
+                                        int srctile=temptile+TILES_PER_ROW;
+                                        if(srctile>=NEWMAXTILES)
+                                            srctile-=rows*TILES_PER_ROW;
+                                        src_pixelrow=(qword*)(newtilebuf[srctile].data);
+                                    }
+                                    
+                                    *dest_pixelrow=*src_pixelrow;
+                                    dest_pixelrow++;
+                                    src_pixelrow++;
+                                }
+                            }
+                            
+                            qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
+                            
+                            for(int b=0; b<bitcheck; b++,dest_pixelrow++)
+                            {
+                                if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+                                {
+                                    *dest_pixelrow=0;
+                                }
+                                else
+                                {
+                                    qword *src_pixelrow=(qword*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data+(8*b));
+                                    *dest_pixelrow=*src_pixelrow;
+                                }
+                            }
+                        }
+                    }
+                    
+                    register_blank_tiles();
+                    redraw=true;
+                    break;
+                    
+                case 1:  //CTRL
+                case 0:  //None
+                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
+                    redraw=true;
+                    
+                default: //Others
+                    break;
+                }
+            }
+            break;
+            
+            case KEY_DOWN:
+            {
+                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+                {
+                case 3:  //ALT and CTRL
+                case 2:  //ALT
+                    if(is_rect)
+                    {
+                        saved=false;
+                        go_slide_tiles(columns, rows, top, left);
+                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        bool same = true;
+                        
+                        for(int c=0; c<columns; c++)
+                        {
+                            for(int r=0; r<rows; r++)
+                            {
+                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                
+                                if(newtilebuf[t].format!=bitcheck) same = false;
+                            }
+                        }
+                        
+                        if(!same) break;
+                        
+                        for(int c=0; c<columns; c++)
+                        {
+                            for(int r=rows-1; r>=0; r--)
+                            {
+                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
+                                qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
+                                
+                                for(int pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
+                                {
+                                    if(pixelrow<bitcheck)
+                                    {
+                                        int srctile=temptile-TILES_PER_ROW;
+                                        if(srctile<0)
+                                            srctile+=rows*TILES_PER_ROW;
+                                        qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
+                                        *dest_pixelrow=*tempsrc;
+                                        //*dest_pixelrow=0;
+                                    }
+                                    else
+                                    {
+                                        *dest_pixelrow=*src_pixelrow;
+                                    }
+                                    
+                                    dest_pixelrow--;
+                                    src_pixelrow--;
+                                }
+                            }
+                            
+                            qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
+                            qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
+                            
+                            for(int b=0; b<bitcheck; b++)
+                            {
+                                if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+                                {
+                                    *dest_pixelrow=0;
+                                }
+                                else
+                                {
+                                    *dest_pixelrow=*src_pixelrow;
+                                }
+                                
+                                dest_pixelrow++;
+                                src_pixelrow++;
+                            }
+                        }
+                    }
+                    
+                    register_blank_tiles();
+                    redraw=true;
+                    break;
+                    
+                case 1:  //CTRL
+                case 0:  //None
+                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
+                    redraw=true;
+                    
+                default: //Others
+                    break;
+                }
+            }
+            break;
+            
+            case KEY_LEFT:
+            {
+                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+                {
+                case 3:  //ALT and CTRL
+                case 2:  //ALT
+                    if(is_rect)
+                    {
+                        saved=false;
+                        go_slide_tiles(columns, rows, top, left);
+                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        bool same = true;
+                        
+                        for(int c=0; c<columns; c++)
+                        {
+                            for(int r=0; r<rows; r++)
+                            {
+                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                
+                                if(newtilebuf[t].format!=bitcheck) same = false;
+                            }
+                        }
+                        
+                        if(!same) break;
+                        
+                        for(int r=0; r<rows; r++)
+                        {
+                            for(int c=0; c<columns; c++)
+                            {
+                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                byte *dest_pixelrow=(newtilebuf[temptile].data);
+                                
+                                for(int pixelrow=0; pixelrow<16; pixelrow++)
+                                {
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                
+                                    //if(bitcheck==tf4Bit)
+                                    //{
+                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    {
+                                        if(bitcheck==tf4Bit)
+                                        {
+                                            *dest_pixelrow=*dest_pixelrow>>4;
+                                            *dest_pixelrow|=(*(dest_pixelrow+1)<<4);
+                                            
+                                            if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
+                                        }
+                                        else
+                                        {
+                                            *dest_pixelrow=*(dest_pixelrow+1);
+                                        }
+                                        
+                                        dest_pixelrow++;
+                                    }
+                                    
+#else
+                                    
+                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    {
+                                        if(bitcheck==tf4Bit)
+                                        {
+                                            *dest_pixelrow=*dest_pixelrow<<4;
+                                            *dest_pixelrow|=(*(dest_pixelrow+1)>>4);
+                                    
+                                            if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
+                                        }
+                                        else
+                                        {
+                                            *dest_pixelrow=*(dest_pixelrow+1);
+                                        }
+                                    
+                                        dest_pixelrow++;
+                                    }
+                                    
+#endif
+                                    
+                                    if(c==columns-1)
+                                    {
+                                        if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+                                        {
+                                            byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                            
+                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+                                            else *dest_pixelrow=*tempsrc;
+                                            
+#else
+                                            
+                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+                                            else *dest_pixelrow=*tempsrc;
+                                            
+#endif
+                                        }
+                                    }
+                                    else
+                                    
+                                    {
+                                        byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                        
+                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+                                        else *dest_pixelrow=*tempsrc;
+                                        
+#else
+                                        
+                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+                                        else *dest_pixelrow=*tempsrc;
+                                        
+#endif
+                                    }
+                                    
+                                    dest_pixelrow++;
+                                }
+                            }
+                        }
+                        
+                        register_blank_tiles();
+                        redraw=true;
+                    }
+                    
+                    break;
+                    
+                case 1:  //CTRL
+                case 0:  //None
+                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
+                    redraw=true;
+                    
+                default: //Others
+                    break;
+                }
+            }
+            break;
+            
+            case KEY_RIGHT:
+            {
+                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+                {
+                case 3:  //ALT and CTRL
+                case 2:  //ALT
+                    if(is_rect)
+                    {
+                        saved=false;
+                        go_slide_tiles(columns, rows, top, left);
+                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        bool same = true;
+                        
+                        for(int c=0; c<columns; c++)
+                        {
+                            for(int r=0; r<rows; r++)
+                            {
+                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                
+                                if(newtilebuf[t].format!=bitcheck) same = false;
+                            }
+                        }
+                        
+                        if(!same) break;
+                        
+                        for(int r=0; r<rows; r++)
+                        {
+                            for(int c=columns-1; c>=0; c--)
+                            {
+                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
+                                
+                                for(int pixelrow=15; pixelrow>=0; pixelrow--)
+                                {
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                
+                                    //*dest_pixelrow=(*dest_pixelrow)<<4;
+                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    {
+                                        if(bitcheck==tf4Bit)
+                                        {
+                                            *dest_pixelrow=*dest_pixelrow<<4;
+                                            *dest_pixelrow|=(*(dest_pixelrow-1)>>4);
+                                            
+                                            if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
+                                        }
+                                        else
+                                        {
+                                            *dest_pixelrow=*(dest_pixelrow-1);
+                                        }
+                                        
+                                        dest_pixelrow--;
+                                    }
+                                    
+#else
+                                    
+                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    {
+                                        if(bitcheck==tf4Bit)
+                                        {
+                                            *dest_pixelrow=*dest_pixelrow>>4;
+                                            *dest_pixelrow|=(*(dest_pixelrow-1)<<4);
+                                    
+                                            if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
+                                        }
+                                        else
+                                        {
+                                            *dest_pixelrow=*(dest_pixelrow-1);
+                                        }
+                                    
+                                        dest_pixelrow--;
+                                    }
+                                    
+#endif
+                                    
+                                    if(c==0)
+                                    {
+                                        if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+                                        {
+                                            byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                            
+                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+                                            else *dest_pixelrow=*tempsrc;
+                                            
+#else
+                                            
+                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+                                            else *dest_pixelrow=*tempsrc;
+                                            
+#endif
+                                        }
+                                    }
+                                    else
+                                    {
+                                        byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
+#ifdef ALLEGRO_LITTLE_ENDIAN
+                                        
+                                        // (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
+                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+                                        else *dest_pixelrow=*tempsrc;
+                                        
+#else
+                                        
+                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+                                        else *dest_pixelrow=*tempsrc;
+                                        
+#endif
+                                    }
+                                    
+                                    dest_pixelrow--;
+                                }
+                            }
+                        }
+                        
+                        register_blank_tiles();
+                        redraw=true;
+                    }
+                    
+                    break;
+                    
+                case 1:  //CTRL
+                case 0:  //None
+                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+                    redraw=true;
+                    
+                default: //Others
+                    break;
+                }
+            }
+            break;
+            
+            case KEY_PGUP:
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+                redraw=true;
+                break;
+                
+            case KEY_PGDN:
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+                redraw=true;
+                break;
+                
+            case KEY_HOME:
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
+                redraw=true;
+                break;
+                
+            case KEY_END:
+                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
+                redraw=true;
+                break;
+                
+            case KEY_P:
+            {
+                int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
+                
+                if(whatPage >= 0)
+                    sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
+                    
+                break;
+            }
+            
+            case KEY_O:
+                if(type==0 && copy>=0)
+                {
+                    go_tiles();
+                    
+                    if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
+                    {
+			mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
+                        saved=false;
+                    }
+                    else
+                    {
+                        saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+			//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+                    }
+                    
+                    saved=false;
+                    redraw=true;
+                }
+                
+                break;
+                
+            case KEY_E:
+                if(type==0)
+                {
+                    edit_tile(tile,flip,cs);
+                    draw_tile_list_window();
+                    redraw=true;
+                }
+                
+                break;
+                
+            case KEY_G:
+                if(type==0)
+                {
+                    grab_tile(tile,cs);
+                    draw_tile_list_window();
+                    redraw=true;
+                }
+                
+                break;
+                
+            case KEY_C:
+                copy=zc_min(tile,tile2);
+                copycnt=abs(tile-tile2)+1;
+                redraw=true;
+                break;
+                
+            case KEY_X:
+                if(type==2)
+                {
+                    ex=(ex+1)%3;
+                }
+                
+                break;
+                
+                //usetiles=true;
+            case KEY_R:
+                if(type==2)
+                    break;
+                    
+                go_tiles();
+                
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+                {
+                    bool go=false;
+                    if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+                        go=true;
+                    else if(massRecolorSetup(cs))
+                        go=true;
+                    
+                    if(go)
+                    {
+                        FOREACH_START_DMAPTILE(t)
+                            massRecolorApply(t);
+                        FOREACH_DMAPTILE_END
+                        
+                        register_blank_tiles();
+                    }
+                }
+                else
+                {
+                    FOREACH_START_DMAPTILE(t)
+                        rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+                    FOREACH_DMAPTILE_END
+                }
+                
+                redraw=true;
+                saved=false;
+                break;
+                
+            case KEY_SPACE:
+                rect_sel=!rect_sel;
+                copy=-1;
+                redraw=true;
+                break;
+                
+                //     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
+            case KEY_H:
+                flip^=1;
+                go_tiles();
+                
+                if(type==0)
+                {
+                    normalize(tile,tile2,rect_sel,flip);
+                    flip=0;
+                }
+                
+                redraw=true;
+                break;
+                
+            case KEY_F12:
+                onSnapshot();
+                break;
+                
+            case KEY_V:
+                if(copy==-1)
+                {
+                    if(type!=2)
+                    {
+                        flip^=2;
+                        go_tiles();
+                        
+                        if(type==0)
+                        {
+                            normalize(tile,tile2,rect_sel,flip);
+                            flip=0;
+                        }
+                    }
+                }
+                else
+                {
+                    bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+		    go_tiles();
+                    saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+                }
+                
+                redraw=true;
+                break;
+                
+		
+		
+	    case KEY_F:
+                if(copy==-1)
+                {
+                    break;
+                }
+                else
+                {
+		    go_tiles();
+		    {
+			    saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
+		    }
+                }
+                
+                redraw=true;
+                break;
+		
+            case KEY_DEL:
+                delete_tiles(tile,tile2,rect_sel);
+                redraw=true;
+                break;
+                
+            case KEY_U:
+            {
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+                {
+					//Only toggle the first 2 bits!
+                    show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
+                }
+                else
+                {
+                    comeback_tiles();
+                }
+                
+                redraw=true;
+            }
+            break;
+			
+			case KEY_8:
+			case KEY_8_PAD:
+				hide_8bit_marker();
+				break;
+            
+            case KEY_M:
+		    //al_trace("mass combo key pressed, type == %d\n",type);
+                if(type==0)
+                {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+                    {
+                        go_tiles();
+                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+                    }
+                    else if(copy==-1)
+                    {
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+			{
+                            make_combos_rect(top, left, rows, columns, cs);
+			}
+                        else
+			{
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
+                    }
+                    
+                    redraw=true;
+                }
+                
+                break;
+                
+            case KEY_D:
+            {
+                int frames=1;
+                char buf[80];
+                sprintf(buf, "%d", frames);
+                create_relational_tiles_dlg[0].dp2=lfont;
+                create_relational_tiles_dlg[2].dp=buf;
+                
+                if(is_large)
+                    large_dialog(create_relational_tiles_dlg);
+                    
+                int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+                
+                if(ret==5)
+                {
+                    frames=zc_max(atoi(buf),1);
+                    bool same = true;
+                    int bitcheck=newtilebuf[tile].format;
+                    
+                    for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+                    {
+                        if(newtilebuf[tile+t].format!=bitcheck) same = false;
+                    }
+                    
+                    if(!same)
+                    {
+                        jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
+                        break;
+                    }
+                    
+                    if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
+                    {
+                        jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
+                        break;
+                    }
+                    
+                    for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+                    {
+                        reset_tile(newtilebuf, tile+i, bitcheck);
+                    }
+                    
+                    if(create_relational_tiles_dlg[3].flags&D_SELECTED)
+                    {
+                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        {
+                            for(int j=0; j<frames; ++j)
+                            {
+                                merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        {
+                            for(int j=0; j<frames; ++j)
+                            {
+                                merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            register_blank_tiles();
+            register_used_tiles();
+            redraw=true;
+            saved=false;
+            break;
+            
+            case KEY_B:
+            {
+                bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+                bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+                
+                do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
+                register_blank_tiles();
+            }
+            break;
+            }
+            
+            clear_keybuf();
+        }
+        
+        if(gui_mouse_b()&1)
+        {
+            if(is_large)
+            {
+                if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
+                {
+                    if(do_x_button(screen, w+12+window_xofs - 21, 5+window_yofs))
+                    {
+                        done=1;
+                    }
+                }
+            }
+            
+            int x=gui_mouse_x()-screen_xofs;
+            int y=gui_mouse_y()-screen_yofs;
+            
+            if(y>=0 && y<208*mul)
+            {
+                x=zc_min(zc_max(x,0),(320*mul)-1);
+                int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
+                
+                if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+                {
+                    tile2=t;
+                }
+                else
+                {
+                    tile=tile2=t;
+                }
+                
+                if(tile_clicked!=t)
+                {
+                    dclick_status=DCLICK_NOT;
+                }
+                else if(dclick_status == DCLICK_AGAIN)
+                {
+                    while(gui_mouse_b())
+                    {
+                        /* do nothing */
+                    }
+                    
+                    if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
+                    {
+                        dclick_status=DCLICK_NOT;
+                    }
+                    else
+                    {
+                        if(type==0)
+                        {
+                            edit_tile(tile,flip,cs);
+                            draw_tile_list_window();
+                            redraw=true;
+                        }
+                        else
+                        {
+                            done=2;
+                        }
+                    }
+                }
+                
+                tile_clicked=t;
+            }
+            else if(x>300*mul && !bdown)
+            {
+                if(y<224*mul && first>0)
+                {
+                    first-=TILES_PER_PAGE;
+                    redraw=true;
+                }
+                
+                if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
+                {
+                    first+=TILES_PER_PAGE;
+                    redraw=true;
+                }
+                
+                bdown=true;
+            }
+            
+            if(type==1||type==2)
+            {
+                if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
+                    done=1;
+                    
+                if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
+                    done=2;
+            }
+            else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
+            {
+                rect_sel=!rect_sel;
+                copy=-1;
+                redraw=true;
+            }
+            else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    font = tf;
+                    grab_tile(tile,cs);
+                    draw_tile_list_window();
+                    position_mouse_z(0);
+                    redraw=true;
+                }
+                
+                font = tf;
+            }
+            else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    font = tf;
+                    edit_tile(tile,flip,cs);
+                    draw_tile_list_window();
+                    redraw=true;
+                }
+                
+                font = tf;
+            }
+            else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
+                    {
+                        PALETTE temppal;
+                        get_palette(temppal);
+                        BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+                        save_bitmap(temppath, tempbmp, RAMpal);
+                        destroy_bitmap(tempbmp);
+                    }
+                }
+                
+                font = tf;
+            }
+            else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    if(massRecolorSetup(cs))
+                    {
+                        go_tiles();
+                        
+                        FOREACH_START_DMAPTILE(t)
+                            massRecolorApply(t);
+                        FOREACH_DMAPTILE_END
+                        
+                        register_blank_tiles();
+                    }
+                }
+                
+                font = tf;
+            }
+            else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    done=1;
+                }
+                
+                font = tf;
+            }
+            
+            bdown=true;
+        }
+        
+        bool r_click = false;
+        
+        if(gui_mouse_b()&2 && !bdown && type==0)
+        {
+            int x=(gui_mouse_x()-screen_xofs);//&0xFF0;
+            int y=(gui_mouse_y()-screen_yofs);//&0xF0;
+            
+            if(y>=0 && y<208*mul)
+            {
+                x=zc_min(zc_max(x,0),(320*mul)-1);
+                int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
+                
+                if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
+                    tile=tile2=t;
+            }
+            
+            bdown = r_click = true;
+            f=8;
+        }
+        
+        if(gui_mouse_b()==0)
+            bdown=false;
+            
+        position_mouse_z(0);
+        
+REDRAW_DMAP_SELTILE:
+
+        if((f%16)==0 || InvalidStatic)
+            redraw=true;
+            
+        if(redraw)
+            draw_tiles(first,cs,f);
+            
+        if(f&8)
+        {
+            if(rect_sel)
+            {
+                for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                          zc_min(TILECOL(tile),TILECOL(tile2));
+                        i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                        zc_max(TILECOL(tile),TILECOL(tile2)); i++)
+                {
+                    if(i>=first && i<first+TILES_PER_PAGE &&
+                            TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
+                            TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
+                    {
+                        int x=(i%TILES_PER_ROW)<<(4+is_large);
+                        int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+                        rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+                    }
+                }
+            }
+            else
+            {
+                for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                {
+                    if(i>=first && i<first+TILES_PER_PAGE)
+                    {
+                        int x=TILECOL(i)<<(4+is_large);
+                        int y=TILEROW(i-first)<<(4+is_large);
+                        rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+                    }
+                }
+            }
+        }
+        
+        if(type==0)
+            tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
+        else
+            tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
+            
+        if(type==2)
+        {
+            char cbuf[16];
+            sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
+            gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+        }
+        
+        ++f;
+        
+        if(r_click)
+        {
+            select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
+            select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
+            select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
+            select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
+            select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
+            select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+            int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+            redraw=true;
+            
+            switch(m)
+            {
+            case 0:
+                copy=zc_min(tile,tile2);
+                copycnt=abs(tile-tile2)+1;
+                break;
+                
+            case 2:
+            case 1:
+                saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,(m==2));
+                break;
+                
+            case 3:
+                delete_tiles(tile,tile2,rect_sel);
+                break;
+                
+            case 5:
+                edit_tile(tile,flip,cs);
+                draw_tile_list_window();
+                break;
+                
+            case 7:
+            {
+                do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
+                break;
+            }
+            
+            case 6:
+                grab_tile(tile,cs);
+                draw_tile_list_window();
+                position_mouse_z(0);
+                break;
+                
+            case 9:
+                show_blank_tile(tile);
+                break;
+	    
+	    case 12: //overlay
+		    overlay_tile(newtilebuf,tile,copy,cs,0);
+		    break;
+	    
+	    case 13: //h-flip
+	    {
+		flip^=1;
+		go_tiles();
+		
+		if(type==0)
+		{
+		    normalize(tile,tile2,rect_sel,flip);
+		    flip=0;
+		}
+		
+		redraw=true;   
+		break;
+		    
+	      }
+	      
+	      case 14: //h-flip
+	      {
+			if(copy==-1)
+			{
+			    if(type!=2)
+			    {
+				flip^=2;
+				go_tiles();
+				
+				if(type==0)
+				{
+				    normalize(tile,tile2,rect_sel,flip);
+				    flip=0;
+				}
+			    }
+			}
+			else
+			{
+			    go_tiles();
+			    saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+			}
+			
+			redraw=true;
+		break;
+		    
+	      }
+		    
+	    
+	    case 15: //mass combo
+	    {
+		if(type==0)
+                {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+                    {
+                        go_tiles();
+                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+                    }
+                    else if(copy==-1)
+                    {
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+			{
+                            make_combos_rect(top, left, rows, columns, cs);
+			}
+                        else
+			{
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
+                    }
+                    
+                    redraw=true;
+                }
+		    
+	    }
+		    break;
+                
+            default:
+                redraw=false;
+                break;
+            }
+            
+            r_click = false;
+            goto REDRAW_DMAP_SELTILE;
+        }
+        
+    }
+    while(!done);
+    
+    while(gui_mouse_b())
+    {
+        /* do nothing */
+    }
+    
+    comeback();
+    register_blank_tiles();
+    register_used_tiles();
+    setup_combo_animations();
+    setup_combo_animations2();
+    return tile+1;
+}

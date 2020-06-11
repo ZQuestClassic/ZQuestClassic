@@ -1344,7 +1344,8 @@ int OnlyCheckNewTilesForDuplicates;
 int try_recovering_missing_scripts = 0;
 int zc_menu_on_left = 0;
 
-unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0, DMapEditorLastMaptileUsed = 0;
+unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
+int DMapEditorLastMaptileUsed = 0;
 
 /*
   , HorizontalDuplicateAction;
@@ -16142,6 +16143,7 @@ static DIALOG editdmap_dlg[] =
 
 void editdmap(int index)
 {
+    //DMapEditorLastMaptileUsed = 0;
     char levelstr[4], compassstr[4], contstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
@@ -21889,11 +21891,19 @@ int d_maptile_proc(int msg, DIALOG *d, int)
     switch(msg)
     {
     case MSG_CLICK:
-        if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
-            return D_REDRAW;
+        if ( PreFillMapTilePage )
+	{
+		DMapEditorLastMaptileUsed = ((select_dmap_tile(d->d1,d->d2,1,d->fg,true, 0, true))-1);
+		return D_REDRAW;
+	}
+        else
+	{
+		if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
+		return D_REDRAW;
+	}
             
         break;
-        
+	
     case MSG_DRAW:
     {
         int dw = d->w;
