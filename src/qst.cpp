@@ -7352,6 +7352,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
+		if( s_version < 46 )
+		{
+			if(tempitem.family == itype_raft)
+			{
+				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
+			}
+		}
+		
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
 			

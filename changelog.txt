@@ -3,6 +3,14 @@
 
 //Alpha 74
 
+Add raft speed modifiers for faster/slower moving raft
+	Negative values slow the raft by (2^-n)
+	Positive values cause the raft to move at (2^n)
+	Value of 0 stops all movement on the raft
+	Valid values: -7 to 5 (where -7 is approx. 1 pixel every 2 seconds,
+		and 5 is 1 full tile every frame)
+	( Venrob, 11th June, 2020 )
+
 Implemented a request from ShadowTiger, whereby when you edit a
 	DMap, and select a map tile, when you go to edit further
 	DMap map tiles within the same session, the DMap editor will
