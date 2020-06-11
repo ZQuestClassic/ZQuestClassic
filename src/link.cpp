@@ -9326,7 +9326,7 @@ void LinkClass::do_rafting()
 	//Calculate rafting speed
 	int raft_item = current_item_id(itype_raft);
 	int raft_step = (raft_item < 0 ? 1 : itemsbuf[raft_item].misc1);
-	raft_step = vbound(raft_step, -7, 5);
+	raft_step = vbound(raft_step, -8, 5);
 	int raft_time = raft_step < 0 ? 1<<(-raft_step) : 1;
 	if(raft_step < 0) raft_step = 1;
 	int step_inc = 1 << (raft_step - 1);
