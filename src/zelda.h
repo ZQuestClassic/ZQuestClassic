@@ -158,6 +158,7 @@ void restart_level();
 int  load_quest(gamedata *g, bool report=true);
 void show_details();
 void show_ffscript_names();
+extern int DMapEditorLastMaptileUsed;
 //int  init_palnames();
 
 int get_currdmap();

@@ -13691,6 +13691,9 @@ const char *skip_text[skip_max]=
 
 int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
 {
+	
+    //Clear dmap editor last tile used when loading a quest in ZQU
+    DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;

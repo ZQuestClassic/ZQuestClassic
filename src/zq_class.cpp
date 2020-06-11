@@ -5989,6 +5989,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
 // wrapper to reinitialize everything on an error
 int load_quest(const char *filename, bool compressed, bool encrypted)
 {
+    DMapEditorLastMaptileUsed = 0;
     char buf[2048];
 //  if(encrypted)
 //	  setPackfilePassword(datapwd);

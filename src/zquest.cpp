@@ -28,13 +28,15 @@
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
 #include "mem_debug.h"
+
 void setZScriptVersion(int) { } //bleh...
 
 char headerguard = 0;
 
 char __isZQuest = 1; //Shared functions can reference this. -Z
 
-unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0, DMapEditorLastMaptileUsed = 0;
+unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
+int DMapEditorLastMaptileUsed = 0;
 
 #include <png.h>
 #include <pngconf.h>
@@ -15323,6 +15325,7 @@ static DIALOG editdmap_dlg[] =
 
 void editdmap(int index)
 {
+    //DMapEditorLastMaptileUsed = 0;
     char levelstr[4], compassstr[4], contstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
@@ -15581,6 +15584,7 @@ void editdmap(int index)
         f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
         f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
         DMaps[index].flags = f;
+	//DMapEditorLastMaptileUsed = 0;
     }
 }
 
@@ -20731,8 +20735,16 @@ int d_maptile_proc(int msg, DIALOG *d, int)
     switch(msg)
     {
     case MSG_CLICK:
-        if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
-            return D_REDRAW;
+	if ( PreFillMapTilePage )
+	{
+		DMapEditorLastMaptileUsed = ((select_dmap_tile(d->d1,d->d2,1,d->fg,true, 0, true))-1);
+		return D_REDRAW;
+	}
+        else
+	{
+		if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
+		return D_REDRAW;
+	}
             
         break;
         

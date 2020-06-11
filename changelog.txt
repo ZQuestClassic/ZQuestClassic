@@ -2,6 +2,15 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
+Implemented a request from ShadowTiger, whereby when you edit a
+	DMap, and select a map tile, when you go to edit further
+	DMap map tiles within the same session, the DMap editor will
+	remember the last tile that you used. 
+	This will clear on loading any quest, but it remains static
+	while working on a quest in memory, updating each time that
+	the user selects a different tile in this editor. 
+	( ZoriaRPG, 11th June, 2020 )
+
 Header Guard for the ZScript compiler is now defaulted to off. 
 Added the following configs to ZQuest:
 	PreFillTileEditorPage = (0|1)

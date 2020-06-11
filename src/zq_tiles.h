@@ -123,6 +123,7 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel);
 void overlay_tile2(int dest,int src,int cs,bool backwards);
 void sel_tile(int &tile, int &tile2, int &first, int type, int s);
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0, bool always_use_flip=false);
+int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0, bool always_use_flip=false);
 int onTiles();
 void draw_combo(BITMAP *dest, int x,int y,int c,int cs);
 void draw_combos(int page,int cs,bool cols);

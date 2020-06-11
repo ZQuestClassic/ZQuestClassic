@@ -135,6 +135,8 @@ extern byte emulation_patches[emuLAST];
 extern int hangcount;
 bool is_large=false;
 char __isZQuest = 0; //Shared functionscan reference this. -Z
+int DMapEditorLastMaptileUsed = 0;
+
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
