@@ -2,9 +2,10 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
-Added an eulation flag '2.10 Hammer Upward Reach' that extends
+Added an emulation flag '2.10 Hammer Upward Reach' that extends
 	the vertical reach of the Hamer weapon by four pixels 
 	when the player is facing up. 
+	This is automatically enabled for 2.10 and earlier quests. 
 	( ZoriaRPG, 12th June, 2020 )
 
 Implemented a request from ShadowTiger, whereby when you edit a
