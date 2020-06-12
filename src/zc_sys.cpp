@@ -7330,6 +7330,28 @@ int old_210_water_emulation()
 	
 }
 
+int old_210_hammer_emulation()
+{
+	if(jwin_alert3(
+			"EMULATION: 2.10 Hammer Reach", 
+			"This action will toggle extended uprward readh for hammer/post interaction.",
+			"If enabled, the hammer will have an extra four piels of reach when facing up.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu210HAMMER] ) emulation_patches[emu210HAMMER] = 0;
+	    else emulation_patches[emu210HAMMER] = 1;
+	}
+    return D_O_K;
+	
+}
+
 int v250_dmap_intro_repeat()
 {
 	if(jwin_alert3(
@@ -7642,6 +7664,7 @@ static MENU compat_patch_menu[] =
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
     { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
     { (char *)"2.10 Water/Ladder Up/Down",                     old_210_water_emulation,                 NULL,                      0, NULL },
+    { (char *)"2.10 Hammer Upward Reach",                     old_210_hammer_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8907,6 +8930,7 @@ void System()
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
 	compat_patch_menu[11].flags = ((emulation_patches[emuBUGGYNEXTCOMBOS])?D_SELECTED:0);
 	compat_patch_menu[12].flags = ((emulation_patches[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
+	compat_patch_menu[13].flags = ((emulation_patches[emu210HAMMER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

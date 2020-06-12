@@ -2363,10 +2363,11 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
     }
-       
+    //2.10, or older. 
     if ( quest_header_zelda_version < 0x211 ) 
     {
 	emulation_patches[emuOLD210WATER] = 1; 
+	emulation_patches[emu210HAMMER] = 1; 
     }    
     
     return 0;

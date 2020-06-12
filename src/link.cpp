@@ -2269,13 +2269,30 @@ if ( quakescr >= 0 )
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
+	    if ( emulation_patches[emu210HAMMER] )
+	    {
+		check_pound_block(wx,wy-4);    
+	    }
         }
         else if(dir==up && ((int(x)&15)==8||diagonalMovement))
         {
-            check_pound_block(wx,wy);
-            check_pound_block(wx,wy+8);
-            check_pound_block(wx+8,wy);
-            check_pound_block(wx+8,wy+8);
+            
+	    if ( emulation_patches[emu210HAMMER] )
+	    {
+		check_pound_block(wx,wy);
+		check_pound_block(wx,wy+8);
+		check_pound_block(wx,wy-4);
+		check_pound_block(wx+8,wy);
+		check_pound_block(wx+8,wy+8);
+		check_pound_block(wx+8,wy-4);
+	    }
+	    else
+	    {
+		check_pound_block(wx,wy);
+		check_pound_block(wx,wy+8);
+		check_pound_block(wx+8,wy);
+		check_pound_block(wx+8,wy+8);
+	    }
         }
         
         if(dir==down && (int(x)&15)==0)
