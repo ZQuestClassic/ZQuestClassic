@@ -743,19 +743,12 @@ enum
 	//155
 	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18, 
 	//160
-	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC,
+	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
     
-    cFIRELAVA1, cFIREFLAVA2, 
     //165
-    cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
-    //167
-    cHOLEDROP, //drop link as a warp with a drop effect
-    //168
-    cHOLEDAMAGE1, cHOLEDAMAGE2, cHOLEDAMAGE3, cHOLEDAMAGE4, //Pits that damage and respawn
-    //172
     cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
     
       /* pot, or rock:
@@ -773,26 +766,26 @@ enum
 		defined. -Z
 		
 	*/
-      //175
+    //168
     //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
     cLIFT, cLIFTITEM, cLIFTSPECITER, 
-    //178
+    //171
     //lift and show next combo, same plus item drop, same with room item
     cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
-    //181
+    //174
     //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
     cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
-    //184
+    //177
     //lift or shash, then change the combo at its position to the 'next combo', ...
 	//...and make drop, ...and make screen room item
     cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
-    //187
+    //180
 
     cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
-   //188s
-   cFREEZEFFCONLY, //freezes only scripts
-   //189
-   cSYS189, cSYS190,
+    //181
+    cFREEZEFFCONLY, //freezes only scripts
+    //182
+    cSYS182, cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
     cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
     cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
     cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
@@ -803,14 +796,11 @@ enum
     //Should be 255
     cEXPANDED, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
     
-    
     //2.54, these would need filepack changes. Needs V_COMBOS.
     cMAX250 //Old max, to make filepack handling easier. 
     
     //These need to be in a new, index of expansion[]. 
     //Let's use expansion[0] for now. 
-    
-    
     
     //cMAX
 };
@@ -2746,6 +2736,7 @@ struct comboclass
     byte  whistle;                        // bh
     byte  win_game;                       // bi
     byte  block_weapon_lvl;               // bj (maximum item level to block)
+	byte pit;                             // bk
 };
 
 enum {cfOFFSET, cfMAX};
