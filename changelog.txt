@@ -3,6 +3,9 @@
 
 //Alpha 74
 
+Added a ZQE hotkey for '?' that opens the version info display.
+	( ZoriaRPG, 13th June, 2020 )
+	
 Implemented a request from ShadowTiger, whereby when you edit a
 	DMap, and select a map tile, when you go to edit further
 	DMap map tiles within the same session, the DMap editor will

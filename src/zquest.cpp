@@ -2252,6 +2252,14 @@ int onToggleShowInfo()
     return D_O_K;
 }
 
+void onKeySlash()
+{
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		onAbout();
+	}
+}
+
 void onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -2336,6 +2344,8 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_X,          0, (void *) onPreviewMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Y,          0, (void *) onCompileScript, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Z,          0, (void *) onSnapshot, NULL, NULL },
+    //slash is also question mark
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH,          0, (void *) onKeySlash, NULL, NULL },
     // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '0',     0,       0,              0, (void *) on0, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '1',     0,       0,              0, (void *) on1, NULL, NULL },
