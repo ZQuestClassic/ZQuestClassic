@@ -238,6 +238,7 @@ public:
     actiontype action, tempaction; // current action, cached action.
     int hshandle_id, hshead_id;
     byte conveyor_flags;
+	byte raftclk; // for slow rafting movement
     zfix climb_cover_x, climb_cover_y;
     zfix entry_x, entry_y; // When drowning, re-create Link here
     zfix falling_oldy; // Used by the Stomp Boots in sideview

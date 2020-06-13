@@ -1109,7 +1109,7 @@ void LinkClass::init()
     lstep=0;
     skipstep=0;
     autostep=false;
-    attackclk=holdclk=hoverclk=jumping=0;
+    attackclk=holdclk=hoverclk=jumping=raftclk=0;
     attack=wNone;
     attackid=-1;
     action=none; FFCore.setLinkAction(none); tempaction=none;
@@ -9323,6 +9323,29 @@ void LinkClass::do_rafting()
     
     linkstep();
     
+	//Calculate rafting speed
+	int raft_item = current_item_id(itype_raft);
+	int raft_step = (raft_item < 0 ? 1 : itemsbuf[raft_item].misc1);
+	raft_step = vbound(raft_step, -8, 5);
+	int raft_time = raft_step < 0 ? 1<<(-raft_step) : 1;
+	if(raft_step < 0) raft_step = 1;
+	int step_inc = 1 << (raft_step - 1);
+	// Fix position
+	if(raft_step > 1)
+	{
+		if(x.getInt() & (step_inc-1))
+		{
+			x = x.getInt() & ~(step_inc-1);
+		}
+		if(y.getInt() & (step_inc-1))
+		{
+			y = y.getInt() & ~(step_inc-1);
+		}
+	}
+	// Inc clock, check if we need to move this frame
+	++raftclk;
+	if((raftclk % raft_time) || raft_step == 0) return; //No movement this frame
+	
     if(!(x.getInt()&15) && !(y.getInt()&15))
     {
         // this sections handles switching to raft branches
@@ -9399,7 +9422,7 @@ skip:
                 x++;
             else x--;
         }
-        else	--y;
+        else y -= step_inc;
         
         break;
         
@@ -9410,7 +9433,7 @@ skip:
                 x++;
             else x--;
         }
-        else ++y;
+        else y += step_inc;
         
         break;
         
@@ -9421,7 +9444,7 @@ skip:
                 y++;
             else y--;
         }
-        else --x;
+        else x -= step_inc;
         
         break;
         
@@ -9432,7 +9455,7 @@ skip:
                 y++;
             else y--;
         }
-        else ++x;
+        else x += step_inc;
         
         break;
     }
@@ -16267,6 +16290,7 @@ void LinkClass::checkspecial2(int *ls)
                 {
                     reset_swordcharge();
                     action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -16300,6 +16324,7 @@ void LinkClass::checkspecial2(int *ls)
                 {
                     reset_swordcharge();
                     action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -16333,6 +16358,7 @@ void LinkClass::checkspecial2(int *ls)
                 {
                     reset_swordcharge();
                     action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -19301,6 +19327,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		if ( lookaheadraftflag(scrolldir) )
 		{
 			action=rafting; FFCore.setLinkAction(rafting);
+			raftclk=0;
 		}
 	}
         else if(iswater(ahead) && (current_item(itype_flippers)))
@@ -19732,6 +19759,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         {
             sfx(tmpscr->secretsfx);
             action=rafting; FFCore.setLinkAction(rafting);
+			raftclk=0;
         }
         
         // Half a tile off?
@@ -19739,6 +19767,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         {
             sfx(tmpscr->secretsfx);
             action=rafting; FFCore.setLinkAction(rafting);
+			raftclk=0;
         }
     }
     

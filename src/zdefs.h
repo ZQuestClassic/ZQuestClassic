@@ -218,7 +218,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            14
 #define V_DOORS            1
-#define V_ITEMS           45
+#define V_ITEMS           46
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
