@@ -2,6 +2,9 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
+Added a ZQE hotkey for '?' that opens the version info display.
+	( ZoriaRPG, 13th June, 2020 )
+
 Added an emulation flag '2.10 Hammer Upward Reach' that extends
 	the vertical reach of the Hamer weapon by four pixels 
 	when the player is facing up. 
