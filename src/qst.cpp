@@ -8229,6 +8229,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(stunnedspr, 0, sizeof(stunnedspr));
 			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
 			memset(fallingspr, 0, sizeof(fallingspr));
+			memset(falling_svspr, 0, sizeof(falling_svspr));
 			memset(shockedspr, 0, sizeof(shockedspr));
 			memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
 			memset(pullswordspr, 0, sizeof(pullswordspr));
@@ -8245,6 +8246,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				for(int p = 0; p < 3; ++p)
 				{
 					drowningspr[q][p] = divespr[q][p];
+					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
 		}
@@ -8866,9 +8868,47 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
+					drowning_lavaspr[q][spr_tile] = (int)tile;
+					drowning_lavaspr[q][spr_flip] = (int)flip;
+					drowning_lavaspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
 					fallingspr[q][spr_tile] = (int)tile;
 					fallingspr[q][spr_flip] = (int)flip;
 					fallingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					falling_svspr[q][spr_tile] = (int)tile;
+					falling_svspr[q][spr_flip] = (int)flip;
+					falling_svspr[q][spr_extend] = (int)extend;
 				}
 			}
 			
@@ -9057,6 +9097,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(stunnedspr, 0, sizeof(stunnedspr));
 			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
 			memset(fallingspr, 0, sizeof(fallingspr));
+			memset(falling_svspr, 0, sizeof(falling_svspr));
 			memset(shockedspr, 0, sizeof(shockedspr));
 			memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
 			memset(pullswordspr, 0, sizeof(pullswordspr));
@@ -9073,6 +9114,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				for(int p = 0; p < 3; ++p)
 				{
 					drowningspr[q][p] = divespr[q][p];
+					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
 		}

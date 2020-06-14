@@ -10705,11 +10705,29 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 		}
 		for(int q = 0; q < 4; ++q)
 		{
+			if(!p_iputl(drowning_lavaspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)drowning_lavaspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)drowning_lavaspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
 			if(!p_iputl(fallingspr[q][spr_tile],f))
 				new_return(15);
 			if(!p_putc((byte)fallingspr[q][spr_flip],f))
 				new_return(15);
 			if(!p_putc((byte)fallingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(falling_svspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)falling_svspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)falling_svspr[q][spr_extend],f))
 				new_return(15);
 		}
 		for(int q = 0; q < 4; ++q)

@@ -50,7 +50,9 @@ int liftingheavyspr[4][3];                           //dir,                     
 int stunnedspr[4][3];                                //dir,                           tile/flip/extend
 int stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
 int drowningspr[4][3];                               //dir,                           tile/flip/extend
+int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
 int fallingspr[4][3];                                //dir,                           tile/flip/extend
+int falling_svspr[4][3];                             //dir,                           tile/flip/extend
 int shockedspr[4][3];                                //dir,                           tile/flip/extend
 int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
 int pullswordspr[4][3];                              //dir,                           tile/flip/extend
