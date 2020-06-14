@@ -1,5 +1,5 @@
 2.53.1 ZScript Changes
-12th February, 2020
+14th June, 2020
 
 The following ZScript instructons have been changed, or added
 to ZC v2.53.1.
@@ -154,6 +154,8 @@ preserving the 2.50 ordering.
 !=		:	Not-Equal
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
+<>		:	Equivalent to !=
+
 
 //Logical
 !		: 	Not
@@ -164,6 +166,7 @@ xor		: 	Equivalent to 	^^
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
+equals		:	Equivalent to 	==
 
 //Resolution
 .		:	Script Name Scope Resolution
