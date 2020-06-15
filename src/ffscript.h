@@ -66,10 +66,13 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+};
 
 enum zasmBreak
 {

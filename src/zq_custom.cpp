@@ -9072,6 +9072,26 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+            case ls_drown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                if((p[lt_clock]/12)&1)
+                {
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                };
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
+                
             case ls_landhold1:
                 linktile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.linkanimationstyle);
                 break;
@@ -9250,6 +9270,23 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+            case ls_drown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
+                
             case ls_landhold1:
                 linktile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.linkanimationstyle);
                 break;
@@ -9410,6 +9447,23 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.linkanimationstyle);
                 
                 if(p[lt_clock]>=50)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
+                
+            case ls_drown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
                 {
                     linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
                 };
@@ -9650,12 +9704,19 @@ static int linktile_water_hold_list[] =
     72, 73, 74, 75, -1
 };
 
+static int linktile_water_drown_list[] =
+{
+    // dialog control number
+    97, 98, 99, 100, 101, 102, 103, 104, -1
+};
+
 static TABPANEL linktile_water_tabs[] =
 {
     // (text)
     { (char *)"Float",      D_SELECTED,  linktile_water_float_list, 0, NULL },
     { (char *)"Swim",       0,           linktile_water_swim_list, 0, NULL },
     { (char *)"Dive",       0,           linktile_water_dive_list, 0, NULL },
+    { (char *)"Drown",      0,           linktile_water_drown_list, 0, NULL },
     { (char *)"Hold",       0,           linktile_water_hold_list, 0, NULL },
     { NULL,                 0,           NULL,                     0, NULL }
 };
@@ -9858,7 +9919,17 @@ static DIALOG linktile_dlg[] =
     {  d_timer_proc,                         0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   },
     {  jwin_text_proc,                       4,    183,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Swim Speed:",          NULL,   NULL                   },
     {  jwin_droplist_proc,                  77,    179,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &swimspeed_list,        NULL,   NULL                   },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
+    {  d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
+    // 97 (drown sprite titles)
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 101 (drown sprites)
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_drown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_drown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_drown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_drown,         NULL,                            NULL,   NULL                   },
     {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }
 };
 

@@ -2757,10 +2757,13 @@ enum
 
 
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+};
 
 	
 
