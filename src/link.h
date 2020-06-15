@@ -248,6 +248,9 @@ public:
     bool bigHitbox;
 	int steprate;
     byte defence[wMax];
+	
+	bool can_pitfall();
+	
     void check_slash_block(weapon *w);
     void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
     void check_pound_block(weapon *w);
@@ -270,6 +273,8 @@ public:
     void explode(int type);
     int getTileModifier();
     void setTileModifier(int ntemod);
+	bool check_pitslide();
+	void pitfall();
     void movelink();
     void move(int d, int forceRate = -1);
 	void moveOld(int d2);

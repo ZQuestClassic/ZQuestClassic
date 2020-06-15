@@ -313,6 +313,38 @@ int FFCOMBOTYPE(int x,int y)
     return combobuf[MAPFFCOMBO(x,y)].type;
 }
 
+int FFORCOMBO(int x, int y)
+{
+	for(int i=0; i<32; i++)
+    {
+        if(ffcIsAt(i, x, y))
+            return tmpscr->ffdata[i];
+    }
+	
+	return MAPCOMBO(x,y);
+}
+
+int FFORCOMBOTYPE(int x, int y)
+{
+	return combobuf[FFORCOMBO(x,y)].type;
+}
+
+int FFORCOMBO_L(int layer, int x, int y)
+{
+	for(int i=0; i<32; i++)
+    {
+        if(ffcIsAt(i, x, y))
+            return tmpscr->ffdata[i];
+    }
+	
+	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
+}
+
+int FFORCOMBOTYPE_L(int layer, int x, int y)
+{
+	return combobuf[FFORCOMBO_L(layer,x,y)].type;
+}
+
 int MAPCOMBOFLAG(int x,int y)
 {
     if(x<0 || x>255 || y<0 || y>175)
@@ -861,6 +893,23 @@ bool iswater_type(int type)
 bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
+}
+
+bool ispitfall_type(int type)
+{
+	return combo_class_buf[type].pit != 0;
+}
+
+bool ispitfall(int combo)
+{
+    return ispitfall_type(combobuf[combo].type);
+}
+
+bool ispitfall(int x, int y)
+{
+	if(int c = MAPFFCOMBO(x,y))
+		return ispitfall(c);
+	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
 }
 
 bool isSVLadder(int x, int y)

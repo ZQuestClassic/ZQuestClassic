@@ -127,6 +127,9 @@ public:
 	byte knockbackSpeed;
 	int script_knockback_clk;
 	int script_knockback_speed;
+	int pit_pulldir; // Pitfall pull direction
+	int pit_pullclk; // Pitfall pull clk
+	int fallclk; // Pitfall fall clk
     
     sprite();
     sprite(sprite const & other);

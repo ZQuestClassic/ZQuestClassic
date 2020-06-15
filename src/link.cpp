@@ -214,6 +214,11 @@ static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = fals
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
 
+bool LinkClass::can_pitfall()
+{
+	return (!(action==rafting||z>0||hoverclk||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk));
+}
+
 int LinkClass::DrunkClock()
 {
     return drunkclk;
@@ -1122,7 +1127,8 @@ void LinkClass::init()
     superman=inwallm=false;
     scriptcoldet=1;
     blowcnt=whirlwind=specialcave=0;
-    hopclk=diveclk=0;
+    hopclk=diveclk=fallclk=0;
+	pit_pulldir = -1;
     hopdir=-1;
     conveyor_flags=0;
     drunkclk=0;
@@ -9461,6 +9467,282 @@ skip:
     }
 }
 
+bool LinkClass::check_pitslide()
+{
+	//Pitfall todo -Venrob
+	//Iron boots; can't fight slipping, 2px/frame
+	//Scripted variables to read pull dir/clk (clk only for non-link)
+	//Implement falling for all sprite types (npc AI)
+	//    Fall/slipping tiles for enemies
+	//    Fall/slipping SFX for enemies
+	//    Fall SFX for items/weapons
+	//Fall SFX for Link (possibly slip as well?)
+	//Implement hoverboots over pits (triggering them)
+	//Implement 'falling' action/sprite (sprite: 10 ASpeed, 7 AFrames (matching Z3))
+	//Update std.zh with relevant new stuff
+	if(can_pitfall())
+	{
+		bool can_diag = (diagonalMovement || get_bit(quest_rules,qr_DISABLE_4WAY_GRIDLOCK));
+		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
+		bool ispitbl = ispitfall(x,y+15) || ispitfall(x,y+15) || ispitfall(x,y+15);
+		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
+		bool ispitbr = ispitfall(x+15,y+15);
+		if(ispitul || ispitur) //Up
+		{
+			bool leftpit_50 = ispitul && ispitfall(x,y+(bigHitbox?8:12));
+			bool rightpit_50 = ispitur && ispitfall(x+15,y+(bigHitbox?8:12));
+			bool leftpit_75 = ispitul && ispitfall(x,y+(bigHitbox?12:14));
+			bool rightpit_75 = ispitur && ispitfall(x+15,y+(bigHitbox?12:14));
+			if(DrunkDown())
+			{
+				if(leftpit_75 && rightpit_75) //Straight up
+				{
+					pit_pulldir = up;
+					--y;
+					return true;
+				}
+				else if(leftpit_75)
+				{
+					pit_pulldir = can_diag ? l_up : left;
+					--x;
+					if(can_diag) --y;
+					return true;
+				}
+				else if(rightpit_75)
+				{
+					pit_pulldir = can_diag ? r_up : right;
+					++x;
+					if(can_diag) --y;
+					return true;
+				}
+				else goto fought_pit;
+			}
+			else
+			{
+				if(leftpit_50 && rightpit_50) //Straight up
+				{
+					pit_pulldir = up;
+					--y;
+					return rightpit_75 || leftpit_75;
+				}
+				else if(leftpit_50)
+				{
+					if(DrunkRight() && !leftpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? l_up : left;
+					--x;
+					if(can_diag) --y;
+					return leftpit_75;
+				}
+				else if(rightpit_50)
+				{
+					if(DrunkLeft() && !rightpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? r_up : right;
+					++x;
+					if(can_diag) --y;
+					return rightpit_75;
+				}
+			}
+		}
+		if(ispitbl || ispitbr) //Down
+		{
+			bool leftpit_50 = ispitbl && ispitfall(x,y+(bigHitbox?7:11));
+			bool rightpit_50 = ispitbr && ispitfall(x+15,y+(bigHitbox?7:11));
+			bool leftpit_75 = ispitbl && ispitfall(x,y+(bigHitbox?3:9));
+			bool rightpit_75 = ispitbr && ispitfall(x+15,y+(bigHitbox?3:9));
+			if(DrunkUp())
+			{
+				if(leftpit_75 && rightpit_75) //Straight down
+				{
+					pit_pulldir = down;
+					++y;
+					return true;
+				}
+				else if(leftpit_75)
+				{
+					pit_pulldir = can_diag ? l_down : left;
+					--x;
+					if(can_diag) ++y;
+					return true;
+				}
+				else if(rightpit_75)
+				{
+					pit_pulldir = can_diag ? r_down : right;
+					++x;
+					if(can_diag) ++y;
+					return true;
+				}
+				else goto fought_pit;
+			}
+			else
+			{
+				if(leftpit_50 && rightpit_50) //Straight down
+				{
+					pit_pulldir = down;
+					++y;
+					return leftpit_75 || rightpit_75;
+				}
+				else if(leftpit_50)
+				{
+					if(DrunkRight() && !leftpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? l_down : left;
+					--x;
+					if(can_diag) ++y;
+					return leftpit_75;
+				}
+				else if(rightpit_50)
+				{
+					if(DrunkLeft() && !rightpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? r_down : right;
+					++x;
+					if(can_diag) ++y;
+					return rightpit_75;
+				}
+			}
+		}
+		if(ispitbl || ispitul) //Left
+		{
+			bool uppit_50 = ispitul && ispitfall(x+8,y+(bigHitbox?0:8));
+			bool downpit_50 = ispitbl && ispitfall(x+8,y+15);
+			bool uppit_75 = ispitul && ispitfall(x+12,y+(bigHitbox?0:8));
+			bool downpit_75 = ispitbl && ispitfall(x+12,y+15);
+			if(DrunkRight())
+			{
+				if(uppit_75 && downpit_75) //Straight left
+				{
+					pit_pulldir = left;
+					--x;
+					return true;
+				}
+				else if(uppit_75)
+				{
+					pit_pulldir = can_diag ? l_up : up;
+					--y;
+					if(can_diag) --x;
+					return true;
+				}
+				else if(downpit_75)
+				{
+					pit_pulldir = can_diag ? l_down : down;
+					++y;
+					if(can_diag) --x;
+					return true;
+				}
+				else goto fought_pit;
+			}
+			else
+			{
+				if(uppit_50 && downpit_50) //Straight left
+				{
+					pit_pulldir = left;
+					--x;
+					return uppit_75 || downpit_75;
+				}
+				else if(uppit_50)
+				{
+					if(DrunkDown() && !uppit_75) goto fought_pit;
+					pit_pulldir = can_diag ? l_up : up;
+					--y;
+					if(can_diag) --x;
+					return uppit_75;
+				}
+				else if(downpit_50)
+				{
+					if(DrunkUp() && !downpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? l_down : down;
+					++y;
+					if(can_diag) --x;
+					return downpit_75;
+				}
+			}
+		}
+		if(ispitbr || ispitur) //Right
+		{
+			bool uppit_50 = ispitur && ispitfall(x+7,y+(bigHitbox?0:8));
+			bool downpit_50 = ispitbr && ispitfall(x+7,y+15);
+			bool uppit_75 = ispitur && ispitfall(x+3,y+(bigHitbox?0:8));
+			bool downpit_75 = ispitbr && ispitfall(x+3,y+15);
+			if(DrunkLeft())
+			{
+				if(uppit_75 && downpit_75) //Straight right
+				{
+					pit_pulldir = right;
+					++x;
+					return true;
+				}
+				else if(uppit_75)
+				{
+					pit_pulldir = can_diag ? r_up : up;
+					--y;
+					if(can_diag) ++x;
+					return true;
+				}
+				else if(downpit_75)
+				{
+					pit_pulldir = can_diag ? r_down : down;
+					++y;
+					if(can_diag) ++x;
+					return true;
+				}
+				else goto fought_pit;
+			}
+			else
+			{
+				if(uppit_50 && downpit_50) //Straight right
+				{
+					pit_pulldir = right;
+					++x;
+					return uppit_75 || downpit_75;
+				}
+				else if(uppit_50)
+				{
+					if(DrunkDown() && !uppit_75) goto fought_pit;
+					pit_pulldir = can_diag ? r_up : up;
+					--y;
+					if(can_diag) ++x;
+					return uppit_75;
+				}
+				else if(downpit_50)
+				{
+					if(DrunkUp() && !downpit_75) goto fought_pit;
+					pit_pulldir = can_diag ? r_down : down;
+					++y;
+					if(can_diag) ++x;
+					return downpit_75;
+				}
+			}
+		}
+	}
+	else
+	{
+fought_pit:
+		pit_pulldir = -1;
+	}
+	return false;
+}
+
+void LinkClass::pitfall()
+{
+	if(fallclk)
+	{
+		//Handle falling
+		if(!--fallclk)
+		{
+			//Finish falling
+		}
+	}
+	else
+	{
+		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
+		bool ispitbl = ispitfall(x,y+15) || ispitfall(x,y+15) || ispitfall(x,y+15);
+		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
+		bool ispitbr = ispitfall(x+15,y+15);
+		if(ispitul && ispitbl && ispitur && ispitbr)
+		{
+			//Begin falling
+		}
+	}
+}
+
 void LinkClass::movelink()
 {
 	int xoff=x.getInt()&7;
@@ -10182,6 +10464,13 @@ void LinkClass::movelink()
 	{
 		action=none; FFCore.setLinkAction(none);
 	}
+	
+	if(check_pitslide())
+	{
+		pitfall();
+		return;
+	}
+	pitfall();
 	
 	if(diagonalMovement)
 	{
@@ -11788,6 +12077,7 @@ void LinkClass::movelink()
 				}
 			}
 		}
+		
 		bool wtry  = iswater(MAPCOMBO(x,y+15));
 		bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
 		bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));

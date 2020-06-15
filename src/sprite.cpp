@@ -81,7 +81,10 @@ sprite::sprite()
     lasthit=0;
     angle=0;
     misc=0;
-    
+    pit_pulldir = -1;
+	pit_pullclk = 0;
+	fallclk = 0;
+	
     for(int i=0; i<10; i++)
     {
         dummy_int[i]=0;
