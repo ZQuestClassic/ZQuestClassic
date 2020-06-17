@@ -36,6 +36,8 @@ extern ZModule zcm;
 #include "mem_debug.h"
 #include <fstream>
 
+extern byte epilepsyFlashReduction;
+
 static char *itoa(int i)
 {
     static char itoaret[500];
@@ -1612,7 +1614,17 @@ newdata:
     {
         exit(1);
     }
-    
+    /*
+    if(jwin_alert("EPILEPSY Options",
+                  "Do you desire epilepsy protection?",
+                  "This will reduce the intensity of flashing effects",
+                  "and reduce the amplitude of way screen effects.",
+                  "No","Yes",13,27,lfont)!=1)
+    {
+        epilepsyFlashReduction = 1;
+	save_game_configs();
+    }
+    */
     game_pal();
     Z_message("Save file not found.  Creating new save file.");
     goto init;

@@ -3348,6 +3348,7 @@ void draw_lens_over()
 
 void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
 {
+    if(epilepsyFlashReduction) amplitude/=2;
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
     
@@ -3359,6 +3360,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     //  int wavelength=4;
     amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
     int amp2=168;
+    if(epilepsyFlashReduction) amp2*=2;
     int i=frame%amp2;
     
     for(int j=0; j<168; j++)
@@ -6801,8 +6803,8 @@ int onEpilepsy()
 {
 	if(jwin_alert3(
 			"Epilepsy Flash Reduction", 
-			"Enabling this will reduce flashing when picking up the quest dungeon treasure pieces.",
-			"Disabling this will restore standard flashing behaviour.",
+			"Enabling this will reduce the intensity of flashing and screen wave effects.",
+			"Disabling this will restore standard flash and wavy behaviour.",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
@@ -6814,6 +6816,7 @@ int onEpilepsy()
 	{
 	    if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
 	    else epilepsyFlashReduction = 1;
+	    set_config_int("zeldadx","checked_epilepsy",1);
 	    save_game_configs();
 	}
     return D_O_K;

@@ -82,6 +82,8 @@ extern CConsoleLoggerEx zscript_coloured_console;
 #include "metadata/sigs/devsig.h.sig"
 #include "metadata/versionsig.h"
 
+extern byte epilepsyFlashReduction;
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
@@ -3609,6 +3611,11 @@ int main(int argc, char* argv[])
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     
+    int checked_epilepsy = get_config_int("zeldadx","checked_epilepsy",0);
+    
+    
+    
+    
     //if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
     //{
 	//for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
@@ -4026,6 +4033,26 @@ int main(int argc, char* argv[])
             allegro_exit();
             return 0;
         }
+    }
+    
+    if(!checked_epilepsy)
+    {
+	    if(jwin_alert("EPILEPSY Options",
+			  "Do you desire epilepsy protection?",
+			  "This will reduce the intensity of flashing effects",
+			  "and reduce the amplitude of way screen effects.",
+			  "No","Yes",13,27,lfont)!=1)
+	    {
+		epilepsyFlashReduction = 1;
+		set_config_int("zeldadx","checked_epilepsy",1);
+		save_game_configs();
+	    }
+	    else
+	    {
+		set_config_int("zeldadx","checked_epilepsy",1);
+		save_game_configs();
+	    }
+	    checked_epilepsy = 1;
     }
     
 // load saved games
