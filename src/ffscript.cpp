@@ -4643,7 +4643,12 @@ long get_register(const long arg)
 				}
 				//old, buggy code replication, round two: Go! -Z
 				//else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
-				else ret = long( ( (GuyH::getNPC()->step) * 100.0 ) * 10000 );
+				else 
+				{
+					double s2 = ( (GuyH::getNPC()->step).getZLong() );
+					ret = long(s2*100);
+					//ret = long( ( (GuyH::getNPC()->step) * 100.0 )) * 10000;
+				}
 				//else ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
 				
 				//else 

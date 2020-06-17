@@ -2933,7 +2933,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if ( (tempheader.zelda_version < 0x255 ) || (tempheader.zelda_version == 0x255 &&  tempheader.build < 51 ) ) //2.10 water and ladder interaction
     {
-	FFCore.emulation[qr_STEP_IS_FLOAT] = 0;
+	set_bit(quest_rules,qr_STEP_IS_FLOAT,0);
     }
     
     if ( tempheader.zelda_version < 0x250 ) 
