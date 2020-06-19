@@ -912,6 +912,21 @@ bool ispitfall(int x, int y)
 	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
 }
 
+int getpitfall(int x, int y) //Return the highest-layer active pit combo at the given position
+{
+	if(int c = MAPFFCOMBO(x,y))
+	{
+		return ispitfall(c) ? c : 0;
+	}
+	int c = MAPCOMBOL(2,x,y);
+	if(ispitfall(c)) return c;
+	c = MAPCOMBOL(1,x,y);
+	if(ispitfall(c)) return c;
+	c = MAPCOMBO(x,y);
+	if(ispitfall(c)) return c;
+	return 0;
+}
+
 bool isSVLadder(int x, int y)
 {
 	if(x<0 || x>255 || y<0 || y>175)

@@ -214,9 +214,9 @@ static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = fals
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
 
-bool LinkClass::can_pitfall()
+bool LinkClass::can_pitfall(bool ignore_hover)
 {
-	return (!(action==rafting||z>0||hoverclk||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk));
+	return (!(isSideViewGravity()||action==rafting||z>0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!obeys_gravity));
 }
 
 int LinkClass::DrunkClock()
@@ -1128,6 +1128,7 @@ void LinkClass::init()
     scriptcoldet=1;
     blowcnt=whirlwind=specialcave=0;
     hopclk=diveclk=fallclk=0;
+	fallCombo = -1;
 	pit_pulldir = -1;
     hopdir=-1;
     conveyor_flags=0;
@@ -1995,7 +1996,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile+=((70-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -2026,7 +2032,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
                 }
                 else
                 {
@@ -2070,7 +2076,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -2147,7 +2158,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -6633,7 +6649,7 @@ bool LinkClass::animate(int)
 				if(!hoverclk && !ladderx && !laddery)
 				{
 					fall += zinit.gravity;
-					hoverflags |= HOV_OUT;
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
 			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
@@ -6721,8 +6737,19 @@ bool LinkClass::animate(int)
 				stomping = true;
 			}
 			
-			z = fall = jumping = hoverclk = 0;
-			hoverflags = 0;
+			z = fall = jumping = 0;
+			if(check_pitslide(true) == -1)
+			{
+				hoverclk = 0;
+				hoverflags = 0;
+			}
+			else if(hoverclk > 0 && !(hoverflags&HOV_INF))
+			{
+				if(!--hoverclk)
+				{
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
+				}
+			}
 		}
 		else if(fall <= (int)zinit.terminalv)
 		{
@@ -6739,7 +6766,7 @@ bool LinkClass::animate(int)
 				if(!hoverclk)
 				{
 					fall += zinit.gravity;
-					hoverflags |= HOV_OUT;
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
 			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
@@ -7098,11 +7125,14 @@ bool LinkClass::animate(int)
         return false;
     }
     
-    
     if(hopclk)
     {
         action=hopping; FFCore.setLinkAction(hopping);
     }
+	if(fallclk)
+	{
+		action=falling; FFCore.setLinkAction(falling);
+	}
         
     // get user input or do other animation
     freeze_guys=false;                                        // reset this flag, set it again if holding
@@ -7140,7 +7170,13 @@ bool LinkClass::animate(int)
         }
         
         break;
-    }  
+    }
+	case falling:
+	{
+		linkstep();
+		pitfall();
+		break;
+	}
     case swimhit:
     case freeze:
     case scrolling:
@@ -9467,7 +9503,35 @@ skip:
     }
 }
 
-bool LinkClass::check_pitslide()
+bool LinkClass::try_hover()
+{
+	if(hoverclk <= 0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
+	{
+		int itemid = current_item_id(itype_hoverboots);
+		if(hoverclk < 0)
+			hoverclk = -hoverclk;
+		else
+		{
+			fall = jumping = 0;
+			if(itemsbuf[itemid].misc1)
+				hoverclk = itemsbuf[itemid].misc1;
+			else
+			{
+				hoverclk = 1;
+				hoverflags |= HOV_INF;
+			}
+			
+				
+			sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+		}
+		if(itemsbuf[itemid].wpn)
+			decorations.add(new dHover(x, y, dHOVER, 0));
+		return true;
+	}
+	return false;
+}
+
+int LinkClass::check_pitslide(bool ignore_hover) //Returns bitwise; lower 8 are dir pulled in, 9th bit is bool for if can be resisted
 {
 	//Pitfall todo -Venrob
 	//Iron boots; can't fight slipping, 2px/frame
@@ -9476,18 +9540,19 @@ bool LinkClass::check_pitslide()
 	//    Fall/slipping tiles for enemies
 	//    Fall/slipping SFX for enemies
 	//    Fall SFX for items/weapons
-	//Fall SFX for Link (possibly slip as well?)
-	//Implement hoverboots over pits (triggering them)
-	//Implement 'falling' action/sprite (sprite: 10 ASpeed, 7 AFrames (matching Z3))
+	//Maybe slip SFX for Link?
+	//Implement ladder over pits
+	//Percentile damage flag?
 	//Update std.zh with relevant new stuff
-	if(can_pitfall())
+	if(can_pitfall(ignore_hover))
 	{
 		bool can_diag = (diagonalMovement || get_bit(quest_rules,qr_DISABLE_4WAY_GRIDLOCK));
 		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
-		bool ispitbl = ispitfall(x,y+15) || ispitfall(x,y+15) || ispitfall(x,y+15);
+		bool ispitbl = ispitfall(x,y+15);
 		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
 		bool ispitbr = ispitfall(x+15,y+15);
-		if(ispitul || ispitur) //Up
+		static const int flag_pit_irresistable = (1<<8);
+		if(ispitul && ispitur) //Up
 		{
 			bool leftpit_50 = ispitul && ispitfall(x,y+(bigHitbox?8:12));
 			bool rightpit_50 = ispitur && ispitfall(x+15,y+(bigHitbox?8:12));
@@ -9497,53 +9562,37 @@ bool LinkClass::check_pitslide()
 			{
 				if(leftpit_75 && rightpit_75) //Straight up
 				{
-					pit_pulldir = up;
-					--y;
-					return true;
+					return up | flag_pit_irresistable;
 				}
 				else if(leftpit_75)
 				{
-					pit_pulldir = can_diag ? l_up : left;
-					--x;
-					if(can_diag) --y;
-					return true;
+					return (can_diag ? l_up : left) | flag_pit_irresistable;
 				}
 				else if(rightpit_75)
 				{
-					pit_pulldir = can_diag ? r_up : right;
-					++x;
-					if(can_diag) --y;
-					return true;
+					return (can_diag ? r_up : right) | flag_pit_irresistable;
 				}
-				else goto fought_pit;
+				else return -1;
 			}
 			else
 			{
 				if(leftpit_50 && rightpit_50) //Straight up
 				{
-					pit_pulldir = up;
-					--y;
-					return rightpit_75 || leftpit_75;
+					return up | ((leftpit_75 || rightpit_75) ? flag_pit_irresistable : 0);
 				}
 				else if(leftpit_50)
 				{
-					if(DrunkRight() && !leftpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? l_up : left;
-					--x;
-					if(can_diag) --y;
-					return leftpit_75;
+					if(DrunkRight() && !leftpit_75) return -1;
+					return (can_diag ? l_up : left) | (leftpit_75 ? flag_pit_irresistable : 0);
 				}
 				else if(rightpit_50)
 				{
-					if(DrunkLeft() && !rightpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? r_up : right;
-					++x;
-					if(can_diag) --y;
-					return rightpit_75;
+					if(DrunkLeft() && !rightpit_75) return -1;
+					return (can_diag ? r_up : right) | (rightpit_75 ? flag_pit_irresistable : 0);
 				}
 			}
 		}
-		if(ispitbl || ispitbr) //Down
+		if(ispitbl && ispitbr) //Down
 		{
 			bool leftpit_50 = ispitbl && ispitfall(x,y+(bigHitbox?7:11));
 			bool rightpit_50 = ispitbr && ispitfall(x+15,y+(bigHitbox?7:11));
@@ -9553,53 +9602,37 @@ bool LinkClass::check_pitslide()
 			{
 				if(leftpit_75 && rightpit_75) //Straight down
 				{
-					pit_pulldir = down;
-					++y;
-					return true;
+					return down | flag_pit_irresistable;
 				}
 				else if(leftpit_75)
 				{
-					pit_pulldir = can_diag ? l_down : left;
-					--x;
-					if(can_diag) ++y;
-					return true;
+					return (can_diag ? l_down : left) | flag_pit_irresistable;
 				}
 				else if(rightpit_75)
 				{
-					pit_pulldir = can_diag ? r_down : right;
-					++x;
-					if(can_diag) ++y;
-					return true;
+					return (can_diag ? r_down : right) | flag_pit_irresistable;
 				}
-				else goto fought_pit;
+				else return -1;
 			}
 			else
 			{
 				if(leftpit_50 && rightpit_50) //Straight down
 				{
-					pit_pulldir = down;
-					++y;
-					return leftpit_75 || rightpit_75;
+					return down | ((leftpit_75 || rightpit_75) ? flag_pit_irresistable : 0);
 				}
 				else if(leftpit_50)
 				{
-					if(DrunkRight() && !leftpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? l_down : left;
-					--x;
-					if(can_diag) ++y;
-					return leftpit_75;
+					if(DrunkRight() && !leftpit_75) return -1;
+					return (can_diag ? l_down : left) | (leftpit_75 ? flag_pit_irresistable : 0);
 				}
 				else if(rightpit_50)
 				{
-					if(DrunkLeft() && !rightpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? r_down : right;
-					++x;
-					if(can_diag) ++y;
-					return rightpit_75;
+					if(DrunkLeft() && !rightpit_75) return -1;
+					return (can_diag ? r_down : right) | (rightpit_75 ? flag_pit_irresistable : 0);
 				}
 			}
 		}
-		if(ispitbl || ispitul) //Left
+		if(ispitbl && ispitul) //Left
 		{
 			bool uppit_50 = ispitul && ispitfall(x+8,y+(bigHitbox?0:8));
 			bool downpit_50 = ispitbl && ispitfall(x+8,y+15);
@@ -9609,53 +9642,37 @@ bool LinkClass::check_pitslide()
 			{
 				if(uppit_75 && downpit_75) //Straight left
 				{
-					pit_pulldir = left;
-					--x;
-					return true;
+					return left | flag_pit_irresistable;
 				}
 				else if(uppit_75)
 				{
-					pit_pulldir = can_diag ? l_up : up;
-					--y;
-					if(can_diag) --x;
-					return true;
+					return (can_diag ? l_up : up) | flag_pit_irresistable;
 				}
 				else if(downpit_75)
 				{
-					pit_pulldir = can_diag ? l_down : down;
-					++y;
-					if(can_diag) --x;
-					return true;
+					return (can_diag ? l_down : down) | flag_pit_irresistable;
 				}
-				else goto fought_pit;
+				else return -1;
 			}
 			else
 			{
 				if(uppit_50 && downpit_50) //Straight left
 				{
-					pit_pulldir = left;
-					--x;
-					return uppit_75 || downpit_75;
+					return left | ((uppit_75 || downpit_75) ? flag_pit_irresistable : 0);
 				}
 				else if(uppit_50)
 				{
-					if(DrunkDown() && !uppit_75) goto fought_pit;
-					pit_pulldir = can_diag ? l_up : up;
-					--y;
-					if(can_diag) --x;
-					return uppit_75;
+					if(DrunkDown() && !uppit_75) return -1;
+					return (can_diag ? l_up : up) | (uppit_75 ? flag_pit_irresistable : 0);
 				}
 				else if(downpit_50)
 				{
-					if(DrunkUp() && !downpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? l_down : down;
-					++y;
-					if(can_diag) --x;
-					return downpit_75;
+					if(DrunkUp() && !downpit_75) return -1;
+					return (can_diag ? l_down : down) | (downpit_75 ? flag_pit_irresistable : 0);
 				}
 			}
 		}
-		if(ispitbr || ispitur) //Right
+		if(ispitbr && ispitur) //Right
 		{
 			bool uppit_50 = ispitur && ispitfall(x+7,y+(bigHitbox?0:8));
 			bool downpit_50 = ispitbr && ispitfall(x+7,y+15);
@@ -9665,59 +9682,65 @@ bool LinkClass::check_pitslide()
 			{
 				if(uppit_75 && downpit_75) //Straight right
 				{
-					pit_pulldir = right;
-					++x;
-					return true;
+					return right | flag_pit_irresistable;
 				}
 				else if(uppit_75)
 				{
-					pit_pulldir = can_diag ? r_up : up;
-					--y;
-					if(can_diag) ++x;
-					return true;
+					return (can_diag ? r_up : up) | flag_pit_irresistable;
 				}
 				else if(downpit_75)
 				{
-					pit_pulldir = can_diag ? r_down : down;
-					++y;
-					if(can_diag) ++x;
-					return true;
+					return (can_diag ? r_down : down) | flag_pit_irresistable;
 				}
-				else goto fought_pit;
+				else return -1;
 			}
 			else
 			{
 				if(uppit_50 && downpit_50) //Straight right
 				{
-					pit_pulldir = right;
-					++x;
-					return uppit_75 || downpit_75;
+					return right | ((uppit_75 || downpit_75) ? flag_pit_irresistable : 0);
 				}
 				else if(uppit_50)
 				{
-					if(DrunkDown() && !uppit_75) goto fought_pit;
-					pit_pulldir = can_diag ? r_up : up;
-					--y;
-					if(can_diag) ++x;
-					return uppit_75;
+					if(DrunkDown() && !uppit_75) return -1;
+					return (can_diag ? r_up : up) | (uppit_75 ? flag_pit_irresistable : 0);
 				}
 				else if(downpit_50)
 				{
-					if(DrunkUp() && !downpit_75) goto fought_pit;
-					pit_pulldir = can_diag ? r_down : down;
-					++y;
-					if(can_diag) ++x;
-					return downpit_75;
+					if(DrunkUp() && !downpit_75) return -1;
+					return (can_diag ? r_down : down) | (downpit_75 ? flag_pit_irresistable : 0);
 				}
 			}
 		}
 	}
-	else
+	return -1;
+}
+
+bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
+{
+	pitfall();
+	if(fallclk) return true;
+	int val = check_pitslide();
+	int dir = (val == -1 ? -1 : val&0xFF);
+	if(dir > -1 && !(hoverflags & HOV_PITFALL_OUT) && try_hover()) dir = -1;
+	pit_pulldir = dir;
+	switch(dir)
 	{
-fought_pit:
-		pit_pulldir = -1;
+		case -1: return false;
+		case l_up: case l_down: case left:
+			--x; break;
+		case r_up: case r_down: case right:
+			++x; break;
 	}
-	return false;
+	switch(dir)
+	{
+		case l_up: case r_up: case up:
+			--y; break;
+		case l_down: case r_down: case down:
+			++y; break;
+	}
+	pitfall();
+	return fallclk || (val&0x100);
 }
 
 void LinkClass::pitfall()
@@ -9727,18 +9750,48 @@ void LinkClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
-			//Finish falling
+			action=none; FFCore.setLinkAction(none);
+			newcombo const& cmb = combobuf[fallCombo];
+			if(int dmg = cmb.attributes[0]) //Damage
+			{
+				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
+				game->set_life(zc_min(game->get_life()-dmg,game->get_maxlife()));
+			}
+			if(cmb.usrflags&cflag1) //Warp
+			{
+				sdir = dir;
+				if(cmb.usrflags&cflag2) //Direct Warp
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				dowarp(0,vbound(cmb.attribytes[1],0,3),0);
+			}
+			else //Reset to screen entry
+			{
+				x=entry_x;
+				y=entry_y;
+				warpx=x;
+				warpy=y;
+			}
 		}
 	}
-	else
+	else if(can_pitfall())
 	{
 		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
-		bool ispitbl = ispitfall(x,y+15) || ispitfall(x,y+15) || ispitfall(x,y+15);
+		bool ispitbl = ispitfall(x,y+15);
 		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
 		bool ispitbr = ispitfall(x+15,y+15);
-		if(ispitul && ispitbl && ispitur && ispitbr)
+		int pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
+		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
 		{
-			//Begin falling
+			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
+			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
+			fallclk = 70;
+			fallCombo = pitctr;
+			action=falling; FFCore.setLinkAction(falling);
+			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		}
 	}
 }
@@ -10105,6 +10158,9 @@ void LinkClass::movelink()
 		}
 	}
 	
+	if(pitslide()) //Check pit's 'pull'. If true, then Link cannot fight the pull.
+		return;
+	
 	if(action==walking) //still walking
 	{
 		if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
@@ -10464,13 +10520,6 @@ void LinkClass::movelink()
 	{
 		action=none; FFCore.setLinkAction(none);
 	}
-	
-	if(check_pitslide())
-	{
-		pitfall();
-		return;
-	}
-	pitfall();
 	
 	if(diagonalMovement)
 	{

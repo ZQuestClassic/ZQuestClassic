@@ -52,7 +52,6 @@ int stunned_waterspr[4][3];                          //dir,                     
 int drowningspr[4][3];                               //dir,                           tile/flip/extend
 int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
 int fallingspr[4][3];                                //dir,                           tile/flip/extend
-int falling_svspr[4][3];                             //dir,                           tile/flip/extend
 int shockedspr[4][3];                                //dir,                           tile/flip/extend
 int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
 int pullswordspr[4][3];                              //dir,                           tile/flip/extend
@@ -81,6 +80,10 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 	
 	case ls_drown:
 		*extend=drowningspr[dir][spr_extend];
+		break;
+	
+	case ls_falling:
+		*extend=fallingspr[dir][spr_extend];
 		break;
         
     case ls_slash:
@@ -162,6 +165,12 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
         drowningspr[dir][spr_tile] = tile;
         drowningspr[dir][spr_flip] = flip;
         drowningspr[dir][spr_extend] = extend;
+        break;
+        
+    case ls_falling:
+        fallingspr[dir][spr_tile] = tile;
+        fallingspr[dir][spr_flip] = flip;
+        fallingspr[dir][spr_extend] = extend;
         break;
         
     case ls_slash:
@@ -258,6 +267,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		*tile=drowningspr[dir][spr_tile];
 		break;
 		
+	    case ls_falling:
+		*tile=fallingspr[dir][spr_tile];
+		break;
+		
 	    case ls_slash:
 		*tile=slashspr[dir][spr_tile];
 		break;
@@ -326,6 +339,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 	    case ls_drown:
 		*flip=drowningspr[dir][spr_flip];
+		break;
+		
+	    case ls_falling:
+		*flip=fallingspr[dir][spr_flip];
 		break;
 		
 	    case ls_slash:

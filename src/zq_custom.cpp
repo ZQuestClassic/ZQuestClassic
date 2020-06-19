@@ -9092,6 +9092,11 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+            case ls_falling:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.linkanimationstyle);
+                p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+				break;
+                
             case ls_landhold1:
                 linktile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.linkanimationstyle);
                 break;
@@ -9287,6 +9292,11 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+            case ls_falling:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.linkanimationstyle);
+                p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+				break;
+                
             case ls_landhold1:
                 linktile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.linkanimationstyle);
                 break;
@@ -9477,6 +9487,11 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+            case ls_falling:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.linkanimationstyle);
+                p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+				break;
+                
             case ls_landhold1:
                 linktile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.linkanimationstyle);
                 break;
@@ -9654,6 +9669,12 @@ static int linktile_land_cast_list[] =
     47, -1
 };
 
+static int linktile_land_fall_list[] =
+{
+    // dialog control number
+    105, 106, 107, 108, 109, 110, 111, 112, -1
+};
+
 static int linktile_land_jump_list[] =
 {
     // dialog control number
@@ -9669,15 +9690,16 @@ static int linktile_land_charge_list[] =
 static TABPANEL linktile_land_tabs[] =
 {
     // (text)
-    { (char *)"Walk",       D_SELECTED,  linktile_land_walk_list, 0, NULL },
-    { (char *)"Slash",      0,           linktile_land_slash_list, 0, NULL },
-    { (char *)"Stab",       0,           linktile_land_stab_list, 0, NULL },
-    { (char *)"Pound",      0,           linktile_land_pound_list, 0, NULL },
-    { (char *)"Jump",       0,           linktile_land_jump_list, 0, NULL },
-    { (char *)"Charge",     0,           linktile_land_charge_list, 0, NULL },
-    { (char *)"Hold",       0,           linktile_land_hold_list, 0, NULL },
-    { (char *)"Cast",       0,           linktile_land_cast_list, 0, NULL },
-    { NULL,                 0,           NULL,                   0, NULL }
+    { (char *)"Walk",          D_SELECTED,  linktile_land_walk_list, 0, NULL },
+    { (char *)"Slash",         0,           linktile_land_slash_list, 0, NULL },
+    { (char *)"Stab",          0,           linktile_land_stab_list, 0, NULL },
+    { (char *)"Pound",         0,           linktile_land_pound_list, 0, NULL },
+    { (char *)"Jump",          0,           linktile_land_jump_list, 0, NULL },
+    { (char *)"Charge",        0,           linktile_land_charge_list, 0, NULL },
+    { (char *)"Hold",          0,           linktile_land_hold_list, 0, NULL },
+    { (char *)"Cast",          0,           linktile_land_cast_list, 0, NULL },
+    { (char *)"Falling",       0,           linktile_land_fall_list, 0, NULL },
+    { NULL,                    0,           NULL,                   0, NULL }
 };
 
 static int linktile_water_float_list[] =
@@ -9930,6 +9952,16 @@ static DIALOG linktile_dlg[] =
     {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_drown,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_drown,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_drown,         NULL,                            NULL,   NULL                   },
+    // 105 (falling sprite titles)
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 109 (falling sprites)
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_falling,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_falling,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_falling,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_falling,         NULL,                            NULL,   NULL                   },
     {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }
 };
 
@@ -9967,6 +9999,9 @@ int onCustomLink()
     int oldChargeSpr[4][3];
     int oldCastSpr[3];
     int oldHoldSpr[2][2][3];
+	int oldDrownSpr[4][3];
+	int oldFallSpr[4][3];
+	int oldFallSVSpr[4][3];
     memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
     memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
     memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
@@ -9978,6 +10013,9 @@ int onCustomLink()
     memcpy(oldChargeSpr, chargespr, 4*3*sizeof(int));
     memcpy(oldCastSpr, castingspr, 3*sizeof(int));
     memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
+    memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int));
+    memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int));
+    memcpy(oldFallSVSpr, falling_svspr, 4*3*sizeof(int));
     
     
     int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
@@ -10002,6 +10040,9 @@ int onCustomLink()
         memcpy(chargespr, oldChargeSpr, 4*3*sizeof(int));
         memcpy(castingspr, oldCastSpr, 3*sizeof(int));
         memcpy(holdspr, oldHoldSpr, 2*2*3*sizeof(int));
+		memcpy(drowningspr, oldDrownSpr, 4*3*sizeof(int));
+		memcpy(fallingspr, oldFallSpr, 4*3*sizeof(int));
+		memcpy(falling_svspr, oldFallSVSpr, 4*3*sizeof(int));
     }
     
     ret=ret;

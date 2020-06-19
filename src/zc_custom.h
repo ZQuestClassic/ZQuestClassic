@@ -15,7 +15,7 @@ enum
 {
     ls_walk, ls_slash, ls_stab, ls_pound, ls_float, ls_dive,
     ls_landhold1, ls_landhold2, ls_waterhold1, ls_waterhold2, ls_cast,
-    ls_swim, ls_jump, ls_charge, ls_drown, ls_max
+    ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_max
 };
 enum {spr_tile, spr_flip, spr_extend};
 //enum {cst_tile, cst_extend};
@@ -54,7 +54,6 @@ extern int stunned_waterspr[4][3];                          //dir,              
 extern int drowningspr[4][3];                               //dir,                           tile/flip/extend
 extern int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
 extern int fallingspr[4][3];                                //dir,                           tile/flip/extend
-extern int falling_svspr[4][3];                             //dir,                           tile/flip/extend
 extern int shockedspr[4][3];                                //dir,                           tile/flip/extend
 extern int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
 extern int pullswordspr[4][3];                              //dir,                           tile/flip/extend

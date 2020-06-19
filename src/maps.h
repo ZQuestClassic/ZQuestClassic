@@ -62,6 +62,7 @@ bool iswater_type(int type);
 bool ispitfall(int combo);
 bool ispitfall_type(int type);
 bool ispitfall(int x, int y);
+int getpitfall(int x, int y);
 bool isGrassType(int type);
 bool isFlowersType(int type);
 bool isBushType(int type);
