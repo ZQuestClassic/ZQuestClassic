@@ -9755,7 +9755,7 @@ void LinkClass::pitfall()
 			if(int dmg = cmb.attributes[0]) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(zc_min(game->get_life()-dmg,game->get_maxlife()));
+				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
 			if(cmb.usrflags&cflag1) //Warp
 			{
