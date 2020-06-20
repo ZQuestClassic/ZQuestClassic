@@ -10015,7 +10015,6 @@ int onCustomLink()
     memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
     memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int));
     memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int));
-    memcpy(oldFallSVSpr, falling_svspr, 4*3*sizeof(int));
     
     
     int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
@@ -10042,7 +10041,6 @@ int onCustomLink()
         memcpy(holdspr, oldHoldSpr, 2*2*3*sizeof(int));
 		memcpy(drowningspr, oldDrownSpr, 4*3*sizeof(int));
 		memcpy(fallingspr, oldFallSpr, 4*3*sizeof(int));
-		memcpy(falling_svspr, oldFallSVSpr, 4*3*sizeof(int));
     }
     
     ret=ret;
