@@ -2946,6 +2946,11 @@ bool FileExists(char32[] "filepath");
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this is relative to "[zc root]/Files/[quest name]/"
 
+bool Remove(char32[] "filepath");
+ * Deletes the file pointed to by 'filepath'.
+ * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
+ *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+
 /************************************************************************************************************/
 
 ////////////////
@@ -2994,6 +2999,10 @@ bool Create("filepath");
  *     If the file does not exist, it will be created.
  *     If the file DOES exist, all data in the file will be deleted.
  * For an equivalent text file mode, use 'OpenMode("filepath", "w+")'
+
+bool Remove();
+ * Deletes the file. This will close it, as with '->Close()', and then delete it from the filesystem.
+ * Returns true if successful. The file will be closed even on a failure.
 
 bool OpenMode("filepath", "mode_string");
  * If the file pointer has not been allocated, this function will allocate it.

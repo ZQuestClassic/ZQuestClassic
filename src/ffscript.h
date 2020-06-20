@@ -288,21 +288,40 @@ struct user_rgb
 struct user_file
 {
 	FILE* file;
+	std::string filepath;
 	bool reserved;
 	
-	user_file() : file(NULL), reserved(false) {}
+	user_file() : file(NULL), reserved(false), filepath("") {}
 	
 	void clear()
 	{
 		if(file) fclose(file); //Never leave a hanging FILE*!
 		file = NULL;
 		reserved = false;
+		filepath = "";
 	}
 	
 	void close()
 	{
 		if(file) fclose(file);
 		file = NULL;
+		filepath = "";
+	}
+	
+	int do_remove()
+	{
+		if(file) fclose(file);
+		file = NULL;
+		int r = remove(filepath.c_str());
+		filepath = "";
+		return r;
+	}
+	
+	void setPath(char* buf)
+	{
+		if(buf)
+			filepath = buf;
+		else filepath = "";
 	}
 };
 
@@ -570,6 +589,7 @@ void user_files_init();
 int get_free_file(bool skipError = false);
 bool get_scriptfile_path(char* buf, const char* path);
 void do_fopen(const bool v, const char* f_mode);
+void do_fremove();
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();
@@ -1426,6 +1446,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_setDMapData_music(const bool v);
 	
 	static void do_checkdir(const bool is_dir);
+	static void do_fs_remove();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -2696,8 +2717,11 @@ enum ASM_DEFINE
 	STRICMPR,
 	STRINGICOMPARE,
 	STRINGNICOMPARE,
+	
+	FILEREMOVE,
+	FILESYSREMOVE,
 
-	NUMCOMMANDS           //0x018E
+	NUMCOMMANDS           //0x0190
 };
 
 

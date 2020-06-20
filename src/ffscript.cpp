@@ -23611,6 +23611,10 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_checkdir(false);
 				break;
 			
+			case FILESYSREMOVE:
+				FFCore.do_fs_remove();
+				break;
+			
 			case TOBYTE:
 				do_tobyte();
 				break;
@@ -23651,6 +23655,11 @@ int run_script(const byte type, const word script, const long i)
 			case FILEFLUSH:
 			{
 				FFCore.do_fflush();
+				break;
+			}
+			case FILEREMOVE:
+			{
+				FFCore.do_fremove();
 				break;
 			}
 			case FILEGETCHAR:
@@ -24232,6 +24241,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 			f->file = fopen(buf, f_mode);
 			fflush(f->file);
 			zc_chmod(buf, SCRIPT_FILE_MODE);
+			f->setPath(buf);
 			//r+; read-write, will not create if does not exist, will not delete content if does exist.
 			//w+; read-write, will create if does not exist, will delete all content if does exist.
 			if(f->file)
@@ -24246,6 +24256,16 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 			return;
 		}
 	}
+}
+
+void FFScript::do_fremove()
+{
+	if(user_file* f = checkFile(ri->fileref, "Remove()", true))
+	{
+		zprint2("Removing file %d\n", ri->fileref);
+		ri->d[2] = f->do_remove() ? 0L : 10000L;
+	}
+	else ri->d[2] = 0L;
 }
 
 void FFScript::do_fclose()
@@ -26364,7 +26384,7 @@ long FFScript::getQuestHeaderInfo(int type)
 	return quest_format[type];
 }
 
-void FFScript::do_checkdir(const bool is_dir)
+string get_filestr(const bool relative) //Used for 'FileSystem' functions.
 {
 	int strptr = get_register(sarg1)/10000;
 	string the_string;
@@ -26373,13 +26393,25 @@ void FFScript::do_checkdir(const bool is_dir)
 	size_t last = the_string.find_last_not_of('/');
 	if(last!=string::npos)++last;
 	the_string = the_string.substr(0,last); //Kill trailing '/'
-	if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+	if(relative)
 	{
 		char buf[2048] = {0};
 		if(FFCore.get_scriptfile_path(buf, the_string.c_str()))
 			the_string = buf;
 	}
+	return the_string;
+}
+
+void FFScript::do_checkdir(const bool is_dir)
+{
+	string the_string = get_filestr(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE));
 	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
+}
+
+void FFScript::do_fs_remove()
+{
+	string the_string = get_filestr(true);
+	set_register(sarg1, remove(the_string.c_str()) ? 0 : 10000);
 }
 
 //Modules
@@ -31200,6 +31232,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "STRICMPR",           2,   0,   0,   0},
 	{ "STRINGICOMPARE",		       1,   0,   0,   0},
 	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
+	
+	{ "FILEREMOVE",		       0,   0,   0,   0},
+	{ "FILESYSREMOVE",		       1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

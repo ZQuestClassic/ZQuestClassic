@@ -5154,6 +5154,11 @@ string OFileExists::toString()
 	return "FILEEXISTS " + getArgument()->toString();
 }
 
+string OFileSystemRemove::toString()
+{
+	return "FILESYSREMOVE " + getArgument()->toString();
+}
+
 string OFileClose::toString()
 {
 	return "FILECLOSE";
@@ -5262,6 +5267,11 @@ string OFileSeek::toString()
 string OFileOpenMode::toString()
 {
 	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OFileRemove::toString()
+{
+	return "FILEREMOVE";
 };
 
 
