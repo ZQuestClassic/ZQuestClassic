@@ -19485,9 +19485,10 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int mapID = (DMaps[dmapID].map+1);
-		int warp_return_index = -1;
+	int warp_return_index = -1;
+	int dest_dmap_xoff = DMaps[dmapID].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
-	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + scrID)];
 	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
