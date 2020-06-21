@@ -9792,6 +9792,7 @@ void LinkClass::pitfall()
 			fallCombo = pitctr;
 			action=falling; FFCore.setLinkAction(falling);
 			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			fall = 0;
 		}
 	}
 }
