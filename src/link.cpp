@@ -9551,165 +9551,224 @@ int LinkClass::check_pitslide(bool ignore_hover) //Returns bitwise; lower 8 are 
 		bool ispitbl = ispitfall(x,y+15);
 		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
 		bool ispitbr = ispitfall(x+15,y+15);
+		bool ispitul_50 = ispitfall(x+8,y+(bigHitbox?8:12));
+		bool ispitbl_50 = ispitfall(x+8,y+(bigHitbox?7:11));
+		bool ispitur_50 = ispitfall(x+7,y+(bigHitbox?8:12));
+		bool ispitbr_50 = ispitfall(x+7,y+(bigHitbox?7:11));
+		bool ispitul_75 = ispitfall(x+12,y+(bigHitbox?12:14));
+		bool ispitbl_75 = ispitfall(x+12,y+(bigHitbox?3:9));
+		bool ispitur_75 = ispitfall(x+3,y+(bigHitbox?12:14));
+		bool ispitbr_75 = ispitfall(x+3,y+(bigHitbox?3:9));
 		static const int flag_pit_irresistable = (1<<8);
-		if(ispitul && ispitur) //Up
+		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
-			bool leftpit_50 = ispitul && ispitfall(x,y+(bigHitbox?8:12));
-			bool rightpit_50 = ispitur && ispitfall(x+15,y+(bigHitbox?8:12));
-			bool leftpit_75 = ispitul && ispitfall(x,y+(bigHitbox?12:14));
-			bool rightpit_75 = ispitur && ispitfall(x+15,y+(bigHitbox?12:14));
-			if(DrunkDown())
+			case 3:
 			{
-				if(leftpit_75 && rightpit_75) //Straight up
+				if(ispitul && ispitur && ispitbl) //UL_3
 				{
-					return up | flag_pit_irresistable;
+					if(ispitul_50)
+					{
+						if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
+						return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
+					}
 				}
-				else if(leftpit_75)
+				if(ispitul && ispitur && ispitbr) //UR_3
 				{
-					return (can_diag ? l_up : left) | flag_pit_irresistable;
+					if(ispitur_50)
+					{
+						if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
+						return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
+					}
 				}
-				else if(rightpit_75)
+				if(ispitul && ispitbl && ispitbr) //BL_3
 				{
-					return (can_diag ? r_up : right) | flag_pit_irresistable;
+					if(ispitbl_50)
+					{
+						if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
+						return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
+					}
 				}
-				else return -1;
+				if(ispitbl && ispitur && ispitbr) //BR_3
+				{
+					if(ispitbr_50)
+					{
+						if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
+						return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
+					}
+				}
+				break;
 			}
-			else
+			case 2:
 			{
-				if(leftpit_50 && rightpit_50) //Straight up
+				if(ispitul && ispitur) //Up
 				{
-					return up | ((leftpit_75 || rightpit_75) ? flag_pit_irresistable : 0);
+					if(DrunkDown())
+					{
+						if(ispitul_75 && ispitur_75) //Straight up
+						{
+							return up | flag_pit_irresistable;
+						}
+						else if(ispitul_75)
+						{
+							return (can_diag ? l_up : left) | flag_pit_irresistable;
+						}
+						else if(ispitur_75)
+						{
+							return (can_diag ? r_up : right) | flag_pit_irresistable;
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitul_50 && ispitur_50) //Straight up
+						{
+							return up | ((ispitul_75 || ispitur_75) ? flag_pit_irresistable : 0);
+						}
+						else if(ispitul_50)
+						{
+							if(DrunkRight() && !ispitul_75) return -1;
+							return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
+						}
+						else if(ispitur_50)
+						{
+							if(DrunkLeft() && !ispitur_75) return -1;
+							return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
+						}
+					}
 				}
-				else if(leftpit_50)
+				if(ispitbl && ispitbr) //Down
 				{
-					if(DrunkRight() && !leftpit_75) return -1;
-					return (can_diag ? l_up : left) | (leftpit_75 ? flag_pit_irresistable : 0);
+					if(DrunkUp())
+					{
+						if(ispitbl_75 && ispitbr_75) //Straight down
+						{
+							return down | flag_pit_irresistable;
+						}
+						else if(ispitbl_75)
+						{
+							return (can_diag ? l_down : left) | flag_pit_irresistable;
+						}
+						else if(ispitbr_75)
+						{
+							return (can_diag ? r_down : right) | flag_pit_irresistable;
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitbl_50 && ispitbr_50) //Straight down
+						{
+							return down | ((ispitbl_75 || ispitbr_75) ? flag_pit_irresistable : 0);
+						}
+						else if(ispitbl_50)
+						{
+							if(DrunkRight() && !ispitbl_75) return -1;
+							return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
+						}
+						else if(ispitbr_50)
+						{
+							if(DrunkLeft() && !ispitbr_75) return -1;
+							return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
+						}
+					}
 				}
-				else if(rightpit_50)
+				if(ispitbl && ispitul) //Left
 				{
-					if(DrunkLeft() && !rightpit_75) return -1;
-					return (can_diag ? r_up : right) | (rightpit_75 ? flag_pit_irresistable : 0);
+					if(DrunkRight())
+					{
+						if(ispitul_75 && ispitbl_75) //Straight left
+						{
+							return left | flag_pit_irresistable;
+						}
+						else if(ispitul_75)
+						{
+							return (can_diag ? l_up : up) | flag_pit_irresistable;
+						}
+						else if(ispitbl_75)
+						{
+							return (can_diag ? l_down : down) | flag_pit_irresistable;
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitul_50 && ispitbl_50) //Straight left
+						{
+							return left | ((ispitul_75 || ispitbl_75) ? flag_pit_irresistable : 0);
+						}
+						else if(ispitul_50)
+						{
+							if(DrunkDown() && !ispitul_75) return -1;
+							return (can_diag ? l_up : up) | (ispitul_75 ? flag_pit_irresistable : 0);
+						}
+						else if(ispitbl_50)
+						{
+							if(DrunkUp() && !ispitbl_75) return -1;
+							return (can_diag ? l_down : down) | (ispitbl_75 ? flag_pit_irresistable : 0);
+						}
+					}
 				}
+				if(ispitbr && ispitur) //Right
+				{
+					if(DrunkLeft())
+					{
+						if(ispitur_75 && ispitbr_75) //Straight right
+						{
+							return right | flag_pit_irresistable;
+						}
+						else if(ispitur_75)
+						{
+							return (can_diag ? r_up : up) | flag_pit_irresistable;
+						}
+						else if(ispitbr_75)
+						{
+							return (can_diag ? r_down : down) | flag_pit_irresistable;
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitur_50 && ispitbr_50) //Straight right
+						{
+							return right | ((ispitur_75 || ispitbr_75) ? flag_pit_irresistable : 0);
+						}
+						else if(ispitur_50)
+						{
+							if(DrunkDown() && !ispitur_75) return -1;
+							return (can_diag ? r_up : up) | (ispitur_75 ? flag_pit_irresistable : 0);
+						}
+						else if(ispitbr_50)
+						{
+							if(DrunkUp() && !ispitbr_75) return -1;
+							return (can_diag ? r_down : down) | (ispitbr_75 ? flag_pit_irresistable : 0);
+						}
+					}
+				}
+				break;
 			}
-		}
-		if(ispitbl && ispitbr) //Down
-		{
-			bool leftpit_50 = ispitbl && ispitfall(x,y+(bigHitbox?7:11));
-			bool rightpit_50 = ispitbr && ispitfall(x+15,y+(bigHitbox?7:11));
-			bool leftpit_75 = ispitbl && ispitfall(x,y+(bigHitbox?3:9));
-			bool rightpit_75 = ispitbr && ispitfall(x+15,y+(bigHitbox?3:9));
-			if(DrunkUp())
+			case 1:
 			{
-				if(leftpit_75 && rightpit_75) //Straight down
+				if(ispitul && ispitul_50) //UL_1
 				{
-					return down | flag_pit_irresistable;
+					if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
+					return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
 				}
-				else if(leftpit_75)
+				if(ispitur && ispitur_50) //UR_1
 				{
-					return (can_diag ? l_down : left) | flag_pit_irresistable;
+					if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
+					return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
 				}
-				else if(rightpit_75)
+				if(ispitbl && ispitbl_50) //BL_1
 				{
-					return (can_diag ? r_down : right) | flag_pit_irresistable;
+					if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
+					return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
 				}
-				else return -1;
-			}
-			else
-			{
-				if(leftpit_50 && rightpit_50) //Straight down
+				if(ispitbr && ispitbr_50) //BR_1
 				{
-					return down | ((leftpit_75 || rightpit_75) ? flag_pit_irresistable : 0);
+					if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
+					return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
 				}
-				else if(leftpit_50)
-				{
-					if(DrunkRight() && !leftpit_75) return -1;
-					return (can_diag ? l_down : left) | (leftpit_75 ? flag_pit_irresistable : 0);
-				}
-				else if(rightpit_50)
-				{
-					if(DrunkLeft() && !rightpit_75) return -1;
-					return (can_diag ? r_down : right) | (rightpit_75 ? flag_pit_irresistable : 0);
-				}
-			}
-		}
-		if(ispitbl && ispitul) //Left
-		{
-			bool uppit_50 = ispitul && ispitfall(x+8,y+(bigHitbox?0:8));
-			bool downpit_50 = ispitbl && ispitfall(x+8,y+15);
-			bool uppit_75 = ispitul && ispitfall(x+12,y+(bigHitbox?0:8));
-			bool downpit_75 = ispitbl && ispitfall(x+12,y+15);
-			if(DrunkRight())
-			{
-				if(uppit_75 && downpit_75) //Straight left
-				{
-					return left | flag_pit_irresistable;
-				}
-				else if(uppit_75)
-				{
-					return (can_diag ? l_up : up) | flag_pit_irresistable;
-				}
-				else if(downpit_75)
-				{
-					return (can_diag ? l_down : down) | flag_pit_irresistable;
-				}
-				else return -1;
-			}
-			else
-			{
-				if(uppit_50 && downpit_50) //Straight left
-				{
-					return left | ((uppit_75 || downpit_75) ? flag_pit_irresistable : 0);
-				}
-				else if(uppit_50)
-				{
-					if(DrunkDown() && !uppit_75) return -1;
-					return (can_diag ? l_up : up) | (uppit_75 ? flag_pit_irresistable : 0);
-				}
-				else if(downpit_50)
-				{
-					if(DrunkUp() && !downpit_75) return -1;
-					return (can_diag ? l_down : down) | (downpit_75 ? flag_pit_irresistable : 0);
-				}
-			}
-		}
-		if(ispitbr && ispitur) //Right
-		{
-			bool uppit_50 = ispitur && ispitfall(x+7,y+(bigHitbox?0:8));
-			bool downpit_50 = ispitbr && ispitfall(x+7,y+15);
-			bool uppit_75 = ispitur && ispitfall(x+3,y+(bigHitbox?0:8));
-			bool downpit_75 = ispitbr && ispitfall(x+3,y+15);
-			if(DrunkLeft())
-			{
-				if(uppit_75 && downpit_75) //Straight right
-				{
-					return right | flag_pit_irresistable;
-				}
-				else if(uppit_75)
-				{
-					return (can_diag ? r_up : up) | flag_pit_irresistable;
-				}
-				else if(downpit_75)
-				{
-					return (can_diag ? r_down : down) | flag_pit_irresistable;
-				}
-				else return -1;
-			}
-			else
-			{
-				if(uppit_50 && downpit_50) //Straight right
-				{
-					return right | ((uppit_75 || downpit_75) ? flag_pit_irresistable : 0);
-				}
-				else if(uppit_50)
-				{
-					if(DrunkDown() && !uppit_75) return -1;
-					return (can_diag ? r_up : up) | (uppit_75 ? flag_pit_irresistable : 0);
-				}
-				else if(downpit_50)
-				{
-					if(DrunkUp() && !downpit_75) return -1;
-					return (can_diag ? r_down : down) | (downpit_75 ? flag_pit_irresistable : 0);
-				}
+				break;
 			}
 		}
 	}
