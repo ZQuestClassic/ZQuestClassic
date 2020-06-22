@@ -9531,7 +9531,10 @@ bool LinkClass::try_hover()
 	return false;
 }
 
-int LinkClass::check_pitslide(bool ignore_hover) //Returns bitwise; lower 8 are dir pulled in, 9th bit is bool for if can be resisted
+//Returns bitwise; lower 8 are dir pulled in, 9th bit is bool for if can be resisted
+//Returns '-1' if not being pulled
+//Returns '-2' if should be falling in
+int LinkClass::check_pitslide(bool ignore_hover)
 {
 	//Pitfall todo -Venrob
 	//Iron boots; can't fight slipping, 2px/frame
@@ -9562,6 +9565,7 @@ int LinkClass::check_pitslide(bool ignore_hover) //Returns bitwise; lower 8 are 
 		static const int flag_pit_irresistable = (1<<8);
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
+			case 4: return -2; //Fully over pit; fall in
 			case 3:
 			{
 				if(ispitul && ispitur && ispitbl) //UL_3
@@ -9780,6 +9784,7 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	pitfall();
 	if(fallclk) return true;
 	int val = check_pitslide();
+	//Val should not be -2 here; if -2 would have been returned, the 'return true' above should have triggered!
 	int dir = (val == -1 ? -1 : val&0xFF);
 	if(dir > -1 && !(hoverflags & HOV_PITFALL_OUT) && try_hover()) dir = -1;
 	pit_pulldir = dir;
