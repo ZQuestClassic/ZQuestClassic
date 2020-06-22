@@ -2893,7 +2893,7 @@ bool Key[127];
  *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
  *     bypass this, though can be affected via 'KeyRaw[]'
  
-bool KeyPressed[127];
+bool KeyPress[127];
  * Returns true if a key was pressed this frame.
  * Functions similarly to 'Input->Press[]', but for keys.
  * Read/Write; this will affect most engine functions as well, though
