@@ -9544,7 +9544,6 @@ int LinkClass::check_pitslide(bool ignore_hover)
 	//    Fall/slipping SFX for enemies
 	//    Fall SFX for items/weapons
 	//Maybe slip SFX for Link?
-	//Implement ladder over pits
 	//Percentile damage flag?
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
@@ -14071,6 +14070,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // Check if there's water to use the ladder over
             bool wtrx = iswater(MAPCOMBO(wx,wy));
             bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+			bool ladderpits = get_bit(quest_rules, qr_LADDER_PITS);
             
             if(wtrx || wtrx8)
             {
@@ -14092,16 +14092,26 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 		    }
                 }
             }
-            // No water; how about ladder combos?
             else
             {
-                int combo=combobuf[MAPCOMBO(wx, wy)].type;
-                wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
-                combo=combobuf[MAPCOMBO(wx+8, wy)].type;
-                wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
-            }
+				// No water; check other things
+				
+				//Check pits
+				if(ladderpits)
+				{
+					wtrx = ispitfall(wx,wy);
+					wtrx8 = ispitfall(x+8,wy);
+				}
+				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewLink())) //If no pit, check ladder combos
+				{
+					int combo=combobuf[MAPCOMBO(wx, wy)].type;
+					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
+					combo=combobuf[MAPCOMBO(wx+8, wy)].type;
+					wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
+				}
+			}
             
-            bool walkwater = get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy));
+            bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy)));
             
             if((diagonalMovement||NO_GRIDLOCK))
             {
