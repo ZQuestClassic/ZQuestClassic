@@ -964,7 +964,16 @@ bool checkSVLadderPlatform(int x, int y)
 
 bool isstepable(int combo)                                  //can use ladder on it
 {
-    return (combo_class_buf[combobuf[combo].type].ladder_pass!=0) || (get_bit(quest_rules, qr_LADDER_PITS) && combo_class_buf[combobuf[combo].type].pit!=0);
+    if(combo_class_buf[combobuf[combo].type].ladder_pass) return true;
+	if(combo_class_buf[combobuf[combo].type].pit)
+	{
+		if(combobuf[combo].usrflags&cflag4)
+		{
+			int ldrid = current_item_id(itype_ladder);
+			return (ldrid > -1 && itemsbuf[ldrid].flags & ITEM_FLAG1);
+		}
+	}
+	return false;
 }
 
 bool ishookshottable(int bx, int by)

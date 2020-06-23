@@ -9545,6 +9545,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 	//    Fall SFX for items/weapons
 	//Maybe slip SFX for Link?
 	//Percentile damage flag?
+	// Weapons/Misc sprite override for falling sprite?
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
 	{
@@ -14070,7 +14071,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // Check if there's water to use the ladder over
             bool wtrx = iswater(MAPCOMBO(wx,wy));
             bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
-			bool ladderpits = get_bit(quest_rules, qr_LADDER_PITS);
+			int ldrid = current_item_id(itype_ladder);
+			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
             if(wtrx || wtrx8)
             {
@@ -14099,8 +14101,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 				//Check pits
 				if(ladderpits)
 				{
-					wtrx = ispitfall(wx,wy);
-					wtrx8 = ispitfall(x+8,wy);
+					int pit_cmb = getpitfall(wx,wy);
+					wtrx = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
+					pit_cmb = getpitfall(x+8,wy);
+					wtrx8 = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
 				}
 				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewLink())) //If no pit, check ladder combos
 				{
