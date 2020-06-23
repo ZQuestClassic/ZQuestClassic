@@ -961,6 +961,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STRINGICOMPARE",		       1,   0,   0,   0},
 	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
 	
+	{ "FILEREMOVE",		       0,   0,   0,   0},
+	{ "FILESYSREMOVE",		       1,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 

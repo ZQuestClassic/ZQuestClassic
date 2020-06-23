@@ -8836,6 +8836,17 @@ namespace ZScript
 		}
 	};
 	
+	class OFileSystemRemove : public UnaryOpcode
+	{
+	public:
+		OFileSystemRemove(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileSystemRemove(a->clone());
+		}
+	};
+	
 	class OFileClose : public Opcode
 	{
 	public:
@@ -9000,6 +9011,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileGetError(a->clone());
+		}
+	};
+	
+	class OFileRemove : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileRemove();
 		}
 	};
 	
