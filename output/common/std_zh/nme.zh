@@ -33,13 +33,13 @@ namespace nme
 	{
 		unless(n->isValid())
 		{
-			printf("Invalud npc pointer (%d) used to access getnpcinfo()\n", <int>n);
+			printf("Invalid npc pointer (%f) used to access getnpcinfo()\n", <int>n);
 			return ERR_RETURN;
 		}
 		int ptr = n->Misc[INFO];
 		unless(IsValidArray(ptr))
 		{
-			printf("The npc (%d) used with getnpcinfo() does not have a valid info array.\n", <int>n);
+			printf("The npc (%f) used with getnpcinfo() does not have a valid info array.\n", <int>n);
 			return ERR_RETURN;
 		}
 		return ptr[inx];
