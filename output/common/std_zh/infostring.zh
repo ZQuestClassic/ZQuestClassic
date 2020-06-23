@@ -1,0 +1,45 @@
+
+int PayForInfoString(int shop_id, int str_id)
+{
+    if (id < 0 || id > 255 ) 
+    {
+	    printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+	    return 0;
+    }
+    if (str_id < 0 || str_id > 2 )
+    {
+	printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+	    return 0;
+    }
+    return (Game->LoadInfoShopData(shop_id)->String[str_id]);
+}
+
+messagedata GetInfoString(int shop_id, int str_id)
+{
+    if (id < 0 || id > 255 ) 
+    {
+	    printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+	    return 0;
+    }
+    if (str_id < 0 || str_id > 2 )
+    {
+	printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+	    return 0;
+    }
+    return (Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->String[str_id]));
+}
+
+void GetInfoString(char32 buffer, int shop_id, int str_id)
+{
+    if (id < 0 || id > 255 ) 
+    {
+	    printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+	    return 0;
+    }
+    if (str_id < 0 || str_id > 2 )
+    {
+	printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+	    return 0;
+    }
+    Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->Get(buffer));
+}
