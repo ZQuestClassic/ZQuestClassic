@@ -9551,8 +9551,8 @@ int LinkClass::check_pitslide(bool ignore_hover)
 	//    Fall/slipping tiles for enemies
 	//    Fall/slipping SFX for enemies
 	//    Fall SFX for items/weapons
+	//    Weapons/Misc sprite shared for falling items/weapons
 	//Maybe slip SFX for Link?
-	//Percentile damage flag?
 	// Weapons/Misc sprite override for falling sprite?
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
@@ -9826,8 +9826,9 @@ void LinkClass::pitfall()
 			newcombo const& cmb = combobuf[fallCombo];
 			if(int dmg = cmb.attributes[0]) //Damage
 			{
+				bool dmg_perc = (cmb.usrflags&cflag3);
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(game->get_life()-dmg,0,game->get_maxlife()));
+				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
 			}
 			if(cmb.usrflags&cflag1) //Warp
 			{

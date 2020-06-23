@@ -17532,7 +17532,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cPITFALL,
-		{ (char *)"Warp",NULL,NULL,(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,NULL,NULL}
 	},
 	{
@@ -18027,7 +18027,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		260,
-		{ (char *)"Warp",(char *)"Direct Warp",NULL,(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",(char *)"TileWarp ID",NULL,NULL}
 	},
 	{
