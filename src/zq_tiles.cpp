@@ -17532,8 +17532,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cPITFALL,
-		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,NULL,NULL}
+		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,(char *)"Pull Sensitivity",NULL}
 	},
 	{
 		cMAX,
@@ -18026,9 +18026,19 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 	},
 	{
-		260,
-		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		260, //Pit (warp on, no pull off)
+		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",(char *)"TileWarp ID",(char *)"Pull Sensitivity",NULL}
+	},
+	{
+		261, //Pit (warp on, no pull on)
+		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",(char *)"TileWarp ID",NULL,NULL}
+	},
+	{
+		262, //Pit (warp off, no pull on)
+		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,NULL,NULL}
 	},
 	{
 		-1,
@@ -18143,7 +18153,7 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        46,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
     { jwin_check_proc,        46,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
     { jwin_check_proc,        46,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        46,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   (void*)get_tick_sel                  },
     //52
     { jwin_check_proc,        46,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
     { jwin_check_proc,        46,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
@@ -18832,9 +18842,16 @@ bool edit_combo(int c,bool freshen,int cs)
 			{
 				if(combo_dlg[47].flags & D_SELECTED) //change labels
 				{
-					setComboLabels(260);
+					if(combo_dlg[51].flags & D_SELECTED)
+						setComboLabels(261);
+					else setComboLabels(260);
 				}
-				else setComboLabels(bict[combo_dlg[25].d1].i);
+				else
+				{
+					if(combo_dlg[51].flags & D_SELECTED)
+						setComboLabels(262);
+					else setComboLabels(bict[combo_dlg[25].d1].i);
+				}
 				break;
 			}
 			default: setComboLabels(bict[combo_dlg[25].d1].i); break;

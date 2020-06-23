@@ -9539,7 +9539,7 @@ bool LinkClass::try_hover()
 	return false;
 }
 
-//Returns bitwise; lower 8 are dir pulled in, 9th bit is bool for if can be resisted
+//Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
 //Returns '-1' if not being pulled
 //Returns '-2' if should be falling in
 int LinkClass::check_pitslide(bool ignore_hover)
@@ -9558,19 +9558,19 @@ int LinkClass::check_pitslide(bool ignore_hover)
 	if(can_pitfall(ignore_hover))
 	{
 		bool can_diag = (diagonalMovement || get_bit(quest_rules,qr_DISABLE_4WAY_GRIDLOCK));
-		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
-		bool ispitbl = ispitfall(x,y+15);
-		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
-		bool ispitbr = ispitfall(x+15,y+15);
-		bool ispitul_50 = ispitfall(x+8,y+(bigHitbox?8:12));
-		bool ispitbl_50 = ispitfall(x+8,y+(bigHitbox?7:11));
-		bool ispitur_50 = ispitfall(x+7,y+(bigHitbox?8:12));
-		bool ispitbr_50 = ispitfall(x+7,y+(bigHitbox?7:11));
-		bool ispitul_75 = ispitfall(x+12,y+(bigHitbox?12:14));
-		bool ispitbl_75 = ispitfall(x+12,y+(bigHitbox?3:9));
-		bool ispitur_75 = ispitfall(x+3,y+(bigHitbox?12:14));
-		bool ispitbr_75 = ispitfall(x+3,y+(bigHitbox?3:9));
-		static const int flag_pit_irresistable = (1<<8);
+		int ispitul = getpitfall(x,y+(bigHitbox?0:8));
+		int ispitbl = getpitfall(x,y+15);
+		int ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
+		int ispitbr = getpitfall(x+15,y+15);
+		int ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
+		int ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
+		int ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
+		int ispitbr_50 = getpitfall(x+7,y+(bigHitbox?7:11));
+		int ispitul_75 = getpitfall(x+12,y+(bigHitbox?12:14));
+		int ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
+		int ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
+		int ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
+		static const int flag_pit_irresistable = (1<<24);
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
 			case 4: return -2; //Fully over pit; fall in
@@ -9581,7 +9581,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					if(ispitul_50)
 					{
 						if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
-						return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
+						return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
 					}
 				}
 				if(ispitul && ispitur && ispitbr) //UR_3
@@ -9589,7 +9589,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					if(ispitur_50)
 					{
 						if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
-						return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
+						return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
 					}
 				}
 				if(ispitul && ispitbl && ispitbr) //BL_3
@@ -9597,7 +9597,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					if(ispitbl_50)
 					{
 						if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
-						return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
+						return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
 					}
 				}
 				if(ispitbl && ispitur && ispitbr) //BR_3
@@ -9605,7 +9605,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					if(ispitbr_50)
 					{
 						if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
-						return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
+						return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
 					}
 				}
 				break;
@@ -9618,15 +9618,15 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitul_75 && ispitur_75) //Straight up
 						{
-							return up | flag_pit_irresistable;
+							return up | flag_pit_irresistable | (ispitul << 8);
 						}
 						else if(ispitul_75)
 						{
-							return (can_diag ? l_up : left) | flag_pit_irresistable;
+							return (can_diag ? l_up : left) | flag_pit_irresistable | (ispitul << 8);
 						}
 						else if(ispitur_75)
 						{
-							return (can_diag ? r_up : right) | flag_pit_irresistable;
+							return (can_diag ? r_up : right) | flag_pit_irresistable | (ispitur << 8);
 						}
 						else return -1;
 					}
@@ -9634,17 +9634,17 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitul_50 && ispitur_50) //Straight up
 						{
-							return up | ((ispitul_75 || ispitur_75) ? flag_pit_irresistable : 0);
+							return up | ((ispitul_75 || ispitur_75) ? flag_pit_irresistable : 0) | (ispitul << 8);
 						}
 						else if(ispitul_50)
 						{
 							if(DrunkRight() && !ispitul_75) return -1;
-							return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
 						}
 						else if(ispitur_50)
 						{
 							if(DrunkLeft() && !ispitur_75) return -1;
-							return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
 						}
 					}
 				}
@@ -9654,15 +9654,15 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitbl_75 && ispitbr_75) //Straight down
 						{
-							return down | flag_pit_irresistable;
+							return down | flag_pit_irresistable | (ispitbl << 8);
 						}
 						else if(ispitbl_75)
 						{
-							return (can_diag ? l_down : left) | flag_pit_irresistable;
+							return (can_diag ? l_down : left) | flag_pit_irresistable | (ispitbl << 8);
 						}
 						else if(ispitbr_75)
 						{
-							return (can_diag ? r_down : right) | flag_pit_irresistable;
+							return (can_diag ? r_down : right) | flag_pit_irresistable | (ispitbr << 8);
 						}
 						else return -1;
 					}
@@ -9670,17 +9670,17 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitbl_50 && ispitbr_50) //Straight down
 						{
-							return down | ((ispitbl_75 || ispitbr_75) ? flag_pit_irresistable : 0);
+							return down | ((ispitbl_75 || ispitbr_75) ? flag_pit_irresistable : 0) | (ispitbl << 8);
 						}
 						else if(ispitbl_50)
 						{
 							if(DrunkRight() && !ispitbl_75) return -1;
-							return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
 						}
 						else if(ispitbr_50)
 						{
 							if(DrunkLeft() && !ispitbr_75) return -1;
-							return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
 						}
 					}
 				}
@@ -9690,15 +9690,15 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitul_75 && ispitbl_75) //Straight left
 						{
-							return left | flag_pit_irresistable;
+							return left | flag_pit_irresistable | (ispitul << 8);
 						}
 						else if(ispitul_75)
 						{
-							return (can_diag ? l_up : up) | flag_pit_irresistable;
+							return (can_diag ? l_up : up) | flag_pit_irresistable | (ispitul << 8);
 						}
 						else if(ispitbl_75)
 						{
-							return (can_diag ? l_down : down) | flag_pit_irresistable;
+							return (can_diag ? l_down : down) | flag_pit_irresistable | (ispitbl << 8);
 						}
 						else return -1;
 					}
@@ -9706,17 +9706,17 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitul_50 && ispitbl_50) //Straight left
 						{
-							return left | ((ispitul_75 || ispitbl_75) ? flag_pit_irresistable : 0);
+							return left | ((ispitul_75 || ispitbl_75) ? flag_pit_irresistable : 0) | (ispitul << 8);
 						}
 						else if(ispitul_50)
 						{
 							if(DrunkDown() && !ispitul_75) return -1;
-							return (can_diag ? l_up : up) | (ispitul_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? l_up : up) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
 						}
 						else if(ispitbl_50)
 						{
 							if(DrunkUp() && !ispitbl_75) return -1;
-							return (can_diag ? l_down : down) | (ispitbl_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? l_down : down) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
 						}
 					}
 				}
@@ -9726,15 +9726,15 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitur_75 && ispitbr_75) //Straight right
 						{
-							return right | flag_pit_irresistable;
+							return right | flag_pit_irresistable | (ispitur << 8);
 						}
 						else if(ispitur_75)
 						{
-							return (can_diag ? r_up : up) | flag_pit_irresistable;
+							return (can_diag ? r_up : up) | flag_pit_irresistable | (ispitur << 8);
 						}
 						else if(ispitbr_75)
 						{
-							return (can_diag ? r_down : down) | flag_pit_irresistable;
+							return (can_diag ? r_down : down) | flag_pit_irresistable | (ispitbr << 8);
 						}
 						else return -1;
 					}
@@ -9742,17 +9742,17 @@ int LinkClass::check_pitslide(bool ignore_hover)
 					{
 						if(ispitur_50 && ispitbr_50) //Straight right
 						{
-							return right | ((ispitur_75 || ispitbr_75) ? flag_pit_irresistable : 0);
+							return right | ((ispitur_75 || ispitbr_75) ? flag_pit_irresistable : 0) | (ispitur << 8);
 						}
 						else if(ispitur_50)
 						{
 							if(DrunkDown() && !ispitur_75) return -1;
-							return (can_diag ? r_up : up) | (ispitur_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? r_up : up) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
 						}
 						else if(ispitbr_50)
 						{
 							if(DrunkUp() && !ispitbr_75) return -1;
-							return (can_diag ? r_down : down) | (ispitbr_75 ? flag_pit_irresistable : 0);
+							return (can_diag ? r_down : down) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
 						}
 					}
 				}
@@ -9763,22 +9763,22 @@ int LinkClass::check_pitslide(bool ignore_hover)
 				if(ispitul && ispitul_50) //UL_1
 				{
 					if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
-					return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0);
+					return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
 				}
 				if(ispitur && ispitur_50) //UR_1
 				{
 					if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
-					return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0);
+					return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
 				}
 				if(ispitbl && ispitbl_50) //BL_1
 				{
 					if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
-					return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0);
+					return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
 				}
 				if(ispitbr && ispitbr_50) //BR_1
 				{
 					if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
-					return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0);
+					return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
 				}
 				break;
 			}
@@ -9793,25 +9793,54 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	if(fallclk) return true;
 	int val = check_pitslide();
 	//Val should not be -2 here; if -2 would have been returned, the 'return true' above should have triggered!
-	int dir = (val == -1 ? -1 : val&0xFF);
-	if(dir > -1 && !(hoverflags & HOV_PITFALL_OUT) && try_hover()) dir = -1;
+	if(val == -1)
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
+	int dir = val&0xFF;
+	int cmbid = (val&0xFFFF00)>>8;
+	int sensitivity = combobuf[cmbid].attribytes[2];
+	if(combobuf[cmbid].usrflags&cflag5) //No pull at all
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
+	if(dir > -1 && !(hoverflags & HOV_PITFALL_OUT) && try_hover()) //Engage hovers
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
 	pit_pulldir = dir;
-	switch(dir)
+	int step = 1;
+	if(sensitivity == 0)
 	{
-		case -1: return false;
-		case l_up: case l_down: case left:
-			--x; break;
-		case r_up: case r_down: case right:
-			++x; break;
+		step = 2;
+		sensitivity = 1;
 	}
-	switch(dir)
+	if(++pit_pullclk % sensitivity) //No pull this frame
+		return (val&0x100);
+	for(; step > 0 && !fallclk; --step)
 	{
-		case l_up: case r_up: case up:
-			--y; break;
-		case l_down: case r_down: case down:
-			++y; break;
+		switch(dir)
+		{
+			case l_up: case l_down: case left:
+				--x; break;
+			case r_up: case r_down: case right:
+				++x; break;
+		}
+		switch(dir)
+		{
+			case l_up: case r_up: case up:
+				--y; break;
+			case l_down: case r_down: case down:
+				++y; break;
+		}
+		pitfall();
 	}
-	pitfall();
 	return fallclk || (val&0x100);
 }
 
