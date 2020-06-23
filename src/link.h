@@ -274,6 +274,7 @@ public:
 	byte hoverflags;
 	long extra_jump_count;
     // Methods below here.
+	bool isStanding(bool forJump = false);
     void explode(int type);
     int getTileModifier();
     void setTileModifier(int ntemod);

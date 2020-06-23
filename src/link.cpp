@@ -92,7 +92,31 @@ extern sprite_list particles;
 
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
-#define isStanding()		(z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0)
+#define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
+#define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
+
+static inline bool platform_fallthrough()
+{
+	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+}
+
+static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
+{
+	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
+		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
+		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
+}
+
+bool LinkClass::isStanding(bool forJump)
+{
+	bool st = (z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
+	if(!st) return false;
+	int val = check_pitslide();
+	if(val == -2) return false;
+	if(val == -1) return true;
+	return forJump;
+}
 
 static int isNextType(int type)
 {
@@ -198,25 +222,9 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 		else return 0;
 }
 
-#define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
-#define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
-
-static inline bool platform_fallthrough()
-{
-	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
-		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
-}
-
-static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
-{
-	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
-		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
-		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
-}
-
 bool LinkClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!obeys_gravity));
+	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!obeys_gravity));
 }
 
 int LinkClass::DrunkClock()
@@ -7804,7 +7812,7 @@ bool LinkClass::startwpn(int itemid)
     {
         if(!inlikelike && charging==0)
         {
-			bool standing = isStanding();
+			bool standing = isStanding(true);
 			if(standing || extra_jump_count < itemsbuf[itemid].misc1)
 			{
 				if(!checkmagiccost(itemid))
@@ -9856,7 +9864,6 @@ void LinkClass::pitfall()
 			fallCombo = pitctr;
 			action=falling; FFCore.setLinkAction(falling);
 			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
-			fall = 0;
 		}
 	}
 }
