@@ -6762,7 +6762,7 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
 		code.push_back(new ONPCRemove(new VarArgument(EXP1)));
