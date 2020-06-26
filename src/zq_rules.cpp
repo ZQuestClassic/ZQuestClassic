@@ -679,7 +679,7 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,-1
+    22,23,24,25,26,27,28,29,30,31,32,-1
 };
 
 static TABPANEL miscrules_tabs[] =
@@ -730,6 +730,7 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Ex3 and Ex4 Shift A-Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Fast Mode (Uncap)", NULL, NULL },
     { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow permanent secrets on Dungeon-type dmaps", NULL, NULL },
+    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Scrolling Screen While In Air", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -740,7 +741,7 @@ static int miscrules[] =
     qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, 
 	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
-	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS,
+	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR,
 
 	-1
 };
