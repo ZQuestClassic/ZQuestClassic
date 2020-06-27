@@ -18409,7 +18409,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         y=0;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(up))
             doit=false;
             
@@ -18467,7 +18470,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         y=160;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(down))
             doit=false;
             
@@ -18525,7 +18531,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         x=0;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(left))
             doit=false;
             
@@ -18584,7 +18593,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         x=240;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(right))
             doit=false;
             
