@@ -22,14 +22,28 @@ inline ZLong toZLong(long val);
 inline zfix floor(zfix fx);
 inline zfix abs(zfix fx);
 
+static int zfixvbound(ZLong x, int low, int high)
+{
+	assert(low <= high);
+	if(x<low) return low;
+	if(x>high) return high;
+	return x;
+}
+//inline int vbound(int x,int low,int high);
+//inline float vbound(float x,float low,float high);
+
+
+
 class zfix
 {
 public:
 	ZLong val;
-	
+
 	long getInt() const
 	{
-		return val/10000L;
+		//return val/10000L; //breaks rounding
+		//return val/10000L + zfixvbound((val%10000L),-1,1); //nope
+		return val/10000L + zfixvbound((val%10000L)/5000L,-1,1);
 	}
 	double getFloat() const
 	{
@@ -43,6 +57,8 @@ public:
 	{
 		return val%10000;
 	}
+	
+	
 	
 	zfix& doFloor()
 	{
