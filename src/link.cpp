@@ -9584,7 +9584,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
 					}
 				}
-				if(ispitul && ispitur && ispitbr) //UR_3
+				else if(ispitul && ispitur && ispitbr) //UR_3
 				{
 					if(ispitur_50)
 					{
@@ -9592,7 +9592,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
 					}
 				}
-				if(ispitul && ispitbl && ispitbr) //BL_3
+				else if(ispitul && ispitbl && ispitbr) //BL_3
 				{
 					if(ispitbl_50)
 					{
@@ -9600,7 +9600,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
 					}
 				}
-				if(ispitbl && ispitur && ispitbr) //BR_3
+				else if(ispitbl && ispitur && ispitbr) //BR_3
 				{
 					if(ispitbr_50)
 					{
@@ -9648,7 +9648,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						}
 					}
 				}
-				if(ispitbl && ispitbr) //Down
+				else if(ispitbl && ispitbr) //Down
 				{
 					if(DrunkUp())
 					{
@@ -9684,7 +9684,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						}
 					}
 				}
-				if(ispitbl && ispitul) //Left
+				else if(ispitbl && ispitul) //Left
 				{
 					if(DrunkRight())
 					{
@@ -9720,7 +9720,7 @@ int LinkClass::check_pitslide(bool ignore_hover)
 						}
 					}
 				}
-				if(ispitbr && ispitur) //Right
+				else if(ispitbr && ispitur) //Right
 				{
 					if(DrunkLeft())
 					{
