@@ -3289,131 +3289,131 @@ void SetMapscreenFlag(mapdata m, mapscreenflags flagid, bool state)
 	{
 		//0, flags
 		case MSF_BLOCKSHUT:
-			m->Flags[0] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
 		case MSF_ENEMIES_ITEM:
-			m->Flags[0] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
 		case MSF_DARKROOM:
-			m->Flags[0] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
 		//8 IS A DUMMY PROC
 		case MSF_STAIRS:
-			m->Flags[0] |= (state) ? 15 : ~16; break;
+			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
 		case MSF_ALLOW_LADDER:
-			m->Flags[0] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
 		case MSF_MAZEPATHS:
-			m->Flags[0] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
 		case MSF_SFXONENTRY:
-			m->Flags[0] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
 		
 		//1, flags2
 		//what, no 1?
 		case MSF_MIDAIR:
-			m->Flags[1] |= (state) ? 2>>4 : ~2>>4; break;  
+			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
 		case MSF_TRAPS_IGNORE_SOLID:
-			m->Flags[1] |= (state) ? 4>>4 : ~4>>4; break;  
+			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
 		case MSF_ENEMEIS_SECRET:
-			m->Flags[1] |= (state) ? 8>>4 : ~8>>4; break;  
+			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
 		
 		//2, flags3
 		case MSF_HOLDUP:
-			m->Flags[2] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
 		case MSF_CYCLEINIT:
-			m->Flags[2] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
 		case MSF_INVISIBLEENEMIES:
-			m->Flags[2] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
 		case MSF_INVISLINK:
-			m->Flags[2] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
 		case MSF_NOSUBSCREEN:
-			m->Flags[2] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
 		case MSF_SPRITECARRY:
-			m->Flags[2] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
 		case MSF_NOOFFSET:
-			m->Flags[2] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
 		case MSF_EMELIESALWAYSRETURN:
-			m->Flags[2] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
 		
 		//3, flags4
 		//1 AND 2 ARE APPARENTLY UNUSED?
 		case MSF_DIRECTTIMEDWARPS:
-			m->Flags[3] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
 		case MSF_SECRETSISABLETIMEWRP:
-			m->Flags[3] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
 		case MSF_ENEMIES_SECRET_PERM:
-			m->Flags[3] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
 		//32 IS NOT USED
 		case MSF_SAVECONTHERE:
-			m->Flags[3] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
 		case MSF_SAVEONENTRY:
-			m->Flags[3] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
 		
 		//4, flags5
 		//no 1?
 		case MSF_RANDOMTIMEDWARP:
-			m->Flags[4] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
 		case MSF_IGNOREBOOTS:
-			m->Flags[4] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
 		case MSF_AUTODIRECT:
-			m->Flags[4] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
 		case MSF_SENDSIRECT:
-			m->Flags[4] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
 		case MSF_TEMPSECRETS:
-			m->Flags[4] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
 		//no 32?
 		case MSF_NO_DIVING:
-			m->Flags[4] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
 		case MSF_NOCARRYOVERFFC:
-			m->Flags[4] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
 		
 		
 		//5, flags6
 		case MSF_INTERIOR:
-			m->Flags[5] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
 		case MSF_DUNGEON:
-			m->Flags[5] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
 		case MSF_TRIGPERM:
-			m->Flags[5] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
 		case MSF_CONTHERE:
-			m->Flags[5] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
 		case MSF_NOCONTINUEWARP:
-			m->Flags[5] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
 		case MSF_ALLTRIGFLAGS:
-			m->Flags[5] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
 		case MSF_TOGGLERINGS:
-			m->Flags[5] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
 		case MSF_WRAPFFC:
-			m->Flags[5] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
 		
 		//6, flags7
 		case MSF_LAYER3BG:
-			m->Flags[6] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
 		case MSF_LAYER2BG:
-			m->Flags[6] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
 		case MSF_FALLS:
-			m->Flags[6] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
 		case MSF_SIDEVIEW:
-			m->Flags[6] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
 		case MSF_NOLINKMARKER:
-			m->Flags[6] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
 		//32 IS UNUSED
 		case MSF_PALCHANGE:
-			m->Flags[6] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
 		case MSF_DRYLAKE:
-			m->Flags[6] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
 		
 		//7, flags8
 		case MSF_SCRIPT1:
-			m->Flags[7] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
 		case MSF_SCRIPT2:
-			m->Flags[7] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
 		case MSF_SCRIPT3:
-			m->Flags[7] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
 		case MSF_SCRIPT4:
-			m->Flags[7] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
 		case MSF_SCRIPT5:
-			m->Flags[7] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
 		case MSF_LENSEFFECT:
-			m->Flags[7] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
 		case MSF_MAZEOVERRIDE:
-			m->Flags[7] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
 		
 		
 		default: 
@@ -3433,131 +3433,131 @@ void SetMapscreenFlag(int mapid, int scr, mapscreenflags flagid, bool state)
 	{
 		//0, flags
 		case MSF_BLOCKSHUT:
-			m->Flags[0] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
 		case MSF_ENEMIES_ITEM:
-			m->Flags[0] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
 		case MSF_DARKROOM:
-			m->Flags[0] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
 		//8 IS A DUMMY PROC
 		case MSF_STAIRS:
-			m->Flags[0] |= (state) ? 15 : ~16; break;
+			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
 		case MSF_ALLOW_LADDER:
-			m->Flags[0] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
 		case MSF_MAZEPATHS:
-			m->Flags[0] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
 		case MSF_SFXONENTRY:
-			m->Flags[0] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
 		
 		//1, flags2
 		//what, no 1?
 		case MSF_MIDAIR:
-			m->Flags[1] |= (state) ? 2>>4 : ~2>>4; break;  
+			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
 		case MSF_TRAPS_IGNORE_SOLID:
-			m->Flags[1] |= (state) ? 4>>4 : ~4>>4; break;  
+			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
 		case MSF_ENEMEIS_SECRET:
-			m->Flags[1] |= (state) ? 8>>4 : ~8>>4; break;  
+			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
 		
 		//2, flags3
 		case MSF_HOLDUP:
-			m->Flags[2] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
 		case MSF_CYCLEINIT:
-			m->Flags[2] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
 		case MSF_INVISIBLEENEMIES:
-			m->Flags[2] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
 		case MSF_INVISLINK:
-			m->Flags[2] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
 		case MSF_NOSUBSCREEN:
-			m->Flags[2] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
 		case MSF_SPRITECARRY:
-			m->Flags[2] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
 		case MSF_NOOFFSET:
-			m->Flags[2] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
 		case MSF_EMELIESALWAYSRETURN:
-			m->Flags[2] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
 		
 		//3, flags4
 		//1 AND 2 ARE APPARENTLY UNUSED?
 		case MSF_DIRECTTIMEDWARPS:
-			m->Flags[3] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
 		case MSF_SECRETSISABLETIMEWRP:
-			m->Flags[3] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
 		case MSF_ENEMIES_SECRET_PERM:
-			m->Flags[3] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
 		//32 IS NOT USED
 		case MSF_SAVECONTHERE:
-			m->Flags[3] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
 		case MSF_SAVEONENTRY:
-			m->Flags[3] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
 		
 		//4, flags5
 		//no 1?
 		case MSF_RANDOMTIMEDWARP:
-			m->Flags[4] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
 		case MSF_IGNOREBOOTS:
-			m->Flags[4] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
 		case MSF_AUTODIRECT:
-			m->Flags[4] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
 		case MSF_SENDSIRECT:
-			m->Flags[4] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
 		case MSF_TEMPSECRETS:
-			m->Flags[4] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
 		//no 32?
 		case MSF_NO_DIVING:
-			m->Flags[4] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
 		case MSF_NOCARRYOVERFFC:
-			m->Flags[4] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
 		
 		
 		//5, flags6
 		case MSF_INTERIOR:
-			m->Flags[5] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
 		case MSF_DUNGEON:
-			m->Flags[5] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
 		case MSF_TRIGPERM:
-			m->Flags[5] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
 		case MSF_CONTHERE:
-			m->Flags[5] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
 		case MSF_NOCONTINUEWARP:
-			m->Flags[5] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
 		case MSF_ALLTRIGFLAGS:
-			m->Flags[5] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
 		case MSF_TOGGLERINGS:
-			m->Flags[5] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
 		case MSF_WRAPFFC:
-			m->Flags[5] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
 		
 		//6, flags7
 		case MSF_LAYER3BG:
-			m->Flags[6] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
 		case MSF_LAYER2BG:
-			m->Flags[6] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
 		case MSF_FALLS:
-			m->Flags[6] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
 		case MSF_SIDEVIEW:
-			m->Flags[6] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
 		case MSF_NOLINKMARKER:
-			m->Flags[6] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
 		//32 IS UNUSED
 		case MSF_PALCHANGE:
-			m->Flags[6] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
 		case MSF_DRYLAKE:
-			m->Flags[6] |= (state) ? 128 : ~128; break;
+			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
 		
 		//7, flags8
 		case MSF_SCRIPT1:
-			m->Flags[7] |= (state) ? 1 : ~1; break;
+			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
 		case MSF_SCRIPT2:
-			m->Flags[7] |= (state) ? 2 : ~2; break;
+			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
 		case MSF_SCRIPT3:
-			m->Flags[7] |= (state) ? 4 : ~4; break;
+			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
 		case MSF_SCRIPT4:
-			m->Flags[7] |= (state) ? 8 : ~8; break;
+			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
 		case MSF_SCRIPT5:
-			m->Flags[7] |= (state) ? 16 : ~16; break;
+			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
 		case MSF_LENSEFFECT:
-			m->Flags[7] |= (state) ? 32 : ~32; break;
+			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
 		case MSF_MAZEOVERRIDE:
-			m->Flags[7] |= (state) ? 64 : ~64; break;
+			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
 		
 		
 		default: 
