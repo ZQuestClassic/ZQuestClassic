@@ -7650,29 +7650,38 @@ long get_register(const long arg)
 
 		case MAPDATAFLAGS: 
 		{
-			int flagid = (ri->d[0])/10000;
-			mapscr *m = GetMapscr(ri->mapsref); 
-			//bool valtrue = ( value ? 10000 : 0);
-			switch(flagid)
+			if ( get_bit(quest_rules, qr_OLDMAPDATAFLAGS) )
 			{
-				case 0: ret = (m->flags * 10000); break;
-				case 1: ret = (m->flags2 * 10000); break;
-				case 2: ret = (m->flags3 * 10000); break;
-				case 3: ret = (m->flags4 * 10000); break;
-				case 4: ret = (m->flags5 * 10000); break;
-				case 5: ret = (m->flags6 * 10000); break;
-				case 6: ret = (m->flags7 * 10000); break;
-				case 7: ret = (m->flags8 * 10000); break;
-				case 8: ret = (m->flags9 * 10000); break;
-				case 9: ret = (m->flags10 * 10000); break;
-				default:
+				mapscr *m = GetMapscr(ri->mapsref);
+				ret = get_screenflags(m,vbound(ri->d[0] / 10000,0,9));
+			}
+			else
+			{
+				int flagid = (ri->d[0])/10000;
+				mapscr *m = GetMapscr(ri->mapsref); 
+				//bool valtrue = ( value ? 10000 : 0);
+				switch(flagid)
 				{
-					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
-					ret = -10000;
-					break;
-					
+					case 0: ret = (m->flags * 10000); break;
+					case 1: ret = (m->flags2 * 10000); break;
+					case 2: ret = (m->flags3 * 10000); break;
+					case 3: ret = (m->flags4 * 10000); break;
+					case 4: ret = (m->flags5 * 10000); break;
+					case 5: ret = (m->flags6 * 10000); break;
+					case 6: ret = (m->flags7 * 10000); break;
+					case 7: ret = (m->flags8 * 10000); break;
+					case 8: ret = (m->flags9 * 10000); break;
+					case 9: ret = (m->flags10 * 10000); break;
+					default:
+					{
+						Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+						ret = -10000;
+						break;
+						
+					}
 				}
 			}
+			
 			break;
 			//GET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
