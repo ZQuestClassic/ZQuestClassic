@@ -29,6 +29,7 @@
 #include <queue>
 
 char *item_string[ITEMCNT];
+extern newcombo *combobuf;
 
 extern zinitdata zinit;
 #ifndef IS_ZQUEST
@@ -89,7 +90,18 @@ bool item::animate(int)
 			}
 		} 
 		*/
-		
+		if(fallclk > 0)
+		{
+			if(!--fallclk) return true;
+			
+			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (70-fallclk);
+			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			return false;
+		}
 		if(isSideViewGravity())
 		{
 			if((
@@ -132,6 +144,14 @@ bool item::animate(int)
 				else if(fall <= (int)zinit.terminalv)
 				{
 					fall += zinit.gravity;
+				}
+				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				{
+					int fallCombo = item_pits(x, y, fallclk);
+					if(fallCombo)
+					{
+						sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+					}
 				}
 			}
 		}
@@ -224,9 +244,9 @@ void item::draw(BITMAP *dest)
 		shadowtile = wpnsbuf[iwShadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
-	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
+	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk)
 	{
-		if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy)
+		if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy || fallclk)
 		{
 			sprite::draw(dest);
 		}

@@ -7547,7 +7547,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//V_MISC >= 11
 	if(!p_iputl(Misc->zscript_last_compiled_version,f))
                      new_return(23);
-        
+		
+		//V_MISC >= 12
+		for(int q = 0; q < sprMAX; ++q)
+		{
+			if(!p_putc(Misc->sprites[q],f))
+				new_return(24);
+		}
+		
         if(writecycle==0)
         {
             section_size=writesize;

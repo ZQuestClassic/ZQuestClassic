@@ -2574,68 +2574,69 @@ bool LinkClass::checkstab()
     {
         for(int j=0; j<items.Count(); j++)
         {
-            if(((item*)items.spr(j))->pickup & ipTIMER)
+			item* ptr = (item*)items.spr(j); 
+            if(ptr->pickup & ipTIMER)
             {
-                if(((item*)items.spr(j))->clk2 >= 32)
+                if(ptr->clk2 >= 32 && !ptr->fallclk)
                 {
-                    if(items.spr(j)->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && items.spr(j)->hit(x,y-8,z,wxsz,wysz,1))
-                            || (attack==wHammer && items.spr(j)->hit(x,y-8,z,wxsz,wysz,1)))
+                    if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
+                            || (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
                     {
-                        int pickup = ((item*)items.spr(j))->pickup;
+                        int pickup = ptr->pickup;
                         
                         if(pickup&ipONETIME) // set mITEM for one-time-only items
                             setmapflag(mITEM);
                         else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
                             setmapflag();
                             
-                        if(itemsbuf[items.spr(j)->id].collect_script)
+                        if(itemsbuf[ptr->id].collect_script)
                         {
 				//clear item script stack. 
-				//ri = &(itemScriptData[items.spr(j)->id]);
+				//ri = &(itemScriptData[ptr->id]);
 				//ri->Clear();
-				//itemCollectScriptData[items.spr(j)->id].Clear();
-				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0;
-				ri = &(itemCollectScriptData[items.spr(j)->id]);
-				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0xFFFF;
+				//itemCollectScriptData[ptr->id].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
+				ri = &(itemCollectScriptData[ptr->id]);
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
 				
-				if ( items.spr(j)->id > 0 && !item_collect_doscript[items.spr(j)->id] ) //No collect script on item 0. 
+				if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
 				{
-					item_collect_doscript[items.spr(j)->id] = 1;
-					itemscriptInitialised[items.spr(j)->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id)*-1));
+					item_collect_doscript[ptr->id] = 1;
+					itemscriptInitialised[ptr->id] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
 					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(items.spr(j)->id));
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
 				}
-				else if (items.spr(j)->id == 0 && !item_collect_doscript[items.spr(j)->id]) //item 0
+				else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
 				{
-					item_collect_doscript[items.spr(j)->id] = 1;
-					itemscriptInitialised[items.spr(j)->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+					item_collect_doscript[ptr->id] = 1;
+					itemscriptInitialised[ptr->id] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
 					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
 				}
 	
-				//runningItemScripts[items.spr(j)->id] = 0;
+				//runningItemScripts[ptr->id] = 0;
 				
                         }
 			
 			//Passive item scripts on colelction
-                        if(itemsbuf[items.spr(j)->id].script && ( (itemsbuf[items.spr(j)->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+                        if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 			{
-				ri = &(itemScriptData[items.spr(j)->id]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[items.spr(j)->id][q] = 0xFFFF;
+				ri = &(itemScriptData[ptr->id]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-				item_doscript[items.spr(j)->id] = 1;
-				itemscriptInitialised[items.spr(j)->id] = 0;
+				item_doscript[ptr->id] = 1;
+				itemscriptInitialised[ptr->id] = 0;
 				//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].script, items.spr(j)->id);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
 							
 			}
 			
-                        getitem(items.spr(j)->id);
+                        getitem(ptr->id);
                         items.del(j);
                         
                         for(int i=0; i<Lwpns.Count(); i++)
@@ -21470,7 +21471,7 @@ void LinkClass::checkitems(int index)
         
     // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
     //   return;
-    
+    item* ptr = (item*)items.spr(index);
     int pickup = ((item*)items.spr(index))->pickup;
     int PriceIndex = ((item*)items.spr(index))->PriceIndex;
     int id2 = ((item*)items.spr(index))->id;
@@ -21478,6 +21479,8 @@ void LinkClass::checkitems(int index)
     int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
     int tempnextmsg;
     
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	
     if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
         if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
             // wait for it to stop flashing, doesn't check for other items yet

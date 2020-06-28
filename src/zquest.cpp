@@ -1642,8 +1642,9 @@ static MENU misc_menu[] =
 
 static MENU spr_menu[] =
 {
-    { (char *)"&Weapons/Misc",              onCustomWpns,              NULL,                     0,            NULL   },
+    { (char *)"&Sprite Data",               onCustomWpns,              NULL,                     0,            NULL   },
     { (char *)"&Link",                      onCustomLink,              NULL,                     0,            NULL   },
+    { (char *)"&Misc Sprites",              onMiscSprites,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1662,7 +1663,7 @@ static MENU defs_menu[] =
     { (char *)"&Combos",                    onDefault_Combos,          NULL,                     0,            NULL   },
     { (char *)"&Items",                     onDefault_Items,           NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onDefault_Guys,            NULL,                     0,            NULL   },
-    { (char *)"&Weapon Sprites",            onDefault_Weapons,         NULL,                     0,            NULL   },
+    { (char *)"&Sprite Data",               onDefault_Weapons,         NULL,                     0,            NULL   },
     { (char *)"&Map Styles",                onDefault_MapStyles,       NULL,                     0,            NULL   },
     { (char *)"SF&X Data",                  onDefault_SFX,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -28734,16 +28735,17 @@ void kill_sfx()
         }
 }
 
-/*int pan(int x)
+int pan(int x)
 {
-  switch(pan_style)
-  {
-    case 0: return 128;
-    case 1: return vbound((x>>1)+68,0,255);
-    case 2: return vbound(((x*3)>>2)+36,0,255);
-  }
-  return vbound(x,0,255);
-}*/
+	return 128;
+	/*switch(pan_style)
+	{
+		case 0: return 128;
+		case 1: return vbound((x>>1)+68,0,255);
+		case 2: return vbound(((x*3)>>2)+36,0,255);
+	}
+	return vbound(x,0,255);*/
+}
 
 
 void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
@@ -34133,7 +34135,7 @@ command_pair commands[cmdMAX]=
     { "Paste Warp Return",                  0, (intF) onPasteWarpLocations                             },
     { "Warp Rings",                         0, (intF) onWarpRings                                      },
     { "Paste Warps",                        0, (intF) onPasteWarps                                     },
-    { "Weapons/Misc",                       0, (intF) onCustomWpns                                     },
+    { "Sprite Data",                        0, (intF) onCustomWpns                                     },
     { "View Darkness",                      0, (intF) onShowDarkness                                   },
     { "Toggle Walkability",                 0, (intF) onShowWalkability                                },
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },

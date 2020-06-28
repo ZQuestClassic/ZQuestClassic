@@ -20277,12 +20277,12 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced))
+						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 						{
-							if(itemsbuf[items.spr(j)->id].collect_script)
+							if(itemsbuf[theItem->id].collect_script)
 							{
-								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
 							}
 							
 							Link.checkitems(j);
@@ -20297,8 +20297,8 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
+						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(w->id == wBrang)
 							{
@@ -20308,7 +20308,7 @@ void check_collisions()
 							if(w->dragging==-1)
 							{
 								w->dead=1;
-								((item*)items.spr(j))->clk2=256;
+								theItem->clk2=256;
 								w->dragging=j;
 							}
 						}

@@ -211,7 +211,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           15
 #define V_STRINGS          7
-#define V_MISC             11
+#define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           15
 #define V_CSETS            4
@@ -3388,6 +3388,12 @@ struct palcycle
     //3
 };
 
+enum miscsprite
+{
+	sprFALL,
+	spr_NUMUSED,
+	sprMAX = 256
+};
 struct miscQdata
 {
     shoptype shop[256];
@@ -3415,6 +3421,7 @@ struct miscQdata
     char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
     long zscript_last_compiled_version;
+	byte sprites[sprMAX];
 };
 
 #define MFORMAT_MIDI 0

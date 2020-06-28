@@ -5659,6 +5659,22 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
    
     FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
+	if(s_version >= 12)
+	{
+		byte spr;
+		for(int q = 0; q < sprMAX; ++q)
+		{
+			if(!p_getc(&spr,f,true))
+				return qe_invalid;
+			temp_misc.sprites[q] = spr;
+		}
+	}
+	else
+	{
+		memset(&(temp_misc.sprites), 0, sizeof(temp_misc.sprites));
+		//temp_misc.sprites[sprFALL] = ;
+	}
+	
     if(keepdata==true)
     {
         memcpy(Misc, &temp_misc, sizeof(temp_misc));
