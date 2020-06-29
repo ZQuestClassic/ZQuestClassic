@@ -6581,11 +6581,13 @@ bool LinkClass::animate(int)
 		if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
 			int ydiff = fall/(spins && fall<0 ? 200:100);
+			//zprint2("ydif is: %d\n", ydiff);
+			//zprint2("ydif is: %d\n", (int)fall);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
+			/*if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
-			}
+			}*/
 			y+=ydiff;
 			hs_starty+=ydiff;
 			
@@ -6624,8 +6626,10 @@ bool LinkClass::animate(int)
 			fall = zinit.gravity;
 		}
 		// Continue falling.
+		
 		else if(fall <= (int)zinit.terminalv)
 		{
+			
 			if(fall != 0 || hoverclk>0)
 				jumping++;
 				
@@ -6705,6 +6709,7 @@ bool LinkClass::animate(int)
 			else if(!ladderx && !laddery && !getOnSideviewLadder())
 			{
 				fall += zinit.gravity;
+				
 			}
 		}
 	}
@@ -7851,7 +7856,9 @@ bool LinkClass::startwpn(int itemid)
 				if(itemsbuf[itemid].flags & ITEM_FLAG1)
 					setFall(fall - itemsbuf[itemid].power);
 				else
-					setFall(fall - FEATHERJUMP*(itemsbuf[itemid].power+2));
+				{
+					fall -= (FEATHERJUMP*(itemsbuf[itemid].power+2));
+				}
 				
 				setOnSideviewLadder(false);
 				
@@ -7860,6 +7867,7 @@ bool LinkClass::startwpn(int itemid)
 					reset_ladder();
 					
 				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+				//zprint2("fall is: %d\n", (int)fall);
 			}
         }
         
@@ -18885,7 +18893,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         y=0;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(up))
             doit=false;
             
@@ -18943,7 +18954,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         y=160;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(down))
             doit=false;
             
@@ -19001,7 +19015,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         x=0;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(left))
             doit=false;
             
@@ -19060,7 +19077,10 @@ void LinkClass::checkscroll()
     {
         bool doit=true;
         x=240;
-        
+		
+		if((z > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		
         if(nextcombo_wf(right))
             doit=false;
             

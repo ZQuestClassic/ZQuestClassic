@@ -3,6 +3,15 @@
 
 //Alpha 74
 
+Fixed a bug where npc->Step with the rule qr_STEP_IS_FLOAT **DISABLED** 
+	was returning wildly incorrect values.
+Fixed a bug where old quests were trying to set emulation[qr_STEP_IS_FLOAT],
+	not set_bit(quest_rules,qr_STEP_IS_FLOAT).
+	( ZoriaRPG, 17th June, 2020 )
+	
+Added a ZQE hotkey for '?' that opens the version info display.
+	( ZoriaRPG, 13th June, 2020 )
+	
 Add raft speed modifiers for faster/slower moving raft
 	Negative values slow the raft by (2^-n)
 	Positive values cause the raft to move at (2^n)

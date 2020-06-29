@@ -6762,7 +6762,7 @@ void NPCSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the pointer
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
 		code.push_back(new ONPCRemove(new VarArgument(EXP1)));
@@ -7878,7 +7878,7 @@ static AccessorTable MapDataTable[] =
 	{ "setComboS[]",                    ZVARTYPEID_VOID,          SETTER,       MAPDATACOMBOSD,             176,           0,                                    3,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getState[]",                     ZVARTYPEID_BOOL,          GETTER,       MAPDATASCREENSTATED,        32,            0,                                    2,           {  ZVARTYPEID_MAPDATA,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setState[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENSTATED,        32,            0,                                    3,           {  ZVARTYPEID_MAPDATA,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-//	{ "getFlags[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENFLAGSD,        10,            0,                                    2,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSFlags[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENFLAGSD,        10,            0,                                    2,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //	{ "setFlags[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENFLAGSD,        10,            0,                                    3,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //	This is read-only, but it was not previously blocked! -Z
 	{ "getEFlags[]",                    ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENEFLAGSD,       3,             0,                                    2,           {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -12458,6 +12458,7 @@ static AccessorTable FileSystemTable[] =
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "FileExists",             ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -12498,6 +12499,20 @@ void FileSystemSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
+	//bool Remove(FileSystem, char32*)
+    {
+	    Function* function = getFunction("Remove", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        code.push_back(new OFileSystemRemove(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 FileSymbols FileSymbols::singleton = FileSymbols();
@@ -12530,6 +12545,7 @@ static AccessorTable FileTable[] =
 	{ "getEOF",                 ZVARTYPEID_FLOAT,         GETTER,       FILEEOF,          1,             0,                                    1,           {  ZVARTYPEID_FILE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getError",               ZVARTYPEID_FLOAT,         GETTER,       FILEERR,          1,             0,                                    1,           {  ZVARTYPEID_FILE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetError",               ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -12844,7 +12860,19 @@ void FileSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
+	//bool Remove(file)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new OFileRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 SubscreenDataSymbols SubscreenDataSymbols::singleton = SubscreenDataSymbols();

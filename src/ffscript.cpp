@@ -4643,7 +4643,12 @@ long get_register(const long arg)
 				}
 				//old, buggy code replication, round two: Go! -Z
 				//else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
-				else ret = long( ( (GuyH::getNPC()->step) * 100.0 ) * 10000 );
+				else 
+				{
+					double s2 = ( (GuyH::getNPC()->step).getZLong() );
+					ret = long(s2*100);
+					//ret = long( ( (GuyH::getNPC()->step) * 100.0 )) * 10000;
+				}
 				//else ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
 				
 				//else 
@@ -7645,29 +7650,38 @@ long get_register(const long arg)
 
 		case MAPDATAFLAGS: 
 		{
-			int flagid = (ri->d[0])/10000;
-			mapscr *m = GetMapscr(ri->mapsref); 
-			//bool valtrue = ( value ? 10000 : 0);
-			switch(flagid)
+			if ( get_bit(quest_rules, qr_OLDMAPDATAFLAGS) )
 			{
-				case 0: ret = (m->flags * 10000); break;
-				case 1: ret = (m->flags2 * 10000); break;
-				case 2: ret = (m->flags3 * 10000); break;
-				case 3: ret = (m->flags4 * 10000); break;
-				case 4: ret = (m->flags5 * 10000); break;
-				case 5: ret = (m->flags6 * 10000); break;
-				case 6: ret = (m->flags7 * 10000); break;
-				case 7: ret = (m->flags8 * 10000); break;
-				case 8: ret = (m->flags9 * 10000); break;
-				case 9: ret = (m->flags10 * 10000); break;
-				default:
+				mapscr *m = GetMapscr(ri->mapsref);
+				ret = get_screenflags(m,vbound(ri->d[0] / 10000,0,9));
+			}
+			else
+			{
+				int flagid = (ri->d[0])/10000;
+				mapscr *m = GetMapscr(ri->mapsref); 
+				//bool valtrue = ( value ? 10000 : 0);
+				switch(flagid)
 				{
-					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
-					ret = -10000;
-					break;
-					
+					case 0: ret = (m->flags * 10000); break;
+					case 1: ret = (m->flags2 * 10000); break;
+					case 2: ret = (m->flags3 * 10000); break;
+					case 3: ret = (m->flags4 * 10000); break;
+					case 4: ret = (m->flags5 * 10000); break;
+					case 5: ret = (m->flags6 * 10000); break;
+					case 6: ret = (m->flags7 * 10000); break;
+					case 7: ret = (m->flags8 * 10000); break;
+					case 8: ret = (m->flags9 * 10000); break;
+					case 9: ret = (m->flags10 * 10000); break;
+					default:
+					{
+						Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+						ret = -10000;
+						break;
+						
+					}
 				}
 			}
+			
 			break;
 			//GET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
@@ -19480,9 +19494,10 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int mapID = (DMaps[dmapID].map+1);
-		int warp_return_index = -1;
+	int warp_return_index = -1;
+	int dest_dmap_xoff = DMaps[dmapID].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
-	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + scrID)];
 	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
@@ -23606,6 +23621,10 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_checkdir(false);
 				break;
 			
+			case FILESYSREMOVE:
+				FFCore.do_fs_remove();
+				break;
+			
 			case TOBYTE:
 				do_tobyte();
 				break;
@@ -23646,6 +23665,11 @@ int run_script(const byte type, const word script, const long i)
 			case FILEFLUSH:
 			{
 				FFCore.do_fflush();
+				break;
+			}
+			case FILEREMOVE:
+			{
+				FFCore.do_fremove();
 				break;
 			}
 			case FILEGETCHAR:
@@ -24227,6 +24251,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 			f->file = fopen(buf, f_mode);
 			fflush(f->file);
 			zc_chmod(buf, SCRIPT_FILE_MODE);
+			f->setPath(buf);
 			//r+; read-write, will not create if does not exist, will not delete content if does exist.
 			//w+; read-write, will create if does not exist, will delete all content if does exist.
 			if(f->file)
@@ -24241,6 +24266,16 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 			return;
 		}
 	}
+}
+
+void FFScript::do_fremove()
+{
+	if(user_file* f = checkFile(ri->fileref, "Remove()", true))
+	{
+		zprint2("Removing file %d\n", ri->fileref);
+		ri->d[2] = f->do_remove() ? 0L : 10000L;
+	}
+	else ri->d[2] = 0L;
 }
 
 void FFScript::do_fclose()
@@ -26359,7 +26394,7 @@ long FFScript::getQuestHeaderInfo(int type)
 	return quest_format[type];
 }
 
-void FFScript::do_checkdir(const bool is_dir)
+string get_filestr(const bool relative) //Used for 'FileSystem' functions.
 {
 	int strptr = get_register(sarg1)/10000;
 	string the_string;
@@ -26368,13 +26403,25 @@ void FFScript::do_checkdir(const bool is_dir)
 	size_t last = the_string.find_last_not_of('/');
 	if(last!=string::npos)++last;
 	the_string = the_string.substr(0,last); //Kill trailing '/'
-	if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+	if(relative)
 	{
 		char buf[2048] = {0};
 		if(FFCore.get_scriptfile_path(buf, the_string.c_str()))
 			the_string = buf;
 	}
+	return the_string;
+}
+
+void FFScript::do_checkdir(const bool is_dir)
+{
+	string the_string = get_filestr(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE));
 	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
+}
+
+void FFScript::do_fs_remove()
+{
+	string the_string = get_filestr(true);
+	set_register(sarg1, remove(the_string.c_str()) ? 0 : 10000);
 }
 
 //Modules
@@ -31195,6 +31242,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "STRICMPR",           2,   0,   0,   0},
 	{ "STRINGICOMPARE",		       1,   0,   0,   0},
 	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
+	
+	{ "FILEREMOVE",		       0,   0,   0,   0},
+	{ "FILESYSREMOVE",		       1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
