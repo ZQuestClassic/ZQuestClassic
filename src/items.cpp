@@ -147,7 +147,7 @@ bool item::animate(int)
 				}
 				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
-					int fallCombo = item_pits(x, y, fallclk);
+					int fallCombo = check_pits();
 					if(fallCombo)
 					{
 						sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));

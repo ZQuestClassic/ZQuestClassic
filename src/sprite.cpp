@@ -23,6 +23,7 @@
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
+#include "maps.h"
 extern sprite_list particles;
 extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
@@ -375,6 +376,180 @@ int sprite::real_y(zfix fy)
 int sprite::real_z(zfix fz)
 {
     return fz.getInt();
+}
+
+int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen.
+{
+	int safe_cnt = 0;
+	bool has_fallen = false;
+	int ispitul, ispitbl, ispitur, ispitbr, ispitul_50, ispitbl_50, ispitur_50, ispitbr_50;
+	while(++safe_cnt < 16) //Prevent softlocks
+	{
+		ispitul = getpitfall(x,y);
+		ispitbl = getpitfall(x,y+15);
+		ispitur = getpitfall(x+15,y);
+		ispitbr = getpitfall(x+15,y+15);
+		ispitul_50 = getpitfall(x+8,y+8);
+		ispitbl_50 = getpitfall(x+8,y+7);
+		ispitur_50 = getpitfall(x+7,y+8);
+		ispitbr_50 = getpitfall(x+7,y+7);
+		int dir = -1;
+		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+		{
+			case 4:
+			{
+				fallclk = 70; //Fall
+				return ispitul_50 ? ispitul_50 : ispitul;
+			}
+			case 3:
+			{
+				if(ispitul && ispitur && ispitbl) //UL_3
+				{
+					if(ispitul_50)
+					{
+						dir=l_up; break;
+					}
+				}
+				else if(ispitul && ispitur && ispitbr) //UR_3
+				{
+					if(ispitur_50)
+					{
+						dir=r_up; break;
+					}
+				}
+				else if(ispitul && ispitbl && ispitbr) //BL_3
+				{
+					if(ispitbl_50)
+					{
+						dir=l_down; break;
+					}
+				}
+				else if(ispitbl && ispitur && ispitbr) //BR_3
+				{
+					if(ispitbr_50)
+					{
+						dir=r_down; break;
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				if(ispitul && ispitur) //Up
+				{
+					if(ispitul_50 && ispitur_50) //Straight up
+					{
+						dir = up; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+				}
+				if(ispitbl && ispitbr) //Down
+				{
+					if(ispitbl_50 && ispitbr_50) //Straight down
+					{
+						dir = down; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				if(ispitul && ispitbl) //Left
+				{
+					if(ispitul_50 && ispitbl_50) //Straight left
+					{
+						dir = left; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+				}
+				if(ispitur && ispitbr) //Right
+				{
+					if(ispitur_50 && ispitbr_50) //Straight right
+					{
+						dir = right; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				break;
+			}
+			case 1:
+			{
+				if(ispitul && ispitul_50) //UL_1
+				{
+					dir = l_up; break;
+				}
+				if(ispitur && ispitur_50) //UR_1
+				{
+					dir = r_up; break;
+				}
+				if(ispitbl && ispitbl_50) //BL_1
+				{
+					dir = l_down; break;
+				}
+				if(ispitbr && ispitbr_50) //BR_1
+				{
+					dir = r_down; break;
+				}
+				break;
+			}
+		}
+		if(dir == -1) return 0; //Not falling
+		has_fallen = true;
+		switch(dir)
+		{
+			case l_up: case l_down: case left:
+				--x; break;
+			case r_up: case r_down: case right:
+				++x; break;
+		}
+		switch(dir)
+		{
+			case l_up: case r_up: case up:
+				--y; break;
+			case l_down: case r_down: case down:
+				++y; break;
+		}
+	}
+	if(has_fallen)
+	{
+		int old_fall = fallclk; //sanity check
+		fallclk = 70;
+		if(ispitul_50) return ispitul_50;
+		if(ispitur_50) return ispitur_50;
+		if(ispitbl_50) return ispitbl_50;
+		if(ispitbr_50) return ispitbr_50;
+		if(ispitul) return ispitul;
+		if(ispitur) return ispitur;
+		if(ispitbl) return ispitbl;
+		if(ispitbr) return ispitbr;
+		fall = old_fall; //sanity check
+	}
+	return 0;
 }
 
 bool sprite::hit(sprite *s)

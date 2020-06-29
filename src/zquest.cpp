@@ -36384,6 +36384,7 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 	return;
 }
 
+int getpitfall(int x, int y){return 0;}
 
 void zprint(const char * const format,...)
 {

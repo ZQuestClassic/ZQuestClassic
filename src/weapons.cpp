@@ -1709,23 +1709,56 @@ weapon::weapon(weapon const & other):
 }
 
 // Let's dispose of some sound effects!
-weapon::~weapon()
+void weapon::cleanup_sfx()
 {
-	FFCore.deallocateAllArrays(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, getUID());
+	//Check type
+    switch(id)
+    {
+		case wWind:
+		case ewBrang:
+		case wBrang:
+		case wCByrna:
+			break;
+		case wSSparkle:
+		case wFSparkle:
+			if(parentitem>=0 && itemsbuf[parentitem].family==itype_cbyrna)
+				break;
+			return;
+		default: return; //No repeating sfx
+    }
     // First, check for the existence of weapons that don't have parentitems
     // but make looping sounds anyway.
     if(parentitem<0 && get_bit(quest_rules, qr_MORESOUNDS))
     {
         //I am reasonably confident that I fixed these expressions. ~pkmnfrk
-        if(id==ewBrang && Ewpns.idCount(ewBrang) > 0)
+			//No, you didn't. Now I have. -V
+        if(id==ewBrang && Ewpns.idCount(ewBrang) > 1)
             return;
             
-        if(id==wWind && Lwpns.idCount(wWind) > 0)
+        if(id==wWind && Lwpns.idCount(wWind) > 1)
             return;
     }
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
-    if(parentitem>=0)
+	int use_sfx = 0;
+	if(parentitem >= 0) use_sfx = itemsbuf[parentitem].usesound;
+	else switch(id)
+	{
+		case ewBrang:
+		case wBrang:
+			use_sfx = WAV_BRANG;
+			break;
+		case wWind:
+			use_sfx = WAV_ZN1WHIRLWIND;
+			break;
+		case wSSparkle:
+		case wFSparkle:
+		case wCByrna:
+			use_sfx = WAV_ZN2CANE;
+			break;
+	}
+	
+    if(use_sfx)
     {
         for(int i=0; i<Lwpns.Count(); i++)
         {
@@ -1741,13 +1774,15 @@ weapon::~weapon()
             if(wparent>=0 && (itemsbuf[wparent].family == itype_brang || itemsbuf[wparent].family == itype_nayruslove
                               || itemsbuf[wparent].family == itype_hookshot || itemsbuf[wparent].family == itype_cbyrna))
             {
-                if(itemsbuf[wparent].usesound == itemsbuf[parentitem].usesound)
+                if(itemsbuf[wparent].usesound == use_sfx)
                     return;
             }
         }
     }
     
-    switch(id)
+	stop_sfx(use_sfx);
+	
+    /*switch(id)
     {
     case wWind:
         stop_sfx(WAV_ZN1WHIRLWIND);
@@ -1774,7 +1809,12 @@ weapon::~weapon()
         }
         
         break;
-    }
+    }*/
+}
+weapon::~weapon()
+{
+	FFCore.deallocateAllArrays(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, getUID());
+	cleanup_sfx();
 }
 
 weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
@@ -3970,6 +4010,32 @@ void weapon::runscript(int index)
 bool weapon::animate(int index)
 {
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
+	if(fallclk > 0)
+	{
+		if(!--fallclk)
+		{
+			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+			{
+				if(id==wSword || id==wBrang)
+				{
+					return true;
+				}
+				dead = 0;
+				weapon_dying_frame = true;
+				++fallclk;
+				return false;
+			}
+			return true;
+		}
+		
+		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		cs = spr.csets & 0xF;
+		int fr = spr.frames ? spr.frames : 1;
+		int spd = spr.speed ? spr.speed : 1;
+		int animclk = (70-fallclk);
+		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		return false;
+	}
     // do special timing stuff
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
@@ -4125,12 +4191,43 @@ bool weapon::animate(int index)
 		    
 		    if(z<=0)
 		    {
-			z = fall = 0;
+				z = fall = 0;
 		    }
 		    else if(fall <= (int)zinit.terminalv)
 		    {
-			fall += zinit.gravity;
+				fall += zinit.gravity;
 		    }
+			switch(id)
+			{
+				case wSword:
+				case wWand:
+				case wCByrna:
+				case wHammer:
+				case wHookshot:
+				case wWhistle:
+				case wFSparkle:
+				case wHSChain:
+				case wHSHandle:
+				case wSSparkle:
+				case wStomp:
+				case wSmack:
+					break;
+				case wFire:
+					// Din's Fire shouldn't fall
+					if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
+					{
+						break;
+					}
+				default:
+					if(z <= 0)
+					{
+						int fallCombo = check_pits();
+						if(fallCombo)
+						{
+							sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+						}
+					}
+			}
 		}
 	}
     
@@ -9137,6 +9234,11 @@ void weapon::update_weapon_frame(int change, int orig)
 void weapon::draw(BITMAP *dest)
 {
     if(weapon_dying_frame) return;
+	if(fallclk)
+	{
+		sprite::draw(dest);
+		return;
+	}
     if(flash==1)
     {
         if(!BSZ)
