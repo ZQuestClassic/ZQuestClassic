@@ -1021,6 +1021,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 			else if(int c = getpitfall(x+15,y+15)) fallCombo = c;
 			//Else, use a null value; triggers default pit values
 			else fallCombo = 0;
+			fallclk = PITFALL_FALL_FRAMES;
 		}
 		break;
         

@@ -9653,7 +9653,7 @@ void set_register(const long arg, const long value)
 		case LINKACTION:
 		{
 			int act = value / 10000;
-			if ( act < 25 )
+			if ( act < 25 || act == falling )
 			{
 				Link.setAction((actiontype)(act));
 			}
