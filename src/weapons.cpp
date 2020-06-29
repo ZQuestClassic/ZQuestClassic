@@ -4012,6 +4012,7 @@ bool weapon::animate(int index)
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	if(fallclk > 0)
 	{
+		if(fallclk == PITFALL_FALL_FRAMES) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		if(!--fallclk)
 		{
 			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
@@ -4032,7 +4033,7 @@ bool weapon::animate(int index)
 		cs = spr.csets & 0xF;
 		int fr = spr.frames ? spr.frames : 1;
 		int spd = spr.speed ? spr.speed : 1;
-		int animclk = (70-fallclk);
+		int animclk = (PITFALL_FALL_FRAMES-fallclk);
 		tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		return false;
 	}

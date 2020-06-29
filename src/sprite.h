@@ -130,6 +130,7 @@ public:
 	int pit_pulldir; // Pitfall pull direction
 	int pit_pullclk; // Pitfall pull clk
 	int fallclk; // Pitfall fall clk
+	int fallCombo; // Pitfall fallen combo
     
     sprite();
     sprite(sprite const & other);

@@ -251,7 +251,6 @@ public:
     bool bigHitbox;
 	int steprate;
     byte defence[wMax];
-	int fallCombo;
 	
 	bool can_pitfall(bool ignore_hover = false);
 	

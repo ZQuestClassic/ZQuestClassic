@@ -85,6 +85,7 @@ sprite::sprite()
     pit_pulldir = -1;
 	pit_pullclk = 0;
 	fallclk = 0;
+	fallCombo = 0;
 	
     for(int i=0; i<10; i++)
     {
@@ -398,7 +399,7 @@ int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen
 		{
 			case 4:
 			{
-				fallclk = 70; //Fall
+				fallclk = PITFALL_FALL_FRAMES; //Fall
 				return ispitul_50 ? ispitul_50 : ispitul;
 			}
 			case 3:
@@ -538,7 +539,7 @@ int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen
 	if(has_fallen)
 	{
 		int old_fall = fallclk; //sanity check
-		fallclk = 70;
+		fallclk = PITFALL_FALL_FRAMES;
 		if(ispitul_50) return ispitul_50;
 		if(ispitur_50) return ispitur_50;
 		if(ispitbl_50) return ispitbl_50;

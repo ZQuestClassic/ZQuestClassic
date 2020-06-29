@@ -92,13 +92,14 @@ bool item::animate(int)
 		*/
 		if(fallclk > 0)
 		{
+			if(fallclk == PITFALL_FALL_FRAMES) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			if(!--fallclk) return true;
 			
 			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
 			cs = spr.csets & 0xF;
 			int fr = spr.frames ? spr.frames : 1;
 			int spd = spr.speed ? spr.speed : 1;
-			int animclk = (70-fallclk);
+			int animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			return false;
 		}
@@ -147,11 +148,7 @@ bool item::animate(int)
 				}
 				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
-					int fallCombo = check_pits();
-					if(fallCombo)
-					{
-						sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
-					}
+					fallCombo = check_pits();
 				}
 			}
 		}

@@ -976,6 +976,11 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         spins = 0;
     }
     
+	if(action == falling)
+	{
+		fallclk = 0; //Stop falling;
+	}
+	
     switch(new_action)
     {
     case isspinning:
@@ -1004,6 +1009,20 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
             Drown();
             
         break;
+		
+	case falling:
+		if(!fallclk)
+		{
+			//If there is a pit under Link, use it's combo.
+			if(int c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
+			else if(int c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int c = getpitfall(x,y+15)) fallCombo = c;
+			else if(int c = getpitfall(x+15,y+15)) fallCombo = c;
+			//Else, use a null value; triggers default pit values
+			else fallCombo = 0;
+		}
+		break;
         
     case gothit:
     case swimhit:
@@ -2007,7 +2026,7 @@ attack:
             else if(fallclk>0)
 			{
 				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((70-fallclk)/10)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
             {
@@ -2040,7 +2059,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
                 }
                 else
                 {
@@ -2087,7 +2106,7 @@ attack:
             else if(fallclk>0)
 			{
 				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
             {
@@ -2169,7 +2188,7 @@ attack:
             else if(fallclk>0)
 			{
 				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += ((70-fallclk)/10)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
             {
@@ -9849,27 +9868,37 @@ void LinkClass::pitfall()
 {
 	if(fallclk)
 	{
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		//Handle falling
 		if(!--fallclk)
 		{
+			int dmg = HP_PER_HEART/4;
+			bool dmg_perc = false;
+			bool warp = false;
+			
 			action=none; FFCore.setLinkAction(none);
-			newcombo const& cmb = combobuf[fallCombo];
-			if(int dmg = cmb.attributes[0]) //Damage
+			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
+			if(cmb)
 			{
-				bool dmg_perc = (cmb.usrflags&cflag3);
+				dmg = cmb->attributes[0];
+				dmg_perc = cmb->usrflags&cflag3;
+				warp = cmb->usrflags&cflag1;
+			}
+			if(dmg) //Damage
+			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
 				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
 			}
-			if(cmb.usrflags&cflag1) //Warp
+			if(warp) //Warp
 			{
 				sdir = dir;
-				if(cmb.usrflags&cflag2) //Direct Warp
+				if(cmb->usrflags&cflag2) //Direct Warp
 				{
 					didpit=true;
 					pitx=x;
 					pity=y;
 				}
-				dowarp(0,vbound(cmb.attribytes[1],0,3),0);
+				dowarp(0,vbound(cmb->attribytes[1],0,3),0);
 			}
 			else //Reset to screen entry
 			{
@@ -9891,10 +9920,9 @@ void LinkClass::pitfall()
 		{
 			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
 			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
-			fallclk = 70;
+			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
 			action=falling; FFCore.setLinkAction(falling);
-			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		}
 	}
 }

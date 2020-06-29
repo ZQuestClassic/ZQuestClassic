@@ -805,6 +805,8 @@ enum
     //cMAX
 };
 
+#define PITFALL_FALL_FRAMES 70
+
 //Combo editor and additional system combos for combo type 'expanded'.
 
 //We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests. 
