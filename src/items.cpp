@@ -92,7 +92,7 @@ bool item::animate(int)
 		*/
 		if(fallclk > 0)
 		{
-			if(fallclk == PITFALL_FALL_FRAMES) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			if(!--fallclk) return true;
 			
 			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
@@ -101,6 +101,9 @@ bool item::animate(int)
 			int spd = spr.speed ? spr.speed : 1;
 			int animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			
+			run_script(MODE_NORMAL);
+			
 			return false;
 		}
 		if(isSideViewGravity())

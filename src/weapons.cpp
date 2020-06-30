@@ -4012,7 +4012,7 @@ bool weapon::animate(int index)
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	if(fallclk > 0)
 	{
-		if(fallclk == PITFALL_FALL_FRAMES) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		if(!--fallclk)
 		{
 			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
@@ -4024,6 +4024,9 @@ bool weapon::animate(int index)
 				dead = 0;
 				weapon_dying_frame = true;
 				++fallclk;
+				
+				run_script(MODE_NORMAL);
+				
 				return false;
 			}
 			return true;
@@ -4035,6 +4038,9 @@ bool weapon::animate(int index)
 		int spd = spr.speed ? spr.speed : 1;
 		int animclk = (PITFALL_FALL_FRAMES-fallclk);
 		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		
+		run_script(MODE_NORMAL);
+		
 		return false;
 	}
     // do special timing stuff
@@ -4222,11 +4228,7 @@ bool weapon::animate(int index)
 				default:
 					if(z <= 0)
 					{
-						int fallCombo = check_pits();
-						if(fallCombo)
-						{
-							sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
-						}
+						fallCombo = check_pits();
 					}
 			}
 		}
