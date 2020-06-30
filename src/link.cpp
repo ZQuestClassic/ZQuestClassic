@@ -2060,7 +2060,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
                 {
