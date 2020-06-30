@@ -10330,7 +10330,8 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(98);
 		}
 	    }
-		
+			if(!p_putc(guysbuf[i].moveflags,f))
+				new_return(99);
         }
         
         if(writecycle==0)

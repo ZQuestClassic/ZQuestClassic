@@ -35,10 +35,6 @@ int link_on_wall();
 bool tooclose(int x,int y,int d);
 bool isflier(int id);
 bool never_in_air(int id);
-// Returns true iff a combo type or flag precludes enemy movement.
-bool groundblocked(int dx, int dy, bool isKB = false);
-// Returns true iff enemy is floating and blocked by a combo type or flag.
-bool flyerblocked(int dx, int dy, int special);
 
 // Start spinning tiles - called by load_default_enemies
 void awaken_spinning_tile(mapscr *s, int pos);
@@ -148,6 +144,7 @@ public:
 	// Stop BG SFX only if no other enemy is playing it
 	void stop_bgsfx(int index);
 	bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000, bool kb = false);
+	bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000);
 	// Take damage or ignore it
 	virtual int takehit(weapon *w);
 	// override hit detection to check for invicibility, stunned, etc
@@ -232,6 +229,10 @@ public:
 	bool cannotpenetrate();
 	bool isOnSideviewPlatform(); //This handles large enemies, too!
 	
+	// Returns true iff a combo type or flag precludes enemy movement.
+	bool groundblocked(int dx, int dy, bool isKB = false);
+	// Returns true iff enemy is floating and blocked by a combo type or flag.
+	bool flyerblocked(int dx, int dy, int special, bool isKB = false);
 	virtual bool ignore_msg_freeze()
 	{
 		return false;

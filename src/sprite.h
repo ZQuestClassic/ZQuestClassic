@@ -116,7 +116,7 @@ public:
     byte do_animation;
     int rotation;
     int scale; 
-    byte obeys_gravity;
+    byte moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;

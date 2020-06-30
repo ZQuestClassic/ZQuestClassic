@@ -3012,7 +3012,7 @@ long get_register(const long arg)
 			break;
 		
 		case LINKGRAVITY:
-			ret = ( (Link.obeys_gravity) ? 10000 : 0 );
+			ret = ( (Link.moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0 );
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -3746,7 +3746,7 @@ long get_register(const long arg)
 		case ITEMGRAVITY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=((((item*)(s))->obeys_gravity) ? 10000 : 0);
+				ret=((((item*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 			}
 			break;
 			
@@ -4665,7 +4665,7 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->obeys_gravity) ? 10000 : 0);
+				ret = ((GuyH::getNPC()->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 				
 			break;
 		
@@ -5052,7 +5052,7 @@ long get_register(const long arg)
 		 
 		case LWPNGRAVITY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
-				ret= (((weapon*)(s))->obeys_gravity) ? 10000 : 0;
+				ret= (((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0;
 				
 			break;
 			
@@ -5425,7 +5425,7 @@ long get_register(const long arg)
 			
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
-				ret=((((weapon*)(s))->obeys_gravity) ? 10000 : 0);
+				ret=((((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 				
 			break;
 			
@@ -9627,7 +9627,10 @@ void set_register(const long arg, const long value)
 			break;
 		
 		case LINKGRAVITY:
-			Link.obeys_gravity = ( (value) ? 1 : 0 ); 
+			if(value)
+				Link.moveflags |= FLAG_OBEYS_GRAV;
+			else
+				Link.moveflags &= ~FLAG_OBEYS_GRAV;
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -10642,7 +10645,10 @@ void set_register(const long arg, const long value)
 		case ITEMGRAVITY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-			(((item *)s)->obeys_gravity)=((value) ? 1 : 0);
+				if(value)
+					((item *)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((item *)s)->moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
 			break;
@@ -11431,8 +11437,12 @@ void set_register(const long arg, const long value)
 		 
 		case LWPNGRAVITY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
-				((weapon*)s)->obeys_gravity = ((value) ? 10000 : 0);
-				
+			{
+				if(value)
+					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 			break;
 			
 		case LWPNSTEP:
@@ -11795,8 +11805,12 @@ void set_register(const long arg, const long value)
 		  
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
-				((weapon*)s)->obeys_gravity=((value) ? 1 : 0);
-				
+			{
+				if(value)
+					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 			break;
 			
 		case EWPNSTEP:
@@ -12219,7 +12233,12 @@ void set_register(const long arg, const long value)
 		case NPCGRAVITY:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
-				GuyH::getNPC()->obeys_gravity = ((value) ? 1 : 0);
+			{
+				if(value)
+					GuyH::getNPC()->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					GuyH::getNPC()->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 		}
 		break;
 		

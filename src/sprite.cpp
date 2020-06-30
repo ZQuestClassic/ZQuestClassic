@@ -127,7 +127,7 @@ sprite::sprite()
     do_animation = 1;
     rotation = 0;
     scale = 0;
-    obeys_gravity = 0;
+    moveflags = 0;
     drawflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
@@ -200,7 +200,7 @@ weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
-obeys_gravity(other.obeys_gravity),
+moveflags(other.moveflags),
 drawflags(other.drawflags),
 knockbackflags(other.knockbackflags),
 knockbackSpeed(other.knockbackSpeed),
@@ -297,7 +297,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
-    obeys_gravity = 0;
+    moveflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;

@@ -12857,6 +12857,47 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 	    }
             
+			if(guyversion >= 42)
+			{
+				if(!p_getc(&(tempguy.moveflags),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				switch(tempguy.family)
+				{
+					//No gravity; floats over pits
+					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
+					case eePROJECTILE: case eeSPINTILE: case eeKEESE: case eeFIRE:
+					//Special (bosses, etc)
+					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
+					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
+					case eePATRA: case eeGLEEOK: case eeMANHAN: case eeMOLD: case eeLANM:
+						tempguy.moveflags = FLAG_CAN_PITWALK;
+						break;
+					//No gravity, but falls in pits
+					case eeLEV:
+						tempguy.moveflags = FLAG_CAN_PITFALL;
+						break;
+					//Gravity, floats over pits
+					case eeDONGO:
+					case eeWIZZ: case eeWALLM: case eeGHINI:
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
+						break;
+					//Gravity and falls in pits
+					case eeWALK: case eeOTHER:
+					case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05:
+					case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
+					case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15:
+					case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
+					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
+					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+				}
+			}
+			
             if(keepdata)
             {
                 guysbuf[i] = tempguy;

@@ -224,7 +224,7 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 
 bool LinkClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!obeys_gravity));
+	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
 }
 
 int LinkClass::DrunkClock()
@@ -1113,7 +1113,7 @@ void LinkClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
-    obeys_gravity = 1;
+    moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
     warp_sound = 0;
 	steprate = zinit.heroStep;
     
@@ -6550,7 +6550,7 @@ bool LinkClass::animate(int)
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	if(isSideViewLink() && obeys_gravity)  // Sideview gravity
+	if(isSideViewLink() && (moveflags & FLAG_OBEYS_GRAV))  // Sideview gravity
 	{
 		//Handle falling through a platform
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))

@@ -52,7 +52,7 @@ bool item::animate(int)
 	{
 		/* this is the code used for weapons 
 		
-		if ( obeys_gravity ) // from above, or if scripted
+		if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
 		{
 			if(isSideViewGravity())
 			{
@@ -114,7 +114,7 @@ bool item::animate(int)
 					(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
 				) 
 				&& 
-				( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
+				( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
 				item_fall(x, y, fall);
@@ -131,7 +131,7 @@ bool item::animate(int)
 		}
 		else
 		{
-			if ( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
+			if ( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
 			{
 				z-=fall/100;
 				
@@ -149,6 +149,9 @@ bool item::animate(int)
 				{
 					fall += zinit.gravity;
 				}
+			}
+			if ( moveflags & FLAG_CAN_PITFALL )
+			{
 				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					fallCombo = check_pits();
@@ -291,7 +294,7 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 	pstring = itemsbuf[id].pstring;
 	pickup_string_flags = itemsbuf[id].pickup_string_flags;
 	linked_parent = 0;
-	obeys_gravity = 1;
+	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 	for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
 	
 	if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;

@@ -1936,6 +1936,25 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         }
     }
     
+	//Default Gravity
+    switch(id)
+    {
+	    case wFire:
+	    
+		// Din's Fire shouldn't fall
+		if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
+		{
+		    break;
+		}
+		
+	    case wLitBomb:
+	    case wLitSBomb:
+	    case wBait:
+	    case ewFlame:
+	    case ewFireTrail:
+			moveflags |= FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+    }
+	
     switch(id)
     {
 	    
@@ -4151,25 +4170,7 @@ bool weapon::animate(int index)
 	    //Link.check_pound_block(this);
     }
     // fall down
-    switch(id)
-    {
-	    case wFire:
-	    
-		// Din's Fire shouldn't fall
-		if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
-		{
-		    break;
-		}
-		
-	    case wLitBomb:
-	    case wLitSBomb:
-	    case wBait:
-	    case ewFlame:
-	    case ewFireTrail:
-		obeys_gravity = 1;
-    }
-    
-	if ( obeys_gravity ) // from above, or if scripted
+	if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
 	{
 		if(isSideViewGravity())
 		{
@@ -4204,33 +4205,30 @@ bool weapon::animate(int index)
 		    {
 				fall += zinit.gravity;
 		    }
-			switch(id)
-			{
-				case wSword:
-				case wWand:
-				case wCByrna:
-				case wHammer:
-				case wHookshot:
-				case wWhistle:
-				case wFSparkle:
-				case wHSChain:
-				case wHSHandle:
-				case wSSparkle:
-				case wStomp:
-				case wSmack:
-					break;
-				case wFire:
-					// Din's Fire shouldn't fall
-					if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
-					{
-						break;
-					}
-				default:
-					if(z <= 0)
-					{
-						fallCombo = check_pits();
-					}
-			}
+		}
+	}
+	if(moveflags & FLAG_CAN_PITFALL)
+	{
+		switch(id)
+		{
+			case wSword:
+			case wWand:
+			case wCByrna:
+			case wHammer:
+			case wHookshot:
+			case wWhistle:
+			case wFSparkle:
+			case wHSChain:
+			case wHSHandle:
+			case wSSparkle:
+			case wStomp:
+			case wSmack:
+				break;
+			default:
+				if(z <= 0)
+				{
+					fallCombo = check_pits();
+				}
 		}
 	}
     
