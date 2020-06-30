@@ -30248,14 +30248,14 @@ void FFScript::do_npc_canmove(const bool v)
 		{
 			//zprint("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),false)) ? 10000 : 0);
 			//zprint("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
 			//return;
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
 			//zprint("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000), false)) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			//return;
@@ -30265,15 +30265,15 @@ void FFScript::do_npc_canmove(const bool v)
 			//zprint("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),false)) ? 10000 : 0);
 			//return;
 		}
 		else if ( sz == 7 ) //bool canmove(int ndir,zfix s,int special) : I'm pretty sure that 'zfix s' is 'step' here. 
 		{
-			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
+			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false)) ? 10000 : 0);
 			
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
 			//(zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),

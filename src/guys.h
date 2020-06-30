@@ -36,7 +36,7 @@ bool tooclose(int x,int y,int d);
 bool isflier(int id);
 bool never_in_air(int id);
 // Returns true iff a combo type or flag precludes enemy movement.
-bool groundblocked(int dx, int dy);
+bool groundblocked(int dx, int dy, bool isKB = false);
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool flyerblocked(int dx, int dy, int special);
 
@@ -96,6 +96,9 @@ public:
 	int wpnsprite; //wpnsprite is new for 2.6 -Z
 	int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
 	int frozentile, frozencset, frozenclock;
+	
+	bool haslink;
+	
 	short frozenmisc[10];
 	
 	long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23, 
@@ -128,6 +131,8 @@ public:
 	enemy(zfix X,zfix Y,int Id,int Clk);                      // : sprite()
 	virtual ~enemy();
 	
+	// Handle pitfalls
+	bool do_falling(int index);
 	// Supplemental animation code that all derived classes should call
 	// as a return value for animate().
 	// Handles the death animation and returns true when enemy is finished.
@@ -142,7 +147,7 @@ public:
 	virtual bool isSubmerged();
 	// Stop BG SFX only if no other enemy is playing it
 	void stop_bgsfx(int index);
-	bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
+	bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000, bool kb = false);
 	// Take damage or ignore it
 	virtual int takehit(weapon *w);
 	// override hit detection to check for invicibility, stunned, etc
@@ -151,12 +156,14 @@ public:
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
 	
+	bool can_pitfall();
+	void try_death(bool force_kill = false);
 	 // returns true if next step is ok, false if there is something there
-	bool canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2);
+	bool canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2, bool kb);
 	bool canmove_old(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2);
-	bool canmove(int ndir,zfix s,int special);
-	bool canmove(int ndir,int special);
-	bool canmove(int ndir);
+	bool canmove(int ndir,zfix s,int special, bool kb);
+	bool canmove(int ndir,int special, bool kb);
+	bool canmove(int ndir, bool kb);
 	bool enemycanfall(int id);
 	// 8-directional
 	void newdir_8_old(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
@@ -417,7 +424,6 @@ public:
 class eWallM : public enemy
 {
 public:
-	bool haslink;
 	eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eWallM(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int index);
@@ -537,7 +543,6 @@ public:
 	bool fired; // Darknut5, Bombchu
 	bool shield; // Darknut
 	bool dashing; // Rope
-	bool haslink; // Like Like
 	int multishot; // Shoot twice/thrice/n times in one halt
 	zfix fy, shadowdistance; // Pols Voice
 	eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
