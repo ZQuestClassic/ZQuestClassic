@@ -43,7 +43,7 @@ namespace dmapinfo
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		//screen-Game->DMapOffset[dm->ID];
 		//could get screen X and Y from curscreen and dmapoffset in a separate function
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
@@ -52,20 +52,20 @@ namespace dmapinfo
 	{
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	bool VisibleOnDungeonMap(dmapdata dm)
 	{
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	bool VisibleOnDungeonMap(dmapdata dm, int scr)
 	{
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	bool VisibleOnDungeonMap(dmapdata dm, int x, int y)
@@ -78,7 +78,7 @@ namespace dmapinfo
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		//screen-Game->DMapOffset[dm->ID];
 		//could get screen X and Y from curscreen and dmapoffset in a separate function
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
@@ -87,20 +87,20 @@ namespace dmapinfo
 	{
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	bool VisibleOnDungeonMap(dmapdata dm, bool no_offset)
 	{
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	bool VisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset)
 	{
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		return (dm->Grid[row]&(GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(int x, int y, bool state)
@@ -113,7 +113,7 @@ namespace dmapinfo
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		//screen-Game->DMapOffset[dm->ID];
 		//could get screen X and Y from curscreen and dmapoffset in a separate function
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
@@ -122,20 +122,20 @@ namespace dmapinfo
 	{
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(dmapdata dm, bool state)
 	{
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool state)
 	{
 		int col = (scr % 0xF)-Game->DMapOffset[dm->ID];
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(dmapdata dm, int x, int y, bool state)
@@ -148,7 +148,7 @@ namespace dmapinfo
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		//screen-Game->DMapOffset[dm->ID];
 		//could get screen X and Y from curscreen and dmapoffset in a separate function
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
@@ -157,20 +157,20 @@ namespace dmapinfo
 	{
 		dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(dmapdata dm, bool no_offset, bool state)
 	{
 		int scr = Game->GetCurScreen();
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 	void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset, bool state)
 	{
 		int col = (scr % 0xF) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
-		int row = ((scr/16)<<0);
+		int row = (scr>>4);
 		(state) ? (dm->Grid[row] |= (GetGridColumnValue(col))) : (dm->Grid[row] ~= (GetGridColumnValue(col)));
 	}
 }
