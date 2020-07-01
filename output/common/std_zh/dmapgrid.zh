@@ -2,15 +2,15 @@ namespace dmapinfo
 {
 	enum dmapgridpositions
 	{ 
-		/*The Grid[index] is the column, with leftmost being 0.
+		/*The Grid[index] is the row, with leftmost being 0.
 		/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
 		/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
 		/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
 		/ if both the top-leftmost and top-rightmost screens are marked visible, then 
 		/ Grid[0] will == 129
 		*/
-		dmMAPGRID_ROW_0,dmMAPGRID_ROW_1,dmMAPGRID_ROW_2,dmMAPGRID_ROW_3,
-		dmMAPGRID_ROW_4,dmMAPGRID_ROW_5,dmMAPGRID_ROW_6,dmMAPGRID_ROW_7,
+		dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
+		dmMAPGRID_ROW_4, dmMAPGRID_ROW_5, dmMAPGRID_ROW_6, dmMAPGRID_ROW_7,
 		dmMAPGRID_COL_7 = 1, dmMAPGRID_COL_6, dmMAPGRID_COL_5 = 4, dmMAPGRID_COL_4 = 8,
 		dmMAPGRID_COL_3 = 16, dmMAPGRID_COL_2 = 32, dmMAPGRID_COL_1 = 64, dmMAPGRID_COL_0 = 128
 	};
