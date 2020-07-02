@@ -2881,6 +2881,13 @@ bool enemy::m_walkflag_old(int dx,int dy,int special, int x, int y)
 				return true;
 	}
 	
+	if(!(moveflags & FLAG_CAN_PITWALK) && !(moveflags & FLAG_CAN_PITFALL)) //Don't walk into pits (knockback doesn't call this func)
+	{
+		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
+		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
+		   return true;
+	}
+	
 	switch(special)
 	{
 	case spw_clipbottomright:
@@ -2974,7 +2981,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 				return true;
 	}
 	
-	if(!kb && (moveflags & FLAG_CAN_PITFALL) && !(moveflags & FLAG_CAN_PITWALK) && can_pitfall()) //Don't walk into pits, unless being knocked back
+	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
 	{
 		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
 		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))

@@ -12874,15 +12874,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					//Special (bosses, etc)
 					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
 					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
-					case eePATRA: case eeGLEEOK: case eeMANHAN: case eeMOLD: case eeLANM:
+					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
 						tempguy.moveflags = FLAG_CAN_PITWALK;
 						break;
 					//No gravity, but falls in pits
 					case eeLEV:
 						tempguy.moveflags = FLAG_CAN_PITFALL;
 						break;
-					//Gravity, floats over pits
+					//Bosses that respect pits
 					case eeDONGO:
+						tempguy.moveflags = FLAG_OBEYS_GRAV;
+						break;
+					case eeLANM:
+						tempguy.moveflags = 0;
+						break;
+					//Gravity, floats over pits
 					case eeWIZZ: case eeWALLM: case eeGHINI:
 						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
 						break;
