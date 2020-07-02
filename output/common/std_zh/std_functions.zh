@@ -1,5 +1,5 @@
 // std_functions.zh
-// 28th June, 2020 for ZC 2.55.0 Alpha 75
+// 2nd July, 2020 for ZC 2.55.0 Alpha 75
 
 //A
 
@@ -1533,6 +1533,30 @@ bool GetLevelItem(int itm)
 	return (Game->LItems[Game->GetCurLevel()]&itm);
 }
 
+//Gets mapdata EFlags, similar to ScreenEFlag()
+//Uses a mapdata pointer.
+int GetMapScreenEFlag(mapdata md, int category, int flag) 
+{
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
+//Gets mapdata EFlags, similar to ScreenEFlag()
+//Uses map an screen integer values.
+int GetMapScreenEFlag(int mapid, int scr, int category, int flag) 
+{
+	mapdata m = Game->LoadMapData(mapid, scr);
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
+
 //Helper function to get mapdata->Flags[] values
 //See the enum mapscreenflags for legal flags. 
 //Accepts a mapdata pointer.
@@ -1815,6 +1839,8 @@ bool GetMapscreenFlag(int mapid, int scr, mapscreenflags flagid)
 		}
 	}
 }
+
+
 
 //Puts a ZQE Message String into a client array string 'ptr'
 void GetMessage(int ID, char32 ptr)
