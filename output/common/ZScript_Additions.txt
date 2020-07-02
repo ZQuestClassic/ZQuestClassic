@@ -3711,6 +3711,24 @@ int ScriptFlip;
  * If set to 0, or higher, then the engine will use this Flip state to draw the itemsprite.
  * The default value for this is -1. 
 
+int Falling;
+ * The timer indicating how long left the itemsprite will be falling
+ * If 0, the itemsprite is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the itemsprite is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'ITEMMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
+
 /************************************************************************************************************/	
 
 /////////////////
@@ -3789,6 +3807,24 @@ float UID;
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+int Falling;
+ * The timer indicating how long left the weapon will be falling
+ * If 0, the weapon is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the weapon is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'WPNMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
@@ -4146,6 +4182,25 @@ int WeaponPattern[32];
 int FireSound;
  * The sound that plays when the npc fires a weapon.
 
+int Falling;
+ * The timer indicating how long left the npc will be falling
+ * If 0, the npc is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the npc is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[3];
+ * Flags relating to movement.
+ * See 'NPCMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * [2] == Can walk over pitfalls
+ * Read-Write
+
 /************************************************************************************************************/
 
 //////////////
@@ -4408,8 +4463,38 @@ void WarpEx(int ptr[])
 		You can either accept the engine's setting for what Link's Dir should be
 		after warping him, or force a dir.
 
+int PitPullDir;
+ * Returns the direction that the Hero is being pulled in by a pit
+ * Read-only
 
+int PitPullTimer;
+ * A timer related to pits pulling the hero
+ * The pit will only pull the hero on frames where 'PitPullTimer % PitSensitivity == 0'
+ * The Pit Sensitivity is an attribyte on the pit combo
+ * Read-Write
 
+int Falling;
+ * The timer indicating how long left the Hero will be falling
+ * If 0, the Hero is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Writing 'Hero->Action = LA_FALLING' is identical to setting this to 70.
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the Hero is falling into
+ * If non-zero, this combo's attributes will affect things such as if the Hero will warp,
+ *     and how much damage they will take upon finishing falling.
+ * If ==0, the Hero will take 1/4 heart of damage, and not warp
+ * Writing 'Hero->Action = LA_FALLING' will overwrite this value
+ * Writing to '->Falling' will overwrite this value
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'HEROMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
 
 /************************************************************************************************************/
 

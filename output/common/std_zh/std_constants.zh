@@ -2921,3 +2921,28 @@ enum mapscreenflags
 	MSF_LAST
 };
 
+enum HeroMoveFlag
+{
+	HEROMV_OBEYS_GRAVITY,
+	HEROMV_CAN_PITFALL
+};
+
+enum ItemspriteMoveFlag
+{
+	ITEMMV_OBEYS_GRAVITY,
+	ITEMMV_CAN_PITFALL
+};
+
+enum WeaponMoveFlag
+{
+	WPNMV_OBEYS_GRAVITY,
+	WPNMV_CAN_PITFALL
+};
+
+enum NPCMoveFlag
+{
+	NPCMV_OBEYS_GRAVITY,
+	NPCMV_CAN_PITFALL,
+	NPCMV_CAN_PIT_WALK
+};
+
