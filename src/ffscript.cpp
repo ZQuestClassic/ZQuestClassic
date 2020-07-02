@@ -22767,8 +22767,8 @@ int run_script(const byte type, const word script, const long i)
 			}
 			case REGENERATEBITMAP:
 			{
-				int bitref = SH::read_stack(ri->sp+3);
-				if(user_bitmap* b = checkBitmap(bitref,"Create()",false,true))
+				ri->d[3] = SH::read_stack(ri->sp+3);
+				if(user_bitmap* b = checkBitmap(ri->d[3],"Create()",false,true))
 					do_drawing_command(scommand);
 				else //If the pointer isn't allocated
 				{
