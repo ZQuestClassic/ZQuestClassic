@@ -976,7 +976,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         spins = 0;
     }
     
-	if(action == falling)
+	if(action == falling && new_action != falling)
 	{
 		fallclk = 0; //Stop falling;
 	}
@@ -9850,7 +9850,7 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		step = 2;
 		sensitivity = 1;
 	}
-	if(++pit_pullclk % sensitivity) //No pull this frame
+	if(pit_pullclk++ % sensitivity) //No pull this frame
 		return (val&0x100);
 	for(; step > 0 && !fallclk; --step)
 	{
