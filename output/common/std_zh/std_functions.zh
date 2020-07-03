@@ -1553,7 +1553,7 @@ int GetMapScreenEFlag(int mapid, int scr, int category, int flag)
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
 	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
-	return md->EFlags[category]&(1<<flag);
+	return m->EFlags[category]&(1<<flag);
 }
 
 
