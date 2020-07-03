@@ -1,7 +1,58 @@
 // 2.55 Change Log
-// Updated 6th June, 2020
+// Updated 2nd July, 2020
 
 //Alpha 74
+
+<std 1.7055>
+	Added GetMapscreenEFlags(). This is like GetScreenEFlags, but for mapdata.
+	( ZoriaRPG, 2nd July, 2020 )
+	
+Fix 'bitmap->Create()' reassigning null
+	( Venrob, 1st July, 2020 )
+	
+File: Added dmapgrid.zh
+	This is a set of helper functions to set or get is a square in the
+	passive subscreen minimap is displayed as part of the dungeon when
+	the player has a map item, or explores the screen.
+
+	The calcs for dmap offset might be backwards. Untested.
+	( ZoriaRPG, 30th June, 2020 )
+	
+<std> Fix logic errors in SetMapscreenFlag
+Added mapdata->SFlags[] to replicate how Screen->Flags works.
+	Added a rule bit (not implemented in GUI) to make reading
+	mapdata-Flags work in the same way as SFlags[]
+<std> 1.7054 
+	Added enum mapscreenflags to std_constants.
+	Added GetMapscreenFlag, and SetMapscreenFlag to std_functions.
+	Added files (to inspect, and later merge):
+		astar.zh: 		AStar algorithm
+		infostring.zh: 	Get Info Shop Strings
+		nme.zh:		Generic NPC Script
+		roomtypes.zh:		Helper function and enum for roomtypes.
+	( ZoriaRPG, 28th June, 2020 )
+	
+Fix Feather/Fall and Integer Truncation in zfix
+	( Venrob, ZoriaRPG, 27th June, 2020 )
+	
+Enable new 'No Scrolling In Air' QR in Modern ruleset
+Add QR to prevent scrolling while z>0
+	( Venrob, 26th June, 2020 )
+	
+Fix type and size of InitD and Misc array descriptions in ZScript.txt
+Minor fix in nme.zh
+Files: Added some work files to <std>; to be integrated in std.zh v2.0
+	( ZoriaRPG, 23rd June, 2020 )
+	
+Fix WarpEx ignoring dmap offset when calculating warp return
+Fix 'npc->Remove()' not using refvar
+	( Venrob, 21st June, 2020 )
+
+Add 'FileSystem->Remove(char32)' and 'file->Remove()'
+	( Venrob, 20th June, 2020 )
+
+File: Roomtypes an Catchalls for ZScript
+	( ZoriaRPG, 19th June, 2020 )	
 
 Fixed a bug where npc->Step with the rule qr_STEP_IS_FLOAT **DISABLED** 
 	was returning wildly incorrect values.
