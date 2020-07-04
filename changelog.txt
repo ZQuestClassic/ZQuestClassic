@@ -12,7 +12,7 @@ immediately prior to loaing the player interface.
 		2. If a .sav file exists, this will occur prior to the title
 		   screen, if the config int 'checked_epilepsy' is not present
 		   or is set to 0 in zc.cfg.
-		3. If 'checked_epilepsy' is in c.cfg and is set to '1', then
+		3. If 'checked_epilepsy' is in zc.cfg and is set to '1', then
 		   this dilogue will not open, and the user's epilepsy protection
 		   settings are used as normal.
 		4. The dialogue defaults to NO. 
