@@ -1,5 +1,5 @@
 // Docs for 2.55.0
-// Rev. 0.8.2; 24th June, 2020
+// Rev. 0.8.3; 3rd July, 2020
 
 Search for !#! to find areas that require completion. 
 
@@ -2521,6 +2521,7 @@ void DrawTile	(int layer, int x, int y,
 * You may use OP_TRANS (64) for a translucent (50%) image, or OP_OPAQUE (128)
 * for an opaque (100%) image. Other values are **ignored**, and will be treated 
 * as translucent (OP_TRANS, or 64).
+* To draw an 8-bit tile, and render it properly, pass 0 to the cset arg. 
 */ Example Use: !#!
 
 /************************************************************************************************************/
