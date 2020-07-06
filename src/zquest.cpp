@@ -2289,8 +2289,8 @@ static DIALOG dialogs[] =
     // { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
+    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
@@ -4582,10 +4582,10 @@ int onPgDn()
 
 int onIncreaseCSet()
 {
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
+    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
             !key[KEY_ALT] && !key[KEY_ALTGR])
-    {
+    {*/
         if(draw_mode!=dm_alias)
         {
             CSet=wrap(CSet+1,0,11);
@@ -4595,7 +4595,7 @@ int onIncreaseCSet()
         {
             alias_cset_mod=wrap(alias_cset_mod+1,0,11);
         }
-    }
+    /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         int drawmap, drawscr;
@@ -4651,16 +4651,16 @@ int onIncreaseCSet()
         
         refresh(rMAP+rSCRMAP);
     }
-    
+    */
     return D_O_K;
 }
 
 int onDecreaseCSet()
 {
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
+    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
             !key[KEY_ALT] && !key[KEY_ALTGR])
-    {
+    {*/
         if(draw_mode!=dm_alias)
         {
             CSet=wrap(CSet-1,0,11);
@@ -4670,7 +4670,7 @@ int onDecreaseCSet()
         {
             alias_cset_mod=wrap(alias_cset_mod-1,0,11);
         }
-    }
+    /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         int drawmap, drawscr;
@@ -4725,7 +4725,7 @@ int onDecreaseCSet()
         
         refresh(rMAP+rSCRMAP);
     }
-    
+    */
     return D_O_K;
 }
 
