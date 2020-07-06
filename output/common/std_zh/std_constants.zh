@@ -15,8 +15,8 @@ const untyped NULL				= 0;
 const untyped null				= 0;
 const untyped Null				= 0;
 
-const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
-const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
+const float RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
+const float DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
 
 const int SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value is passed. 
 const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
