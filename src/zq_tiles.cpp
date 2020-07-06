@@ -19293,7 +19293,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
     
 	    
-    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
+    } while ( ret != 0 && ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
     if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
     {
 	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
