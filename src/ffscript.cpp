@@ -32712,6 +32712,12 @@ string zs_sprintf(char const* format, int num_args)
 					{
 						++format;
 						char c = format[0];
+						if(c == '\0')
+						{
+							Z_scripterrlog("Cannot use minimum digits flag with no argument\n");
+							oss << buf;
+							return oss.str();
+						}
 						if(c >= '0' && c <= '9')
 							argbuf[q++] = c;
 						else
