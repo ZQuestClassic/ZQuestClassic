@@ -2,6 +2,9 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
+Fixed possible crash on invalid gotos from logging args order.
+	( ZoriaRPG, 7th July, 2020 )
+	
 Epilepsy Protection is now set when you launch a NEW INSTALL of ZC,
 immediately prior to loaing the player interface.
 	If the zc.cfg value 'checked_epilepsy' is not present, or is set 
