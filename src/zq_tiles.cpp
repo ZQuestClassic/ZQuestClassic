@@ -20032,6 +20032,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		{
 			return 0;
 		}
+		temp_combo.o_tile = temp_combo.tile;
             
 		if(!p_getc(&temp_combo.flip,f,true))
 		{
