@@ -32686,6 +32686,7 @@ string zs_sprintf(char const* format, int num_args)
 {
 	int arg_offset = ((ri->sp + num_args) - 1);
 	int next_arg = 0;
+	bool is_old_args = get_bit(quest_rules, qr_OLD_PRINTF_ARGS);
 	ostringstream oss;
 	while(format[0] != '\0')
 	{
@@ -32702,6 +32703,37 @@ string zs_sprintf(char const* format, int num_args)
 			{
 				++format;
 				bool hex_upper = true;
+				int min_digits = 0;
+				if(format[0] == '0' && !is_old_args)
+				{
+					char argbuf[4] = {0};
+					int q = 0;
+					while(q < 4)
+					{
+						++format;
+						char c = format[0];
+						if(c >= '0' && c <= '9')
+							argbuf[q++] = c;
+						else
+						{
+							--format;
+							break;
+						}
+					}
+					++format;
+					min_digits = atoi(argbuf);
+					if(min_digits > 10)
+					{
+						Z_scripterrlog("Min digits argument cannot be larger than 10! Value will be truncated to 10.");
+						min_digits = 10;
+					}
+					if(!min_digits)
+					{
+						Z_scripterrlog("Error formatting string: Invalid number '%s'\n", argbuf);
+					}
+				}
+				char mindigbuf[8] = {0};
+				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? 'x' : 'd');
 				switch( format[0] )
 				{
 					case 'd':
@@ -32720,8 +32752,10 @@ string zs_sprintf(char const* format, int num_args)
 					{
 						zsprintf_int:
 						{
-							char argbuf[16] = {0};
-							zc_itoa(arg_val / 10000, argbuf);
+							char argbuf[32] = {0};
+							if(min_digits)
+								sprintf(argbuf,mindigbuf,arg_val / 10000);
+							else zc_itoa(arg_val / 10000, argbuf);
 							++next_arg;
 							oss << buf << argbuf;
 							q = 300; //break main loop
@@ -32732,8 +32766,10 @@ string zs_sprintf(char const* format, int num_args)
 					{
 						zsprintf_float:
 						{
-							char argbuf[16] = {0};
-							zc_itoa( (arg_val / 10000), argbuf );
+							char argbuf[32] = {0};
+							if(min_digits)
+								sprintf(argbuf,mindigbuf,arg_val / 10000);
+							else zc_itoa(arg_val / 10000, argbuf);
 							int inx = 0; for( ; argbuf[inx]; ++inx );
 							argbuf[inx++] = '.';
 							argbuf[inx++] = '0' + abs( ( (arg_val / 1000) % 10 ) );
@@ -32753,6 +32789,8 @@ string zs_sprintf(char const* format, int num_args)
 					}
 					case 's':
 					{
+						if(min_digits)
+							Z_scripterrlog("Cannot use minimum digits flag for '%%s'\n");
 						long strptr = (arg_val / 10000);
 						string str;
 						ArrayH::getString(strptr, str, MAX_ZC_ARRAY_SIZE);
@@ -32763,6 +32801,8 @@ string zs_sprintf(char const* format, int num_args)
 					}
 					case 'c':
 					{
+						if(min_digits)
+							Z_scripterrlog("Cannot use minimum digits flag for '%%c'\n");
 						int c = (arg_val / 10000);
 						++next_arg;
 						if ( (char(c)) != c )
@@ -32780,24 +32820,35 @@ string zs_sprintf(char const* format, int num_args)
 						//Fallthrough
 					case 'X':
 					{
-						char argbuf[16] = {0};
-						zc_itoa( (arg_val/10000), argbuf, 16 ); //base 16; hex
+						char argbuf[32] = {0};
+						if(min_digits)
+							sprintf(argbuf,mindigbuf,arg_val / 10000);
+						else zc_itoa( (arg_val/10000), argbuf, 16 ); //base 16; hex
+						
 						for ( int inx = 0; inx < 16; ++inx ) //set chosen caps
 						{
 							argbuf[inx] = ( hex_upper ? toupper(argbuf[inx]) : tolower(argbuf[inx]) );
 						}
+						++next_arg;
 						oss << buf << "0x" << argbuf;
 						q = 300; //break main loop
 						break;
 					}
 					case '%':
 					{
+						if(min_digits)
+							Z_scripterrlog("Cannot use minimum digits flag for '%%%%'\n");
 						buf[q] = '%';
 						break;
 					}
 					default:
 					{
-						buf[q] = format[0];
+						if(is_old_args)
+							buf[q] = format[0];
+						else
+						{
+							Z_scripterrlog("Error: '%%%c' is not a valid printf argument.\n",format[0]);
+						}
 						break;
 					}
 				}
@@ -32807,6 +32858,11 @@ string zs_sprintf(char const* format, int num_args)
 			{
 				buf[q] = format[0];
 				++format;
+			}
+			if(q == 255)
+			{
+				oss << buf;
+				break;
 			}
 		}
 	}

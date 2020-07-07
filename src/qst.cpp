@@ -3130,6 +3130,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	  set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
     }
+	if( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 52 ) )
+	{
+		set_bit(quest_rules, qr_OLD_PRINTF_ARGS, 1);
+	}
     if ( tempheader.zelda_version < 0x254 )
     {
 	    set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  

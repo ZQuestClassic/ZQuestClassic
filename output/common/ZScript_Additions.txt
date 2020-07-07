@@ -2441,6 +2441,14 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  *            in hexidecimal. Uses lowercase for letters.
  *     "%X" - Hexadecimal, uppercase. Same as above, but uses uppercase for letters.
  *     "%%" - Inserts a single '%' character, without trying to read it as an argument.
+ *     "%" followed by anything other than the above is considered an error. This should never be done.
+ * Flags can be used between the '%' and the letter.
+ *     "%0#L", where '#' is a number, and 'L' is any letter from 'ifdpxX' (numeric points)
+ *           - Requires that the integer portion of the number be at least '#' digits long.
+ *             This will fill up to the specified length with '0' characters.
+ *             The max number allowed is 10 (ex. "%010d").
+ *           Ex. "%02d" given the argument '1' will print '01'.
+ *               "%02d" given the argument '11' will print '11'.
  * The resulting string will be placed in the buffer, which is expected to be large enough
  *     to hold the output.
 
