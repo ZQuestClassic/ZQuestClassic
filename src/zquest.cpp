@@ -24844,8 +24844,8 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
 	// 25
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen", NULL, NULL },
-	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen Script", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen Script", NULL, NULL },
 	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
 	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
 	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
