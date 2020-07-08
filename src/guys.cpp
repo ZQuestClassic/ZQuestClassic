@@ -11831,13 +11831,21 @@ bool eStalfos::animate(int index)
 				
 				dummy_bool[0]=true;
 				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				sfx(wpnsfx(wpn2),pan(int(x)));
 			}
 		}
@@ -13076,13 +13084,21 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	else if(dmisc2 == 1) // ring of fire
 	{
 		addEwpn(x,y,z,wpn,0,wdp,up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,left,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,right,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(WAV_FIRE,pan(int(x)));
 	if (  FFCore.emulation[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int(x))); 
 	else
