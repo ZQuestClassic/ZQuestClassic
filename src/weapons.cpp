@@ -8883,7 +8883,7 @@ void weapon::onhit(bool clipped)
 
 void weapon::onhit(bool clipped, int special, int linkdir)
 {
-    if((scriptcoldet&1) == 0 } || fallclk)
+    if((scriptcoldet&1) == 0 || fallclk)
     {
         // These won't hit anything, but they can still go too far offscreen...
         // Unless the compatibility rule is set.
