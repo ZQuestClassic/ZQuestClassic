@@ -6114,7 +6114,7 @@ void enemy::masked_draw(BITMAP *dest,int mx,int my,int mw,int mh)
 // override hit detection to check for invicibility, stunned, etc
 bool enemy::hit(sprite *s)
 {
-	if(!(s->scriptcoldet&1)) return false;
+	if(!(s->scriptcoldet&1) || s->fallclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(s);
 }
@@ -6126,7 +6126,7 @@ bool enemy::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 
 bool enemy::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1)) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(w);
 }
@@ -13871,7 +13871,7 @@ void eAquamentus::draw(BITMAP *dest)
 
 bool eAquamentus::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1)) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk) return false;
 	
 	switch(w->id)
 	{

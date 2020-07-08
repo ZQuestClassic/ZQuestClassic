@@ -8883,7 +8883,7 @@ void weapon::onhit(bool clipped)
 
 void weapon::onhit(bool clipped, int special, int linkdir)
 {
-    if((scriptcoldet&1) == 0)
+    if((scriptcoldet&1) == 0 } || fallclk)
     {
         // These won't hit anything, but they can still go too far offscreen...
         // Unless the compatibility rule is set.
@@ -9203,7 +9203,7 @@ offscreenCheck:
 // override hit detection to check for invicibility, etc
 bool weapon::hit(sprite *s)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk) return false;
     
     if(id==ewBrang && misc)
         return false;
@@ -9213,7 +9213,7 @@ bool weapon::hit(sprite *s)
 
 bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk) return false;
     
     if(id==ewBrang && misc)
         return false;

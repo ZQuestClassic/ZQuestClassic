@@ -5399,7 +5399,7 @@ int LinkClass::EwpnHit()
             weapon *ew = (weapon*)(Ewpns.spr(i));
             bool hitshield=false;
             
-            if((ew->ignoreLink)==true)
+            if((ew->ignoreLink)==true || ew->fallclk)
                 break;
                 
             if(ew->id==ewWind)
@@ -6081,7 +6081,7 @@ bool LinkClass::checkdamagecombos(int dx, int dy)
 
 bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer, bool solid) //layer = -1, solid = false
 {
-    if(hclk || superman)
+    if(hclk || superman || fallclk)
         return false;
         
     int hp_mod[4];

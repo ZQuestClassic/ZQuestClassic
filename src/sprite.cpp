@@ -558,7 +558,7 @@ int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen
 
 bool sprite::hit(sprite *s)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk) return false;
     
     if(id<0 || s->id<0 || clk<0) return false;
     
@@ -571,7 +571,7 @@ bool sprite::hit(sprite *s)
 
 bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk) return false;
     
     if(id<0 || clk<0) return false;
     
@@ -586,7 +586,7 @@ bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 
 int sprite::hitdir(int tx,int ty,int txsz2,int tysz2,int dir2)
 {
-    if(!(scriptcoldet&1)) return 0xFF;
+    if(!(scriptcoldet&1) || fallclk) return 0xFF;
     
     int cx1=x+hxofs+(hxsz>>1);
     int cy1=y+hyofs+(hysz>>1);
