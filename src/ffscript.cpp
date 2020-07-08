@@ -11158,7 +11158,11 @@ void set_register(const long arg, const long value)
 		case ITEMFALLCLK:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if(((item*)(s))->fallclk != 0 && value == 0) ((item*)(s))->cs = ((item*)(s))->old_cset;
+				if(((item*)(s))->fallclk != 0 && value == 0)
+				{
+					((item*)(s))->cs = ((item*)(s))->old_cset;
+					((item*)(s))->tile = ((item*)(s))->o_tile;
+				}
 				else if(((item*)(s))->fallclk == 0 && value != 0) ((item*)(s))->old_cset = ((item*)(s))->cs;
 				((item*)(s))->fallclk = vbound(value/10000,0,70);
 			}
@@ -11958,7 +11962,11 @@ void set_register(const long arg, const long value)
 		case LWPNFALLCLK:
 			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
 			{
-				if(((weapon*)(s))->fallclk != 0 && value == 0) ((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
 				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
@@ -12329,7 +12337,11 @@ void set_register(const long arg, const long value)
 		case EWPNFALLCLK:
 			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
 			{
-				if(((weapon*)(s))->fallclk != 0 && value == 0) ((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
 				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
@@ -13052,7 +13064,11 @@ void set_register(const long arg, const long value)
 		case NPCFALLCLK:
 			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
 			{
-				if(GuyH::getNPC()->fallclk != 0 && value == 0) GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+				if(GuyH::getNPC()->fallclk != 0 && value == 0)
+				{
+					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
+				}
 				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
 				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
 			}
