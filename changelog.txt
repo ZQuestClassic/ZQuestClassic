@@ -1,7 +1,33 @@
 // 2.55 Change Log
 // Updated 2nd July, 2020
 
+//Alpha 75
+
+Add ENGINE PITS! These have a lot of interaction with
+	enemies, items, weapons, and Link.
+Add new Link sprites; 'Drown' and 'Falling' are implemented
+
+Fix issue with importing '.zcombo' files
+
+Remove extraneous Y grid-snap in sideview
+Fix column calculation in 'dmapgrid.zh'
+Fix subscreen script slot waitdraws
+Add QR allowing passive subscreen script to run
+	during opening wipes / potion refilling
+	(Venrob, 8th July, 2020)
+Add new features to 'printf'; now can use '%02d' format
+	(Venrob, 7th July, 2020)
+Fix minus key shifting combos on screen
+Fix combo editor 'X' in titlebar not working
+	(Venrob, 6th July, 2020)
+
+Alpha is now 75
+	(Venrob, 8th July, 2020) (affects prior commits)
+
 //Alpha 74
+
+Fix 'bitmap->Create()' wrongly assigning NULL to pointer var
+	(Venrob, 2nd July, 2020)
 
 <std 1.7055>
 	Added GetMapscreenEFlags(). This is like GetScreenEFlags, but for mapdata.
