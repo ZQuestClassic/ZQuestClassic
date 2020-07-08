@@ -116,7 +116,7 @@ public:
     byte do_animation;
     int rotation;
     int scale; 
-    byte obeys_gravity;
+    byte moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;
@@ -127,6 +127,11 @@ public:
 	byte knockbackSpeed;
 	int script_knockback_clk;
 	int script_knockback_speed;
+	int pit_pulldir; // Pitfall pull direction
+	int pit_pullclk; // Pitfall pull clk
+	int fallclk; // Pitfall fall clk
+	int fallCombo; // Pitfall fallen combo
+	int old_cset; // Storage var for an old cset; used by pitfalls
     
     sprite();
     sprite(sprite const & other);
@@ -142,6 +147,7 @@ public:
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int index);
     virtual void check_conveyor();
+	virtual int check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
     int real_x(zfix fx);
     int real_y(zfix fy);
     int real_ground_y(zfix fy);

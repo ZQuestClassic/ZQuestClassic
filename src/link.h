@@ -49,7 +49,9 @@ enum actiontype
     climbcoverbottom, dying, drowning, 
 	climbing, //not used -Z.
     // Fake actiontypes: used by ZScripts
-    ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing
+    ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
+	// New 2.55 ActionTypes
+	falling
 };
 
 typedef struct tilesequence
@@ -73,6 +75,7 @@ typedef struct tilesequence
 
 #define HOV_INF 0x01
 #define HOV_OUT 0x02
+#define HOV_PITFALL_OUT 0x04
 
 class LinkClass : public sprite
 {
@@ -248,6 +251,9 @@ public:
     bool bigHitbox;
 	int steprate;
     byte defence[wMax];
+	
+	bool can_pitfall(bool ignore_hover = false);
+	
     void check_slash_block(weapon *w);
     void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
     void check_pound_block(weapon *w);
@@ -267,9 +273,14 @@ public:
 	byte hoverflags;
 	long extra_jump_count;
     // Methods below here.
+	bool isStanding(bool forJump = false);
     void explode(int type);
     int getTileModifier();
     void setTileModifier(int ntemod);
+	bool try_hover();
+	int check_pitslide(bool ignore_hover = false);
+	bool pitslide();
+	void pitfall();
     void movelink();
     void move(int d, int forceRate = -1);
 	void moveOld(int d2);

@@ -313,6 +313,38 @@ int FFCOMBOTYPE(int x,int y)
     return combobuf[MAPFFCOMBO(x,y)].type;
 }
 
+int FFORCOMBO(int x, int y)
+{
+	for(int i=0; i<32; i++)
+    {
+        if(ffcIsAt(i, x, y))
+            return tmpscr->ffdata[i];
+    }
+	
+	return MAPCOMBO(x,y);
+}
+
+int FFORCOMBOTYPE(int x, int y)
+{
+	return combobuf[FFORCOMBO(x,y)].type;
+}
+
+int FFORCOMBO_L(int layer, int x, int y)
+{
+	for(int i=0; i<32; i++)
+    {
+        if(ffcIsAt(i, x, y))
+            return tmpscr->ffdata[i];
+    }
+	
+	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
+}
+
+int FFORCOMBOTYPE_L(int layer, int x, int y)
+{
+	return combobuf[FFORCOMBO_L(layer,x,y)].type;
+}
+
 int MAPCOMBOFLAG(int x,int y)
 {
     if(x<0 || x>255 || y<0 || y>175)
@@ -863,6 +895,38 @@ bool iswater(int combo)
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
 
+bool ispitfall_type(int type)
+{
+	return combo_class_buf[type].pit != 0;
+}
+
+bool ispitfall(int combo)
+{
+    return ispitfall_type(combobuf[combo].type);
+}
+
+bool ispitfall(int x, int y)
+{
+	if(int c = MAPFFCOMBO(x,y))
+		return ispitfall(c);
+	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
+}
+
+int getpitfall(int x, int y) //Return the highest-layer active pit combo at the given position
+{
+	if(int c = MAPFFCOMBO(x,y))
+	{
+		return ispitfall(c) ? c : 0;
+	}
+	int c = MAPCOMBOL(2,x,y);
+	if(ispitfall(c)) return c;
+	c = MAPCOMBOL(1,x,y);
+	if(ispitfall(c)) return c;
+	c = MAPCOMBO(x,y);
+	if(ispitfall(c)) return c;
+	return 0;
+}
+
 bool isSVLadder(int x, int y)
 {
 	if(x<0 || x>255 || y<0 || y>175)
@@ -900,7 +964,16 @@ bool checkSVLadderPlatform(int x, int y)
 
 bool isstepable(int combo)                                  //can use ladder on it
 {
-    return (combo_class_buf[combobuf[combo].type].ladder_pass!=0);
+    if(combo_class_buf[combobuf[combo].type].ladder_pass) return true;
+	if(combo_class_buf[combobuf[combo].type].pit)
+	{
+		if(combobuf[combo].usrflags&cflag4)
+		{
+			int ldrid = current_item_id(itype_ladder);
+			return (ldrid > -1 && itemsbuf[ldrid].flags & ITEM_FLAG1);
+		}
+	}
+	return false;
 }
 
 bool ishookshottable(int bx, int by)

@@ -227,28 +227,60 @@ bool tooclose(int x,int y,int d)
 }
 
 // Returns true iff a combo type or flag precludes enemy movement.
-bool groundblocked(int dx, int dy)
+bool enemy::groundblocked(int dx, int dy, bool isKB)
 {
-	return COMBOTYPE(dx,dy)==cPIT || COMBOTYPE(dx,dy)==cPITB || COMBOTYPE(dx,dy)==cPITC ||
-		   COMBOTYPE(dx,dy)==cPITD || COMBOTYPE(dx,dy)==cPITR ||
+	int c = COMBOTYPE(dx,dy);
+	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
+	return c==cPIT || c==cPITB || c==cPITC ||
+		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
-		   combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&1 ||
+		   combo_class_buf[c].block_enemies&1 ||
 		   MAPFLAG(dx,dy)==mfNOENEMY || MAPCOMBOFLAG(dx,dy)==mfNOENEMY ||
 		   MAPFLAG(dx,dy)==mfNOGROUNDENEMY || MAPCOMBOFLAG(dx,dy)==mfNOGROUNDENEMY ||
 		   // Check for ladder-only combos which aren't dried water
-		   (combo_class_buf[COMBOTYPE(dx,dy)].ladder_pass&1 && !iswater_type(COMBOTYPE(dx,dy))) ||
+		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
 		   (get_bit(quest_rules,qr_DROWN) && !(isSideViewGravity()) && (iswater(MAPCOMBO(dx,dy))));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
-bool flyerblocked(int dx, int dy, int special)
+bool enemy::flyerblocked(int dx, int dy, int special, bool isKB)
 {
+	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
 	return ((special==spw_floater)&&
 			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
-			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)));
+			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
+			 (pit_blocks && ispitfall(dx,dy))));
+}
+// Returns true iff a combo type or flag precludes enemy movement.
+bool groundblocked(int dx, int dy, guydata const& gd)
+{
+	int c = COMBOTYPE(dx,dy);
+	bool pit_blocks = !(gd.moveflags & FLAG_CAN_PITWALK);
+	return c==cPIT || c==cPITB || c==cPITC ||
+		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
+		   // Block enemies type and block enemies flags
+		   combo_class_buf[c].block_enemies&1 ||
+		   MAPFLAG(dx,dy)==mfNOENEMY || MAPCOMBOFLAG(dx,dy)==mfNOENEMY ||
+		   MAPFLAG(dx,dy)==mfNOGROUNDENEMY || MAPCOMBOFLAG(dx,dy)==mfNOGROUNDENEMY ||
+		   // Check for ladder-only combos which aren't dried water
+		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
+		   // Check for drownable water
+		   (get_bit(quest_rules,qr_DROWN) && !(isSideViewGravity()) && (iswater(MAPCOMBO(dx,dy))));
+}
+
+// Returns true iff enemy is floating and blocked by a combo type or flag.
+bool flyerblocked(int dx, int dy, int special, guydata const& gd)
+{
+	bool pit_blocks = (!(gd.moveflags & FLAG_CAN_PITWALK) && !(gd.moveflags & FLAG_CAN_PITFALL));
+	return ((special==spw_floater)&&
+			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
+			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
+			 (MAPFLAG(dx,dy)==mfNOENEMY)||
+			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
+			 (pit_blocks && ispitfall(dx,dy))));
 }
 
 /**********************************/
@@ -696,8 +728,7 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
-	enemy(other),
-	haslink(haslink)
+	enemy(other)
 {
 	
 	//arrays
@@ -748,7 +779,6 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	fired(fired),
 	shield(shield),
 	dashing(dashing),
-	haslink(haslink),
 	multishot(multishot),
 	fy(fy),
 	shadowdistance(shadowdistance)
@@ -2292,6 +2322,8 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	do_animation = 1;
 	immortal = false;
 	
+	haslink=false;
+	
 	// If they forgot the invisibility flag, here's another failsafe:
 	if(o_tile==0 && family!=eeSPINTILE)
 		flags |= guy_invisible;
@@ -2342,6 +2374,14 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	
 	//tile should never be 0 after init --Z (failsafe)
 	if (tile <= 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255) {tile = o_tile;}
+	
+	//Moveflags; for gravity and pit interaction
+	moveflags = d->moveflags;
+	if(!can_pitfall())
+	{
+		//Some enemies must not interact with pits. Force their flags, for sanity's sake.
+		moveflags &= ~FLAG_CAN_PITFALL;
+	}
 }
 
 //base clone constructor
@@ -2476,7 +2516,8 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//hzofs(other.hzofs),			//int
 	//zofs(other.zofs),			//int
    
-	wpn(other.wpn)			//int
+	wpn(other.wpn),			//int
+	haslink(haslink)
 	//stack(other.stack),			//int
 	//scriptData(other.scriptData)			//int
 
@@ -2593,6 +2634,45 @@ enemy::~enemy()
 	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
 }
 
+// Handle pitfalls
+bool enemy::do_falling(int index)
+{
+	if(fallclk > 0)
+	{
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(!--fallclk)
+		{
+			if(immortal) //Keep alive forever
+				++fallclk; //force another frame of falling.... forever.
+			else if(dying) //Give 1 frame for script revival
+			{
+				if(flags&guy_neverret)
+					never_return(index);
+				
+				if(leader)
+					kill_em_all();
+				
+				//leave_item(); //Don't drop items in pits!
+				stop_bgsfx(index);
+				return true;
+			}
+			else
+			{
+				try_death(true); //Force death
+				++fallclk; //force another frame of falling
+			}
+		}
+		
+		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		cs = spr.csets & 0xF;
+		int fr = spr.frames ? spr.frames : 1;
+		int spd = spr.speed ? spr.speed : 1;
+		int animclk = (PITFALL_FALL_FRAMES-fallclk);
+		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+	}
+	return false;
+}
+
 // Supplemental animation code that all derived classes should call
 // as a return value for animate().
 // Handles the death animation and returns true when enemy is finished.
@@ -2633,6 +2713,27 @@ bool enemy::Dead(int index)
 // the guys sprite list; index is the enemy's index in the list.
 bool enemy::animate(int index)
 {
+	if(do_falling(index)) return true;
+	else if(fallclk)
+	{
+		//clks
+		if(hclk>0)
+			--hclk;
+		if(stunclk>0)
+			--stunclk;
+		if ( frozenclock > 0 ) 
+			--frozenclock;
+		run_script(MODE_NORMAL);
+		if(fallclk && haslink)
+		{
+			Link.setX(x);
+			Link.setY(y);
+			Link.fallCombo = fallCombo;
+			Link.fallclk = fallclk;
+			haslink = false; //Let Link go if falling
+		}
+		return false;
+	}
 	int nx = real_x(x);
 	int ny = real_y(y);
 	
@@ -2660,7 +2761,7 @@ bool enemy::animate(int index)
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
 	//fall down
-	if((enemycanfall(id) || obeys_gravity )&& fading != fade_flicker && clk>=0)
+	if((enemycanfall(id) || (moveflags & FLAG_OBEYS_GRAV) )&& fading != fade_flicker && clk>=0)
 	{
 		if(isSideViewGravity())
 		{
@@ -2711,6 +2812,14 @@ bool enemy::animate(int index)
 				z = fall = 0;
 			else if(fall <= (int)zinit.terminalv)
 				fall += zinit.gravity;
+			
+		}
+	}
+	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
+	{
+		if(can_pitfall() && z <= 0 && !superman)
+		{
+			fallCombo = check_pits();
 		}
 	}
 	
@@ -2731,42 +2840,8 @@ bool enemy::animate(int index)
 		
 	if(ceiling && z<=0)
 		ceiling = false;
-		
-	if(!dying && (hp<=0 && !immortal))
-	{
-		if(itemguy && (hasitem&2)!=0)
-		{
-			for(int i=0; i<items.Count(); i++)
-			{
-				if(((item*)items.spr(i))->pickup&ipENEMY)
-				{
-					items.spr(i)->x = x;
-					items.spr(i)->y = y - 2;
-				}
-			}
-		}
-		
-		dying=true;
-		
-		if(fading==fade_flash_die)
-			clk2=19+18*4;
-		else
-		{
-			clk2 = BSZ ? 15 : 19;
-			
-			if(fading!=fade_blue_poof)
-				fading=0;
-		}
-		
-		if(itemguy)
-		{
-			hasitem&=~2;
-			item_set=0;
-		}
-		
-		if(currscr<128 && count_enemy && !script_spawned)
-			game->guys[(currmap<<7)+currscr]-=1;
-	}
+	
+	try_death();
 	
 	scored=false;
 	
@@ -2787,7 +2862,7 @@ bool enemy::animate(int index)
 	// returns true when enemy is defeated
 	return Dead(index);
 }
-bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
+bool enemy::m_walkflag_old(int dx,int dy,int special, int x, int y)
 {
 	int yg = (special==spw_floater)?8:0;
 	int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
@@ -2804,6 +2879,13 @@ bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
 		if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
 			if(special!=spw_door) // walk in door way
 				return true;
+	}
+	
+	if(!(moveflags & FLAG_CAN_PITWALK) && !(moveflags & FLAG_CAN_PITFALL)) //Don't walk into pits (knockback doesn't call this func)
+	{
+		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
+		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
+		   return true;
 	}
 	
 	switch(special)
@@ -2839,7 +2921,7 @@ bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
 
 
 
-bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y)
+bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y, bool kb)
 {
 	int yg = (special==spw_floater)?8:0;
 	int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
@@ -2899,6 +2981,13 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 				return true;
 	}
 	
+	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
+	{
+		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
+		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
+		   return true;
+	}
+	
 	switch(special)
 	{
 		case spw_clipbottomright:
@@ -2928,14 +3017,14 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 	if(get_bit(quest_rules,qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY))
 	{
 		return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-			   groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+			   groundblocked(dx,dy+8,kb) || groundblocked(dx+8,dy+8,kb);
 	}
 	else
 	{
 		return _walkflag(dx,dy,1) || _walkflag(dx+8,dy,1) ||
 			   _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-			   groundblocked(dx,dy) || groundblocked(dx+8,dy) ||
-			   groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+			   groundblocked(dx,dy,kb) || groundblocked(dx+8,dy,kb) ||
+			   groundblocked(dx,dy+8,kb) || groundblocked(dx+8,dy+8,kb);
 	}
 }
 
@@ -3106,6 +3195,7 @@ void enemy::FireBreath(bool seeklink)
 	
 	int i=Ewpns.Count()-1;
 	weapon *ew = (weapon*)(Ewpns.spr(i));
+	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 	
 	if(!seeklink && (rand()&4))
 	{
@@ -3189,16 +3279,24 @@ void enemy::FireWeapon()
 	
 	case e1t8SHOTS: //Fire Wizzrobe
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		
 		//fallthrough
 	case e1t4SHOTS: //Stalfos 3
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,down,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,left,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(wpnsfx(wpn),pan(int(x)));
 		break;
 		
@@ -4969,6 +5067,7 @@ int enemy::defenditemclass(int wpnId, int *power)
 // 0: weapon passes through unhindered
 int enemy::takehit(weapon *w)
 {
+	if(fallclk) return 0;
 	int wpnId = w->id;
 	//al_trace("takehit() wpnId is %d\n",wpnId);
 	//if ( wpnId == wWhistle ) al_trace("Whistle weapon in %s\n", "takehit");
@@ -5607,7 +5706,44 @@ void enemy::draw(BITMAP *dest)
 	*/
 	return;
 	}
-		
+	
+	if(fallclk)
+	{
+		if((tmpscr->flags3&fINVISROOM) &&
+				!(current_item(itype_amulet)) &&
+				!((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) &&
+				  lensclk) && family!=eeGANON)//eeGANON check for handling his invis seperately? -V
+		{
+			sprite::drawcloaked(dest);
+		}
+		else if ( (editorflags & ENEMY_FLAG1) )
+		{
+			if (!(game->item[dmisc13]))
+			{
+				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				{
+					sprite::drawcloaked(dest);
+				}
+				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+			}
+			else
+			{
+				if ( (editorflags & ENEMY_FLAG16) )
+				{
+					sprite::drawcloaked(dest);
+				}
+				else
+				{
+					sprite::draw(dest);
+				}
+			}
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+		return;
+	}
 	int cshold=cs;
 	
 	if(dying)
@@ -5978,7 +6114,7 @@ void enemy::masked_draw(BITMAP *dest,int mx,int my,int mw,int mh)
 // override hit detection to check for invicibility, stunned, etc
 bool enemy::hit(sprite *s)
 {
-	if(!(s->scriptcoldet&1)) return false;
+	if(!(s->scriptcoldet&1) || s->fallclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(s);
 }
@@ -5990,9 +6126,72 @@ bool enemy::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 
 bool enemy::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1)) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(w);
+}
+
+bool enemy::can_pitfall()
+{
+	switch(guysbuf[id&0xFFF].family)
+	{
+		case eeAQUA:
+		case eeDIG:
+		case eeDONGO:
+		case eeFAIRY:
+		case eeGANON:
+		case eeGHOMA:
+		case eeGLEEOK:
+		case eeGUY:
+		case eeLANM:
+		case eeMANHAN:
+		case eeMOLD:
+		case eeNONE:
+		case eePATRA:
+		case eeZORA:
+			return false; //Disallowed types
+		default:
+			return true;
+	}
+}
+//Handle death
+void enemy::try_death(bool force_kill)
+{
+	if(!dying && (force_kill || (hp<=0 && !immortal)))
+	{
+		if(itemguy && (hasitem&2)!=0)
+		{
+			for(int i=0; i<items.Count(); i++)
+			{
+				if(((item*)items.spr(i))->pickup&ipENEMY)
+				{
+					items.spr(i)->x = x;
+					items.spr(i)->y = y - 2;
+				}
+			}
+		}
+		
+		dying=true;
+		
+		if(fading==fade_flash_die)
+			clk2=19+18*4;
+		else
+		{
+			clk2 = BSZ ? 15 : 19;
+			
+			if(fading!=fade_blue_poof)
+				fading=0;
+		}
+		
+		if(itemguy)
+		{
+			hasitem&=~2;
+			item_set=0;
+		}
+		
+		if(currscr<128 && count_enemy && !script_spawned)
+			game->guys[(currmap<<7)+currscr]-=1;
+	}
 }
 
 //                         --==**==--
@@ -6130,7 +6329,7 @@ bool enemy::canmove_old(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int 
 
 
 // returns true if next step is ok, false if there is something there
-bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
+bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2, bool kb)
 {
 	bool ok = false; //initialise the var, son't just declare it
 	int dx = 0, dy = 0;
@@ -6163,14 +6362,14 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 			//Z_eventlog("Trying move UP, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy, special);
+				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs, kb) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy, special,kb);
 				try_x += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
+				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs, kb) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special,kb);
 			}
 			break;
 		}
@@ -6185,14 +6384,14 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 			//Z_eventlog("Trying move DOWN, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+zc_max(usehei-16,0), special);
+				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs, kb) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+zc_max(usehei-16,0), special,kb);
 				try_x += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+zc_max(usehei-16,0), special);
+				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs, kb) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+zc_max(usehei-16,0), special,kb);
 			}
 			break;
 		}
@@ -6206,14 +6405,14 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 			//Z_eventlog("Trying move LEFT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+try_y, special);
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y, kb) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+try_y, special,kb);
 				try_y += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
 			if((usehei%16)>0) //Uneven height
 			{
-				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1, kb) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special,kb);
 			}
 			break;
 		}
@@ -6226,14 +6425,14 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 			//Z_eventlog("Trying move RIGHT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+try_y, special);
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y, kb) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+try_y, special,kb);
 				try_y += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
 			if((usehei%16)>0) //Uneven height
 			{
-				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+usehei-1, special);
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1, kb) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+usehei-1, special,kb);
 			}
 			break;
 		}
@@ -6249,16 +6448,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special,kb);
 				}
 				try_x += (offgrid ? 8 : 16);
 			}
@@ -6269,16 +6468,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special,kb);
 				}
 			}
 			break;
@@ -6295,16 +6494,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special,kb);
 				}
 				try_x += (offgrid ? 8 : 16);
 			}
@@ -6315,16 +6514,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special,kb);
 				}
 			}
 			break;
@@ -6341,16 +6540,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special,kb);
 				}
 				try_x += (offgrid ? 8 : 16);
 			}
@@ -6361,16 +6560,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special,kb);
 				}
 			}
 			break;
@@ -6387,16 +6586,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special,kb);
 				}
 				try_x += (offgrid ? 8 : 16);
 			}
@@ -6407,16 +6606,16 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
-					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y, kb) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special,kb);
 					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
 				if((usehei%16)>0) //Uneven height
 				{
-					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
-						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1, kb) &&
+						 !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special,kb) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special,kb);
 				}
 			}
 			break;
@@ -6430,26 +6629,26 @@ bool enemy::canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2)
 }
 
 
-bool enemy::canmove(int ndir,zfix s,int special)
+bool enemy::canmove(int ndir,zfix s,int special, bool kb)
 {
-	return canmove(ndir,s,special,0,-8,15,15);
+	return canmove(ndir,s,special,0,-8,15,15,kb);
 }
 
-bool enemy::canmove(int ndir,int special)
+bool enemy::canmove(int ndir,int special, bool kb)
 {
 	bool dodongo_move=true; //yes, it's an ugly hack, but we're going to rewrite everything later anyway - DN
 	
 	if(special==spw_clipright&&ndir==right)
 	{
-		dodongo_move=canmove(ndir,(zfix)1,special,0,-8,31,15);
+		dodongo_move=canmove(ndir,(zfix)1,special,0,-8,31,15,kb);
 	}
 	
-	return canmove(ndir,(zfix)1,special,0,-8,15,15)&&dodongo_move;
+	return canmove(ndir,(zfix)1,special,0,-8,15,15,kb)&&dodongo_move;
 }
 
-bool enemy::canmove(int ndir)
+bool enemy::canmove(int ndir, bool kb)
 {
-	return canmove(ndir,(zfix)1,spw_none,0,-8,15,15);
+	return canmove(ndir,(zfix)1,spw_none,0,-8,15,15,kb);
 }
 
 // 8-directional
@@ -6484,7 +6683,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 					}
 				}
 				
-				if(canmove(ndir,special))
+				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
 					return;
@@ -6497,7 +6696,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 		{
 			ndir = lined_up(8,true);
 			
-			if(ndir>=0 && canmove(ndir,special))
+			if(ndir>=0 && canmove(ndir,special,false))
 			{
 				dir=ndir;
 			}
@@ -6512,9 +6711,9 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 			ndir = ((dir+((r&64)?-1:1))&7)+8;
 			int ndir2=((dir+((r&64)?1:-1))&7)+8;
 			
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 				dir=ndir;
-			else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2))
+			else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2,false))
 				dir=ndir2;
 				
 			if(dir==ndir && (newrate>=4)) // newrate>=4, otherwise movement is biased toward upper-left
@@ -6535,7 +6734,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	{
 		ndir=(rand()&7)+8;
 		
-		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
 	}
 	
@@ -6543,7 +6742,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	{
 		for(ndir=8; ndir<16; ndir++)
 		{
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 				goto ok;
 		}
 		
@@ -6561,7 +6760,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	int ndir=0;
 	
 	// can move straight, check if it wants to turn
-	if(canmove(dir,step,special,dx1,dy1,dx2,dy2))
+	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
 		if(grumble && (rand()&4)<grumble) //Homing
 		{
@@ -6587,7 +6786,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 					}
 				}
 				
-				if(canmove(ndir,special))
+				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
 					return;
@@ -6600,7 +6799,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 		{
 			ndir = lined_up(8,true);
 			
-			if(ndir>=0 && canmove(ndir,special))
+			if(ndir>=0 && canmove(ndir,special,false))
 			{
 				dir=ndir;
 			}
@@ -6615,9 +6814,9 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 			ndir = ((dir+((r&64)?-1:1))&7)+8;
 			int ndir2=((dir+((r&64)?1:-1))&7)+8;
 			
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 				dir=ndir;
-			else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2))
+			else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2,false))
 				dir=ndir2;
 				
 			if(dir==ndir && (newrate>=4)) // newrate>=4, otherwise movement is biased toward upper-left
@@ -6638,7 +6837,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	{
 		ndir=(rand()&7)+8;
 		
-		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
 	}
 	
@@ -6646,7 +6845,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	{
 		for(ndir=8; ndir<16; ndir++)
 		{
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 				goto ok;
 		}
 		
@@ -6696,7 +6895,7 @@ int enemy::slide()
 		}
 		return 0;
 	}
-	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15)))
+	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15,true)))
 	{
 		sclk=0;
 		return 0;
@@ -6713,7 +6912,7 @@ int enemy::slide()
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0) ) { sclk=0; return 0; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
@@ -6724,7 +6923,7 @@ int enemy::slide()
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0) ) { sclk=0; return 0; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
@@ -6735,7 +6934,7 @@ int enemy::slide()
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0) ) { sclk=0; return 0; }
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; }
 		
 		break;
 		}
@@ -6746,7 +6945,7 @@ int enemy::slide()
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0) ) { sclk=0; return 0; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		break;
 		}
 	}
@@ -6774,7 +6973,7 @@ int enemy::slide()
 			x+=thismove;
 			break;
 		}
-		if(!canmove(sclk>>8,(zfix)0,0))
+		if(!canmove(sclk>>8,(zfix)0,0,true))
 		{
 			switch(sclk>>8)
 			{
@@ -6818,7 +7017,7 @@ bool enemy::can_slide()
 	if(sclk==0 || (hp<=0 && !immortal))
 		return false;
 		
-	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0)))
+	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,true)))
 	{
 		return false;
 	}
@@ -6831,7 +7030,7 @@ bool enemy::fslide()
 	if(sclk==0 || (hp<=0 && !immortal))
 		return false;
 		
-	if((sclk&255)==16 && !canmove(sclk>>8,(zfix)12,spw_floater))
+	if((sclk&255)==16 && !canmove(sclk>>8,(zfix)12,spw_floater,true))
 	{
 		sclk=0;
 		return false;
@@ -6897,7 +7096,7 @@ bool enemy::fslide()
 		break;
 	}
 	
-	if(!canmove(sclk>>8,(zfix)0,spw_floater))
+	if(!canmove(sclk>>8,(zfix)0,spw_floater,true))
 	{
 		switch(sclk>>8)
 		{
@@ -6933,7 +7132,7 @@ bool enemy::fslide()
 bool enemy::knockback(int time, int dir, int speed)
 {
 	if((hp<=0 && !immortal)) return false; //No knocking back dead/mid-knockback enemies
-	if(!canmove(dir,(zfix)speed,0,0,0,15,15)) return false; //from slide(); collision check
+	if(!canmove(dir,(zfix)speed,0,0,0,15,15,true)) return false; //from slide(); collision check
 	bool ret = sprite::knockback(time, dir, speed);
 	if(ret) sclk = 0; //kill engine knockback if interrupted
 	return ret;
@@ -6985,7 +7184,7 @@ bool enemy::runKnockback()
 				x+=thismove;
 				break;
 		}
-		if(!canmove(kb_dir,(zfix)0,0))
+		if(!canmove(kb_dir,(zfix)0,0,true))
 		{
 			script_knockback_clk=0;
 			clk3=0;
@@ -7044,7 +7243,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 			{
 				ndir = (by<y) ? up : down;
 				
-				if(canmove(ndir,special))
+				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
 					return;
@@ -7053,7 +7252,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 			
 			ndir = (bx<x) ? left : right;
 			
-			if(canmove(ndir,special))
+			if(canmove(ndir,special,false))
 			{
 				dir=ndir;
 				return;
@@ -7065,7 +7264,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 	{
 		ndir = lined_up(8,false);
 		
-		if(ndir>=0 && canmove(ndir,special))
+		if(ndir>=0 && canmove(ndir,special,false))
 		{
 			dir=ndir;
 			return;
@@ -7083,7 +7282,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 		else
 			ndir=dir;
 			
-		if(canmove(ndir,special))
+		if(canmove(ndir,special,false))
 			break;
 	}
 	
@@ -7091,7 +7290,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 	{
 		for(ndir=0; ndir<4; ndir++)
 		{
-			if(canmove(ndir,special))
+			if(canmove(ndir,special,false))
 				goto ok;
 		}
 		
@@ -7321,7 +7520,7 @@ void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int
 	if(clk<0 || dying || stunclk || watch || frozenclock)
 		return;
 		
-	if(!canmove(dir,step,special))
+	if(!canmove(dir,step,special,false))
 		clk3=0;
 		
 	if(clk2>0)
@@ -7357,7 +7556,7 @@ void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special)
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
 		
-	if(!canmove(dir,step,special))
+	if(!canmove(dir,step,special,false))
 		clk3=0;
 		
 	if(clk3<=0)
@@ -7376,7 +7575,7 @@ void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special,in
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
 		
-	if(!canmove(dir,step,special,dx1,dy1,dx2,dy2))
+	if(!canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 		clk3=0;
 		
 	if(clk3<=0)
@@ -7873,6 +8072,7 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
+	if(fallclk) return;
 	if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
 	{  
 	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
@@ -8940,7 +9140,6 @@ guy::guy(zfix X,zfix Y,int Id,int Clk,bool mg) : enemy(X,Y,Id,Clk)
 	hzsz=8;
 	hxsz=12;
 	hysz=17;
-	obeys_gravity = 0;
 	
 	if(!superman && (!isdungeon() || id==gFAIRY || id==gFIRE || id==gZELDA))
 	{
@@ -8993,7 +9192,6 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-	obeys_gravity = 0; //used for enemy type 'Other (Floating)' in 2.50, and these ignore gravity. Used by ghost.zh. -Z 23rd June, 2019
 	// Spawn type
 	if(flags & guy_fadeflicker)
 	{
@@ -9003,7 +9201,7 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		count_enemy=false;
 		dir=down;
 		
-		if(!canmove(down,(zfix)8,spw_none))
+		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int(13.0/step);
 	}
 	else if(flags & guy_fadeinstant)
@@ -9014,6 +9212,7 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eFire::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9027,7 +9226,7 @@ bool eFire::animate(int index)
 				
 			clk2=0;
 			
-			if(!canmove(down,(zfix)8,spw_none))
+			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
 				y = y.getInt() & 0xF0;
@@ -9084,7 +9283,6 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("npct other::other\n");
 	clk4=0;
-	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	
 	// Spawn type
@@ -9096,7 +9294,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		count_enemy=false;
 		dir=down;
 		
-		if(!canmove(down,(zfix)8,spw_none))
+		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int(13.0/step);
 	}
 	else if(flags & guy_fadeinstant)
@@ -9107,6 +9305,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eOther::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	//zprint2("npct other::animate\n");
 	if(fading)
 	{
@@ -9121,7 +9320,7 @@ bool eOther::animate(int index)
 				
 			clk2=0;
 			
-			if(!canmove(down,(zfix)8,spw_none))
+			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
 				y = y.getInt() & 0xF0;
@@ -9178,7 +9377,6 @@ void eOther::break_shield()
 eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
-	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	
 	// Spawn type
@@ -9190,7 +9388,7 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		count_enemy=false;
 		dir=down;
 		
-		if(!canmove(down,(zfix)8,spw_none))
+		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int(13.0/step);
 	}
 	else if(flags & guy_fadeinstant)
@@ -9201,6 +9399,7 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eScript::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9214,7 +9413,7 @@ bool eScript::animate(int index)
 				
 			clk2=0;
 			
-			if(!canmove(down,(zfix)8,spw_none))
+			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
 				y = y.getInt() & 0xF0;
@@ -9272,7 +9471,6 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
 	hyofs = -32768; //No hitbox initially.
-	obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	
 	// Spawn type
@@ -9284,7 +9482,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		count_enemy=false;
 		dir=down;
 		
-		if(!canmove(down,(zfix)8,spw_none))
+		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int(13.0/step);
 	}
 	else if(flags & guy_fadeinstant)
@@ -9295,6 +9493,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eFriendly::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9308,7 +9507,7 @@ bool eFriendly::animate(int index)
 				
 			clk2=0;
 			
-			if(!canmove(down,(zfix)8,spw_none))
+			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
 				y = y.getInt() & 0xF0;
@@ -9414,11 +9613,11 @@ eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	step=0;
 	clk=0;
 	clk4=0;
-	obeys_gravity = 1;
 }
 
 bool eGhini::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -9464,7 +9663,6 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	dir=down;
 	misc=1;
 	clk=-15;
-	obeys_gravity = 0;
 	
 	if(!BSZ)
 		clk*=rand()%3+1;
@@ -9481,6 +9679,7 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTektite::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -9538,6 +9737,10 @@ bool eTektite::animate(int index)
 				{
 					step=0-step;
 				}
+				else if(ispitfall(x+8,y+16))
+				{
+					step=0-step;
+				}
 				else if(MAPFLAG(x+8,y+16)==mfNOENEMY)
 				{
 					step=0-step;
@@ -9554,6 +9757,10 @@ bool eTektite::animate(int index)
 					step=0-step;
 				}
 				else if(COMBOTYPE(x+8,y)==cNOENEMY)
+				{
+					step=0-step;
+				}
+				else if(ispitfall(x+8,y))
 				{
 					step=0-step;
 				}
@@ -9577,6 +9784,10 @@ bool eTektite::animate(int index)
 				{
 					clk3^=1;
 				}
+				else if(ispitfall(x,y+8))
+				{
+					clk3^=1;
+				}
 				else if(MAPFLAG(x,y+8)==mfNOENEMY)
 				{
 					clk3^=1;
@@ -9593,6 +9804,10 @@ bool eTektite::animate(int index)
 					clk3^=1;
 				}
 				else if(COMBOTYPE(x+16,y+8)==cNOENEMY)
+				{
+					clk3^=1;
+				}
+				else if(ispitfall(x+16,y+8))
 				{
 					clk3^=1;
 				}
@@ -9717,7 +9932,6 @@ eItemFairy::eItemFairy(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	hxofs=1000;
 	mainguy=false;
 	count_enemy=false;
-	obeys_gravity = 0;
 }
 
 bool eItemFairy::animate(int index)
@@ -9754,12 +9968,12 @@ ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	movestatus=1;
 	clk=0;
 	step=0;
-	obeys_gravity = 0;
 	//nets+720;
 }
 
 bool ePeahat::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(slide())
 	{
 		return false;
@@ -9870,7 +10084,6 @@ eLeever::eLeever(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		misc=-1;    //Line of Sight leevers
 		clk-=16;
 	}
-	obeys_gravity = 0; //Seems that Leevers STUPIDLY ignored gravity in 2.50. -Z ( 23rd June, 2019 )
 	//nets+1460;
 	temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
 	submerged = 0;
@@ -9885,6 +10098,10 @@ bool eLeever::isSubmerged()
 
 bool eLeever::animate(int index)
 {
+	if(fallclk)
+	{
+		return enemy::animate(index);
+	}
 	if(dying)
 		return Dead(index);
 		
@@ -9973,14 +10190,14 @@ bool eLeever::animate(int index)
 				
 				break;
 				
-//        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((zfix)(d->step/100.0)); break;
+//        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir,false)) misc=4; else move((zfix)(d->step/100.0)); break;
 			case 3:
 		
 				if(stunclk || frozenclock) break;
 				
 				if(scored) dir^=1;
 				
-				if(!canmove(dir)) misc=4;
+				if(!canmove(dir,false)) misc=4;
 				else move(zslongToFix(dstep*100));
 				
 				break;
@@ -10096,12 +10313,14 @@ void eLeever::draw(BITMAP *dest)
 //  cs=d->cset;
 	cs=dcset;
 	update_enemy_frame();
-	
-	switch(misc)
+	if(!fallclk)
 	{
-	case -1:
-	case 0:
-		return;
+		switch(misc)
+		{
+		case -1:
+		case 0:
+			return;
+		}
 	}
 	
 	enemy::draw(dest);
@@ -10116,6 +10335,10 @@ eWallM::eWallM(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eWallM::animate(int index)
 {
+	if(fallclk)
+	{
+		return enemy::animate(index);
+	}
 	if(dying)
 		return Dead(index);
 		
@@ -10125,7 +10348,6 @@ bool eWallM::animate(int index)
 	}
 	
 	hxofs=1000;
-	obeys_gravity = 1;
 	if(misc==0) //inside wall, ready to spawn?
 	{
 	//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
@@ -10311,7 +10533,7 @@ void eWallM::draw(BITMAP *dest)
 	dummy_bool[1]=haslink;
 	update_enemy_frame();
 	
-	if(misc>0)
+	if(misc>0 || fallclk)
 	{
 		masked_draw(dest,16,playing_field_offset+16,224,144);
 	}
@@ -10329,7 +10551,6 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	ox=x;                                                     //original x
 	oy=y;                                                     //original y
-	obeys_gravity = 0;
 	if(get_bit(quest_rules,qr_TRAPPOSFIX))
 	{
 		yofs = playing_field_offset;
@@ -10343,6 +10564,7 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
 		
@@ -10488,9 +10710,9 @@ bool eTrap::trapmove(int ndir)
 	if(get_bit(quest_rules,qr_MEANTRAPS))
 	{
 		if(tmpscr->flags2&fFLOATTRAPS)
-			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15);
+			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
-		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15);
+		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
 	}
 	
 	if(oy==80 && !(ndir==left || ndir == right))
@@ -10642,7 +10864,6 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	count_enemy=false;
 	step=2;
-	obeys_gravity = 0;
 	if(dmisc1==1 || (dmisc1==0 && rand()&2))
 	{
 		dir=(x<=112)?right:left;
@@ -10663,6 +10884,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap2::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
 		
@@ -10735,9 +10957,9 @@ bool eTrap2::animate(int index)
 bool eTrap2::trapmove(int ndir)
 {
 	if(tmpscr->flags2&fFLOATTRAPS)
-		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15);
+		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
-	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15);
+	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
 }
 
 bool eTrap2::clip()
@@ -10785,7 +11007,6 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	clk=0;
 	mainguy=false;
 	clk2=-14;
-	obeys_gravity = 0;
 	//Enemy Editor Size Tab
 	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	else hxofs = -2;
@@ -10812,6 +11033,7 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eRock::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -10901,7 +11123,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 
 void eRock::draw(BITMAP *dest)
 {
-	if(clk2>=0)
+	if(clk2>=0 || fallclk)
 	{
 		int tempdir=dir;
 		dir=dummy_int[2];
@@ -10919,7 +11141,6 @@ int eRock::takehit(weapon*)
 eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	clk=0;
-	obeys_gravity = 0;
 	mainguy=false;
 	clk2=-14;
 	if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
@@ -10949,6 +11170,7 @@ eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eBoulder::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -11049,7 +11271,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 
 void eBoulder::draw(BITMAP *dest)
 {
-	if(clk2>=0)
+	if(clk2>=0 || fallclk)
 	{
 		int tempdir=dir;
 		dir=dummy_int[2];
@@ -11081,7 +11303,6 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 	clk=0;
 	clk3=96;
 	timer=0;
-	obeys_gravity = 0;
 	if(o_tile==0)
 	{
 		superman=1;
@@ -11091,6 +11312,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 
 bool eProjectile::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(clk==0)
 	{
 		removearmos(x,y);
@@ -11179,7 +11401,6 @@ void eProjectile::draw(BITMAP *dest)
 eTrigger::eTrigger(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	hxofs=1000;
-	obeys_gravity = 0;
 }
 
 void eTrigger::draw(BITMAP *dest)
@@ -11197,7 +11418,6 @@ eNPC::eNPC(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	o_tile+=wpnsbuf[iwNPCs].newtile;
 	count_enemy=false;
-	obeys_gravity = 0;
 }
 
 bool eNPC::animate(int index)
@@ -11278,7 +11498,6 @@ eSpinTile::eSpinTile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	clk=0;
 	step=0;
 	mainguy=false;
-	obeys_gravity = 0;
 }
 
 void eSpinTile::facelink()
@@ -11332,6 +11551,7 @@ void eSpinTile::facelink()
 
 bool eSpinTile::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -11383,7 +11603,6 @@ eZora::eZora(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
-	obeys_gravity = 0;
 	mainguy=false;
 	count_enemy=false;
 	/*if((x>-17 && x<0) && iswater(tmpscr->data[(((int)y&0xF0)+((int)x>>4))]))
@@ -11540,7 +11759,6 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	haslink = false;
 	dummy_bool[0]=false;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-	obeys_gravity = 1;
 	if(dmisc9==e9tARMOS && rand()&1)
 	{
 		step=zslongToFix(dstep*100);
@@ -11556,7 +11774,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		count_enemy=false;
 		dir=down;
 		
-		if(!canmove(down,(zfix)8,spw_none))
+		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int(13.0/step);
 	}
 	else if(flags & guy_fadeinstant)
@@ -11571,6 +11789,10 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eStalfos::animate(int index)
 {
+	if(fallclk)
+	{
+		return enemy::animate(index);
+	}
 	if(dying)
 	{
 		if(haslink)
@@ -11609,13 +11831,21 @@ bool eStalfos::animate(int index)
 				
 				dummy_bool[0]=true;
 				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 				sfx(wpnsfx(wpn2),pan(int(x)));
 			}
 		}
@@ -11955,13 +12185,13 @@ bool eStalfos::animate(int index)
 				{
 					move(step);
 					
-					if(!canmove(dir,(zfix)0,0))
+					if(!canmove(dir,(zfix)0,0,false))
 						dir=down;
 				}
 				
 				if(misc==3)
 				{
-					if(canmove(right,(zfix)16,0))
+					if(canmove(right,(zfix)16,0,false))
 						x+=16;
 				}
 				
@@ -11979,14 +12209,14 @@ bool eStalfos::animate(int index)
 				{
 					move(step);
 					/*
-							  if(!canmove(dir,(zfix)0,0))
+							  if(!canmove(dir,(zfix)0,0,false))
 								dir=up;
 					*/
 				}
 				
 				if(misc==3)
 				{
-					if(canmove(left,(zfix)16,0))
+					if(canmove(left,(zfix)16,0,false))
 						x-=16;
 				}
 				
@@ -12004,13 +12234,13 @@ bool eStalfos::animate(int index)
 				{
 					move(step);
 					
-					if(!canmove(dir,(zfix)0,0))
+					if(!canmove(dir,(zfix)0,0,false))
 						dir=dir^1;
 				}
 				
 				if(misc==3)
 				{
-					if(dir >= left && canmove(dir,(zfix)16,0))
+					if(dir >= left && canmove(dir,(zfix)16,0,false))
 						x+=(dir==left ? -16 : 16);
 				}
 				
@@ -12094,7 +12324,7 @@ bool eStalfos::animate(int index)
 			
 			((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=true;
 			
-			if(canmove(ndir))
+			if(canmove(ndir,false))
 			{
 				dir=ndir;
 			}
@@ -12222,7 +12452,7 @@ void eStalfos::draw(BITMAP *dest)
 	}*/
 	update_enemy_frame();
 	
-	if((dmisc2==e2tBOMBCHU)&&dashing)
+	if(!fallclk&&(dmisc2==e2tBOMBCHU)&&dashing)
 	{
 		if ( do_animation )tile+=20;
 	}
@@ -12311,7 +12541,7 @@ void eStalfos::charge_attack()
 		{
 			int ldir = lined_up(7,false);
 			
-			if(ldir!=-1 && canmove(ldir))
+			if(ldir!=-1 && canmove(ldir,false))
 			{
 				dir=ldir;
 				dashing=true;
@@ -12320,7 +12550,7 @@ void eStalfos::charge_attack()
 			else newdir(4,0,0);
 		}
 		
-		if(!canmove(dir))
+		if(!canmove(dir,false))
 		{
 			step=zslongToFix(dstep*100);
 			newdir();
@@ -12386,13 +12616,13 @@ void eStalfos::vire_hop()
 		
 		//z=0;
 		//if we're not in the middle of a jump or if we can't complete the current jump in the current direction
-		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater) || (isSideViewGravity() && isOnSideviewPlatform()))
+		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && isOnSideviewPlatform()))
 			newdir(rate,homing,dmisc9==e9tPOLSVOICE ? spw_floater : spw_none);
 			
 		if(clk2<=0)
 		{
 			//z=0;
-			if(!canmove(dir,(zfix)2,spw_none) || m_walkflag(x,y,spw_none, dir) || (rand()&15)>=hrate)
+			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (rand()&15)>=hrate)
 				clk2=(wpn==ewBrang ? 1 : 16*jump_width/step);
 		}
 		
@@ -12510,7 +12740,6 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	dir=(rand()&7)+8;
 	step=0;
 	movestatus=1;
-	obeys_gravity = 0;
 	c=0;
 	if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
 	if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
@@ -12547,6 +12776,7 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eKeese::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -12649,12 +12879,12 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	charging=false;
 	firing=false;
 	fclk=0;
-	obeys_gravity = 1;
 	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
 }
 
 bool eWizzrobe::animate(int index)
 {
+	if(fallclk) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -12854,13 +13084,21 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	else if(dmisc2 == 1) // ring of fire
 	{
 		addEwpn(x,y,z,wpn,0,wdp,up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,left,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,right,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_up,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(WAV_FIRE,pan(int(x)));
 	if (  FFCore.emulation[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int(x))); 
 	else
@@ -12967,7 +13205,7 @@ void eWizzrobe::wizzrobe_attack()
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
 		
-	if(clk3<=0 || ((clk3&31)==0 && !canmove(dir,(zfix)1,spw_door) && !misc))
+	if(clk3<=0 || ((clk3&31)==0 && !canmove(dir,(zfix)1,spw_door,false) && !misc))
 	{
 		fix_coords();
 		
@@ -12980,7 +13218,7 @@ void eWizzrobe::wizzrobe_attack()
 			{
 				clk3=16;
 				
-				if(!canmove(dir,(zfix)1,spw_wizzrobe))
+				if(!canmove(dir,(zfix)1,spw_wizzrobe,false))
 				{
 					wizzrobe_newdir(0);
 				}
@@ -13038,9 +13276,9 @@ void eWizzrobe::wizzrobe_attack()
 			wizzrobe_newdir(64);
 			
 		default:
-			if(!canmove(dir,(zfix)1,spw_door))
+			if(!canmove(dir,(zfix)1,spw_door,false))
 			{
-				if(canmove(dir,(zfix)15,spw_wizzrobe))
+				if(canmove(dir,(zfix)15,spw_wizzrobe,false))
 				{
 					misc=1;
 					clk3=16;
@@ -13167,7 +13405,6 @@ eDodongo::eDodongo(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flash_die;
 	//nets+5120;
-	obeys_gravity = 1;
 	if(dir==down&&y>=128)
 	{
 		dir=up;
@@ -13295,7 +13532,6 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	fading=fade_flash_die;
 	//nets+5180;
 	previous_dir=-1;
-	obeys_gravity = 1;
 	if(dir==down&&y>=128)
 	{
 		dir=up;
@@ -13472,7 +13708,6 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int Id,int Clk) : enemy((zfix)176,(zfix)6
 	//these are here to bypass compiler warnings about unused arguments
 	X=X;
 	Y=Y;
-	obeys_gravity = 0;
 	if(dmisc1)
 	{
 		x=64;
@@ -13636,7 +13871,7 @@ void eAquamentus::draw(BITMAP *dest)
 
 bool eAquamentus::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1)) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk) return false;
 	
 	switch(w->id)
 	{
@@ -13658,7 +13893,6 @@ eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,0)
 	X=X;
 	Y=Y;
 	Clk=Clk;
-	obeys_gravity = 0;
 	hxofs=-16;
 	hxsz=48;
 	clk4=0;
@@ -13839,7 +14073,6 @@ int eGohma::takehit(weapon *w)
 eLilDig::eLilDig(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	count_enemy=(id==(id&0xFFF));
-	obeys_gravity = 0;
 	//nets+4360+(((id&0xFF)-eDIGPUP2)*40);
 }
 
@@ -13934,7 +14167,6 @@ eBigDig::eBigDig(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	superman=1;
 	hxofs=hyofs=-8;
 	hxsz=hysz=32;
-	obeys_gravity = 0;
 	hzsz=16; // hard to jump.
 }
 
@@ -14394,7 +14626,6 @@ eGanon::eGanon(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	obeys_gravity = 0;
 	mainguy=!getmapflag();
 }
 
@@ -14710,7 +14941,6 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	id=guys.Count();
 	yofs=playing_field_offset;
 	tile=o_tile;
-	obeys_gravity = 0;
 	stickclk = 0;
 	
 	/*
@@ -14856,7 +15086,6 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	flags&=~guy_neverret;
 	//deadsfx = WAV_EDEAD;
 	isCore = false;
-	obeys_gravity = 0;
 }
 
 bool esMoldorm::animate(int index)
@@ -14989,7 +15218,6 @@ eLanmola::eLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 	hxofs=1000;
 	segcnt=clk;
 	clk=0;
-	obeys_gravity = 0;
 	//set up move history
 	for(int i=0; i <= (1<<dmisc2); i++)
 		prevState.push_back(std::pair<std::pair<zfix, zfix>, int>(std::pair<zfix,zfix>(x,y), dir));
@@ -15093,7 +15321,6 @@ esLanmola::esLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 	hxofs=1000;
 	hxsz=8;
 	mainguy=false;
-	obeys_gravity = 0;
 	count_enemy=(id<0x2000)?true:false;
 	
 	//set up move history
@@ -15208,7 +15435,6 @@ eManhandla::eManhandla(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
-	obeys_gravity = 0;
 	superman=1;
 	dir=(rand()&7)+8;
 	armcnt=dmisc2?8:4;//((id==eMANHAN)?4:8);
@@ -15581,7 +15807,6 @@ void eManhandla::draw(BITMAP *dest)
 esManhandla::esManhandla(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	id=misc=clk;
-	obeys_gravity = 0;
 	dir = clk & 3;
 	clk=0;
 	mainguy=count_enemy=false;
@@ -15687,7 +15912,6 @@ eGleeok::eGleeok(zfix,zfix,int Id,int Clk) : enemy((zfix)120,(zfix)48,Id,Clk)
 	hxsz=8;
 	//    frate=17*4;
 	fading=fade_blue_poof;
-	obeys_gravity = 0;
 	//nets+5420;
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -15953,7 +16177,6 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	dmisc5=vbound(dmisc5,1,255);
 	isCore = false;
 	parentCore = parent->getUID();
-	obeys_gravity = 0;
 	for(int i=0; i<dmisc5; i++)
 	{
 		nxoffset[i] = 0;
@@ -16221,7 +16444,6 @@ ePatra::ePatra(zfix ,zfix ,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,Clk)
 	flycnt=dmisc1;
 	flycnt2=dmisc2;
 	loopcnt=0;
-	obeys_gravity = 0;
 	if(dmisc6<short(1))dmisc6=1; // ratio cannot be 0!
 }
 
@@ -16563,7 +16785,6 @@ esPatra::esPatra(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	//cs=8;
 	item_set=0;
 	misc=clk;
-	obeys_gravity = 0;
 	clk = -((misc*21)>>1)-1;
 	yofs=playing_field_offset;
 	hyofs=2;
@@ -16655,7 +16876,6 @@ ePatraBS::ePatraBS(zfix ,zfix ,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,Clk
 	loopcnt=0;
 	hxsz = 32;
 	hxofs=-8;
-	obeys_gravity = 0;
 	if(dmisc6<short(1))dmisc6=1; // ratio cannot be 0!
 	
 	//nets+4480;
@@ -16919,7 +17139,6 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
 	flags &= ~guy_neverret;
-	obeys_gravity = 0;
 }
 
 bool esPatraBS::animate(int index)
@@ -18159,11 +18378,11 @@ bool canfall(int id)
 bool enemy::enemycanfall(int id)
 {
 	//Z_scripterrlog("canfall family is %d:\n", family);
-	//Z_scripterrlog("canfall obeys_gravity is %s:\n", obeys_gravity ? "true" : "false");
+	//Z_scripterrlog("canfall gravity is %s:\n", moveflags & FLAG_OBEYS_GRAV ? "true" : "false");
 	//if ( family == eeFIRE && id >= eSTART ) 
 	//{
 	//	Z_scripterrlog("eeFire\n");
-	//	return obeys_gravity; //'Other' enemy class, used by scripts. -Z
+	//	return moveflags & FLAG_OBEYS_GRAV; //'Other' enemy class, used by scripts. -Z
 	//}
 	
 	//In ZQ, eeFIRE is Other(floating) and eeOTHER is 'other'.
@@ -18195,13 +18414,12 @@ bool enemy::enemycanfall(int id)
 	
 	if ( isflier(id) || isjumper(id) || never_in_air(id) )
 	{
-		if ( obeys_gravity ) return true;
+		if ( moveflags & FLAG_OBEYS_GRAV ) return true;
 		else return false;
 	}
-	
 	else
 	{
-	return (obeys_gravity);    
+		return (moveflags & FLAG_OBEYS_GRAV);    
 	}
 	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
@@ -18907,7 +19125,7 @@ bool is_starting_pos(int i, int x, int y, int t)
 		
 	// Can't fly onto it?
 	if(isflier(tmpscr->enemy[i])&&
-			(flyerblocked(x+8,y+8,spw_floater)||
+			(flyerblocked(x+8,y+8,spw_floater,guysbuf[tmpscr->enemy[i]])||
 			 (_walkflag(x,y+8,2)&&!get_bit(quest_rules,qr_WALLFLIERS))))
 		return false;
 		
@@ -18915,13 +19133,14 @@ bool is_starting_pos(int i, int x, int y, int t)
 	if(guysbuf[tmpscr->enemy[i]].family==eeTEK &&
 			(COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
 			 COMBOTYPE(x+8,y+8)==cNOENEMY||
+			 ispitfall(x+8,y+8)||
 			 MAPFLAG(x+8,y+8)==mfNOENEMY||
 			 MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY))
 		return false;
 		
 	// Other off-limit combos
 	if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
-			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8))) &&
+			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[tmpscr->enemy[i]]))) &&
 			guysbuf[tmpscr->enemy[i]].family!=eeZORA)
 		return false;
 		
@@ -20277,12 +20496,12 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced))
+						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 						{
-							if(itemsbuf[items.spr(j)->id].collect_script)
+							if(itemsbuf[theItem->id].collect_script)
 							{
-								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
 							}
 							
 							Link.checkitems(j);
@@ -20297,8 +20516,8 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
+						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(w->id == wBrang)
 							{
@@ -20308,7 +20527,7 @@ void check_collisions()
 							if(w->dragging==-1)
 							{
 								w->dead=1;
-								((item*)items.spr(j))->clk2=256;
+								theItem->clk2=256;
 								w->dragging=j;
 							}
 						}

@@ -66,10 +66,13 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+};
 
 enum zasmBreak
 {
@@ -4015,7 +4018,25 @@ enum ASM_DEFINE
 #define SWITCHKEY					0x13A9
 #define HEROJUMPCOUNT					0x13AA
 
-#define NUMVARIABLES         	0x13AB
+#define HEROPULLDIR				0x13AB
+#define HEROPULLCLK				0x13AC
+#define HEROFALLCLK				0x13AD
+#define HEROFALLCMB				0x13AE
+#define HEROMOVEFLAGS			0x13AF
+#define ITEMFALLCLK				0x13B0
+#define ITEMFALLCMB				0x13B1
+#define ITEMMOVEFLAGS			0x13B2
+#define LWPNFALLCLK				0x13B3
+#define LWPNFALLCMB				0x13B4
+#define LWPNMOVEFLAGS			0x13B5
+#define EWPNFALLCLK				0x13B6
+#define EWPNFALLCMB				0x13B7
+#define EWPNMOVEFLAGS			0x13B8
+#define NPCFALLCLK				0x13B9
+#define NPCFALLCMB				0x13BA
+#define NPCMOVEFLAGS			0x13BB
+
+#define NUMVARIABLES         	0x13BC
 
 //} End variables
 

@@ -128,7 +128,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,29,-1 
+    22,23,24,25,26,27,28,29,30,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -181,7 +181,7 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
     { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
-  
+    
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 

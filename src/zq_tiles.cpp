@@ -16533,16 +16533,19 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,102,103,
-	104,105,106,107,108,109,110,111,
+    45,46,
+	55,56,57,58,59,60,61,62,102,103,
 	112,113,114,115,116,117,118,119,
+	130, 131,
 	-1
 };
 
 static int combo_attributes_list2[] = 
 {
 	//,
-	55,56,57,58,59,60,61,62,120,121,
+	47,48,49,50,51,52,53,54,
+	104,105,106,107,108,109,110,111,
+	120,121,
 	-1
 };
 
@@ -17520,63 +17523,24 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cTRIGGERGENERIC,
-		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		// { (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
 			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 		
-	},{
+	},
+	{
+		cPITFALL,
+		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,(char *)"Pull Sensitivity",NULL}
+	},
+	{
 		cMAX,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{
-		cFIRELAVA1,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cFIREFLAVA2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
 	{ //165
-		cFIRELAVA3,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cFIRELAVA4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDROP,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE1,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //170
-		cHOLEDAMAGE3,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
 		cDIG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17591,7 +17555,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{ //175
+	{
 		cLIFT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17601,7 +17565,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{
+	{ //170
 		cLIFTSPECITER,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17616,7 +17580,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{ //180
+	{
 		cLIFTNEXTSPECITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17626,7 +17590,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{
+	{ //175
 		cLIFTSLAHITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17641,7 +17605,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{ //185
+	{
 		cLIFTSLASHNEXTITEM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17651,7 +17615,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	{
+	{ //180
 		cBREAKAWAYFLOOR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
@@ -17661,7 +17625,42 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
-	
+	//{ Placeholders
+	{
+		 182,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 183,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 184,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 185,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 186,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 187,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
+	{
+		 188,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+	},
 	{
 		 189,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
@@ -18002,9 +18001,10 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
+	//}
 	{ //arbitrary values ahead
 		257, //script combos with the 'engine' flag enabled
-		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		// { (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
 			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
@@ -18024,6 +18024,21 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
 			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+	},
+	{
+		260, //Pit (warp on, no pull off)
+		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",(char *)"TileWarp ID",(char *)"Pull Sensitivity",NULL}
+	},
+	{
+		261, //Pit (warp on, no pull on)
+		{ (char *)"Warp",(char *)"Direct Warp",(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",(char *)"TileWarp ID",NULL,NULL}
+	},
+	{
+		262, //Pit (warp off, no pull on)
+		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,NULL,NULL}
 	},
 	{
 		-1,
@@ -18072,11 +18087,11 @@ static DIALOG combo_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,     31,   11,   261,  195,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    //{  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, NULL,         NULL,   NULL                   },
+    // {  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, NULL,         NULL,   NULL                   },
     
-   // { d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
+    // { d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_tab_proc,            35,     26,    254,    177,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs,                         NULL, (void *)combo_dlg  },
-  //{  jwin_tab_proc,               1,     25,    312,    220,    0,                      0,                       0,    0,          0,  0, (void *) combo_tabs,          NULL, (void *)combo_dlg   },
+    // {  jwin_tab_proc,               1,     25,    312,    220,    0,                      0,                       0,    0,          0,  0, (void *) combo_tabs,          NULL, (void *)combo_dlg   },
     
     //These are causing a crash, and I am not in the mood to figure out why today. -Z
     //2
@@ -18134,27 +18149,27 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
-    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        46,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   (void*)get_tick_sel                  },
     //52
-    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //55
-    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           172,       30+16+5+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,        172+52,    30-4+16+6+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //57
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           172,       45+16+4+5+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,        172+52,    45-4+16+4+6+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //59
-    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           172,       60+16+4+9+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,        172+52,    60-4+16+4+10+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //61
-    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           172,       75+16+4+13+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_proc,        172+52,    75-4+16+4+14+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -18205,39 +18220,39 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //102
-   // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
-   // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
+    // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
     //102
-    { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    90+16+4+12+6+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12+6+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
     //104
-    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
-    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+28,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
     //109
-    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
-    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
-    //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
+    { jwin_check_proc,        144+28,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+28,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
+    // { jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //112
-    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    30+16+5+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    30-4+16+6+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //114
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    45+16+4+5+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    45-4+16+4+6+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //116
-    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    60+16+4+9+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    60-4+16+4+10+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //118
-    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    75+16+4+13+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_byte_proc,         98,    75-4+16+4+14+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
     //120
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-   
+    
     //combo script
     ///122
     { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
@@ -18245,11 +18260,14 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
     { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           40,    84,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
-     { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
-   //128 cancel, 129 OK
-     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
+    //128 cancel, 129 OK
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-   
+    // 130
+	{ jwin_text_proc,           76,    45,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes:",                  NULL,   NULL                  },
+	{ jwin_text_proc,          202,    45,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes:",                  NULL,   NULL                  },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -18456,390 +18474,388 @@ static ListData combotype_list(combotypelist, &font);
 
 bool edit_combo(int c,bool freshen,int cs)
 {
-    combo_dlg[0].dp2=lfont;
-    
-    if(bict_cnt==-1)
-    {
-        build_bict_list();
-    }
-    
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    curr_combo = combobuf[c];
-    
-    char cset_str[8];
-    char frm[8];
-    char spd[8];
-    char skip[8];
-    char skipy[8];
-    //Attributes[]
-    char attrib0[8];
-    char attrib1[8];
-    char attrib2[8];
-    char attrib3[8];
-    
-    char attribyt0[8];
-    char attribyt1[8];
-    char attribyt2[8];
-    char attribyt3[8];
-    char minlevel[8];
-    char the_label[11];
-    
-    char initiald0[16];
-    char initiald1[16];
-    
-    int thescript = 0;
-    
-    char combonumstr[25];
-    
-    combo_dlg[11].d1 = -1;
-    combo_dlg[11].fg = cs;
-    
-    char csets = curr_combo.csets & 15;
-    
-    if(csets&8) //if csets>8, then it's a negative.
-    {
-        csets |= 0xF0;
-    }
-    
-    sprintf(combonumstr,"Combo %d", c);
-    sprintf(cset_str,"%d",csets);
-    //int temptile = curr_combo.tile;
-    //int temptile2 = NEWMAXTILES - temptile;
-    sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
-    //al_trace("frm is: %s\n",frm);
-    sprintf(spd,"%d",curr_combo.speed);
-    sprintf(skip,"%d",curr_combo.skipanim);
-    sprintf(skipy,"%d",curr_combo.skipanimy);
-    //Attributes[]
-    sprintf(attrib0,"%d",curr_combo.attributes[0]);
-    sprintf(attrib1,"%d",curr_combo.attributes[1]);
-    sprintf(attrib2,"%d",curr_combo.attributes[2]);
-    sprintf(attrib3,"%d",curr_combo.attributes[3]);
-    
-    //Attribytes[]
-    sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
-    sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
-    sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
-    sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
-    sprintf(minlevel,"%d",curr_combo.triggerlevel);
-    strcpy(the_label, curr_combo.label);
-    
-    sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
-    sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
+	combo_dlg[0].dp2=lfont;
+	
+	if(bict_cnt==-1)
+	{
+		build_bict_list();
+	}
+	
+	reset_combo_animations();
+	reset_combo_animations2();
+	
+	curr_combo = combobuf[c];
+	
+	char cset_str[8];
+	char frm[8];
+	char spd[8];
+	char skip[8];
+	char skipy[8];
+	//Attributes[]
+	char attrib0[8];
+	char attrib1[8];
+	char attrib2[8];
+	char attrib3[8];
+	
+	char attribyt0[8];
+	char attribyt1[8];
+	char attribyt2[8];
+	char attribyt3[8];
+	char minlevel[8];
+	char the_label[11];
+	
+	char initiald0[16];
+	char initiald1[16];
+	
+	int thescript = 0;
+	
+	char combonumstr[25];
+	
+	combo_dlg[11].d1 = -1;
+	combo_dlg[11].fg = cs;
+	
+	char csets = curr_combo.csets & 15;
+	
+	if(csets&8) //if csets>8, then it's a negative.
+	{
+		csets |= 0xF0;
+	}
+	
+	sprintf(combonumstr,"Combo %d", c);
+	sprintf(cset_str,"%d",csets);
+	//int temptile = curr_combo.tile;
+	//int temptile2 = NEWMAXTILES - temptile;
+	sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
+	//al_trace("frm is: %s\n",frm);
+	sprintf(spd,"%d",curr_combo.speed);
+	sprintf(skip,"%d",curr_combo.skipanim);
+	sprintf(skipy,"%d",curr_combo.skipanimy);
+	//Attributes[]
+	sprintf(attrib0,"%d",curr_combo.attributes[0]);
+	sprintf(attrib1,"%d",curr_combo.attributes[1]);
+	sprintf(attrib2,"%d",curr_combo.attributes[2]);
+	sprintf(attrib3,"%d",curr_combo.attributes[3]);
+	
+	//Attribytes[]
+	sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
+	sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
+	sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
+	sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
+	sprintf(minlevel,"%d",curr_combo.triggerlevel);
+	strcpy(the_label, curr_combo.label);
+	
+	sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
+	sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
 		
-    combo_dlg[123].dp = initiald0;
-    combo_dlg[125].dp = initiald1;
-    
-    build_bidcomboscripts_list();
-    
-    int script = 0;
-    
-    for(int j = 0; j < bidcomboscripts_cnt; j++)
-    {
-        if(bidcomboscripts[j].second == curr_combo.script - 1)
-            script = j;
-            
-       
-    }
+	combo_dlg[123].dp = initiald0;
+	combo_dlg[125].dp = initiald1;
+	
+	build_bidcomboscripts_list();
+	
+	int script = 0;
+	
+	for(int j = 0; j < bidcomboscripts_cnt; j++)
+	{
+		if(bidcomboscripts[j].second == curr_combo.script - 1)
+			script = j;
+	}
    
-    
-    combo_dlg[127].d1 = script;
-    
-    combo_dlg[13].dp = cset_str;
-    
-    for(int i=0; i<4; i++)
-    {
-        combo_dlg[i+15].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    for(int i=0; i<4; i++)
-    {
-        combo_dlg[i+20].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
-    }
-    
-    //userflags
-    combo_dlg[47].flags = curr_combo.usrflags&0x01 ? D_SELECTED : 0;
-    combo_dlg[48].flags = curr_combo.usrflags&0x02 ? D_SELECTED : 0;
-    combo_dlg[49].flags = curr_combo.usrflags&0x04 ? D_SELECTED : 0;
-    combo_dlg[50].flags = curr_combo.usrflags&0x08 ? D_SELECTED : 0;
-    combo_dlg[51].flags = curr_combo.usrflags&0x10 ? D_SELECTED : 0;
-    combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
-    combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
-    combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
-    combo_dlg[104].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
-    combo_dlg[105].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
-    combo_dlg[106].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
-    combo_dlg[107].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
-    combo_dlg[108].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
-    combo_dlg[109].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
-    combo_dlg[110].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
-    combo_dlg[111].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
-    /*
-    for(int i=0; i<8; i++)
-    {
-        combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    */
-    //item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-    combo_dlg[63].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
-    combo_dlg[64].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
-    combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
-    combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
-    combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
-    combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
-    combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
-    combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
-    combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
-    combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
-    combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
-    combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
-    combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
-    combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
-    combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
-    combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
-    combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
-    combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
-    //ZScript liter support ends here. 
-    combo_dlg[81].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
-    combo_dlg[82].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
-    combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
-    combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
-    combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
-    
-    //item trigger flags page 2
-    combo_dlg[90].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
-    combo_dlg[91].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
-    combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
-    combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
-    combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
-    combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
-    combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
-    combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
-    combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
-    combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
-    //three bits remain that are usable (zscript limits)
-    
-    //85
-    
-    
-    /* item trigger flags
-    //userflags
-    for(int i=0; i<22; i++)
-    {
-    //starts at 63, through 85
-        combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    //98 is the min level
-    
-    //then script weapons
-    for(int i=0; i<10; i++)
-    {
-    //starts at 100 through 109
-        combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    //102 is the min level
-    */
-    
-    combo_dlg[0].dp = combonumstr;
-    combo_dlg[28].dp = frm;
-    combo_dlg[29].dp = spd;
-    combo_dlg[32].d1 = curr_combo.nextcombo;
-    combo_dlg[32].fg = curr_combo.nextcset;
-    combo_dlg[34].d1 = curr_combo.flag;
-    combo_dlg[37].dp = skip;
-    combo_dlg[39].dp = skipy;
-    
-    combo_dlg[40].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
-    combo_dlg[42].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
-    
-    
-    //Attributes[]
-    combo_dlg[56].dp = attrib0;
-    combo_dlg[58].dp = attrib1;
-    combo_dlg[60].dp = attrib2;
-    combo_dlg[62].dp = attrib3;
-    
-    byte attribyte_vals[4] = {0};
-    
-    //Attribytes[]
-    attribyte_vals[0]=(byte)(atoi(attribyt0));
-    attribyte_vals[1]=(byte)(atoi(attribyt1));
-    attribyte_vals[2]=(byte)(atoi(attribyt2));
-    attribyte_vals[3]=(byte)(atoi(attribyt3));
-    
-    sprintf(attribyt0,"%d",attribyte_vals[0]);
-    sprintf(attribyt1,"%d",attribyte_vals[1]);
-    sprintf(attribyt2,"%d",attribyte_vals[2]);
-    sprintf(attribyt3,"%d",attribyte_vals[3]);
-    
-    //122, 124 initD
-    
-    combo_dlg[113].dp = attribyt0;
-    combo_dlg[115].dp = attribyt1;
-    combo_dlg[117].dp = attribyt2;
-    combo_dlg[119].dp = attribyt3;
-    
-    //initd
-    combo_dlg[123].dp = initiald0;
-    combo_dlg[125].dp = initiald1;
-    
-    
-    //trigger level
-    combo_dlg[88].dp = minlevel;
-    
-    combo_dlg[103].dp = the_label;
-    
-    //trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
-		//breakas here
-		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
-		//ZScript capable numbers end there. 
-		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+	
+	combo_dlg[127].d1 = script;
+	
+	combo_dlg[13].dp = cset_str;
+	
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+15].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+20].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
+	}
+	
+	//userflags
+	combo_dlg[47].flags = curr_combo.usrflags&0x01 ? D_SELECTED : 0;
+	combo_dlg[48].flags = curr_combo.usrflags&0x02 ? D_SELECTED : 0;
+	combo_dlg[49].flags = curr_combo.usrflags&0x04 ? D_SELECTED : 0;
+	combo_dlg[50].flags = curr_combo.usrflags&0x08 ? D_SELECTED : 0;
+	combo_dlg[51].flags = curr_combo.usrflags&0x10 ? D_SELECTED : 0;
+	combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
+	combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
+	combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
+	combo_dlg[104].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
+	combo_dlg[105].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
+	combo_dlg[106].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
+	combo_dlg[107].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
+	combo_dlg[108].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
+	combo_dlg[109].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
+	combo_dlg[110].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
+	combo_dlg[111].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
+	/*
+	for(int i=0; i<8; i++)
+	{
+		combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	*/
+	//item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+	combo_dlg[63].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
+	combo_dlg[64].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
+	combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
+	combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
+	combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
+	combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
+	combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
+	combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
+	combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
+	combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
+	combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
+	combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
+	combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
+	combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
+	combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
+	combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
+	combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
+	combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
+	//ZScript liter support ends here. 
+	combo_dlg[81].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
+	combo_dlg[82].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
+	combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
+	combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
+	combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
+	
+	//item trigger flags page 2
+	combo_dlg[90].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
+	combo_dlg[91].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
+	combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
+	combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
+	combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
+	combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
+	combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
+	combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
+	combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
+	combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
+	//three bits remain that are usable (zscript limits)
+	
+	//85
+	
+	
+	/* item trigger flags
+	//userflags
+	for(int i=0; i<22; i++)
+	{
+		//starts at 63, through 85
+		combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	//98 is the min level
+	
+	//then script weapons
+	for(int i=0; i<10; i++)
+	{
+		//starts at 100 through 109
+		combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	//102 is the min level
+	*/
+	
+	combo_dlg[0].dp = combonumstr;
+	combo_dlg[28].dp = frm;
+	combo_dlg[29].dp = spd;
+	combo_dlg[32].d1 = curr_combo.nextcombo;
+	combo_dlg[32].fg = curr_combo.nextcset;
+	combo_dlg[34].d1 = curr_combo.flag;
+	combo_dlg[37].dp = skip;
+	combo_dlg[39].dp = skipy;
+	
+	combo_dlg[40].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
+	combo_dlg[42].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
+	
+	
+	//Attributes[]
+	combo_dlg[56].dp = attrib0;
+	combo_dlg[58].dp = attrib1;
+	combo_dlg[60].dp = attrib2;
+	combo_dlg[62].dp = attrib3;
+	
+	byte attribyte_vals[4] = {0};
+	
+	//Attribytes[]
+	attribyte_vals[0]=(byte)(atoi(attribyt0));
+	attribyte_vals[1]=(byte)(atoi(attribyt1));
+	attribyte_vals[2]=(byte)(atoi(attribyt2));
+	attribyte_vals[3]=(byte)(atoi(attribyt3));
+	
+	sprintf(attribyt0,"%d",attribyte_vals[0]);
+	sprintf(attribyt1,"%d",attribyte_vals[1]);
+	sprintf(attribyt2,"%d",attribyte_vals[2]);
+	sprintf(attribyt3,"%d",attribyte_vals[3]);
+	
+	//122, 124 initD
+	
+	combo_dlg[113].dp = attribyt0;
+	combo_dlg[115].dp = attribyt1;
+	combo_dlg[117].dp = attribyt2;
+	combo_dlg[119].dp = attribyt3;
+	
+	//initd
+	combo_dlg[123].dp = initiald0;
+	combo_dlg[125].dp = initiald1;
+	
+	
+	//trigger level
+	combo_dlg[88].dp = minlevel;
+	
+	combo_dlg[103].dp = the_label;
+	
+	//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+	if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
+	if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
+	if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
+	if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
+	if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
+	if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
+	if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
+	if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
+	if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
+	if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+	//breakas here
+	if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
+	if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
+	if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
+	if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
+	if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
+	if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
+	if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
+	if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+	//ZScript capable numbers end there. 
+	if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
+	if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
+	if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
+	if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
+	if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
 
-		//trigger flags page 2
-		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-    
-    
-    int index=0;
-    
-    al_trace("Last Selection: %d\n", last_droplist_sel);
-    
-    for(int j=0; j<bict_cnt; j++)
-    {
-        if(bict[j].i == curr_combo.type)
-        {
-            index=j;
-        }
-    }
-    
-    combo_dlg[25].d1 = index; //*
-    combo_dlg[25].dp = (void *) &combotype_list; //*
-    //  combo_dlg[1].fg = cs;
-    edit_combo_cset = cs;
-    
-    if(is_large)
-    {
-        // Fix the wflag_procs
-        if(!combo_dlg[0].d1)
-        {
-            large_dialog(combo_dlg);
-            combo_dlg[12].w=32;
-            combo_dlg[12].h=32;
-            combo_dlg[15].x-=1;
-            combo_dlg[15].y-=1;
-            combo_dlg[16].x-=1;
-            combo_dlg[16].y+=3;
-            combo_dlg[17].x+=3;
-            combo_dlg[17].y-=1;
-            combo_dlg[18].x+=3;
-            combo_dlg[18].y+=3;
-            
-            combo_dlg[20].x-=1;
-            combo_dlg[20].y-=1;
-            combo_dlg[22].x-=1;
-            combo_dlg[22].y+=3;
-            combo_dlg[21].x+=3;
-            combo_dlg[21].y-=1;
-            combo_dlg[23].x+=3;
-            combo_dlg[23].y+=3;
-        }
-    }
-    
-	if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+	//trigger flags page 2
+	if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
+	if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
+	if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
+	if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
+	if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
+	if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
+	if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
+	if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
+	if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
+	if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+	
+	
+	int index=0;
+	
+	al_trace("Last Selection: %d\n", last_droplist_sel);
+	
+	for(int j=0; j<bict_cnt; j++)
 	{
-		if(combo_dlg[104].flags & D_SELECTED) //change labels
+		if(bict[j].i == curr_combo.type)
 		{
-			if(combo_dlg[109].flags & D_SELECTED) //change labels
-				setComboLabels(258);
-			else setComboLabels(257);
+			index=j;
 		}
-		else setComboLabels(index);
 	}
 	
-	else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+	combo_dlg[25].d1 = index; //*
+	combo_dlg[25].dp = (void *) &combotype_list; //*
+	//  combo_dlg[1].fg = cs;
+	edit_combo_cset = cs;
+	
+	if(is_large)
 	{
-		if(combo_dlg[109].flags & D_SELECTED) //change labels
-			setComboLabels(259);
-		else setComboLabels(index);
-	}
-	else setComboLabels(index);
-    int ret = -1;
-    
-    
-    
-    if(freshen)
-    {
-        refresh(rALL);
-    }
-    
-    //if(ret==43)
-    //{
-    //}
-    
-    do
-    {
-	
-	//else if(ret == 1)
-	//	setComboLabels(combo_dlg[25].d1);
-	
-	//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
-	//{
-		saved=false;
-	    //three bits left for the second index (for ZScript supported values)
-	    
-	    
-	    
-		if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+		// Fix the wflag_procs
+		if(!combo_dlg[0].d1)
 		{
-			if(combo_dlg[104].flags & D_SELECTED) //change labels
+			large_dialog(combo_dlg);
+			combo_dlg[12].w=32;
+			combo_dlg[12].h=32;
+			combo_dlg[15].x-=1;
+			combo_dlg[15].y-=1;
+			combo_dlg[16].x-=1;
+			combo_dlg[16].y+=3;
+			combo_dlg[17].x+=3;
+			combo_dlg[17].y-=1;
+			combo_dlg[18].x+=3;
+			combo_dlg[18].y+=3;
+			
+			combo_dlg[20].x-=1;
+			combo_dlg[20].y-=1;
+			combo_dlg[22].x-=1;
+			combo_dlg[22].y+=3;
+			combo_dlg[21].x+=3;
+			combo_dlg[21].y-=1;
+			combo_dlg[23].x+=3;
+			combo_dlg[23].y+=3;
+		}
+	}
+	
+	int ret = -1;
+	
+	if(freshen)
+	{
+		refresh(rALL);
+	}
+	
+	//if(ret==43)
+	//{
+	//}
+	
+	do
+	{
+		//else if(ret == 1)
+		//	setComboLabels(combo_dlg[25].d1);
+		
+		//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
+		//{
+		saved=false;
+		//three bits left for the second index (for ZScript supported values)
+		
+		switch(bict[combo_dlg[25].d1].i)
+		{
+			case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+			case cSCRIPT11: case cSCRIPT12: case cSCRIPT13: case cSCRIPT14: case cSCRIPT15:
+			case cSCRIPT16: case cSCRIPT17: case cSCRIPT18: case cSCRIPT19: case cSCRIPT20:
+			{
+				if(combo_dlg[104].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[109].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+					else setComboLabels(257);
+				}
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+				break;
+			}
+			case cTRIGGERGENERIC:
 			{
 				if(combo_dlg[109].flags & D_SELECTED) //change labels
-					setComboLabels(258);
-				else setComboLabels(257);
+					setComboLabels(259);
+				else setComboLabels(bict[combo_dlg[25].d1].i);
+				break;
 			}
-			else setComboLabels(bict[combo_dlg[25].d1].i);
+			case cPITFALL:
+			{
+				if(combo_dlg[47].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[51].flags & D_SELECTED)
+						setComboLabels(261);
+					else setComboLabels(260);
+				}
+				else
+				{
+					if(combo_dlg[51].flags & D_SELECTED)
+						setComboLabels(262);
+					else setComboLabels(bict[combo_dlg[25].d1].i);
+				}
+				break;
+			}
+			default: setComboLabels(bict[combo_dlg[25].d1].i); break;
 		}
-		else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
-		{
-			if(combo_dlg[109].flags & D_SELECTED) //change labels
-				setComboLabels(259);
-			else setComboLabels(bict[combo_dlg[25].d1].i);
-		}
-		else setComboLabels(bict[combo_dlg[25].d1].i);
-	    
 	
 		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
@@ -18847,14 +18863,14 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		for(int i=0; i<4; i++)
 		{
-		    if(combo_dlg[i+15].flags & D_SELECTED)
-		    {
+			if(combo_dlg[i+15].flags & D_SELECTED)
+			{
 			curr_combo.walk |= 1<<i;
-		    }
-		    else
-		    {
+			}
+			else
+			{
 			curr_combo.walk &= ~(1<<i);
-		    }
+			}
 		}
 		
 		
@@ -19037,14 +19053,14 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		for(int i=0; i<4; i++)
 		{
-		    if(combo_dlg[i+20].flags & D_SELECTED)
-		    {
+			if(combo_dlg[i+20].flags & D_SELECTED)
+			{
 			curr_combo.csets |= 16<<i;
-		    }
-		    else
-		    {
+			}
+			else
+			{
 			curr_combo.csets &= ~(16<<i);
-		    }
+			}
 		}
 		
 		curr_combo.skipanim = zc_max(0,vbound(atoi(skip),0,255)); //bind to size of byte! -Z
@@ -19054,8 +19070,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		//frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
 		//frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
 		int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
-			    (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
-			    
+				(1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
+				
 		curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
 		//curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
 		
@@ -19235,80 +19251,40 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			setComboLabels(bict[combo_dlg[25].d1].i);
 		}
-		if(ret==104)
-		{
-			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
-			{
-				if(combo_dlg[104].flags & D_SELECTED) //change labels
-				{
-					setComboLabels(257);
-					if(combo_dlg[109].flags & D_SELECTED) //change labels
-						setComboLabels(258);
-				}
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-				ret=zc_popup_dialog(combo_dlg,4);
-			}
-		}
-		if(ret==109)
-		{
-			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
-			{
-				if(combo_dlg[104].flags & D_SELECTED) //change labels
-				{
-					if(combo_dlg[109].flags & D_SELECTED) //change labels
-						setComboLabels(258);
-					else setComboLabels(257);
-				}
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-			}
-			else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
-			{
-				if(combo_dlg[109].flags & D_SELECTED) //change labels
-					setComboLabels(259);
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-			}
-			else setComboLabels(bict[combo_dlg[25].d1].i);
-			ret=zc_popup_dialog(combo_dlg,4);
-		}
-		
-		
-		
-		
-		
 		
 			/*ret == combo_dlg[113].dp = attribyt0;
-    combo_dlg[115].dp = attribyt1;
-    combo_dlg[117].dp = attribyt2;
-    combo_dlg[119].dp = attribyt3;
+	combo_dlg[115].dp = attribyt1;
+	combo_dlg[117].dp = attribyt2;
+	combo_dlg[119].dp = attribyt3;
 		*/
 		
 		if(ret==43)
-		    ctype_help(bict[combo_dlg[25].d1].i);
+			ctype_help(bict[combo_dlg[25].d1].i);
 		else if(ret==44)
-		    cflag_help(combo_dlg[34].d1);
+			cflag_help(combo_dlg[34].d1);
 		
 		
 		
 		
 	//}
-    
-	    
-    } while ( ret != 0 && ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
-    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
-    {
-	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
-	    combobuf[c] = curr_combo;
-	    saved = false;
-    }
-	    if(freshen)
-	    {
+	
+		
+	} while ( ret != 0 && ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
+	if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
+	{
+		curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
+		combobuf[c] = curr_combo;
+		saved = false;
+	}
+		if(freshen)
+		{
 		refresh(rALL);
-	    }
-	    
-	    setup_combo_animations();
-	    setup_combo_animations2();
-    
-    return true;
+		}
+		
+		setup_combo_animations();
+		setup_combo_animations2();
+	
+	return true;
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)

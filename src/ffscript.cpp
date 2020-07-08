@@ -3012,7 +3012,7 @@ long get_register(const long arg)
 			break;
 		
 		case LINKGRAVITY:
-			ret = ( (Link.obeys_gravity) ? 10000 : 0 );
+			ret = ( (Link.moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0 );
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -3291,6 +3291,34 @@ long get_register(const long arg)
 			ret = Link.extra_jump_count * 10000;
 			break;
 		
+		case HEROPULLDIR:
+			ret = Link.pit_pulldir * 10000;
+			break;
+		
+		case HEROPULLCLK:
+			ret = Link.pit_pullclk * 10000;
+			break;
+		
+		case HEROFALLCLK:
+			ret = Link.fallclk * 10000;
+			break;
+		
+		case HEROFALLCMB:
+			ret = Link.fallCombo * 10000;
+			break;
+		
+		case HEROMOVEFLAGS:
+		{
+			int indx = ri->d[0]/10000;
+			if(BC::checkBounds(indx, 0, 1, "Hero->MoveFlags[]") != SH::_NoError)
+				ret = 0; //false
+			else
+			{
+				//All bits, in order, of a single byte; just use bitwise
+				ret = (Link.moveflags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -3746,7 +3774,7 @@ long get_register(const long arg)
 		case ITEMGRAVITY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=((((item*)(s))->obeys_gravity) ? 10000 : 0);
+				ret=((((item*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 			}
 			break;
 			
@@ -3979,6 +4007,36 @@ long get_register(const long arg)
 				ret=(((item*)(s))->miscellaneous[a]);
 			}
 			break;
+		
+		case ITEMFALLCLK:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->fallclk * 10000;
+			}
+			break;
+		
+		case ITEMFALLCMB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->fallCombo * 10000;
+			}
+			break;
+		
+		case ITEMMOVEFLAGS:
+		{
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "itemsprite->MoveFlags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (((item*)(s))->moveflags & (1<<indx)) ? 10000 : 0;
+				}
+			}
+			break;
+		}
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -4665,7 +4723,7 @@ long get_register(const long arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->obeys_gravity) ? 10000 : 0);
+				ret = ((GuyH::getNPC()->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 				
 			break;
 		
@@ -4977,6 +5035,36 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case NPCFALLCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->fallclk * 10000;
+			}
+			break;
+		
+		case NPCFALLCMB:
+			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->fallCombo * 10000;
+			}
+			break;
+		
+		case NPCMOVEFLAGS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 2, "npc->MoveFlags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (GuyH::getNPC()->moveflags & (1<<indx)) ? 10000 : 0;
+				}
+			}
+			break;
+		}
+		
 		
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -5052,7 +5140,7 @@ long get_register(const long arg)
 		 
 		case LWPNGRAVITY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
-				ret= (((weapon*)(s))->obeys_gravity) ? 10000 : 0;
+				ret= (((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0;
 				
 			break;
 			
@@ -5346,6 +5434,36 @@ long get_register(const long arg)
 				ret=((weapon*)(s))->rotation*10000;
 				
 			break;
+		
+		case LWPNFALLCLK:
+			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			{
+				ret = ((weapon*)(s))->fallclk * 10000;
+			}
+			break;
+		
+		case LWPNFALLCMB:
+			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			{
+				ret = ((weapon*)(s))->fallCombo * 10000;
+			}
+			break;
+		
+		case LWPNMOVEFLAGS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "lweapon->MoveFlags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (((weapon*)(s))->moveflags & (1<<indx)) ? 10000 : 0;
+				}
+			}
+			break;
+		}
 
 			
 		///----------------------------------------------------------------------------------------------------//
@@ -5425,7 +5543,7 @@ long get_register(const long arg)
 			
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
-				ret=((((weapon*)(s))->obeys_gravity) ? 10000 : 0);
+				ret=((((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
 				
 			break;
 			
@@ -5696,6 +5814,36 @@ long get_register(const long arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
 			{
 				ret=(((weapon*)(s))->weap_initd[a]);
+			}
+			break;
+		}
+		
+		case EWPNFALLCLK:
+			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			{
+				ret = ((weapon*)(s))->fallclk * 10000;
+			}
+			break;
+		
+		case EWPNFALLCMB:
+			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			{
+				ret = ((weapon*)(s))->fallCombo * 10000;
+			}
+			break;
+		
+		case EWPNMOVEFLAGS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "eweapon->MoveFlags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (((weapon*)(s))->moveflags & (1<<indx)) ? 10000 : 0;
+				}
 			}
 			break;
 		}
@@ -9627,7 +9775,10 @@ void set_register(const long arg, const long value)
 			break;
 		
 		case LINKGRAVITY:
-			Link.obeys_gravity = ( (value) ? 1 : 0 ); 
+			if(value)
+				Link.moveflags |= FLAG_OBEYS_GRAV;
+			else
+				Link.moveflags &= ~FLAG_OBEYS_GRAV;
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -9653,7 +9804,7 @@ void set_register(const long arg, const long value)
 		case LINKACTION:
 		{
 			int act = value / 10000;
-			if ( act < 25 )
+			if ( act < 25 || (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && (act == falling)) )
 			{
 				Link.setAction((actiontype)(act));
 			}
@@ -10146,6 +10297,40 @@ void set_register(const long arg, const long value)
 		case HEROJUMPCOUNT:
 			Link.extra_jump_count = value/10000;
 			break;
+		
+		case HEROPULLCLK:
+			Link.pit_pullclk = value/10000;
+			break;
+		case HEROFALLCLK:
+		{
+			int val = vbound(value/10000,0,70);
+			if(val)
+				Link.setAction(falling);
+			else if(Link.action == falling)
+			{
+				Link.setAction(none);
+			}
+			Link.fallclk = val;
+			break;
+		}
+		case HEROFALLCMB:
+			Link.fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			break;
+		case HEROMOVEFLAGS:
+		{
+			int indx = ri->d[0]/10000;
+			if(BC::checkBounds(indx, 0, 1, "Hero->MoveFlags[]") == SH::_NoError)
+			{
+				//All bits, in order, of a single byte; just use bitwise
+				byte bit = 1<<indx;
+				if(value)
+					Link.moveflags |= bit;
+				else
+					Link.moveflags &= ~bit;
+			}
+			break;
+		}
+		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
 		case INPUTSTART:
@@ -10642,7 +10827,10 @@ void set_register(const long arg, const long value)
 		case ITEMGRAVITY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-			(((item *)s)->obeys_gravity)=((value) ? 1 : 0);
+				if(value)
+					((item *)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((item *)s)->moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
 			break;
@@ -10967,6 +11155,41 @@ void set_register(const long arg, const long value)
 			}
 			
 			break;
+		case ITEMFALLCLK:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				if(((item*)(s))->fallclk != 0 && value == 0)
+				{
+					((item*)(s))->cs = ((item*)(s))->old_cset;
+					((item*)(s))->tile = ((item*)(s))->o_tile;
+				}
+				else if(((item*)(s))->fallclk == 0 && value != 0) ((item*)(s))->old_cset = ((item*)(s))->cs;
+				((item*)(s))->fallclk = vbound(value/10000,0,70);
+			}
+			break;
+		case ITEMFALLCMB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case ITEMMOVEFLAGS:
+		{
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "itemsprite->MoveFlags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					byte bit = 1<<indx;
+					if(value)
+						((item*)(s))->moveflags |= bit;
+					else
+						((item*)(s))->moveflags &= ~bit;
+				}
+			}
+			break;
+		}
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -11431,8 +11654,12 @@ void set_register(const long arg, const long value)
 		 
 		case LWPNGRAVITY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
-				((weapon*)s)->obeys_gravity = ((value) ? 10000 : 0);
-				
+			{
+				if(value)
+					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 			break;
 			
 		case LWPNSTEP:
@@ -11732,6 +11959,41 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case LWPNFALLCLK:
+			if(0!=(s=checkLWpn(ri->lwpn,"Falling")))
+			{
+				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
+			}
+			break;
+		case LWPNFALLCMB:
+			if(0!=(s=checkLWpn(ri->lwpn,"FallCombo")))
+			{
+				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case LWPNMOVEFLAGS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "lweapon->MoveFlags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					byte bit = 1<<indx;
+					if(value)
+						((weapon*)(s))->moveflags |= bit;
+					else
+						((weapon*)(s))->moveflags &= ~bit;
+				}
+			}
+			break;
+		}
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -11795,8 +12057,12 @@ void set_register(const long arg, const long value)
 		  
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
-				((weapon*)s)->obeys_gravity=((value) ? 1 : 0);
-				
+			{
+				if(value)
+					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 			break;
 			
 		case EWPNSTEP:
@@ -12068,6 +12334,41 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case EWPNFALLCLK:
+			if(0!=(s=checkEWpn(ri->ewpn,"Falling")))
+			{
+				if(((weapon*)(s))->fallclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
+			}
+			break;
+		case EWPNFALLCMB:
+			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
+			{
+				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case EWPNMOVEFLAGS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 1, "eweapon->MoveFlags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					byte bit = 1<<indx;
+					if(value)
+						((weapon*)(s))->moveflags |= bit;
+					else
+						((weapon*)(s))->moveflags &= ~bit;
+				}
+			}
+			break;
+		}
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -12219,7 +12520,12 @@ void set_register(const long arg, const long value)
 		case NPCGRAVITY:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
-				GuyH::getNPC()->obeys_gravity = ((value) ? 1 : 0);
+			{
+				if(value)
+					GuyH::getNPC()->moveflags |= FLAG_OBEYS_GRAV;
+				else
+					GuyH::getNPC()->moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 		}
 		break;
 		
@@ -12753,6 +13059,41 @@ void set_register(const long arg, const long value)
 					break;
 			}
 				
+			break;
+		}
+		case NPCFALLCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
+			{
+				if(GuyH::getNPC()->fallclk != 0 && value == 0)
+				{
+					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
+				}
+				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
+			}
+			break;
+		case NPCFALLCMB:
+			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
+			{
+				GuyH::getNPC()->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case NPCMOVEFLAGS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
+			{
+				int indx = ri->d[0]/10000;
+				if(BC::checkBounds(indx, 0, 2, "npc->MoveFlags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					byte bit = 1<<indx;
+					if(value)
+						GuyH::getNPC()->moveflags |= bit;
+					else
+						GuyH::getNPC()->moveflags &= ~bit;
+				}
+			}
 			break;
 		}
 		
@@ -30239,14 +30580,14 @@ void FFScript::do_npc_canmove(const bool v)
 		{
 			//zprint("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),false)) ? 10000 : 0);
 			//zprint("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
 			//return;
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
 			//zprint("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000), false)) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			//return;
@@ -30256,15 +30597,15 @@ void FFScript::do_npc_canmove(const bool v)
 			//zprint("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),false)) ? 10000 : 0);
 			//return;
 		}
 		else if ( sz == 7 ) //bool canmove(int ndir,zfix s,int special) : I'm pretty sure that 'zfix s' is 'step' here. 
 		{
-			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
+			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
-			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false)) ? 10000 : 0);
 			
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
 			//(zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
@@ -36988,6 +37329,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprfloatspr: the_ret = floatspr[dir][0];
 			case LSprswimspr: the_ret = swimspr[dir][0];
 			case LSprdivespr: the_ret = divespr[dir][0];
+			case LSprdrownspr: the_ret = drowningspr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

@@ -211,7 +211,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           15
 #define V_STRINGS          7
-#define V_MISC             11
+#define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           15
 #define V_CSETS            4
@@ -224,12 +224,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        20
-#define V_GUYS            41
+#define V_GUYS            42
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        16 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_LINKSPRITES      6
+#define V_LINKSPRITES      7
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         18
@@ -743,19 +743,12 @@ enum
 	//155
 	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18, 
 	//160
-	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC,
+	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
     
-    cFIRELAVA1, cFIREFLAVA2, 
     //165
-    cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
-    //167
-    cHOLEDROP, //drop link as a warp with a drop effect
-    //168
-    cHOLEDAMAGE1, cHOLEDAMAGE2, cHOLEDAMAGE3, cHOLEDAMAGE4, //Pits that damage and respawn
-    //172
     cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
     
       /* pot, or rock:
@@ -773,26 +766,26 @@ enum
 		defined. -Z
 		
 	*/
-      //175
+    //168
     //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
     cLIFT, cLIFTITEM, cLIFTSPECITER, 
-    //178
+    //171
     //lift and show next combo, same plus item drop, same with room item
     cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
-    //181
+    //174
     //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
     cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
-    //184
+    //177
     //lift or shash, then change the combo at its position to the 'next combo', ...
 	//...and make drop, ...and make screen room item
     cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
-    //187
+    //180
 
     cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
-   //188s
-   cFREEZEFFCONLY, //freezes only scripts
-   //189
-   cSYS189, cSYS190,
+    //181
+    cFREEZEFFCONLY, //freezes only scripts
+    //182
+    cSYS182, cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
     cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
     cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
     cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
@@ -803,17 +796,16 @@ enum
     //Should be 255
     cEXPANDED, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
     
-    
     //2.54, these would need filepack changes. Needs V_COMBOS.
     cMAX250 //Old max, to make filepack handling easier. 
     
     //These need to be in a new, index of expansion[]. 
     //Let's use expansion[0] for now. 
     
-    
-    
     //cMAX
 };
+
+#define PITFALL_FALL_FRAMES 70
 
 //Combo editor and additional system combos for combo type 'expanded'.
 
@@ -2023,6 +2015,7 @@ struct guydata
     word script; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
     long editorflags;
+	byte moveflags;
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
@@ -2049,7 +2042,10 @@ struct guydata
 #define ENEMY_FLAG16     0x8000
     
 };
-
+//Moveflags
+#define FLAG_OBEYS_GRAV 0x01
+#define FLAG_CAN_PITFALL 0x02
+#define FLAG_CAN_PITWALK 0x04
 
 class refInfo
 {
@@ -2746,6 +2742,7 @@ struct comboclass
     byte  whistle;                        // bh
     byte  win_game;                       // bi
     byte  block_weapon_lvl;               // bj (maximum item level to block)
+	byte pit;                             // bk
 };
 
 enum {cfOFFSET, cfMAX};
@@ -3397,6 +3394,12 @@ struct palcycle
     //3
 };
 
+enum miscsprite
+{
+	sprFALL,
+	spr_NUMUSED,
+	sprMAX = 256
+};
 struct miscQdata
 {
     shoptype shop[256];
@@ -3424,6 +3427,7 @@ struct miscQdata
     char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
     long zscript_last_compiled_version;
+	byte sprites[sprMAX];
 };
 
 #define MFORMAT_MIDI 0

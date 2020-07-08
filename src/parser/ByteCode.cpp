@@ -1834,6 +1834,24 @@ string ZScript::VarToString(long ID)
 	case INCQST: return "INCQST";
 	case HEROJUMPCOUNT: return "HEROJUMPCOUNT";
 	
+	case HEROPULLDIR: return "HEROPULLDIR";
+	case HEROPULLCLK: return "HEROPULLCLK";
+	case HEROFALLCLK: return "HEROFALLCLK";
+	case HEROFALLCMB: return "HEROFALLCMB";
+	case HEROMOVEFLAGS: return "HEROMOVEFLAGS";
+	case ITEMFALLCLK: return "ITEMFALLCLK";
+	case ITEMFALLCMB: return "ITEMFALLCMB";
+	case ITEMMOVEFLAGS: return "ITEMMOVEFLAGS";
+	case LWPNFALLCLK: return "LWPNFALLCLK";
+	case LWPNFALLCMB: return "LWPNFALLCMB";
+	case LWPNMOVEFLAGS: return "LWPNMOVEFLAGS";
+	case EWPNFALLCLK: return "EWPNFALLCLK";
+	case EWPNFALLCMB: return "EWPNFALLCMB";
+	case EWPNMOVEFLAGS: return "EWPNMOVEFLAGS";
+	case NPCFALLCLK: return "NPCFALLCLK";
+	case NPCFALLCMB: return "NPCFALLCMB";
+	case NPCMOVEFLAGS: return "NPCMOVEFLAGS";
+	
 	
 	default:
 	{

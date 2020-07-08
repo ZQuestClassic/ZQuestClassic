@@ -92,7 +92,31 @@ extern sprite_list particles;
 
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
-#define isStanding()		(z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0)
+#define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
+#define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
+
+static inline bool platform_fallthrough()
+{
+	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+}
+
+static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
+{
+	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
+		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
+		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
+}
+
+bool LinkClass::isStanding(bool forJump)
+{
+	bool st = (z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
+	if(!st) return false;
+	int val = check_pitslide();
+	if(val == -2) return false;
+	if(val == -1) return true;
+	return forJump;
+}
 
 static int isNextType(int type)
 {
@@ -198,20 +222,9 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 		else return 0;
 }
 
-#define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
-#define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
-
-static inline bool platform_fallthrough()
+bool LinkClass::can_pitfall(bool ignore_hover)
 {
-	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
-		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
-}
-
-static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
-{
-	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
-		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
-		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
+	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
 }
 
 int LinkClass::DrunkClock()
@@ -963,6 +976,11 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         spins = 0;
     }
     
+	if(action == falling && new_action != falling)
+	{
+		fallclk = 0; //Stop falling;
+	}
+	
     switch(new_action)
     {
     case isspinning:
@@ -991,6 +1009,21 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
             Drown();
             
         break;
+		
+	case falling:
+		if(!fallclk)
+		{
+			//If there is a pit under Link, use it's combo.
+			if(int c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
+			else if(int c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int c = getpitfall(x,y+15)) fallCombo = c;
+			else if(int c = getpitfall(x+15,y+15)) fallCombo = c;
+			//Else, use a null value; triggers default pit values
+			else fallCombo = 0;
+			fallclk = PITFALL_FALL_FRAMES;
+		}
+		break;
         
     case gothit:
     case swimhit:
@@ -1080,7 +1113,7 @@ void LinkClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
-    obeys_gravity = 1;
+    moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
     warp_sound = 0;
 	steprate = zinit.heroStep;
     
@@ -1122,7 +1155,9 @@ void LinkClass::init()
     superman=inwallm=false;
     scriptcoldet=1;
     blowcnt=whirlwind=specialcave=0;
-    hopclk=diveclk=0;
+    hopclk=diveclk=fallclk=0;
+	fallCombo = -1;
+	pit_pulldir = -1;
     hopdir=-1;
     conveyor_flags=0;
     drunkclk=0;
@@ -1924,7 +1959,7 @@ attack:
             {
                 if(inwater)
                 {
-                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
                     if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
                 else
@@ -1989,7 +2024,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -2019,7 +2059,7 @@ attack:
             {
                 if(inwater)
                 {
-                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
                     if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
@@ -2064,7 +2104,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -2091,7 +2136,7 @@ attack:
             {
                 if(inwater)
                 {
-                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
                     if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
@@ -2141,7 +2186,12 @@ attack:
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
-            else
+            else if(fallclk>0)
+			{
+				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
+				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+			}
+			else
             {
                 linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
                 
@@ -2544,68 +2594,69 @@ bool LinkClass::checkstab()
     {
         for(int j=0; j<items.Count(); j++)
         {
-            if(((item*)items.spr(j))->pickup & ipTIMER)
+			item* ptr = (item*)items.spr(j); 
+            if(ptr->pickup & ipTIMER)
             {
-                if(((item*)items.spr(j))->clk2 >= 32)
+                if(ptr->clk2 >= 32 && !ptr->fallclk)
                 {
-                    if(items.spr(j)->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && items.spr(j)->hit(x,y-8,z,wxsz,wysz,1))
-                            || (attack==wHammer && items.spr(j)->hit(x,y-8,z,wxsz,wysz,1)))
+                    if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
+                            || (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
                     {
-                        int pickup = ((item*)items.spr(j))->pickup;
+                        int pickup = ptr->pickup;
                         
                         if(pickup&ipONETIME) // set mITEM for one-time-only items
                             setmapflag(mITEM);
                         else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
                             setmapflag();
                             
-                        if(itemsbuf[items.spr(j)->id].collect_script)
+                        if(itemsbuf[ptr->id].collect_script)
                         {
 				//clear item script stack. 
-				//ri = &(itemScriptData[items.spr(j)->id]);
+				//ri = &(itemScriptData[ptr->id]);
 				//ri->Clear();
-				//itemCollectScriptData[items.spr(j)->id].Clear();
-				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0;
-				ri = &(itemCollectScriptData[items.spr(j)->id]);
-				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0xFFFF;
+				//itemCollectScriptData[ptr->id].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
+				ri = &(itemCollectScriptData[ptr->id]);
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
 				
-				if ( items.spr(j)->id > 0 && !item_collect_doscript[items.spr(j)->id] ) //No collect script on item 0. 
+				if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
 				{
-					item_collect_doscript[items.spr(j)->id] = 1;
-					itemscriptInitialised[items.spr(j)->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id)*-1));
+					item_collect_doscript[ptr->id] = 1;
+					itemscriptInitialised[ptr->id] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
 					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(items.spr(j)->id));
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
 				}
-				else if (items.spr(j)->id == 0 && !item_collect_doscript[items.spr(j)->id]) //item 0
+				else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
 				{
-					item_collect_doscript[items.spr(j)->id] = 1;
-					itemscriptInitialised[items.spr(j)->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+					item_collect_doscript[ptr->id] = 1;
+					itemscriptInitialised[ptr->id] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
 					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
 				}
 	
-				//runningItemScripts[items.spr(j)->id] = 0;
+				//runningItemScripts[ptr->id] = 0;
 				
                         }
 			
 			//Passive item scripts on colelction
-                        if(itemsbuf[items.spr(j)->id].script && ( (itemsbuf[items.spr(j)->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+                        if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 			{
-				ri = &(itemScriptData[items.spr(j)->id]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[items.spr(j)->id][q] = 0xFFFF;
+				ri = &(itemScriptData[ptr->id]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-				item_doscript[items.spr(j)->id] = 1;
-				itemscriptInitialised[items.spr(j)->id] = 0;
+				item_doscript[ptr->id] = 1;
+				itemscriptInitialised[ptr->id] = 0;
 				//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].script, items.spr(j)->id);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
 							
 			}
 			
-                        getitem(items.spr(j)->id);
+                        getitem(ptr->id);
                         items.del(j);
                         
                         for(int i=0; i<Lwpns.Count(); i++)
@@ -5348,7 +5399,7 @@ int LinkClass::EwpnHit()
             weapon *ew = (weapon*)(Ewpns.spr(i));
             bool hitshield=false;
             
-            if((ew->ignoreLink)==true)
+            if((ew->ignoreLink)==true || ew->fallclk)
                 break;
                 
             if(ew->id==ewWind)
@@ -5709,7 +5760,7 @@ void LinkClass::checkhit()
 	int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
         //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
 	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
-        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
+        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
@@ -5862,7 +5913,7 @@ killweapon:
         if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_bit(quest_rules,qr_OUCHBOMBS)))
         {
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
-            if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
+            if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
             {
                 if(NayrusLoveShieldClk<=0)
                 {
@@ -5918,7 +5969,7 @@ killweapon:
     }
     
     if(action==rafting || action==freeze ||
-            action==casting || action==drowning || superman || !(scriptcoldet&1))
+            action==casting || action==drowning || superman || !(scriptcoldet&1) || fallclk)
         return;
         
     int hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
@@ -6030,7 +6081,7 @@ bool LinkClass::checkdamagecombos(int dx, int dy)
 
 bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer, bool solid) //layer = -1, solid = false
 {
-    if(hclk || superman)
+    if(hclk || superman || fallclk)
         return false;
         
     int hp_mod[4];
@@ -6206,7 +6257,7 @@ void LinkClass::hitlink(int hit2)
         
         return;
     }
-    else if(superman || !(scriptcoldet&1))
+    else if(superman || !(scriptcoldet&1) || fallclk)
         return;
     else if(NayrusLoveShieldClk<=0)
     {
@@ -6499,7 +6550,7 @@ bool LinkClass::animate(int)
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	if(isSideViewLink() && obeys_gravity)  // Sideview gravity
+	if(isSideViewLink() && (moveflags & FLAG_OBEYS_GRAV))  // Sideview gravity
 	{
 		//Handle falling through a platform
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
@@ -6632,7 +6683,7 @@ bool LinkClass::animate(int)
 				if(!hoverclk && !ladderx && !laddery)
 				{
 					fall += zinit.gravity;
-					hoverflags |= HOV_OUT;
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
 			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
@@ -6721,8 +6772,19 @@ bool LinkClass::animate(int)
 				stomping = true;
 			}
 			
-			z = fall = jumping = hoverclk = 0;
-			hoverflags = 0;
+			z = fall = jumping = 0;
+			if(check_pitslide(true) == -1)
+			{
+				hoverclk = 0;
+				hoverflags = 0;
+			}
+			else if(hoverclk > 0 && !(hoverflags&HOV_INF))
+			{
+				if(!--hoverclk)
+				{
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
+				}
+			}
 		}
 		else if(fall <= (int)zinit.terminalv)
 		{
@@ -6739,7 +6801,7 @@ bool LinkClass::animate(int)
 				if(!hoverclk)
 				{
 					fall += zinit.gravity;
-					hoverflags |= HOV_OUT;
+					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
 			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
@@ -7098,11 +7160,14 @@ bool LinkClass::animate(int)
         return false;
     }
     
-    
     if(hopclk)
     {
         action=hopping; FFCore.setLinkAction(hopping);
     }
+	if(fallclk)
+	{
+		action=falling; FFCore.setLinkAction(falling);
+	}
         
     // get user input or do other animation
     freeze_guys=false;                                        // reset this flag, set it again if holding
@@ -7140,7 +7205,13 @@ bool LinkClass::animate(int)
         }
         
         break;
-    }  
+    }
+	case falling:
+	{
+		linkstep();
+		pitfall();
+		break;
+	}
     case swimhit:
     case freeze:
     case scrolling:
@@ -7780,7 +7851,7 @@ bool LinkClass::startwpn(int itemid)
     {
         if(!inlikelike && charging==0)
         {
-			bool standing = isStanding();
+			bool standing = isStanding(true);
 			if(standing || extra_jump_count < itemsbuf[itemid].misc1)
 			{
 				if(!checkmagiccost(itemid))
@@ -9482,6 +9553,402 @@ skip:
     }
 }
 
+bool LinkClass::try_hover()
+{
+	if(hoverclk <= 0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
+	{
+		int itemid = current_item_id(itype_hoverboots);
+		if(hoverclk < 0)
+			hoverclk = -hoverclk;
+		else
+		{
+			fall = jumping = 0;
+			if(itemsbuf[itemid].misc1)
+				hoverclk = itemsbuf[itemid].misc1;
+			else
+			{
+				hoverclk = 1;
+				hoverflags |= HOV_INF;
+			}
+			
+				
+			sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+		}
+		if(itemsbuf[itemid].wpn)
+			decorations.add(new dHover(x, y, dHOVER, 0));
+		return true;
+	}
+	return false;
+}
+
+//Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
+//Returns '-1' if not being pulled
+//Returns '-2' if should be falling in
+int LinkClass::check_pitslide(bool ignore_hover)
+{
+	//Pitfall todo -Venrob
+	//Iron boots; can't fight slipping, 2px/frame
+	//Scripted variables to read pull dir/clk (clk only for non-link)
+	//Implement falling for all sprite types (npc AI)
+	//    Fall/slipping tiles for enemies
+	//    Fall/slipping SFX for enemies
+	//    Fall SFX for items/weapons
+	//    Weapons/Misc sprite shared for falling items/weapons
+	//Maybe slip SFX for Link?
+	// Weapons/Misc sprite override for falling sprite?
+	//Update std.zh with relevant new stuff
+	if(can_pitfall(ignore_hover))
+	{
+		bool can_diag = (diagonalMovement || get_bit(quest_rules,qr_DISABLE_4WAY_GRIDLOCK));
+		int ispitul = getpitfall(x,y+(bigHitbox?0:8));
+		int ispitbl = getpitfall(x,y+15);
+		int ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
+		int ispitbr = getpitfall(x+15,y+15);
+		int ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
+		int ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
+		int ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
+		int ispitbr_50 = getpitfall(x+7,y+(bigHitbox?7:11));
+		int ispitul_75 = getpitfall(x+12,y+(bigHitbox?12:14));
+		int ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
+		int ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
+		int ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
+		static const int flag_pit_irresistable = (1<<24);
+		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+		{
+			case 4: return -2; //Fully over pit; fall in
+			case 3:
+			{
+				if(ispitul && ispitur && ispitbl) //UL_3
+				{
+					if(ispitul_50)
+					{
+						if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
+						return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
+					}
+				}
+				else if(ispitul && ispitur && ispitbr) //UR_3
+				{
+					if(ispitur_50)
+					{
+						if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
+						return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
+					}
+				}
+				else if(ispitul && ispitbl && ispitbr) //BL_3
+				{
+					if(ispitbl_50)
+					{
+						if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
+						return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
+					}
+				}
+				else if(ispitbl && ispitur && ispitbr) //BR_3
+				{
+					if(ispitbr_50)
+					{
+						if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
+						return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				if(ispitul && ispitur) //Up
+				{
+					if(DrunkDown())
+					{
+						if(ispitul_75 && ispitur_75) //Straight up
+						{
+							return up | flag_pit_irresistable | (ispitul << 8);
+						}
+						else if(ispitul_75)
+						{
+							return (can_diag ? l_up : left) | flag_pit_irresistable | (ispitul << 8);
+						}
+						else if(ispitur_75)
+						{
+							return (can_diag ? r_up : right) | flag_pit_irresistable | (ispitur << 8);
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitul_50 && ispitur_50) //Straight up
+						{
+							return up | ((ispitul_75 || ispitur_75) ? flag_pit_irresistable : 0) | (ispitul << 8);
+						}
+						else if(ispitul_50)
+						{
+							if(DrunkRight() && !ispitul_75) return -1;
+							return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
+						}
+						else if(ispitur_50)
+						{
+							if(DrunkLeft() && !ispitur_75) return -1;
+							return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
+						}
+					}
+				}
+				else if(ispitbl && ispitbr) //Down
+				{
+					if(DrunkUp())
+					{
+						if(ispitbl_75 && ispitbr_75) //Straight down
+						{
+							return down | flag_pit_irresistable | (ispitbl << 8);
+						}
+						else if(ispitbl_75)
+						{
+							return (can_diag ? l_down : left) | flag_pit_irresistable | (ispitbl << 8);
+						}
+						else if(ispitbr_75)
+						{
+							return (can_diag ? r_down : right) | flag_pit_irresistable | (ispitbr << 8);
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitbl_50 && ispitbr_50) //Straight down
+						{
+							return down | ((ispitbl_75 || ispitbr_75) ? flag_pit_irresistable : 0) | (ispitbl << 8);
+						}
+						else if(ispitbl_50)
+						{
+							if(DrunkRight() && !ispitbl_75) return -1;
+							return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
+						}
+						else if(ispitbr_50)
+						{
+							if(DrunkLeft() && !ispitbr_75) return -1;
+							return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
+						}
+					}
+				}
+				else if(ispitbl && ispitul) //Left
+				{
+					if(DrunkRight())
+					{
+						if(ispitul_75 && ispitbl_75) //Straight left
+						{
+							return left | flag_pit_irresistable | (ispitul << 8);
+						}
+						else if(ispitul_75)
+						{
+							return (can_diag ? l_up : up) | flag_pit_irresistable | (ispitul << 8);
+						}
+						else if(ispitbl_75)
+						{
+							return (can_diag ? l_down : down) | flag_pit_irresistable | (ispitbl << 8);
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitul_50 && ispitbl_50) //Straight left
+						{
+							return left | ((ispitul_75 || ispitbl_75) ? flag_pit_irresistable : 0) | (ispitul << 8);
+						}
+						else if(ispitul_50)
+						{
+							if(DrunkDown() && !ispitul_75) return -1;
+							return (can_diag ? l_up : up) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
+						}
+						else if(ispitbl_50)
+						{
+							if(DrunkUp() && !ispitbl_75) return -1;
+							return (can_diag ? l_down : down) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
+						}
+					}
+				}
+				else if(ispitbr && ispitur) //Right
+				{
+					if(DrunkLeft())
+					{
+						if(ispitur_75 && ispitbr_75) //Straight right
+						{
+							return right | flag_pit_irresistable | (ispitur << 8);
+						}
+						else if(ispitur_75)
+						{
+							return (can_diag ? r_up : up) | flag_pit_irresistable | (ispitur << 8);
+						}
+						else if(ispitbr_75)
+						{
+							return (can_diag ? r_down : down) | flag_pit_irresistable | (ispitbr << 8);
+						}
+						else return -1;
+					}
+					else
+					{
+						if(ispitur_50 && ispitbr_50) //Straight right
+						{
+							return right | ((ispitur_75 || ispitbr_75) ? flag_pit_irresistable : 0) | (ispitur << 8);
+						}
+						else if(ispitur_50)
+						{
+							if(DrunkDown() && !ispitur_75) return -1;
+							return (can_diag ? r_up : up) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
+						}
+						else if(ispitbr_50)
+						{
+							if(DrunkUp() && !ispitbr_75) return -1;
+							return (can_diag ? r_down : down) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
+						}
+					}
+				}
+				break;
+			}
+			case 1:
+			{
+				if(ispitul && ispitul_50) //UL_1
+				{
+					if(!ispitul_75 && (DrunkDown() || DrunkRight())) return -1;
+					return (can_diag ? l_up : left) | (ispitul_75 ? flag_pit_irresistable : 0) | (ispitul << 8);
+				}
+				if(ispitur && ispitur_50) //UR_1
+				{
+					if(!ispitur_75 && (DrunkDown() || DrunkLeft())) return -1;
+					return (can_diag ? r_up : right) | (ispitur_75 ? flag_pit_irresistable : 0) | (ispitur << 8);
+				}
+				if(ispitbl && ispitbl_50) //BL_1
+				{
+					if(!ispitbl_75 && (DrunkUp() || DrunkRight())) return -1;
+					return (can_diag ? l_down : left) | (ispitbl_75 ? flag_pit_irresistable : 0) | (ispitbl << 8);
+				}
+				if(ispitbr && ispitbr_50) //BR_1
+				{
+					if(!ispitbr_75 && (DrunkUp() || DrunkLeft())) return -1;
+					return (can_diag ? r_down : right) | (ispitbr_75 ? flag_pit_irresistable : 0) | (ispitbr << 8);
+				}
+				break;
+			}
+		}
+	}
+	return -1;
+}
+
+bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
+{
+	pitfall();
+	if(fallclk) return true;
+	int val = check_pitslide();
+	//Val should not be -2 here; if -2 would have been returned, the 'return true' above should have triggered!
+	if(val == -1)
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
+	int dir = val&0xFF;
+	int cmbid = (val&0xFFFF00)>>8;
+	int sensitivity = combobuf[cmbid].attribytes[2];
+	if(combobuf[cmbid].usrflags&cflag5) //No pull at all
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
+	if(dir > -1 && !(hoverflags & HOV_PITFALL_OUT) && try_hover()) //Engage hovers
+	{
+		pit_pulldir = -1;
+		pit_pullclk = 0;
+		return false;
+	}
+	pit_pulldir = dir;
+	int step = 1;
+	if(sensitivity == 0)
+	{
+		step = 2;
+		sensitivity = 1;
+	}
+	if(pit_pullclk++ % sensitivity) //No pull this frame
+		return (val&0x100);
+	for(; step > 0 && !fallclk; --step)
+	{
+		switch(dir)
+		{
+			case l_up: case l_down: case left:
+				--x; break;
+			case r_up: case r_down: case right:
+				++x; break;
+		}
+		switch(dir)
+		{
+			case l_up: case r_up: case up:
+				--y; break;
+			case l_down: case r_down: case down:
+				++y; break;
+		}
+		pitfall();
+	}
+	return fallclk || (val&0x100);
+}
+
+void LinkClass::pitfall()
+{
+	if(fallclk)
+	{
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		//Handle falling
+		if(!--fallclk)
+		{
+			int dmg = HP_PER_HEART/4;
+			bool dmg_perc = false;
+			bool warp = false;
+			
+			action=none; FFCore.setLinkAction(none);
+			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
+			if(cmb)
+			{
+				dmg = cmb->attributes[0];
+				dmg_perc = cmb->usrflags&cflag3;
+				warp = cmb->usrflags&cflag1;
+			}
+			if(dmg) //Damage
+			{
+				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
+				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
+			}
+			if(warp) //Warp
+			{
+				sdir = dir;
+				if(cmb->usrflags&cflag2) //Direct Warp
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				dowarp(0,vbound(cmb->attribytes[1],0,3),0);
+			}
+			else //Reset to screen entry
+			{
+				x=entry_x;
+				y=entry_y;
+				warpx=x;
+				warpy=y;
+			}
+		}
+	}
+	else if(can_pitfall())
+	{
+		bool ispitul = ispitfall(x,y+(bigHitbox?0:8));
+		bool ispitbl = ispitfall(x,y+15);
+		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
+		bool ispitbr = ispitfall(x+15,y+15);
+		int pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
+		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
+		{
+			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
+			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
+			fallclk = PITFALL_FALL_FRAMES;
+			fallCombo = pitctr;
+			action=falling; FFCore.setLinkAction(falling);
+		}
+	}
+}
+
 void LinkClass::movelink()
 {
 	int xoff=x.getInt()&7;
@@ -9843,6 +10310,9 @@ void LinkClass::movelink()
 			charging=0;
 		}
 	}
+	
+	if(pitslide()) //Check pit's 'pull'. If true, then Link cannot fight the pull.
+		return;
 	
 	if(action==walking) //still walking
 	{
@@ -11809,6 +12279,7 @@ void LinkClass::movelink()
 				}
 			}
 		}
+		
 		bool wtry  = iswater(MAPCOMBO(x,y+15));
 		bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
 		bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));
@@ -13688,6 +14159,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // Check if there's water to use the ladder over
             bool wtrx = iswater(MAPCOMBO(wx,wy));
             bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+			int ldrid = current_item_id(itype_ladder);
+			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
             if(wtrx || wtrx8)
             {
@@ -13709,16 +14182,28 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 		    }
                 }
             }
-            // No water; how about ladder combos?
             else
             {
-                int combo=combobuf[MAPCOMBO(wx, wy)].type;
-                wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
-                combo=combobuf[MAPCOMBO(wx+8, wy)].type;
-                wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
-            }
+				// No water; check other things
+				
+				//Check pits
+				if(ladderpits)
+				{
+					int pit_cmb = getpitfall(wx,wy);
+					wtrx = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
+					pit_cmb = getpitfall(x+8,wy);
+					wtrx8 = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
+				}
+				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewLink())) //If no pit, check ladder combos
+				{
+					int combo=combobuf[MAPCOMBO(wx, wy)].type;
+					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
+					combo=combobuf[MAPCOMBO(wx+8, wy)].type;
+					wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
+				}
+			}
             
-            bool walkwater = get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy));
+            bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy)));
             
             if((diagonalMovement||NO_GRIDLOCK))
             {
@@ -21048,7 +21533,7 @@ void LinkClass::checkitems(int index)
         
     // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
     //   return;
-    
+    item* ptr = (item*)items.spr(index);
     int pickup = ((item*)items.spr(index))->pickup;
     int PriceIndex = ((item*)items.spr(index))->PriceIndex;
     int id2 = ((item*)items.spr(index))->id;
@@ -21056,6 +21541,8 @@ void LinkClass::checkitems(int index)
     int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
     int tempnextmsg;
     
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	
     if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
         if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
             // wait for it to stop flashing, doesn't check for other items yet

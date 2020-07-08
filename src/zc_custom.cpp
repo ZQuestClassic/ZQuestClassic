@@ -26,18 +26,41 @@ int script_link_flip = -1;
 int script_link_cset = -1;
 
 int old_floatspr, old_slashspr, linkspr;
-int walkspr[4][3];                                   //dir,                    tile/flip/extend
-int stabspr[4][3];                                   //dir,                    tile/flip/extend
-int slashspr[4][3];                                  //dir,                    tile/flip/extend
-int floatspr[4][3];                                  //dir,                    tile/flip/extend
-int swimspr[4][3];                                   //dir,                    tile/flip/extend
-int divespr[4][3];                                   //dir,                    tile/flip/extend
-int poundspr[4][3];                                  //dir,                    tile/flip/extend
-int jumpspr[4][3];                                   //dir,                    tile/flip/extend
-int chargespr[4][3];                                 //dir,                    tile/flip/extend
-int castingspr[3];                                   //                        tile/flip/extend
-int holdspr[2][2][3];                                //     land/water, hands. tile/flip/extend
-//int fallspr[3];                                     //     		       tile/flip/extend
+int walkspr[4][3];                                   //dir,                           tile/flip/extend
+int stabspr[4][3];                                   //dir,                           tile/flip/extend
+int slashspr[4][3];                                  //dir,                           tile/flip/extend
+int floatspr[4][3];                                  //dir,                           tile/flip/extend
+int swimspr[4][3];                                   //dir,                           tile/flip/extend
+int divespr[4][3];                                   //dir,                           tile/flip/extend
+int poundspr[4][3];                                  //dir,                           tile/flip/extend
+int jumpspr[4][3];                                   //dir,                           tile/flip/extend
+int chargespr[4][3];                                 //dir,                           tile/flip/extend
+int castingspr[3];                                   //                               tile/flip/extend
+int holdspr[2][3][3];                                //land/water, 1hand/2hand/sword, tile/flip/extend
+int frozenspr[4][3];                                 //dir,                           tile/flip/extend
+int frozen_waterspr[4][3];                           //dir,                           tile/flip/extend
+int onfirespr[4][3];                                 //dir,                           tile/flip/extend
+int onfire_waterspr[4][3];                           //dir,                           tile/flip/extend
+int diggingspr[4][3];                                //dir,                           tile/flip/extend
+int usingrodspr[4][3];                               //dir,                           tile/flip/extend
+int usingcanespr[4][3];                              //dir,                           tile/flip/extend
+int pushingspr[4][3];                                //dir,                           tile/flip/extend
+int liftingspr[4][3];                                //dir,                           tile/flip/extend
+int liftingheavyspr[4][3];                           //dir,                           tile/flip/extend
+int stunnedspr[4][3];                                //dir,                           tile/flip/extend
+int stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
+int drowningspr[4][3];                               //dir,                           tile/flip/extend
+int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
+int fallingspr[4][3];                                //dir,                           tile/flip/extend
+int shockedspr[4][3];                                //dir,                           tile/flip/extend
+int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
+int pullswordspr[4][3];                              //dir,                           tile/flip/extend
+int readingspr[4][3];                                //dir,                           tile/flip/extend
+int slash180spr[4][3];                               //dir,                           tile/flip/extend
+int slashZ4spr[4][3];                                //dir,                           tile/flip/extend
+int dashspr[4][3];                                   //dir,                           tile/flip/extend
+int bonkspr[4][3];                                   //dir,                           tile/flip/extend
+int medallionsprs[3][3];                             //medallion,                     tile/flip/extend
 
 void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 {
@@ -54,6 +77,14 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
     case ls_dive:
         *extend=divespr[dir][spr_extend];
         break;
+	
+	case ls_drown:
+		*extend=drowningspr[dir][spr_extend];
+		break;
+	
+	case ls_falling:
+		*extend=fallingspr[dir][spr_extend];
+		break;
         
     case ls_slash:
         *extend=slashspr[dir][spr_extend];
@@ -128,6 +159,18 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
         divespr[dir][spr_tile] = tile;
         divespr[dir][spr_flip] = flip;
         divespr[dir][spr_extend] = extend;
+        break;
+        
+    case ls_drown:
+        drowningspr[dir][spr_tile] = tile;
+        drowningspr[dir][spr_flip] = flip;
+        drowningspr[dir][spr_extend] = extend;
+        break;
+        
+    case ls_falling:
+        fallingspr[dir][spr_tile] = tile;
+        fallingspr[dir][spr_flip] = flip;
+        fallingspr[dir][spr_extend] = extend;
         break;
         
     case ls_slash:
@@ -220,6 +263,14 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		*tile=divespr[dir][spr_tile];
 		break;
 		
+	    case ls_drown:
+		*tile=drowningspr[dir][spr_tile];
+		break;
+		
+	    case ls_falling:
+		*tile=fallingspr[dir][spr_tile];
+		break;
+		
 	    case ls_slash:
 		*tile=slashspr[dir][spr_tile];
 		break;
@@ -284,6 +335,14 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 	    case ls_dive:
 		*flip=divespr[dir][spr_flip];
+		break;
+		
+	    case ls_drown:
+		*flip=drowningspr[dir][spr_flip];
+		break;
+		
+	    case ls_falling:
+		*flip=fallingspr[dir][spr_flip];
 		break;
 		
 	    case ls_slash:
@@ -627,3 +686,4 @@ void setuplinktiles(int style)
         break;
     }
 }
+

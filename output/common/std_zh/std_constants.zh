@@ -1,5 +1,5 @@
 // std_constants.zh
-// 28th June, 2020 for ZC 2.55.0 Alpha 75
+// 2nd July, 2020 for ZC 2.55.0 Alpha 75
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -1890,30 +1890,37 @@ const int SL_PARTICLES          = 5; // Farore's Wind particles
 /// Link Properties
 
 //Link actions
-const int LA_NONE               = 0;
-const int LA_WALKING            = 1;
-const int LA_ATTACKING          = 2;
-const int LA_FROZEN             = 3;
-const int LA_HOLD1LAND          = 4; // One hand.
-const int LA_HOLD2LAND          = 5; // Both hands.
-const int LA_RAFTING            = 6;
-const int LA_GOTHURTLAND        = 7;
-const int LA_INWIND             = 8;
-const int LA_SCROLLING          = 9;
-const int LA_WINNING            = 10;
-const int LA_SWIMMING           = 11;
-const int LA_HOPPING            = 12; // Leaving water; read-only.
-const int LA_GOTHURTWATER       = 13;
-const int LA_HOLD1WATER         = 14;
-const int LA_HOLD2WATER         = 15;
-const int LA_CASTING            = 16; // Casting a spell; read-only.
-const int LA_CAVEWALKUP         = 17;
-const int LA_CAVEWALKDOWN       = 18;
-const int LA_DYING              = 19;
-const int LA_DROWNING           = 20;
-const int LA_CHARGING           = 22; // Charging the sword.
-const int LA_SPINNING           = 23; // Spin attack.
-const int LA_DIVING             = 24;
+enum HeroAction
+{
+	LA_NONE,
+	LA_WALKING,
+	LA_ATTACKING,
+	LA_FROZEN,
+	LA_HOLD1LAND,         // One hand.
+	LA_HOLD2LAND,         // Both hands.
+	LA_RAFTING,
+	LA_GOTHURTLAND,
+	LA_INWIND,
+	LA_SCROLLING,
+	LA_WINNING,
+	LA_SWIMMING,
+	LA_HOPPING,           // Leaving water; read-only.
+	LA_GOTHURTWATER,
+	LA_HOLD1WATER,
+	LA_HOLD2WATER,
+	LA_CASTING,           // Casting a spell; read-only.
+	LA_CAVEWALKUP,
+	LA_CAVEWALKDOWN,
+	LA_DYING,
+	LA_DROWNING,
+	LA_CHARGING,          // Charging the sword.
+	LA_SPINNING,          // Spin attack.
+	LA_DIVING, //24
+	//25,26 unused
+	LA_STUNNED = 27,
+	//28 unused
+	LA_FALLING = 29
+};
 
 ///////////////////////
 /// Combo Types & Flags
@@ -2757,10 +2764,13 @@ enum
 
 
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+};
 
 	
 
@@ -2909,5 +2919,30 @@ enum mapscreenflags
 	MSF_SCRIPT5,
 	MSF_CUSTOM5 = MSF_SCRIPT5,
 	MSF_LAST
+};
+
+enum HeroMoveFlag
+{
+	HEROMV_OBEYS_GRAVITY,
+	HEROMV_CAN_PITFALL
+};
+
+enum ItemspriteMoveFlag
+{
+	ITEMMV_OBEYS_GRAVITY,
+	ITEMMV_CAN_PITFALL
+};
+
+enum WeaponMoveFlag
+{
+	WPNMV_OBEYS_GRAVITY,
+	WPNMV_CAN_PITFALL
+};
+
+enum NPCMoveFlag
+{
+	NPCMV_OBEYS_GRAVITY,
+	NPCMV_CAN_PITFALL,
+	NPCMV_CAN_PIT_WALK
 };
 

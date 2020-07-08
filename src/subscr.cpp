@@ -3460,8 +3460,10 @@ void animate_selectors()
         sel_b = new item((zfix)0, (zfix)0, (zfix)0, iSelectB, 0, 0);
         
     sel_a->yofs=0;
+	sel_a->subscreenItem=true;
     sel_a->animate(0);
     sel_b->yofs=0;
+	sel_b->subscreenItem=true;
     sel_b->animate(0);
 }
 
