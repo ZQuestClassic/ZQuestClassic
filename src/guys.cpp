@@ -258,7 +258,7 @@ bool enemy::flyerblocked(int dx, int dy, int special, bool isKB)
 bool groundblocked(int dx, int dy, guydata const& gd)
 {
 	int c = COMBOTYPE(dx,dy);
-	bool pit_blocks = (!(gd.moveflags & FLAG_CAN_PITWALK) && !(gd.moveflags & FLAG_CAN_PITFALL));
+	bool pit_blocks = !(gd.moveflags & FLAG_CAN_PITWALK);
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
