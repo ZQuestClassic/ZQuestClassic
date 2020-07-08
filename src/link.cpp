@@ -6560,9 +6560,10 @@ bool LinkClass::animate(int)
 		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
 		{
 			stop_item_sfx(itype_hoverboots);
+			if(!getOnSideviewLadder() && (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
+				y-=(int)y%8; //fix position
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
-			if(!getOnSideviewLadder()) y-=(int)y%8; //fix position
 			
 			if(y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = 160;
