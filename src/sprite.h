@@ -131,6 +131,7 @@ public:
 	int pit_pullclk; // Pitfall pull clk
 	int fallclk; // Pitfall fall clk
 	int fallCombo; // Pitfall fallen combo
+	int old_cset; // Storage var for an old cset; used by pitfalls
     
     sprite();
     sprite(sprite const & other);
