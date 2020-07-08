@@ -68,6 +68,8 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
+extern word passive_subscreen_doscript;
+extern bool passive_subscreen_waitdraw;
 byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
@@ -1762,6 +1764,16 @@ void close_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+		{
+			if(DMaps[currdmap].passive_sub_script != 0)
+				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+			{
+				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+				passive_subscreen_waitdraw = false;
+			}	
+		}
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -1804,6 +1816,16 @@ void open_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+		{
+			if(DMaps[currdmap].passive_sub_script != 0)
+				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+			{
+				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+				passive_subscreen_waitdraw = false;
+			}	
+		}
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -5160,6 +5182,16 @@ void blackscr(int fcnt,bool showsubscr)
     reset_pal_cycling();
     script_drawing_commands.Clear();
     
+	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	{
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+	}
     while(fcnt>0)
     {
         clear_bitmap(framebuf);
@@ -5167,6 +5199,8 @@ void blackscr(int fcnt,bool showsubscr)
         if(showsubscr)
         {
             put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+			if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
+				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
         }
         
         syskeys();
@@ -5200,6 +5234,16 @@ void openscreen(int shape)
     
     int x=128;
     
+	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	{
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+	}
     for(int i=0; i<80; i++)
     {
         draw_screen(tmpscr);
@@ -5259,6 +5303,16 @@ void closescreen(int shape)
     
     int x=128;
     
+	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	{
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+	}
     for(int i=79; i>=0; --i)
     {
         draw_screen(tmpscr);

@@ -27340,16 +27340,7 @@ void FFScript::doScriptMenuDraws()
 	BITMAP* menu_buf = ((GameFlags & GAMEFLAG_F6SCRIPT_ACTIVE) != 0) ? f6_menu_buf : script_menu_buf;
 	blit(menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
-	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
-	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 0, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 1, tmpscr, 0, playing_field_offset);
-	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
-	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 4, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
-	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
+	do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 }
 
 void FFScript::runOnSaveEngine()

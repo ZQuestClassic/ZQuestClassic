@@ -7753,7 +7753,19 @@ bool LinkClass::startwpn(int itemid)
             while(refill())
             {
                 put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-                advanceframe(true);
+				if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
+				{
+					script_drawing_commands.Clear();
+					if(DMaps[currdmap].passive_sub_script != 0)
+						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+					if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+					{
+						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+						passive_subscreen_waitdraw = false;
+					}	
+					do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+                }
+				advanceframe(true);
             }
             
             //add a quest rule or an item option that lets you specify whether or not to pause music during refilling

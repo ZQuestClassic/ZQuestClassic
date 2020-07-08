@@ -605,6 +605,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_TRACESCRIPTIDS, 1);
 	// Misc Engine stuff (not really related to any particular ruleset, so, always on)
 	set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 1);
+	set_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, 1);
 	set_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0, 1);
 	set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
 	set_bit(quest_rules, qr_FFCSCROLL, 1);
