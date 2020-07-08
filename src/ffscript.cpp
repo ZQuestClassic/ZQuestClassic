@@ -23878,11 +23878,11 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case SCRIPT_PASSIVESUBSCREEN:
-				passive_subscreen_waitdraw = false;
+				passive_subscreen_waitdraw = true;
 				break;
 				
 			case SCRIPT_ACTIVESUBSCREEN:
-				active_subscreen_waitdraw = false;
+				active_subscreen_waitdraw = true;
 				break;
 			
 			case SCRIPT_SCREEN:
