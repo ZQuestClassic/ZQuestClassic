@@ -2290,8 +2290,8 @@ static DIALOG dialogs[] =
     // { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
+    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
