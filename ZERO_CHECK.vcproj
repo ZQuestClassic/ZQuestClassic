@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="ZERO_CHECK"
+	ProjectGUID="{1B8AA6B4-D4C3-3F9F-9452-EA30CD7631F4}"
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="ZERO_CHECK.dir\Debug"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="E:\ZC\__2.53\.\allegro\include;E:\ZC\__2.53\.\include\lpng1212;E:\ZC\__2.53\.\include\zlib123;E:\ZC\__2.53\.\include\loadpng;E:\ZC\__2.53\.\include\jpgalleg-2.5;E:\ZC\__2.53\.\include\dumb;E:\ZC\__2.53\.\include\alogg;E:\ZC\__2.53\.\include\almp3;E:\ZC\__2.53\.\include\gme;"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="ZERO_CHECK.dir\Release"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="E:\ZC\__2.53\.\allegro\include;E:\ZC\__2.53\.\include\lpng1212;E:\ZC\__2.53\.\include\zlib123;E:\ZC\__2.53\.\include\loadpng;E:\ZC\__2.53\.\include\jpgalleg-2.5;E:\ZC\__2.53\.\include\dumb;E:\ZC\__2.53\.\include\alogg;E:\ZC\__2.53\.\include\almp3;E:\ZC\__2.53\.\include\gme;"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="CMake Rules"
+			>
+			<File
+				RelativePath="E:\ZC\__2.53\CMakeFiles\generate.stamp.rule"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Checking Build System"
+						CommandLine="&quot;C:\Program Files\CMake\bin\cmake.exe&quot; -HE:/ZC/__2.53 -BE:/ZC/__2.53 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/ZC/__2.53/ZeldaClassic.sln&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeLanguageInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeSystemSpecificInitialize.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Compiler\CMakeCommonCompilerMacros.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Compiler\MSVC-CXX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindBISON.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindFLEX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindPackageHandleStandardArgs.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindPackageMessage.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC-C.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC-CXX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\WindowsPaths.cmake&quot;;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeCCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeCXXCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeRCCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeSystem.cmake;E:\ZC\__2.53\CMakeLists.txt;E:\ZC\__2.53\modules\romview\RomviewCore.txt;E:\ZC\__2.53\modules\romview\RomviewGUI.txt;E:\ZC\__2.53\modules\zelda\ZeldaCore.txt;E:\ZC\__2.53\modules\zelda\ZeldaGUI.txt;E:\ZC\__2.53\modules\zelda\ZeldaSprite.txt;E:\ZC\__2.53\modules\zelda\ZeldaSubscreen.txt;E:\ZC\__2.53\modules\zquest\ZQuestCore.txt;E:\ZC\__2.53\modules\zquest\ZQuestGUI.txt;E:\ZC\__2.53\modules\zquest\ZQuestMisc.txt;E:\ZC\__2.53\modules\zquest\ZQuestZScript.txt;E:\ZC\__2.53\modules\zquest\ZQuestZScriptNP.txt;"
+						Outputs="E:\ZC\__2.53\CMakeFiles\generate.stamp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Checking Build System"
+						CommandLine="&quot;C:\Program Files\CMake\bin\cmake.exe&quot; -HE:/ZC/__2.53 -BE:/ZC/__2.53 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/ZC/__2.53/ZeldaClassic.sln&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeLanguageInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\CMakeSystemSpecificInitialize.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Compiler\CMakeCommonCompilerMacros.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Compiler\MSVC-CXX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindBISON.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindFLEX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindPackageHandleStandardArgs.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\FindPackageMessage.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC-C.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC-CXX.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows-MSVC.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake\share\cmake-3.10\Modules\Platform\WindowsPaths.cmake&quot;;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeCCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeCXXCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeRCCompiler.cmake;E:\ZC\__2.53\CMakeFiles\3.10.0-rc5\CMakeSystem.cmake;E:\ZC\__2.53\CMakeLists.txt;E:\ZC\__2.53\modules\romview\RomviewCore.txt;E:\ZC\__2.53\modules\romview\RomviewGUI.txt;E:\ZC\__2.53\modules\zelda\ZeldaCore.txt;E:\ZC\__2.53\modules\zelda\ZeldaGUI.txt;E:\ZC\__2.53\modules\zelda\ZeldaSprite.txt;E:\ZC\__2.53\modules\zelda\ZeldaSubscreen.txt;E:\ZC\__2.53\modules\zquest\ZQuestCore.txt;E:\ZC\__2.53\modules\zquest\ZQuestGUI.txt;E:\ZC\__2.53\modules\zquest\ZQuestMisc.txt;E:\ZC\__2.53\modules\zquest\ZQuestZScript.txt;E:\ZC\__2.53\modules\zquest\ZQuestZScriptNP.txt;"
+						Outputs="E:\ZC\__2.53\CMakeFiles\generate.stamp"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

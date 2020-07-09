@@ -2,6 +2,9 @@ ChangeLog for 2.53.1
 
 //Beta 52
 
+Fixed error messages for invald GOTO type instructions.
+	( ZoriaRPG, 9th July, 2020 )
+	
 Fixed possible crash on invalid gotos from logging args order.
 	( ZoriaRPG, 7th July, 2020 )
 	

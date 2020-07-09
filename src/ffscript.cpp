@@ -9964,11 +9964,11 @@ int run_script(const byte type, const word script, const byte i)
 		switch(type)
 		{
 			case SCRIPT_FFC:
-				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[i].second.c_str()); break;
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str()); break;
 			case SCRIPT_ITEM:
-				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[i].second.c_str()); break;
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], itemmap[curScriptNum-1].second.c_str()); break;
 			case SCRIPT_GLOBAL:
-				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[i].second.c_str()); break;
+				Z_scripterrlog("%s Script %s has exited.\n", script_types[type], globalmap[curScriptNum].second.c_str()); break;
 			default: break;					
 		}
 		break;
@@ -9985,11 +9985,11 @@ int run_script(const byte type, const word script, const byte i)
 		switch(type)
 		{
 			case SCRIPT_FFC:
-				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\n", script_types[type], ffcmap[i].second.c_str(), sarg1); break;
+				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), sarg1); break;
 			case SCRIPT_ITEM:
-				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\n", script_types[type], itemmap[i].second.c_str(), sarg1); break;
+				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), sarg1); break;
 			case SCRIPT_GLOBAL:
-				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\n", script_types[type], globalmap[i].second.c_str(), sarg1); break;
+				Z_scripterrlog("%s Script %s attempted to GOTO an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), sarg1); break;
 			
 			default: break;
 		}
@@ -10009,11 +10009,11 @@ int run_script(const byte type, const word script, const byte i)
 		switch(type)
 		{
 			case SCRIPT_FFC:
-				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\n", script_types[type], ffcmap[i].second.c_str(), (get_register(sarg1) / 10000)); break;
+				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), (get_register(sarg1) / 10000)); break;
 			case SCRIPT_ITEM:
-				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\n", script_types[type], itemmap[i].second.c_str(), (get_register(sarg1) / 10000)); break;
+				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), (get_register(sarg1) / 10000)); break;
 			case SCRIPT_GLOBAL:
-				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\n", script_types[type], globalmap[i].second.c_str(), (get_register(sarg1) / 10000)); break;
+				Z_scripterrlog("%s Script %s attempted to GOTOR an invalid register line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), (get_register(sarg1) / 10000)); break;
 			
 			default: break;
 		}
@@ -10034,11 +10034,11 @@ int run_script(const byte type, const word script, const byte i)
 			switch(type)
 			{
 				case SCRIPT_FFC:
-					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\n", script_types[type], ffcmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_ITEM:
-					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\n", script_types[type], itemmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_GLOBAL:
-					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\n", script_types[type], globalmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOTRUE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), sarg1); break;
 				
 				default: break;
 			}
@@ -10060,11 +10060,11 @@ int run_script(const byte type, const word script, const byte i)
 			switch(type)
 			{
 				case SCRIPT_FFC:
-					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\n", script_types[type], ffcmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_ITEM:
-					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\n", script_types[type], itemmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_GLOBAL:
-					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\n", script_types[type], globalmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOFALSE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), sarg1); break;
 				
 				default: break;
 			}
@@ -10086,11 +10086,11 @@ int run_script(const byte type, const word script, const byte i)
 			switch(type)
 			{
 				case SCRIPT_FFC:
-					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\n", script_types[type], ffcmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_ITEM:
-					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\n", script_types[type], itemmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_GLOBAL:
-					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\n", script_types[type], globalmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOMORE to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), sarg1); break;
 				
 				default: break;
 			}
@@ -10112,11 +10112,11 @@ int run_script(const byte type, const word script, const byte i)
 			switch(type)
 			{
 				case SCRIPT_FFC:
-					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\n", script_types[type], ffcmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], ffcmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_ITEM:
-					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\n", script_types[type], itemmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], itemmap[curScriptNum-1].second.c_str(), sarg1); break;
 				case SCRIPT_GLOBAL:
-					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\n", script_types[type], globalmap[i].second.c_str(), sarg1); break;
+					Z_scripterrlog("%s Script %s attempted to GOTOLESS to an invalid instruction line (%d).\nToo many instructions in this script.\n", script_types[type], globalmap[curScriptNum].second.c_str(), sarg1); break;
 				
 				default: break;
 			}
