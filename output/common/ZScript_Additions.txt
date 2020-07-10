@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 75
-Document Revision: 2nd July, 2020
+Document Revision: 10th July, 2020
 
 
  __           _   _                 
@@ -4893,35 +4893,142 @@ int TextHeight;
 	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
 	3.	Layer 2 is Background on All Screens (uses DMaps[].flgs&dmfLAYER2BG
 	
-int Map;
-int Level;
-int Offset;
-int Compass;
-int Palette;
-int MIDI;
-int Continue;
-int Type;
-int MusicTrack;
-int ActiveSubscreen;
-int PassiveSubscreen;
-int Grid[8];
-int MiniMapTile[2];
-int MiniMapCSet[2];
-int MapTile[2];
-int MapCSet[2];
-int DisabledItems[256];
-int Flags;
-bool Sideview;
-	
-void SetName(int buffer[]);
-void GetName(int buffer[]);
-void SetTitle(int buffer[]);
-void GetTitle(int buffer[]);
-void SetIntro(int buffer[]);
-void GetIntro(int buffe[]);
+int ID;
+ * Read-only. 
+ * This returns the DMap ID for a given dmapdata pointer.
 
-void SetMusic(); //enh music
-void GetMusic();
+int Map;
+ * The game map used by the dmap.
+ 
+int Level;
+ * The Level ID of the DMap.
+ 
+int Offset;
+ * The DMap offset.
+ 
+int Compass;
+ * The screen where the compass marker appears in the minimap.
+ 
+int Palette;
+ * The level palette used by the dmap. 
+ * Equivalent to Game->LevelPalette[this->ID].
+ 
+int MIDI;
+ * The MIDI ID used by the DMap.
+ 
+int Continue;
+ * The screen on which the player spawns on the DMap.
+ 
+int Type;
+ * The DMap type. Legal types are:
+ * 0: NES Dungeon
+ * 1: NES Overworld
+ * 2: Interior
+ * 3: BS Overworld
+ 
+int MusicTrack;
+ * The enhanced musiic tracker file track ID.
+ 
+int ActiveSubscreen;
+ * The active subscreen ID.
+ 
+int PassiveSubscreen;
+ * The passive subscreen ID.
+ 
+int Grid[8];
+ * The rooms displayed either when the player has the map item,
+ * or when visiting rooms, marked in the DMap editor.
+ * See the functions in dmapgrid.zh to access these values.
+ 
+int MiniMapTile[2];
+ * The first tile ID used by passive subscreen minimap tile block.
+ * Index [0] is the small minimap without the map item, and [1] is the minimap with the map item.
+ 
+int MiniMapCSet[2];
+ * The CSet used by the passive subscreen minimap tiles.
+ * Index [0] is the small minimap without the map item, and [1] is the minimap with the map item.
+ 
+int MapTile[2];
+ * The first tile ID used by active subscreen dungeon map tile block.
+ * Index [0] is the map without the map item, and [1] is the map with the map item.
+ 
+int MapCSet[2];
+ * The CSet used by the active subscreen dungeon map tiles.
+ * Index [0] is the map without the map item, and [1] is the map with the map item.
+ 
+int DisabledItems[256];
+ * The items that are disabled on the active subscreen for this DMap.
+ 
+int Flags;
+ * The flags used by the DMap. These are OR'd together. 
+ * The values are:
+ * #define dmfCAVES			0x0001
+ * #define dmf3STAIR			0x0002
+ * #define dmfWHIRLWIND			0x0004
+ * #define dmfGUYCAVES			0x0008
+ * #define dmfNOCOMPASS			0x0010
+ * #define dmfWAVY 			0x0020
+ * #define dmfWHIRLWINDRET		0x0040
+ * #define dmfALWAYSMSG   		0x0080
+ * #define dmfVIEWMAP       		0x0100
+ * #define dmfDMAPMAP         		0x0200
+ * #define dmfMINIMAPCOLORFIX 		0x0400
+ * #define dmfSCRIPT1 			0x0800
+ * #define dmfSCRIPT2 			0x1000
+ * #define dmfSCRIPT3 			0x2000
+ * #define dmfSCRIPT4 			0x4000
+ * #define dmfSCRIPT5 			0x8000
+ 
+bool Sideview;
+ * If true, all screens on the DMap are treated as sideview
+ * UNLESS the screen flag Toggle Sideview is enabled.
+ * If calse, all screens on the DMap are treated as overhead
+ * UNLESS the screen flag Toggle Sideview is enabled.
+ 
+int Script;
+ * The standard DMap Active Script ID. 
+
+//To add, Script IDs and InitD for dmapdata passive 
+//and active subscreen scripts
+ 
+untyped InitD[8];
+* The eight script args for the dmapdata active script that runs 
+* on this DMap. 
+	
+void SetName(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap name. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetName(char32 buffer[]);
+ * Copies the name of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+
+void SetTitle(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap title. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetTitle(char32 buffer[]);
+ * Copies the title of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+ 
+void SetIntro(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap intro text. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetIntro(char32 buffer[]);
+ * Copies the intro text of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+
+void SetMusic(char32 "filename"); 
+ * Sets the enhanced music used by the DMap to a specified filename.
+ * UNIMPLEMENTED at this time.
+ 
+void GetMusic(char2 buffer[]);
+ * Copies the filename of the DMap enhanced music into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
 
 
 //////////////////
@@ -5979,6 +6086,9 @@ void Greyscale(bool enable);
  * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
  * This is useful for simulating 'Gameboy' style displays.
 	
+int IsBlankTile[214500];
+ * Returns 1 is the tile supplied as an index is blank, 0 is it is not blank.
+ * Returns -1 if the user passed an invalid tile ID to the index.
 
 /////////////////
 ///  Audio->  ///

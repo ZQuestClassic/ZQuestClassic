@@ -519,6 +519,9 @@ void do_getdmapbyname();
 
 int getLinkOTile(long index1, long index2);
 int getLinkOFlip(long index1, long index2);
+
+int IsBlankTile(int i);
+
 defWpnSprite getDefWeaponSprite(int wpnid);
 //defWpnSprite getDefWeaponSprite(weapon *wp);
 
@@ -4035,8 +4038,9 @@ enum ASM_DEFINE
 #define NPCFALLCLK				0x13B9
 #define NPCFALLCMB				0x13BA
 #define NPCMOVEFLAGS			0x13BB
+#define ISBLANKTILE			0x13BC
 
-#define NUMVARIABLES         	0x13BC
+#define NUMVARIABLES         	0x13BD
 
 //} End variables
 

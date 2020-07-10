@@ -9397,6 +9397,8 @@ long get_register(const long arg)
 		case MAXDRAWS:
 			ret = MAX_SCRIPT_DRAWING_COMMANDS * 10000;
 			break;
+		
+		case ISBLANKTILE: ret = (FFCore.IsBlankTile(ri->d[0]/10000) * 10000); break;
 
 		case BITMAPWIDTH:
 		{
@@ -20878,6 +20880,29 @@ void do_copytile(const bool v, const bool v2)
 	long tile2 = SH::get_arg(sarg2, v2) / 10000;
 	
 	copy_tile(newtilebuf, tile, tile2, false);
+}
+
+int FFScript::IsBlankTile(int i)
+{
+	if( ((unsigned)i) > NEWMAXTILES )
+	{
+		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->IsBlankTile[]\n");
+		return -1;
+	}
+	    
+	byte *tilestart=newtilebuf[i].data;
+	qword *di=(qword*)tilestart;
+	int parts=tilesize(newtilebuf[i].format)>>3;
+    
+	for(int j=0; j<parts; ++j, ++di)
+	{
+		if(*di!=0)
+		{
+			return 0;
+		}
+	}
+    
+	return 1;
 }
 
 void do_swaptile(const bool v, const bool v2)
@@ -32706,6 +32731,42 @@ script_variable ZASMVars[]=
 	{ "COMBODOTILE",		COMBODOTILE,        0,             0 },
 	{ "COMBODFRAME",		COMBODFRAME,        0,             0 },
 	{ "COMBODACLK",		COMBODACLK,        0,             0 },
+	{ "PC",                PC,                   0,             0 },
+	{ "GAMESCROLLING", GAMESCROLLING, 0, 0 },
+	{ "MESSAGEDATAMARGINS", MESSAGEDATAMARGINS, 0, 0 },
+	{ "MESSAGEDATAPORTTILE", MESSAGEDATAPORTTILE, 0, 0 },
+	{ "MESSAGEDATAPORTCSET", MESSAGEDATAPORTCSET, 0, 0 },
+	{ "MESSAGEDATAPORTX", MESSAGEDATAPORTX, 0, 0 },
+	{ "MESSAGEDATAPORTY", MESSAGEDATAPORTY, 0, 0 },
+	{ "MESSAGEDATAPORTWID", MESSAGEDATAPORTWID, 0, 0 },
+	{ "MESSAGEDATAPORTHEI", MESSAGEDATAPORTHEI, 0, 0 },
+	{ "MESSAGEDATAFLAGSARR", MESSAGEDATAFLAGSARR, 0, 0 },
+	{ "FILEPOS", FILEPOS, 0, 0 },
+	{ "FILEEOF", FILEEOF, 0, 0 },
+	{ "FILEERR", FILEERR, 0, 0 },
+	{ "MESSAGEDATATEXTWID", MESSAGEDATATEXTWID, 0, 0 },
+	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
+	{ "SWITCHKEY", SWITCHKEY, 0, 0 },
+	{ "INCQST", INCQST, 0, 0 },
+	{ "HEROJUMPCOUNT", HEROJUMPCOUNT, 0, 0 },
+	{ "HEROPULLDIR", HEROPULLDIR, 0, 0 },
+	{ "HEROPULLCLK", HEROPULLCLK, 0, 0 },
+	{ "HEROFALLCLK", HEROFALLCLK, 0, 0 },
+	{ "HEROFALLCMB", HEROFALLCMB, 0, 0 },
+	{ "HEROMOVEFLAGS", HEROMOVEFLAGS, 0, 0 },
+	{ "ITEMFALLCLK", ITEMFALLCLK, 0, 0 },
+	{ "ITEMFALLCMB", ITEMFALLCMB, 0, 0 },
+	{ "ITEMMOVEFLAGS", ITEMMOVEFLAGS, 0, 0 },
+	{ "LWPNFALLCLK", LWPNFALLCLK, 0, 0 },
+	{ "LWPNFALLCMB", LWPNFALLCMB, 0, 0 },
+	{ "LWPNMOVEFLAGS", LWPNMOVEFLAGS, 0, 0 },
+	{ "EWPNFALLCLK", EWPNFALLCLK, 0, 0 },
+	{ "EWPNFALLCMB", EWPNFALLCMB, 0, 0 },
+	{ "EWPNMOVEFLAGS", EWPNMOVEFLAGS, 0, 0 },
+	{ "NPCFALLCLK", NPCFALLCLK, 0, 0 },
+	{ "NPCFALLCMB", NPCFALLCMB, 0, 0 },
+	{ "NPCMOVEFLAGS", NPCMOVEFLAGS, 0, 0 },
+	{ "ISBLANKTILE", ISBLANKTILE, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

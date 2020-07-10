@@ -1851,6 +1851,7 @@ string ZScript::VarToString(long ID)
 	case NPCFALLCLK: return "NPCFALLCLK";
 	case NPCFALLCMB: return "NPCFALLCMB";
 	case NPCMOVEFLAGS: return "NPCMOVEFLAGS";
+	case ISBLANKTILE: return "ISBLANKTILE";
 	
 	
 	default:

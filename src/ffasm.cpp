@@ -2132,6 +2132,7 @@ script_variable variable_list[]=
 	{ "NPCFALLCLK", NPCFALLCLK, 0, 0 },
 	{ "NPCFALLCMB", NPCFALLCMB, 0, 0 },
 	{ "NPCMOVEFLAGS", NPCMOVEFLAGS, 0, 0 },
+	{ "ISBLANKTILE", ISBLANKTILE, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
