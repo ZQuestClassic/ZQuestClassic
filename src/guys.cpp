@@ -2817,7 +2817,7 @@ bool enemy::animate(int index)
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
 	{
-		if(can_pitfall() && z <= 0 && !superman)
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
 		{
 			fallCombo = check_pits();
 		}
