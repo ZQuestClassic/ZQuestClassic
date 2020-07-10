@@ -13757,15 +13757,15 @@ int eDodongo2::takehit(weapon *w)
 	return 1;
 }
 
-eAquamentus::eAquamentus(zfix X,zfix Y,int Id,int Clk) : enemy((zfix)176,(zfix)64,Id,Clk)
+eAquamentus::eAquamentus(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)//enemy((zfix)176,(zfix)64,Id,Clk)
 {
 	//these are here to bypass compiler warnings about unused arguments
-	X=X;
-	Y=Y;
-	if(dmisc1)
+	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=64;
+		x = dmisc1 ? 64 : 176;
+		y = 64;
 	}
+	else { x = X; y = Y; }
 	
 	//nets+5940;
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
@@ -13941,11 +13941,16 @@ bool eAquamentus::hit(weapon *w)
 	
 }
 
-eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,0)
+eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix)128,(zfix)48,Id,0)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	X=X;
-	Y=Y;
+	
+	if ( !(editorflags & ENEMY_FLAG5) )
+	{
+		x = 128;
+		y = 48;
+	}
+	else { x = X; y = Y; }
+	
 	Clk=Clk;
 	hxofs=-16;
 	hxsz=48;
@@ -16005,8 +16010,14 @@ void esManhandla::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-eGleeok::eGleeok(zfix,zfix,int Id,int Clk) : enemy((zfix)120,(zfix)48,Id,Clk)
+eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix)120,(zfix)48,Id,Clk)
 {
+	if ( !(editorflags & ENEMY_FLAG5) )
+	{
+		x = 120;
+		y = 48;
+	}
+	else { x = X; y = Y; }
 	hzsz = 32; // can't be jumped.
 	flameclk=0;
 	misc=clk;                                                 // total head count
@@ -16544,8 +16555,14 @@ void esGleeok::draw2(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-ePatra::ePatra(zfix ,zfix ,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,Clk)
+ePatra::ePatra(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)// enemy((zfix)128,(zfix)48,Id,Clk)
 {
+	if ( !(editorflags & ENEMY_FLAG5) )
+	{
+		x = 128;
+		y = 48;
+	}
+	else { x = X; y = Y; }
 	adjusted=false;
 	dir=(rand()&7)+8;
 	//step=0.25;
