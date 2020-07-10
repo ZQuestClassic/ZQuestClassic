@@ -8278,6 +8278,7 @@ long get_register(const long arg)
 					break;
 				}
 			}
+			break;
 		}
 		case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
 		{
@@ -8288,11 +8289,12 @@ long get_register(const long arg)
 				case 1: { ret = ((word)DMaps[ri->dmapsref].largemap_2_tile) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapTile[]: %d\n", indx);
+					Z_scripterrlog("Invalid index supplied to dmapdata->MapTile[]: %d\n", indx);
 					ret = -10000;
 					break;
 				}
 			}
+			break;
 		}
 		case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 		{
@@ -8303,7 +8305,7 @@ long get_register(const long arg)
 				case 1: { ret = ((byte)DMaps[ri->dmapsref].largemap_2_cset) * 10000; break; }
 				default: 
 				{
-					Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapCSet[]: %d\n", indx);
+					Z_scripterrlog("Invalid index supplied to dmapdata->MapCSet[]: %d\n", indx);
 					ret = -10000;
 					break;
 				}
