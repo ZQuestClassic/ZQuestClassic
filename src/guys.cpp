@@ -14988,8 +14988,12 @@ void getBigTri(int id2)
 
 eMoldorm::eMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	x=128;
-	y=48;
+	if( !(editorflags & ENEMY_FLAG5) )
+	{
+		x=128;
+		y=48;
+	}
+	//else { x = X; y = Y; }
 	dir=(rand()&7)+8;
 	superman=1;
 	fading=fade_invisible;
@@ -15133,8 +15137,12 @@ bool eMoldorm::animate(int index)
 
 esMoldorm::esMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	x=128;
-	y=48;
+	if( !(editorflags & ENEMY_FLAG5) )
+	{
+		x=128;
+		y=48;
+	}
+	
 	yofs=playing_field_offset;
 	hyofs=4;
 	hxsz=hysz=8;
@@ -15274,6 +15282,7 @@ eLanmola::eLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 		x=64;
 		y=80;
 	}
+	//else { x = X; y = Y; }
 	//zprint2("lanmola index is %d\n", index);
 	//byte legaldirs = 0;
 	int incr = 16;
@@ -15429,8 +15438,55 @@ bool eLanmola::animate(int index)
 
 esLanmola::esLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 {
-	x=64;
-	y=80;
+	if( !(editorflags & ENEMY_FLAG5) )
+	{
+		x=64;
+		y=80;
+	}
+	int incr = 16;
+	if ( ispitfall(x, y) )
+	{
+		for ( int q = 0; q < 16; ++q )
+		{
+			//move if we spawn over a pit
+			//check each direction
+			if ( x-incr >= 0 && !ispitfall(x-incr, y) ) //legaldirs |= 0x1; //left
+			{
+				x-=incr; break;
+			}
+			if ( x+incr < 256 && !ispitfall(x+incr, y) ) //legaldirs |= 0x2; //right
+			{
+				x+=incr; break;
+			}
+			if ( x-incr >= 0 && y-incr >= 0 && !ispitfall(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
+			{
+				x-=incr; y-=incr; break;
+			}
+			if ( x+incr < 255 && y-incr >= 0 && !ispitfall(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
+			{
+				x+=incr; y-=incr; break;
+			}
+			if ( y-incr >= 0 && !ispitfall(x, y-incr) ) // legaldirs |= 0x10; //up
+			{
+				y -= incr; break;
+			}
+			if ( y+incr < 164 && !ispitfall(x, y+incr) ) //legaldirs |= 0x20; //down
+			{
+				y+=incr; break;
+			}
+			if ( x-incr >= 0 && y+incr < 164 && !ispitfall(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
+			{
+				 x-=incr; y+incr; break;
+			}
+			if ( x+incr < 255 && y+incr < 164 && !ispitfall(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
+			{
+				x+=incr; y+=incr; break;
+			}
+			incr+=16;
+			
+		}
+	}
+	
 	hxofs=1000;
 	hxsz=8;
 	mainguy=false;
