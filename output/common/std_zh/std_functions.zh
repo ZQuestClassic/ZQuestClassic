@@ -1,5 +1,5 @@
 // std_functions.zh
-// 2nd July, 2020 for ZC 2.55.0 Alpha 75
+// 10th July, 2020 for ZC 2.55.0 Alpha 75
 
 //A
 
@@ -885,6 +885,34 @@ int Div(float x, float y)
 	return (x/y)<<0;
 }
 
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Accepts a dmapdata pointer.
+int DMapMapGraphicsIndex(dmapdata dm)
+{
+	return ((Game->LItems[dm->ID]&LI_MAP) ? 1 : 0);
+}
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Accepts a dmap ID as an integer.
+int DMapMapGraphicsIndex(int dmapID)
+{
+	return ((Game->LItems[dmapID]&LI_MAP) ? 1 : 0);
+}
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Checks the current DMap.
+int DMapMapGraphicsIndex()
+{
+	return ((Game->LItems[Game->GetCurDMap()]&LI_MAP) ? 1 : 0);
+}
+
 // Convert between map and DMap screens
 int DMapToMap(int screen, int dmap) 
 {
@@ -1170,6 +1198,58 @@ int FirstComboOf(int t, int layer)
 
 //G
 
+//Returns the catchall type used by a mapscreen passed as pointer 'm'.
+catchalltypes GetCatchallType(mapdata m)
+{
+	switch(m->RoomType)
+	{
+		//no catchall
+		case rtNONE:
+		case rtPOTIONORHEART:
+		case rtGORIYA:
+		case rtLEVEL9:
+		case rtTENRUPY:
+		case rtGAN:
+		case rtWINGAME:
+		case rtMAGIC:
+		case rtSLASH:
+			return caNONE;
+		
+		case rtGAMBLE:
+			return caGAMBLE;
+		
+		//item id
+		case rtSPECIALITEM:
+			return caITEM;
+		
+		case rtSECRETMONEY:
+			return caAMOUNT;
+		
+		//shops
+		case rtPOTION:
+		case rtSHOP:
+		case rtONEITEM:
+			return caSHOPID;
+		
+		case rtPAYINFO:
+			return caINFOSHOPID;
+		
+		//price
+		case rtARROWS:
+		case rtDOORREPAIR:
+		case rtBOMBS:
+		case rtMOYL: //the non-heart cost
+			return caPRICE;
+			
+		case rtSTAIRWARP: return caWARPRING;
+		case rtITEMPOND: return caPONDID;
+		
+		default:
+			return caNONE;
+		
+	}
+}
+
 //Returns the item ID of the item equipped to Link's A button
 int GetEquipmentA() 
 {
@@ -1252,6 +1332,61 @@ int GetHighestLevelItemOwned(int itemclass)
 	}
 	
 	return result;
+}
+
+
+//Gets the ZString (message) ID used by a Pay for Info Shop.
+//Argument 1 is the info shop ID, argument 2 is the shop's string (0 to 2).
+//Returns the string typed as messagedata, e.g. messagedata md = GetInfoString(shop, 0);
+messagedata GetInfoString(int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return NULL;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return NULL;
+	}
+	return (Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->String[str_id]));
+}
+
+//Copies the ZString (message) ID used by a Pay for Info Shop to a client (ZScript) string.
+//Argument 1 is a ZScript string pointer, Arguent 2 is the info shop ID, 
+//Argument 3 is the shop's string (0 to 2).
+void GetInfoString(char32 buffer, int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return;
+	}
+	Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->String[str_id])->Get(buffer);
+}
+
+//Gets the ZString (message) ID used by a Pay for Info Shop.
+//Argument 1 is the info shop ID, argument 2 is the shop's string (0 to 2).
+//Returns an integer of the string ID.
+int GetInfoStringID(int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return 0;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return 0;
+	}
+	return (Game->LoadInfoShopData(shop_id)->String[str_id]);
 }
 
 itemdata GetItemData(item i)
@@ -3612,6 +3747,106 @@ void SetScreenDBit(int d, int bit, bool state)
 	else		Screen->D[d] &= ~(1 << bit);
 }
 
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on the current DMap.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on the current DMap.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(int scr, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on a specified DMap, passed as a dmapdata pointer.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, bool state)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on a specified DMap, passed as a dmapdata pointer.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool state)
+{
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Accepts the screen X and Y on a grid of 8x8, on a specified DMap, passed as a dmapdata pointer.
+//Offsets are immaterial, as this is direct Grid[] access with x,y of the 8x8 grid.
+void SetVisibleOnDungeonMap(dmapdata dm, int x, int y, bool state)
+{
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[y] |= (128>>x)) : (dm->Grid[y] ~= (128>>x));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on the current DMap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(bool no_offset, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on the current DMap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(int scr, bool no_offset, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on a specified DMap, passed as a dmapdata pointer.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, bool no_offset, bool state)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on a specified DMap, passed as a dmapdata pointer.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset, bool state)
+{
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
 
 //Returns the sign of n
 int Sign(int n) 
@@ -3733,6 +3968,120 @@ float VectorX(int len, float angle)
 float VectorY(int len, float angle) 
 {
 	return Sin(angle)*len;
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8.
+bool VisibleOnDungeonMap(int x, int y)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	return (dm->Grid[y]&(128>>x));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen.
+bool VisibleOnDungeonMap()
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID for the current dmap.
+bool VisibleOnDungeonMap(int scr)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen on a dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID on a specified dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm, int scr)
+{
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8,
+//using a specified dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm, int x, int y)
+{
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[y]&(128>>x));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(bool no_offset)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(int scr, bool no_offset)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID for the current dmap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(dmapdata dm, bool no_offset)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen on a dmapdata pointer. 
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset)
+{
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+	
+//Sets if a screen is visible on the passive subscreen minimap.
+//Accepts the screen X and Y on a grid of 8x8, on the current DMap.
+//Offsets are immaterial, as this is direct Grid[] access with x,y of the 8x8 grid.
+void SetVisibleOnDungeonMap(int x, int y, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	(state) ? (dm->Grid[y] |= (128>>x)) : (dm->Grid[y] ~= (128>>x));
 }
 
 //W

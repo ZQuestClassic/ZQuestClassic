@@ -1,5 +1,5 @@
 // std_constants.zh
-// 2nd July, 2020 for ZC 2.55.0 Alpha 75
+// 10th July, 2020 for ZC 2.55.0 Alpha 75
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -1822,6 +1822,31 @@ const int RT_TAKEONEITEM        = 21;
 const int RT_TENRUPEES          = 13;
 const int RT_ZELDA              = 16;
 
+enum roomtypes
+{
+	//0
+	rtNONE, rtSPECIALITEM, rtPAYINFO, rtSECRETMONEY, rtGAMBLE,
+	//5
+	rtDOORREPAIR, rtPOTIONORHEART, rtGORIYA, rtLEVEL9, rtPOTION,
+	//10
+	rtSHOP, rtBOMBS, rtMOYL, rtTENRUPY, rtSTAIRWARP,
+	//15
+	rtGAN, rtWINGAME, rtITEMPOND, /*item ponds not implemented*/ rtMAGIC, rtSLASH, 
+	//20
+	rtARROWS, rtONEITEM, rtLAST
+};
+
+enum catchalltypes
+{
+	//0
+	caNONE, caITEM, caPRICE, caAMOUNT, caGAMBLE,
+	//5
+	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID, 
+	//10
+	caLAST
+	
+};
+
 //DMap Flag constants. Use with Game->DMapFlags.
 const int DMF_CAVESNOTCELLARS		= 0x0001; //Use caves instead of item cellars
 const int DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
@@ -2580,6 +2605,21 @@ const int DMAP_DUNGEON = 0;
 const int DMAP_OVERWORLD = 1;
 const int DMAP_CAVE = 2;
 const int DMAP_BSOVERWORLD = 3;
+
+enum dmapgridpositions
+{ 
+	/*The Grid[index] is the row, with leftmost being 0.
+	/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
+	/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
+	/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
+	/ if both the top-leftmost and top-rightmost screens are marked visible, then 
+	/ Grid[0] will == 129
+	*/
+	dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
+	dmMAPGRID_ROW_4, dmMAPGRID_ROW_5, dmMAPGRID_ROW_6, dmMAPGRID_ROW_7,
+	dmMAPGRID_COL_7 = 1, dmMAPGRID_COL_6, dmMAPGRID_COL_5 = 4, dmMAPGRID_COL_4 = 8,
+	dmMAPGRID_COL_3 = 16, dmMAPGRID_COL_2 = 32, dmMAPGRID_COL_1 = 64, dmMAPGRID_COL_0 = 128
+};
 
 /*Monochrome Tints and modes
 	for use with Graphics->Monochrome(int mode)
