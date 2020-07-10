@@ -2816,18 +2816,8 @@ void old_SetLayerComboT(int layer, int pos, int type) {
 		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
 }
 
-//Returns true if the sprite at (x,y) is standing on a sideview platform on a sideview screen, as worked out
-//by ZC's internal code.
-//For 16 pixel high sprites only.
-bool OnSidePlatform(int x, int y) {
-	return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
+//OnSidePlatform() is now in std_sideview.zh
 
-//Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
-//on a sideview platform on a sideview screen.
-bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) {
-	return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
 //Returns the opposite direction to angle 'dir'
 int OppositeDir(int dir) 
 {

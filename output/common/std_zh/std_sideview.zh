@@ -1,0 +1,106 @@
+const bool ONSIDEVIEWPLATFORM_CHECK_OBJ_WIDTH = true;
+const int ONSIDEVIEWPLATFORM_OVERHANG_DEPTH = 4;
+
+
+bool OnSidePlatform(int x, int y) 
+{
+	unless ( IsSideview() ) return false;
+	if ( OLD_ONSIDEPLATFORM )
+	{
+		return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)));
+	}
+	else return ((Screen->isSolid(x+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,y+16) 
+		|| Screen->isSolid(x+15-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,y+16)));
+}
+
+//Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
+//on a sideview platform on a sideview screen.
+bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) 
+{
+	unless ( IsSideview() ) return false;
+	if ( OLD_ONSIDEPLATFORM )
+	{
+		return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)));
+	}
+	else return ((Screen->isSolid((x+xOff)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(y+yOff)+h) 
+		|| Screen->isSolid((x+xOff)+15-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(y+yOff)+h)));
+}
+
+//Returns true if a sprite of height 'h' and width `w`, 
+//at position (x,y) with an offset of (xOff,yOff) is standing
+//on a sideview platform on a sideview screen.
+bool OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w) 
+{
+	unless ( IsSideview() ) return false;
+	return ((Screen->isSolid((x+xOff)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(y+yOff)+h) 
+		|| Screen->isSolid((x+xOff)+w+(15-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),(y+yOff)+h)));
+}
+
+
+bool OnSidePlatform(lweapon l) 
+{
+	unless ( IsSideview() ) return false;
+	return 
+	(
+		(
+			Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight)) 
+			|| 
+			Screen->isSolid
+			(
+				((l->X+l->HitXOffset)+l->HitWidth-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),
+				((l->Y+l->HitYOffset)+l->HitHeight)
+			)
+		)
+	);
+}
+
+bool OnSidePlatform(eweapon l) 
+{
+	unless ( IsSideview() ) return false;
+	return 
+	(
+		(
+			Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight)) 
+			|| 
+			Screen->isSolid
+			(
+				((l->X+l->HitXOffset)+l->HitWidth-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),
+				((l->Y+l->HitYOffset)+l->HitHeight)
+			)
+		)
+	);
+}
+
+bool OnSidePlatform(item l) 
+{
+	unless ( IsSideview() ) return false;
+	return 
+	(
+		(
+			Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight)) 
+			|| 
+			Screen->isSolid
+			(
+				((l->X+l->HitXOffset)+l->HitWidth-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),
+				((l->Y+l->HitYOffset)+l->HitHeight)
+			)
+		)
+	);
+}
+
+bool OnSidePlatform(npc l) 
+{
+	unless ( IsSideview() ) return false;
+	return 
+	(
+		(
+			Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight)) 
+			|| 
+			Screen->isSolid
+			(
+				((l->X+l->HitXOffset)+l->HitWidth-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),
+				((l->Y+l->HitYOffset)+l->HitHeight)
+			)
+		)
+	);
+}

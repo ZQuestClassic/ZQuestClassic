@@ -1,5 +1,5 @@
 // std.zh
-// 8th February, 2020 for ZC 2.55 Alpha 50
+// 10th July, 2020 for ZC 2.55 Alpha 75
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
@@ -25,6 +25,7 @@
 #include "std_zh/std_functions.zh"
 #include "std_zh/math.zh"
 #include "std_zh/weapon.zh"
+#include "std_zh/std_sideview.zh" //Sideview and platforming
 
 //ZScript string handling functions, akin to those found in C
 //#include "string.zh"
