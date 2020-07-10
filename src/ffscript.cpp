@@ -24701,6 +24701,7 @@ void FFScript::do_file_readchars()
 			ungetc(a[q], f->file); //Put the character back before overwriting it
 		}
 		a[q] = 0; //Force null-termination
+		ri->d[2] *= 10000L;
 		check_file_error(ri->fileref);
 		return;
 	}
@@ -24742,6 +24743,7 @@ void FFScript::do_file_readstring()
 			ungetc(a[q], f->file); //Put the character back before overwriting it
 		}
 		a[q] = 0; //Force null-termination
+		ri->d[2] *= 10000L;
 		check_file_error(ri->fileref);
 		return;
 	}
