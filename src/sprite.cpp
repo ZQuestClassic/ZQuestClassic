@@ -2978,7 +2978,23 @@ movingblock::movingblock() : sprite()
 
 void movingblock::draw(BITMAP *dest)
 {
-    if(clk)
+	if(fallclk)
+	{
+		int old_cs = cs;
+		int old_tile = tile;
+		
+		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		cs = spr.csets & 0xF;
+		int fr = spr.frames ? spr.frames : 1;
+		int spd = spr.speed ? spr.speed : 1;
+		int animclk = (PITFALL_FALL_FRAMES-fallclk);
+		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		sprite::draw(dest);
+		
+		cs = old_cs;
+		tile = old_tile;
+	}
+    else if(clk)
     {
         //    sprite::draw(dest);
         overcombo(dest,real_x(x+xofs),real_y(y+yofs),bcombo ,cs);

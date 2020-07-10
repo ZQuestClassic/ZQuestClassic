@@ -120,7 +120,17 @@ bool movingblock::animate(int index)
 {
     //these are here to bypass compiler warnings about unused arguments
     index=index;
-    
+    if(fallclk)
+	{
+		if(fallclk == PITFALL_FALL_FRAMES)
+			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(!--fallclk)
+		{
+			blockmoving=false;
+		}
+		clk = 0;
+		return false;
+	}
     if(clk<=0)
         return false;
         
@@ -130,13 +140,20 @@ bool movingblock::animate(int index)
     {
         bool bhole=false;
         blockmoving=false;
+		
+		if(fallCombo = getpitfall(x+8,y+8))
+		{
+			fallclk = PITFALL_FALL_FRAMES;
+		}
+		
         int f1 = tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)];
         int f2 = MAPCOMBOFLAG(x,y);
-        
-        tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
-        tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
-        
-        if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
+        if(!fallclk)
+		{
+			tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
+			tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
+        }
+        if(!fallclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
         {
             trigger=true;
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
@@ -162,8 +179,13 @@ bool movingblock::animate(int index)
         if(bhole)
         {
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfNONE;
+			if(fallclk)
+			{
+				fallclk = 0;
+				return false;
+			}
         }
-        else
+        else if(!fallclk)
         {
             f2 = MAPCOMBOFLAG(x,y);
             
@@ -178,6 +200,7 @@ bool movingblock::animate(int index)
                 tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
             }
         }
+		if(fallclk) return false;
         
         if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
         {
