@@ -6133,6 +6133,7 @@ bool enemy::hit(weapon *w)
 
 bool enemy::can_pitfall()
 {
+	if(fading) return false; //Don't fall during spawn.
 	switch(guysbuf[id&0xFFF].family)
 	{
 		case eeAQUA:
@@ -7639,14 +7640,67 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 	case 3:                                                 // slowing down
 		if(clk2<=g*s)
 		{
-			if(!(clk2%g))
-				step-=ss;
+			{ //don't slow down over pits
+				byte overpit = 0;
+				for ( int q = 0; q < hxsz; ++q )
+				{
+					for ( int q = 0; q < hysz; ++q )
+					{
+						//check every pixel of the hitbox
+						if ( ispitfall(x+q+hxofs, y+q+hyofs) )
+						{
+							//if the hitbox is over a pit, we can't land
+							overpit = 1;
+						}
+						if (overpit) break;
+					}
+					if (overpit) break;
+				}
+				if(overpit) 
+				{
+				}
+				else //can slow down
+				{
+					if(!(clk2%g))
+						step-=ss;
+				}
+			}
+			
+			
 		}
 		else
 		{
-			movestatus=0;
-			step=0;
-			clk2=0;
+			//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
+			//this doesn't help keese, as they have a z of 0. 
+			//they always nee to run this check.
+			{
+				byte overpit = 0;
+				for ( int q = 0; q < hxsz; ++q )
+				{
+					for ( int q = 0; q < hysz; ++q )
+					{
+						//check every pixel of the hitbox
+						if ( ispitfall(x+q+hxofs, y+q+hyofs) )
+						{
+							//if the hitbox is over a pit, we can't land
+							overpit = 1;
+						}
+						if (overpit) break;
+					}
+					if (overpit) break;
+				}
+				if(overpit) 
+				{
+					--clk2; //if over a pit, don't land, and revert clock change
+				}
+				else //can land safely
+				{
+					movestatus=0;
+					step=0;
+					clk2=0;
+				}
+			}
+			
 		}
 		
 		break;
@@ -12785,7 +12839,7 @@ bool eKeese::animate(int index)
 		removearmos(x,y);
 	}
 	
-	if(dmisc1)
+	if(dmisc1) //Walk style. 0 is keese, 1 is bat.
 	{
 		floater_walk(rate,hrate,dstep/100,(zfix)0,10,dmisc16,dmisc17);
 	}
@@ -15210,8 +15264,62 @@ void esMoldorm::draw(BITMAP *dest)
 
 eLanmola::eLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 {
-	x=64;
-	y=80;
+	if( !(editorflags & ENEMY_FLAG5) )
+	{
+		x=64;
+		y=80;
+	}
+	//zprint2("lanmola index is %d\n", index);
+	//byte legaldirs = 0;
+	int incr = 16;
+	//int possiiblepos = 0;
+	//int positions[8] = {0};
+	
+	//Don't spawn in pits. 
+	if ( ispitfall(x, y) )
+	{
+		for ( int q = 0; q < 16; ++q )
+		{
+			//move if we spawn over a pit
+			//check each direction
+			if ( x-incr >= 0 && !ispitfall(x-incr, y) ) //legaldirs |= 0x1; //left
+			{
+				x-=incr; break;
+			}
+			if ( x+incr < 256 && !ispitfall(x+incr, y) ) //legaldirs |= 0x2; //right
+			{
+				x+=incr; break;
+			}
+			if ( x-incr >= 0 && y-incr >= 0 && !ispitfall(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
+			{
+				x-=incr; y-=incr; break;
+			}
+			if ( x+incr < 255 && y-incr >= 0 && !ispitfall(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
+			{
+				x+=incr; y-=incr; break;
+			}
+			if ( y-incr >= 0 && !ispitfall(x, y-incr) ) // legaldirs |= 0x10; //up
+			{
+				y -= incr; break;
+			}
+			if ( y+incr < 164 && !ispitfall(x, y+incr) ) //legaldirs |= 0x20; //down
+			{
+				y+=incr; break;
+			}
+			if ( x-incr >= 0 && y+incr < 164 && !ispitfall(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
+			{
+				 x-=incr; y+incr; break;
+			}
+			if ( x+incr < 255 && y+incr < 164 && !ispitfall(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
+			{
+				x+=incr; y+=incr; break;
+			}
+			incr+=16;
+			
+		}
+		
+	}
+	
 	dir=up;
 	superman=1;
 	fading=fade_invisible;
