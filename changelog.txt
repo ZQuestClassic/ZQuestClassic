@@ -1,7 +1,115 @@
 // 2.55 Change Log
-// Updated 2nd July, 2020
+// Updated 11th July, 2020
 
 //Alpha 75
+
+Add 'sprite::get_pit()'; no side-effects pit checker
+	( Venrob, 11th July, 2020 )
+
+Enemy shadows no longer fall into pits.
+	This may need revision when we add larger shadows.
+Use call to enemy::overpit
+Further fixes to prevent flying enemies, particularly bats,
+	from landing in pits.
+Added bool enemy::overpit(enemy *e)
+Fix: Don't allow *Bats* to slow to a step of 0 over a pit.
+<std 1.7102> Update FFRules to v1.6
+Added a rule under Options>>>Other>>>2: Instant Respawn on Death.
+	This allows you to instantly respawn the player, and should work in
+	conunction with Skip Continue Screen, to allow games that do not
+	fall back on the file select.
+	( ZoriaRPG, 11th July, 2020)
+
+Fix: Lanmolas also shoudn't spawn over solid combos, or water.
+Flying enemies with a Z <= 0 ignoe pits unless they are stunned.
+Moldorms now also allow using spawn flags.
+Fixed moldorm and lanmola segment spawn points if the parent enemy
+	uses spawn flags.
+Fixed lanmola segment spawn points when spawning in pits.
+The following bosses now obey spawn flags, if the Behaviour
+	Flag 'Obeys Spawn Flags' is enabled:
+	Aquamentus
+	Gleeok
+	Patra
+	Gohma
+	Lanmola (from previous commit)
+Enemies do not fall during spawn animations.
+Floaters do not land over pits.
+Lanmolas do not spawn inside pits: All enemies need this code.
+	Search for comment: //Don't spawn in pits.
+Lanmolas obey enemy spawn flags, if you set their behavioural flag
+	in the enemy eitor to do that.
+
+<std 1.7101>
+Added file std_sideview. OnSidePlatform function are now in this file,
+	along with some settings.
+Added config OLD_ONSIDEPLATFORM to std.cfg
+
+Corrected file date and version on ffrules.zh
+<std.zh v1.7100>
+	Added the following enums to std_constants.zh:
+		enum roomtypes
+		enum catchalltypes
+		enum dmapgridpositions
+
+	Added the following functions to std_functions.zh:
+		int DMapMapGraphicsIndex(dmapdata dm);
+		int DMapMapGraphicsIndex(int dmapID);
+		int DMapMapGraphicsIndex();
+		messagedata GetInfoString(int shop_id, int str_id);
+		void GetInfoString(char32 buffer, int shop_id, int str_id);
+		int GetInfoStringID(int shop_id, int str_id);
+		void SetVisibleOnDungeonMap(bool state);
+		void SetVisibleOnDungeonMap(int scr, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, int x, int y, bool state);
+		void SetVisibleOnDungeonMap(bool no_offset, bool state);
+		void SetVisibleOnDungeonMap(int scr, bool no_offset, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, bool no_offset, bool state);
+		void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset, bool state);
+		bool VisibleOnDungeonMap(int x, int y);
+		bool VisibleOnDungeonMap();
+		bool VisibleOnDungeonMap(int scr);
+		bool VisibleOnDungeonMap(dmapdata dm);
+		bool VisibleOnDungeonMap(dmapdata dm, int scr);
+		bool VisibleOnDungeonMap(dmapdata dm, int x, int y);
+		bool VisibleOnDungeonMap(bool no_offset);
+		bool VisibleOnDungeonMap(int scr, bool no_offset);
+		bool VisibleOnDungeonMap(dmapdata dm, bool no_offset);
+		bool VisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset);
+		void SetVisibleOnDungeonMap(int x, int y, bool state)
+		catchalltypes GetCatchallType(mapdata m)
+
+	Deprecated the separate files:
+		infostring.zh
+		dmapgfx.zh
+		dmapgrid.zh
+		roomtypes.zh
+		
+Updated ZSA.txt to explain dmapdata instructions and IsBlankTile.
+Fixed the table in ffscript.cpp that converts ASM to strings to include all new
+	variables.
+Added Graphics->IsBlankTile[214500]; to ZScript.
+	This returns 1 if the tile is blank, 0 if it is not, and -1 on
+	passing an invalid tile to its index.
+Fixed fallthrough on dmapdata->MiniMapCSet.
+Fixed logging message for dmapdata->MapTile, MapCSet.
+c
+
+Fix: Moving Pushblocks now respect Pits
+Fix '->ReadChars()' and 'ReadString()' missing *10000
+Update 'ffrules.zh'
+Fix offset of keyproc dlg
+	(Venrob, 9th July, 2020)
+	
+Fix various things having collision while falling
+Fix Link being hittable while falling
+	(Venrob, 8th July, 2020)
+	
+dmapgrid.zh: Fix column calculation
+	(Venrob, 7th July, 2020)
 
 Add ENGINE PITS! These have a lot of interaction with
 	enemies, items, weapons, and Link.
