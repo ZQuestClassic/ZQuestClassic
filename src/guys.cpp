@@ -2918,8 +2918,43 @@ bool enemy::m_walkflag_old(int dx,int dy,int special, int x, int y)
 		   groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
 }
 
-
-
+bool enemy::m_walkflag_simple(int dx,int dy)
+{
+	bool kb = false;
+	int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+	
+	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=240+nb || dy>=160+nb)
+		return true;
+		
+	if(isdungeon())
+	{
+		if((dy<32) || (dy>=144))
+			return true;
+			
+		if((dx<32) || (dx>=224))
+			return true;
+	}
+	
+	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL))) //Don't walk into pits, unless being knocked back
+	{
+		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
+		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
+		   return true;
+	}
+	
+	if(get_bit(quest_rules,qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY))
+	{
+		return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+			   groundblocked(dx,dy+8,kb) || groundblocked(dx+8,dy+8,kb);
+	}
+	else
+	{
+		return _walkflag(dx,dy,1) || _walkflag(dx+8,dy,1) ||
+			   _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+			   groundblocked(dx,dy,kb) || groundblocked(dx+8,dy,kb) ||
+			   groundblocked(dx,dy+8,kb) || groundblocked(dx+8,dy+8,kb);
+	}
+}
 
 bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y, bool kb)
 {
@@ -15290,45 +15325,54 @@ eLanmola::eLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 	//int positions[8] = {0};
 	
 	//Don't spawn in pits. 
-	if ( ispitfall(x, y) )
+	if ( m_walkflag_simple(x, y) )
 	{
-		for ( int q = 0; q < 16; ++q )
+		//zprint2("Can't spawn here.\n");
+		for ( ; incr < 240; incr += 16 )
 		{
 			//move if we spawn over a pit
 			//check each direction
-			if ( x-incr >= 0 && !ispitfall(x-incr, y) ) //legaldirs |= 0x1; //left
+			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
+				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
-			if ( x+incr < 256 && !ispitfall(x+incr, y) ) //legaldirs |= 0x2; //right
+			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
+				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
-			if ( x-incr >= 0 && y-incr >= 0 && !ispitfall(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
+			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
+				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
-			if ( x+incr < 255 && y-incr >= 0 && !ispitfall(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
+			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
+				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
-			if ( y-incr >= 0 && !ispitfall(x, y-incr) ) // legaldirs |= 0x10; //up
+			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
+				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
-			if ( y+incr < 164 && !ispitfall(x, y+incr) ) //legaldirs |= 0x20; //down
+			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
+				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
-			if ( x-incr >= 0 && y+incr < 164 && !ispitfall(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
+			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				 x-=incr; y+incr; break;
+				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
+				x-=incr; y+=incr; break;
 			}
-			if ( x+incr < 255 && y+incr < 164 && !ispitfall(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
+			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
+				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
-			incr+=16;
+			else continue;
 			
 		}
 		
@@ -15444,47 +15488,58 @@ esLanmola::esLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 		y=80;
 	}
 	int incr = 16;
-	if ( ispitfall(x, y) )
+	//Don't spawn in pits. 
+	if ( m_walkflag_simple(x, y) )
 	{
-		for ( int q = 0; q < 16; ++q )
+		//zprint2("Can't spawn here.\n");
+		for ( ; incr < 240; incr += 16 )
 		{
 			//move if we spawn over a pit
 			//check each direction
-			if ( x-incr >= 0 && !ispitfall(x-incr, y) ) //legaldirs |= 0x1; //left
+			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
+				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
-			if ( x+incr < 256 && !ispitfall(x+incr, y) ) //legaldirs |= 0x2; //right
+			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
+				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
-			if ( x-incr >= 0 && y-incr >= 0 && !ispitfall(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
+			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
+				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
-			if ( x+incr < 255 && y-incr >= 0 && !ispitfall(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
+			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
+				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
-			if ( y-incr >= 0 && !ispitfall(x, y-incr) ) // legaldirs |= 0x10; //up
+			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
+				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
-			if ( y+incr < 164 && !ispitfall(x, y+incr) ) //legaldirs |= 0x20; //down
+			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
+				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
-			if ( x-incr >= 0 && y+incr < 164 && !ispitfall(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
+			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				 x-=incr; y+incr; break;
+				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
+				x-=incr; y+=incr; break;
 			}
-			if ( x+incr < 255 && y+incr < 164 && !ispitfall(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
+			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
+				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
-			incr+=16;
+			else continue;
 			
 		}
+		
 	}
 	
 	hxofs=1000;

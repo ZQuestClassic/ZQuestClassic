@@ -143,6 +143,7 @@ public:
 	virtual bool isSubmerged();
 	// Stop BG SFX only if no other enemy is playing it
 	void stop_bgsfx(int index);
+	bool m_walkflag_simple(int dx,int dy);
 	bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000, bool kb = false);
 	bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000);
 	// Take damage or ignore it
