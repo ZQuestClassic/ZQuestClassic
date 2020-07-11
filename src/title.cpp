@@ -4019,6 +4019,12 @@ void game_over(int type)
 	clear_to_color(screen,BLACK);
 	loadfullpal();
 	
+	//if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
+	//{	zprint2("Reloading/n");
+	//	Quit = qRELOAD;
+	//	return;
+	//}
+	
 	if(Quit==qGAMEOVER)
 		jukebox(ZC_MIDI_GAMEOVER);
 		

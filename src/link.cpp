@@ -53,6 +53,8 @@ extern word item_doscript[256];
 extern word item_collect_doscript[256];
 using std::set;
 
+extern int skipcont;
+
 extern int draw_screen_clip_rect_x1;
 extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
@@ -22778,11 +22780,17 @@ void LinkClass::heroDeathAnimation()
 				}
 			}
 		}
+		
 		else if(f<350)//draw 'GAME OVER' text
 		{
 			clear_bitmap(framebuf);
 			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-			textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
+			if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
+			{
+				Quit = qRELOAD;
+				skipcont = 1;	
+			}				
+			else textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
 		}
 		else
 		{
