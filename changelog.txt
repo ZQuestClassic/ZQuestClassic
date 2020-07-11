@@ -3,6 +3,7 @@
 
 //Alpha 75
 
+Fix changing CSets
 Add 'sprite::get_pit()'; no side-effects pit checker
 	( Venrob, 11th July, 2020 )
 
