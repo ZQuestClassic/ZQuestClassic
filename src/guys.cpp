@@ -7651,22 +7651,9 @@ void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special,in
 void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int g)
 {
 	++clk2;
-	byte overpit = 0;
-	for ( int q = 0; q < hxsz; ++q )
-	{
-		for ( int q = 0; q < hysz; ++q )
-		{
-			//check every pixel of the hitbox
-			if ( ispitfall(x+q+hxofs, y+q+hyofs) )
-			{
-				//if the hitbox is over a pit, we can't land
-				overpit = 1;
-			}
-			if (overpit) break;
-		}
-		if (overpit) break;
-	}
-	if(dmisc1 && overpit) p = 0;
+	byte over_pit = overpit(this);
+	
+	if(dmisc1 && over_pit) p = 0;
 	switch(movestatus)
 	{
 		//! This needs a case 4 (landing)....if we want to halt, we move to case 4, and 
@@ -7711,7 +7698,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 		{
 			{ //don't slow down over pits
 				
-				if(overpit) 
+				if(over_pit) 
 				{
 					if(dmisc1)
 					{
@@ -7733,14 +7720,14 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 			//this doesn't help keese, as they have a z of 0. 
 			//they always nee to run this check.
 			{
-				if(overpit &&!dmisc1) 
+				if(over_pit &&!dmisc1) 
 				{
 					--clk2; //if over a pit, don't land, and revert clock change
 				}
 				else //can land safely
 				{
 					movestatus=0;
-					if(dmisc1&&!overpit)
+					if(dmisc1&&!over_pit)
 						step=0;
 					clk2=0;
 				}
