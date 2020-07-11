@@ -173,6 +173,7 @@ public:
 	int slide();
 	bool can_slide();
 	bool fslide();
+	bool overpit(enemy *e);
 	virtual bool knockback(int time, int dir, int speed);
 	virtual bool runKnockback();
 	// changes enemy's direction, checking restrictions
