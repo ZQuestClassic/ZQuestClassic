@@ -380,6 +380,86 @@ int sprite::real_z(zfix fz)
     return fz.getInt();
 }
 
+int sprite::get_pit() //Returns combo ID of pit that sprite WOULD fall into; no side-effects
+{
+	int ispitul = getpitfall(x,y);
+	int ispitbl = getpitfall(x,y+15);
+	int ispitur = getpitfall(x+15,y);
+	int ispitbr = getpitfall(x+15,y+15);
+	int ispitul_50 = getpitfall(x+8,y+8);
+	int ispitbl_50 = getpitfall(x+8,y+7);
+	int ispitur_50 = getpitfall(x+7,y+8);
+	int ispitbr_50 = getpitfall(x+7,y+7);
+	switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+	{
+		case 4:
+		{
+			return ispitul_50 ? ispitul_50 : ispitul;
+		}
+		case 3:
+		{
+			if(ispitul && ispitur && ispitbl) //UL_3
+			{
+				return ispitul_50;
+			}
+			else if(ispitul && ispitur && ispitbr) //UR_3
+			{
+				return ispitur_50;
+			}
+			else if(ispitul && ispitbl && ispitbr) //BL_3
+			{
+				return ispitbl_50;
+			}
+			else if(ispitbl && ispitur && ispitbr) //BR_3
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+		case 2:
+		{
+			if(ispitul && ispitur) //Up
+			{
+				return ispitul_50 ? ispitul_50 : ispitur_50;
+			}
+			if(ispitbl && ispitbr) //Down
+			{
+				return ispitbl_50 ? ispitbl_50 : ispitbr_50;
+			}
+			if(ispitul && ispitbl) //Left
+			{
+				return ispitul_50 ? ispitul_50 : ispitbl_50;
+			}
+			if(ispitur && ispitbr) //Right
+			{
+				return ispitur_50 ? ispitur_50 : ispitbr_50;
+			}
+			break;
+		}
+		case 1:
+		{
+			if(ispitul) //UL_1
+			{
+				return ispitul_50;
+			}
+			if(ispitur) //UR_1
+			{
+				return ispitur_50;
+			}
+			if(ispitbl) //BL_1
+			{
+				return ispitbl_50;
+			}
+			if(ispitbr) //BR_1
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
 int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen.
 {
 	int safe_cnt = 0;

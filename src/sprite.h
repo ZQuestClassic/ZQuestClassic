@@ -147,6 +147,7 @@ public:
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int index);
     virtual void check_conveyor();
+	virtual int get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
     int real_x(zfix fx);
     int real_y(zfix fy);
