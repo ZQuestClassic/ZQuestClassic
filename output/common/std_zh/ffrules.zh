@@ -2,8 +2,8 @@
 /// FFRules[] --- Array Indices ///
 ///     and Details of Each     ///
 ///  -------------------------- ///
-///    Document Revision 1.5    ///
-///       10th Jult, 2020       ///
+///    Document Revision 1.6    ///
+///       11th July, 2020       ///
 ///////////////////////////////////
 
 /*<< Enumerated list for Game->FFRules[] and Quest Rules get_bit. */
@@ -304,6 +304,7 @@ qr_DUNGEON_DMAPS_PERM_SECRETS,
 //205
 qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
 qr_NO_SCROLL_WHILE_IN_AIR,
+qr_INSTANT_RESPAWN,
 
 //640
 qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
