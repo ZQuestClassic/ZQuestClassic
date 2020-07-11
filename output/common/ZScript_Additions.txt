@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 75
-Document Revision: 10th July, 2020
+Document Revision: 11th July, 2020
 
 
  __           _   _                 
@@ -6380,11 +6380,10 @@ void Ellipse(int layer,
 		bool fill, int opacity);
  * Identical to Screen->Ellipse(), but it draws to a target bitmap.
 
-void Line(int layer, 
-		int x, int y, int xradius, int yradius, 
+void Line(int layer, int x, int y, int x2, int y2, 
 		int color, float scale, 
 		int rx, int ry, int rangle, 
-		bool fill, int opacity);
+		int opacity);
  * Identical to Screen->Line(), but it draws to a target bitmap.
 
 void Spline(int layer, 
