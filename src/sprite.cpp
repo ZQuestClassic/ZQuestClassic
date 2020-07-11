@@ -2417,22 +2417,28 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
         return;
     }
     
-    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
-    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
-    
     int sx = real_x(x+xofs)+(txsz-1)*8;
     int sy = real_y(y+yofs+(tysz-1)*16);
-    
-    if(clk>=0)
+    //int sy1 = sx-56; //subscreen offset
+    //if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
+    //sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
+    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
+    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
+    //if ( !ispitfall(sx,sy+4) && !ispitfall(sx+8,sy+4) )
     {
-        if(translucent)
-        {
-            overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
-        }
-        else
-        {
-            overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
-        }
+	    if(clk>=0)
+	    {
+		//zprint2("shadow sx: %d, sy: %d\n", sx, sy);
+		//zprint2("enemy x: %d, y: %d\n", x.getInt(), y.getInt());
+		if(translucent)
+		{
+		    overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
+		}
+		else
+		{
+		    overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
+		}
+	    }
     }
 }
 

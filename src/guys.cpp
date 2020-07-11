@@ -243,6 +243,23 @@ bool enemy::overpit(enemy *e)
 	return false;
 }
 
+bool enemy::shadow_overpit(enemy *e)
+{
+	for ( int q = 0; q < hxsz; ++q )
+	{
+		for ( int q = 0; q < hysz; ++q )
+		{
+			//check every pixel of the hitbox
+			if ( ispitfall(x+q+hxofs, y+q+hyofs+hysz-2) )
+			{
+				//if the hitbox is over a pit, we can't land
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 // Returns true iff a combo type or flag precludes enemy movement.
 bool enemy::groundblocked(int dx, int dy, bool isKB)
 {
@@ -6142,7 +6159,10 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 			shadowtile = wpnsbuf[iwShadow].newtile;
 			
 		if(z>0 || !enemycanfall(id))
+		{
+			if(!shadow_overpit(this))
 			sprite::drawshadow(dest,translucent);
+		}
 	}
 }
 
@@ -9999,8 +10019,8 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	{
 		yofs+=zc_max(0,zc_min(clk2start-clk2,clk2));
 	}
-	
-	enemy::drawshadow(dest,translucent);
+	if(!shadow_overpit(this))
+		enemy::drawshadow(dest,translucent);
 	yofs=tempy;
 }
 
@@ -10113,8 +10133,8 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		yofs+=int(step/zslongToFix(dstep*10));
 	}
-	
-	enemy::drawshadow(dest,translucent);
+	if(!shadow_overpit(this))
+		enemy::drawshadow(dest,translucent);
 	yofs=tempy;
 }
 
@@ -11202,7 +11222,8 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		enemy::drawshadow(dest, translucent);
+		if(!shadow_overpit(this))
+			enemy::drawshadow(dest, translucent);
 		yofs=tempy;
 	}
 }
@@ -11340,16 +11361,20 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		
 		yofs+=8;
 		xofs-=8;
-		enemy::drawshadow(dest, translucent);
+		if(!shadow_overpit(this))
+			enemy::drawshadow(dest, translucent);
 		xofs+=16;
 		++shadowtile;
-		enemy::drawshadow(dest, translucent);
+		if(!shadow_overpit(this))
+			enemy::drawshadow(dest, translucent);
 		yofs+=16;
 		shadowtile+=20;
-		enemy::drawshadow(dest, translucent);
+		if(!shadow_overpit(this))
+			enemy::drawshadow(dest, translucent);
 		xofs-=16;
 		--shadowtile;
-		enemy::drawshadow(dest, translucent);
+		if(!shadow_overpit(this))
+			enemy::drawshadow(dest, translucent);
 		xofs+=8;
 		yofs=tempy;
 	}
@@ -11681,7 +11706,8 @@ void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 	flip = 0;
 	shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
 	yofs+=4;
-	enemy::drawshadow(dest, translucent);
+	if(!shadow_overpit(this))
+		enemy::drawshadow(dest, translucent);
 	yofs-=4;
 }
 
@@ -12582,8 +12608,8 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=shadowdistance;
 		yofs+=8;
 	}
-	
-	enemy::drawshadow(dest, translucent);
+	if(!shadow_overpit(this))
+		enemy::drawshadow(dest, translucent);
 	yofs=tempy;
 }
 
@@ -12932,8 +12958,9 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
 		yofs+=int(step/zslongToFix(dstep*10));
-		
-	enemy::drawshadow(dest, translucent);
+	
+	if(!shadow_overpit(this))
+		enemy::drawshadow(dest, translucent);
 	yofs=tempy;
 }
 
