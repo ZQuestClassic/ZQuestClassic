@@ -7696,7 +7696,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 				}
 				else //can slow down
 				{
-					if(!(clk2%g))
+					if(!(clk2%g) && !dmisc1)
 						step-=ss;
 				}
 			}
@@ -7724,7 +7724,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 					}
 					if (overpit) break;
 				}
-				if(overpit) 
+				if(overpit&&!dmisc1) 
 				{
 					--clk2; //if over a pit, don't land, and revert clock change
 				}
