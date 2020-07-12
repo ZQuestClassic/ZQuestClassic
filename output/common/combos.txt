@@ -1,8 +1,8 @@
 /*************************************
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
-*           2.55 Alpha 45            *
-*     Rev.4, 30th December, 2019     *
+*           2.55 Alpha 75            *
+*       Rev.5, 12th July, 2020       *
 *************************************/
 
 1. COMBO TYPES
@@ -621,4 +621,43 @@ Step Combos
 		Sound
 			The ID of the sound effect to play. Set to '0' for 'none'.
 			
+    ____  _   __    ______                __              
+   / __ \(_)_/ /_  / ____/___  ____ ___  / /_  ____  _____
+  / /_/ / // ___/ / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ / .___/ // /_   / /___/ /_/ / / / / / / /_/ / /_/ (__  )
+/_/   /_/ \__/   \____/\____/_/ /_/ /_/_.___/\____/____/   
+Pitfall Combos
+	
+	Attribytes
+		Fall SFX        : The SFX played when something falls in this pit
+						
+		TileWarp ID     : Which tilewarp (A=0,B=1,C=2,D=3) to trigger upon falling
+						
+		Pit Sensitivity	: How powerfully the pit pulls you in. Higher number = weaker.
+		                : For value 0: 2px/frame
+		                : For value n: 1px/n frames
+	
+	Attributes
+		Damage          : The amount of damage (in HP, not hearts) you take when falling.
+		                : A negative value will cause you to heal
+						: If flag 'Damage is Percent' is on, this is a percentage of your max.
+			
+	Flags
+		Warp
+			If enabled, when the player falls in, they will warp.
+			The destination is determined by the Attribyte 'TileWarp ID'
+			
+			If disabled, the player will respawn at the room entrance, as with drowning.
+		Direct Warp
+			If enabled, the warp will be 'direct', placing you at the same x/y that you fell at
+			If disabled, the warp will place you on the return square specified in the tilewarp dialog
+		Damage is Percent
+			If enabled, the 'Damage' attribyte is read as a percentage of your max health.
+			If disabled, it is read as a value of HP (not hearts!)
+		Allow Ladder
+			If enabled, ladders with the flag 'Can Ladder Over Pitfalls' enabled can be used
+			to cross this combo.
+		No Pull
+			If enabled, the pit pulling you towards it effect is entirely disabled.
+		
 To-do: Chests
