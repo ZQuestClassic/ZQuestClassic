@@ -100,6 +100,7 @@ extern YYLTYPE noloc;
 %token TYPEDEF
 %token EXPECTERROR
 %token OPTIONVALUE
+%token ISINCLUDED
 %token DEFINE
 %token ENUM
 %token NAMESPACE
@@ -107,6 +108,7 @@ extern YYLTYPE noloc;
 %token ALWAYS
 %token ZASM
 %token INCLUDE
+%token INCLUDEIF
 %token UNTIL
 %token UNLESS
 %token REPEAT
@@ -398,6 +400,12 @@ Import :
 	| HASH INCLUDE IMPORTSTRING {
 		ASTString* str = (ASTString*)$3;
 		$$ = new ASTImportDecl(str->getValue(), @$, true);
+		delete str;}
+	| HASH INCLUDEIF LPAREN Expression_Constant COMMA IMPORTSTRING RPAREN {
+		ASTString* str = (ASTString*)$6;
+		ASTExprConst* cond = (ASTExprConst*)$4;
+		ASTImportDecl* decl = new ASTImportDecl(str->getValue(), @$, true);
+		$$ = new ASTImportCondDecl(cond, decl, @$);
 		delete str;}
 	;
 
@@ -1456,6 +1464,10 @@ Literal :
 	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTOptionValue(name->getValue(), @$);
+		delete name;}
+	| ISINCLUDED LPAREN IMPORTSTRING RPAREN {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTIsIncluded(name->getValue(), @$);
 		delete name;}
 	;
 

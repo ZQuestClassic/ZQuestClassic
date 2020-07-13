@@ -92,6 +92,8 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.imports, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.condimports, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.functions, param);
@@ -101,7 +103,8 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	block_regvisit(host, host.scripts, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
-		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts))
+		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts)
+		&& registered(host, host.condimports))
 	{
 		doRegister(host);
 	}
@@ -233,6 +236,24 @@ void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 		visit(host.getTree(), param);
 		if(registered(host.getTree())) doRegister(host);
 	}
+}
+
+void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
+{
+	visit(*host.cond, param);
+	if(!registered(*host.cond)) return; //Not registered yet
+	optional<long> val = host.cond->getCompileTimeValue(this, scope);
+	if(val && (*val != 0))
+	{
+		if(!host.preprocessed)
+		{
+			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			host.preprocessed = true;
+		}
+		visit(*host.import, param);
+		if(!registered(*host.import)) return;
+	}
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)

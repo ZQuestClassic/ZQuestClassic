@@ -16,6 +16,7 @@ using std::string;
 using std::ostringstream;
 using std::vector;
 using namespace ZScript;
+using namespace util;
 
 ////////////////////////////////////////////////////////////////
 // LocationData
@@ -75,6 +76,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_IMPORT:
 		imports.push_back(static_cast<ASTImportDecl*>(declaration));
 		break;
+	case ASTDecl::TYPE_IMPORT_COND:
+		condimports.push_back(static_cast<ASTImportCondDecl*>(declaration));
+		break;
 	case ASTDecl::TYPE_FUNCTION:
 		functions.push_back(static_cast<ASTFuncDecl*>(declaration));
 		break;
@@ -102,12 +106,15 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 bool ASTFile::hasDeclarations() const
 {
 	return !imports.empty()
+		|| !condimports.empty()
 		|| !variables.empty()
 		|| !functions.empty()
 		|| !dataTypes.empty()
 		|| !scriptTypes.empty()
 		|| !scripts.empty()
-		|| !namespaces.empty();
+		|| !namespaces.empty()
+		|| !use.empty()
+		|| !asserts.empty();
 }
 
 // ASTFloat
@@ -608,6 +615,18 @@ ASTImportDecl::ASTImportDecl(
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseImportDecl(*this,param);
+}
+
+// ASTImportCondDecl
+
+ASTImportCondDecl::ASTImportCondDecl(
+		ASTExprConst* cond, ASTImportDecl* import, LocationData const& location)
+	: ASTDecl(location), cond(cond), import(import), preprocessed(false)
+{}
+
+void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseImportCondDecl(*this, param);
 }
 
 // ASTFuncDecl
@@ -2071,6 +2090,28 @@ optional<long> ASTOptionValue::getCompileTimeValue(
 std::string ASTOptionValue::asString() const
 {
 	return "OPTION_VALUE(" + *option.getName() + ")";
+}
+
+// ASTIsIncluded
+
+ASTIsIncluded::ASTIsIncluded(
+		string const& str, LocationData const& location)
+	: ASTLiteral(location)
+{
+	name = cropPath(str);
+	lowerstr(name);
+}
+
+void ASTIsIncluded::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseIsIncluded(*this, param);
+}
+
+optional<long> ASTIsIncluded::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	RootScope* root = getRoot(*scope);
+	return root->isImported(name) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0;
 }
 
 ////////////////////////////////////////////////////////////////

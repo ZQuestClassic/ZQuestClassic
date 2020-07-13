@@ -123,7 +123,82 @@ string ScriptParser::prepareFilename(string const& filename)
 	regulate_path(retval);
 	return retval;
 }
-        
+
+bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
+{
+	// Parse the imported file.
+	string* fname = NULL;
+	string includePath;
+	string importname = prepareFilename(importDecl.getFilename());
+	if(!importDecl.isInclude()) //Check root dir first for imports
+	{
+		FILE* f = fopen(importname.c_str(), "r");
+		if(f)
+		{
+			fclose(f);
+			fname = &importname;
+		}
+	}
+	if(!fname)
+	{
+		// Scan include paths
+		int importfound = importname.find_first_not_of("/\\");
+		if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+		{
+			if(importfound != 0)
+				importname = importname.substr(importfound); //Remove leading `/` and `\`
+			//Convert the include string to a proper import path
+			for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
+			{
+				if( ZQincludePaths[q][0] != '\0' )
+				{
+					includePath = &*ZQincludePaths[q];
+					//Add a `/` to the end of the include path, if it is missing
+					int lastnot = includePath.find_last_not_of("/\\");
+					int last = includePath.find_last_of("/\\");
+					if(lastnot != string::npos)
+					{
+						if(last == string::npos || last < lastnot)
+							includePath += "/";
+					}
+					includePath = prepareFilename(includePath + importname);
+					FILE* f = fopen(includePath.c_str(), "r");
+					if(!f) continue;
+					fclose(f);
+					fname = &includePath;
+				}
+			}
+		}
+	}
+	//
+	string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
+	FILE* f = fopen(filename.c_str(), "r");
+	if(f)
+	{
+		fclose(f);
+	}
+	else
+	{
+		box_out_err(CompileError::CantOpenImport(&importDecl, filename));
+		return false;
+	}
+	auto_ptr<ASTFile> imported(parseFile(filename));
+	if (!imported.get())
+	{
+		box_out_err(CompileError::CantParseImport(&importDecl, filename));
+		return false;
+	}
+
+	// Save the AST in the import declaration.
+	importDecl.giveTree(imported.release());
+	
+	// Recurse on imports.
+	if (!preprocess(importDecl.getTree(), reclimit - 1))
+		return false;
+	
+	return true;
+}
+
 bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
 	assert(root);
@@ -138,77 +213,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 	for (vector<ASTImportDecl*>::iterator it = root->imports.begin();
 	     it != root->imports.end(); ++it)
 	{
-		ASTImportDecl& importDecl = **it;
-
-		// Parse the imported file.
-		string* fname = NULL;
-		string includePath;
-		string importname = prepareFilename(importDecl.getFilename());
-		if(!importDecl.isInclude()) //Check root dir first for imports
-		{
-			FILE* f = fopen(importname.c_str(), "r");
-			if(f)
-			{
-				fclose(f);
-				fname = &importname;
-			}
-		}
-		if(!fname)
-		{
-			// Scan include paths
-			int importfound = importname.find_first_not_of("/\\");
-			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
-			{
-				if(importfound != 0)
-					importname = importname.substr(importfound); //Remove leading `/` and `\`
-				//Convert the include string to a proper import path
-				for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
-				{
-					if( ZQincludePaths[q][0] != '\0' )
-					{
-						includePath = &*ZQincludePaths[q];
-						//Add a `/` to the end of the include path, if it is missing
-						int lastnot = includePath.find_last_not_of("/\\");
-						int last = includePath.find_last_of("/\\");
-						if(lastnot != string::npos)
-						{
-							if(last == string::npos || last < lastnot)
-								includePath += "/";
-						}
-						includePath = prepareFilename(includePath + importname);
-						FILE* f = fopen(includePath.c_str(), "r");
-						if(!f) continue;
-						fclose(f);
-						fname = &includePath;
-					}
-				}
-			}
-		}
-		//
-		string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
-		FILE* f = fopen(filename.c_str(), "r");
-		if(f)
-		{
-			fclose(f);
-		}
-		else
-		{
-			box_out_err(CompileError::CantOpenImport(&importDecl, filename));
-			return false;
-		}
-		auto_ptr<ASTFile> imported(parseFile(filename));
-		if (!imported.get())
-		{
-			box_out_err(CompileError::CantParseImport(&importDecl, filename));
-			return false;
-		}
-
-		// Save the AST in the import declaration.
-		importDecl.giveTree(imported.release());
-		
-		// Recurse on imports.
-		if (!preprocess(importDecl.getTree(), reclimit - 1))
-			return false;
+		if(!preprocess_one(**it, reclimit)) return false;
 	}
     
 	return true;

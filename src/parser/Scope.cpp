@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace ZScript;
+using namespace util;
 
 ////////////////////////////////////////////////////////////////
 // Scope
@@ -1297,28 +1298,13 @@ bool RootScope::registerFunction(Function* function)
 	return true;
 }
 
-string cropPath(string filepath)
-{
-	size_t lastslash = filepath.find_last_of("/");
-	size_t lastbslash = filepath.find_last_of("\\");
-	size_t last = (lastslash == string::npos) ? lastbslash : (lastbslash == string::npos ? lastslash : (lastslash > lastbslash ? lastslash : lastbslash));
-	if(last != string::npos) filepath = filepath.substr(last+1);
-	return filepath;
-}
-
 bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
 	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = cropPath(node->getFilename());
-	for ( int q = 0; q < fname.size(); ++q )
-	{
-		if ( fname.at(q) >= 'A' && fname.at(q) <= 'Z' )
-		{
-			fname.at(q) += 32;
-		}
-	}
+	lowerstr(fname);
 	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(NULL))
 	{
 		node->disable(); //Disable node.
@@ -1345,6 +1331,13 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 	}
 	importsByName_[fname] = node;
 	return true; //Allow import
+}
+
+bool RootScope::isImported(string const& path)
+{
+	if(find<ASTImportDecl*>(importsByName_, path).value_or(NULL))
+		return true;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////

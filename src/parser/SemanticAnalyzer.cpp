@@ -708,6 +708,11 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 	}
 }
 
+void SemanticAnalyzer::caseImportCondDecl(ASTImportCondDecl& host, void* param)
+{
+	RecursiveVisitor::caseImportCondDecl(host, param);
+}
+
 void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
 {
 	visit(host.expr.get(), param);
@@ -1315,6 +1320,9 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 	else
 		handleError(CompileError::UnknownOption(&host, host.name));*/
 }
+
+void SemanticAnalyzer::caseIsIncluded(ASTIsIncluded& host, void*)
+{}
 
 void SemanticAnalyzer::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)

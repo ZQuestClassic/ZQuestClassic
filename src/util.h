@@ -16,6 +16,7 @@ namespace util
 {
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
+	std::string cropPath(std::string filepath);
 	void replchar(std::string& str, char from, char to);
 	void replchar(char* buf, char from, char to);
 	std::string get_ext(std::string const& path);
