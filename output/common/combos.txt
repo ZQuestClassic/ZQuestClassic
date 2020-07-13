@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 75            *
-*       Rev.5, 12th July, 2020       *
+*       Rev.6, 13th July, 2020       *
 *************************************/
 
 1. COMBO TYPES
@@ -629,35 +629,56 @@ Step Combos
 Pitfall Combos
 	
 	Attribytes
-		Fall SFX        : The SFX played when something falls in this pit
+		Fall SFX        : The ID of the sound for when something falls in this pit combo.
 						
-		TileWarp ID     : Which tilewarp (A=0,B=1,C=2,D=3) to trigger upon falling
+		TileWarp ID     : The screen tile warp ID to use if the flag 'Warp' is enabled.
+				: Legal values are 0 to 3, where 0 is Warp A, 1 is Warp B, 2 is Warp C, 
+				: and 3 is Warp D. 
+				: If the 'direct' flag is enabled, the Warp ID us used for everything
+				: other than the destination square.
+				This interacts with the following flags:
+				Warp, Direct
 						
-		Pit Sensitivity	: How powerfully the pit pulls you in. Higher number = weaker.
+		Pit Sensitivity	: The strength of the pit attraction, where the pull is 1 pixel/n frames. 
+				: Higher numbers represent a weaker attractive force (pull).
 		                : For value 0: 2px/frame
 		                : For value n: 1px/n frames
+				This interacts with the following flags:
+				No Pull
 	
 	Attributes
-		Damage          : The amount of damage (in HP, not hearts) you take when falling.
-		                : A negative value will cause you to heal
-						: If flag 'Damage is Percent' is on, this is a percentage of your max.
+		Damage          : The amount of damage (in HP, not hearts) the player  take when falling.
+		                : A negative value will heal the player by an absolute amount of HP. 
+				: If flag 'Damage is Percent' is enabled, this value is a percent of MaxHP, rather
+				: than a literal amount of HP. Thus, 25 with the percentage flag enabled, where
+				: the player has four hearts, will reduce their HP by one heart; however if the player has
+				: sixteen hearts, falling will reduce their HP by 4 hearts. 
+				: If the damage value is negative when using this flag, then the player will regain
+				: up to, but not exceeding n% of their maximum HP. 
+				: Ring damage modifiers DO NOT modify falling damage. 
+				This interacts with the following flags:
+				Damage is Percent
 			
 	Flags
 		Warp
-			If enabled, when the player falls in, they will warp.
-			The destination is determined by the Attribyte 'TileWarp ID'
+			If enabled, when the player falls in, they will warp with the attributes set up for
+			one of the four screen Tile Warps.
+			The destination and the warp attributes are determined by the Attribyte 'TileWarp ID'.
 			
-			If disabled, the player will respawn at the room entrance, as with drowning.
+			If disabled, the player will respawn at the room entrance, as with falling into water
+			without the ability to swim.
 		Direct Warp
-			If enabled, the warp will be 'direct', placing you at the same x/y that you fell at
+			If enabled, the warp will be 'direct', matching the player's X and Y coordinates on the
+			warp destination screen, with the coordinates at which they fell into the pit combo.
 			If disabled, the warp will place you on the return square specified in the tilewarp dialog
 		Damage is Percent
-			If enabled, the 'Damage' attribyte is read as a percentage of your max health.
-			If disabled, it is read as a value of HP (not hearts!)
+			If enabled, the 'Damage' attribyte is read as a percentage of your max HP.
+			If disabled, it is read as a literal amount of HP (not hearts!)
 		Allow Ladder
-			If enabled, ladders with the flag 'Can Ladder Over Pitfalls' enabled can be used
+			If enabled, ladder class items, with the flag 'Can Ladder Over Pitfalls' enabled can be used
 			to cross this combo.
 		No Pull
-			If enabled, the pit pulling you towards it effect is entirely disabled.
+			If enabled, the pit pulling you towards it effect is entirely disabled. 
+			The player will fall when their hitbox is fully over the pit. 
 		
 To-do: Chests

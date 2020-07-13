@@ -1,8 +1,18 @@
 // 2.55 Change Log
 // Updated 11th July, 2020
 
-//Alpha 75
+//Alpha 76
+Updated combos.txt to v6.
+Merged:
+	Convert zfix mul/div to use 'long long'
+		( Commited by Venrob on 18th June, 2020; merged on 12th July, 2020, by ZoriaRPG)
+	Add conditional include '#includeif'
+	Sanity; prevent parser error on forgotten string
+	Add 'IS_INCLUDED()' to check included files.
+		( Commited by Venrob on 9th May, 2020; merged on 12th July, 2020, by ZoriaRPG)
+	( ZoriaRPG, 13th July, 2020 )
 
+//Alpha 75
 Fix changing CSets
 Add 'sprite::get_pit()'; no side-effects pit checker
 	( Venrob, 11th July, 2020 )
