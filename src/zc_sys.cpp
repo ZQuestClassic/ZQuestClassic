@@ -3654,8 +3654,8 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     //  int amplitude=8;
     //  int wavelength=4;
     amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
-    if(epilepsyFlashReduction) amp2*=2;
     int amp2=168;
+    if(epilepsyFlashReduction) amp2*=2;
     int i=frame%amp2;
     
     for(int j=0; j<168; j++)
