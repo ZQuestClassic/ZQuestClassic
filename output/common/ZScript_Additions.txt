@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 75
-Document Revision: 11th July, 2020
+Document Revision: 14th July, 2020
 
 
  __           _   _                 
@@ -1315,6 +1315,38 @@ You may also include a custom message to be printed with the error.
 
 This can be useful to prevent yourself from making mistakes, or for scripts you share
 to ensure that others using your script don't make mistakes when setting constants.
+
+/////////////////////////
+// Conditional Include //
+/////////////////////////
+
+You may now conditionally include a file.
+
+	[example--
+	const bool USE_TANGO = true;
+	
+	#includeif(USE_TANGO, "tango.zh")
+	--end example]
+	
+If the constant expression evaluates to true, the file will be imported.
+Otherwise, it will be skipped.
+
+//////////////////////
+// Include Checking //
+//////////////////////
+
+You may now check if a file is included.
+
+	[example--
+	if(IS_INCLUDED("tango.zh"))
+	{
+		//Show a tango message
+	}
+	else Screen->Message(5);
+	--end example]
+
+This is considered a constant expression.
+
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______
