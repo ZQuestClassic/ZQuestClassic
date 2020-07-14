@@ -2,6 +2,26 @@
 // Updated 11th July, 2020
 
 //Alpha 76
+
+Fixed error messages for invald GOTO type instructions.
+Fixed possible crash on invalid gotos from logging args order.
+Epilepsy Protection is now set when you launch a NEW INSTALL of ZC,
+immediately prior to loaing the player interface.
+	If the zc.cfg value 'checked_epilepsy' is not present, or is set 
+	to '0', then ZC will ask the user if they want this enabled
+	and set this config value so that it is not re-checked:
+		1. If there is no valid .sav file, then this will appear prior
+		   to the .sa file creation dialogue. 
+		2. If a .sav file exists, this will occur prior to the title
+		   screen, if the config int 'checked_epilepsy' is not present
+		   or is set to 0 in zc.cfg.
+		3. If 'checked_epilepsy' is in zc.cfg and is set to '1', then
+		   this dilogue will not open, and the user's epilepsy protection
+		   settings are used as normal.
+		4. The dialogue defaults to NO. 
+Reduced the amplitude of screen wave effects when epilepsy protection is enabled.
+	( ZoriaRPG, 14th July, 2020 )
+
 Updated combos.txt to v6.
 Merged:
 	Convert zfix mul/div to use 'long long'
