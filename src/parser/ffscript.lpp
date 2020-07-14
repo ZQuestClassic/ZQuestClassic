@@ -20,7 +20,7 @@
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
 int yyrow, yycol;
-bool doImportStr = false;
+int doImportStr = 0;
 
 enum {st_none, st_case};
 int special_state = st_none;
@@ -38,7 +38,7 @@ using namespace ZScript;
 int srow, scol;
 std::ostringstream qstr;
 
-#define NEWLINE ++yyrow; yycol = 1; doImportStr = false
+#define NEWLINE ++yyrow; yycol = 1; doImportStr = 0
 #define ADVANCE yycol += yyleng
 
 #define UPDATE_YYLLOC \
@@ -94,7 +94,7 @@ typedef		TOKEN( TYPEDEF );
 
 catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
-IS_INCLUDED		doImportStr = true; TOKEN( ISINCLUDED );
+IS_INCLUDED		++doImportStr; TOKEN( ISINCLUDED );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
@@ -300,7 +300,7 @@ appx_equal	TOKEN( APPXEQUAL );
 	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
-	includeif			doImportStr = true; BEGIN( INITIAL ); TOKEN( INCLUDEIF );
+	includeif			++doImportStr; BEGIN( INITIAL ); TOKEN( INCLUDEIF );
 	inherit			TOKEN( INHERIT );
 	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );
 	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
@@ -310,10 +310,10 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Strings */
 <INITIAL>\"		{
-	if(doImportStr)
+	if(doImportStr > 0)
 	{
 		BEGIN( IMPORTSTR );
-		doImportStr = false;
+		--doImportStr;
 	}
 	else BEGIN( STRING );
 	qstr.str(""); /* Clear qstr */
@@ -535,5 +535,5 @@ void resetLexer() {
 	BEGIN( INITIAL );
 	yyrow = 1;
 	yycol = 1;
-	doImportStr = false;
+	doImportStr = 0;
 }
