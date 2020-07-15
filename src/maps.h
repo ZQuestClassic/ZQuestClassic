@@ -94,7 +94,7 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr);
 void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
 void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
-void do_script_draws(BITMAP *bmp, mapscr *layer, int x, int y);
+void do_script_draws(BITMAP *bmp, mapscr *layer, int x, int y, bool hideLayer7 = false);
 void draw_screen(mapscr* this_screen, bool showlink=true);
 /*
   INLINE void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)

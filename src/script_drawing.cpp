@@ -10831,7 +10831,7 @@ void CScriptDrawingCommands::Clear()
 	draw_container.Clear();
 }
 
-void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int xoff, int yoff)
+void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int xoff, int yoff, bool hideLayer7)
 {
 	if(theScreen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
 	if(theScreen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
@@ -10842,5 +10842,5 @@ void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int xoff, int yoff
 	do_primitives(targetBitmap, 4, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 5, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 6, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 7, theScreen, xoff, yoff);
+	if(!hideLayer7) do_primitives(targetBitmap, 7, theScreen, xoff, yoff);
 }
