@@ -3345,6 +3345,15 @@ void DrawComboCloaked(int layer, int x, int y,
 		int combo, int tilewidth, int tileheight,
 		int flip);
  * As DrawCombo(), but draws with a cloaked effect.
+ 
+void DrawString(int layer, 
+			int x, int y, 
+			int font, int color, int background_color, int format, 
+			"string", 
+			int opacity,
+			int shadow_type, int shadow_color);
+ * As DrawString(), but includes a shadow on the text.
+ * Use the 'SHD_' constants for 'shadow_type'.
 
 void PutPixels(int layer, int ptr[])
  * Puts multiple pixels to the screen in one function call.
@@ -6473,6 +6482,14 @@ void DrawString(int layer,
 			int font, int color, int background_color, int format, 
 			"string", 
 			int opacity );
+ * Identical to Screen->DrawString(), but it draws to a target bitmap.
+ 
+void DrawString(int layer, 
+			int x, int y, 
+			int font, int color, int background_color, int format, 
+			"string", 
+			int opacity,
+			int shadow_type, int shadow_color);
  * Identical to Screen->DrawString(), but it draws to a target bitmap.
 
 void DrawLayer(int layer, 

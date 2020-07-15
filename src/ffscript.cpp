@@ -19473,6 +19473,18 @@ void do_drawing_command(const int script_command)
 	}
 	break;
 	
+	case DRAWSTRINGR2:
+	{
+		set_drawing_command_args(j, 11);
+		// Unused
+		//const int index = script_drawing_commands[j][19] = j;
+		
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+	}
+	break;
+	
 	case BMPRECTR:	
 		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
 		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
@@ -19584,6 +19596,19 @@ void do_drawing_command(const int script_command)
 	{
 		set_user_bitmap_command_args(j, 9);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+		// Unused
+		//const int index = script_drawing_commands[j][19] = j;
+		
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+		
+	}
+	break;
+	case BMPDRAWSTRINGR2:	
+	{
+		set_user_bitmap_command_args(j, 11);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);
 		// Unused
 		//const int index = script_drawing_commands[j][19] = j;
 		
@@ -23067,6 +23092,8 @@ int run_script(const byte type, const word script, const long i)
 			case FASTTILER:
 			case FASTCOMBOR:
 			case DRAWSTRINGR:
+			case DRAWSTRINGR2:
+			case BMPDRAWSTRINGR2:
 			case SPLINER:
 			case BITMAPR:
 			case BITMAPEXR:
@@ -31675,6 +31702,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	
 	{ "FILEREMOVE",		       0,   0,   0,   0},
 	{ "FILESYSREMOVE",		       1,   0,   0,   0},
+	
+	{ "DRAWSTRINGR2",		       0,   0,   0,   0},
+	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };

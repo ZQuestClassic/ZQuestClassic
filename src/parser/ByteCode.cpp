@@ -2901,6 +2901,11 @@ string ODrawStringRegister::toString()
     return "DRAWSTRING";
 }
 
+string ODrawString2Register::toString()
+{
+    return "DRAWSTRINGR2";
+}
+
 string ODrawBitmapRegister::toString()
 {
     return "DRAWBITMAP";
@@ -4590,6 +4595,11 @@ string OBMPFastComboRegister::toString()
 string OBMPDrawStringRegister::toString()
 {
     return "BMPDRAWSTRINGR";
+}
+
+string OBMPDrawString2Register::toString()
+{
+    return "BMPDRAWSTRINGR2";
 }
 
 string OBMPDrawBitmapExRegister::toString()

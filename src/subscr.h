@@ -24,6 +24,7 @@ extern bool show_subscreen_numbers;
 extern bool show_subscreen_items;
 extern bool show_subscreen_life;
 
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg);
 void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int flip,bool overlay,bool trans);
 void drawgrid(BITMAP *dest,int x,int y,int c1,int c2);
 void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h);

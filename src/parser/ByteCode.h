@@ -3894,6 +3894,16 @@ namespace ZScript
 		}
 	};
 
+	class ODrawString2Register : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawString2Register();
+		}
+	};
+
 	class ODrawLayerRegister : public Opcode
 	{
 	public:
@@ -7586,6 +7596,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPDrawStringRegister();
+		}
+	};
+	class OBMPDrawString2Register : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawString2Register();
 		}
 	};
 	class OBMPFastComboRegister : public Opcode

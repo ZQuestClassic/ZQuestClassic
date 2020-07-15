@@ -964,6 +964,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEREMOVE",		       0,   0,   0,   0},
 	{ "FILESYSREMOVE",		       1,   0,   0,   0},
 	
+	{ "DRAWSTRINGR2",		       0,   0,   0,   0},
+	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
