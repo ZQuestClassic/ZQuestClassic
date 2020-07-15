@@ -22543,6 +22543,23 @@ void LinkClass::heroDeathAnimation()
 				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 				
 				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+				//Don't forget passive subscreen scripts!
+				if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
+				{
+					script_drawing_commands.Clear(); //We only want draws from this script
+					if(DMaps[currdmap].passive_sub_script != 0)
+						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+					if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+					{
+						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+						passive_subscreen_waitdraw = false;
+					}
+					BITMAP* tmp = framebuf;
+					framebuf = subscrbmp; //Hack; force draws to subscrbmp
+					do_script_draws(framebuf, tmpscr, 0, playing_field_offset); //Draw the script draws
+					framebuf = tmp;
+					script_drawing_commands.Clear(); //Don't let these draws repeat during 'draw_screen()'
+				}
 				QMisc.colors.link_dot = tmp_link_dot;
         bool clearedit = false;
 	do
