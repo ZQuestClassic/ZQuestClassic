@@ -2,6 +2,18 @@
 // Updated 11th July, 2020
 
 //Alpha 76
+Fix 'npc->LinedUp()' return *10000
+	( Venrob, 16th July, 2020 )
+	
+<std 1.7103> Add 'SHD_' constants for shadow types on strings.
+Add shadows to DrawString as an overload
+	( Venrob, 15th July, 2020 )	
+
+Fix 'qr_SCRIPTSDRAWINWARPS'
+Allow passive subscript to run during death anim
+Update ZSA; #includeif / is_included
+Fix multiple importstrs on one line not working
+	( Venrob, 14th July, 2020 )	
 
 Fixed error messages for invald GOTO type instructions.
 Fixed possible crash on invalid gotos from logging args order.
