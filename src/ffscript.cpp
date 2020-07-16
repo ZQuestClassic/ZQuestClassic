@@ -29820,7 +29820,7 @@ long FFScript::npc_linedup()
 		//zprint("LinedUp distance is: %d\n", range);
 		bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		return (long)GuyH::getNPC()->lined_up(range,dir8);
+		return (long)(GuyH::getNPC()->lined_up(range,dir8)*10000);
 	}
 	
 	return 0;
