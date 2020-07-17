@@ -53,6 +53,10 @@ const int MIN_FFC			= 1;
 const int MAX_FFC			= 32; 
 const int MIN_OBJ			= 1; //Short, const for loops. 
 
+const int MIN_COUNTER_INDX			= 0;
+const int MAX_COUNTER_INDX			= 31;
+const int NUM_COUNTERS				= 32; //0 to 31
+
 const int MIN_COMBO_POS 			= 0;
 const int MAX_COMBO_POS 			= 175;
 const int NUM_COMBO_POS 			= 176;
