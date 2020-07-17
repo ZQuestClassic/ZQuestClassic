@@ -536,4 +536,5 @@ void resetLexer() {
 	yyrow = 1;
 	yycol = 1;
 	doImportStr = 0;
+	special_state = st_none;
 }
