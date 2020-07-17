@@ -618,7 +618,7 @@ const int IC_WPN_CUSTOM_08           = 263;
 const int IC_WPN_SCRIPT_08           = 263;
 const int IC_WPN_CUSTOM_09           = 264;
 const int IC_WPN_SCRIPT_09           = 264;
-const int IC_WPN_CUSTOM_19           = 265;
+const int IC_WPN_CUSTOM_10           = 265;
 const int IC_WPN_SCRIPT_10           = 265;
 
 const int IC_ICEROD          	     = 266;
