@@ -7752,7 +7752,7 @@ bool LinkClass::animate(int)
 // to switch Link's weapon if his current weapon (bombs) was depleted.
 void LinkClass::deselectbombs(int super)
 {
-    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
         int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
@@ -7936,7 +7936,7 @@ bool LinkClass::startwpn(int itemid)
                 return false;
         }
         
-        Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
         
         if(whistleflag=findentrance(x,y,mfWHISTLE,false))
             didstuff |= did_whistle;
@@ -7959,10 +7959,16 @@ bool LinkClass::startwpn(int itemid)
             
             if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
                     itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
-                Lwpns.add(new weapon((zfix)(where==left?240:where==right?0:x),(zfix)(where==down?0:where==up?160:y),
-                                     (zfix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(where==left?240:where==right?0:x),
+			(zfix)(where==down?0:where==up?160:y),
+			(zfix)0,
+			wWind,
+			0, //type
+			0,
+			where,
+			itemid,getUID(),false,false,true,0)); //last arg is byte special, used to override type for wWind for now. -Z 18JULY2020
                                      
-            whistleitem=itemid;
+			whistleitem=itemid;
         }
         
         ret = false;
@@ -17604,7 +17610,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         else wrx=tmpscr->warparrivalx;
         
         Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
-                             (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
+                             (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
         whirlwind=255;
         whistleitem=-1;
     }

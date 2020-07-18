@@ -1589,6 +1589,7 @@ weapon::weapon(weapon const & other):
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
+    specialinfo(other.specialinfo),
     magiccosttimer(other.magiccosttimer),
     ScriptGenerated(other.ScriptGenerated),
     isLWeapon(other.isLWeapon),
@@ -1711,7 +1712,7 @@ weapon::weapon(weapon const & other):
 // Let's dispose of some sound effects!
 void weapon::cleanup_sfx()
 {
-	//Check type
+	//Check weapon id
     switch(id)
     {
 		case wWind:
@@ -1817,7 +1818,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1832,6 +1833,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     ignorecombo=-1;
     step=0;
     dead=-1;
+    specialinfo = special;
     bounce=ignoreLink=false;
     yofs=playing_field_offset - 2;
     dragging=-1;
@@ -1851,8 +1853,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	useweapon = itemsbuf[Parentitem].useweapon;
 	usedefence = itemsbuf[Parentitem].usedefence;
 	quantity_iterator = type; //wCByrna uses this for positioning.
-	if ( id != wPhantom && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+	if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 	    //Note: eweapons use this for boss weapon block flags
+	    // Note: wInd uses type for special properties.
 	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
 	//load initd
 	for ( int q = 0; q < 8; q++ )
@@ -4698,7 +4701,7 @@ bool weapon::animate(int index)
             wry=tmpscr->warpreturny[0];
         else wry=tmpscr->warparrivaly;
         
-        if(type==1 && dead==-1 && x==(int)wrx && y==(int)wry)
+        if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
         {
             dead=2;
         }
@@ -7238,7 +7241,7 @@ bool weapon::animateandrunscript(int ii)
             wry=tmpscr->warpreturny[0];
         else wry=tmpscr->warparrivaly;
         
-        if(type==1 && dead==-1 && x==(int)wrx && y==(int)wry)
+        if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
         {
             dead=2;
         }
@@ -9736,6 +9739,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int
     id=Id;
     type=0;
     power=0;
+    specialinfo = 0;
     parentitem=-1;
     dir=zc_max(Dir,0);
     clk=clk2=flip=misc=misc2=0;

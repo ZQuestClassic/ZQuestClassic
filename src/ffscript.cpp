@@ -5069,6 +5069,13 @@ long get_register(const long arg)
 		
 		///----------------------------------------------------------------------------------------------------//
 		//LWeapon Variables
+		case LWPNSPECIAL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+				ret=((int)((weapon*)(s))->specialinfo)*10000;
+			
+				
+			break;
+			
 		case LWPNSCALE:
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 			{
@@ -6923,8 +6930,33 @@ long get_register(const long arg)
 			//Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
 			if ( Lwpns.Count() < 256 )
 			{
-				Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
+				
+				Lwpns.add
+				(
+					new weapon
+					(
+						(zfix)0, /*X*/
+						(zfix)0, /*Y*/
+						(zfix)0, /*Z*/
+						ID,	 /*id*/
+						0,	 /*type*/
+						0,	 /*power*/
+						0,	 /*dir*/
+						-1,	 /*Parentid*/
+						Link.getUID(), /*prntid*/
+						false,	 /*isdummy*/
+						1,	 /*script_gen*/
+						1,  /*islwpn*/
+						(ID==wWind?1:0)  /*special*/
+					)
+				);
 				ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+				
+				weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+				w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+				w->ScriptGenerated = 1;
+				w->isLWeapon = 1;
+				if(ID == wWind) w->specialinfo = 1;
 				//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //not needed here because this has access to wpn->prent
 			}
@@ -11653,6 +11685,12 @@ void set_register(const long arg, const long value)
 		case LWPNDIR:
 			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
 				((weapon*)s)->dir=(value/10000);
+				
+			break;
+			
+		case LWPNSPECIAL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Special")))
+				((weapon*)s)->specialinfo=(value/10000);
 				
 			break;
 		 
@@ -18967,7 +19005,25 @@ void do_createlweapon(const bool v)
 	
 	if ( Lwpns.has_space() )
 	{
-		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+		Lwpns.add
+		(
+			new weapon
+			(
+				(zfix)0, /*X*/
+				(zfix)0, /*Y*/
+				(zfix)0, /*Z*/
+				ID,	 /*id*/
+				0,	 /*type*/
+				0,	 /*power*/
+				0,	 /*dir*/
+				-1,	 /*Parentid*/
+				Link.getUID(), /*prntid*/
+				false,	 /*isdummy*/
+				1,	 /*script_gen*/
+				1,  /*islwpn*/
+				(ID==wWind?1:0)  /*special*/
+			)
+		);
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		//Lwpns.spr(Lwpns.Count() - 1)->LOADGFX(0);
 		//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
@@ -18976,6 +19032,7 @@ void do_createlweapon(const bool v)
 		w->LOADGFX(FFCore.getDefWeaponSprite(ID));
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
+		if(ID == wWind) w->specialinfo = 1;
 		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
 	}
 	else
@@ -32866,6 +32923,7 @@ script_variable ZASMVars[]=
 	{ "NPCFALLCMB", NPCFALLCMB, 0, 0 },
 	{ "NPCMOVEFLAGS", NPCMOVEFLAGS, 0, 0 },
 	{ "ISBLANKTILE", ISBLANKTILE, 0, 0 },
+	{ "LWPNSPECIAL", LWPNSPECIAL, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

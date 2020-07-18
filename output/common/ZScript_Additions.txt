@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 75
-Document Revision: 14th July, 2020
+Document for: 2.55, Alpha 77
+Document Revision: 18th July, 2020
 
 
  __           _   _                 
@@ -3888,6 +3888,10 @@ int ParentUID;
 ///////////////////////////
 ///  LWeapon  Specific  ///
 ///////////////////////////							// LWeapon
+
+int Special;
+ * The special info for the lweapon.
+ * Used by wind lweapons, instead of Level, to determine their effects. 
 
 int Weapon;
  * The UseWeapon property for this weapon. 
