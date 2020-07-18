@@ -2353,7 +2353,7 @@ public:
 	}
 	
 	//Returns values of a zscript array as an std::string.
-	static void getString(const long ptr, string &str, dword num_chars = 256, dword offset = 0)
+	static void getString(const long ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2374,7 +2374,7 @@ public:
 				Z_scripterrlog("Value of invalid char will overflow.\n");
 			}
 			str += char(c);
-			num_chars--;
+			--num_chars;
 		}
 	}
 	
@@ -19525,7 +19525,7 @@ void do_drawing_command(const int script_command)
 		//const int index = script_drawing_commands[j][19] = j;
 		
 		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
 		script_drawing_commands[j].SetString(str);
 	}
 	break;
@@ -19537,7 +19537,7 @@ void do_drawing_command(const int script_command)
 		//const int index = script_drawing_commands[j][19] = j;
 		
 		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
 		script_drawing_commands[j].SetString(str);
 	}
 	break;
@@ -19592,7 +19592,7 @@ void do_drawing_command(const int script_command)
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
 		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
 		
 		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
 		//strncpy(cptr, str->c_str(), str->size());
@@ -19616,7 +19616,7 @@ void do_drawing_command(const int script_command)
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		std::string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
 		
 		
 		//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
@@ -19657,7 +19657,7 @@ void do_drawing_command(const int script_command)
 		//const int index = script_drawing_commands[j][19] = j;
 		
 		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
 		script_drawing_commands[j].SetString(str);
 		
 	}
@@ -19670,7 +19670,7 @@ void do_drawing_command(const int script_command)
 		//const int index = script_drawing_commands[j][19] = j;
 		
 		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
 		script_drawing_commands[j].SetString(str);
 		
 	}
@@ -24925,7 +24925,7 @@ void FFScript::do_file_writestring()
 	{
 		long arrayptr = get_register(sarg1) / 10000;
 		string output;
-		ArrayH::getString(arrayptr, output, MAX_ZC_ARRAY_SIZE);
+		ArrayH::getString(arrayptr, output, ZSCRIPT_MAX_STRING_CHARS);
 		//const char* out = output.c_str();
 		//ri->d[2] = 10000L * fwrite((const void*)output.data, sizeof(char), output.length(), f->file);
 		unsigned int q = 0;
@@ -27488,7 +27488,7 @@ void FFScript::do_warp_ex(bool v)
 	switch(zscript_array_size)
 	{
 		case 8:
-			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
+			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
 			zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
 			int tmpwarp[8]={0};
@@ -27525,7 +27525,7 @@ void FFScript::do_warp_ex(bool v)
 			break;
 		}
 		case 9:
-			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
 			zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			int tmpwarp[9]={0};
@@ -30035,7 +30035,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
-	FFCore.getString(arrayptr, strA);
+	FFCore.getString(arrayptr, strA, 256);
 	int temp_sram_flags = section_id; int sram_version = 0;
 
 	if ( FFCore.checkExtension(strA, ".zcsram") )
@@ -30093,7 +30093,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
-	FFCore.getString(arrayptr, strA);
+	FFCore.getString(arrayptr, strA, 256);
 	int cycles = 0;
 
 	if ( FFCore.checkExtension(strA, ".zcsram") )
@@ -30180,7 +30180,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		//}
 	}
 	//zprint("Converted string is: %s \n", strA.c_str());
-	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
@@ -30214,7 +30214,7 @@ void FFScript::do_UpperToLower(const bool v)
 		//}
 	}
 	//zprint("Converted string is: %s \n", strA.c_str());
-	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
@@ -30490,7 +30490,7 @@ void FFScript::do_ConvertCase(const bool v)
 		//}
 	}
 	//zprint("Converted string is: %s \n", strA.c_str());
-	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
@@ -30567,7 +30567,7 @@ void FFScript::do_strcat()
 	//strcpy(str_c, strA.c_str());
 	string strC = strA + strB;
 	//zprint("strcat string: %s\n", strC.c_str());
-	if(ArrayH::setArray(arrayptr_a, strC.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
 		set_register(sarg1, 0);
@@ -30701,7 +30701,7 @@ void FFScript::do_strcpy(const bool a, const bool b)
 
 	FFCore.getString(arrayptr_a, strA);
 
-	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr_b, strA) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'strcpy()' not large enough\n");
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
@@ -33447,7 +33447,7 @@ void FFScript::do_sprintf(const bool v)
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
 	
 	string output = zs_sprintf(formatstr.c_str(), num_args);
-	if(ArrayH::setArray(dest_arrayptr, output.c_str()) == SH::_Overflow)
+	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
 		ri->d[2] = ArrayH::strlen(dest_arrayptr);

@@ -21,6 +21,8 @@
 #define MAX_NPC_SPRITES 1024
 #define MAX_ITEM_SPRITES 1024
 
+#define ZSCRIPT_MAX_STRING_CHARS 214748
+
 #define MAX_ZQ_LAYER 6
 #define MAX_DRAW_LAYER 7
 #define MIN_ZQ_LAYER 0
@@ -1537,7 +1539,7 @@ enum __Error
     }
     
     //Returns values of a zscript array as an std::string.
-    void getString(const long ptr, std::string &str, word num_chars = 256)
+    void getString(const long ptr, std::string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS)
     {
         ZScriptArray& a = getArray(ptr);
         
