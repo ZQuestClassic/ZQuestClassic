@@ -8374,6 +8374,28 @@ long get_register(const long arg)
 		{
 			ret = (DMaps[ri->dmapsref].flags) * 10000; break;
 		}
+		case DMAPDATAASUBSCRIPT:	//word
+		{
+			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
+		}
+		case DMAPDATAPSUBSCRIPT:	//word
+		{
+			ret = (DMaps[ri->dmapsref].passive_sub_script) * 10000; break;
+		}
+		case DMAPDATASUBINITD:	//byte[8] --array
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->SubInitD[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret = DMaps[ri->dmapsref].sub_initD[indx]; break;
+			}
+		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
 		//case DMAPDATAJUMPLAYER:	 //unimplemented
 			
@@ -15493,7 +15515,7 @@ void set_register(const long arg, const long value)
 		case DMAPSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(SCRIPT_DMAP, ri->dmapsref);
-			DMaps[ri->dmapsref].type = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
 		{
@@ -15610,6 +15632,36 @@ void set_register(const long arg, const long value)
 		case DMAPDATAFLAGS:	 //long
 		{
 			DMaps[ri->dmapsref].flags= ((byte)(value / 10000)); break;
+		}
+		case DMAPDATAASUBSCRIPT:	//byte
+		{
+			FFScript::deallocateAllArrays(SCRIPT_ACTIVESUBSCREEN, ri->dmapsref);
+			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+		}
+		case DMAPDATAPSUBSCRIPT:	//byte
+		{
+			FFScript::deallocateAllArrays(SCRIPT_PASSIVESUBSCREEN, ri->dmapsref);
+			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			if(passive_subscreen_doscript && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+				break;
+			DMaps[ri->dmapsref].passive_sub_script = val;
+			if(ri->dmapsref == currdmap)
+			{
+				passive_subscreen_doscript = (val != 0) ? 1 : 0;
+			};
+			break;
+		}
+		case DMAPDATASUBINITD:
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->SubInitD[]: %d\n", indx); break;
+			}
+			else
+			{
+				DMaps[ri->dmapsref].sub_initD[indx] = value; break;
+			}
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
 		//case DMAPDATAJUMPLAYER:	 //unimplemented
@@ -32924,6 +32976,9 @@ script_variable ZASMVars[]=
 	{ "NPCMOVEFLAGS", NPCMOVEFLAGS, 0, 0 },
 	{ "ISBLANKTILE", ISBLANKTILE, 0, 0 },
 	{ "LWPNSPECIAL", LWPNSPECIAL, 0, 0 },
+	{ "DMAPDATAASUBSCRIPT", DMAPDATAASUBSCRIPT, 0, 0 },
+	{ "DMAPDATAPSUBSCRIPT", DMAPDATAPSUBSCRIPT, 0, 0 },
+	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

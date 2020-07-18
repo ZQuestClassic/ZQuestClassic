@@ -5031,14 +5031,20 @@ bool Sideview;
  * UNLESS the screen flag Toggle Sideview is enabled.
  
 int Script;
- * The standard DMap Active Script ID. 
+ * The standard DMap Active Script ID.
 
-//To add, Script IDs and InitD for dmapdata passive 
-//and active subscreen scripts
- 
 untyped InitD[8];
-* The eight script args for the dmapdata active script that runs 
-* on this DMap. 
+ * The eight script args for the dmapdata active script that runs 
+ * on this DMap. 
+
+int ASubScript;
+ * The 'Active Subscreen' script slot ID
+int PSubScript;
+ * The 'Pctive Subscreen' script slot ID
+
+untyped SubInitD[8];
+ * The eight script args shared by the active/passive subscreen
+ * script slots on this DMap.
 	
 void SetName(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 

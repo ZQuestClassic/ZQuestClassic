@@ -4047,7 +4047,12 @@ enum ASM_DEFINE
 #define ISBLANKTILE			0x13BC
 #define LWPNSPECIAL			0x13BD
 
-#define NUMVARIABLES         	0x13BE
+#define DMAPDATAASUBSCRIPT			0x13BE
+#define DMAPDATAPSUBSCRIPT			0x13BF
+#define DMAPDATASUBINITD			0x13C0
+
+
+#define NUMVARIABLES         	0x13C1
 
 //} End variables
 
