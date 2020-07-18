@@ -4043,8 +4043,9 @@ enum ASM_DEFINE
 #define NPCFALLCMB				0x13BA
 #define NPCMOVEFLAGS			0x13BB
 #define ISBLANKTILE			0x13BC
+#define LWPNSPECIAL			0x13BD
 
-#define NUMVARIABLES         	0x13BD
+#define NUMVARIABLES         	0x13BE
 
 //} End variables
 

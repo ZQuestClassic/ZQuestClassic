@@ -3050,7 +3050,6 @@ bool displaysubscreenitem(int itemtype, int d)
     if(game==NULL)  //ZQuest
         return true;
     if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
-        
     if((itemtype == itype_bomb &&
             !(game->get_bombs()
               // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -3117,7 +3116,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
    // if((itemtype & 0x8000) && game->item[itemtype])
     if((itemtype & 0x8000) && 
     (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0))
+            && !item_disabled(itemtype&0xFFF) && (displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0) || (game->forced_awpn != -1 || game->forced_bwpn != -1) ))
     {
         if(overridecheck == 0xFFFF)
         {
