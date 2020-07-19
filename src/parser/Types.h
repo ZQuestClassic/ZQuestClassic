@@ -117,6 +117,7 @@ namespace ZScript
 		ZVARTYPEID_FILESYSTEM,
 		ZVARTYPEID_SUBSCREENDATA,
 		ZVARTYPEID_FILE,
+		ZVARTYPEID_MODULE,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -208,6 +209,8 @@ namespace ZScript
 				return "SUBSCREENDATA";
 			case ZVARTYPEID_FILE:
 				return "FILE";
+			case ZVARTYPEID_FILESYSTEM,:
+				return "MODULE";
 			default:
 				return "INT";
 				/*char buf[16];
@@ -303,6 +306,8 @@ namespace ZScript
 			return ZVARTYPEID_SUBSCREENDATA;
 		else if(name == "FILE")
 			return ZVARTYPEID_FILE;
+		else if(name == "MODULE")
+			return ZVARTYPEID_FILESYSTEM,;
 		
 		return ZVARTYPEID_VOID;
 	}
@@ -385,6 +390,7 @@ namespace ZScript
 		static DataTypeClassConst INPUT;
 		static DataTypeClassConst TEXT;
 		static DataTypeClassConst FILESYSTEM;
+		static DataTypeClassConst MODULE;
 		//Class: Types
 		static DataTypeClassConst CBITMAP;
 		static DataTypeClassConst CCHEATS;

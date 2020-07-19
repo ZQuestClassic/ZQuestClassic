@@ -9505,7 +9505,7 @@ long get_register(const long arg)
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
-		
+		//File->
 		case FILEPOS:
 		{
 			if(user_file* f = checkFile(ri->fileref, "Pos", true))
@@ -9531,6 +9531,31 @@ long get_register(const long arg)
 				ret = ferror(f->file) * 10000L;
 			}
 			else ret = -10000L;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		//Module->
+		
+		case MODULEGETINT:
+		{
+			int section_pointer = ri->d[0])/10000;
+			int element_pointer = ri->d[1])/10000;
+			string sectionid;
+			string elementid;
+			///set config file
+			if(!fileexists((char*)moduledata.module_name))
+			{
+				Z_scripterrlog("I/O Error: No module definitions found when using Module->GetInt()\n");
+				ret = -10000;
+			}	
+			else
+			{
+				set_config_file(moduledata.module_name);
+				ret = get_config_int(sectionid.c_str(), elementid.c_str(), 0)*10000;
+				//return config file to zc.cfg
+				set_config_file("zc.cfg");
+			}
 			break;
 		}
 		
@@ -16678,7 +16703,42 @@ void set_register(const long arg, const long value)
 			break;
 		
 		case MAXDRAWS: break;
+	
+	///----------------------------------------------------------------------------------------------------//
+	//Module->
+	case MODULEGETINT:
+	{
+		int buf_pointer = ri->d[0])/10000;
+		int section_pointer = ri->d[1])/10000;
+		int element_pointer = ri->d[2])/10000;
 		
+		string sectionid;
+		string elementid;
+		
+		FFCore.getString(section_pointer, sectionid);
+		FFCore.getString(element_pointer, elementid);
+		
+		char buffer[256] = {0};
+		
+		
+		if(!fileexists((char*)moduledata.module_name))
+		{
+			Z_scripterrlog("I/O Error: No module definitions found when using Module->GetInt()\n");
+			ret = -10000;
+		}	
+		else
+		{
+			///set config file
+			set_config_file(moduledata.module_name);
+			get_config_string(buffer, sectionid.c_str(), elementid.c_str(), "");
+			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
+				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
+			//return config file to zc.cfg
+			set_config_file("zc.cfg");
+		}
+	
+		break;
+	}
 
 	///----------------------------------------------------------------------------------------------------//
 	//Misc./Internal

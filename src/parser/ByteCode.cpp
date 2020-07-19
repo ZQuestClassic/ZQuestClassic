@@ -1856,6 +1856,8 @@ string ZScript::VarToString(long ID)
 	case NPCMOVEFLAGS: return "NPCMOVEFLAGS";
 	case ISBLANKTILE: return "ISBLANKTILE";
 	case LWPNSPECIAL: return "LWPNSPECIAL";
+	case MODULEGETINT: return "MODULEGETINT";
+	case MODULEGETSTR: return "MODULEGETSTR";
 	
 	
 	default:
