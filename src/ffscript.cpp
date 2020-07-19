@@ -9539,8 +9539,8 @@ long get_register(const long arg)
 		
 		case MODULEGETINT:
 		{
-			int section_pointer = ri->d[0])/10000;
-			int element_pointer = ri->d[1])/10000;
+			int section_pointer = ((ri->d[0])/10000);
+			int element_pointer = ((ri->d[1])/10000);
 			string sectionid;
 			string elementid;
 			///set config file
@@ -16706,11 +16706,11 @@ void set_register(const long arg, const long value)
 	
 	///----------------------------------------------------------------------------------------------------//
 	//Module->
-	case MODULEGETINT:
+	case MODULEGETSTR:
 	{
-		int buf_pointer = ri->d[0])/10000;
-		int section_pointer = ri->d[1])/10000;
-		int element_pointer = ri->d[2])/10000;
+		int buf_pointer = ((ri->d[0])/10000);
+		int section_pointer = ((ri->d[1])/10000);
+		int element_pointer = ((ri->d[2])/10000);
 		
 		string sectionid;
 		string elementid;
@@ -16730,7 +16730,7 @@ void set_register(const long arg, const long value)
 		{
 			///set config file
 			set_config_file(moduledata.module_name);
-			get_config_string(buffer, sectionid.c_str(), elementid.c_str(), "");
+			strcpy(buffer,get_config_string(sectionid.c_str(), elementid.c_str(), ""));
 			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
 			//return config file to zc.cfg
