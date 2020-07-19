@@ -9543,6 +9543,10 @@ long get_register(const long arg)
 			int element_pointer = ((ri->d[1])/10000);
 			string sectionid;
 			string elementid;
+		
+			FFCore.getString(section_pointer, sectionid);
+			FFCore.getString(element_pointer, elementid);
+			
 			///set config file
 			if(!fileexists((char*)moduledata.module_name))
 			{
