@@ -1,6 +1,30 @@
 // 2.55 Change Log
 // Updated 11th July, 2020
 
+//Alpha 77
+Fixed the script name reports in error messages, adding new
+	types and correcting the offsets.
+Using a function or a variable on null pointer will now give its on
+	error message.
+Fix params for CreateLWeapon.
+Added new weapon variable, specialinfo, used at present by wWind lweapons.
+	This *should* fix wind warps.
+Fixed some weapon constructors in Link.cpp.
+Added lwpn->Special to ZScript
+Changed the subscreen code so that if a script forces a weapon to A or B, that
+	the subscreen does not refuse to display it when aout of ammo.
+	( ZoriaRPG, 18th July, 2020 )
+	
+Add access to dmapdata-> for subscreen script vars
+Fix zscript string functions truncating at 256 chars
+	( Venrob, 18th July, 2020 )
+	
+<std.zh 1.7104> 
+	Added constants for minimum, maximum, and count of counter types.
+	Fixed typo on IC_WPN_CUSTOM_* chain of constants.
+Fix lexer state not clearing
+	( Venrob, 18th July, 2020 )
+
 //Alpha 76
 Fix 'npc->LinedUp()' return *10000
 	( Venrob, 16th July, 2020 )
