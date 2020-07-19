@@ -307,7 +307,7 @@ namespace ZScript
 		else if(name == "FILE")
 			return ZVARTYPEID_FILE;
 		else if(name == "MODULE")
-			return ZVARTYPEID_FILESYSTEM;
+			return ZVARTYPEID_MODULE;
 		
 		return ZVARTYPEID_VOID;
 	}

@@ -260,6 +260,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
 		case ZVARTYPEID_CHEATS: return &CHEATS;
 		case ZVARTYPEID_FILESYSTEM: return &FILESYSTEM;
+		case ZVARTYPEID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
