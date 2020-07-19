@@ -33070,6 +33070,8 @@ script_variable ZASMVars[]=
 	{ "DMAPDATAASUBSCRIPT", DMAPDATAASUBSCRIPT, 0, 0 },
 	{ "DMAPDATAPSUBSCRIPT", DMAPDATAPSUBSCRIPT, 0, 0 },
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
+	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
+	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
