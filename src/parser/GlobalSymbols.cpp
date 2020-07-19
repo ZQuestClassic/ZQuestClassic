@@ -399,6 +399,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_FILESYSTEM: return &FileSystemSymbols::getInst();
 	case ZVARTYPEID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
 	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
+	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
     default: return NULL;
     }
 }
