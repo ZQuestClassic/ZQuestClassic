@@ -145,7 +145,7 @@ DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
 DataTypeClassConst DataType::INPUT(ZCLASSID_INPUT, "Input");
 DataTypeClassConst DataType::TEXT(ZCLASSID_TEXT, "Text");
 DataTypeClassConst DataType::FILESYSTEM(ZCLASSID_FILESYSTEM, "FileSystem");
-DataTypeClassConst DataType::FILESYSTEM(ZCLASSID_MODULE, "Module");
+DataTypeClassConst DataType::MODULE(ZCLASSID_MODULE, "Module");
 //Class: Types
 DataTypeClassConst DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
 DataTypeClassConst DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");

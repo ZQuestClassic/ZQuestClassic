@@ -209,7 +209,7 @@ namespace ZScript
 				return "SUBSCREENDATA";
 			case ZVARTYPEID_FILE:
 				return "FILE";
-			case ZVARTYPEID_FILESYSTEM,:
+			case ZVARTYPEID_MODULE:
 				return "MODULE";
 			default:
 				return "INT";
@@ -307,7 +307,7 @@ namespace ZScript
 		else if(name == "FILE")
 			return ZVARTYPEID_FILE;
 		else if(name == "MODULE")
-			return ZVARTYPEID_FILESYSTEM,;
+			return ZVARTYPEID_FILESYSTEM;
 		
 		return ZVARTYPEID_VOID;
 	}

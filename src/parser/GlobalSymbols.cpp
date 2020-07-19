@@ -12980,13 +12980,13 @@ static AccessorTable ModuleTable[] =
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
-FileSystemSymbols::FileSystemSymbols()
+ModuleSymbols::ModuleSymbols()
 {
     table = ModuleTable;
     refVar = NUL;
 }
 
-void FileSystemSymbols::generateCode()
+void ModuleSymbols::generateCode()
 {
 	//int GetInt(file, char32* section, char32* entry)
 	{
