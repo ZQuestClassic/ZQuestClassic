@@ -1523,7 +1523,7 @@ void sprite::drawzcboss(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = wpnsbuf[iwSpawn].tile;
+            int t  = wpnsbuf[iwSpawn].newtile;
             int cs2 = wpnsbuf[iwSpawn].csets&15;
             
             if(BSZ)
