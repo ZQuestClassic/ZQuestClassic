@@ -609,6 +609,21 @@ private:
     void generateCode();
 };
 
+//Filesystem->
+class ModuleSymbols : public LibrarySymbols
+{
+public:
+    static ModuleSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static ModuleSymbols singleton;
+    ModuleSymbols();
+    void generateCode();
+};
+
 #endif
 
 

@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 77
-Document Revision: 18th July, 2020
+Document for: 2.55, Alpha 78
+Document Revision: 19th July, 2020
 
 
  __           _   _                 
@@ -338,7 +338,9 @@ Another example:
 
 	FileSystem->
 		Used to get information on the user filesystem, such as fileexists(), pathexists().
-
+	
+	Module->
+		Use to read values or strings used by the current module.
 
 
 ________          __          __                                
@@ -2970,6 +2972,35 @@ float Mouse[6];
 
 /************************************************************************************************************/
 
+//////////////
+//  Module  //
+//////////////
+
+int GetInt(char32[] "section_id", char32[] "element_id");
+ * Returns the value of a specified element of a specified section of the current module.
+ * Example: 
+ * 	int a = Module->GetInt("METADATA", "version_year");
+ 
+void GetString(char32 buffer[256], char32[] "section_id", char32[] "element_id");
+ * Copies a string used by a specified element of a specified section of the current module to 
+ * a buffer string. The buffer should be sized to 256.
+ * Example:
+ * 	char32 buf[256];
+ * 	Module->GetInt(buf, "METADATA", "author");
+
+bool FileExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid file path,
+ *     relative to the current ZC path.
+ * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
+ *     then this is relative to "[zc root]/Files/[quest name]/"
+
+bool Remove(char32[] "filepath");
+ * Deletes the file pointed to by 'filepath'.
+ * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
+ *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+ 
+ /************************************************************************************************************/
+
 //////////////////
 //  FileSystem  //
 //////////////////
@@ -2990,6 +3021,8 @@ bool Remove(char32[] "filepath");
  * Deletes the file pointed to by 'filepath'.
  * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
  *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+ 
+
 
 /************************************************************************************************************/
 

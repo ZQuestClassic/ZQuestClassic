@@ -1,6 +1,12 @@
 // 2.55 Change Log
 // Updated 18th July, 2020
 
+//Alpha 78
+Added the global pointer class 'Module->' to ZScript.
+Added int Module->GetInt(char32 *section, char32 *element);
+Added void Module->GetString(char32 *buffer, char32 *section, char32 *element);
+	( ZoriaRPG, 19th July, 2020 )
+	
 //Alpha 77
 Fixed the script name reports in error messages, adding new
 	types and correcting the offsets.

@@ -399,6 +399,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_FILESYSTEM: return &FileSystemSymbols::getInst();
 	case ZVARTYPEID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
 	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
+	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
     default: return NULL;
     }
 }
@@ -12969,4 +12970,58 @@ void SubscreenDataSymbols::generateCode()
 {
 	//
 }
+
+ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();
+
+static AccessorTable ModuleTable[] =
+{
+//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+	{ "GetInt",              ZVARTYPEID_FLOAT,          FUNCTION,     0,                1,             0,                      3,           {  ZVARTYPEID_MODULE,          ZVARTYPEID_CHAR,         ZVARTYPEID_CHAR,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetString",             ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                      4,           {  ZVARTYPEID_MODULE,          ZVARTYPEID_CHAR,         ZVARTYPEID_CHAR,    ZVARTYPEID_CHAR,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+ModuleSymbols::ModuleSymbols()
+{
+    table = ModuleTable;
+    refVar = NUL;
+}
+
+void ModuleSymbols::generateCode()
+{
+	//int GetInt(file, char32* section, char32* entry)
+	{
+		Function* function = getFunction("GetInt", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MODULEGETINT)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int GetString(file, char32* dest, char32* section, char32* entry)
+	{
+		Function* function = getFunction("GetString", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		code.push_back(new OSetRegister(new VarArgument(MODULEGETSTR), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+}
+
+
+
 

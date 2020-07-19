@@ -145,6 +145,7 @@ DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
 DataTypeClassConst DataType::INPUT(ZCLASSID_INPUT, "Input");
 DataTypeClassConst DataType::TEXT(ZCLASSID_TEXT, "Text");
 DataTypeClassConst DataType::FILESYSTEM(ZCLASSID_FILESYSTEM, "FileSystem");
+DataTypeClassConst DataType::MODULE(ZCLASSID_MODULE, "Module");
 //Class: Types
 DataTypeClassConst DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
 DataTypeClassConst DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");
@@ -259,6 +260,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
 		case ZVARTYPEID_CHEATS: return &CHEATS;
 		case ZVARTYPEID_FILESYSTEM: return &FILESYSTEM;
+		case ZVARTYPEID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
@@ -303,6 +305,7 @@ DataTypeClass const* DataType::getClass(int classId)
 		case ZCLASSID_GAMEDATA: return &GAMEDATA;
 		case ZCLASSID_CHEATS: return &CHEATS;
 		case ZCLASSID_FILESYSTEM: return &FILESYSTEM;
+		case ZCLASSID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
