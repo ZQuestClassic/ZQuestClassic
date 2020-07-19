@@ -16723,14 +16723,14 @@ void set_register(const long arg, const long value)
 		
 		if(!fileexists((char*)moduledata.module_name))
 		{
-			Z_scripterrlog("I/O Error: No module definitions found when using Module->GetInt()\n");
-			ret = -10000;
+			Z_scripterrlog("I/O Error: No module definitions found when using Module->GetString()\n");
 		}	
 		else
 		{
 			///set config file
 			set_config_file(moduledata.module_name);
 			strcpy(buffer,get_config_string(sectionid.c_str(), elementid.c_str(), ""));
+			buffer[255] = '\0';
 			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
 			//return config file to zc.cfg
