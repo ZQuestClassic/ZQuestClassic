@@ -70,11 +70,13 @@ static inline bool fileexists(const char *filename)
 	return false;
 }
 
-const char scripttypenames[11][40]=
+const char scripttypenames[15][40]=
 {
+	"none script",
 	"Global Script", "FFC Script", "Screen Script", "Hero Script", 
 	"Item Script", "LWeapon Script", "NPC Script", 
-	"Subscreen Script", "EWeapon Script", "DMap Script", "Itemsprite Script"
+	"Subscreen Script", "EWeapon Script", "DMap Script", "Itemsprite Script",
+	"DMap ActSub Script", "DMap PasSub Script", "Combo Script"
 };
 
 
@@ -1858,6 +1860,12 @@ class GuyH : public SH
 public:
 	static int loadNPC(const long eid, const char * const funcvar)
 	{
+		if ( !eid ) 
+		{
+			//can never be zero?
+			Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.", funcvar);
+			return _InvalidSpriteUID;
+		}
 		tempenemy = (enemy *) guys.getByUID(eid);
 		
 		if(tempenemy == NULL)
@@ -1979,6 +1987,13 @@ class ItemH : public SH
 public:
 	static int loadItem(const long iid, const char * const funcvar)
 	{
+		if ( !iid ) 
+		{
+			//can never be zero?
+			Z_scripterrlog("The item pointer used for %s is NULL or uninitialised.", funcvar);
+			return _InvalidSpriteUID;
+		}
+		
 		tempitem = (item *) items.getByUID(iid);
 		
 		if(tempitem == NULL)
@@ -2111,6 +2126,12 @@ public:
 	
 	static int loadWeapon(const long wid, const char * const funcvar)
 	{
+		if ( !wid ) 
+		{
+			//can never be zero?
+			Z_scripterrlog("The lweapon pointer used for %s is NULL or uninitialised.", funcvar);
+			return _InvalidSpriteUID;
+		}
 		tempweapon = (weapon *) Lwpns.getByUID(wid);
 		
 		if(tempweapon == NULL)
@@ -2242,6 +2263,12 @@ public:
 
 	static int loadWeapon(const long wid, const char * const funcvar)
 	{
+		if ( !wid ) 
+		{
+			//can never be zero?
+			Z_scripterrlog("The eweapon pointer used for %s is NULL or uninitialised.", funcvar);
+			return _InvalidSpriteUID;
+		}
 		tempweapon = (weapon *) Ewpns.getByUID(wid);
 		
 		if(tempweapon == NULL)
