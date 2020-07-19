@@ -16714,7 +16714,7 @@ void set_register(const long arg, const long value)
 	{
 		int buf_pointer = ((ri->d[0])/10000);
 		int section_pointer = ((ri->d[1])/10000);
-		int element_pointer = ((ri->d[2])/10000);
+		int element_pointer = (value/10000);
 		
 		string sectionid;
 		string elementid;
