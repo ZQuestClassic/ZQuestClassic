@@ -5309,6 +5309,11 @@ string OFileRemove::toString()
 	return "FILEREMOVE";
 };
 
+string OModuleGetIC::toString()
+{
+    return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 

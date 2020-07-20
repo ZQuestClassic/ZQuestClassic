@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 78
-Document Revision: 19th July, 2020
+Document Revision: 20th July, 2020
 
 
  __           _   _                 
@@ -2972,7 +2972,7 @@ float Mouse[6];
 
 /************************************************************************************************************/
 
-//////////////
+//////////////											// Module
 //  Module  //
 //////////////
 
@@ -2986,18 +2986,13 @@ void GetString(char32 buffer[256], char32[] "section_id", char32[] "element_id")
  * a buffer string. The buffer should be sized to 256.
  * Example:
  * 	char32 buf[256];
- * 	Module->GetInt(buf, "METADATA", "author");
-
-bool FileExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' is a valid file path,
- *     relative to the current ZC path.
- * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
- *     then this is relative to "[zc root]/Files/[quest name]/"
-
-bool Remove(char32[] "filepath");
- * Deletes the file pointed to by 'filepath'.
- * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
- *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+ * 	Module->GetString(buf, "METADATA", "author");
+ 
+ void GetItemClass(char32 buffer[256], int itemclass_id);
+ * Copies a string used for itemclass ID 'itemclass_id' in the current module to the buffer string.
+ * Example:
+ * 	char32 buf[256];
+ * 	Module->GetItemClass(buf, IC_SWORD);
  
  /************************************************************************************************************/
 
@@ -3021,8 +3016,6 @@ bool Remove(char32[] "filepath");
  * Deletes the file pointed to by 'filepath'.
  * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
  *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
- 
-
 
 /************************************************************************************************************/
 

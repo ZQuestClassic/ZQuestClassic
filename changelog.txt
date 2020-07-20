@@ -2,6 +2,11 @@
 // Updated 18th July, 2020
 
 //Alpha 78
+Added Module->GetItemClass(char32 *buffer, int itemclass)
+	This copies a string used for itemclass ID 'itemclass_id' in the 
+	current module to the buffer string.
+	( ZoriaRPG, 20th July, 2020 )	
+	
 Added the global pointer class 'Module->' to ZScript.
 Added int Module->GetInt(char32 *section, char32 *element);
 Added void Module->GetString(char32 *buffer, char32 *section, char32 *element);

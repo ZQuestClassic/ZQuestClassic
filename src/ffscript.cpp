@@ -24352,6 +24352,33 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_file_geterr();
 				break;
 			}
+			
+			case MODULEGETIC:
+			{
+				
+				int buf_pointer = SH::get_arg(sarg1, false) / 10000;
+				int element = SH::get_arg(sarg2, false) / 10000;
+				
+				//zprint2("element is: %d, string is: %s\n", element, moduledata.item_editor_type_names[element]);
+				
+				if ( ((unsigned)element) > 511 )
+				{
+					Z_scripterrlog("Illegal itemclass supplied to Module->GetItemClass().\nLegal values are 1 to 511.\n");
+				}
+				else
+				{
+					char buffer[256] = {0};
+					strcpy(buffer,moduledata.item_editor_type_names[element]);
+					buffer[255] = '\0';
+					if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
+					{
+						Z_scripterrlog("Dest string supplied to 'Module->GetItemClass()' is not large enough\n");
+					}
+				}
+			
+				break;
+			}
+			
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			

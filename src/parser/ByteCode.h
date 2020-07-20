@@ -9135,6 +9135,17 @@ namespace ZScript
 			return new OFileOpenMode(a->clone(), b->clone());
 		}
 	};
+	
+	class OModuleGetIC : public BinaryOpcode
+	{
+	public:
+		OModuleGetIC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OModuleGetIC(a->clone(), b->clone());
+		}
+	};
 }
 
 #endif
