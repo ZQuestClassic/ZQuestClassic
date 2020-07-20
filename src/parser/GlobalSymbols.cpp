@@ -12977,6 +12977,7 @@ static AccessorTable ModuleTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	{ "GetInt",              ZVARTYPEID_FLOAT,          FUNCTION,     0,                1,             0,                      3,           {  ZVARTYPEID_MODULE,          ZVARTYPEID_CHAR,         ZVARTYPEID_CHAR,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetItemClass",              ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                      3,           {  ZVARTYPEID_MODULE,          ZVARTYPEID_CHAR,         ZVARTYPEID_CHAR,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetString",             ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                      4,           {  ZVARTYPEID_MODULE,          ZVARTYPEID_CHAR,         ZVARTYPEID_CHAR,    ZVARTYPEID_CHAR,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -13017,6 +13018,21 @@ void ModuleSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		code.push_back(new OSetRegister(new VarArgument(MODULEGETSTR), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//GetItemClass(char32* dest, int ic)
+	{
+		Function* function = getFunction("GetItemClass", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		code.push_back(new OModuleGetIC(new VarArgument(EXP2), new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
