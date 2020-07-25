@@ -3019,50 +3019,65 @@ bool setGraphicsMode(bool windowed)
 
 int onFullscreen()
 {
-    PALETTE oldpal;
-    get_palette(oldpal);
-    
-    show_mouse(NULL);
-    bool windowed=is_windowed_mode()!=0;
-    
-    // these will become ultra corrupted no matter what.
-    Triplebuffer.Destroy();
-    
-    bool success=setGraphicsMode(!windowed);
-    if(success)
-        fullscreen=!fullscreen;
-    else
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        // Try to restore the previous mode, then...
-        success=setGraphicsMode(windowed);
-        if(!success)
-        {
-            Z_message("Failed to set video mode.\n");
-            Z_message(allegro_error);
-            exit(1);
-        }
-    }
-    
-    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
-    if(Triplebuffer.GFX_can_triple_buffer())
-    {
-        Triplebuffer.Create();
-        Z_message("Triplebuffer enabled \n");
-    }
-    else
-        Z_message("Triplebuffer disabled \n");
-    
-    //Everything set?
-    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-    
-    set_palette(oldpal);
-    gui_mouse_focus=0;
-    show_mouse(screen);
-    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
-//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
-//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
+	    PALETTE oldpal;
+	    get_palette(oldpal);
+	    
+	    show_mouse(NULL);
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    // these will become ultra corrupted no matter what.
+	    Triplebuffer.Destroy();
+	    
+	    bool success=setGraphicsMode(!windowed);
+	    if(success)
+		fullscreen=!fullscreen;
+	    else
+	    {
+		// Try to restore the previous mode, then...
+		success=setGraphicsMode(windowed);
+		if(!success)
+		{
+		    Z_message("Failed to set video mode.\n");
+		    Z_message(allegro_error);
+		    exit(1);
+		}
+	    }
+	    
+	    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
+	    if(Triplebuffer.GFX_can_triple_buffer())
+	    {
+		Triplebuffer.Create();
+		Z_message("Triplebuffer enabled \n");
+	    }
+	    else
+		Z_message("Triplebuffer disabled \n");
+	    
+	    //Everything set?
+	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
+	    
+	    set_palette(oldpal);
+	    gui_mouse_focus=0;
+	    show_mouse(screen);
+	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
+	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 
-    return D_REDRAW;
+	    return D_REDRAW;
+    }
+    else return D_O_K;
 }
 
 static const char months[13][13] =
