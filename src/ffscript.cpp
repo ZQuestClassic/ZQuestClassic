@@ -30608,10 +30608,13 @@ void FFScript::do_getcombobyname()
 	
 	for(int q = 0; q < MAXCOMBOS; q++)
 	{
-		if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+		if ( combobuf[q].label[0] ) //skip blank)
 		{
-			num = q;
-			break;
+			if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+			{
+				num = q;
+				break;
+			}
 		}
 	}
 	set_register(sarg1, (num * 10000));
