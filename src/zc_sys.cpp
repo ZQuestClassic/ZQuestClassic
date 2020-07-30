@@ -8756,21 +8756,23 @@ void switch_out_callback()
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
+    //bool was_paused=midi_paused;
+    //long pos=midi_pos;
+    //int digi_vol, midi_vol;
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
+	//get_volume(&digi_vol, &midi_vol);
+    //stop_midi();
+    //jukebox(currmidi);
+	//set_volume(digi_vol, midi_vol);
+    //midi_seek(pos);
     
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+    //if(was_paused)
+    //{
+    //    midi_pause();
+    //    midi_paused=true;
+    //}
+    midi_pause();
+    midi_paused=true;
 }
 
 void switch_in_callback()
@@ -8778,21 +8780,22 @@ void switch_in_callback()
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
+    //bool was_paused=midi_paused;
+    //long pos=midi_pos;
+    //int digi_vol, midi_vol;
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
+	//get_volume(&digi_vol, &midi_vol);
+    //stop_midi();
     jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
+    //set_volume(digi_vol, midi_vol);
+    midi_seek(midi_pos);
     
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+    //if(was_paused)
+    //{
+    //    midi_pause();
+    //    midi_paused=true;
+    //}
+    midi_paused=false;
 }
 #else // Not Windows
 void switch_out_callback()
