@@ -5996,7 +5996,7 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].tile;
+		tile = wpnsbuf[iwDeath].newtile;
 		
 		if(BSZ && do_animation)
 			tile += zc_min((15-clk2)/3,4);

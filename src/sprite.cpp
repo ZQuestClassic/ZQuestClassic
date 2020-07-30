@@ -1543,7 +1543,7 @@ void sprite::drawzcboss(BITMAP* dest)
         }
         else
         {
-            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
