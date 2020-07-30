@@ -12706,19 +12706,8 @@ void eStalfos::vire_hop()
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
 		
-	int jump_width;
-	int jump_height;
-	
-	if(dmisc9==e9tPOLSVOICE)
-	{
-		jump_width=2;
-		jump_height=27;
-	}
-	else
-	{
-		jump_width=1;
-		jump_height=16;
-	}
+	int jump_width = (dmisc9==e9tPOLSVOICE) ? 2 : 1;
+	int jump_height = (dmisc9==e9tPOLSVOICE) ? 27 : 16;
 	
 	y=floor_y;
 	
@@ -12735,15 +12724,33 @@ void eStalfos::vire_hop()
 		{
 			//z=0;
 			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (rand()&15)>=hrate)
-				clk2=(wpn==ewBrang ? 1 : 16*jump_width/step);
+			{
+                
+				clk2=(wpn==ewBrang ? 1 : int((16.0*jump_width)/step.getFloat()));
+				/*if (dmisc9==e9tPOLSVOICE )
+				{	
+					zprint2("polsvoice jump_width is: %d\n", jump_width);
+					zprint2("polsvoice raw step is: %d\n", step);
+					zprint2("polsvoice step.getInt() is: %d\n", step.getInt());
+					zprint2("setting clk2 on polsvoice to: %d\n", clk2);
+				}
+				else 
+				{
+					zprint2("vire jump_width is: %d\n", jump_width);
+					zprint2("vire raw step is: %d\n", step);
+					zprint2("vire step.getInt() is: %d\n", step.getInt());
+					zprint2("setting clk2 on vire to: %d\n", clk2);
+				}
+				*/
+			}
 		}
 		
 		if(dmisc9!=e9tPOLSVOICE && dir>=left) //if we're moving left or right
 		{
-			clk2=16*jump_width/step;
+			clk2=int((16.0*jump_width)/step.getFloat());
 		}
 		
-		clk3=int(16.0/step);
+		clk3=int(16.0/step.getFloat());
 	}
 	
 	--clk3;
