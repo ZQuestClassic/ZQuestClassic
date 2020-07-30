@@ -1,6 +1,8 @@
 // 2.55 Change Log
 // Updated 30th July, 2020
 
+//Alpha 79
+
 //Alpha 78
 
 Fixed duplication of Enemy Editor 'Attributes[24] label.
