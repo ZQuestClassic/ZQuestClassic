@@ -3,6 +3,8 @@
 
 //Alpha 78
 
+Fixed duplication of Enemy Editor 'Attributes[24] label.
+
 <std 1.7105>
 Fixed a compiling error, and added constants for new npc types. 
 

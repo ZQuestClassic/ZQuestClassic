@@ -6817,7 +6817,7 @@ void setEnemyLabels(int family)
     {
 	if(inf->attributes[q]!=NULL)
             {
-                enedata_dlg[319+(q-24)].dp = (char*)inf->attributes[q];
+                enedata_dlg[318+(q-24)].dp = (char*)inf->attributes[q]; //attr err
             }
     }
     
