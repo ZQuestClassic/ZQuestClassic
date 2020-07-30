@@ -1,7 +1,56 @@
 // 2.55 Change Log
-// Updated 18th July, 2020
+// Updated 30th July, 2020
 
 //Alpha 78
+
+<std 1.7105>
+Fixed a compiling error, and added constants for new npc types. 
+
+Hero->Stun was inappropriately sized as a byte; and I have now
+	corrected it to be sized as an integer.
+Jumping enemies (vire, pols voice) now jump properly again.
+	There is some sort of bug in zfix where if you divide an integer by a
+	zfix value, it is not returning the correct value.
+
+	In this case, 32 / (step .50) was returning -22.
+
+	EDITOR step is 50 on both enemies.
+
+	polsvoice jump_width is: 2
+	polsvoice raw step is: 5000
+	polsvoice step.getInt() 1 is: 1
+	setting clk2 on polsvoice to: -22
+
+	!! 32 / step is -22
+
+	vire jump_width is: 1
+	vire raw step is: 5000
+	vire step.getInt() 1 is: 1
+	setting clk2 on vire to: 32
+
+	!! 16 / step is 32
+
+	I changed the lines to use: int((16.0*jump_width)/step.getFloat());
+	   ...thus float literal divided by zfix.getFloat, but under the old fix
+	      datatype, this happened without any special reuirements.
+		16/0.5 == 32
+		32/0.5 == 64
+		but now...with integer/zfix or float/zfix
+		16/0.5 == 32
+		32/0.5 == -22
+
+	While conversion to getFloat is feasible, I daren't guess how many places
+	lack this conversion, and need it. I do not know why zfix handles this for
+	other units such as 8 and 16, but not for 32.
+	( ZoriaRPG, 30th July, 2020 )
+	
+Reading combo labels by script (Game->GetCombo("") should now be faster.
+	( ZoriaRPG, 27th July, 2020 )
+	
+Fix wpnsbuf[].tile usage, should be newtile
+	( Venrob, 20th July, 2020 )
+	
+	
 Added Module->GetItemClass(char32 *buffer, int itemclass)
 	This copies a string used for itemclass ID 'itemclass_id' in the 
 	current module to the buffer string.

@@ -1,5 +1,5 @@
 // std_constants.zh
-// 18th July, 2020 for ZC 2.55.0 Alpha 77
+// 30th July, 2020 for ZC 2.55.0 Alpha 77
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -911,6 +911,62 @@ const int NPCT_NONE			= 38;
 const int NPCT_FAIRY			= 39;
 const int NPCT_OTHERFLOAT		= 40;
 const int NPCT_OTHER			= 41;
+
+const int NPCT_CUSTOM_01		= 43;
+const int NPCT_SCRIPT_01		= 43;
+const int NPCT_CUSTOM_02		= 44;
+const int NPCT_SCRIPT_02		= 44;
+const int NPCT_CUSTOM_03		= 45;
+const int NPCT_SCRIPT_03		= 45;
+const int NPCT_CUSTOM_04		= 46;
+const int NPCT_SCRIPT_04		= 46;
+const int NPCT_CUSTOM_05		= 47;
+const int NPCT_SCRIPT_05		= 47;
+const int NPCT_CUSTOM_06		= 48;
+const int NPCT_SCRIPT_06		= 48;
+const int NPCT_CUSTOM_07		= 49;
+const int NPCT_SCRIPT_07		= 49;
+const int NPCT_CUSTOM_08		= 50;
+const int NPCT_SCRIPT_08		= 50;
+const int NPCT_CUSTOM_09		= 51;
+const int NPCT_SCRIPT_09		= 51;
+const int NPCT_CUSTOM_10		= 52;
+const int NPCT_SCRIPT_10		= 52;
+
+const int NPCT_CUSTOM_11		= 53;
+const int NPCT_SCRIPT_11		= 53;
+const int NPCT_CUSTOM_12		= 54;
+const int NPCT_SCRIPT_12		= 54;
+const int NPCT_CUSTOM_13		= 55;
+const int NPCT_SCRIPT_13		= 55;
+const int NPCT_CUSTOM_14		= 56;
+const int NPCT_SCRIPT_14		= 56;
+const int NPCT_CUSTOM_15		= 57;
+const int NPCT_SCRIPT_15		= 57;
+const int NPCT_CUSTOM_16		= 58;
+const int NPCT_SCRIPT_16		= 58;
+const int NPCT_CUSTOM_17		= 59;
+const int NPCT_SCRIPT_17		= 59;
+const int NPCT_CUSTOM_18		= 60;
+const int NPCT_SCRIPT_18		= 60;
+const int NPCT_CUSTOM_19		= 61;
+const int NPCT_SCRIPT_19		= 61;
+const int NPCT_CUSTOM_20		= 62;
+const int NPCT_SCRIPT_20		= 62;
+
+const int NPCT_FRIENDLY_01		= 63;
+const int NPCT_FRIENDLY_02		= 64;
+const int NPCT_FRIENDLY_03		= 65;
+const int NPCT_FRIENDLY_04		= 66;
+const int NPCT_FRIENDLY_05		= 67;
+const int NPCT_FRIENDLY_06		= 68;
+const int NPCT_FRIENDLY_07		= 69;
+const int NPCT_FRIENDLY_08		= 70;
+const int NPCT_FRIENDLY_09		= 71;
+const int NPCT_FRIENDLY_10		= 72;
+
+
+
 
 //Guy IDs. Use with CreateNPC().
 const int NPC_ABEI              = 1;
