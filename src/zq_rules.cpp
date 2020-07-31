@@ -128,7 +128,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,-1 
+    22,23,24,25,26,27,28,29,-1 
 };
 
 static TABPANEL comborules_tabs[] =
