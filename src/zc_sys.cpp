@@ -375,7 +375,7 @@ void load_game_configs()
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
 	
 	// And this one fixes patches unloading on some MIDI setups
-	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
+	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
 	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
     
