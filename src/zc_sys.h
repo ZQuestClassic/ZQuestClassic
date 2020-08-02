@@ -197,6 +197,7 @@ void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 int onKeyboardEntry();
 int onLetterGridEntry();
 int onExtLetterGridEntry();
+int onPauseInBackground();
 
 #ifdef ALLEGRO_LINUX_GP2X
 extern int midi_strict;

@@ -73,9 +73,12 @@ byte use_save_indicator;
 byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
+int paused_midi_pos = 0;
+byte midi_suspended = 0;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 byte emulation_patches[emuLAST] = {0};
 byte epilepsyFlashReduction;
+extern int pause_in_background;
 
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
@@ -328,6 +331,7 @@ void load_game_configs()
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
 	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
+	pause_in_background = get_config_int(cfg_sect, "pause_in_background", 0);
     
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -518,6 +522,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"color_depth",zc_color_depth);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit);
+    set_config_int(cfg_sect,"pause_in_background",pause_in_background);
     
 #ifdef _WIN32
     set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
@@ -7145,6 +7150,7 @@ static MENU game_menu[] =
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"Linear Quest Progression",             onLinearQuestLoad,                NULL,                      0, NULL },
     { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
+    { (char *)"Pause in Background",           onPauseInBackground,                    NULL,      0, NULL },
     
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
@@ -7285,6 +7291,35 @@ int onMIDIPatch()
 		
 	}
 	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
+	save_game_configs();
+    return D_O_K;
+}
+
+int onPauseInBackground()
+{
+	if(jwin_alert3(
+			"Toggle Pause in Background", 
+			"This action will change whether ZC Player self-pauses when not in focus.",
+			"If enabled, ZC Player will pause when not in focus, otherwise it will not.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (pause_in_background) 
+	    {
+		    pause_in_background = 0;
+	    }
+	    
+	    else pause_in_background = 1;	
+	    set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
+		
+	}
+	game_menu[5].flags =(midi_patch_fix)?D_SELECTED:0;
 	save_game_configs();
     return D_O_K;
 }
@@ -8759,20 +8794,22 @@ void switch_out_callback()
     //bool was_paused=midi_paused;
     //long pos=midi_pos;
     //int digi_vol, midi_vol;
+    paused_midi_pos = midi_pos;
 	
 	//get_volume(&digi_vol, &midi_vol);
-    //stop_midi();
+    stop_midi();
     //jukebox(currmidi);
 	//set_volume(digi_vol, midi_vol);
-    //midi_seek(pos);
+    //midi_seek(midi_pos);
     
     //if(was_paused)
     //{
     //    midi_pause();
     //    midi_paused=true;
     //}
-    midi_pause();
+    //midi_pause();
     midi_paused=true;
+    midi_suspended = midissuspHALTED;
 }
 
 void switch_in_callback()
@@ -8786,16 +8823,19 @@ void switch_in_callback()
 	
 	//get_volume(&digi_vol, &midi_vol);
     //stop_midi();
-    jukebox(currmidi);
+    //!/jukebox(currmidi);
     //set_volume(digi_vol, midi_vol);
-    midi_seek(midi_pos);
+    //!/midi_seek(midi_pos);
     
     //if(was_paused)
     //{
     //    midi_pause();
     //    midi_paused=true;
     //}
-    midi_paused=false;
+    
+    midi_suspended = midissuspRESUME;
+    
+    //midi_paused=false;
 }
 #else // Not Windows
 void switch_out_callback()
