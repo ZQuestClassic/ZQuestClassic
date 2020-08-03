@@ -8803,7 +8803,7 @@ void switch_out_callback()
 
 void switch_in_callback()
 {
-	callback_switchout = 0;
+	callback_switchout = 2;
 	if(midi_patch_fix==0 || currmidi==0)
         return;
 	

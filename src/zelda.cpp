@@ -2641,23 +2641,32 @@ void game_loop()
 
     if((pause_in_background && callback_switchout && midi_patch_fix))
     {
-	if ( currmidi != 0 )
+	if(callback_switchout > 1) 
 	{
-		paused_midi_pos = midi_pos;
-		midi_paused=true;
-		stop_midi();
-		int digi_vol, midi_vol;
-	
-		get_volume(&digi_vol, &midi_vol);
-		stop_midi();
-		jukebox(currmidi);
-		set_volume(digi_vol, midi_vol);
-		midi_seek(paused_midi_pos);
-		
-		
+		--callback_switchout;
 	}
-	midi_paused=false;
-	midi_suspended = midissuspNONE;
+	else
+	{
+		if ( currmidi != 0 )
+		{
+			paused_midi_pos = midi_pos;
+			midi_paused=true;
+			stop_midi();
+			int digi_vol, midi_vol;
+		
+			get_volume(&digi_vol, &midi_vol);
+			stop_midi();
+			jukebox(currmidi);
+			set_volume(digi_vol, midi_vol);
+			midi_seek(paused_midi_pos);
+			
+			
+			
+		}
+		midi_paused=false;
+		midi_suspended = midissuspNONE;
+		callback_switchout = 0;
+	}
     }
     else if(midi_suspended==midissuspRESUME )
     {
