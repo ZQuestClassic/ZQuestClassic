@@ -158,7 +158,7 @@ int draw_screen_clip_rect_y2=223;
 volatile int logic_counter=0;
 bool trip=false;
 extern byte midi_suspended;
-extern byte callback_switchout;
+extern byte callback_switchin;
 extern bool midi_paused;
 extern int paused_midi_pos;
 extern byte midi_patch_fix;
@@ -490,7 +490,8 @@ bool sbig;                                                  // big screen
 bool sbig2;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
-int pause_in_background = 0;
+extern byte pause_in_background;
+extern byte pause_in_background_menu_init;
 bool toogam=false;
 bool ignoreSideview=false;
 
@@ -2638,36 +2639,51 @@ void do_dcounters()
 
 void game_loop()
 {
-
-    if((pause_in_background && callback_switchout && midi_patch_fix))
+	//zprint2("pause_in_background: %d\n", pause_in_background);
+	zprint2("frame: %d\n", frame);
+	zprint2("pause_in_background: %d\n", pause_in_background);
+	zprint2("midi_patch_fix: %d\n", midi_patch_fix);
+	zprint2("callback_switchin is: %d\n", callback_switchin);
+	
+    if((pause_in_background && callback_switchin && midi_patch_fix))
     {
-	if(callback_switchout > 1) 
+	
+	if(currmidi!=0)
 	{
-		--callback_switchout;
-	}
-	else
-	{
-		if ( currmidi != 0 )
+		
+		if(callback_switchin == 2) 
+		{
+			if ( currmidi != 0 )
+			{
+				int digi_vol, midi_vol;
+			
+				get_volume(&digi_vol, &midi_vol);
+				stop_midi();
+				jukebox(currmidi);
+				set_volume(digi_vol, midi_vol);
+				midi_seek(paused_midi_pos);
+				
+				
+				
+			}
+			midi_paused=false;
+			midi_suspended = midissuspNONE;
+			callback_switchin = 0;
+		}
+		if(callback_switchin == 1) 
 		{
 			paused_midi_pos = midi_pos;
 			midi_paused=true;
 			stop_midi();
-			int digi_vol, midi_vol;
-		
-			get_volume(&digi_vol, &midi_vol);
-			stop_midi();
-			jukebox(currmidi);
-			set_volume(digi_vol, midi_vol);
-			midi_seek(paused_midi_pos);
-			
-			
-			
+			++callback_switchin;
 		}
-		midi_paused=false;
-		midi_suspended = midissuspNONE;
-		callback_switchout = 0;
+	}
+	else //no MIDI playing
+	{
+		callback_switchin = 0;
 	}
     }
+    
     else if(midi_suspended==midissuspRESUME )
     {
 	if ( currmidi != 0 )
@@ -2687,6 +2703,17 @@ void game_loop()
 	midi_suspended = midissuspNONE;
 	    
     }
+    
+	if(pause_in_background_menu_init == -1) //disable
+	{
+		pause_in_background = 0;
+		set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
+	}
+	if(pause_in_background_menu_init == 1) //enable
+	{
+		pause_in_background = 1;
+		set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:SWITCH_BACKAMNESIA);
+	}
     //  walkflagx=0; walkflagy=0;
     if(fadeclk>=0)
     {
