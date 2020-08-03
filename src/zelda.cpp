@@ -158,8 +158,10 @@ int draw_screen_clip_rect_y2=223;
 volatile int logic_counter=0;
 bool trip=false;
 extern byte midi_suspended;
+extern byte callback_switchout;
 extern bool midi_paused;
 extern int paused_midi_pos;
+extern byte midi_patch_fix;
 void update_logic_counter()
 {
     ++logic_counter;
@@ -2637,7 +2639,27 @@ void do_dcounters()
 void game_loop()
 {
 
-    if(midi_suspended==midissuspRESUME)
+    if((pause_in_background && callback_switchout && midi_patch_fix))
+    {
+	if ( currmidi != 0 )
+	{
+		paused_midi_pos = midi_pos;
+		midi_paused=true;
+		stop_midi();
+		int digi_vol, midi_vol;
+	
+		get_volume(&digi_vol, &midi_vol);
+		stop_midi();
+		jukebox(currmidi);
+		set_volume(digi_vol, midi_vol);
+		midi_seek(paused_midi_pos);
+		
+		
+	}
+	midi_paused=false;
+	midi_suspended = midissuspNONE;
+    }
+    else if(midi_suspended==midissuspRESUME )
     {
 	if ( currmidi != 0 )
 	{

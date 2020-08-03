@@ -75,6 +75,7 @@ byte midi_patch_fix;
 bool midi_paused=false;
 int paused_midi_pos = 0;
 byte midi_suspended = 0;
+byte callback_switchout = 0;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 byte emulation_patches[emuLAST] = {0};
 byte epilepsyFlashReduction;
@@ -7319,7 +7320,7 @@ int onPauseInBackground()
 	    set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
 		
 	}
-	game_menu[5].flags =(midi_patch_fix)?D_SELECTED:0;
+	game_menu[5].flags =(pause_in_background)?D_SELECTED:0;
 	save_game_configs();
     return D_O_K;
 }
@@ -8788,34 +8789,26 @@ void system_pal2()
 #ifdef _WIN32
 void switch_out_callback()
 {
+	callback_switchout = 1;
 	if(midi_patch_fix==0 || currmidi==0)
         return;
-        
-    //bool was_paused=midi_paused;
-    //long pos=midi_pos;
-    //int digi_vol, midi_vol;
+
+	if(pause_in_background)
+		return; //Callback only sets a state in this case, and game_loop runs more code.
     paused_midi_pos = midi_pos;
-	
-	//get_volume(&digi_vol, &midi_vol);
     stop_midi();
-    //jukebox(currmidi);
-	//set_volume(digi_vol, midi_vol);
-    //midi_seek(midi_pos);
-    
-    //if(was_paused)
-    //{
-    //    midi_pause();
-    //    midi_paused=true;
-    //}
-    //midi_pause();
     midi_paused=true;
     midi_suspended = midissuspHALTED;
 }
 
 void switch_in_callback()
 {
+	callback_switchout = 0;
 	if(midi_patch_fix==0 || currmidi==0)
         return;
+	
+	if(pause_in_background)
+	return;
         
     //bool was_paused=midi_paused;
     //long pos=midi_pos;
@@ -8900,7 +8893,8 @@ void System()
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
 	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
-    game_menu[5].flags =
+	game_menu[5].flags =(pause_in_background)?D_SELECTED:0;
+    game_menu[6].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     
