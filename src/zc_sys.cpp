@@ -79,7 +79,7 @@ byte callback_switchin = 0;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 byte emulation_patches[emuLAST] = {0};
 byte epilepsyFlashReduction = 0;
-byte pause_in_background_menu_init = 0;
+signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
 
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
@@ -524,7 +524,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"color_depth",zc_color_depth);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit);
-    set_config_int(cfg_sect,"pause_in_background",pause_in_background);
+    //set_config_int(cfg_sect,"pause_in_background",pause_in_background);
     
 #ifdef _WIN32
     set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
@@ -7152,7 +7152,7 @@ static MENU game_menu[] =
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"Linear Quest Progression",             onLinearQuestLoad,                NULL,                      0, NULL },
     { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
-    { (char *)"Pause in Background",           onPauseInBackground,                    NULL,      0, NULL },
+    //{ (char *)"Pause in Background",           onPauseInBackground,                    NULL,      0, NULL },
     
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
@@ -7314,17 +7314,19 @@ int onPauseInBackground()
 	{
 	    if (pause_in_background) 
 	    {
-		    pause_in_background_menu_init = -1;
+		    zprint2("setting pause_in_background_menu_init 2\n");
+		    pause_in_background_menu_init = 2;
 	    }
 	    
 	    else 
 	    {
+		    zprint2("setting pause_in_background_menu_init 1\n");
 		    pause_in_background_menu_init = 1;	
 	    }
 	    
 		
 	}
-	game_menu[5].flags =(pause_in_background_menu_init==1)?D_SELECTED:0;
+	game_menu[5].flags =(pause_in_background)?D_SELECTED:0;
 	save_game_configs();
     return D_O_K;
 }
@@ -8883,8 +8885,9 @@ void System()
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
 	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
-	game_menu[5].flags =(pause_in_background_menu_init==1)?D_SELECTED:0;
-    game_menu[6].flags =
+	//game_menu[5].flags =(pause_in_background)?D_SELECTED:0;
+    //game_menu[6].flags =
+    game_menu[5].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     

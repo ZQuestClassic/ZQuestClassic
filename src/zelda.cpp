@@ -491,7 +491,7 @@ bool sbig2;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
 extern byte pause_in_background;
-extern byte pause_in_background_menu_init;
+extern signed char pause_in_background_menu_init;
 bool toogam=false;
 bool ignoreSideview=false;
 
@@ -2640,10 +2640,10 @@ void do_dcounters()
 void game_loop()
 {
 	//zprint2("pause_in_background: %d\n", pause_in_background);
-	zprint2("frame: %d\n", frame);
-	zprint2("pause_in_background: %d\n", pause_in_background);
-	zprint2("midi_patch_fix: %d\n", midi_patch_fix);
-	zprint2("callback_switchin is: %d\n", callback_switchin);
+	//zprint2("frame: %d\n", frame);
+	//zprint2("pause_in_background: %d\n", pause_in_background);
+	//zprint2("midi_patch_fix: %d\n", midi_patch_fix);
+	//zprint2("callback_switchin is: %d\n", callback_switchin);
 	
     if((pause_in_background && callback_switchin && midi_patch_fix))
     {
@@ -2703,17 +2703,23 @@ void game_loop()
 	midi_suspended = midissuspNONE;
 	    
     }
-    
-	if(pause_in_background_menu_init == -1) //disable
+	/*zprint2("pause_in_background_menu_init is: %d",pause_in_background_menu_init);
+	switch(pause_in_background_menu_init) //disable
 	{
+		case 2:
+		zprint2("changing mode to SWITCH_BACKGROUND\n");
 		pause_in_background = 0;
 		set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
-	}
-	if(pause_in_background_menu_init == 1) //enable
-	{
+		pause_in_background_menu_init = 0;
+		break;
+		case 1:
+		zprint2("changing mode to SWITCH_PAUSE\n");
 		pause_in_background = 1;
 		set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:SWITCH_BACKAMNESIA);
+		pause_in_background_menu_init = 0;
+		break;
 	}
+    */
     //  walkflagx=0; walkflagy=0;
     if(fadeclk>=0)
     {
