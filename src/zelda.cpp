@@ -3338,6 +3338,11 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
     }
+    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	FFCore.combo_script_engine(false);    
+    }
+    
     
     if(!freeze && !freezemsg)
     {
@@ -3491,15 +3496,11 @@ void game_loop()
 		passive_subscreen_waitdraw = false;
 	}
     
+    
     if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
-    }
-    
-    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	FFCore.combo_script_engine(false);    
     }
     
     for ( int q = 0; q < 32; ++q )
@@ -3514,6 +3515,11 @@ void game_loop()
 			tmpscr->ffcswaitdraw &= ~(1<<q);
 		}
 	}
+    }
+    
+    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	FFCore.combo_script_engine_waitdraw(false);    
     }
     
     //Waitdraw for item scripts. 

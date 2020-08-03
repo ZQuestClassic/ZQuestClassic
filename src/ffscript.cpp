@@ -24695,7 +24695,7 @@ int run_script(const byte type, const word script, const long i)
 		{
 			int pos = i%176;
 			int lyr = i/176;
-			combo_doscript[i] = 0;
+			combo_doscript[pos+(176*lyr)] = 0;
 			combo_initialised[pos] &= ~(1<<lyr);
 			
 			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
@@ -38014,6 +38014,40 @@ void FFScript::ClearComboScripts()
 	}
 }
 
+int FFScript::combo_script_engine_waitdraw(const bool preload)
+{
+	
+	///non-scripted effects
+	
+	for ( int q = 0; q < 7; ++q )
+	{
+		for ( int c = 0; c < 176; ++c )
+		{
+			int ls = (q ? tmpscr->layerscreen[q-1] : 0);
+			int lm = (q ? tmpscr->layermap[q-1] : 0);
+			if(q && !lm) continue; //No layer for this screen
+			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
+			int cid = m->data[c];
+			int type = combobuf[cid].type;
+			
+			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
+			if ( combobuf[cid].script )
+			{
+				if ( (combo_doscript[c+(176*q)]) )
+				{
+					if(!(combo_waitdraw[c] & (1<<q))) continue; //waitfraw not set
+					comboscript_combo_ids[c+(176*q)] = cid;
+					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c+176*q);
+					combo_waitdraw[c] |= ~(1<<q);
+				}
+			}
+		}
+	}
+
+	
+	return 1;
+}
+
 int FFScript::combo_script_engine(const bool preload)
 {
 	
@@ -38045,7 +38079,7 @@ int FFScript::combo_script_engine(const bool preload)
 			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
 			if ( combobuf[cid].script )
 			{
-				if ( (combo_doscript[c]) )
+				if ( (combo_doscript[c+(176*q)]) )
 				{
 					comboscript_combo_ids[c+(176*q)] = cid;
 					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c+176*q);
