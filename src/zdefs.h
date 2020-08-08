@@ -4696,5 +4696,8 @@ enum //Mapscr hardcodes for temp mapscrs
 	MAPSCR_TEMP0
 };
 
+//MIDI States
+enum { midissuspNONE, midissuspHALTED, midissuspRESUME };
+
 #endif                                                      //_ZDEFS_H_
 

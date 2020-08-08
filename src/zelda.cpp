@@ -175,6 +175,11 @@ int zc_menu_on_left = 0;
 
 volatile int logic_counter=0;
 bool trip=false;
+extern byte midi_suspended;
+extern byte callback_switchin;
+extern bool midi_paused;
+extern int paused_midi_pos;
+extern byte midi_patch_fix;
 void update_logic_counter()
 {
     ++logic_counter;
@@ -554,7 +559,9 @@ int resx= 0,resy= 0,scrx= 0,scry= 0;
 bool sbig=false;                                                  // big screen
 bool sbig2=false;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
-bool scanlines=false;                                             //do scanlines if sbig==1
+bool scanlines=false; 
+extern byte pause_in_background;
+extern signed char pause_in_background_menu_init;//do scanlines if sbig==1
 bool toogam=false;
 bool ignoreSideview=false;
 
@@ -3261,6 +3268,64 @@ void game_loop()
 		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
 		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
 	
+    if((pause_in_background && callback_switchin && midi_patch_fix))
+    {
+	
+	if(currmidi!=0)
+	{
+		
+		if(callback_switchin == 2) 
+		{
+			if ( currmidi != 0 )
+			{
+				int digi_vol, midi_vol;
+			
+				get_volume(&digi_vol, &midi_vol);
+				stop_midi();
+				jukebox(currmidi);
+				set_volume(digi_vol, midi_vol);
+				midi_seek(paused_midi_pos);
+				
+				
+				
+			}
+			midi_paused=false;
+			midi_suspended = midissuspNONE;
+			callback_switchin = 0;
+		}
+		if(callback_switchin == 1) 
+		{
+			paused_midi_pos = midi_pos;
+			midi_paused=true;
+			stop_midi();
+			++callback_switchin;
+		}
+	}
+	else //no MIDI playing
+	{
+		callback_switchin = 0;
+	}
+    }
+    
+    else if(midi_suspended==midissuspRESUME )
+    {
+	if ( currmidi != 0 )
+	{
+		
+		int digi_vol, midi_vol;
+	
+		get_volume(&digi_vol, &midi_vol);
+		stop_midi();
+		jukebox(currmidi);
+		set_volume(digi_vol, midi_vol);
+		midi_seek(paused_midi_pos);
+		
+		
+	}
+	midi_paused=false;
+	midi_suspended = midissuspNONE;
+	    
+    }
 	
 	//  walkflagx=0; walkflagy=0;
 	runDrunkRNG();
@@ -4194,7 +4259,8 @@ int onFullscreen()
 	    set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
-	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+	    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
 	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 
@@ -5204,8 +5270,8 @@ int main(int argc, char* argv[])
     }
     
     sbig = (screen_scale > 1);
-    set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
-    zq_screen_w = resx;
+    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+    set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);zq_screen_w = resx;
     zq_screen_h = resy;
     
     real_screen = screen;
@@ -5262,6 +5328,9 @@ int main(int argc, char* argv[])
 	    }
 	    checked_epilepsy = 1;
     }
+    
+    //set switching/focus mode -Z
+    set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
     
 // load saved games
     Z_message("Loading saved games... ");

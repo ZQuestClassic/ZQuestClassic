@@ -281,6 +281,7 @@ extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir,
 extern int strike_hint_counter;
 extern int strike_hint_timer;
 extern int strike_hint;
+extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;

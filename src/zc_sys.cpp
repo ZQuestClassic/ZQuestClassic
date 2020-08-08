@@ -75,9 +75,14 @@ byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
+int paused_midi_pos = 0;
+byte midi_suspended = 0;
+byte callback_switchin = 0;
 byte zc_192b163_warp_compatibility;
 char modulepath[2048];
 byte epilepsyFlashReduction;
+signed char pause_in_background_menu_init = 0;
+byte pause_in_background = 0;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -334,6 +339,7 @@ void load_game_configs()
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
 	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
+	pause_in_background = get_config_int(cfg_sect, "pause_in_background", 0);
    
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -9715,46 +9721,32 @@ void system_pal2()
 #ifdef _WIN32
 void switch_out_callback()
 {
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==0 || pause_in_background) //pause in background has its own handling, only on switch-in
         return;
-        
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
+
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
-    
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+	paused_midi_pos = midi_pos;
+	stop_midi();
+	midi_paused=true;
+	midi_suspended = midissuspHALTED;
 }
 
 void switch_in_callback()
 {
+	if(pause_in_background)
+	{
+		callback_switchin = 1;
+		return;
+	}
+	
 	if(midi_patch_fix==0 || currmidi==0)
         return;
-        
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
-    
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+	else
+	{
+		callback_switchin = 1;
+		midi_suspended = midissuspRESUME;
+	}
 }
 #else // Not Windows
 void switch_out_callback()
