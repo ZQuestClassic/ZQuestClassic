@@ -4098,7 +4098,8 @@ int main(int argc, char* argv[])
     }
     
     sbig = (screen_scale > 1);
-    set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:SWITCH_BACKGROUND);
+    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+    set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
     zq_screen_w = resx;
     zq_screen_h = resy;
     
