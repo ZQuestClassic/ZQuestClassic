@@ -1,0 +1,50 @@
+[Theme]
+dvc1_r = 53
+dvc1_g = 53
+dvc1_b = 63
+
+dvc2_r = 28
+dvc2_g = 33
+dvc2_b = 42
+
+dvc3_r = 20
+dvc3_g = 25
+dvc3_b = 36
+
+dvc4_r = 15
+dvc4_g = 17
+dvc4_b = 31
+
+dvc5_r = 12
+dvc5_g = 12
+dvc5_b = 25
+
+dvc6_r = 9
+dvc6_g = 8
+dvc6_b = 19
+
+dvc7_r = 4
+dvc7_g = 3
+dvc7_b = 11
+
+dvc8_r = 0
+dvc8_g = 0
+dvc8_b = 0
+
+jcbox = 5 //Box BG
+jclight = 3 //Box Outlines (Lightest to darkest)
+jcmedlt = 4
+jcmeddark = 6
+jcdark = 7
+jcboxfg = 1 //Box Text
+jctitlel = 2 //Title Bar (Left End)
+jctitler = 6 //Title Bar (Right End)
+jctitlefg = 1 //Title Bar (Text)
+jctextbg = 6 //Radio Button BG
+jctextfg = 2 //Radio Button FG
+jcselbg = 2 //Menu Selection BG
+jcselfg = 6 //Menu Selection Text
+jccursormisc = 8 //Cursor Shadow
+jccursoroutline = 6 //Cursor Outlines
+jccursorlight = 3 //Cursor Fill
+jccursordark = 1 //Cursor Highlight
