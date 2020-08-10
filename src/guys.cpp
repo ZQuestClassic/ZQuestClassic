@@ -18107,7 +18107,7 @@ int addenemy(int x,int y,int z,int id,int clk)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "addenemy()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "addenemy()"); 
 		return 0;
 	}
 	if(id <= 0) return 0;
@@ -18544,7 +18544,7 @@ bool isjumper(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isjumper()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isjumper()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18565,7 +18565,7 @@ bool isfixedtogrid(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isfixedtogrid()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isfixedtogrid()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18590,7 +18590,7 @@ bool isflier(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isflier()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isflier()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family) //id&0x0FFF)
@@ -18615,7 +18615,7 @@ bool never_in_air(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "never_in_air()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "never_in_air()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18642,7 +18642,7 @@ bool canfall(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "canfall()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "canfall()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18678,7 +18678,7 @@ bool enemy::enemycanfall(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "enemycanfall()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "enemycanfall()"); 
 		return false;
 	}
 	//Z_scripterrlog("canfall family is %d:\n", family);
@@ -18923,7 +18923,7 @@ bool slowguy(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "slowguy()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "slowguy()"); 
 		return false;
 	}
 //return (guysbuf[id].step<100);
@@ -18955,7 +18955,7 @@ bool ok2add(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
 		return false;
 	}
 	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_neverret))
@@ -19270,7 +19270,7 @@ bool can_side_load(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
-		zprint2("Invalid enemy ID (%d) passed to %s\n", id, "can_side_load()"); 
+		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "can_side_load()"); 
 		return false;
 	}
 	switch(guysbuf[id].family) //id&0x0FFF)
@@ -19431,13 +19431,14 @@ void side_load_enemies()
 bool is_starting_pos(int i, int x, int y, int t)
 {
 	
-	//if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	//if(tmpscr->enemy[i]<1||tmpscr->enemy[i]<MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	//{
 		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
 	//	return false; //never 0, never OoB.
 	//}
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
+
 		return false;
 		
 	// No enemies in dungeon walls
@@ -19632,15 +19633,11 @@ void loadenemies()
 		}
 		
 		// Next: enemy pattern
-		if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()))
+		if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS)))
 		{
 			do
 			{
-				// Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
-				if((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))
-				{
-					continue;
-				}
+
 				// NES positions
 				pos%=9;
 				x=stx[loadside][pos];
@@ -19679,7 +19676,7 @@ void loadenemies()
 			else
 				c=-15*(i+1);
 				
-			if(BSZ&&((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+			if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
 				// Special case for blue leevers
 				if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
@@ -19692,16 +19689,16 @@ void loadenemies()
 				++loadcnt;
 			else
 			{
-				if(((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
-				{
-					addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-							 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
-							 
-					if(countguy(tmpscr->enemy[i]))
-						++guycnt;
+				if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+					{
+						addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+								 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
+								 
+						if(countguy(tmpscr->enemy[i]))
+							++guycnt;
+					}
 				}
-			}
-			
+				
 			placed=true;
 		}                                                     // if(t < 20)
 		
