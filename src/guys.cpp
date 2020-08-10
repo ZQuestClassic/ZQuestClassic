@@ -19430,7 +19430,12 @@ void side_load_enemies()
 
 bool is_starting_pos(int i, int x, int y, int t)
 {
-	zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
+	
+	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>MAXGUYS) 
+	{
+		zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
+		return false; //never 0, never OoB.
+	}
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
 		return false;
