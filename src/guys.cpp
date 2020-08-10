@@ -19431,11 +19431,11 @@ void side_load_enemies()
 bool is_starting_pos(int i, int x, int y, int t)
 {
 	
-	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
-	{
+	//if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	//{
 		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
-		return false; //never 0, never OoB.
-	}
+	//	return false; //never 0, never OoB.
+	//}
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
 		return false;
@@ -19636,6 +19636,11 @@ void loadenemies()
 		{
 			do
 			{
+				// Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+				if((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))
+				{
+					continue;
+				}
 				// NES positions
 				pos%=9;
 				x=stx[loadside][pos];
@@ -19674,7 +19679,7 @@ void loadenemies()
 			else
 				c=-15*(i+1);
 				
-			if(BSZ)
+			if(BSZ&&((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
 				// Special case for blue leevers
 				if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
@@ -19687,11 +19692,14 @@ void loadenemies()
 				++loadcnt;
 			else
 			{
-				addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-						 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
-						 
-				if(countguy(tmpscr->enemy[i]))
-					++guycnt;
+				if(((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+				{
+					addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+							 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
+							 
+					if(countguy(tmpscr->enemy[i]))
+						++guycnt;
+				}
 			}
 			
 			placed=true;
