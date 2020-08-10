@@ -211,6 +211,11 @@ scale(other.scale),
 screenedge(other.screenedge),
 shadowsprite(other.shadowsprite),
 scriptshadowtile(other.scriptshadowtile),
+pit_pulldir(other.pit_pulldir),
+pit_pullclk(other.pit_pullclk),
+fallclk(other.fallclk),
+fallCombo(other.fallCombo),
+old_cset(other.old_cset),
 do_animation(other.do_animation)
 
 {
