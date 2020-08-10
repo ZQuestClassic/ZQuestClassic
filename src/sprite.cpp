@@ -321,6 +321,12 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     shadowsprite = 0;
     screenedge = 0;
     scriptshadowtile = -1;
+    pit_pulldir = -1;
+    pit_pullclk = 0;
+    fallclk = 0;
+    fallCombo = 0;
+    old_cset = 0;
+    drawflags = 0;
     for ( int q = 0; q < 8; q++ ) 
     {
         initD[q] = 0;
