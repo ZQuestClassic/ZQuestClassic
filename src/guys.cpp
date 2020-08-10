@@ -18103,6 +18103,7 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 // Returns number of enemies/segments created
 int addenemy(int x,int y,int z,int id,int clk)
 {
+	if( ((unsigned)id) > MAXGUYS ) return 0;
 	if(id <= 0) return 0;
 	
 	int ret = 0;
@@ -18535,6 +18536,7 @@ int addenemy(int x,int y,int z,int id,int clk)
 
 bool isjumper(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id&0xFFF].family)
 	{
 	case eeROCK:
@@ -18551,6 +18553,7 @@ bool isjumper(int id)
 
 bool isfixedtogrid(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id&0xFFF].family)
 	{
 	case eeWALK:
@@ -18571,6 +18574,7 @@ bool isfixedtogrid(int id)
 // Can't fall, can have Z value.
 bool isflier(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id&0xFFF].family) //id&0x0FFF)
 	{
 	case eePEAHAT:
@@ -18591,6 +18595,7 @@ bool isflier(int id)
 // Can't have Z position
 bool never_in_air(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id&0xFFF].family)
 	{
 	case eeMANHAN:
@@ -18613,6 +18618,7 @@ bool never_in_air(int id)
 
 bool canfall(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id&0xFFF].family)
 	{
 	case eeGUY:
@@ -18644,6 +18650,7 @@ bool canfall(int id)
 
 bool enemy::enemycanfall(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	//Z_scripterrlog("canfall family is %d:\n", family);
 	//Z_scripterrlog("canfall gravity is %s:\n", moveflags & FLAG_OBEYS_GRAV ? "true" : "false");
 	//if ( family == eeFIRE && id >= eSTART ) 
@@ -18884,6 +18891,7 @@ dontdoit:
 
 bool slowguy(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 //return (guysbuf[id].step<100);
 	switch(id)
 	{
@@ -18911,6 +18919,7 @@ bool countguy(int id)
 
 bool ok2add(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_neverret))
 		return false;
 		
@@ -19221,6 +19230,7 @@ int next_side_pos(bool random)
 
 bool can_side_load(int id)
 {
+	if( ((unsigned)id) > MAXGUYS ) return false;
 	switch(guysbuf[id].family) //id&0x0FFF)
 	{
 		//case eTEK1:
