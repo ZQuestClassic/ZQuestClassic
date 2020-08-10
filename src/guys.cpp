@@ -18951,7 +18951,7 @@ bool countguy(int id)
 	return true;
 }
 
-bool oktoadd(int id)
+bool ok2add(int id)
 {
 	if( ((unsigned)id) > MAXGUYS ) 
 	{
@@ -19430,6 +19430,7 @@ void side_load_enemies()
 
 bool is_starting_pos(int i, int x, int y, int t)
 {
+	zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
 		return false;
