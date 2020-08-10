@@ -2008,6 +2008,9 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	//Load game icons
 	for(int i=0; i<MAXSAVES; i++)
 	{
+		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
+		zprint2("Reading Save Slot %d\n", i);
+		
 		if(strlen(saves[i].qstpath))
 		{
 			if(skipicon)
@@ -2026,7 +2029,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			{
 				if(!iconbuffer[i].loaded)
 				{
-					int ret2 = load_quest(saves+i, false);
+					int ret2 = load_quest(saves+i, false, showmetadata);
 					
 					if(ret2 == qe_OK)
 					{

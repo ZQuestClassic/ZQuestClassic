@@ -1668,7 +1668,7 @@ void CatchBrang()
 /***** Main Game Code *****/
 /**************************/
 
-int load_quest(gamedata *g, bool report)
+int load_quest(gamedata *g, bool report, byte printmetadata)
 {
     chop_path(qstpath);
     char *tempdir=(char *)"";
@@ -1792,7 +1792,7 @@ int load_quest(gamedata *g, bool report)
         skip_flags[i]=0;
     }
     
-    int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
+    int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata);
 	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
     //setPackfilePassword(NULL);
     
@@ -1855,8 +1855,138 @@ void init_dmap()
 
 int init_game()
 {
-	
-	
+	//show quest metadata when loading it
+	{
+		
+		zprint2("\n");
+		zprint2("[ZQUEST CREATOR METADATA]\n");
+		if ( FFCore.quest_format[qQuestNumber] > 0 ) zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
+		if ( QHeader.new_version_id_main > 0 )
+		{
+			zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", QHeader.new_version_id_main,QHeader.new_version_id_second,QHeader.new_version_id_third,QHeader.new_version_id_fourth);
+		}
+		else
+		{
+			switch ( QHeader.zelda_version )
+			{
+				case 0x255:
+				{
+					switch(QHeader.build)
+					{
+						default:
+						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build); break;	
+					}
+					break;
+				}
+				case 0x254:
+				{
+					switch(QHeader.build)
+					{
+						default:
+						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", QHeader.build); break;	
+					}
+					break;
+				}
+				case 0x250:
+				{
+					switch(QHeader.build)
+					{
+						case 19:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 1\n"); break;
+						case 20:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 2\n"); break;
+						case 21:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 3\n"); break;
+						case 22:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 4\n"); break;
+						case 23:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 5\n"); break;
+						case 24:
+							zprint2("Last saved in ZC Editor Version: 2.50.0, Release\n"); break;
+						case 25:
+							zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 1\n"); break;
+						case 26:
+							zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 2\n"); break;
+						case 27: 
+							zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 3\n"); break;
+						case 28:
+							zprint2("Last saved in ZC Editor Version: 2.50.1, Release\n"); break;
+						case 29:
+							zprint2("Last saved in ZC Editor Version: 2.50.2, Release\n"); break;
+						case 30:
+							zprint2("Last saved in ZC Editor Version: 2.50.3, Gamma 1\n"); break;
+						case 31:
+							zprint2("Last saved in ZC Editor Version: 2.53.0, Prior to Gamma 3\n"); break;
+						case 32:
+							zprint2("Last saved in ZC Editor Version: 2.53.0\n"); break;
+						case 33:
+							zprint2("Last saved in ZC Editor Version: 2.53.1\n"); break;
+						default:
+							zprint2("Last saved in ZC Editor Version: %x, Build %d\n", QHeader.zelda_version,QHeader.build); break;
+			
+					}
+					break;
+				}
+				
+				case 0x211:
+				{
+					zprint2("Last saved in ZC Editor Version: 2.11, Beta %d\n", QHeader.build); break;
+				}
+				case 0x210:
+				{
+					zprint2("Last saved in ZC Editor Version: 2.10.x\n"); 
+					if ( QHeader.build ) zprint2("Beta/Build %d\n", QHeader.build); 
+					break;
+				}
+				case 0x193:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.93, Beta %d\n", QHeader.build); break;
+				}
+				case 0x192:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.92, Beta %d\n", QHeader.build); break;
+				}
+				case 0x190:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.90, Beta/Build %d\n", QHeader.build); break;
+				}
+				case 0x184:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.84, Beta/Build %d\n", QHeader.build); break;
+				}
+				case 0x183:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.83, Beta/Build %d\n", QHeader.build); break;
+				}
+				case 0x180:
+				{
+					zprint2("Last saved in ZC Editor Version: 1.80, Beta/Build %d\n", QHeader.build); break;
+				}
+				default:
+				{
+					zprint2("Last saved in ZC Editor Version: %x, Beta %d\n", QHeader.zelda_version,QHeader.build); break;
+				}
+				
+			}
+		}
+		if ( QHeader.new_version_id_alpha ) { zprint2("Alpha %d\n", QHeader.new_version_id_alpha); }
+		else if ( QHeader.new_version_id_beta ) { zprint2("Beta %d\n", QHeader.new_version_id_beta); }
+		else if ( QHeader.new_version_id_gamma ) { zprint2("Gamma %d\n", QHeader.new_version_id_gamma); }
+		else if ( QHeader.new_version_id_release ) { zprint2("Release %d\n\n", QHeader.new_version_id_release); }
+		else
+		{
+			//no specific mnetadata - Can wededuce it?
+			
+			
+		}
+		if ( QHeader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", QHeader.made_in_module_name);
+		if ( QHeader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", QHeader.new_version_devsig, QHeader.developerid);
+		if ( QHeader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", QHeader.new_version_compilername, QHeader.compilerid);
+		if ( QHeader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", QHeader.new_version_compilerversion,QHeader.compilerversionnumber_first,QHeader.compilerversionnumber_second,QHeader.compilerversionnumber_third,QHeader.compilerversionnumber_fourth);
+		if ( QHeader.product_name[0] ) zprint2("Project ID: %s\n", QHeader.product_name);
+		if ( QHeader.new_version_id_date_day ) zprint2("\nEditor Built at date and time: %d-%d-%d at @ %s %s\n\n", QHeader.new_version_id_date_day, QHeader.new_version_id_date_month, QHeader.new_version_id_date_year, QHeader.build_timestamp, QHeader.build_timezone);
+		//al_trace("(Autogenerated) Editor Built at date and time: %s @ %s\n\n", QHeader.build_datestamp, );
+	}
   //port250QuestRules();	
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -5334,13 +5464,13 @@ int main(int argc, char* argv[])
     
 // load saved games
     Z_message("Loading saved games... ");
-    
+    zprint2("Loading Saved Games\n");
     if(load_savedgames() != 0)
     {
         Z_error("Insufficient memory");
         quit_game();
     }
-    
+    zprint2("Finished Loading Saved Games\n");
     Z_message("OK\n");
     
 #ifdef _WIN32

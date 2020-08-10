@@ -175,7 +175,7 @@ void init_dmap();
 int  init_game();
 int  cont_game();
 void restart_level();
-int  load_quest(gamedata *g, bool report=true);
+int  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
 void show_details();
 void show_ffscript_names();
 //int  init_palnames();

@@ -17666,7 +17666,7 @@ void portBombRules()
 	
 }
 
-int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
+int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
 {
 	
     DMapEditorLastMaptileUsed = 0;
@@ -17794,7 +17794,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     //header
     box_out("Reading Header...");
-    ret=readheader(f, &tempheader, true, 1);
+    ret=readheader(f, &tempheader, true, printmetadata);
     checkstatus(ret);
     box_out("okay.");
     box_eol();
