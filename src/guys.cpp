@@ -156,7 +156,7 @@ int random_layer_enemy()
 			
 			for(int j=0; j<10; ++j)
 			{
-				if(layerscreen->enemy[j]!=0)
+				if(layerscreen->enemy[j]>0&&layerscreen->enemy[j]<MAXGUYS)
 				{
 					if(cnt==ret)
 					{

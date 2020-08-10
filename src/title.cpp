@@ -1269,18 +1269,20 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	}
 	FFCore.skip_ending_credits = 0;
 	//word item_count;
-	word qstpath_len;
-	word save_count;
-	char name[9];
-	byte tempbyte;
-	short tempshort;
+	word qstpath_len=0;
+	word save_count=0;
+	char name[9]={0};
+	byte tempbyte = 0;
+	short tempshort = 0;
 	//  long templong;
-	word tempword;
-	dword tempdword;
+	word tempword = 0;
+	word tempword2 = 0;
+	word tempword3 = 0;
+	dword tempdword = 0;
 	long section_id=0;
 	word section_version=0;
 	word section_cversion=0;
-	dword section_size;
+	dword section_size = 0;
 	
 	//section id
 	if(!p_mgetl(&section_id,f,true))
@@ -1845,19 +1847,19 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 	if((section_version > 11 && FFCore.getQuestHeaderInfo(vZelda) < 0x255) || (section_version > 15 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255))
 		{
-			if(!p_igetw(&tempword, f, true))
+			if(!p_igetw(&tempword2, f, true))
 			{
 				return 56;
 			}
 			
-			savedata[i].forced_awpn = tempword;
+			savedata[i].forced_awpn = tempword2;
 			
-			if(!p_igetw(&tempword, f, true))
+			if(!p_igetw(&tempword3, f, true))
 			{
 				return 57;
 			}
 			
-			savedata[i].forced_bwpn = tempword;
+			savedata[i].forced_bwpn = tempword3;
 		}
 		else
 		{
