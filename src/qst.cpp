@@ -13515,6 +13515,12 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                 temp_mapscr->enemy[k]+=10;
             }
         }
+	//don't read in any invalid data
+	if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
+	{
+		al_trace("Tried to read an invalid enemy ID (%d) for tmpscr->enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
+		temp_mapscr->enemy[k] = 0;
+	}
     }
     
     if(!p_getc(&(temp_mapscr->pattern),f,true))
