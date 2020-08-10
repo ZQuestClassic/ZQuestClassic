@@ -2336,6 +2336,11 @@ struct mapscr
         scrWidth=0;
         scrHeight=0;
         numff=0;
+	entry_x = 0;
+	entry_y = 0;
+	
+	old_cpage = 0;
+	screen_midi = 0;
         
         for(int i(0); i<4; i++)
         {
