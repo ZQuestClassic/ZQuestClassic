@@ -13862,7 +13862,19 @@ void set_register(const long arg, const long value)
 		case SCREENDATATILEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case SCREENDATATILEWARPSCREEN: 	SET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
 		case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
-		case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+		case SCREENDATAENEMY: 	
+		{ 
+			int indx = ri->d[0] / 10000; 
+			int enemyid = value/10000;
+			if ( ((unsigned)enemyid) > MAXGUYS ) 
+			{ 
+				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.", enemyid,"Enemy[]"); \
+				break; 
+			} 
+			tmpscr->enemy[indx] = enemyid; 
+			break;
+		} 
+		//case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 		case SCREENDATAPATTERN: 		SET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 		case SCREENDATASIDEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
 		//case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
@@ -14725,7 +14737,33 @@ void set_register(const long arg, const long value)
 		case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
 		case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
-		case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+		case MAPDATAENEMY: 
+		{ 
+			int indx = (ri->d[0] / 10000)-1;
+			int enemyid = value/10000;
+			if( ((unsigned)indx) > 9 ) 
+			{ 
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "Enemy[]"); \
+				break; 
+			} 
+			else if ( ri->mapsref == LONG_MAX ) 
+			{ 
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","Enemy[]"); \
+				break; 
+			} 
+			else if ( ((unsigned)enemyid) > MAXGUYS ) 
+			{ 
+				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.", enemyid,"Enemy[]"); \
+				break; 
+			} 
+			else 
+			{ 
+				mapscr *m = GetMapscr(ri->mapsref); 
+				m->enemy[indx] = enemyid; 
+			} 
+			break;
+		} 
+		//case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 		case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 		case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
 		//case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
