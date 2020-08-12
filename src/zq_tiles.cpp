@@ -17627,9 +17627,9 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	//{ Placeholders
 	{
-		 182,
+		 cSTEPSFX,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
 	},
 	{
 		 183,

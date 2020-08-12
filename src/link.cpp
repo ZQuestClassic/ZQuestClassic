@@ -16773,6 +16773,10 @@ void LinkClass::checkspecial2(int *ls)
             }
         }
     }
+    else if(type==cSTEPSFX)
+    { 
+	sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
+    }
     else stepnext = -1;
     
     detail_int[0]=tx;
