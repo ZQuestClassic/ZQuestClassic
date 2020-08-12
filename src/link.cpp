@@ -16775,7 +16775,10 @@ void LinkClass::checkspecial2(int *ls)
     }
     else if(type==cSTEPSFX)
     { 
-	sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
+	//We probably only want to do this when the player is moving.
+	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
+	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
+		sfx(thesfx,pan((int)x));
     }
     else stepnext = -1;
     
