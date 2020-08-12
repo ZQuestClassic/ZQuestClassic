@@ -19440,6 +19440,10 @@ bool is_starting_pos(int i, int x, int y, int t)
 	if((x==0 || x==240) && (y==0 || y==160))
 
 		return false;
+	
+	//Is a no spawn combo...
+	if(MAPFLAG(x+8,y+8)==mfNOENEMYSPAWN || MAPCOMBOFLAG(x+8,y+8)==mfNOENEMYSPAWN)
+		return false;
 		
 	// No enemies in dungeon walls
 	if(isdungeon() && (x<32 || x>=224 || y<32 || y>=144))
@@ -19456,15 +19460,22 @@ bool is_starting_pos(int i, int x, int y, int t)
 		return false;
 		
 	// Can't jump onto it?
-	if(guysbuf[tmpscr->enemy[i]].family==eeTEK &&
-			(COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
-			 COMBOTYPE(x+8,y+8)==cNOENEMY||
-			 ispitfall(x+8,y+8)||
-			 MAPFLAG(x+8,y+8)==mfNOENEMY||
-			 MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY)||
-			 MAPFLAG(x+8,y+8)==mfNOENEMYSPAWN||
-			 MAPCOMBOFLAG(x+8,y+8)==mfNOENEMYSPAWN))
+	if
+	(
+		guysbuf[tmpscr->enemy[i]].family==eeTEK 
+		
+		&&
+		(
+			COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
+			COMBOTYPE(x+8,y+8)==cNOENEMY||
+			ispitfall(x+8,y+8)||
+			MAPFLAG(x+8,y+8)==mfNOENEMY||
+			MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY
+		)
+	)
+	{
 		return false;
+	}
 		
 	// Other off-limit combos
 	if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
