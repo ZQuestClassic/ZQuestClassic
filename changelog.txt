@@ -1,7 +1,64 @@
 // 2.55 Change Log
-// Updated 30th July, 2020
+// Updated 12th August, 2020
 
 //Alpha 79
+
+```
+Added Combo Type (Step->Effects). At present, this
+	would allow for playing a SFX when stepping on the combo, with
+	no side effects. It plays the sound if it is both not already
+	playing, and Link action == walking.
+Added placed and inherent flags:
+	Spawn No Enemies:
+		Enemies will never spawn here.
+	Spawn All Enemies:
+		EVERY enemy on the screen spawns here.
+	( ZoriaRPG, 12th September, 2020 )
+	
+More fixes for script draws in warps.
+	( Venrob, 11th August 2020 )
+
+Display of quest metadata was stale in the console. This timing
+	change ensures that the data will be accurate.
+	( ZoriaRPG, 11th August 2020 )
+
+The console now shows the slot ID that it is loading, and
+	by default, uest metadata is not printed unless both the quest has
+	an icon AND the user sets 'print_metadata_for_each_save_slot' to '1'
+	in zc.cfg.
+	In any event metadata was not shown before for quests without an icon.
+	Selecting the quest (loading it) in ZC Player will always output its
+        metadata. This simply channges the initial information that
+        the console shows; and it ADDS notification of its PROGRESS
+        in reading the .SAV file.
+Added final sanity guards against loading or accessing invalid npc IDs
+	with tmpscr->enemy[] and removed zprint2 logging from them. 
+	This resolves the mysterious enemyid==768 crashes in Waterford.qst
+		for the present.
+Fixed sprite, weapon, and mapscr constructors (memory holes).
+	( ZoriaRPG, 10th August 2020 )
+		
+Port 2.53.1 MIDI fix to 2.55.
+	( ZoriaRPG, 8th August 2020 )
+		
+Added demo onDeath and F6 Menu Scripts
+<std 1.7106>
+	Added sanity guard on SetLayerCombo/GetLayerCombo functions.
+	These now check to ensure that the layer is configured.	
+	( ZoriaRPG, 7th August 2020 )
+
+Remove duplicate element and offset, in CSet Palette Cycle dialogue.
+	( ZoriaRPG, 3rd August 2020 )
+		
+Added Waitdraw support for combodata scripts, and corrected the calls
+	to run combo scripts, and their timing.
+Fixed error on combo_doscript where it was using do_script info only for
+	combos on layer 0. The correct index is not [pos]., it is [pos+(176*layer)]
+	Update ZScript Timing Docs
+	( ZoriaRPG, 2nd August 2020 )
+
+Fixed crash on Options->Combo Rules->2.
+	( Venrob, 30th July, 2020 )
 
 //Alpha 78
 
