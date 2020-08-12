@@ -1770,21 +1770,7 @@ void close_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
-		if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-		{
-			FFCore.runWarpScripts(false);
-			FFCore.runWarpScripts(true); //Waitdraw
-		}
-		else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-		{
-			if(DMaps[currdmap].passive_sub_script != 0)
-				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-			{
-				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-				passive_subscreen_waitdraw = false;
-			}	
-		}
+		FFCore.warpScriptCheck();
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -1827,21 +1813,7 @@ void open_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
-		if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-		{
-			FFCore.runWarpScripts(false);
-			FFCore.runWarpScripts(true); //Waitdraw
-		}
-		else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-		{
-			if(DMaps[currdmap].passive_sub_script != 0)
-				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-			{
-				ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-				passive_subscreen_waitdraw = false;
-			}	
-		}
+		FFCore.warpScriptCheck();
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -5041,21 +5013,7 @@ void zapout()
 
 void zapin()
 {
-	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-	{
-		FFCore.runWarpScripts(false);
-		FFCore.runWarpScripts(true); //Waitdraw
-	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-	{
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
-		}	
-	}
+	FFCore.warpScriptCheck();
     draw_screen(tmpscr);
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
@@ -5214,21 +5172,7 @@ void blackscr(int fcnt,bool showsubscr)
     reset_pal_cycling();
     script_drawing_commands.Clear();
     
-	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-	{
-		FFCore.runWarpScripts(false);
-		FFCore.runWarpScripts(true); //Waitdraw
-	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-	{
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
-		}	
-	}
+	FFCore.warpScriptCheck();
     while(fcnt>0)
     {
         clear_bitmap(framebuf);
@@ -5237,8 +5181,10 @@ void blackscr(int fcnt,bool showsubscr)
         {
             put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 			if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS) || (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
+			{
 				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
-        }
+			}
+		}
         
         syskeys();
         advanceframe(true);
@@ -5271,21 +5217,7 @@ void openscreen(int shape)
     
     int x=128;
     
-	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-	{
-		FFCore.runWarpScripts(false);
-		FFCore.runWarpScripts(true); //Waitdraw
-	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-	{
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
-		}	
-	}
+	FFCore.warpScriptCheck();
     for(int i=0; i<80; i++)
     {
         draw_screen(tmpscr);
@@ -5345,21 +5277,7 @@ void closescreen(int shape)
     
     int x=128;
     
-	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
-	{
-		FFCore.runWarpScripts(false);
-		FFCore.runWarpScripts(true); //Waitdraw
-	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
-	{
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
-		}	
-	}
+	FFCore.warpScriptCheck();
     for(int i=79; i>=0; --i)
     {
         draw_screen(tmpscr);

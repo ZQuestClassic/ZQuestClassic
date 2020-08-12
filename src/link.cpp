@@ -16884,6 +16884,7 @@ void LinkClass::checkspecial2(int *ls)
         }
     }
     
+	
     int t=(currscr<128)?0:1;
     
     if((type==cCAVE || type==cCAVE2) && (tmpscr[t].tilewarptype[index]==wtNOWARP)) return;
@@ -16928,6 +16929,7 @@ void LinkClass::checkspecial2(int *ls)
         bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
                         ? false : COOLSCROLL);
                         
+		FFCore.warpScriptCheck();
         draw_screen(tmpscr);
         advanceframe(true);
         
@@ -16950,6 +16952,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe)
         {
+			FFCore.warpScriptCheck();
             draw_screen(tmpscr);
             advanceframe(true);
         }
@@ -16979,6 +16982,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe)
         {
+			FFCore.warpScriptCheck();
             draw_screen(tmpscr);
             advanceframe(true);
         }
@@ -17022,6 +17026,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe && (tmpscr[t].tilewarptype[index]!=wtNOWARP))
         {
+			FFCore.warpScriptCheck();
             draw_screen(tmpscr);
             advanceframe(true);
         }
@@ -17096,7 +17101,7 @@ const char *roomtype_string[rMAX] =
 
 bool LinkClass::dowarp(int type, int index, int warpsfx)
 {
-    if(index<0)
+	 if(index<0)
         return false;
     if ( warp_sound > 0 ) warpsfx = warp_sound;
     word wdmap=0;
@@ -17174,7 +17179,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         break;
     }
     
-    bool intradmap = (wdmap == currdmap);
+	 bool intradmap = (wdmap == currdmap);
     int olddmap = currdmap;
     //if ( intradmap ) 
     //{
@@ -17646,7 +17651,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         
         bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
                          ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
-                         
+                    
         if(!(tmpscr->flags3&fIWARPFULLSCREEN))
         {
             //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD

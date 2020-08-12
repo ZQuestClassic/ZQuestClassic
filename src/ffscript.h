@@ -468,6 +468,7 @@ void eweaponScriptEngineOnWaitdraw();
 void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
+void warpScriptCheck();
 void runWarpScripts(bool waitdraw);
 void runF6Engine();
 void runOnDeathEngine();

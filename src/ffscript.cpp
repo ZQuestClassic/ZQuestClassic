@@ -27810,6 +27810,25 @@ bool FFScript::newScriptEngine()
 	return false;
 }
 
+void FFScript::warpScriptCheck()
+{
+	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
+	{
+		FFCore.runWarpScripts(false);
+		FFCore.runWarpScripts(true); //Waitdraw
+	}
+	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	{
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+	}
+}
+
 void FFScript::runWarpScripts(bool waitdraw)
 {
 	if(waitdraw)
