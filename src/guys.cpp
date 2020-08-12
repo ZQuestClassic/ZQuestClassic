@@ -19429,7 +19429,7 @@ void side_load_enemies()
 }
 
 bool is_starting_pos(int i, int x, int y, int t)
-{
+{ 
 	
 	//if(tmpscr->enemy[i]<1||tmpscr->enemy[i]<MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	//{
@@ -19439,6 +19439,10 @@ bool is_starting_pos(int i, int x, int y, int t)
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
 
+		return false;
+	
+	//Is a no spawn combo...
+	if(MAPFLAG(x+8,y+8)==mfNOENEMYSPAWN || MAPCOMBOFLAG(x+8,y+8)==mfNOENEMYSPAWN)
 		return false;
 		
 	// No enemies in dungeon walls
@@ -19456,13 +19460,22 @@ bool is_starting_pos(int i, int x, int y, int t)
 		return false;
 		
 	// Can't jump onto it?
-	if(guysbuf[tmpscr->enemy[i]].family==eeTEK &&
-			(COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
-			 COMBOTYPE(x+8,y+8)==cNOENEMY||
-			 ispitfall(x+8,y+8)||
-			 MAPFLAG(x+8,y+8)==mfNOENEMY||
-			 MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY))
+	if
+	(
+		guysbuf[tmpscr->enemy[i]].family==eeTEK 
+		
+		&&
+		(
+			COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
+			COMBOTYPE(x+8,y+8)==cNOENEMY||
+			ispitfall(x+8,y+8)||
+			MAPFLAG(x+8,y+8)==mfNOENEMY||
+			MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY
+		)
+	)
+	{
 		return false;
+	}
 		
 	// Other off-limit combos
 	if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
@@ -19612,7 +19625,25 @@ void loadenemies()
 				int cflag = MAPFLAG(sx, sy);
 				int cflag_i = MAPCOMBOFLAG(sx, sy);
 				
-				if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
+				if(((cflag==mdENEMYALL)||(cflag_i==mdENEMYALL)) && (!placed))
+				{
+					if(!ok2add(tmpscr->enemy[i]))
+						++loadcnt;
+					else
+					{
+						addenemy(sx,
+								 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
+								 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+								 
+						if(countguy(tmpscr->enemy[i]))
+							++guycnt;
+							
+						placed=true;
+						goto placed_enemy;
+					}
+				}
+				
+				else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 				{
 					if(!ok2add(tmpscr->enemy[i]))
 						++loadcnt;

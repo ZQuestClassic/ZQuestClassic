@@ -2541,6 +2541,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfENEMY7:
                 case mfENEMY8:
                 case mfENEMY9:
+                case mfNOENEMYSPAWN:
+                case mdENEMYALL:
                 case mfSINGLE:
                 case mfSINGLE16:
                 case mfNOENEMY:
@@ -2614,8 +2616,6 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		case 160:
 		case 161:
 		case 162:
-		case 163:
-		case 164:
 		case 165:
 		case 166:
 		case 167:
