@@ -35946,7 +35946,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
-		    "cTRIGGERGENERIC"	    
+		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX"
 		    
 		};
 		
@@ -35957,6 +35957,10 @@ bool ZModule::init(bool d) //bool default
 			if ( q == cTRIGGERGENERIC && ( moduledata.combo_type_names[q][0] == -1 || moduledata.combo_type_names[q][0] == '-' || moduledata.combo_type_names[q][0] == 0 ))
 			{
 				strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],"Generic"));
+			}
+			if ( q == cSTEPSFX && ( moduledata.combo_type_names[q][0] == -1 || moduledata.combo_type_names[q][0] == '-' || moduledata.combo_type_names[q][0] == 0 ))
+			{
+				strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],"Step->Effects"));
 			}
 		}
 		
