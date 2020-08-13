@@ -3,7 +3,6 @@
 
 //Alpha 79
 
-```
 Added Combo Type (Step->Effects). At present, this
 	would allow for playing a SFX when stepping on the combo, with
 	no side effects. It plays the sound if it is both not already

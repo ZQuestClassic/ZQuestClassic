@@ -16884,12 +16884,12 @@ static ComboAttributesInfo comboattrinfo[]=
 	{
 		cTALLGRASS,
 		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", (char*)"Sound", NULL }
 	},
 	{
 		cSHALLOWWATER,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
 	},
 	{
 		cLOCKBLOCK,
@@ -17281,7 +17281,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	{
 		cTALLGRASSTOUCHY,
 		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", (char*)"Sound", NULL }
 	},
 	{
 		cSLASHNEXTTOUCHY,
@@ -17307,7 +17307,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	{
 		cTALLGRASSNEXT,
 		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", (char*)"Sound", NULL }
 	},
 	{
 		cSCRIPT1,
