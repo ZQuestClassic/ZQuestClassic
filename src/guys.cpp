@@ -16689,7 +16689,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix
 		}
 		else 
 		{
-			x = X+8; y = Y+8; 
+			x = X+8; y = Y; 
 		}
 	}
 	hzsz = 32; // can't be jumped.
