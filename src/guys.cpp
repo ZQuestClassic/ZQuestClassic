@@ -20048,11 +20048,11 @@ void side_load_enemies()
 bool is_starting_pos(int i, int x, int y, int t)
 { 
 	
-	//if(tmpscr->enemy[i]<1||tmpscr->enemy[i]<MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
-	//{
+	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]<MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	{
 		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
-	//	return false; //never 0, never OoB.
-	//}
+		return false; //never 0, never OoB.
+	}
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
 
