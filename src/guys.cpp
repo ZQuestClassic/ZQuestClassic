@@ -3005,7 +3005,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 		case 12: //down
 		case 13: //l_down
 		{
-			if ( ((unsigned)id) < MAXGUYS )
+			if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 			{
 				if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && !isflier(id) )
 				{
@@ -3025,7 +3025,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 		case 10: //right
 		case 11: //r_down
 		{
-			if ( ((unsigned)id) < MAXGUYS )
+			if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 			{
 				if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH && !isflier(id) )
 				{
@@ -6283,7 +6283,7 @@ void enemy::fix_coords(bool bound)
 	
 	if(bound)
 	{
-		if ( ((unsigned)id) < MAXGUYS )
+		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
 		x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256-((txsz-1)*16)) : 240));
 		y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176-((txsz-1)*16)) : 160));
@@ -18105,7 +18105,9 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 // Returns number of enemies/segments created
 int addenemy(int x,int y,int z,int id,int clk)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	//zprint2("addenemy id is: %d\n", (id&0xFFF));
+	int realid = id&0xFFF;
+	if( realid > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "addenemy()"); 
 		return 0;
@@ -18542,7 +18544,7 @@ int addenemy(int x,int y,int z,int id,int clk)
 
 bool isjumper(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isjumper()"); 
 		return false;
@@ -18563,7 +18565,7 @@ bool isjumper(int id)
 
 bool isfixedtogrid(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isfixedtogrid()"); 
 		return false;
@@ -18588,7 +18590,7 @@ bool isfixedtogrid(int id)
 // Can't fall, can have Z value.
 bool isflier(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isflier()"); 
 		return false;
@@ -18613,7 +18615,7 @@ bool isflier(int id)
 // Can't have Z position
 bool never_in_air(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "never_in_air()"); 
 		return false;
@@ -18640,7 +18642,7 @@ bool never_in_air(int id)
 
 bool canfall(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "canfall()"); 
 		return false;
@@ -18676,7 +18678,7 @@ bool canfall(int id)
 
 bool enemy::enemycanfall(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "enemycanfall()"); 
 		return false;
@@ -18921,7 +18923,7 @@ dontdoit:
 
 bool slowguy(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "slowguy()"); 
 		return false;
@@ -18953,7 +18955,7 @@ bool countguy(int id)
 
 bool ok2add(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
 		return false;
@@ -19268,7 +19270,7 @@ int next_side_pos(bool random)
 
 bool can_side_load(int id)
 {
-	if( ((unsigned)id) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "can_side_load()"); 
 		return false;
