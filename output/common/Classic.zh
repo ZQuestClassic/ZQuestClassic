@@ -10,11 +10,11 @@ namespace classic_zh
 {
 	//Version Info:
 	const float VERSION 			= 2.12; 
-	const int DATE_DAY 			= 27;
-	const int DATE_MONTH 			= 10;
-	const int DATE_YEAR 			= 2019;
-	const int HOUR				= 22;
-	const int MINUTE			= 16;
+	const int DATE_DAY 			= 14;
+	const int DATE_MONTH 			= 8;
+	const int DATE_YEAR 			= 2020;
+	const int HOUR				= 23;
+	const int MINUTE			= 55;
 	
 	//System Limits
 	const int MAX_ITEMS			= 512;
@@ -346,10 +346,13 @@ ffc script ChangeRoomGuy
 			npc g = Screen->LoadNPC(q);
 			if ( g->Type == NPCT_GUY )
 			{
-				g->OriginalTile = t;
-				if ( cs > 0 ) 
-					g->CSet = cs;
-				break;
+				if ( n->ID != NPC_FIRE )
+				{
+					g->OriginalTile = t;
+					if ( cs > 0 ) 
+						g->CSet = cs;
+					break;
+				}
 			}
 		}
 	}
