@@ -20279,7 +20279,7 @@ void loadenemies()
 		}
 		
 		// Next: enemy pattern
-		if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS)))
+		if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS)))
 		{
 			do
 			{
