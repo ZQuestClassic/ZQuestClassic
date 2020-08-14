@@ -17043,12 +17043,7 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	//x=120; y=70;
 	x = xoffset+parent->x;
 	y = yoffset+parent->y;;
-	zprint2("Gleeok prntenemy->hyofs: %d\n", prntenemy->hyofs);
-	zprint2("Gleeok prntenemy->hxofs: %d\n", prntenemy->hxofs);
-	zprint2("Gleeok parent->xofs: %d\n", parent->xofs);
-	zprint2("Gleeok parent->yofs: %d\n", parent->yofs);
-	zprint2("Gleeok prntenemy->xofs: %d\n", prntenemy->xofs);
-	zprint2("Gleeok prntenemy->yofs: %d\n", prntenemy->yofs);
+	
 	
 	clk2=clk;                                                 // how long to wait before moving first time
 	clk=0;
