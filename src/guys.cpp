@@ -16676,36 +16676,23 @@ void esManhandla::draw(BITMAP *dest)
 
 eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix)120,(zfix)48,Id,Clk)
 {
-	//May be buggy -Z 12 AUG 2020
-	SIZEflags = d->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz=8;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-	else hzsz = 32; // can't be jumped.
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	else hxofs=4;
-	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
-	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-	{
-		yofs = d->yofs+playing_field_offset; //This seems to be setting to +48 or something with any value set?! -Z
-		//this offset fixes yofs not plaing properly. -Z
-	}
-  
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
-	
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
 		x = 120;
 		y = 48;
 	}
-	else { x = X; y = Y; }
+	else 
+	{ 
+		if ( !(editorflags & ENEMY_FLAG6) )
+		{
+			x = X; y = Y; 
+		}
+		else 
+		{
+			x = X+8; y = Y+8; 
+		}
+	}
+	hzsz = 32; // can't be jumped.
 	flameclk=0;
 	misc=clk;                                                 // total head count
 	clk3=clk;                                                 // live head count
@@ -16714,9 +16701,8 @@ eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix
 	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[eGLEEOK2+(misc-2)].hp;
 	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[id&0xFFF].hp;
 	dir = down;
-	
-	
-	
+	hxofs=4;
+	hxsz=8;
 	//    frate=17*4;
 	fading=fade_blue_poof;
 	//nets+5420;
@@ -16868,28 +16854,6 @@ int eGleeok::takehit(weapon*)
 void eGleeok::draw(BITMAP *dest)
 {
 	tile=o_tile;
-	//zprint2("eGleeok::draw SIZEflags:%d\n",SIZEflags);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-	   // al_trace("Enemy txsz:%i\n", txsz);
-		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-		else hxsz=8;
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-		if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-		if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-		if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs-8;
-		else xofs=-8;
-		if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-		{
-			yofs = d->yofs+playing_field_offset-24; //This seems to be setting to +48 or something with any value set?! -Z
-			//this offset fixes yofs not plaing properly. -Z
-			
-		}
-		else yofs=32;
-		if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
 	
 	if(dying)
 	{
@@ -16902,7 +16866,8 @@ void eGleeok::draw(BITMAP *dest)
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
 		// body
-		
+		xofs=-8;
+		yofs=32;
 		
 		switch(f)
 		
@@ -16927,7 +16892,8 @@ void eGleeok::draw(BITMAP *dest)
 	else
 	{
 		// body
-		
+		xofs=-8;
+		yofs=32;
 		
 		switch(f)
 		{
@@ -16952,31 +16918,8 @@ void eGleeok::draw2(BITMAP *dest)
 {
 	// the neck stub
 	tile=necktile;
-	//zprint2("eGleeok::draw2 SIZEflags:%d\n",SIZEflags);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-	   // al_trace("Enemy txsz:%i\n", txsz);
-		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-		else hxsz=8;
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-		if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-		if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-		if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-		if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
-		else xofs=0;
-		if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-		{
-			yofs = d->yofs+playing_field_offset; //This seems to be setting to +48 or something with any value set?! -Z
-			//this offset fixes yofs not plaing properly. -Z
-			
-		}
-		else yofs=playing_field_offset;
-		if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
-	
-	
-	
+	xofs=0;
+	yofs=playing_field_offset;
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -17004,34 +16947,6 @@ void eGleeok::draw2(BITMAP *dest)
 
 esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
 {
-	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
-	int prntSIZEflags = prntenemy->SIZEflags; 
-	zprint2("eGleeok prntSIZEflags:%d\n",prntSIZEflags);
-	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = prntenemy->hxsz;
-	else
-		hxsz=8;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = prntenemy->hysz;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
-	if ( (prntSIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
-	else 
-		hxofs=4;
-	if (  (prntSIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
-	else hyofs=2;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (prntSIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)prntenemy->xofs;
-	if ( (prntSIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-	{
-		yofs = (int)prntenemy->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-	}
-  
-	if (  (prntSIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)prntenemy->zofs;
-	
-	
-	
 	xoffset=0;
 	yoffset=(zfix)((dmisc5*4+2));
 //  dummy_bool[0]=false;
@@ -17042,9 +16957,10 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	item_set=0;
 	//x=120; y=70;
 	x = xoffset+parent->x;
-	y = yoffset+parent->y;;
-	
-	
+	y = yoffset+parent->y;
+	hxofs=4;
+	hxsz=8;
+	yofs=playing_field_offset;
 	clk2=clk;                                                 // how long to wait before moving first time
 	clk=0;
 	mainguy=count_enemy=false;
@@ -17054,11 +16970,10 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	dmisc5=vbound(dmisc5,1,255);
 	isCore = false;
 	parentCore = parent->getUID();
-	//neck segments
 	for(int i=0; i<dmisc5; i++)
 	{
-		nxoffset[i] = parent->xofs;
-		nyoffset[i] = parent->yofs;
+		nxoffset[i] = 0;
+		nyoffset[i] = 0;
 		nx[i] = ((((i*(int)x) + (dmisc5-i)*((int)parent->x))) /dmisc5);
 		ny[i] = ((((i*(int)y) + (dmisc5-i)*((int)parent->y))) /dmisc5);
 	}
@@ -17106,9 +17021,6 @@ bool esGleeok::animate(int index)
 	
 	//  set up the neck tiles
 	necktile=dummy_int[1];
-	
-	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
-	int prntSIZEflags = prntenemy->SIZEflags; 
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -17205,8 +17117,8 @@ bool esGleeok::animate(int index)
 			
 			for(int i=1; i<dmisc5; i++)
 			{
-				nxoffset[i] = (rand()%3) + ((prntSIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? parent->xofs : 0);
-				nyoffset[i] = (rand()%3) + ((prntSIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? parent->yofs-56 : 0);
+				nxoffset[i] = (rand()%3);
+				nyoffset[i] = (rand()%3);
 			}
 		}
 		
@@ -17266,7 +17178,7 @@ int esGleeok::takehit(weapon *w)
 void esGleeok::draw(BITMAP *dest)
 {
 	dmisc5=vbound(dmisc5,1,255);
-	//zprint2("esGleeok::draw SIZEflags:%d\n",SIZEflags);
+	
 	switch(misc)
 	{
 	case 0:                                                 //neck
