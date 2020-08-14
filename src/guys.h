@@ -804,7 +804,8 @@ class esPatra : public enemy
 {
 public:
 	//esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatra(zfix X,zfix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
+	esPatra(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                    // : enemy(X,Y,Id,Clk)
+	sprite * parent;
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
@@ -828,7 +829,8 @@ class esPatraBS : public enemy
 {
 public:
 	//esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatraBS(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
+	esPatraBS(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                  // : enemy(X,Y,Id,Clk)
+	sprite * parent;
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 };
