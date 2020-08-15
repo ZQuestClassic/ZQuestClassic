@@ -974,7 +974,75 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
 	}
-
+	// We may have failed, though namespaces may resolve the issue. Check for namespace closeness.
+	if(bestFunctions.size() > 1)
+	{
+		std::map<Function*, Scope*> bestNSs;
+		std::map<Function*, Scope*> bestScripts;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+		     it != bestFunctions.end(); ++it)
+		{
+			Scope* ns = NULL;
+			Scope* scr = NULL;
+			for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+			{
+				if(!scr && current->isScript())
+				{
+					scr = current;
+				}
+				if(current->isNamespace())
+				{
+					ns = current;
+					break;
+				}
+			}
+			bestNSs[*it] = ns;
+			bestScripts[*it] = scr;
+		}
+		Function* bestFound = NULL;
+		for(Scope* current = scope; current; current = current->getParent())
+		{
+			if(current->isScript())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestScripts[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			else if(current->isNamespace())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestNSs[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+		}
+		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(bestFound);
+		}
+	}
 	// We failed.
 	if (bestFunctions.size() != 1)
 	{
