@@ -1225,6 +1225,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
