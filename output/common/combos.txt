@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 80            *
-*      Rev.7, 18th August, 2020      *
+*      Rev.8, 18th August, 2020      *
 *************************************/
 
 1. COMBO TYPES
@@ -454,6 +454,9 @@ Step->Effects
 			7: Diagonal Down-Right
 			8+ : RANDOM
 			
+		Sprite
+			If set between 1 and 255, the weapon will use this sprite, rather than its default sprite.
+			
 		Damage
 			The damage of the landmine weapon. The default when this field is
 			zero, is '4'.
@@ -472,6 +475,15 @@ Step->Effects
 			when the weapon is activated. If you enable this flag, then the combo will not 
 			advance, and repeatedly walking on it will create weapons each step.
 			This has no effect if the Landmine flag is disabled.
+			
+		Direct Damage
+			If the weapon type is an lweapon of a Custom/Script type, a Sparkle type, or
+			a Fire Sparkle type, then you may also set it to deal direct damage without
+			knocking the player backwards. This is useful, e.g., for fire floor tiles where 
+			you want to create a fire sprite behind the player and damage the player if
+			they walk on them, every few steps. 
+			
+			This option respects ring damage divisors. 
 	
 
     __               __   __    __           __      ______                __              

@@ -16779,7 +16779,7 @@ void LinkClass::checkspecial2(int *ls)
 	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 		sfx(thesfx,pan((int)x));
-	if ( combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag1 ) //landmine
+	if ( combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag1 && action==walking ) //landmine
 	{
 		int wpn = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1];
 		int wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
@@ -16809,7 +16809,13 @@ void LinkClass::checkspecial2(int *ls)
 			case ewIce:
 			case ewFireball2:
 			
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); break;
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
 			
 			case wBeam:
 			case wBrang:
@@ -16818,7 +16824,7 @@ void LinkClass::checkspecial2(int *ls)
 			case wLitBomb:
 			case wLitSBomb:
 			case wArrow:
-			case wFire:
+			
 			case wWhistle:
 			case wBait:
 			case wMagic:
@@ -16826,8 +16832,6 @@ void LinkClass::checkspecial2(int *ls)
 			case wRefMagic:
 			case wRefFireball:
 			case wRefRock:
-			case wSSparkle:
-			case wFSparkle: 
 			case wRefBeam:
 			case wIce:
 			case wFlame: 
@@ -16840,9 +16844,25 @@ void LinkClass::checkspecial2(int *ls)
 			//case wQuake:// -Z
 			//case wSword180: 
 			//case wSwordLA:
-				
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
 			
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,((damg > 0) ? damg : 4),wpdir,0,-1,getUID(),false,false,true,1)); break;
+			case wFire:
+				//if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
+				//{
+					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); break;
+				//}
+				//else //wscript ewpn
+				//{
+				//	Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,-1,false,0,0,0)); break;
+				//}
+				
 			//lweacase wScript1:
 			case wScript2: 
 			case wScript3:
@@ -16858,17 +16878,100 @@ void LinkClass::checkspecial2(int *ls)
 			
 				if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
 				{
-					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,((damg > 0) ? damg : 4),wpdir,0,-1,getUID(),false,false,true,1)); break;
+					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+					{
+						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+						w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+					}
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag4) //direct damage from custom/script lweapons
+					{
+						hitdir = -1;
+						if (action != rafting && action != freeze && !hclk)
+						{
+							if (action == swimming || hopclk == 0xFF)
+							{
+								action=swimhit; FFCore.setLinkAction(swimhit);
+							}
+							else
+							{
+								action=gothit; FFCore.setLinkAction(gothit);
+							}
+							if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+							{
+								spins = charging = attackclk = 0;
+								attack=none;
+								tapping = false;
+							}
+							int dmgamt = ((damg > 0) ? damg : 4);
+		
+							game->set_life(game->get_life()-ringpower(dmgamt));
+							
+							hclk=48;
+							sfx(getHurtSFX(),pan(x.getInt()));
+						}
+					}
+					break;
 				}
 				else //wscript ewpn
 				{
-					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); break;
+					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+					{
+						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+						w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+					}
+					break;
 				}
 				
+			case wSSparkle:
+			case wFSparkle:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag4) //direct damage from custom/script lweapons
+				{
+					hitdir = -1;
+					if (action != rafting && action != freeze && !hclk)
+					{
+						if (action == swimming || hopclk == 0xFF)
+						{
+							action=swimhit; FFCore.setLinkAction(swimhit);
+						}
+						else
+						{
+							action=gothit; FFCore.setLinkAction(gothit);
+						}
+						if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+						{
+							spins = charging = attackclk = 0;
+							attack=none;
+							tapping = false;
+						}
+						int dmgamt = ((damg > 0) ? damg : 4);
+
+						game->set_life(game->get_life()-ringpower(dmgamt));
+						
+						hclk=48;
+						sfx(getHurtSFX(),pan(x.getInt()));
+					}
+				}
+				break;
+			
 			default: //enemy bomb
 				//(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
 				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); break;
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
 			
 			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
 		}
@@ -16877,6 +16980,10 @@ void LinkClass::checkspecial2(int *ls)
 			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
 			tmpscr->data[stepnext]++;
 		}
+		
+		
+		
+		
 	}
     }
     else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
