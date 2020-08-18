@@ -17628,8 +17628,12 @@ static ComboAttributesInfo comboattrinfo[]=
 	//{ Placeholders
 	{
 		 cSTEPSFX,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		//flags
+		{ (char*)"Landmine",(char*)"wCustom is LWeapon",(char*)"Don't Advance",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		//attributes
+		{ (char*)"Damage",NULL,NULL,NULL},
+		//attribytes
+		{ (char*)"Sound",(char*)"Weapon Type",(char*)"Initial Dir",NULL}
 	},
 	{
 		 183,
