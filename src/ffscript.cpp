@@ -15725,7 +15725,7 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATAFLAGS:	 //long
 		{
-			DMaps[ri->dmapsref].flags= ((byte)(value / 10000)); break;
+			DMaps[ri->dmapsref].flags = (value / 10000); break;
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{

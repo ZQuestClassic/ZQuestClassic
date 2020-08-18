@@ -1225,7 +1225,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
-		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
@@ -1267,8 +1267,10 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		//Check left, skip if true
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
+		//Get rightx
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
 		Opcode* ocode = (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)) ? (Opcode*)(new OSetMore(new VarArgument(EXP1))) : (Opcode*)(new OSetMoreI(new VarArgument(EXP1)));
@@ -1285,6 +1287,8 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		visit(host.right.get(), param);
 		//Retrieve left
 		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP2)));
 		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
