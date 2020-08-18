@@ -16852,7 +16852,7 @@ void LinkClass::checkspecial2(int *ls)
 			case wScript7:
 			case wScript8:
 			case wScript9:
-			case wScript10: pons
+			case wScript10:
 			
 			//custo weapons (could be either type)
 			
@@ -16872,7 +16872,7 @@ void LinkClass::checkspecial2(int *ls)
 			
 			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
 		}
-		if (!(combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) ) //Don't Advance
+		if (!(combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag3) ) //Don't Advance
 		{
 			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
 			tmpscr->data[stepnext]++;
