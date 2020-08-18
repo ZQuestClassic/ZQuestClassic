@@ -1269,6 +1269,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
 		Opcode* ocode = (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)) ? (Opcode*)(new OSetMore(new VarArgument(EXP1))) : (Opcode*)(new OSetMoreI(new VarArgument(EXP1)));
