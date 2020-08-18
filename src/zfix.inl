@@ -6,19 +6,21 @@
 #ifndef ZFIX_INL
 #define ZFIX_INL
 
-inline ZLong toZLong(float val)
+#include "compat_config.h"
+
+inline constexpr ZLong toZLong(float val)
 {
 	return ZLong(val * 10000);
 }
-inline ZLong toZLong(double val)
+inline constexpr ZLong toZLong(double val)
 {
 	return ZLong(val * 10000);
 }
-inline ZLong toZLong(int val)
+inline constexpr ZLong toZLong(int val)
 {
 	return ZLong(val * 10000);
 }
-inline ZLong toZLong(long val)
+inline constexpr ZLong toZLong(long val)
 {
 	return ZLong(val * 10000);
 }

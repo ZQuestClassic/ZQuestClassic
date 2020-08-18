@@ -2,6 +2,8 @@
 #define GLOBALSYMBOLS_H
 
 #include "DataStructs.h"
+#include "../compat_config.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -18,9 +20,9 @@ namespace ZScript
 	class Scope;
 }
 
-static const int SETTER = 0;
-static const int GETTER = 1;
-static const int FUNCTION = 2;
+static constexpr int SETTER = 0;
+static constexpr int GETTER = 1;
+static constexpr int FUNCTION = 2;
 
 struct AccessorTable
 {

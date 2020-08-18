@@ -34,6 +34,7 @@
 #include "questReport.h"
 #include "mem_debug.h"
 #include "ffasm.h"
+#include "compat_config.h"
 
 extern zcmodule moduledata;
 
@@ -2677,7 +2678,7 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     {
         byte *rgbByte;
         RGB rgb;
-        
+        _MAYBE_UNUSED(rgb);
         // This seems to be right...
         if(cs==2 || cs==3 || cs==4)
             rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + i) * 3;
@@ -2725,7 +2726,7 @@ int bestfit_cset_color_8bit(int r, int g, int b)
     {
         byte *rgbByte;
         RGB rgb;
-        
+        _MAYBE_UNUSED(rgb);
         int cs=i>>4;
         if(cs==2 || cs==3 || cs==4)
             rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + (i%16)) * 3;
@@ -16753,23 +16754,24 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cDAMAGE1,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+        // TODO: Placing these as globals can prevent the need of casting
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE2,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE3,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE4,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ //35
 		cC_STATUE,
@@ -17198,18 +17200,18 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{ //120
 		cDAMAGE5,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE6,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ const_cast<char*>("Amount"),NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{
 		cDAMAGE7,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ "Amount",NULL,NULL, NULL}
+		{ const_cast<char*>("Custom"),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ const_cast<char*>("Amount"),NULL,NULL, NULL}
 	},
 	{
 		cCHANGE,
@@ -18007,14 +18009,15 @@ static ComboAttributesInfo comboattrinfo[]=
 		// { (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
-			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+			(char*)"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 	},
 	{ 
 		258,
 		//if dropping an enemy from a script 1 to 20 combo
+        // TODO: a lot of these look like they are supposed to be "const char*"
 		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
-			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
+			(char*)"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
 		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
 	},
 	{ 

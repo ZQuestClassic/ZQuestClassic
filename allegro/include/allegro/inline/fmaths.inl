@@ -57,7 +57,7 @@ AL_INLINE(double, fixtof, (fixed x),
 
 AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 {
-   fixed result = x + y;
+   const fixed result = x + y;
 
    if (result >= 0) {
       if ((x < 0) && (y < 0)) {
@@ -80,7 +80,7 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 
 AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 {
-   fixed result = x - y;
+   const fixed result = x - y;
 
    if (result >= 0) {
       if ((x < 0) && (y > 0)) {

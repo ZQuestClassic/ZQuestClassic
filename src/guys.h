@@ -321,7 +321,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
 	virtual void break_shield();
-	eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eFire(const enemy& other, bool new_script_uid, bool clear_parent_script_UID);
 };
 
 class eOther : public enemy

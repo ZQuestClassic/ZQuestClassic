@@ -24643,7 +24643,8 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 				d->w = 0;
 				if(!meta.valid())
 				{
-					d->w = txtout(target, "Invalid ZASM metadata found!", d->x, d->y, disabled);
+                    char txt[29] = "Invalid ZASM metadata found!";
+					d->w = txtout(target, txt, d->x, d->y, disabled);
 					++ind;
 				}
 				
@@ -24674,7 +24675,8 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				bool indentrun = false;
-				int run_indent = txtout(NULL, "void run(", 0, 0, false);
+                char txt[10] = "void run(";
+				int run_indent = txtout(NULL, txt, 0, 0, false);
 				std::ostringstream oss;
 				oss << "void run(";
 				for(int q = 0; q < 8; ++q)
@@ -24684,7 +24686,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
 					lowerstr(type_name); //all lowercase for this output
-					if(oss.str().size() > (indentrun ? 41 : 50))
+					if(oss.str().size() > static_cast<size_t>(indentrun ? 41 : 50))
 					{
 						memset(buf, 0, sizeof(buf));
 						sprintf(buf, "%s", oss.str().c_str());
@@ -24712,7 +24714,8 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 			}
 			else
 			{
-				d->w = txtout(target, "No ZASM metadata found!", d->x, d->y, disabled);
+                char txt[24] = "No ZASM metadata found!";
+				d->w = txtout(target, txt, d->x, d->y, disabled);
 				d->h = text_height(font);
 			}
 			

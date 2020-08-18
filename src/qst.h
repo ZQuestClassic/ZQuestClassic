@@ -261,9 +261,9 @@ INLINE int skipcombos(PACKFILE *f, zquestheader *Header, word version, word buil
 {
     return readcombos(f, Header, version, build, start_combo, max_combos, false);
 }
-INLINE int skipcolordata(PACKFILE *f, zquestheader *Header, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
+INLINE int skipcolordata(PACKFILE *f, const zquestheader *Header, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
-    (void)Header;
+    _MAYBE_UNUSED(Header);
     return readcolordata(f, Misc, version, build, start_cset, max_csets, false);
 }
 INLINE int skipstrings(PACKFILE *f, zquestheader *Header, word version, word build, word start_string, word max_strings)

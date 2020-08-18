@@ -325,7 +325,7 @@ bool flyerblocked(int dx, int dy, int special, guydata const& gd)
 
   */
 
-eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eFire::eFire(const enemy& other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),

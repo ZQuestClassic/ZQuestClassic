@@ -41,7 +41,7 @@ void chop_path(char *path);
 int  vbound(int x,int low,int high);
 float vbound(float x,float low,float high);
 int  used_switch(int argc,char *argv[],const char *s);
-bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2);
+constexpr bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2);
 
 extern char zeldapwd[8];
 extern char zquestpwd[8];

@@ -400,7 +400,7 @@
 
    AL_INLINE(int, bmp_read24, (uintptr_t addr),
    {
-      unsigned char *p = (unsigned char *)addr;
+      const unsigned char* p = (const unsigned char*)addr;
       int c;
 
       c = READ3BYTES(p);

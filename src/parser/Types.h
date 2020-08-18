@@ -222,7 +222,7 @@ namespace ZScript
 	
 	static DataTypeId getTypeId(std::string name)
 	{
-		if(int v = atoi(name.c_str()))
+		if(const int v = atoi(name.c_str()))
 			return v;
 		else if(name == "UNTYPED")
 			return ZVARTYPEID_UNTYPED;

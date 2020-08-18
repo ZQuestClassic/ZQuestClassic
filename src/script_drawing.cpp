@@ -15,6 +15,8 @@
 #include "ffscript.h"
 #include "util.h"
 #include "subscr.h"
+#include "compat_config.h"
+
 using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -779,7 +781,8 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         int x;
         int y;
-        
+		_MAYBE_UNUSED(x);
+		_MAYBE_UNUSED(y);
         // This is very slow, so check the smallest possible square
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
@@ -4395,7 +4398,9 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         int x;
         int y;
-        
+		_MAYBE_UNUSED(x);
+		_MAYBE_UNUSED(y);
+
         // This is very slow, so check the smallest possible square
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));

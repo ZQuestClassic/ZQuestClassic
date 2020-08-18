@@ -57,6 +57,8 @@
 #include "ffasm.h"
 #include "qst.h"
 #include "util.h"
+#include "compat_config.h"
+
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
@@ -210,7 +212,7 @@ void throttleFPS()
 			{
 				// bugfix: win xp/7/8 have incompatible timers.
 				// preserve 60 fps and CPU based on user settings. -Gleeok
-				int ms = t >= 16 ? 0 : frame_rest_suggest;
+                const int ms = t >= 16 ? 0 : frame_rest_suggest;
                 rest(ms);
 				t += frame_rest_suggest;
 			}
@@ -848,7 +850,8 @@ int donew_shop_msg(int itmstr, int shopstr)
 			dismissmsg();
 	
 	int tempmsg;
-	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
+    _MAYBE_UNUSED(tempmsg);
+    const int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
 	//Disabling this for now.
 	/*
 	while ( tempmsgnext != 0 )
@@ -905,7 +908,7 @@ int donew_shop_msg(int itmstr, int shopstr)
     cursor_y=msg_margins[up];
     return tempmsgnext;
 }
-void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
+void zc_trans_blit(BITMAP* dest, const BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
 {
 	for(int tx = 0; tx < w; ++tx)
 		for(int ty = 0; ty < h; ++ty)
@@ -928,7 +931,7 @@ void msg_bg(MsgStr const& msg)
 	}
 	else
 	{
-		int add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
+        const int add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
         frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
                  (msg.w>>3)+add,(msg.h>>3)+add,0,true,0);
 	}
@@ -1932,7 +1935,7 @@ int init_game()
     
 //Load the quest
     //setPackfilePassword(datapwd);
-    int ret = load_quest(game);
+    const int ret = load_quest(game);
     
     if(ret != qe_OK)
     {
@@ -1951,7 +1954,7 @@ int init_game()
     replace_extension(keyfilename3, qstpath, "zcheat", 2047);
     bool gotfromkey=false;
     bool gotfrompwdfile=false;
-    bool gotfromcheatfile=false;
+    constexpr bool gotfromcheatfile=false;
     
     if(exists(keyfilename))
     {
@@ -2097,14 +2100,14 @@ int init_game()
 		size_t pos = str.find_last_of("/\\");
 		if(pos==string::npos) pos=0;
 		else ++pos;
-		size_t dotpos = str.find_last_of(".");
+        const size_t dotpos = str.find_last_of(".");
 		sprintf(qst_files_path,"%sFiles/%s/",get_config_string("zeldadx", qst_dir_name, "./"),str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
 		// zprint2("Calculated path: '%s'\n",qst_files_path);
 		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
 	}
 	
-    bool firstplay = (game->get_hasplayed() == 0);
+    const bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
     //setuplinktiles(zinit.linkanimationstyle);
@@ -2227,6 +2230,7 @@ int init_game()
 				{
 					switch(QHeader.build)
 					{
+                        case 0: _FALLTHROUGH;
 						default:
 						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build); break;	
 					}
@@ -2236,6 +2240,7 @@ int init_game()
 				{
 					switch(QHeader.build)
 					{
+                        case 0: _FALLTHROUGH;
 						default:
 						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", QHeader.build); break;	
 					}
@@ -2422,7 +2427,7 @@ int init_game()
 //load the previous weapons -DD
     zprint2("last_quest_was_BA_subscreen prior to init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
     
-    bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
+    const bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
     int apos = 0;
     int bpos = 0;
     
@@ -2875,7 +2880,7 @@ void do_magic_casting()
     static byte linktilebuf[256];
     int ltile=0;
     int lflip=0;
-    bool shieldModify=true;
+    constexpr bool shieldModify=true;
     
     if(magicitem==-1)
     {
@@ -2930,7 +2935,7 @@ void do_magic_casting()
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
                 
-            int flamemax=itemsbuf[magicitem].misc1;
+            const int flamemax=itemsbuf[magicitem].misc1;
             
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
@@ -3014,14 +3019,14 @@ void do_magic_casting()
                         if(itemsbuf[magicitem].misc1==1)  // Twilight
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
-                            int k=particles.Count()-1;
+                            const int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
-                            int k=particles.Count()-1;
+                            const int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=4;
                             
@@ -3035,7 +3040,7 @@ void do_magic_casting()
                         {
                             particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
                             
-                            int k=particles.Count()-1;
+                            const int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->angular=true;
                             p->angle=rand();
@@ -3050,7 +3055,7 @@ void do_magic_casting()
         if((magiccastclk++)>=226)
         {
             //attackclk=0;
-            int nayrutemp=nayruitem;
+            const int nayrutemp=nayruitem;
             restart_level();
             nayruitem=nayrutemp;
             //xofs=0;
@@ -3088,13 +3093,13 @@ void do_magic_casting()
         {
             for(int i=0; i<Lwpns.Count(); i++)
             {
-                weapon* w=static_cast<weapon*>(Lwpns.spr(i));
+                const weapon* w=static_cast<const weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
                   w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             
-            int d=zc_max(LinkX(),256-LinkX())+32;
+            const int d=zc_max(LinkX(),256-LinkX())+32;
             Lwpns.add(new weapon((zfix)(LinkX()-d),(zfix)LinkY(),(zfix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
@@ -3145,7 +3150,7 @@ void do_magic_casting()
         {
             for(int i=0; i<Lwpns.Count(); i++)
             {
-                weapon* w=static_cast<weapon*>(Lwpns.spr(i));
+                const weapon* w=static_cast<const weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
                   w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
                     Lwpns.del(i);
@@ -3181,7 +3186,7 @@ void update_hookshot()
     
     if(check_hs)
     {
-        int parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
+        const int parentitem = ((const weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
         hs_x=Lwpns.spr(Lwpns.idFirst(wHookshot))->x;
         hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
         hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
@@ -3191,7 +3196,7 @@ void update_hookshot()
         //extending
         if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
         {
-            int maxchainlinks=itemsbuf[parentitem].misc2;
+            const int maxchainlinks=itemsbuf[parentitem].misc2;
             
             if(chainlinks.Count()<maxchainlinks)           //extending chain
             {
@@ -3352,7 +3357,7 @@ void do_dcounters()
                 if(i!=1)   // Only rupee drain is sounded
                     sfxon = false;
                     
-                int drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
+                const int drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
                 
                 if(game->get_counter(i)>0)
                 {
@@ -3474,7 +3479,7 @@ void game_loop()
     
     // freezemsg if message is being printed && qr_MSGFREEZE is on,
     // or if a message is being prepared && qr_MSGDISAPPEAR is on.
-    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
+    const bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
                       && get_bit(quest_rules,qr_MSGFREEZE));
                       
     // Messages also freeze FF combos.
@@ -3819,8 +3824,8 @@ void game_loop()
 	#endif
         if(!freezemsg && current_item(itype_heartring))
         {
-            int itemid = current_item_id(itype_heartring);
-            int fskip = itemsbuf[itemid].misc2;
+            const int itemid = current_item_id(itype_heartring);
+            const int fskip = itemsbuf[itemid].misc2;
             
             if(fskip == 0 || frame % fskip == 0)
                 game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
@@ -3830,8 +3835,8 @@ void game_loop()
 	#endif
         if(!freezemsg && current_item(itype_magicring))
         {
-            int itemid = current_item_id(itype_magicring);
-            int fskip = itemsbuf[itemid].misc2;
+            const int itemid = current_item_id(itype_magicring);
+            const int fskip = itemsbuf[itemid].misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
@@ -3843,8 +3848,8 @@ void game_loop()
 	#endif
         if(!freezemsg && current_item(itype_wallet))
         {
-            int itemid = current_item_id(itype_wallet);
-            int fskip = itemsbuf[itemid].misc2;
+            const int itemid = current_item_id(itype_wallet);
+            const int fskip = itemsbuf[itemid].misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
@@ -3856,7 +3861,7 @@ void game_loop()
 	#endif
         if(!freezemsg && current_item(itype_bombbag))
         {
-            int itemid = current_item_id(itype_bombbag);
+            const int itemid = current_item_id(itype_bombbag);
             
             if(itemsbuf[itemid].misc1)
             {
@@ -3869,7 +3874,7 @@ void game_loop()
                 
                 if(itemsbuf[itemid].flags & ITEM_FLAG1)
                 {
-                    int ratio = zinit.bomb_ratio;
+                    const int ratio = zinit.bomb_ratio;
                     
                     fskip = itemsbuf[itemid].misc2 * ratio;
                     
@@ -3885,8 +3890,8 @@ void game_loop()
 	#endif
         if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
         {
-            int itemid = current_item_id(itype_quiver);
-            int fskip = itemsbuf[itemid].misc2;
+            const int itemid = current_item_id(itype_quiver);
+            const int fskip = itemsbuf[itemid].misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
@@ -4033,10 +4038,10 @@ void shiftColour(int rshift, int gshift, int bshift, int base)
 	for(int i=0; i <= 0xEF; i++)
 	{
 		if(base==baseUNIFORM){//Recolor the palette to uniform greyscale before tinting
-			int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
+            const int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
-			int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+            const int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
 		//Bit-shifting negatives throws errors. If negative, shift in the other direction.
@@ -4060,8 +4065,8 @@ void shiftColour(int rshift, int gshift, int bshift, int base)
 
 void setMonochromatic(int mode)
 {
-	int base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
-	int colour_mode = mode - base;
+    const int base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
+    const int colour_mode = mode - base;
 	if(isUserTinted()){
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
 		isUserTinted(false); //Disable custom tint, override with monochrome
@@ -4121,10 +4126,10 @@ void addColour(int radd, int gadd, int badd, int base)
 	for(int i=0; i <= 0xEF; i++)
 	{
 		if(base==baseUNIFORM){//Recolor the palette to uniform greyscale before tinting
-			int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
+            const int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
-			int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+            const int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
 		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 63.
@@ -4334,7 +4339,7 @@ static Triplebuffer;
 
 bool setGraphicsMode(bool windowed)
 {
-    int type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
+    const int type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
     return set_gfx_mode(type, resx, resy, 0, 0)==0;
 }
 
@@ -4357,7 +4362,7 @@ int onFullscreen()
 	    get_palette(oldpal);
 	    
 	    show_mouse(NULL);
-	    bool windowed=is_windowed_mode()!=0;
+        const bool windowed=is_windowed_mode()!=0;
 	    
 	    // these will become ultra corrupted no matter what.
 	    Triplebuffer.Destroy();
@@ -4392,7 +4397,7 @@ int onFullscreen()
 	    set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
-	    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+        const int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
 	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
@@ -4935,7 +4940,7 @@ int main(int argc, char* argv[])
     
     //  int mode = VidMode;                                       // from config file
     int tempmode=GFX_AUTODETECT;
-    int res_arg = used_switch(argc,argv,"-res");
+    const int res_arg = used_switch(argc,argv,"-res");
     
     if(used_switch(argc,argv,"-v0")) Throttlefps=false;
     
@@ -4975,7 +4980,7 @@ int main(int argc, char* argv[])
         slot_arg2=1;
     }
     
-    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || get_config_int("zeldadx","skiplogo",0) || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
+    const int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || get_config_int("zeldadx","skiplogo",0) || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     
@@ -5299,8 +5304,9 @@ int main(int argc, char* argv[])
         Z_message("used switch: -triplebuffer\n");
     }
     
-    const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
-    
+    constexpr int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
+    // initlization skipped if goto is used
+    const int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
     // quick quit
     if(used_switch(argc,argv,"-q"))
     {
@@ -5314,8 +5320,8 @@ int main(int argc, char* argv[])
     {
         resx = atoi(argv[res_arg+1]);
         resy = atoi(argv[res_arg+2]);
-        bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
-        bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
+        const bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
+        const bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
         
 //    mode = GFX_AUTODETECT;
     }
@@ -5403,7 +5409,6 @@ int main(int argc, char* argv[])
     }
     
     sbig = (screen_scale > 1);
-    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
     set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);zq_screen_w = resx;
     zq_screen_h = resy;
     
@@ -5427,11 +5432,11 @@ int main(int argc, char* argv[])
     {
         clear_to_color(screen,BLACK);
         system_pal();
-        int ret=jwin_alert3("Multiple Instances",
-                            "Another instance of ZC is already running.",
-                            "Running multiple instances may cause your",
-                            "save file to be deleted. Continue anyway?",
-                            "&No","&Yes", 0, 'n', 'y', 0, lfont);
+        const int ret=jwin_alert3("Multiple Instances",
+                                  "Another instance of ZC is already running.",
+                                  "Running multiple instances may cause your",
+                                  "save file to be deleted. Continue anyway?",
+                                  "&No","&Yes", 0, 'n', 'y', 0, lfont);
         if(ret!=2)
         {
             if(forceExit)

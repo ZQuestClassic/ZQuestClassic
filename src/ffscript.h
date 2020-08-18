@@ -317,12 +317,12 @@ struct user_file
 	{
 		if(file) fclose(file);
 		file = NULL;
-		int r = remove(filepath.c_str());
+		const int r = remove(filepath.c_str());
 		filepath = "";
 		return r;
 	}
 	
-	void setPath(char* buf)
+	void setPath(const char* buf)
 	{
 		if(buf)
 			filepath = buf;
@@ -548,7 +548,7 @@ void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
 
 int combo_script_engine(const bool preload);
-int FFScript::combo_script_engine_waitdraw(const bool preload);
+int combo_script_engine_waitdraw(const bool preload);
 
 void do_strstr();
 void do_strcat();
@@ -1499,7 +1499,7 @@ enum __Error
             
         if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
-            long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
+            const long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
             
             if(gptr > (long)game->globalRAM.size())
                 return InvalidError(ptr);
@@ -1517,7 +1517,7 @@ enum __Error
     
     size_t getSize(const long ptr)
     {
-        ZScriptArray& a = getArray(ptr);
+		const ZScriptArray& a = getArray(ptr);
         
         if(a == INVALIDARRAY)
             return size_t(-1);

@@ -3,6 +3,8 @@
 #ifndef ZSCRIPT_COMPILER_UTILS_H
 #define ZSCRIPT_COMPILER_UTILS_H
 
+#include "../compat_config.h"
+
 #include <cassert>
 #include <vector>
 #include <set>
@@ -21,7 +23,7 @@ std::string to_string(Type val)
 	return oss.str();
 }
 
-int const formatBufferSize = 4096;
+constexpr int formatBufferSize = 4096;
 
 /*
 namespace ZScript

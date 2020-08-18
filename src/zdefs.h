@@ -107,6 +107,7 @@
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_array.h"
+#include "compat_config.h"
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
@@ -3136,14 +3137,14 @@ struct MsgStr
 	}
 	
 	// Copy text data - just s and nextstring
-	void copyText(MsgStr& other)
+	void copyText(const MsgStr& other)
 	{
 		strncpy(s, other.s, MSGSIZE+1);
 		nextstring=other.nextstring;
 	}
 	
 	// Copy style data - everything except s, nextstring, and listpos
-	void copyStyle(MsgStr& other)
+	void copyStyle(const MsgStr& other)
 	{
 		tile=other.tile;
 		cset=other.cset;
@@ -4396,7 +4397,7 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 {
     long temp;
-    bool result = p_igetl(&temp,f,keepdata);
+    const bool result = p_igetl(&temp,f,keepdata);
     *(int *)p=(int)temp;
     return result;
 }
@@ -4615,7 +4616,7 @@ INLINE bool p_mputl(long c,PACKFILE *f)
     return success;
 }
 
-INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
+INLINE constexpr bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }

@@ -641,6 +641,7 @@ int WARPCODE(int dmap,int scr,int dw)
 void update_combo_cycling()
 {
     int x,y;
+    _MAYBE_UNUSED(y);
     static int newdata[176];
     static int newcset[176];
     static int newdata2[176];

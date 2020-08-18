@@ -1,9 +1,9 @@
 #ifndef _zc_win_console_h_
 #define _zc_win_console_h_
 
+#include "compat_config.h"
 
 #ifdef _WIN32
-
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
@@ -50,7 +50,7 @@ public:
             
         singleton.isOpen = true;
         
-        const int MAX_CONSOLE_LINES = 512;
+        constexpr int MAX_CONSOLE_LINES = 512;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
         int hConHandle;
@@ -124,7 +124,7 @@ public:
             
         singleton.isOpen = true;
         
-        const int MAX_ZASM_LINES = 32768;
+        constexpr int MAX_ZASM_LINES = 32768;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
         int hConHandle;
@@ -136,7 +136,7 @@ public:
         
         // set the screen buffer to be big enough to scroll text
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &console_info);
-        console_info.dwSize.Y = MAX_ZASM_LINES;
+        console_info.dwSize.Y = static_cast<SHORT>(MAX_ZASM_LINES);
         SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), console_info.dwSize);
         
         

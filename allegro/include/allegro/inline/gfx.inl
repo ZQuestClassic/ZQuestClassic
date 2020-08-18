@@ -101,7 +101,7 @@ AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
 })
 
 
-AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
+AL_INLINE(int, bitmap_color_depth, (const BITMAP *bmp),
 {
    ASSERT(bmp);
 
@@ -109,7 +109,7 @@ AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, bitmap_mask_color, (BITMAP *bmp),
+AL_INLINE(int, bitmap_mask_color, (const BITMAP *bmp),
 {
    ASSERT(bmp);
 
@@ -117,7 +117,7 @@ AL_INLINE(int, bitmap_mask_color, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_same_bitmap, (BITMAP *bmp1, BITMAP *bmp2),
+AL_INLINE(int, is_same_bitmap, (const BITMAP *bmp1, const BITMAP *bmp2),
 {
    unsigned long m1;
    unsigned long m2;
@@ -135,7 +135,7 @@ AL_INLINE(int, is_same_bitmap, (BITMAP *bmp1, BITMAP *bmp2),
 })
 
 
-AL_INLINE(int, is_linear_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_linear_bitmap, (const BITMAP* bmp),
 {
    ASSERT(bmp);
 
@@ -143,7 +143,7 @@ AL_INLINE(int, is_linear_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_planar_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_planar_bitmap, (const BITMAP* bmp),
 {
    ASSERT(bmp);
 
@@ -151,7 +151,7 @@ AL_INLINE(int, is_planar_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_memory_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_memory_bitmap, (const BITMAP* bmp),
 {
    ASSERT(bmp);
 
@@ -159,7 +159,7 @@ AL_INLINE(int, is_memory_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_screen_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_screen_bitmap, (const BITMAP* bmp),
 {
    ASSERT(bmp);
 
@@ -167,7 +167,7 @@ AL_INLINE(int, is_screen_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_video_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_video_bitmap, (const BITMAP* bmp),
 {
    ASSERT(bmp);
 
@@ -175,7 +175,7 @@ AL_INLINE(int, is_video_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_system_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_system_bitmap, (const BITMAP *bmp),
 {
    ASSERT(bmp);
 
@@ -183,7 +183,7 @@ AL_INLINE(int, is_system_bitmap, (BITMAP *bmp),
 })
 
 
-AL_INLINE(int, is_sub_bitmap, (BITMAP *bmp),
+AL_INLINE(int, is_sub_bitmap, (const BITMAP *bmp),
 {
    ASSERT(bmp);
 
@@ -232,7 +232,7 @@ AL_INLINE(void, release_screen, (void),
 #endif
 
 
-AL_INLINE(int, is_inside_bitmap, (BITMAP *bmp, int x, int y, int clip),
+AL_INLINE(int, is_inside_bitmap, (const BITMAP* bmp, int x, int y, int clip),
 {
    ASSERT(bmp);
 
@@ -267,7 +267,7 @@ AL_INLINE(void, set_clip_state, (BITMAP *bitmap, int state),
    bitmap->clip = state;
 })
 
-AL_INLINE(int, get_clip_state, (BITMAP *bitmap),
+AL_INLINE(int, get_clip_state, (const BITMAP* bitmap),
 {
    ASSERT(bitmap);
 

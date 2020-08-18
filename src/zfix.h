@@ -6,19 +6,24 @@
 #ifndef ZFIX_H
 #define ZFIX_H
 #include "zdefs.h"
+#include "compat_config.h"
 #include <math.h>
 #include <limits>
+
+#ifndef NAN
 #define NAN 0
+#endif // !NAN
+
 //std::numeric_limits<t>::quiet_NaN()
 
 typedef int32_t ZLong;
 
 class zfix;
 inline zfix zslongToFix(ZLong val);
-inline ZLong toZLong(float val);
-inline ZLong toZLong(double val);
-inline ZLong toZLong(int val);
-inline ZLong toZLong(long val);
+inline constexpr ZLong toZLong(float val);
+inline constexpr ZLong toZLong(double val);
+inline constexpr ZLong toZLong(int val);
+inline constexpr ZLong toZLong(long val);
 inline zfix floor(zfix fx);
 inline zfix abs(zfix fx);
 
@@ -142,8 +147,8 @@ public:
 	zfix& operator ++ ()				{ val += 10000; return *this; }
 	zfix& operator -- ()				{ val -= 10000; return *this; }
 	
-	zfix operator ++ (int)				{ zfix t = copy(); val += 10000; return t; }
-	zfix operator -- (int)				{ zfix t = copy(); val -= 10000; return t; }
+	zfix operator ++ (int)				{ const zfix t = copy(); val += 10000; return t; }
+	zfix operator -- (int)				{ const zfix t = copy(); val -= 10000; return t; }
 	
 	zfix operator - () const			{ zfix t; t.val = -val; return t; }
 	

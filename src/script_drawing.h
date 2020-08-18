@@ -26,7 +26,7 @@ public:
         if(is_init)
             return;
             
-        int size[4] = { 16, 32, 64, 128 };
+        const int size[4] = { 16, 32, 64, 128 };
         
         for(int i(0); i < 4; ++i)
         {

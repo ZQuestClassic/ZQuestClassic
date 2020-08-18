@@ -18,6 +18,7 @@
 #include "zdefs.h"
 #include "jwin.h"
 #include "sfx.h"
+#include "compat_config.h"
 
 #define MAXSCREENS 128
 #define MAXROOMTYPES   rMAX
@@ -61,7 +62,7 @@ INLINE int popup_menu(MENU *menu,int x,int y)
     return jwin_do_menu(menu,x,y);
 }
 
-INLINE int bit(int val,int b)
+INLINE constexpr int bit(int val,int b)
 {
     return (val>>b)&1;
 }

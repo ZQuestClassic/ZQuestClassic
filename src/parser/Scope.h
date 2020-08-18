@@ -201,7 +201,9 @@ namespace ZScript
 	// Lookup
 
 	// Attempt to resolve name to a type id under scope.
-	DataType const* lookupDataType(Scope const& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck = false, bool forceSkipUsing = false);
+	const DataType* lookupDataType(const Scope& scope, const std::string& name,
+								   const ASTExprIdentifier& host, CompileErrorHandler* errorHandler, 
+								   bool isTypedefCheck = false, bool forceSkipUsing = false);
 	DataType const* lookupDataType(Scope const& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck = false);
 	
 	// Attempt to resolve name to a script type id under scope.
@@ -211,7 +213,7 @@ namespace ZScript
 	ZClass* lookupClass(Scope const&, std::string const& name);
 
 	// Attempt to resolve name to a variable under scope.
-	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
+	Datum* lookupDatum(const Scope&, const std::string& name, const ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
 	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
 	
 	// Attempt to resolve name to a getter under scope.
@@ -225,7 +227,7 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing);
+		const Scope&, const std::string& name, const std::vector<const DataType*>& parameterTypes, bool noUsing);
 	std::vector<Function*> lookupFunctions(
 			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing);
 			

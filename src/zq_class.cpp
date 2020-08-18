@@ -571,7 +571,7 @@ bool zmap::isDark()
 }
 void zmap::setCurrMap(int index)
 {
-    int oldmap=currmap;
+    const int oldmap=currmap;
     scrpos[currmap]=currscr;
     currmap=bound(index,0,map_count);
     screens=&TheMaps[currmap*MAPSCRS];
@@ -595,7 +595,7 @@ void zmap::setCurrScr(int scr)
 {
     if(scr==currscr) return;
     
-    int oldscr=currscr;
+    const int oldscr=currscr;
     int oldcolor=getcolor();
     
     if(!(screens[currscr].valid&mVALID))
@@ -636,8 +636,8 @@ void zmap::setlayertarget()
     {
         for(int s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
-            mapscr *ts=&TheMaps[i];
+            const int i=(m*MAPSCRS+s);
+            const mapscr* ts=&TheMaps[i];
             
             // Search through each layer
             for(int w=0; w<6; ++w)
@@ -788,7 +788,7 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
         for(int y=2; y<9; y++)
             for(int x=2; x<14; x++)
             {
-                int i=(y<<4)+x;
+                const int i=(y<<4)+x;
                 screens[scr].data[i] = floorcombo;
                 screens[scr].cset[i] = floorcset;
             }
@@ -953,8 +953,8 @@ int zmap::save(const char *path)
     if(!f)
         return 1;
         
-    short version=ZELDA_VERSION;
-    byte  build=VERSION_BUILD;
+    const short version=ZELDA_VERSION;
+    const byte  build=VERSION_BUILD;
     
     if(!p_iputw(version,f))
     {
@@ -1064,15 +1064,15 @@ int zmap::warpindex(int combo)
 
 void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 {
-    int cx = COMBOX(pos);
-    int cy = COMBOY(pos);
+    const int cx = COMBOX(pos);
+    const int cy = COMBOY(pos);
     
-    newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
+    const newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
     
     for(int i=0; i<4; i++)
     {
-        int tx=((i&2)<<2)+x;
-        int ty=((i&1)<<3)+y;
+        const int tx=((i&2)<<2)+x;
+        const int ty=((i&1)<<3)+y;
         
         if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
@@ -1100,7 +1100,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     }
     
     // Draw damage combos
-    bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
+    const bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
                
@@ -1115,12 +1115,12 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 
 void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 {
-    newcombo c = combobuf[cmbdat];
+    const newcombo c = combobuf[cmbdat];
     
     for(int i=0; i<4; i++)
     {
-        int tx=((i&2)<<2)+x;
-        int ty=((i&1)<<3)+y;
+        const int tx=((i&2)<<2)+x;
+        const int ty=((i&1)<<3)+y;
         
         if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
@@ -1160,7 +1160,7 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
+    const newcombo c = combobuf[cmbdat];
     
     if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
     {
@@ -1182,13 +1182,13 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
     
     if(flags&cCSET)
     {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+        const bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
         //    text_mode(inv?vc(15):vc(0));
         textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
     }
     else if(flags&cCTYPE)
     {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+        const bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
         //    text_mode(inv?vc(15):vc(0));
         textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
     }
@@ -1197,7 +1197,7 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
+    const newcombo c = combobuf[cmbdat];
     
     if(c.tile==0)
     {
@@ -1244,13 +1244,13 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
     
     if(flags&cCSET)
     {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+        const bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
         //    text_mode(inv?vc(15):vc(0));
         textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
     }
     else if(flags&cCTYPE)
     {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+        const bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
         //    text_mode(inv?vc(15):vc(0));
         textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
     }
@@ -1452,7 +1452,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
 void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,bool ignorepos, int scr)
 {
     int x=0,y=0;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
+    const mapscr* doorscreen=(prv_mode?get_prvscr():screens+scr);
     
     switch(side)
     {
@@ -1551,9 +1551,9 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
 
 void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int scr)
 {
-    int x=((pos&15)<<4)+xofs;
-    int y=(pos&0xF0)+yofs;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
+    const int x=((pos&15)<<4)+xofs;
+    const int y=(pos&0xF0)+yofs;
+    const mapscr* doorscreen=(prv_mode?get_prvscr():screens+scr);
     
     
     switch(side)
@@ -2095,7 +2095,7 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
         
-    int combo = COMBOPOS(x,y);
+    const int combo = COMBOPOS(x,y);
     
     if(combo>175 || combo < 0)
         return 0;
@@ -2124,7 +2124,7 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
     
     x = vbound(x, 0, 16*16);
     y = vbound(y, 0, 11*16);
-    int combo = COMBOPOS(x,y);
+    const int combo = COMBOPOS(x,y);
     
     if(combo>175 || combo < 0)
         return 0;
@@ -2134,7 +2134,7 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
 
 void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 {
-    int antiflags=flags&~cFLAGS;
+    const int antiflags=flags&~cFLAGS;
     
     if(map<0)
         map=currmap;
@@ -2248,9 +2248,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     {
         for(int i=0; i<176; i++)
         {
-            word cmbdat = layer->data[i];
-            byte cmbcset = layer->cset[i];
-            int cmbflag = layer->sflag[i];
+            const word cmbdat = layer->data[i];
+            const byte cmbcset = layer->cset[i];
+            const int cmbflag = layer->sflag[i];
             
             if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
@@ -2299,8 +2299,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         if(!(layer->ffflags[i]&ffOVERLAY))
                         {
-                            int tx=(layer->ffx[i]/10000)+x;
-                            int ty=(layer->ffy[i]/10000)+y;
+                            const int tx=(layer->ffx[i]/10000)+x;
+                            const int ty=(layer->ffy[i]/10000)+y;
                             
                             if(layer->ffflags[i]&ffTRANS)
                             {
@@ -2510,9 +2510,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     {
         for(int i=0; i<176; i++)
         {
-            int ct1=layer->data[i];
+            const int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            const int ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -2560,8 +2560,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                         if(layer->ffflags[i]&ffOVERLAY)
                         {
                             //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-                            int tx=(layer->ffx[i]/10000)+x;
-                            int ty=(layer->ffy[i]/10000)+y;
+                            const int tx=(layer->ffx[i]/10000)+x;
+                            const int ty=(layer->ffy[i]/10000)+y;
                             
                             if(layer->ffflags[i]&ffTRANS)
                             {
@@ -2641,7 +2641,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     }
                     else
                     {
-                        int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                        const int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                         
                         if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                         {
@@ -2657,7 +2657,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     }
     
     
-    int dark = layer->flags&cDARK;
+    const int dark = layer->flags&cDARK;
     
     if(dark && !(flags&cNODARK))
     {
@@ -2700,7 +2700,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    const int dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -2740,9 +2740,9 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         for(int i=c; i<(c&0xF0)+16; i++)
         {
-            word cmbdat = (i < (int)layer->data.size() ? layer->data[i] : 0);
-            byte cmbcset = (i < (int)layer->data.size() ? layer->cset[i] : 0);
-            int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
+            const word cmbdat = (i < (int)layer->data.size() ? layer->data[i] : 0);
+            const byte cmbcset = (i < (int)layer->data.size() ? layer->cset[i] : 0);
+            const int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset);
 			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,flags|dark,cmbflag);
@@ -2861,9 +2861,9 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         for(int i=c; i<(c&0xF0)+16; i++)
         {
-            int ct1=layer->data[i];
+            const int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            const int ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -2939,7 +2939,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    const int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
@@ -3002,7 +3002,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    const int dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -3043,9 +3043,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         for(int i=c; i<176; i+=16)
         {
-            word cmbdat = layer->data[i];
-            byte cmbcset = layer->cset[i];
-            int cmbflag = layer->sflag[i];
+            const word cmbdat = layer->data[i];
+            const byte cmbcset = layer->cset[i];
+            const int cmbflag = layer->sflag[i];
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,flags|dark,cmbflag);
@@ -3166,9 +3166,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         for(int i=c; i<176; i+=16)
         {
-            int ct1=layer->data[i];
+            const int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            const int ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -3246,7 +3246,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    const int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
@@ -3301,7 +3301,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    const int dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -3336,9 +3336,9 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
     if(LayerMaskInt[0]!=0)
     {
-        word cmbdat = layer->data[c];
-        byte cmbcset = layer->cset[c];
-        int cmbflag = layer->sflag[c];
+        const word cmbdat = layer->data[c];
+        const byte cmbcset = layer->cset[c];
+        const int cmbflag = layer->sflag[c];
         if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 			overcombo(dest,x,y,cmbdat,cmbcset);
 		else put_combo(dest,x,y,cmbdat,cmbcset,flags|dark,cmbflag);
@@ -3368,8 +3368,8 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
     if(LayerMaskInt[0]!=0)
     {
-        int ct1=layer->data[c];
-        int ct3=combobuf[ct1].type;
+        const int ct1=layer->data[c];
+        const int ct3=combobuf[ct1].type;
         
 //    if (ct3==cOLD_OVERHEAD)
         if(combo_class_buf[ct3].overhead)
@@ -3434,7 +3434,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    const int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
@@ -3547,9 +3547,9 @@ void zmap::draw_template(BITMAP* dest,int x,int y)
 {
     for(int i=0; i<176; i++)
     {
-        word cmbdat = screens[TEMPLATE].data[i];
-        byte cmbcset = screens[TEMPLATE].cset[i];
-        int cmbflag = screens[TEMPLATE].sflag[i];
+        const word cmbdat = screens[TEMPLATE].data[i];
+        const byte cmbcset = screens[TEMPLATE].cset[i];
+        const int cmbflag = screens[TEMPLATE].sflag[i];
         put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,0,cmbflag);
     }
 }
@@ -3558,26 +3558,26 @@ void zmap::draw_template2(BITMAP* dest,int x,int y)
 {
     for(int i=0; i<176; i++)
     {
-        word cmbdat = screens[TEMPLATE2].data[i];
-        byte cmbcset = screens[TEMPLATE2].cset[i];
-        int cmbflag = screens[TEMPLATE2].sflag[i];
+        const word cmbdat = screens[TEMPLATE2].data[i];
+        const byte cmbcset = screens[TEMPLATE2].cset[i];
+        const int cmbflag = screens[TEMPLATE2].sflag[i];
         put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,0,cmbflag);
     }
 }
 
 void zmap::draw_secret(BITMAP *dest, int pos)
 {
-    word cmbdat = screens[TEMPLATE].data[pos];
-    byte cmbcset = screens[TEMPLATE].cset[pos];
-    int cmbflag = screens[TEMPLATE].sflag[pos];
+    const word cmbdat = screens[TEMPLATE].data[pos];
+    const byte cmbcset = screens[TEMPLATE].cset[pos];
+    const int cmbflag = screens[TEMPLATE].sflag[pos];
     put_combo(dest,0,0,cmbdat,cmbcset,0,cmbflag);
 }
 
 void zmap::draw_secret2(BITMAP *dest, int scombo)
 {
-    word cmbdat =  screens[currscr].secretcombo[scombo];
-    byte cmbcset = screens[currscr].secretcset[scombo];
-    byte cmbflag = screens[currscr].secretflag[scombo];
+    const word cmbdat =  screens[currscr].secretcombo[scombo];
+    const byte cmbcset = screens[currscr].secretcset[scombo];
+    const byte cmbflag = screens[currscr].secretflag[scombo];
     put_combo(dest,0,0,cmbdat,cmbcset,0,cmbflag);
 }
 
@@ -3875,7 +3875,7 @@ void zmap::Paste()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        const int oldcolor=getcolor();
         
         if(!(screens[currscr].valid&mVALID))
         {
@@ -4168,7 +4168,7 @@ void zmap::PastePalette()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        const int oldcolor=getcolor();
         screens[currscr].color = copymapscr.color;
         int newcolor=getcolor();
         loadlvlpal(newcolor);
@@ -4192,7 +4192,7 @@ void zmap::PasteAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        const int oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
         //screens[currscr]=copymapscr;
         int newcolor=getcolor();
@@ -4218,7 +4218,7 @@ void zmap::PasteToAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        const int oldcolor=getcolor();
         
         for(int x=0; x<128; x++)
         {
@@ -4263,7 +4263,7 @@ void zmap::PasteAllToAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        const int oldcolor=getcolor();
         
         for(int x=0; x<128; x++)
         {
@@ -4320,6 +4320,8 @@ void zmap::update_combo_cycling()
     }
     
     int x,y;
+    _MAYBE_UNUSED(y);
+
     int newdata[176];
     int newcset[176];
     bool restartanim[MAXCOMBOS];
@@ -4702,9 +4704,8 @@ void zmap::dowarp(int type, int index)
 {
     if(type==0)
     {
-    
-        int dmap=screens[currscr].tilewarpdmap[index];
-        int scr=screens[currscr].tilewarpscr[index];
+        const int dmap=screens[currscr].tilewarpdmap[index];
+        const int scr=screens[currscr].tilewarpscr[index];
         
         switch(screens[currscr].tilewarptype[index])
         {
@@ -4720,8 +4721,8 @@ void zmap::dowarp(int type, int index)
     }
     else if(type==1)
     {
-        int dmap=screens[currscr].sidewarpdmap[index];
-        int scr=screens[currscr].sidewarpscr[index];
+        const int dmap=screens[currscr].sidewarpdmap[index];
+        const int scr=screens[currscr].sidewarpscr[index];
         
         switch(screens[currscr].sidewarptype[index])
         {
@@ -4743,9 +4744,8 @@ void zmap::prv_dowarp(int type, int index)
 {
     if(type==0)
     {
-    
-        int dmap=prvscr.tilewarpdmap[index];
-        int scr=prvscr.tilewarpscr[index];
+        const int dmap=prvscr.tilewarpdmap[index];
+        const int scr=prvscr.tilewarpscr[index];
         
         switch(prvscr.tilewarptype[index])
         {
@@ -4765,8 +4765,8 @@ void zmap::prv_dowarp(int type, int index)
     }
     else if(type==1)
     {
-        int dmap=prvscr.sidewarpdmap[index];
-        int scr=prvscr.sidewarpscr[index];
+        const int dmap=prvscr.sidewarpdmap[index];
+        const int scr=prvscr.sidewarpscr[index];
         
         switch(prvscr.sidewarptype[index])
         {
@@ -4799,8 +4799,8 @@ void zmap::prv_dowarp(int type, int index)
 
 void zmap::dowarp2(int ring,int index)
 {
-    int dmap=misc.warp[ring].dmap[index];
-    int scr=misc.warp[ring].scr[index];
+    const int dmap=misc.warp[ring].dmap[index];
+    const int scr=misc.warp[ring].scr[index];
     setCurrMap(DMaps[dmap].map);
     setCurrScr(scr+DMaps[dmap].xoff);
 }
@@ -5451,9 +5451,9 @@ bool save_zgp(const char *path)
     if(!f)
         return false;
         
-    dword section_id=ID_GRAPHICSPACK;
-    dword section_version=V_GRAPHICSPACK;
-    dword section_cversion=CV_GRAPHICSPACK;
+    const dword section_id=ID_GRAPHICSPACK;
+    const dword section_version=V_GRAPHICSPACK;
+    const dword section_cversion=CV_GRAPHICSPACK;
     
     //section id
     if(!p_mputl(section_id,f))
@@ -5582,9 +5582,9 @@ bool save_subscreen(const char *path, bool *cancel)
     if(!f)
         return false;
         
-    dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
+    const dword section_id=ID_SUBSCREEN;
+    const dword section_version=V_SUBSCREEN;
+    const dword section_cversion=CV_SUBSCREEN;
     
     //section id
     if(!p_mputl(section_id,f))
@@ -5695,7 +5695,7 @@ bool load_subscreen(const char *path)
 
 bool setMapCount2(int c)
 {
-    int oldmapcount=map_count;
+    const int oldmapcount=map_count;
     int currmap=Map.getCurrMap();
     
     bound(c,1,MAXMAPS2);
@@ -5785,11 +5785,11 @@ void set_questpwd(const char *pwd, bool use_keyfile)
 }
 
 
-bool is_null_pwd_hash(unsigned char *pwd_hash)
+bool is_null_pwd_hash(const unsigned char* pwd_hash)
 {
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
-    char pwd[2]="";
+    const char pwd[2]="";
     
     cvs_MD5Init(&ctx);
     cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
@@ -5886,7 +5886,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     bool gotfrompwdfile=false;
     char cheatfilename[2048];
     replace_extension(cheatfilename, filename, "zcheat", 2047);
-    bool gotfromcheatfile=false;
+    const bool gotfromcheatfile=false;
     
     
     
@@ -6012,7 +6012,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     if(is_large)
         large_dialog(pwd_dlg);
         
-    int cancel = zc_popup_dialog(pwd_dlg,6);
+    const int cancel = zc_popup_dialog(pwd_dlg,6);
     
     if(cancel == 8)
         return 2;
@@ -6051,7 +6051,7 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
     }
     else
     {
-        int accessret = quest_access(filename, &header, compressed);
+        const int accessret = quest_access(filename, &header, compressed);
         
         if(accessret != 1)
         {
@@ -6145,9 +6145,9 @@ bool write_music(int format, MIDI* m, PACKFILE *f)
 
 int writeheader(PACKFILE *f, zquestheader *Header)
 {
-    dword section_id=ID_HEADER;
-    dword section_version=V_HEADER;
-    dword section_cversion=CV_HEADER;
+    const dword section_id=ID_HEADER;
+    const dword section_version=V_HEADER;
+    const dword section_cversion=CV_HEADER;
     dword section_size=0;
     
     //file header string
@@ -6471,9 +6471,9 @@ int writerules(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_RULES;
-    dword section_version=V_RULES;
-    dword section_cversion=CV_RULES;
+    const dword section_id=ID_RULES;
+    const dword section_version=V_RULES;
+    const dword section_cversion=CV_RULES;
     dword section_size=0;
     
     //section id
@@ -6533,9 +6533,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_DOORS;
-    dword section_version=V_DOORS;
-    dword section_cversion=CV_DOORS;
+    const dword section_id=ID_DOORS;
+    const dword section_version=V_DOORS;
+    const dword section_cversion=CV_DOORS;
     dword section_size=0;
     
     //section id
@@ -6794,9 +6794,9 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
     build=build;
     
     word dmap_count=count_dmaps();
-    dword section_id=ID_DMAPS;
-    dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
+    const dword section_id=ID_DMAPS;
+    const dword section_version=V_DMAPS;
+    const dword section_cversion=CV_DMAPS;
     dword section_size=0;
     
     //section id
@@ -7053,14 +7053,14 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
     new_return(0);
 }
 
-int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int writemisccolors(PACKFILE* f, zquestheader* Header, const miscQdata* Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_COLORS;
-    dword section_version=V_COLORS;
-    dword section_cversion=CV_COLORS;
+    const dword section_id=ID_COLORS;
+    const dword section_version=V_COLORS;
+    const dword section_cversion=CV_COLORS;
     dword section_size = 0;
     
     //section id
@@ -7300,14 +7300,14 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
     new_return(0);
 }
 
-int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int writegameicons(PACKFILE* f, zquestheader* Header, const miscQdata* Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_ICONS;
-    dword section_version=V_ICONS;
-    dword section_cversion=CV_ICONS;
+    const dword section_id=ID_ICONS;
+    const dword section_version=V_ICONS;
+    const dword section_cversion=CV_ICONS;
     dword section_size = 0;
     
     //section id
@@ -7368,13 +7368,13 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_MISC;
-    dword section_version=V_MISC;
-    dword section_cversion=CV_MISC;
-    word shops=count_shops(Misc);
-    word infos=count_infos(Misc);
-    word warprings=count_warprings(Misc);
-    word triforces=8;
+    const dword section_id=ID_MISC;
+    const dword section_version=V_MISC;
+    const dword section_cversion=CV_MISC;
+    const word shops=count_shops(Misc);
+    const word infos=count_infos(Misc);
+    const word warprings=count_warprings(Misc);
+    const word triforces=8;
     dword section_size = 0;
     
     //section id
@@ -7576,9 +7576,9 @@ int writeitems(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_ITEMS;
-    dword section_version=V_ITEMS;
-    dword section_cversion=CV_ITEMS;
+    const dword section_id=ID_ITEMS;
+    const dword section_version=V_ITEMS;
+    const dword section_cversion=CV_ITEMS;
     //  dword section_size=0;
     dword section_size = 0;
     
@@ -8075,9 +8075,9 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_WEAPONS;
-    dword section_version=V_WEAPONS;
-    dword section_cversion=CV_WEAPONS;
+    const dword section_id=ID_WEAPONS;
+    const dword section_version=V_WEAPONS;
+    const dword section_cversion=CV_WEAPONS;
     dword section_size = 0;
     
     //section id
@@ -8560,7 +8560,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch (const std::out_of_range& /*e*/)
         {
             return qe_invalid;
         }
@@ -8575,7 +8575,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch (const std::out_of_range& /*e*/)
         {
             return qe_invalid;
         }
@@ -8590,7 +8590,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch (const std::out_of_range& /*e*/)
         {
             return qe_invalid;
         }
@@ -8794,9 +8794,9 @@ int writemapscreen(PACKFILE *f, int i, int j)
 
 int writemaps(PACKFILE *f, zquestheader *)
 {
-    dword section_id=ID_MAPS;
-    dword section_version=V_MAPS;
-    dword section_cversion=CV_MAPS;
+    const dword section_id=ID_MAPS;
+    const dword section_version=V_MAPS;
+    const dword section_cversion=CV_MAPS;
     dword section_size = 0;
     
     //section id
@@ -8863,9 +8863,9 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
     build=build;
     
     word combos_used;
-    dword section_id=ID_COMBOS;
-    dword section_version=V_COMBOS;
-    dword section_cversion=CV_COMBOS;
+    const dword section_id=ID_COMBOS;
+    const dword section_version=V_COMBOS;
+    const dword section_cversion=CV_COMBOS;
     //  dword section_size=0;
     combos_used = count_combos()-start_combo;
     combos_used = zc_min(combos_used, max_combos);
@@ -9069,9 +9069,9 @@ int writecomboaliases(PACKFILE *f, word version, word build)
     version=version;
     build=build;
     
-    dword section_id=ID_COMBOALIASES;
-    dword section_version=V_COMBOALIASES;
-    dword section_cversion=CV_COMBOALIASES;
+    const dword section_id=ID_COMBOALIASES;
+    const dword section_version=V_COMBOALIASES;
+    const dword section_cversion=CV_COMBOALIASES;
     dword section_size=0;
     
     //section id
@@ -9116,7 +9116,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                 new_return(6);
             }
             
-            int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
+            const int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
             
             if(!p_putc(combo_aliases[j].width,f))
             {
@@ -9175,10 +9175,10 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
     start_cset=start_cset;
     max_csets=max_csets;
     
-    dword section_id=ID_CSETS;
-    dword section_version=V_CSETS;
-    dword section_cversion=CV_CSETS;
-    int palcycles = count_palcycles(Misc);
+    const dword section_id=ID_CSETS;
+    const dword section_version=V_CSETS;
+    const dword section_cversion=CV_CSETS;
+    const int palcycles = count_palcycles(Misc);
 // int palcyccount = count_palcycles(Misc);
     dword section_size = 0;
     
@@ -9279,9 +9279,9 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
     start_msgstr=start_msgstr;
     max_msgstrs=max_msgstrs;
     
-    dword section_id=ID_STRINGS;
-    dword section_version=V_STRINGS;
-    dword section_cversion=CV_STRINGS;
+    const dword section_id=ID_STRINGS;
+    const dword section_version=V_STRINGS;
+    const dword section_cversion=CV_STRINGS;
     dword section_size = 0;
     
     //section id
@@ -9516,9 +9516,9 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
     build=build;
     
     int tiles_used;
-    dword section_id=ID_TILES;
-    dword section_version=V_TILES;
-    dword section_cversion=CV_TILES;
+    const dword section_id=ID_TILES;
+    const dword section_version=V_TILES;
+    const dword section_cversion=CV_TILES;
 	al_trace("Counting tiles used\n");
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
@@ -9627,9 +9627,9 @@ midi		 *
 
 int writemidis(PACKFILE *f)
 {
-    dword section_id=ID_MIDIS;
-    dword section_version=V_MIDIS;
-    dword section_cversion=CV_MIDIS;
+    const dword section_id=ID_MIDIS;
+    const dword section_version=V_MIDIS;
+    const dword section_cversion=CV_MIDIS;
     dword section_size = 0;
     
     //section id
@@ -9741,11 +9741,11 @@ int writemidis(PACKFILE *f)
     new_return(0);
 }
 
-int writecheats(PACKFILE *f, zquestheader *Header)
+int writecheats(PACKFILE* f, const zquestheader* Header)
 {
-    dword section_id=ID_CHEATS;
-    dword section_version=V_CHEATS;
-    dword section_cversion=CV_CHEATS;
+    const dword section_id=ID_CHEATS;
+    const dword section_version=V_CHEATS;
+    const dword section_cversion=CV_CHEATS;
     dword section_size = 0;
     
     //section id
@@ -9817,9 +9817,9 @@ int writeguys(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_GUYS;
-    dword section_version=V_GUYS;
-    dword section_cversion=CV_GUYS;
+    const dword section_id=ID_GUYS;
+    const dword section_version=V_GUYS;
+    const dword section_cversion=CV_GUYS;
     dword section_size=0;
     
     //section id
@@ -10355,9 +10355,9 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_LINKSPRITES;
-    dword section_version=V_LINKSPRITES;
-    dword section_cversion=CV_LINKSPRITES;
+    const dword section_id=ID_LINKSPRITES;
+    const dword section_version=V_LINKSPRITES;
+    const dword section_cversion=CV_LINKSPRITES;
     dword section_size=0;
     
     //section id
@@ -10832,9 +10832,9 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 
 int writesubscreens(PACKFILE *f, zquestheader *Header)
 {
-    dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
+    const dword section_id=ID_SUBSCREEN;
+    const dword section_version=V_SUBSCREEN;
+    const dword section_cversion=CV_SUBSCREEN;
     dword section_size=0;
     
     //section id
@@ -10868,7 +10868,7 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<MAXCUSTOMSUBSCREENS; i++)
         {
-            int ret = write_one_subscreen(f, Header, i);
+            const int ret = write_one_subscreen(f, Header, i);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11112,11 +11112,11 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
-    dword section_id       = ID_FFSCRIPT;
-    dword section_version  = V_FFSCRIPT;
-    dword section_cversion = CV_FFSCRIPT;
+    const dword section_id       = ID_FFSCRIPT;
+    const dword section_version  = V_FFSCRIPT;
+    const dword section_cversion = CV_FFSCRIPT;
     dword section_size     = 0;
-	dword zasmmeta_version = METADATA_V;
+    const dword zasmmeta_version = METADATA_V;
     byte numscripts        = 0;
     numscripts = numscripts; //to avoid unused variables warnings
     
@@ -11156,7 +11156,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTFFC; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11167,7 +11167,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTITEM; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11178,7 +11178,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTGUYS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11189,7 +11189,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11200,7 +11200,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTSCREEN; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11211,7 +11211,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTGLOBAL; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11222,7 +11222,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTLINK; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11233,7 +11233,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11244,7 +11244,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
 	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
+        const int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11255,7 +11255,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
 	for(int i=0; i<NUMSCRIPTSDMAP; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11266,7 +11266,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11277,7 +11277,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	al_trace("About to write combo script pt 1.\n");
 	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
+            const int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11726,7 +11726,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **script)
+int write_one_ffscript(PACKFILE* f, zquestheader* Header, int i, script_data* const* script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -11867,9 +11867,9 @@ int writesfx(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_SFX;
-    dword section_version=V_SFX;
-    dword section_cversion=CV_SFX;
+    const dword section_id=ID_SFX;
+    const dword section_version=V_SFX;
+    const dword section_cversion=CV_SFX;
     dword section_size=0;
     
     //section id
@@ -11966,7 +11966,7 @@ int writesfx(PACKFILE *f, zquestheader *Header)
             }
             
             //de-endianfy the data
-            int wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
+            const int wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
             
             for(int j=0; j<wordstowrite; j++)
             {
@@ -11998,9 +11998,9 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_INITDATA;
-    dword section_version=V_INITDATA;
-    dword section_cversion=CV_INITDATA;
+    const dword section_id=ID_INITDATA;
+    const dword section_version=V_INITDATA;
+    const dword section_cversion=CV_INITDATA;
     dword section_size = 0;
     
     zinit.last_map=Map.getCurrMap();
@@ -12342,12 +12342,12 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_ITEMDROPSETS;
-    dword section_version=V_ITEMDROPSETS;
-    dword section_cversion=CV_ITEMDROPSETS;
+    const dword section_id=ID_ITEMDROPSETS;
+    const dword section_version=V_ITEMDROPSETS;
+    const dword section_cversion=CV_ITEMDROPSETS;
     //  dword section_size=0;
     dword section_size = 0;
-    word num_item_drop_sets=count_item_drop_sets();
+    const word num_item_drop_sets=count_item_drop_sets();
     
     //section id
     if(!p_mputl(section_id,f))
@@ -12426,9 +12426,9 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
 
 int writefavorites(PACKFILE *f, zquestheader*)
 {
-    dword section_id=ID_FAVORITES;
-    dword section_version=V_FAVORITES;
-    dword section_cversion=CV_FAVORITES;
+    const dword section_id=ID_FAVORITES;
+    const dword section_version=V_FAVORITES;
+    const dword section_cversion=CV_FAVORITES;
     dword section_size = 0;
     
     //section id
@@ -12878,8 +12878,8 @@ int save_unencoded_quest(const char *filename, bool compressed)
 
 int save_quest(const char *filename, bool timed_save)
 {
-    int retention=timed_save?AutoSaveRetention:AutoBackupRetention;
-    bool compress=!(timed_save&&UncompressedAutoSaves);
+    const int retention=timed_save?AutoSaveRetention:AutoBackupRetention;
+    const bool compress=!(timed_save&&UncompressedAutoSaves);
     char ext1[5];
     ext1[0]=0;
     
@@ -13341,7 +13341,7 @@ void zmap::prv_secrets(bool high16only)
         {
             for(int iter=0; iter<1; ++iter)
             {
-                int checkflag=combobuf[s->ffdata[i]].flag;
+                const int checkflag=combobuf[s->ffdata[i]].flag;
                 
                 if(iter==1)
                 {

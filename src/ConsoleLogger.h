@@ -125,7 +125,7 @@ protected:
 		)
 	{
 		EnterCriticalSection();
-		BOOL bRet = ::WriteFile(hFile,lpBuffer,nNumberOfBytesToWrite,lpNumberOfBytesWritten,lpOverlapped);
+		const BOOL bRet = ::WriteFile(hFile,lpBuffer,nNumberOfBytesToWrite,lpNumberOfBytesWritten,lpOverlapped);
 		LeaveCriticalSection();
 		return bRet;
 	}
@@ -218,7 +218,7 @@ protected:
 	{	// Thnx to this function, the "Helper" can see that we are "extended" logger !!!
 		// (so we can use the same helper-child-application for both loggers
 		DWORD cbWritten=0;
-		char *ptr="Extended-Console: TRUE\r\n";
+		const char* ptr="Extended-Console: TRUE\r\n";
 		WriteFile(m_hPipe,ptr,strlen(ptr),&cbWritten,NULL);
 		return (cbWritten==strlen(ptr)) ? 0 : -1;
 	}

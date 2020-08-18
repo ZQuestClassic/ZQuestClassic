@@ -11,6 +11,7 @@
 #include "gamedata.h"
 #include "parser/parserDefs.h"
 #include "zfix.h"
+#include "compat_config.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -425,7 +426,7 @@ extern int  pblack,pwhite;
 extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 
-INLINE int pal_sum(RGB p)
+INLINE constexpr int pal_sum(RGB p)
 {
     return p.r + p.g + p.b;
 }

@@ -33,6 +33,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "zfix.h"
+#include "compat_config.h"
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -518,12 +519,12 @@ void paymagiccost(int itemid, bool ignoreTimer = false);
 int Bweapon(int pos);
 void stopCaneOfByrna();
 //void selectWpn(int xstep, int ystep, bool b);
-const int SEL_UP = 0;
-const int SEL_LEFT = 1;
-const int SEL_DOWN = 2;
-const int SEL_RIGHT = 3;
-const int SEL_VERIFY_LEFT = 4;
-const int SEL_VERIFY_RIGHT = 5;
+constexpr int SEL_UP = 0;
+constexpr int SEL_LEFT = 1;
+constexpr int SEL_DOWN = 2;
+constexpr int SEL_RIGHT = 3;
+constexpr int SEL_VERIFY_LEFT = 4;
+constexpr int SEL_VERIFY_RIGHT = 5;
 int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
 bool isWpnPressed(int wpn);
 int getWpnPressed(int wpn);

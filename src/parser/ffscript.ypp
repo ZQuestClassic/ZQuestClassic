@@ -284,7 +284,7 @@ Namespace :
 		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
 		std::vector<std::string> components = idens->components;
 		std::string name = components.front();
-		int size = idens->components.size();
+		const int size = idens->components.size();
 		if(size == 1)
 		{
 			ASTNamespace* namesp = (ASTNamespace*)$4;
@@ -691,7 +691,7 @@ Annotated_Script :
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
-		for(int q = 0; q < set.size(); ++q)
+		for(size_t q = 0; q < set.size(); ++q)
 		{
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
@@ -1453,7 +1453,7 @@ Literal :
 		ASTFloat* val = (ASTFloat*)$1;
 		$$ = new ASTNumberLiteral(val, @$);}
 	| SINGLECHAR {
-		ASTString* as = (ASTString*)$1;
+		const ASTString* as = (const ASTString*)$1;
 		char val[15];
 		sprintf(val, "%d", as->getValue().at(1));
 		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
