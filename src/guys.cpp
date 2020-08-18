@@ -18022,6 +18022,7 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
 	flags &= ~guy_neverret;
+	isCore = false;
 }
 
 bool esPatraBS::animate(int index)
