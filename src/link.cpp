@@ -17345,9 +17345,9 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	
 	attackclk = charging = spins = tapping = 0;
 	attack = none;
-    if (tmpscr->flags3&fIWARPFULLSCREEN) // Sprites carry over
+	if (tmpscr->flags3&fIWARPFULLSCREEN) // Sprites carry over
 	{
-		zprint2("sprites carried over through warp\n");
+		//zprint2("sprites carried over through warp\n");
 		//fix sword position.
 		//reposition_sword_postwarp = 1;
 		
