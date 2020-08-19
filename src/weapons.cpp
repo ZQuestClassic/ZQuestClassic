@@ -3925,12 +3925,12 @@ void weapon::runscript(int index)
 	    }
 	    
 	    case wSSparkle:
-	    {
-		break;
-	    }
-		
 	    case wFSparkle:
 	    {
+		if ( doscript && weaponscript > 0 ) 
+		{
+			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		}
 		break;
 	    }
 	    case wBait:
@@ -5164,6 +5164,11 @@ bool weapon::animate(int index)
         {
             dead=1;
         }
+	
+	if ( doscript && isLWeapon )
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         
         break;
     }
@@ -5179,6 +5184,11 @@ bool weapon::animate(int index)
         {
             dead=1;
         }
+	
+	if ( doscript && isLWeapon )
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         
         break;
     }
