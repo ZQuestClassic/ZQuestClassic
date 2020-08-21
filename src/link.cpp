@@ -21522,12 +21522,17 @@ void dospecialmoney(int index)
     case rINFO:                                             // pay for info
         if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
         {
-            if (game->get_spendable_rupies() < abs(prices[priceindex]) && !current_item_power(itype_wallet))
-                return;
+            
                 
             if(!current_item_power(itype_wallet))
 	    {
-                game->change_drupy(-abs(prices[priceindex]));
+		if (game->get_spendable_rupies() < abs(prices[priceindex])) 
+			return;
+		int tmpprice = -abs(prices[priceindex]);
+		int total = game->get_drupy()-tmpprice;
+		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+		game->set_drupy(game->get_drupy()-total);
+		//game->change_drupy(-abs(prices[priceindex]));
 	    }
 	    if ( current_item_power(itype_wallet)>0 )
 	    {
@@ -21559,6 +21564,7 @@ void dospecialmoney(int index)
         prices[0] = tmpscr[tmp].catchall;
         if (!current_item_power(itype_wallet))
             game->change_drupy(prices[0]);
+	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
         setmapflag();
@@ -21574,7 +21580,7 @@ void dospecialmoney(int index)
         for(int i=0; i<3; i++)
             prices[i]=gambledat[si++];
             
-        game->change_drupy(prices[priceindex]);
+	game->set_drupy(game->get_drupy()+prices[priceindex]);
         putprices(true);
         
         for(int i=1; i<4; i++)
@@ -21597,7 +21603,10 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-        game->change_drupy(price);
+	int total = game->get_drupy()-price;
+	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	game->set_drupy(game->get_drupy()-total);
+        //game->set_drupy(game->get_drupy()+price);
         setmapflag();
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
@@ -21640,7 +21649,11 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-        game->change_drupy(price);
+	int total = game->get_drupy()-price;
+	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	game->set_drupy(game->get_drupy()-total);
+
+	//game->set_drupy(game->get_drupy()+price);
         setmapflag();
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
@@ -21659,8 +21672,10 @@ void dospecialmoney(int index)
         {
             if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
                 return;
-                
-            game->change_drupy(-abs(tmpscr[tmp].catchall));
+	    int tmpprice = -abs(tmpscr[tmp].catchall);
+	    int total = game->get_drupy()-tmpprice;
+	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	    game->set_drupy(game->get_drupy()-total);
         }
         else
         {
@@ -22036,14 +22051,17 @@ void LinkClass::checkitems(int index)
         case rSHOP:                                           // shop
             if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
             {
-                if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
-                    return;
                 
-                if(!current_item_power(itype_wallet))
+		if(!current_item_power(itype_wallet))
 		{
-                    game->change_drupy(-abs(prices[PriceIndex]));
+			if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+			int tmpprice = -abs(prices[PriceIndex]);
+			//game->change_drupy(-abs(prices[priceindex]));
+			int total = game->get_drupy()-tmpprice;
+			total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+			game->set_drupy(game->get_drupy()-total);
 		}
-		 if(current_item_power(itype_wallet))
+		else //infinite wallet
 		{
                     game->change_drupy(0);
 		}
@@ -22327,6 +22345,8 @@ void LinkClass::checkitems(int index)
 		switch(tmpscr[tmp].room)
 		{
 			case rSHOP: 
+			case rP_SHOP: 
+			case rTAKEONE: 
 			{
 				if ( PriceIndex >= 0 )
 				{
