@@ -5512,7 +5512,7 @@ bool weapon::animate(int index)
         }
 	//Diagonal Hookshot (8)
         byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG2) ? 1 : 0; 
-	zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
+	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 	//if ( allow_diagonal && misc2 == 0 ) 
 	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
         {
