@@ -2872,6 +2872,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         break;
         
     case wHookshot:
+    {
         hookshot_used=true;
         
         if(isDummy || itemid<0)
@@ -2923,10 +2924,40 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             hxofs=2;
             hxsz=12;
             break;
+	//Diagonal Hookshot (1)
+	case r_down:
+		yofs+=3; //check numbers ater
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case l_down:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case r_up:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case l_up:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
         }
         
 	}
 	break;
+    }
         
     case wHSHandle:
         step = 0;
@@ -2976,6 +3007,36 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             hxofs=2;
             hxsz=12;
             break;
+	
+	//Diagonal Hookshot (5)
+	case r_down:
+		yofs+=3; //check numbers ater
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case l_down:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case r_up:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
+	case l_up:
+		yofs+=3;
+		xofs-=3;
+		hysz=12;
+		hxsz=12;
+		//update gfx here
+		break;
         }
         
 	}
@@ -3020,6 +3081,29 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             xofs-=10;
             yofs=playing_field_offset+4;
             break;
+	
+	//Diagonal Hookshot (4)
+	//Try drawing diagonal. -Z
+	case r_up:
+		LOADGFX(defaultw);
+		xofs-=10;
+		yofs+=7;
+		break;
+	case r_down:
+		LOADGFX(defaultw);
+		xofs-=10;
+		yofs-=7;
+		break;
+	case l_up:
+		LOADGFX(defaultw);
+		xofs+=10;
+		yofs+=7;
+		break;
+	case l_down:
+		LOADGFX(defaultw);
+		xofs+=10;
+		yofs-=7;
+		break;
         }
     }
     break;
@@ -5426,21 +5510,75 @@ bool weapon::animate(int index)
                 chainlinks.del(chainlinks.idFirst(wHSChain));
             }
         }
+	//Diagonal Hookshot (8)
+        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG2) ? 1 : 0; 
+	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
+	//if ( allow_diagonal && misc2 == 0 ) 
+	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
+        {
+            ++clk;
+            return false;
+        }
+        //Diagonal Hookshot (10)
+	//This sets the direction for digaonals based on controller input. 
+        if(clk==1 && allow_diagonal)    
+	{
+	    //zprint2("clk is 1\n");
+	    if(Up())
+	    {
+		//dir=up; //Up would already have been set if facing up.
+		//zprint2("UP\n");
+		if(Left() )  
+		{
+			dir=l_up;
+			//zprint2("LEFT\n");
+		}
+		
+		else if(Right() ) 
+		{
+			dir=r_up;
+			//zprint2("RIGHT\n");
+		}
+		    misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+	    }
+	    else if(Down())
+	    {
+		//zprint2("DOWN\n");
+		//dir=down; //Up would already have been set if facing down.
+		
+		if(Left() )  
+		{
+			dir=l_down;
+			//zprint2("LEFT\n");
+		}
+		
+		else if(Right() ) 
+		{
+			dir=r_down;
+			//zprint2("RIGHT\n");
+		}
+		     misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+	    }
+	}
         
-        // Hookshot grab and retract code
+        // Hookshot grab and retract code 
+	//Diagonal Hookshot (2)
+	
         if(misc==0)
         {
             int maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
-            
+            //If the hookshot has extended to maxlength, retract it.
+	    //Needa an option to measure in pixels, instead of tiles. -Z
             if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
             {
                 dead=1;
             }
-            
+            //If it hits a block object, retract it.
             if(findentrance(x,y,mfSTRIKE,true)) dead=1;
             
             if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
-            
+	    
+            //Look for grab combos based on direction.
             if(dir==up)
             {
                 if((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
@@ -5518,6 +5656,135 @@ bool weapon::animate(int index)
                     dead=1;
                 }
             }
+	    //Diagonal Hookshot (3)
+	    //! -Z Hookshot diagonals. Will need bugtesting galore. 
+		if ( dir == r_down ) 
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//down
+				if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//down
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+                    
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+			    dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == l_down ) 
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//down
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+			
+
+					//left						//down
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+			{
+							//left
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+					//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+			//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+				dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == r_up ) 
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//up
+			    if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//up
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
+		if ( dir == l_up ) 
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//up
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//left						//up
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+							//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
         }
         
         if(hooked==true)
@@ -7865,7 +8132,7 @@ bool weapon::animateandrunscript(int ii)
                 chainlinks.del(chainlinks.idFirst(wHSChain));
             }
         }
-        
+	
         // Hookshot grab and retract code
         if(misc==0)
         {
@@ -7957,6 +8224,134 @@ bool weapon::animateandrunscript(int ii)
                     dead=1;
                 }
             }
+	    //Diagonal Hookshot (9)
+	    if ( dir == r_down ) 
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//down
+				if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//down
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+                    
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+			    dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == l_down ) 
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//down
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+			
+
+					//left						//down
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+			{
+							//left
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+					//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+			//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+				dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == r_up ) 
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//up
+			    if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//up
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
+		if ( dir == l_up ) 
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//up
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//left						//up
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+							//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
         }
         
         if(hooked==true)

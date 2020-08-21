@@ -8503,13 +8503,43 @@ bool LinkClass::startwpn(int itemid)
                     use_hookshot=false;
                 }
             }
+	    //Diagonal Hookshot (6)
+	    else if(dir==r_down)
+            {
+                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==l_down)
+            {
+                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==r_up)
+            {
+                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==l_up)
+            {
+                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
         }
         
         if(use_hookshot)
         {
             int hookitem = itemsbuf[itemid].fam_type;
             int hookpower = itemsbuf[itemid].power;
-            
+            byte allow_diagonal = (itemsbuf[itemid].flags & ITEM_FLAG2) ? 1 : 0; 
+		
             if(!Lwpns.has_space())
             {
                 Lwpns.del(0);
@@ -8564,7 +8594,49 @@ bool LinkClass::startwpn(int itemid)
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
-            
+            //Diagonal Hookshot (7)
+	    if(dir==r_down)
+            {
+                hookshot_used=true;
+		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==r_up)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==l_down)
+            {
+                hookshot_used=true;
+		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==l_up)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
             hookshot_frozen=true;
         }
         
