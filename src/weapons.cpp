@@ -5562,10 +5562,10 @@ bool weapon::animate(int index)
 			{
 				case up:
 					yofs += 7;
-					xofs -= 1;
+					xofs -= 2;
 					break;
 				case left:
-					yofs -= 6;
+					yofs -= 5;
 					xofs += 5;
 					break;
 			}
@@ -5583,7 +5583,7 @@ bool weapon::animate(int index)
 			{
 				case up:
 					yofs += 7;
-					xofs -= 1;
+					xofs -= 0;
 					break;
 				case right:
 					yofs -= 8;
@@ -5609,12 +5609,12 @@ bool weapon::animate(int index)
 			switch((int)(Link.dir))
 			{
 				case down:
-					yofs -= 7;
+					yofs -= 5;
 					xofs -= 2;
 					break;
 				case left:
 					yofs -= 2;
-					xofs += 4;
+					xofs += 5;
 					break;
 			}
 			
@@ -5634,7 +5634,7 @@ bool weapon::animate(int index)
 					break;
 				case right:
 					yofs += 2;
-					xofs -= 4;
+					xofs -= 3;
 					break;
 			}
 			
@@ -5990,7 +5990,7 @@ bool weapon::animate(int index)
 				{
 					case up:
 						yofs += 7;
-						xofs -= 0;
+						xofs += 2;
 						break;
 					case left:
 						yofs -= 1;
@@ -6010,11 +6010,11 @@ bool weapon::animate(int index)
 				switch((int)(Link.dir))
 				{
 					case up:
-						yofs += 8;
-						xofs -= 2;
+						yofs += 5;
+						xofs -= 3;
 						break;
 					case right:
-						yofs -= 2;
+						yofs -= 0;
 						xofs -= 8;
 						break;
 				}
@@ -6043,7 +6043,7 @@ bool weapon::animate(int index)
 						break;
 					case left:
 						yofs -= 6;
-						xofs += 4;
+						xofs += 5;
 						break;
 				}
 				
@@ -6059,11 +6059,11 @@ bool weapon::animate(int index)
 				{
 					case down:
 						yofs -= 8;
-						xofs -= 1;
+						xofs -= 0;
 						break;
 					case right:
 						yofs -= 3;
-						xofs -= 7;
+						xofs -= 5;
 						break;
 				}
 				
