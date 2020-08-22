@@ -3100,32 +3100,36 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	
 	//Diagonal Hookshot (4)
 	//Try drawing diagonal. -Z
+	//Sprites wpn5: Head, diagonal
+	//	  wpn6: handle, diagonal
+	//	  wpn7: chainlink, diagonal
+	//
 	case r_up:
-		LOADGFX(defaultw);
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 		xofs-=10;
 		yofs+=7;
-		update_weapon_frame(((frames>1)?frames+7:7),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=1;
 		break;
 	case r_down:
-		LOADGFX(defaultw);
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 		xofs-=10;
 		yofs-=7;
-		update_weapon_frame(((frames>1)?frames+7:7),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=3;
 		break;
 	case l_up:
-		LOADGFX(defaultw);
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 		xofs+=10;
 		yofs+=7;
-		update_weapon_frame(((frames>1)?frames+7:7),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=0;
 		break;
 	case l_down:
-		LOADGFX(defaultw);
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 		xofs+=10;
 		yofs-=7;
-		update_weapon_frame(((frames>1)?frames+7:7),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=2;
 		break;
         }
@@ -5535,7 +5539,7 @@ bool weapon::animate(int index)
             }
         }
 	//Diagonal Hookshot (8)
-        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG2) ? 1 : 0; 
+        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
 	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 	//if ( allow_diagonal && misc2 == 0 ) 
 	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5544,6 +5548,9 @@ bool weapon::animate(int index)
             return false;
         }
         //Diagonal Hookshot (10)
+	//Sprites wpn5: Head, diagonal
+	//	  wpn6: handle, diagonal
+	//	  wpn7: chainlink, diagonal
 	//This sets the direction for digaonals based on controller input. 
         if(clk==1 && allow_diagonal)    
 	{
@@ -5555,8 +5562,9 @@ bool weapon::animate(int index)
 		//zprint2("UP\n");
 		if(Left() )  
 		{
+			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=l_up;
-			update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+			update_weapon_frame(((frames>1)?frames:0),o_tile);
 			flip=0;
 			switch((int)(Link.dir))
 			{
@@ -5575,8 +5583,9 @@ bool weapon::animate(int index)
 		
 		else if(Right() ) 
 		{
+			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=r_up;
-			update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+			update_weapon_frame(((frames>1)?frames:0),o_tile);
 			flip=1;
 			
 			switch((int)(Link.dir))
@@ -5603,8 +5612,9 @@ bool weapon::animate(int index)
 		
 		if(Left() )  
 		{
+			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=l_down;
-			update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+			update_weapon_frame(((frames>1)?frames:0),o_tile);
 			flip=2;
 			switch((int)(Link.dir))
 			{
@@ -5623,8 +5633,9 @@ bool weapon::animate(int index)
 		
 		else if(Right() ) 
 		{
+			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=r_down;
-			update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+			update_weapon_frame(((frames>1)?frames:0),o_tile);
 			flip=3;
 			switch((int)(Link.dir))
 			{
@@ -5967,7 +5978,7 @@ bool weapon::animate(int index)
             dead=0;
         }
 	//Diagonal Hookshot Handle
-        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG2) ? 1 : 0; 
+        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
 	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 	//if ( allow_diagonal && misc2 == 0 ) 
 	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5983,8 +5994,9 @@ bool weapon::animate(int index)
 		{
 			if(Left() )  
 			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=l_up;
-				update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
 				flip=0;
 				switch((int)(Link.dir))
 				{
@@ -6003,8 +6015,9 @@ bool weapon::animate(int index)
 			
 			else if(Right() ) 
 			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=r_up;
-				update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
 				flip=1;
 				
 				switch((int)(Link.dir))
@@ -6032,8 +6045,9 @@ bool weapon::animate(int index)
 			
 			if(Left() )  
 			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=l_down;
-				update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
 				flip=2;
 				switch((int)(Link.dir))
 				{
@@ -6052,8 +6066,9 @@ bool weapon::animate(int index)
 			
 			else if(Right() ) 
 			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=r_down;
-				update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
 				flip=3;
 				switch((int)(Link.dir))
 				{
