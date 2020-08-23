@@ -6098,6 +6098,124 @@ bool weapon::animate(int index)
 	}
         break;
     }
+    
+    
+    case wHSChain:
+    {
+        
+	//Diagonal Hookshot Handle
+        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
+	//if ( allow_diagonal && misc2 == 0 ) 
+	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
+        {
+            ++clk;
+            return false;
+        }
+        //Diagonal Hookshot (10)
+	//This sets the direction for digaonals based on controller input. 
+        if(clk==1 && allow_diagonal)    
+	{
+		if(Up())
+		{
+			if(Left() )  
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=l_up;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=0;
+				//switch((int)(Link.dir))
+				//{
+				//	case up:
+				//		yofs += 7;
+				//		xofs += 2;
+				//		break;
+				//	case left:
+				//		yofs -= 1;
+				//		xofs += 6;
+				//		break;
+				//}
+				
+				//zprint2("LEFT\n");
+			}
+			
+			else if(Right() ) 
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=r_up;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=1;
+				
+				//switch((int)(Link.dir))
+				//{
+				//	case up:
+				//		yofs += 5;
+				//		xofs -= 3;
+				//		break;
+				//	case right:
+				//		yofs -= 0;
+				//		xofs -= 8;
+				//		break;
+				//}
+				
+				
+				//zprint2("RIGHT\n");
+			}
+			misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+		}
+	
+		else if(Down())
+		{
+			//zprint2("DOWN\n");
+			//dir=down; //Up would already have been set if facing down.
+			
+			if(Left() )  
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=l_down;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=2;
+				//switch((int)(Link.dir))
+				//{
+				//	case down:
+				//		yofs -= 8;
+				//		xofs -= 0;
+				//		break;
+				//	case left:
+				//		yofs -= 6;
+				//		xofs += 5;
+				//		break;
+				//}
+				
+				//zprint2("LEFT\n");
+			}
+			
+			else if(Right() ) 
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=r_down;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=3;
+				//switch((int)(Link.dir))
+				//{
+				///	case down:
+				//		yofs -= 8;
+				//		xofs -= 0;
+				//		break;
+				//	case right:
+				//		yofs -= 3;
+				//		xofs -= 5;
+				//		break;
+				//}
+				
+				//zprint2("RIGHT\n");
+			}
+			misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+		}
+	}
+        break;
+    }
+    
     case wPhantom:
     {
         switch(type)
