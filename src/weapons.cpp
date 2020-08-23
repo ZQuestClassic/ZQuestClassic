@@ -2926,38 +2926,42 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             break;
 	//Diagonal Hookshot (1)
 	case l_up:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
-		update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=0;
 		break;
 	case r_down:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 		yofs+=3; //check numbers ater
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=3;
 		break;
 	case l_down:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=2;
 		break;
 	case r_up:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+6:6),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=1;
 		break;
 	
@@ -3018,39 +3022,43 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	
 	//Diagonal Hookshot (5)
 	case r_down:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 		yofs+=3; //check numbers ater
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=3;
 		break;
 	case l_down:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=2;
 		break;
 	case r_up:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=1;
 		break;
 	case l_up:
+		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 		yofs+=3;
 		xofs-=3;
 		hysz=12;
 		hxsz=12;
 		//update gfx here
-		update_weapon_frame(((frames>1)?frames+3:3),o_tile);
+		update_weapon_frame(((frames>1)?frames:0),o_tile);
 		flip=0;
 		break;
         }
@@ -5751,6 +5759,7 @@ bool weapon::animate(int index)
                 }
             }
 	    //Diagonal Hookshot (3)
+	    //Diagonal Hookshot Grab Points
 	    //! -Z Hookshot diagonals. Will need bugtesting galore. 
 		if ( dir == r_down ) 
 		{
@@ -6089,6 +6098,124 @@ bool weapon::animate(int index)
 	}
         break;
     }
+    
+    
+    case wHSChain:
+    {
+        
+	//Diagonal Hookshot Handle
+        byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+	//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
+	//if ( allow_diagonal && misc2 == 0 ) 
+	if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
+        {
+            ++clk;
+            return false;
+        }
+        //Diagonal Hookshot (10)
+	//This sets the direction for digaonals based on controller input. 
+        if(clk==1 && allow_diagonal)    
+	{
+		if(Up())
+		{
+			if(Left() )  
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=l_up;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=0;
+				//switch((int)(Link.dir))
+				//{
+				//	case up:
+				//		yofs += 7;
+				//		xofs += 2;
+				//		break;
+				//	case left:
+				//		yofs -= 1;
+				//		xofs += 6;
+				//		break;
+				//}
+				
+				//zprint2("LEFT\n");
+			}
+			
+			else if(Right() ) 
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=r_up;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=1;
+				
+				//switch((int)(Link.dir))
+				//{
+				//	case up:
+				//		yofs += 5;
+				//		xofs -= 3;
+				//		break;
+				//	case right:
+				//		yofs -= 0;
+				//		xofs -= 8;
+				//		break;
+				//}
+				
+				
+				//zprint2("RIGHT\n");
+			}
+			misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+		}
+	
+		else if(Down())
+		{
+			//zprint2("DOWN\n");
+			//dir=down; //Up would already have been set if facing down.
+			
+			if(Left() )  
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=l_down;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=2;
+				//switch((int)(Link.dir))
+				//{
+				//	case down:
+				//		yofs -= 8;
+				//		xofs -= 0;
+				//		break;
+				//	case left:
+				//		yofs -= 6;
+				//		xofs += 5;
+				//		break;
+				//}
+				
+				//zprint2("LEFT\n");
+			}
+			
+			else if(Right() ) 
+			{
+				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+				dir=r_down;
+				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				//flip=3;
+				//switch((int)(Link.dir))
+				//{
+				///	case down:
+				//		yofs -= 8;
+				//		xofs -= 0;
+				//		break;
+				//	case right:
+				//		yofs -= 3;
+				//		xofs -= 5;
+				//		break;
+				//}
+				
+				//zprint2("RIGHT\n");
+			}
+			misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+		}
+	}
+        break;
+    }
+    
     case wPhantom:
     {
         switch(type)
@@ -8427,7 +8554,8 @@ bool weapon::animateandrunscript(int ii)
                     dead=1;
                 }
             }
-	    //Diagonal Hookshot (9)
+	    //Diagonal Hookshot (9) (This function never runs at this time.)
+	    //Diagonal Hookshot Grab Points (This function never runs at this time.)
 	    if ( dir == r_down ) 
 		{
 			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
