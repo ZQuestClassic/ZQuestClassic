@@ -3155,5 +3155,8 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
 
+//MIDI States
+enum { midissuspNONE, midissuspHALTED, midissuspRESUME };
+
 
 #endif                                                      //_ZDEFS_H_

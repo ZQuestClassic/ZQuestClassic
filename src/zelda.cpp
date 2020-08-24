@@ -157,6 +157,11 @@ int draw_screen_clip_rect_y2=223;
 
 volatile int logic_counter=0;
 bool trip=false;
+extern byte midi_suspended;
+extern byte callback_switchin;
+extern bool midi_paused;
+extern int paused_midi_pos;
+extern byte midi_patch_fix;
 void update_logic_counter()
 {
     ++logic_counter;
@@ -485,6 +490,8 @@ bool sbig;                                                  // big screen
 bool sbig2;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
+extern byte pause_in_background;
+extern signed char pause_in_background_menu_init;
 bool toogam=false;
 bool ignoreSideview=false;
 
@@ -2632,7 +2639,87 @@ void do_dcounters()
 
 void game_loop()
 {
-
+	//zprint2("pause_in_background: %d\n", pause_in_background);
+	//zprint2("frame: %d\n", frame);
+	//zprint2("pause_in_background: %d\n", pause_in_background);
+	//zprint2("midi_patch_fix: %d\n", midi_patch_fix);
+	//zprint2("callback_switchin is: %d\n", callback_switchin);
+	
+    if((pause_in_background && callback_switchin && midi_patch_fix))
+    {
+	
+	if(currmidi!=0)
+	{
+		
+		if(callback_switchin == 2) 
+		{
+			if ( currmidi != 0 )
+			{
+				int digi_vol, midi_vol;
+			
+				get_volume(&digi_vol, &midi_vol);
+				stop_midi();
+				jukebox(currmidi);
+				set_volume(digi_vol, midi_vol);
+				midi_seek(paused_midi_pos);
+				
+				
+				
+			}
+			midi_paused=false;
+			midi_suspended = midissuspNONE;
+			callback_switchin = 0;
+		}
+		if(callback_switchin == 1) 
+		{
+			paused_midi_pos = midi_pos;
+			midi_paused=true;
+			stop_midi();
+			++callback_switchin;
+		}
+	}
+	else //no MIDI playing
+	{
+		callback_switchin = 0;
+	}
+    }
+    
+    else if(midi_suspended==midissuspRESUME )
+    {
+	if ( currmidi != 0 )
+	{
+		
+		int digi_vol, midi_vol;
+	
+		get_volume(&digi_vol, &midi_vol);
+		stop_midi();
+		jukebox(currmidi);
+		set_volume(digi_vol, midi_vol);
+		midi_seek(paused_midi_pos);
+		
+		
+	}
+	midi_paused=false;
+	midi_suspended = midissuspNONE;
+	    
+    }
+	/*zprint2("pause_in_background_menu_init is: %d",pause_in_background_menu_init);
+	switch(pause_in_background_menu_init) //disable
+	{
+		case 2:
+		zprint2("changing mode to SWITCH_BACKGROUND\n");
+		pause_in_background = 0;
+		set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
+		pause_in_background_menu_init = 0;
+		break;
+		case 1:
+		zprint2("changing mode to SWITCH_PAUSE\n");
+		pause_in_background = 1;
+		set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:SWITCH_BACKAMNESIA);
+		pause_in_background_menu_init = 0;
+		break;
+	}
+    */
     //  walkflagx=0; walkflagy=0;
     if(fadeclk>=0)
     {
@@ -3071,7 +3158,8 @@ int onFullscreen()
 	    set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
-	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+	    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
 	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 
@@ -3630,7 +3718,6 @@ int main(int argc, char* argv[])
     
     
     
-    
     //if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
     //{
 	//for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
@@ -4011,7 +4098,8 @@ int main(int argc, char* argv[])
     }
     
     sbig = (screen_scale > 1);
-    set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
+    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+    set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
     zq_screen_w = resx;
     zq_screen_h = resy;
     
@@ -4069,6 +4157,9 @@ int main(int argc, char* argv[])
 	    }
 	    checked_epilepsy = 1;
     }
+    
+    //set switching/focus mode -Z
+    set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
     
 // load saved games
     Z_message("Loading saved games... ");

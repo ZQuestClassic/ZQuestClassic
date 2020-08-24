@@ -35,12 +35,12 @@ const int __classic_zh_LASTMAP 		= 4;
 const int __classic_zh_LASTSCR 		= 5;
 
 //Version Information; time is in GMT
-const float __classic_zh_VERSION 	= 1.11;
-const int __classic_zh_YEAR 		= 2019;
-const int __classic_zh_MONTH 		= 10;
-const int __classic_zh_DAY 		= 8;
-const int __classic_zh_HOUR 		= 0;
-const int __classic_zh_MINUTE 		= 26;
+const float __classic_zh_VERSION 	= 1.12;
+const int __classic_zh_YEAR 		= 2030;
+const int __classic_zh_MONTH 		= 8;
+const int __classic_zh_DAY 		= 14;
+const int __classic_zh_HOUR 		= 13;
+const int __classic_zh_MINUTE 		= 25;
 
 
 const int __classic_zh_ITEM_Z2LANTERN 			= 149;
@@ -350,10 +350,13 @@ ffc script ChangeRoomGuy
 			npc g = Screen->LoadNPC(q);
 			if ( g->Type == NPCT_GUY )
 			{
-				g->OriginalTile = t;
-				if ( cs > 0 ) 
-					g->CSet = cs;
-				break;
+				if ( n->ID != NPC_FIRE )
+				{
+					g->OriginalTile = t;
+					if ( cs > 0 ) 
+						g->CSet = cs;
+					break;
+				}
 			}
 		}
 	}
