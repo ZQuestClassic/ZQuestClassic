@@ -14652,13 +14652,48 @@ bool usekey()
         if(game->lvlkeys[dlevel]!=0)
         {
             game->lvlkeys[dlevel]--;
-            return true;
+	    //run script for level key item
+		int key_item = current_item_id(itype_lkey);
+		zprint2("key_item is: %d\n",key_item);
+		zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+		{
+			ri = &(itemScriptData[key_item]);
+			for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+			ri->Clear();
+			item_doscript[key_item] = 1;
+			itemscriptInitialised[key_item] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+		}
+		return true;
         }
         
-        if(game->get_keys()==0)
-            return false;
-            
-        game->change_keys(-1);
+	else
+	{
+		if(game->get_keys()==0)
+		{
+		    return false;
+		}
+		else 
+		{
+			//run script for key item
+			int key_item = current_item_id(itype_key);
+			zprint2("key_item is: %d\n",key_item);
+			zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			game->change_keys(-1);
+		}
+	}
     }
     
     return true;
