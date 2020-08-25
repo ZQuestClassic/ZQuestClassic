@@ -3,6 +3,14 @@
 
 //Alpha 82
 
+Feat: Boss keys also run scripts; identical to other keys.
+	Next: Door / lockblock combo sfx?
+Item action scripts on keys use the lowest numbered item of the
+	type I_KEY, and item action scripts use the lowest numbered item of
+	the type I_LKEYto determine what script to run.
+Allow keys to run action scripts.
+	( ZoriaRPG, 25th August, 2020 )
+
 The diagonal hookshot now uses the appropriate diagonal sprites.
 	Note: This has a visual bug, where if the player stops holding the
 	directional inputs as chainlinks are added, they default to the normal
