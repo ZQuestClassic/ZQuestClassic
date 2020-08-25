@@ -14653,7 +14653,14 @@ bool usekey()
         {
             game->lvlkeys[dlevel]--;
 	    //run script for level key item
-		int key_item = current_item_id(itype_lkey);
+		int key_item = 0; //current_item_id(itype_lkey); //not possible
+		for ( int q = 0; q < MAXITEMS; ++q )
+		{
+			if ( itemsbuf[q].family == itype_lkey )
+			{
+				key_item = q; break;
+			}
+		}
 		zprint2("key_item is: %d\n",key_item);
 		zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
 		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
@@ -14678,7 +14685,14 @@ bool usekey()
 		else 
 		{
 			//run script for key item
-			int key_item = current_item_id(itype_key);
+			int key_item = 0; //current_item_id(itype_key); //not possible
+			for ( int q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_key )
+				{
+					key_item = q; break;
+				}
+			}
 			zprint2("key_item is: %d\n",key_item);
 			zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
 			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
