@@ -14663,7 +14663,7 @@ bool usekey()
 		}
 		//zprint2("key_item is: %d\n",key_item);
 		//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 		{
 			ri = &(itemScriptData[key_item]);
 			for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -14695,7 +14695,7 @@ bool usekey()
 			}
 			//zprint2("key_item is: %d\n",key_item);
 			//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 			{
 				ri = &(itemScriptData[key_item]);
 				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -14967,7 +14967,7 @@ void LinkClass::checkbosslockblock()
 			key_item = q; break;
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 	{
 		ri = &(itemScriptData[key_item]);
 		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15059,7 +15059,7 @@ void LinkClass::checkchest(int type)
 			key_item = q; break;
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 	{
 		ri = &(itemScriptData[key_item]);
 		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15168,7 +15168,7 @@ void LinkClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15227,7 +15227,7 @@ void LinkClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15284,7 +15284,7 @@ void LinkClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15345,7 +15345,7 @@ void LinkClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15412,7 +15412,7 @@ void LinkClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15479,7 +15479,7 @@ void LinkClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15544,7 +15544,7 @@ void LinkClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -15612,7 +15612,7 @@ void LinkClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //No collect script on item 0. 
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -22697,10 +22697,14 @@ void LinkClass::checkitems(int index)
     
     if(itemsbuf[id2].family==itype_triforcepiece)
     {
-        if(itemsbuf[id2].misc2==1)
+        if(itemsbuf[id2].misc2>0) //Small TF Piece
+	{
             getTriforce(id2);
+	}
         else
+	{
             getBigTri(id2);
+	}
     }
 }
 
@@ -22892,12 +22896,28 @@ void LinkClass::getTriforce(int id2)
     
 	sfx(itemsbuf[id2].playsound);
 	music_stop();
-    
-	if(itemsbuf[id2].misc1)
-		jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
-	else
-		try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
 	
+	//If item flag six is enabled, and a sound is set to attributes[2], play that sound.
+	if ( (itemsbuf[id2].flags & ITEM_FLAG14) )
+	{
+		unsigned char playwav = itemsbuf[id2].misc3;
+		//zprint2("playwav is: %d\n", playwav);
+		sfx(playwav);
+		
+	}
+		
+	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
+	//itemsbuf[id2].flags & ITEM_FLAG13 : Run Action Script On Collection
+	//itemsbuf[id2].flags & ITEM_FLAG14 : Play second sound (WAV) from Attributes[2] (misc2)
+	//itemsbuf[id2].flags & ITEM_FLAG15 : No MIDI
+    
+	if(!(itemsbuf[id2].flags & ITEM_FLAG15)) //No MIDI flag
+	{
+		if(itemsbuf[id2].misc1)
+			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
+		else
+			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{
 		game->lvlitems[dlevel]|=liTRIFORCE;
@@ -22907,9 +22927,58 @@ void LinkClass::getTriforce(int id2)
 	int x2=0;
 	int curtain_x=0;
 	int c=0;
-	
+	/*if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //Run collect script This happens w/o the flag. 
+		{
+			if(itemsbuf[id2].collect_script && !item_collect_doscript[id2])
+			{
+				//clear the item script stack for a new script
+				ri = &(itemCollectScriptData[id2]);
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+				ri->Clear();
+				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+				if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
+				{
+					item_collect_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
+				}
+				else if (!id2 && !item_collect_doscript[id2]) //item 0
+				{
+					item_collect_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+				}
+			}
+		}
+		*/
 	do
 	{
+		
+		
+		if ( (itemsbuf[id2].flags & ITEM_FLAG13) ) //Run action script on collection.
+		{
+			if ( itemsbuf[id2].script && !item_doscript[id2] ) 
+			{
+				ri = &(itemScriptData[id2]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[id2] = 1;
+				itemscriptInitialised[id2] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(id2));
+			}
+		}
+		//if ( itemsbuf[id2].misc2 == 2 ) //No cutscene; what if people used '2' on older quests?
+		if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //No cutscene
+		{
+			return;
+		}
 		if(f==40)
 		{
 			actiontype oldaction = action;
@@ -23023,7 +23092,8 @@ void LinkClass::getTriforce(int id2)
 		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
 		//so this is not necessary -DD
 		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
-	
+		
+		//Run Triforce Script
 		advanceframe(true);
 		++f;
 	}
