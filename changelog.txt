@@ -1,8 +1,27 @@
 // 2.55 Change Log
-// Updated 12th August, 2020
+// Updated 29th August, 2020
 
 //Alpha 82
 
+Fixed filename on zscript_manual.rtf.
+<std 1.7017> 
+	Added function set void HoldUpItem(..., int) to std_extension.
+	Fixed enum HeroAction values starting at LA_CLIMBING_RES.
+	( ZoriaRPG, 29th August, 2020 )
+
+Feat: Triforce Fragment Options
+	Added the ability for TF pieces to run an action script, on collection.
+		This requires enabling a flag: Run Action Script on Collection
+	Added the ability to play a second sound effect.
+		This requires enabling a flag: Play Second Sound Effect, and the
+		sound must be set in Attribute 'Second Collect Sound'.
+	Added a flag 'No Cutscene' to allow fully scripted cutscenes.
+	Added a flag 'No MIDI'. This allows the cutscene MIDI to be silent.
+	( ZoriaRPG, 27th August, 2020 )
+
+Continued work on ZS Docs.
+Added until() and unless() macros to zdefs.h.
+Spiral.zh: Initial Commit
 Feat: Boss keys also run scripts; identical to other keys.
 	Next: Door / lockblock combo sfx?
 Item action scripts on keys use the lowest numbered item of the
