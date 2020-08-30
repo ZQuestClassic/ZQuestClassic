@@ -1,5 +1,5 @@
 //Extended functions for 2.55.0, Alpha 19 and later.
-//22nd March, 2020
+//30th August, 2020
 
 //A
 
@@ -1540,6 +1540,63 @@ int HitboxRight()
 int HitboxTop() 
 {
 	return (Link->Y + Link->HitYOffset);
+}
+
+void HoldUpItem(int id, int twohands)
+{
+	int oldaction = Link->Action;
+	Link->HeldItem = id;
+	switch(oldaction)
+	{
+		case LA_SWIMMING:
+		case LA_DIVING:
+		case LA_GOTHURTWATER:
+		{
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1WATER,LA_HOLD2WATER);
+			break;
+		}
+		default:
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1LAND,LA_HOLD2LAND);
+			break;
+	}
+}
+
+void HoldUpItem(itemsprite i, int twohands)
+{
+	int oldaction = Link->Action;
+	Link->HeldItem = i->ID;
+	switch(oldaction)
+	{
+		case LA_SWIMMING:
+		case LA_DIVING:
+		case LA_GOTHURTWATER:
+		{
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1WATER,LA_HOLD2WATER);
+			break;
+		}
+		default:
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1LAND,LA_HOLD2LAND);
+			break;
+	}
+}
+
+void HoldUpItem(itemdata i, int twohands)
+{
+	int oldaction = Link->Action;
+	Link->HeldItem = i->ID;
+	switch(oldaction)
+	{
+		case LA_SWIMMING:
+		case LA_DIVING:
+		case LA_GOTHURTWATER:
+		{
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1WATER,LA_HOLD2WATER);
+			break;
+		}
+		default:
+			Link->Action = Clamp(LA_HOLD1LAND+twohands,LA_HOLD1LAND,LA_HOLD2LAND);
+			break;
+	}
 }
 
 //I
