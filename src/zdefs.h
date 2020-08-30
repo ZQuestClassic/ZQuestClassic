@@ -4683,6 +4683,9 @@ extern void removeFromItemCache(int itemid);
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
 
+#define until(n) while(!(n))
+#define unless(n) if(!(n))
+
 enum //Mapscr hardcodes for temp mapscrs
 {
 	MAPSCR_SCROLL6 = -14,
