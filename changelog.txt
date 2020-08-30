@@ -3,6 +3,9 @@
 
 //Alpha 82
 
+Updated classic_qst.dat with diagonal hookshot gfx.
+	( ZoriaRPG, 30th August, 2020 )
+	
 Fixed filename on zscript_manual.rtf.
 <std 1.7017> 
 	Added function set void HoldUpItem(..., int) to std_extension.
