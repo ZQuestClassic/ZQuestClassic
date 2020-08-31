@@ -22906,6 +22906,7 @@ void LinkClass::getTriforce(int id2)
 		
 	}
 		
+	//itemsbuf[id2].flags & ITEM_FLAG10 : Cutscene interrupts action script..
 	//itemsbuf[id2].flags & ITEM_FLAG11 : Don't change music.
 	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
 	//itemsbuf[id2].flags & ITEM_FLAG13 : Run Action Script On Collection
@@ -22964,15 +22965,23 @@ void LinkClass::getTriforce(int id2)
 		
 		if ( (itemsbuf[id2].flags & ITEM_FLAG13) ) //Run action script on collection.
 		{
-			if ( itemsbuf[id2].script && !item_doscript[id2] ) 
+			if ( itemsbuf[id2].script )
 			{
-				ri = &(itemScriptData[id2]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[id2] = 1;
-				itemscriptInitialised[id2] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(id2));
+				if ( !item_doscript[id2] ) 
+				{
+					ri = &(itemScriptData[id2]);
+					for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+					ri->Clear();
+					item_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,(id2));
+				}
+				else
+				{
+					if ( !(itemsbuf[id2].flags & ITEM_FLAG10) ) //Cutscene halts the script it resumes after cutscene.
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2); //if flag is off, run the script every frame of the cutscene.
+				}
 			}
 		}
 		//if ( itemsbuf[id2].misc2 == 2 ) //No cutscene; what if people used '2' on older quests?
