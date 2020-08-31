@@ -3285,6 +3285,7 @@ struct dmap
 #define dmfSIDEVIEW 			0x10000
 #define dmfLAYER3BG 			0x20000
 #define dmfLAYER2BG 			0x40000
+#define dmfNEWCELLARENEMIES 			0x80000
 
 
 #define OLDMAXCOMBOALIASES 256

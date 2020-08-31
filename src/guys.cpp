@@ -20177,10 +20177,21 @@ void loadenemies()
 	if(currscr>=128)
 	{
 		if(DMaps[currdmap].flags&dmfCAVES) return;
-		
-		for(int i=0; i<4; i++)
-			addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int)eKEESE1,-14-i);
-			
+		if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
+		{
+			for(int i=0; i<10; i++)
+			{
+				if ( tmpscr->enemy[i] )
+				{
+					addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i],-14-i);
+				}
+			}
+		}
+		else
+		{
+			for(int i=0; i<4; i++)
+				addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int)eKEESE1,-14-i);
+		}
 		return;
 	}
 	
