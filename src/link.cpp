@@ -22871,7 +22871,7 @@ void LinkClass::getTriforce(int id2)
 {
 		
 	PALETTE flash_pal;
-
+	int refill_frame = ( (itemsbuf[id2].misc5 > 0) ? itemsbuf[id2].misc5 : 88 );
 	
 	for(int i=0; i<256; i++)
 	{
@@ -23047,7 +23047,7 @@ void LinkClass::getTriforce(int id2)
 	
 		if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 		{
-			if(f==88)
+			if(f==refill_frame)
 			{
 				refill_what=REFILL_ALL;
 				refill_why=id2;
@@ -23055,7 +23055,7 @@ void LinkClass::getTriforce(int id2)
 				refill();
 			}
 	    
-			if(f==89)
+			if(f==(refill_frame+1))
 			{
 				if(refill())
 				{
