@@ -22895,7 +22895,7 @@ void LinkClass::getTriforce(int id2)
 	}
     
 	sfx(itemsbuf[id2].playsound);
-	music_stop();
+	if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) music_stop();
 	
 	//If item flag six is enabled, and a sound is set to attributes[2], play that sound.
 	if ( (itemsbuf[id2].flags & ITEM_FLAG14) )
@@ -22906,6 +22906,7 @@ void LinkClass::getTriforce(int id2)
 		
 	}
 		
+	//itemsbuf[id2].flags & ITEM_FLAG11 : Don't change music.
 	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
 	//itemsbuf[id2].flags & ITEM_FLAG13 : Run Action Script On Collection
 	//itemsbuf[id2].flags & ITEM_FLAG14 : Play second sound (WAV) from Attributes[2] (misc2)
@@ -23116,7 +23117,9 @@ void LinkClass::getTriforce(int id2)
 		dowarp(1,0); //side warp
 	}
 	else
-		playLevelMusic();
+	{
+		if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) playLevelMusic();
+	}
 }
 
 void red_shift()
