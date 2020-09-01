@@ -22906,6 +22906,7 @@ void LinkClass::getTriforce(int id2)
 		
 	}
 		
+	//itemsbuf[id2].flags & ITEM_FLAG9 : Don't dismiss Messages
 	//itemsbuf[id2].flags & ITEM_FLAG10 : Cutscene interrupts action script..
 	//itemsbuf[id2].flags & ITEM_FLAG11 : Don't change music.
 	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
@@ -22992,7 +22993,7 @@ void LinkClass::getTriforce(int id2)
 		if(f==40)
 		{
 			actiontype oldaction = action;
-			ALLOFF(true, false);
+			ALLOFF((!itemsbuf[id2].flags & ITEM_FLAG9), false);
 			action=oldaction;                                    // have to reset this flag
 			FFCore.setLinkAction(oldaction);
 		}
