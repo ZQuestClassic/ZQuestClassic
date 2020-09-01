@@ -82,6 +82,14 @@ void setZScriptVersion(int) { } //bleh...
 
 #include <fstream>
 
+//Windows mmemory tools
+#ifdef _WIN32
+#include <windows.h>
+#include <stdio.h>
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib") // Needed to avoid linker issues. -Z
+#endif
+
 //SDL_Surface *sdl_screen;
 
 #define IS_ZQUEST 1
@@ -25458,6 +25466,11 @@ void clear_map_states()
 int onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
+	int memuse = 0;
+	#ifdef _WIN32
+	PROCESS_MEMORY_COUNTERS memCounter;
+	BOOL memresult = false;
+	#endif
 	
 	if(try_recovering_missing_scripts!=0)
 	{
@@ -25554,6 +25567,17 @@ int onCompileScript()
 		}
 		
 		case 5:
+			#ifdef _WIN32
+			memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
+			memuse = memCounter.WorkingSetSize / 1024 / 1024;
+			zprint2("Mem use: %d\n", memuse);
+			if ( memuse >= 3072 )
+			{
+				jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
+				return 0;
+			}	
+			#endif
+			//need elseif for linux here! -Z
 			//Compile!
 			FILE *tempfile = fopen("tmp","w");
 			
