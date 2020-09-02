@@ -22,7 +22,7 @@
 #define V_ZC_HOUR 12  
 #define V_ZC_MINUTE 22
 
-#define PROJECT_NAME "Omnius"
+#define PROJECT_NAME "Omnius: Planet Claire"
 #define COMPANY_NAME "Armageddon Games"
 #define ZQ_EDITOR_NAME "ZQuest Creator"
 #define ZQ_EDITOR_V "2.53.1"
