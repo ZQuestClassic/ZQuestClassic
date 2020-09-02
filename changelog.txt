@@ -1,5 +1,52 @@
 // 2.55 Change Log
-// Updated 29th August, 2020
+// Updated 1st September, 2020
+
+//Alpha 83
+
+If the zquest.exe RAM use is >= 3GB the compiler will refuse to
+	compile and give a Memory Exhausted error instead of crashing.
+	This leaves a ~500MB buffer before crashing and is polite.
+	We need a Linux implementation for this, too.
+	( ZoriaRPG, 1st September, 2020 )
+	
+Added a flag to TF Fragments: Don't Dismiss Messages
+	If enabled and the cutscene is allowed to run Screen Messages (ZQ Strings)
+	will not be cleared by the cutscene.
+Added a flag to DMaps: Use Enemy List for Cellar Enemies
+	If enabled, when using item cellar and passageway screens, the
+	normal enemy list for screens 0x80 and 0x81 will determine the
+	enemies spawned (0 to 10) rather than fhardcoding precisely four
+	enemies, which if left unspecified (set to None) would spawn keese.
+	This allows cellars and passageways with no enemies, or any normal
+	combination of enemies.
+	Note that this uses the mapscreen from the map used to generate the
+	DMap, and thus will apply to all uses of screens 0x80 and 0x81 used by
+	any dungeon that shares the map.
+	--Fills feature reuest from user cbailey78
+	( ZoriaRPG, 31st August, 2020 )
+	
+Added an attribute to TF Shard items: Custom Refill Frame.
+	If this is > 0, then instead of the hardcoded frame 88, the engine
+	will refill HP/MP on the specified frame of the TF cutscene.
+	This does not appy if the cutscene is disabled.
+	If this is set to a value > Custom Cutscene Duration, it will not occur.
+	Refilling reduces the cutscen frame clock, until it completes, and thus
+		the duration of HP/MP refill adds to the total cutscene duration.
+The cutscene duration for TF Fragments can now be set to a custom value.
+	The cutscene will play until any of the following conditions are met:
+	The frame count is >= the custom duration (if>0) or 408 frames, otherwise.
+	The cutscene plays a MIDI and the MIDI is playing.
+	The cutscene affects music, music is playing and the music counter is < 800.
+		If the flag 'Don't affect music' is enabled, the music position check is skipped.
+		If the Don't play MIDI flag is enabled, then the MIDI pos check is ignored.
+The TF Shard cutscene no onger paues the action script if the
+	Run action script on collection flag is enabled uness the user
+	also enables the new flag:  Cutscene Interrupts Action Script
+TF Fragments now have a flag 'Don't affect music'. If the user
+	enables this flag then the item will not stop the current music
+	before the cutscene, or resume/play the level music after the cutscene.
+	This allows scripts to better control musical cues for the item.
+	( ZoriaRPG, 30th August, 2020 )
 
 //Alpha 82
 
