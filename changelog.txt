@@ -1,10 +1,22 @@
 ChangeLog for 2.53.1
 
 //Beta 52
-
+	
 Added Quest->Rules->Pick Ruleset to ZQ menus.
 	( ZoriaRPG, 2nd September, 2020 )
-
+	
+Updated classic.zh to v 1.12. The 'ChangeRoomGuy' script now
+	ignores NPC_FIRE.
+	( ZoriaRPG, 14th August, 2020 )
+	
+<std 1.5013> 
+	Added sanity guard on SetLayerCombo/GetLayerCombo functions.
+	These now check to ensure that the layer is configured.
+	( ZoriaRPG, 7th August, 2020 )
+	
+Rewrote the MIDI Patch Fix to work properly on modern (Post-XP) Windows.
+	( ZoriaRPG, 2nd August, 2020 )
+	
 Added Fullsceen confirmation warning, backported from 2.55.
 	( ZoriaRPG, 25th July, 2020 )
 	
