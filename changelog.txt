@@ -1,6 +1,12 @@
 // 2.55 Change Log
 // Updated 1st September, 2020
 
+//Alpha 84
+
+Raised max deaths count from 999 to 65535. 
+	Requested by zcfan27330 on AGN as he hit 999 deaths in Gleeok's 6th.
+	( ZoriaRPG, 4th September, 2020 )
+
 //Alpha 83
 
 If the zquest.exe RAM use is >= 3GB the compiler will refuse to
