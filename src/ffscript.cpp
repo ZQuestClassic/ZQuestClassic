@@ -4472,9 +4472,12 @@ long get_register(const long arg)
 			
 		case NPCDRAWTYPE:
 			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
-			
+		
 		case NPCHP:
 			GET_NPC_VAR_INT(hp, "npc->HP") break;
+
+		case NPCORIGINALHP:
+			GET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 		case NPCCOLLDET:
 			GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
@@ -12719,6 +12722,9 @@ void set_register(const long arg, const long value)
 			
 		case NPCHP:
 			SET_NPC_VAR_INT(hp, "npc->HP") break;
+		
+		case NPCORIGINALHP:
+			SET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 			//case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
 		case NPCDP:
@@ -33176,6 +33182,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -3,6 +3,8 @@
 
 //Alpha 84
 
+Added npc->OriginalHP, **except** to globalsymbols. 
+	Waiting to see if we resolve parser issues before I modify those tables.
 Raised max deaths count from 999 to 65535. 
 	Requested by zcfan27330 on AGN as he hit 999 deaths in Gleeok's 6th.
 	( ZoriaRPG, 4th September, 2020 )
