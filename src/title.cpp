@@ -1,4 +1,5 @@
 //--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -2151,7 +2152,7 @@ static void list_save(int save_num, int ypos)
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
         
         if(saves[save_num].get_quest())
-            textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
+            textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
             
         if(saves[save_num].get_quest()==2)
             overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
