@@ -23374,7 +23374,7 @@ void LinkClass::heroDeathAnimation()
 				decorations.clear();
 				Playing = false;
 					
-				game->set_deaths(zc_min(game->get_deaths()+1,999));
+				game->set_deaths(zc_min(game->get_deaths()+1,USHRT_MAX));
 				dir=down;
 				music_stop();
 				
