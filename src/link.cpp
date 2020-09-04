@@ -15614,7 +15614,7 @@ void LinkClass::gameover()
         Paused=false;
     }
     
-    game->set_deaths(zc_min(game->get_deaths()+1,999));
+    game->set_deaths(zc_min(game->get_deaths()+1,USHRT_MAX));
     dir=down;
     music_stop();
     kill_sfx();
