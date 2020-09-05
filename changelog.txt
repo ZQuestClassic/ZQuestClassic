@@ -3,6 +3,9 @@
 
 //Alpha 84
 
+Added 'Snap to Grid' to FFC Right Click contextual menu.
+	( ZoriaRPG, 5th September, 2020 )
+
 Added npc->OriginalHP, **except** to globalsymbols. 
 	Waiting to see if we resolve parser issues before I modify those tables.
 Raised max deaths count from 999 to 65535. 
