@@ -1,6 +1,10 @@
 ChangeLog for 2.53.1
 
 //Beta 53
+
+Added 'Snap to Grid' to FFC Right Click contextual menu.
+	( ZoriaRPG, 5th September, 2020 )
+	
 Raised max deaths count from 999 to 65535. 
 	Requested by zcfan27330 on AGN as he hit 999 deaths in Gleeok's 6th.
 	( ZoriaRPG, 4th September, 2020 )

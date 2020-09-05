@@ -8975,6 +8975,7 @@ static MENU draw_ffc_rc_menu[] =
     { (char *)"Paste FFC data",           NULL,  NULL,              0, NULL },
     { (char *)"Edit FFC",            NULL,  NULL,              0, NULL },
     { (char *)"Clear FFC",           NULL,  NULL,              0, NULL },
+    { (char *)"Snap to Grid",           NULL,  NULL,              0, NULL },
     { NULL,                          NULL,  NULL,              0, NULL }
 };
 
@@ -10093,6 +10094,20 @@ void domouse()
                             }
                             
                             break;
+			    case 4: //snap to grid
+			    {
+				int oldffx = Map.CurrScr()->ffx[i]/10000;
+				int oldffy = Map.CurrScr()->ffy[i]/10000;
+				int pos = COMBOPOS(oldffx,oldffy);
+				int newffy = COMBOY(pos)*10000;
+				int newffx = COMBOX(pos)*10000;
+				Map.CurrScr()->ffx[i] = newffx;
+				Map.CurrScr()->ffy[i] = newffy;
+				//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
+				//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
+				saved = false;
+				break;
+			    }
                         }
                         
                         clickedffc = true;
