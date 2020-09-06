@@ -2,6 +2,9 @@ ChangeLog for 2.53.1
 
 //Beta 53
 
+<Classic.zh 1.13> Fixed an identifier error that prevented compiling.
+	( ZoriaRPG, 6th September, 2020 )
+	
 Add forced NULL terminator to pointers passed to TraceS(),
 	to prevent crashes in the event that the user passes
 	an ZScript client array w/o a NULL terminator.
