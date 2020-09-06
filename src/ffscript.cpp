@@ -33492,6 +33492,7 @@ void FFScript::do_tracestring()
 	long arrayptr = get_register(sarg1) / 10000;
 	string str;
 	ArrayH::getString(arrayptr, str, 512);
+	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	traceStr(str);
 }
 
@@ -33694,6 +33695,7 @@ void FFScript::do_printf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	traceStr(zs_sprintf(formatstr.c_str(), num_args));
 }
@@ -33704,6 +33706,7 @@ void FFScript::do_sprintf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	string output = zs_sprintf(formatstr.c_str(), num_args);
 	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)

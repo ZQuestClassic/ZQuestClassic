@@ -3,6 +3,11 @@
 
 //Alpha 84
 
+Add forced NULL terminator to pointers passed to TraceS() and printf(),
+	to prevent crashes in the event that the user passes
+	an ZScript client array w/o a NULL terminator.
+	( ZoriaRPG, 6th September, 2020 )
+
 Added 'Snap to Grid' to FFC Right Click contextual menu.
 	( ZoriaRPG, 5th September, 2020 )
 
