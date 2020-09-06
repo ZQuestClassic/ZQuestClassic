@@ -9493,6 +9493,7 @@ void do_tracestring()
 	long arrayptr = get_register(sarg1) / 10000;
 	string str;
 	ArrayH::getString(arrayptr, str, 512);
+	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	TraceScriptIDs();
 	al_trace("%s", str.c_str());
     

@@ -2,6 +2,11 @@ ChangeLog for 2.53.1
 
 //Beta 53
 
+Add forced NULL terminator to pointers passed to TraceS(),
+	to prevent crashes in the event that the user passes
+	an ZScript client array w/o a NULL terminator.
+	( ZoriaRPG, 6th September, 2020 )
+
 Added 'Snap to Grid' to FFC Right Click contextual menu.
 	( ZoriaRPG, 5th September, 2020 )
 	
