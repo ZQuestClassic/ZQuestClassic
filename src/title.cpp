@@ -2620,7 +2620,7 @@ static void list_save(int save_num, int ypos)
 		textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
 		
 		if(saves[save_num].get_quest())
-			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
+			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
 			
 		if ( moduledata.select_screen_tiles[draw_link_first]) 
 			overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 

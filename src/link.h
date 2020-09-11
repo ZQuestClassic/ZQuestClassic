@@ -229,8 +229,7 @@ public:
 	ladderdir, // direction of ladder
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
-	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	stundir; //Direction facing when stunned
+	inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir; // scrolling direction

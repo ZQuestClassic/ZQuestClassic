@@ -1858,6 +1858,7 @@ string ZScript::VarToString(long ID)
 	case LWPNSPECIAL: return "LWPNSPECIAL";
 	case MODULEGETINT: return "MODULEGETINT";
 	case MODULEGETSTR: return "MODULEGETSTR";
+	case NPCORIGINALHP: return "NPCORIGINALHP";
 	
 	
 	default:

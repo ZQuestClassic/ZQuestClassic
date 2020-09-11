@@ -4472,9 +4472,12 @@ long get_register(const long arg)
 			
 		case NPCDRAWTYPE:
 			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
-			
+		
 		case NPCHP:
 			GET_NPC_VAR_INT(hp, "npc->HP") break;
+
+		case NPCORIGINALHP:
+			GET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 		case NPCCOLLDET:
 			GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
@@ -12719,6 +12722,9 @@ void set_register(const long arg, const long value)
 			
 		case NPCHP:
 			SET_NPC_VAR_INT(hp, "npc->HP") break;
+		
+		case NPCORIGINALHP:
+			SET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 			//case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
 		case NPCDP:
@@ -33176,6 +33182,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -33485,6 +33492,7 @@ void FFScript::do_tracestring()
 	long arrayptr = get_register(sarg1) / 10000;
 	string str;
 	ArrayH::getString(arrayptr, str, 512);
+	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	traceStr(str);
 }
 
@@ -33687,6 +33695,7 @@ void FFScript::do_printf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	traceStr(zs_sprintf(formatstr.c_str(), num_args));
 }
@@ -33697,6 +33706,7 @@ void FFScript::do_sprintf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	string output = zs_sprintf(formatstr.c_str(), num_args);
 	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)

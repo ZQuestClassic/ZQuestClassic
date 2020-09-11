@@ -1,6 +1,22 @@
 // 2.55 Change Log
 // Updated 1st September, 2020
 
+//Alpha 84
+
+Add forced NULL terminator to pointers passed to TraceS() and printf(),
+	to prevent crashes in the event that the user passes
+	an ZScript client array w/o a NULL terminator.
+	( ZoriaRPG, 6th September, 2020 )
+
+Added 'Snap to Grid' to FFC Right Click contextual menu.
+	( ZoriaRPG, 5th September, 2020 )
+
+Added npc->OriginalHP, **except** to globalsymbols. 
+	Waiting to see if we resolve parser issues before I modify those tables.
+Raised max deaths count from 999 to 65535. 
+	Requested by zcfan27330 on AGN as he hit 999 deaths in Gleeok's 6th.
+	( ZoriaRPG, 4th September, 2020 )
+
 //Alpha 83
 
 If the zquest.exe RAM use is >= 3GB the compiler will refuse to
