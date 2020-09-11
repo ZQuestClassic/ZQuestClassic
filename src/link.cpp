@@ -22993,7 +22993,7 @@ void LinkClass::getTriforce(int id2)
 		if(f==40)
 		{
 			actiontype oldaction = action;
-			ALLOFF((!itemsbuf[id2].flags & ITEM_FLAG9), false);
+			ALLOFF((!(itemsbuf[id2].flags & ITEM_FLAG9)), false);
 			action=oldaction;                                    // have to reset this flag
 			FFCore.setLinkAction(oldaction);
 		}
