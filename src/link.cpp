@@ -6846,8 +6846,8 @@ bool LinkClass::animate(int)
 		    tempaction=lastaction; //update so future checks won't do this
 		    //action=freeze; //setting this somehow makes the FFCore link action 'swimming' ?!
 		    FFCore.setLinkAction(stunned);
-		    Z_scripterrlog("The stunned action is: %d\n", (int)stunned);
-		    Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
+		    zprint("The stunned action is: %d\n", (int)stunned);
+		    zprint("The present FFCore action is: %d\n", FFCore.getLinkAction());
 	    }
 	    --link_is_stunned;
     }
@@ -6856,7 +6856,7 @@ bool LinkClass::animate(int)
     if ( FFCore.getLinkAction() == stunned && !link_is_stunned )
     {
 	action=tempaction; FFCore.setLinkAction(tempaction);
-	     Z_scripterrlog("Unfreezing link to action: %d\n", (int)tempaction);
+	     zprint("Unfreezing link to action: %d\n", (int)tempaction);
        
 	//action=none; FFCore.setLinkAction(none);
 	    
