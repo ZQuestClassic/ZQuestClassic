@@ -245,7 +245,6 @@ int LinkClass::StunClock()
 void LinkClass::setStunClock(int v)
 {
     link_is_stunned=v;
-	stundir = dir;
 }
 
 LinkClass::LinkClass() : sprite()
@@ -6838,16 +6837,12 @@ bool LinkClass::animate(int)
     {
 	    // also cancel Link's attack
 		attackclk = 0;
-		dir = stundir;
-	    actiontype lastaction = action; //cache the last action so that we can compare against it
 	    
-	    if( lastaction != freeze )  //stun sets freeze, so we only want to store a tempaction that was not freeze
+	    if( FFCore.getLinkAction() != stunned )
 	    {
-		    tempaction=lastaction; //update so future checks won't do this
-		    //action=freeze; //setting this somehow makes the FFCore link action 'swimming' ?!
+		    tempaction=action; //update so future checks won't do this
+		    //action=freeze; //setting this makes the player invincible while stunned -V
 		    FFCore.setLinkAction(stunned);
-		    zprint("The stunned action is: %d\n", (int)stunned);
-		    zprint("The present FFCore action is: %d\n", FFCore.getLinkAction());
 	    }
 	    --link_is_stunned;
     }
@@ -7582,7 +7577,7 @@ bool LinkClass::animate(int)
     
     if(pushing>=24) dtype=dWALK;
     
-    if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting)
+    if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !link_is_stunned)
     {
         if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
         {
@@ -10031,6 +10026,7 @@ void LinkClass::pitfall()
 
 void LinkClass::movelink()
 {
+	if(link_is_stunned) return;
 	int xoff=x.getInt()&7;
 	int yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
