@@ -1,5 +1,5 @@
-//Extended functions for 2.55.0, Alpha 19 and later.
-//30th August, 2020
+//Extended functions for 2.55.0, Alpha 84 and later.
+//14th September, 2020
 
 //A
 
@@ -3219,6 +3219,47 @@ void SetLayerComboValues(int layer, int pos, int data, int type, int flag, int i
 	if ( solid >= 0 ) SetLayerComboS(layer,pos,solid);
 }
 
+//Shuffles the values of an array.
+void Shuffle(untyped ptr) 
+{
+	unless(IsValidArray(ptr))
+	{
+		printf("Invalid array passred to std::shuffle(untyped)\n");
+		return;
+	}
+        int q; int w; int swap; 
+        for ( q = (SizeOfArray(ptr)-1); q >= 0; q-- ) 
+	{
+            w = Rand(q+1);
+            if ( q == w ) continue;
+            swap = ptr[q];
+            ptr[q] = ptr[w];
+            ptr[w] = swap;
+        }
+}
+
+//Shuffles the values of an string.
+void ShuffleString(char32 ptr) 
+{
+	unless(IsValidArray(ptr))
+	{
+		printf("Invalid array passred to std::shuffle(untyped)\n");
+		return;
+	}
+        int q; int w; int swap; 
+	int originalsize = (SizeOfArray(ptr)-1);
+        for ( q = originalsize; q >= 0; q-- ) 
+	{
+            w = Rand(q+1);
+            if ( q == w ) continue;
+            swap = ptr[q];
+	    unless(swap) continue; //Don't shuffle the null char.
+            ptr[q] = ptr[w];
+            ptr[w] = swap;
+        }
+	ptr[originalsize] = NULL; //Add new NULL to be safe.
+}
+
 //Returns a reversed speed, given a new speed for an object given a base speed and an interia factor. 
 int SpeedRev(int speed, int reduceinertia)
 {
@@ -3229,35 +3270,47 @@ int SpeedRev(int speed, int reduceinertia)
 
 //Trace the indices of an array, with a space between each. max 20 per line. 
 //NOT overloaded to accept all array types. Trace() does not work on ffc, item, itemdata, lweapon, or eweapon until 2.54.x->2.55.
-void TraceArray(int arr)
+void TraceArray(untyped arr)
 {
+	unless(IsValidArray(arr))
+	{
+		printf("Invalid array pointer used with TraceArray(untyped)\n");
+		return;
+	}
 	TraceNL();
 	int sz = SizeOfArray(arr);
-	for ( int q = 0; q < sz; --q ) 
+	for ( int q = 0; q < sz; ++q ) 
 	{
-		Trace(arr[q]); TraceS(" ");
-		if ( q % 10 == 0 ) TraceNL();
+		if ( q && q % 10 == 0 ) printf("%f \n",<int>arr[q]);
+		else printf("%f ",<int>arr[q]);
 	}
 }
 
-void TraceArray(int arr, bool verbose)
+void TraceArray(untyped arr, bool verbose)
 {
+	unless(IsValidArray(arr))
+	{
+		printf("Invalid array pointer used with TraceArray(untyped,bool)\n");
+		return;
+	}
+	TraceNL();
 	int sz = SizeOfArray(arr);
-	if ( verbose ) 	{
-		TraceNL(); TraceS("Tracing array with Pointer: "); Trace(arr); TraceNL();
+	if ( verbose ) 	
+	{
+		printf("Tracing array with Pointer: %f\n", <int>arr); 
 
 		for ( int q = 0; q < sz; ++q ) 
 		{
-			TraceS("Index: "); Trace(q); TraceS("is : "); Trace(arr[q]);
-			TraceNL();
+			
+			printf("Index: %d is (%f) \n",q,<int>arr[q]);
 		}
 	}
-	else {
-		TraceNL();
+	else 
+	{
 		for ( int q = 0; q < sz; ++q ) 
 		{
-			Trace(arr[q]); TraceS(" ");
-			if ( q % 10 == 0 ) TraceNL();
+			if ( q && q % 10 == 0 ) printf("%f \n",<int>arr[q]);
+			else printf("%f ",<int>arr[q]);
 		}
 	}
 }
@@ -3265,6 +3318,11 @@ void TraceArray(int arr, bool verbose)
 //Trace the indices of a Boolean array, with a space between each. max 20 per line. 
 void TraceArrayB(bool arr, int size)
 {
+	unless(IsValidArray(arr))
+	{
+		printf("Invalid array pointer used with TraceArrayB(bool,int)\n");
+		return;
+	}
 	TraceNL();
 	for ( int q = 0; q < size; q++ ) 
 	{
@@ -3277,7 +3335,13 @@ void TraceArrayB(bool arr, int size)
 //Trace the indices of a Boolean array, allows verbose logging.
 void TraceArrayB(bool arr, int size, bool verbose)
 {
-	if ( verbose ) {
+	unless(IsValidArray(arr))
+	{
+		printf("Invalid array pointer used with TraceArrayB(bool,int,bool)\n");
+		return;
+	}
+	if ( verbose ) 
+	{
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
 		TraceNL(); TraceS("Tracing Boolean Array: "); TraceNL();
 		
@@ -3287,7 +3351,8 @@ void TraceArrayB(bool arr, int size, bool verbose)
 			TraceNL();
 		}
 	}
-	else {
+	else 
+	{
 		TraceNL();
 		for ( int q = 0; q < size; q++ ) {
 			TraceB(arr[q]); TraceS(" ");
