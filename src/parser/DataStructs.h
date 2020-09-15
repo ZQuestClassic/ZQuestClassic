@@ -18,13 +18,15 @@ namespace ZScript
 	struct IntermediateData
 	{
 		IntermediateData(FunctionData const& functionData);
+		~IntermediateData() { ::deleteElements(globalsInit); }
 		ZScript::Program& program;
-		std::vector<Opcode *> globalsInit;
+		std::vector<Opcode*> globalsInit;
 	};
 
 	struct OpcodeContext
 	{
 		OpcodeContext(ZScript::TypeStore*);
+		~OpcodeContext() { ::deleteElements(initCode); }
 		ZScript::TypeStore* typeStore;
 		std::vector<Opcode*> initCode;
 	};

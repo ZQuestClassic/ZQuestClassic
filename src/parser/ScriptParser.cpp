@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <string>
 #include <memory>
+#include <boost/move/unique_ptr.hpp>
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -20,7 +21,7 @@
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
-using namespace std;
+using boost::movelib::unique_ptr;
 using namespace ZScript;
 
 extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
@@ -53,7 +54,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_out("Pass 1: Parsing");
 	box_eol();
 
-	auto_ptr<ASTFile> root(parseFile(filename));
+	unique_ptr<ASTFile> root(parseFile(filename));
 	if (!root.get())
 	{
 		box_out_err(CompileError::CantOpenSource(NULL));
@@ -94,7 +95,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_out("Pass 5: Generating object code");
 	box_eol();
     
-	auto_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
+	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return NULL;
     
@@ -182,7 +183,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 		box_out_err(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
 	}
-	auto_ptr<ASTFile> imported(parseFile(filename));
+	unique_ptr<ASTFile> imported(parseFile(filename));
 	if (!imported.get())
 	{
 		box_out_err(CompileError::CantParseImport(&importDecl, filename));
@@ -502,14 +503,14 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
     
 	// Grab all labels directly jumped to.
-	set<int> usedLabels;
+	std::set<int> usedLabels;
 	for (vector<Opcode*>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 	{
 		GetLabels temp(usedLabels);
 		(*it)->execute(temp, NULL);
 	}
-	set<int> unprocessedLabels(usedLabels);
+	std::set<int> unprocessedLabels(usedLabels);
     
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
@@ -537,7 +538,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	     it != runCode.end(); ++it)
 		rval.push_back((*it)->makeClone());
     
-	for (set<int>::iterator it = usedLabels.begin();
+	for (std::set<int>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
 	{
 		int label = *it;
@@ -574,13 +575,13 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope)
+std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
 	// includes the minus if this is a constant. - Saf
 	bool negative=false;
-	pair<long, bool> rval;
+	std::pair<long, bool> rval;
 	rval.second=true;
 	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
     
