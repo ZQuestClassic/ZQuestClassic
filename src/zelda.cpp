@@ -5305,7 +5305,47 @@ int main(int argc, char* argv[])
     if(used_switch(argc,argv,"-q"))
     {
         printf("-q switch used, quitting program.\n");
-        goto quick_quit;
+        //restore user volume settings
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	{
+		master_volume(-1,((long)FFCore.usr_midi_volume));
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+	{
+		master_volume((long)(FFCore.usr_digi_volume),1);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+	{
+		emusic_volume = (long)FFCore.usr_music_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+	{
+		sfx_volume = (long)FFCore.usr_sfx_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (long)FFCore.usr_panstyle;
+	}
+	show_saving(screen);
+	save_savedgames();
+	save_game_configs();
+	Triplebuffer.Destroy();
+	set_gfx_mode(GFX_TEXT,80,25,0,0);
+	    //rest(250); // ???
+	    //  if(useCD)
+	    //    cd_exit();
+	quit_game();
+	Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
+	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
+	    
+	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
+	skipcont = 0;
+	if(forceExit) //fix for the allegro at_exit() hang.
+		exit(0);
+		
+	allegro_exit();
+	return 0;
     }
     
     // set video mode
@@ -5694,7 +5734,6 @@ int main(int argc, char* argv[])
     music_stop();
     kill_sfx();
     
-quick_quit:
     //restore user volume settings
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
