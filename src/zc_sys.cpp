@@ -7180,7 +7180,7 @@ int onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-static enum uKey
+enum uKey
 {
 	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
 	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
