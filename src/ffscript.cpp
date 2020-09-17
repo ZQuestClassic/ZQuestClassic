@@ -12797,7 +12797,10 @@ void set_register(const long arg, const long value)
 		case NPCCSET:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
+			{
 				GuyH::getNPC()->cs = (value / 10000) & 0xF;
+				if(GuyH::getNPC()->family == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
+			}
 		}
 		break;
 		
