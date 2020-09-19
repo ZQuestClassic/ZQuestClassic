@@ -5483,7 +5483,7 @@ int main(int argc, char* argv[])
     
 #else //Unix
 
-    //if(zscript_debugger)
+    if(zscript_debugger)
     { // Let's try making a console for Linux -Z
 	int termflags = 0;
 	termflags |= O_RDWR; //Open the device for both reading and writing.
