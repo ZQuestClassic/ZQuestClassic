@@ -5486,8 +5486,8 @@ int main(int argc, char* argv[])
     if(zscript_debugger)
     { // Let's try making a console for Linux -Z
 	int temflags = 0;
-	termflags |= O_RDWR;
-	termflags |= O_NOCTTY;
+	termflags |= O_RDWR; //Open the device for both reading and writing.
+	termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
 	pt = posix_openpt(termflags);
 	if (pt == -1)
 	{
@@ -5512,7 +5512,7 @@ int main(int argc, char* argv[])
 	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
 	system(lxconsole_oss.str().c_str());
 
-	int xterm_fd = open(ptname,O_RDWR);
+	int xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
 	{
 		char c = 0; int tries = 10000; 
 		do 
