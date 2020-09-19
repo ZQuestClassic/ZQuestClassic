@@ -4734,8 +4734,6 @@ int main(int argc, char* argv[])
 	{
 		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	}
-	//std::cerr << "Test cerr\n\n";
-	//std::cin.ignore(1);
 #endif
     
     if(install_timer() < 0)

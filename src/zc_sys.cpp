@@ -394,6 +394,7 @@ void load_game_configs()
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
     zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
+    monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
