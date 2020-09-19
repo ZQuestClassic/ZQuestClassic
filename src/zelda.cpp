@@ -5535,6 +5535,10 @@ int main(int argc, char* argv[])
 		use_debug_console = 0; goto no_lx_console;
 	}
     } //this is in a block because I want it in a block. -Z
+    else
+    {
+	al_trace("Linux console disabled by user.\n");
+    }
     
     no_lx_console:
     {
@@ -5553,14 +5557,14 @@ int main(int argc, char* argv[])
     
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+		al_trace("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
 	}
 	else
 	{
-		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+		al_trace("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	}
 	//std::cerr << "Test cerr\n\n";
-	std::cin.ignore(1);
+	//std::cin.ignore(1);
 #endif
     
     
