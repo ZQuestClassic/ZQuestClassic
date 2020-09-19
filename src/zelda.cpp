@@ -5483,7 +5483,7 @@ int main(int argc, char* argv[])
     
 #else //Unix
 
-    if(zscript_debugger)
+    //if(zscript_debugger)
     { // Let's try making a console for Linux -Z
 	int termflags = 0;
 	termflags |= O_RDWR; //Open the device for both reading and writing.
@@ -5557,11 +5557,11 @@ int main(int argc, char* argv[])
     
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
-		al_trace("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
 	}
 	else
 	{
-		al_trace("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	}
 	//std::cerr << "Test cerr\n\n";
 	//std::cin.ignore(1);
