@@ -5487,7 +5487,7 @@ int main(int argc, char* argv[])
     { // Let's try making a console for Linux -Z
 	int termflags = 0;
 	termflags |= O_RDWR; //Open the device for both reading and writing.
-	termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
+	//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
 	pt = posix_openpt(termflags);
 	if (pt == -1)
 	{
