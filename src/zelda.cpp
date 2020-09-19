@@ -5483,6 +5483,7 @@ int main(int argc, char* argv[])
     
 #else //Unix
 
+    if(zscript_debugger)
     { // Let's try making a console for Linux -Z
 	pt = posix_openpt(O_RDWR);
 	if (pt == -1)
