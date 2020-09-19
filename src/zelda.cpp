@@ -5485,7 +5485,7 @@ int main(int argc, char* argv[])
 
     if(zscript_debugger)
     { // Let's try making a console for Linux -Z
-	int temflags = 0;
+	int termflags = 0;
 	termflags |= O_RDWR; //Open the device for both reading and writing.
 	termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
 	pt = posix_openpt(termflags);
