@@ -7016,8 +7016,8 @@ int onMIDICredits()
     if(listening)
         music_stop();
         
-    zc_free(text);
-    zc_free(zmi);
+    if(text) zc_free(text);
+    if(zmi) zc_free(zmi);
     return D_O_K;
 }
 
