@@ -5485,7 +5485,10 @@ int main(int argc, char* argv[])
 
     if(zscript_debugger)
     { // Let's try making a console for Linux -Z
-	pt = posix_openpt(O_RDWR);
+	int temflags = 0;
+	termflags |= O_RDWR;
+	termflags |= O_NOCTTY;
+	pt = posix_openpt(termflags);
 	if (pt == -1)
 	{
 		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
