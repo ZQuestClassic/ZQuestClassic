@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 54
+Fix Linux Console
+	( ZoriaRPG, 19th September, 2020 )
+
 //Beta 53
 
 <Classic.zh 1.13> Fixed an identifier error that prevented compiling.
