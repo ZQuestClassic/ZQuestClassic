@@ -4,7 +4,7 @@
 #ifndef _zc_malloc_h
 #define _zc_malloc_h
 
-#include <assert.h>
+#include <cassert>
 
 // This should catch the following:
 // -double deletions,
@@ -20,7 +20,7 @@
 #define ZC_MALLOC_ALWAYS_ASSERT(x) assert(x), __zc_always_assert(x, #x, __FILE__, __LINE__)
 #else
 #define ZC_MALLOC_ALWAYS_ASSERT(x) assert(x)
-#endif
+#endif // defined(NDEBUG) && (ZC_DEBUG_MALLOC_ENABLED)
 
 
 extern void *__zc_debug_malloc(size_t numBytes, const char* file, int line);
@@ -33,11 +33,31 @@ extern void  __zc_debug_malloc_free_print_memory_leaks();
 #else
 #define zc_malloc	malloc
 #define zc_free		free
-#endif
-
+#endif // (ZC_DEBUG_MALLOC_ENABLED != 0)
 
 void __zc_always_assert(bool e, const char* expression, const char* file, int line);
 
-#endif
+template <typename Pointer>
+inline void delete_s(Pointer p, bool is_array = false)
+{
+	if (Pointer() != p) {
+		if (is_array) {
+			delete[] p;
+		}
+		else {
+			delete p;
+		}
+		p = Pointer();
+	}
+}
+
+template <typename Pointer>
+inline void free_s(Pointer p)
+{
+	std::free(p);
+	p = Pointer();
+}
+
+#endif // _zc_malloc_h
 
 

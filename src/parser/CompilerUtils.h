@@ -3,12 +3,17 @@
 #ifndef ZSCRIPT_COMPILER_UTILS_H
 #define ZSCRIPT_COMPILER_UTILS_H
 
+// prevent compiler error
 #include <cassert>
-#include <vector>
+#include <cstdarg>
 #include <set>
 #include <sstream>
 #include <string>
-#include <cstdarg>
+#include <vector>
+
+#ifdef new
+#undef new
+#endif // new
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -340,4 +345,14 @@ Value findLargest(
 	return largest;
 }
 
-#endif
+// HACK! This is to use mem_debug in PCH
+#if (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
+#if (VLD_FORCE_ENABLE == 0)
+#undef DEBUG_NEW
+#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
+
+
+#endif // !ZSCRIPT_COMPILER_UTILS_H

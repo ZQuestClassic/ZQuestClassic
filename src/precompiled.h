@@ -7,11 +7,12 @@
 //globally remove extraneous bullshit
 //
 
+#define VLD_FORCE_ENABLE 0
+
 // Visual Leak Detector - Alternative Mem Debug
 // NB: This should always be set to 0 in mainline
 // NB: To use, PCH, Windows, and installing VLD are required
-//	   Found here: https://kinddragon.github.io/vld/
-#define VLD_FORCE_ENABLE 0
+//     Found here: https://kinddragon.github.io/vld/
 #if (VLD_FORCE_ENABLE == 1)
 #include <vld.h>
 #endif // (VLD_FORCE_ENABLE == 1)
@@ -35,6 +36,7 @@
 #include "zc_alleg.h"
 
 //zc
+#include "mem_debug.h"
 #include "zc_malloc.h"
 
 #endif // ZC_PCH
