@@ -15356,6 +15356,60 @@ void set_register(const long arg, const long value)
 				screen_combo_modify_preroutine(m,pos);
 				m->data[pos]=val;
 				screen_combo_modify_postroutine(m,pos);
+				
+				switch(ri->mapsref)
+				{
+					case MAPSCR_TEMP0: 
+					case MAPSCR_SCROLL0:
+						FFCore.clear_combo_stack(pos);
+						comboScriptData[pos].Clear();
+						combo_doscript[pos] = 1;
+						combo_initialised[pos] &= ~(1<<0);
+						break;
+					case MAPSCR_TEMP1: 
+					case MAPSCR_SCROLL1:
+						FFCore.clear_combo_stack(pos+(176*1));
+						comboScriptData[pos+(176*1)].Clear();
+						combo_doscript[pos+(176*1)] = 1;
+						combo_initialised[pos] &= ~(1<<1);
+						break;
+					case MAPSCR_TEMP2: 
+					case MAPSCR_SCROLL2:
+						FFCore.clear_combo_stack(pos+(176*2));
+						comboScriptData[pos+(176*2)].Clear();
+						combo_doscript[pos+(176*2)] = 1;
+						combo_initialised[pos] &= ~(1<<2);
+						break;
+					case MAPSCR_TEMP3:
+					case MAPSCR_SCROLL3:
+						FFCore.clear_combo_stack(pos+(176*3));
+						comboScriptData[pos+(176*3)].Clear();
+						combo_doscript[pos+(176*3)] = 1;
+						combo_initialised[pos] &= ~(1<<3);
+						break;
+					case MAPSCR_TEMP4: 
+					case MAPSCR_SCROLL4:
+						FFCore.clear_combo_stack(pos+(176*4));
+						comboScriptData[pos+(176*4)].Clear();
+						combo_doscript[pos+(176*4)] = 1;
+						combo_initialised[pos] &= ~(1<<4);
+						break;
+					case MAPSCR_TEMP5:
+					case MAPSCR_SCROLL5:
+						FFCore.clear_combo_stack(pos+(176*5));
+						comboScriptData[pos+(176*5)].Clear();
+						combo_doscript[pos+(176*5)] = 1;
+						combo_initialised[pos] &= ~(1<<5);
+						break;
+					case MAPSCR_TEMP6:
+					case MAPSCR_SCROLL6:
+						FFCore.clear_combo_stack(pos+(176*6));
+						comboScriptData[pos+(176*6)].Clear();
+						combo_doscript[pos+(176*6)] = 1;
+						combo_initialised[pos] &= ~(1<<6);
+						break;
+					default: break;
+				}
 			}
 		}
 		break;
