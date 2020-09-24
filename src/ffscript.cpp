@@ -13512,6 +13512,13 @@ void set_register(const long arg, const long value)
             screen_combo_modify_preroutine(tmpscr,pos);
             tmpscr->data[pos]=(val);
             screen_combo_modify_postroutine(tmpscr,pos);
+	    //Start the script for the new combo
+		FFCore.clear_combo_stack(pos);
+		comboScriptData[pos].Clear();
+		combo_doscript[pos] = 1;
+		combo_initialised[pos] &= ~(1<<0);
+		//Not ure if combodata arrays clean themselves up, or leak. -Z
+		//Not sure if this could result in stack corruption. 
         }
     }
     break;
@@ -13634,11 +13641,15 @@ void set_register(const long arg, const long value)
 			int sc = (ri->d[2]/10000);
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
+			int layr = whichlayer(scr);
 			
 			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
 			long combo = vbound(value/10000,0,MAXCOMBOS);
 			if(scr==(currmap*MAPSCRS+currscr))
+			{
 				screen_combo_modify_preroutine(tmpscr,pos);
+				
+			}
 				
 			TheMaps[scr].data[pos]=combo;
 			
@@ -13646,9 +13657,14 @@ void set_register(const long arg, const long value)
 			{
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
+				//Start the script for the new combo
+				FFCore.clear_combo_stack(pos+(176*layr));
+				comboScriptData[pos+(176*layr)].Clear();
+				combo_doscript[pos+(176*layr)] = 1;
+				combo_initialised[pos] &= ~(1<<layr);
+				//Not ure if combodata arrays clean themselves up, or leak. -Z
+				//Not sure if this could result in stack corruption. 
 			}
-			
-			int layr = whichlayer(scr);
 			
 			if(layr>-1)
 			{
