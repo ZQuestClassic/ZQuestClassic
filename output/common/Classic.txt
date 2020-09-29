@@ -194,3 +194,8 @@ __classic_zh_UpdateScreenChange1()
 
 __classic_zh_UpdateScreenChange2()
 * Second stage in checking if the screen has changed. Used by the provided active script.
+
+/* Internal */
+
+int __classic_zc_internal[128];
+ * Used to track Classic.zh values.
