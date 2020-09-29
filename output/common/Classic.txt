@@ -95,3 +95,102 @@ This will cause a Triforce piece to fall from the ceiling when the boss dies. 
  
 The Drop Triforce ad Drop Heart Container scripts are intended to be used together,
 and in conjunction with the BossExplode script.
+
+Additional Features
+
+global script Active
+This is a default/example global active script for 2.53.x. 
+
+EagleBugInside
+
+This replicates the Z1 1st.qst Lv1 bug where exiting and re-entering Lv1 unlocks 
+the first door.
+
+To use, To use, place it on any ffc running script with a combo > 0place this on 
+	the first room (entry room) of your dungeon.
+
+EagleBugOutside
+
+This is a counterpart to EagleBugInside. To use, place it on any ffc running 
+this script with a combo > 0 outside the dungeon entrance. 
+
+EagleBugEast
+t/b/a
+
+/* Items */
+
+HalfMagic
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will gain 1/2 magic. The Classic tileset includes and item
+	preconfigured to do this. 
+	
+LearnSlash
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will gain the Slash ability. The Classic tileset includes and item
+	preconfigured to do this. 
+	
+ItemMessage
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will see the message set as fcc script argument (D0).
+	Note: 2.55 has this as a built-in feature. 
+	
+MagicBossKey
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will gain boss keys for every level in the game.
+	This is pre-set-up i the Classic tileset. 
+	
+MagicMap
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will gain the map item for every level in the game.
+	This is pre-set-up i the Classic tileset. 
+	
+MagicCompass
+
+Assign this as the Pickup/Collect script to an item, and when the player collects this
+	item, they will gain the compass item for every level in the game. 
+	This is pre-set-up i the Classic tileset. 
+	
+ItemSound
+
+Assign this as the action script to an item, and set (D0) to a sound effect ID.
+Every use of this item will play this sound, even if it has an action sound effect.
+THe purpose of this is for items such as the wand (no magic, slash only) where there
+is no engine sound effect when using it. 
+
+Daira
+Requires ghost.zh for versions < 2.55.
+This is the control script for Daira enemies. In 2.53.x, this works via ghost.zh, 
+	but in 2.55+, this is an npc script.
+	
+collect_Z2_lantern
+Place this as the collect script on an item that you mean to use as an automatic
+	lantern item. It will automatically light up dark rooms if you call the 
+	function __classic_zh_do_z2_lantern() in a perpetual script.
+	In 2.53.x, cal this in your global active script. 
+	In 2.55+, you can use hero scripts, dmap scripts, and passive item scripts
+		with ths function.
+
+
+/* Functions */
+
+bool _classic_zh__isBoss(npc n)
+* Returns true if the enemy 'n' is a Z1 boss, otherwise returns false. 
+	
+void __classic_zh_do_z2_lantern()
+* Used for te Z2 AutoLantern item
+
+void __classic_zh_InitScreenUpdating()
+* Initialises screen update aray values on quest startup. Checks if a the
+	player changes screens.
+
+__classic_zh_UpdateScreenChange1()
+* First stage in checking if the screen has changed. Writes new screens
+	iif the player has changed screens. 
+
+__classic_zh_UpdateScreenChange2()
+* Second stage in checking if the screen has changed. Used by the provided active script.
