@@ -76,7 +76,7 @@ Assign the script DropHEARTCONTAINER to the FFC.
 Place this anywhere on the screen.
 Set (D0) to a screen register (0 is default).
 Set (D1) a number other than 0 is there are more than one bosses on the
-	screen where it is eual to the number of bosses - 1 (e.g., 
+	screen where it is equal to the number of bosses - 1 (e.g., 
 	three bosses, use '2'). 
 
 This will cause a heart container to fall from the ceiling when the boss dies. 
@@ -91,8 +91,7 @@ Set (D1) a number other than 0 is there are more than one bosses on the
 	screen where it is eual to the number of bosses - 1 (e.g., 
 	three bosses, use '2'). 
 
-This will cause a triforce piece to fall from the ceiling when the boss dies. 
-
+This will cause a Triforce piece to fall from the ceiling when the boss dies. 
+ 
 The Drop Triforce ad Drop Heart Container scripts are intended to be used together,
-and in conunction with the BossExplode script.
-
+and in conjunction with the BossExplode script.
