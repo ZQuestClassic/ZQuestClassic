@@ -1,0 +1,98 @@
+Classic.zh Pre-Compiled Code
+
+Note: You can copy-paste any of these as FFCs in the blank uest for
+	the Classic tileset from Map 1, Screen 0x82.
+
+Sign FFC
+
+Create an ffc on the screen, and assign combo 900 to it. 
+Assign the script SignBost to the FFC.
+Place it over any solid obect, then set FFC arg (D0) to a ZQ 
+	String (message) ID. When the player is in front of and 
+	below this combo, facing up, and presses an action button
+	ZC will show the string.
+	
+Permanent Room Secret
+
+Create an ffc on the screen, and assign combo 901 to it. 
+Assign the script PermBlockSecret to the FFC.
+Enable the flag 'Run Script on Screen Init'.
+Place this anywhere on the screen.
+This will assure that secrets triggered by block puzzles are permanent. 
+
+Room Guy
+
+Create an ffc on the screen, and assign combo 902 to it. 
+Assign the script ChangeRoomGuy to the FFC.
+Enable the flag 'Run Script on Screen Init'.
+Set (D0) to the tile that you want to use for the custom guy.
+Set (D1) to the CSet that you want to use for the custom guy.
+Place this anywhere on the screen.
+This will change whatever the normal graphics are for the room guy to
+	your custom graphics.
+Note: This does not work if the room guy is type 'Fire'.
+	
+Permanent Shutter
+
+Create an ffc on the screen, and assign combo 903 to it. 
+Assign the script PermBockShutters to the FFC.
+Enable the flag 'Run Script on Screen Init'.
+Place this anywhere on the screen.
+This will ensure that shutters opened by a screen secret remain open 
+	on revisiting the screen.
+
+Fireworks
+
+Create an ffc on the screen, and assign combo 904 to it. 
+Assign the script BossExplode to the FFC.
+Place this anywhere on the screen.
+Set (D0) to a screen register (0 is default).
+Set (D1) to the sprite to use for explosions (88 is the Classic tileset firework sprite).
+Set (D2) to the sound effect or the explosions.
+Set (D3) to a custom delay, or use 0 for default. 
+Set (D4) and (D5) to a range of rando pixel distances where (D4) is
+	the minimum and (D5) is the maximum. The script has defaults, so it is
+	is safe to leave each at '0' unless you want custom randomisation.
+If the enemy that you are using is not a Z1 boss, set (D6) to the enemy ID
+	of the enemy to explode. 
+
+Boss Music
+
+Create an ffc on the screen, and assign combo 905 to it. 
+Assign the script BossMusic to the FFC.
+Place this anywhere on the screen.
+Set (D0) to a screen register (0 is default).
+Set (D1) to the a custom original tile, if desired. This will automatically
+	default to the first tile of the Classic tileset firework sprite. 
+If you are using a MIDI, set (D2) to the MIDI ID.
+If you are using Classic.nsf, set (D3) to the track to play.
+
+This will create a fireworks ani and play victory music when a boss dies. 
+
+Drop Heart Container
+
+Create an ffc on the screen, and assign combo 906 to it. 
+Assign the script DropHEARTCONTAINER to the FFC.
+Place this anywhere on the screen.
+Set (D0) to a screen register (0 is default).
+Set (D1) a number other than 0 is there are more than one bosses on the
+	screen where it is eual to the number of bosses - 1 (e.g., 
+	three bosses, use '2'). 
+
+This will cause a heart container to fall from the ceiling when the boss dies. 
+
+Drop Triforce Piece
+
+Create an ffc on the screen, and assign combo 907 to it. 
+Assign the script DropTRIFORCE to the FFC.
+Place this anywhere on the screen.
+Set (D0) to a screen register (0 is default).
+Set (D1) a number other than 0 is there are more than one bosses on the
+	screen where it is eual to the number of bosses - 1 (e.g., 
+	three bosses, use '2'). 
+
+This will cause a triforce piece to fall from the ceiling when the boss dies. 
+
+The Drop Triforce ad Drop Heart Container scripts are intended to be used together,
+and in conunction with the BossExplode script.
+
