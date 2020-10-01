@@ -390,6 +390,11 @@ void load_game_configs()
     // And this one fixes patches unloading on some MIDI setups
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
+#else //UNIX
+    use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
+    zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
+    monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -7012,8 +7017,8 @@ int onMIDICredits()
     if(listening)
         music_stop();
         
-    zc_free(text);
-    zc_free(zmi);
+    if(text) zc_free(text);
+    if(zmi) zc_free(zmi);
     return D_O_K;
 }
 
@@ -7180,7 +7185,7 @@ int onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-static enum uKey
+enum uKey
 {
 	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
 	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,

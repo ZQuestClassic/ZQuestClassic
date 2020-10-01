@@ -4545,82 +4545,6 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
-#else //Unix
-
-    { // Let's try making a console for Linux -Z
-	pt = posix_openpt(O_RDWR);
-	if (pt == -1)
-	{
-		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	ptname = ptsname(pt);
-	if (!ptname)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	if (unlockpt(pt) == -1)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-	system(lxconsole_oss.str().c_str());
-
-	int xterm_fd = open(ptname,O_RDWR);
-	{
-		char c = 0; int tries = 10000; 
-		do 
-		{
-			read(xterm_fd, &c, 1); 
-			--tries;
-		} while (c!='\n' && tries > 0);
-	}
-
-	if (dup2(pt, 1) <0)
-	{
-		Z_error("Could not redirect standard output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	if (dup2(pt, 2) <0)
-	{
-		Z_error("Could not redirect standard error output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-    } //this is in a block because I want it in a block. -Z
-    
-    no_lx_console:
-    {
-	    //Z_error("Could not open Linux console.\n");
-    }
-    
-    
-	std::cout << "\n       _____   ____                  __ \n";
-	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
-	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
-	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
-	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
-	
-	std::cout << "Quest Data Logging & ZScript Debug Console\n";
-	std::cout << "ZConsole for Linux\n\n";
-    
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
-	}
-	//std::cerr << "Test cerr\n\n";
-	std::cin.ignore(1);
 #endif
     
     
@@ -4727,7 +4651,89 @@ int main(int argc, char* argv[])
     {
 	FFCore.ZScriptConsole(true);
     }
+
+#else //Unix
+
+    if(zscript_debugger)
+    { // Let's try making a console for Linux -Z
+	int termflags = 0;
+	termflags |= O_RDWR; //Open the device for both reading and writing.
+	//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
+	pt = posix_openpt(termflags);
+	if (pt == -1)
+	{
+		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		Z_error("Could not redirect standard output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		Z_error("Could not redirect standard error output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+    } //this is in a block because I want it in a block. -Z
+    else
+    {
+	al_trace("Linux console disabled by user.\n");
+    }
     
+    no_lx_console:
+    {
+	    //Z_error("Could not open Linux console.\n");
+    }
+    
+    
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
+    
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
 #endif
     
     if(install_timer() < 0)
@@ -5298,14 +5304,54 @@ int main(int argc, char* argv[])
         can_triplebuffer_in_windowed_mode = 1;
         Z_message("used switch: -triplebuffer\n");
     }
-    
+	
     const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
     
     // quick quit
     if(used_switch(argc,argv,"-q"))
     {
         printf("-q switch used, quitting program.\n");
-        goto quick_quit;
+        //restore user volume settings
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	{
+		master_volume(-1,((long)FFCore.usr_midi_volume));
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+	{
+		master_volume((long)(FFCore.usr_digi_volume),1);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+	{
+		emusic_volume = (long)FFCore.usr_music_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+	{
+		sfx_volume = (long)FFCore.usr_sfx_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (long)FFCore.usr_panstyle;
+	}
+	show_saving(screen);
+	save_savedgames();
+	save_game_configs();
+	Triplebuffer.Destroy();
+	set_gfx_mode(GFX_TEXT,80,25,0,0);
+	    //rest(250); // ???
+	    //  if(useCD)
+	    //    cd_exit();
+	quit_game();
+	Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
+	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
+	    
+	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
+	skipcont = 0;
+	if(forceExit) //fix for the allegro at_exit() hang.
+		exit(0);
+		
+	allegro_exit();
+	return 0;
     }
     
     // set video mode
@@ -5694,7 +5740,6 @@ int main(int argc, char* argv[])
     music_stop();
     kill_sfx();
     
-quick_quit:
     //restore user volume settings
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{

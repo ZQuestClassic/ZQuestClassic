@@ -12797,7 +12797,10 @@ void set_register(const long arg, const long value)
 		case NPCCSET:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
+			{
 				GuyH::getNPC()->cs = (value / 10000) & 0xF;
+				if(GuyH::getNPC()->family == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
+			}
 		}
 		break;
 		
@@ -13509,6 +13512,13 @@ void set_register(const long arg, const long value)
             screen_combo_modify_preroutine(tmpscr,pos);
             tmpscr->data[pos]=(val);
             screen_combo_modify_postroutine(tmpscr,pos);
+	    //Start the script for the new combo
+		FFCore.clear_combo_stack(pos);
+		comboScriptData[pos].Clear();
+		combo_doscript[pos] = 1;
+		combo_initialised[pos] &= ~(1<<0);
+		//Not ure if combodata arrays clean themselves up, or leak. -Z
+		//Not sure if this could result in stack corruption. 
         }
     }
     break;
@@ -13631,11 +13641,15 @@ void set_register(const long arg, const long value)
 			int sc = (ri->d[2]/10000);
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
+			int layr = whichlayer(scr);
 			
 			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
 			long combo = vbound(value/10000,0,MAXCOMBOS);
 			if(scr==(currmap*MAPSCRS+currscr))
+			{
 				screen_combo_modify_preroutine(tmpscr,pos);
+				
+			}
 				
 			TheMaps[scr].data[pos]=combo;
 			
@@ -13643,9 +13657,14 @@ void set_register(const long arg, const long value)
 			{
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
+				//Start the script for the new combo
+				FFCore.clear_combo_stack(pos+(176*layr));
+				comboScriptData[pos+(176*layr)].Clear();
+				combo_doscript[pos+(176*layr)] = 1;
+				combo_initialised[pos] &= ~(1<<layr);
+				//Not ure if combodata arrays clean themselves up, or leak. -Z
+				//Not sure if this could result in stack corruption. 
 			}
-			
-			int layr = whichlayer(scr);
 			
 			if(layr>-1)
 			{
@@ -15337,6 +15356,60 @@ void set_register(const long arg, const long value)
 				screen_combo_modify_preroutine(m,pos);
 				m->data[pos]=val;
 				screen_combo_modify_postroutine(m,pos);
+				
+				switch(ri->mapsref)
+				{
+					case MAPSCR_TEMP0: 
+					case MAPSCR_SCROLL0:
+						FFCore.clear_combo_stack(pos);
+						comboScriptData[pos].Clear();
+						combo_doscript[pos] = 1;
+						combo_initialised[pos] &= ~(1<<0);
+						break;
+					case MAPSCR_TEMP1: 
+					case MAPSCR_SCROLL1:
+						FFCore.clear_combo_stack(pos+(176*1));
+						comboScriptData[pos+(176*1)].Clear();
+						combo_doscript[pos+(176*1)] = 1;
+						combo_initialised[pos] &= ~(1<<1);
+						break;
+					case MAPSCR_TEMP2: 
+					case MAPSCR_SCROLL2:
+						FFCore.clear_combo_stack(pos+(176*2));
+						comboScriptData[pos+(176*2)].Clear();
+						combo_doscript[pos+(176*2)] = 1;
+						combo_initialised[pos] &= ~(1<<2);
+						break;
+					case MAPSCR_TEMP3:
+					case MAPSCR_SCROLL3:
+						FFCore.clear_combo_stack(pos+(176*3));
+						comboScriptData[pos+(176*3)].Clear();
+						combo_doscript[pos+(176*3)] = 1;
+						combo_initialised[pos] &= ~(1<<3);
+						break;
+					case MAPSCR_TEMP4: 
+					case MAPSCR_SCROLL4:
+						FFCore.clear_combo_stack(pos+(176*4));
+						comboScriptData[pos+(176*4)].Clear();
+						combo_doscript[pos+(176*4)] = 1;
+						combo_initialised[pos] &= ~(1<<4);
+						break;
+					case MAPSCR_TEMP5:
+					case MAPSCR_SCROLL5:
+						FFCore.clear_combo_stack(pos+(176*5));
+						comboScriptData[pos+(176*5)].Clear();
+						combo_doscript[pos+(176*5)] = 1;
+						combo_initialised[pos] &= ~(1<<5);
+						break;
+					case MAPSCR_TEMP6:
+					case MAPSCR_SCROLL6:
+						FFCore.clear_combo_stack(pos+(176*6));
+						comboScriptData[pos+(176*6)].Clear();
+						combo_doscript[pos+(176*6)] = 1;
+						combo_initialised[pos] &= ~(1<<6);
+						break;
+					default: break;
+				}
 			}
 		}
 		break;
