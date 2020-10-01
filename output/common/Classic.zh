@@ -21,6 +21,7 @@
 //1.11  //Added arg for BossExplode ffc for enemy ID override as D7
 //1.12  //Changed import to #include, updated changeroomguy ffc to ignore fires.
 //1.13  //Fixed typo in changeroomguy ffc. 
+//1.14  //Added script CollectHeartContainer for a set of four automated messages.
 #include "ffcscript.zh"
 #include "stdExtra.zh"
 #include "ghost.zh"
@@ -143,6 +144,14 @@ item script ItemSound
 	void run(int s)
 	{
 		Game->PlaySound(s);
+	}
+}
+
+item script CollectHeartContainer
+{
+	void run(int m)
+	{
+		Screen->Message(m+Game->Generic[GEN_HEARTPIECES]);
 	}
 }
 
