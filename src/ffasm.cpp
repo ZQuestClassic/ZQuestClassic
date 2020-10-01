@@ -2188,7 +2188,8 @@ long ffparse(char *string)
 		ret-=atoi(ptr);
 	else ret+=atoi(ptr);
 	
-	zc_free(tempstring1);
+	if(tempstring1) //may be safer
+		zc_free(tempstring1);
 	return ret;
 }
 
