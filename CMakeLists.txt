@@ -239,11 +239,9 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
 endif()
 
-set(Boost_DEBUG ON)
-set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/boost)
-set(BOOST_INCLUDEDIR ${CMAKE_SOURCE_DIR}/boost)
-set(Boost_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/boost)
-set(BOOST_LIBRARYDIR ${CMAKE_SOURCE_DIR}/boost/boost/bin.v2/libs)
+set(Boost_DEBUG ON) # set to ON if you want to see more info in cmake
+set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/include/boost_1_74_0)
+set(Boost_INCLUDE_DIR ${BOOST_ROOT})
 
 find_package(Boost 1.74.0)
 
@@ -252,7 +250,7 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest zcsound ${Boost_LIBRARIES} ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 		target_compile_definitions(zquest PRIVATE ZC_PCH)
