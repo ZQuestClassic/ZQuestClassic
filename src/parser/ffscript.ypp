@@ -30,7 +30,7 @@ extern int yyleng;
 extern int yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
-void yyerror(ASTFile*& root, const char* s);
+void yyerror(boost::movelib::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int row = yyrow, int col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
@@ -64,10 +64,11 @@ extern YYLTYPE noloc;
 %}
 
 %code requires {
+	#include <boost/move/unique_ptr.hpp>
 	namespace ZScript
 	{
 		class ASTFile;
-		ASTFile* parseFile(std::string const& filename);
+		boost::movelib::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
 	};
 }
 
@@ -75,7 +76,7 @@ extern YYLTYPE noloc;
 %expect 1
 %error-verbose
 %start Init
-%parse-param {ZScript::ASTFile*& root}
+%parse-param {boost::movelib::unique_ptr<ZScript::ASTFile>& root}
 
 %define api.token.prefix {TOK_}
 
@@ -238,7 +239,7 @@ Global_List :
 		root->options.push_back(option);
 		if (root->hasDeclarations())
 			yymsg("WARNING: Options should come before everything else.");}
-	| {root = new ASTFile(noloc);}
+	| {root.reset(new ASTFile(noloc));}
 	;
 
 Global_Statement :
@@ -1565,15 +1566,15 @@ void yymsg(string const& message, int row, int col)
     box_eol();
 }
 
-void yyerror(ASTFile*&, const char *s) {
+void yyerror(boost::movelib::unique_ptr<ASTFile>&, const char *s) {
 	yymsg(s);
 }
 
 namespace ZScript
 {
-	ASTFile* parseFile(std::string const& filename)
+	boost::movelib::unique_ptr<ASTFile> parseFile(std::string const& filename)
 	{
-		ASTFile* result = NULL;
+		boost::movelib::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
 		yyin = NULL;
@@ -1592,11 +1593,10 @@ namespace ZScript
 		// Run the parser.
 		if (yyparse(result))
 		{
-			delete result;
-			result = NULL;
+			result.reset();
 		}
 		fclose(yyin);
 		
-		return result;
+		return boost::movelib::unique_ptr<ASTFile>(result.release());
 	}
 };

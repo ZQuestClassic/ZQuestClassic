@@ -30285,7 +30285,11 @@ long exittimer = 10000, exittimer2 = 100;
 
 int main(int argc,char **argv)
 { 
-    
+#if (defined(_DEBUG) && defined(_MSC_VER))
+#if (VLD_FORCE_ENABLE == 0)
+    ::InitCrtDebug();
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER))
 	
 	if ( V_ZC_ALPHA )
 	{
