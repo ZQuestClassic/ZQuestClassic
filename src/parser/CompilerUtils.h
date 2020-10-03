@@ -3,17 +3,38 @@
 #ifndef ZSCRIPT_COMPILER_UTILS_H
 #define ZSCRIPT_COMPILER_UTILS_H
 
-// prevent compiler error
+// prevent compiler errors
+#ifdef ASTDINT_H
+#undef int8_t
+#undef uint8_t
+#undef int16_t
+#undef uint16_t
+#undef int32_t
+#undef uint32_t
+#undef intptr_t
+#undef uintptr_t
+#endif // ASTDINT_H
+
+#ifdef int64_t
+#undef int64_t
+#endif // int64_t
+
+#ifdef uint64_t
+#undef uint64_t
+#endif // uint64_t
+
+#ifdef new
+#undef new
+#endif // new
+
+#include <boost/optional.hpp>
+
 #include <cassert>
 #include <cstdarg>
 #include <set>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#ifdef new
-#undef new
-#endif // new
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -102,14 +123,16 @@ bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     return false;	
 }
 
+// TODO: To be removed
+#if 0
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
 
 // Empty optional instance.
 struct nullopt_t
 {
-    struct init{};
-    nullopt_t(init) {}
+	struct init {};
+	nullopt_t(init) {}
 };
 const nullopt_t nullopt((nullopt_t::init()));
 
@@ -158,15 +181,19 @@ public:
 	}
 
 	Type const* operator->() const {
-		return reinterpret_cast<Type const*>(&data);}
+		return reinterpret_cast<Type const*>(&data);
+	}
 	Type* operator->() {
-		return reinterpret_cast<Type*>(&data);}
+		return reinterpret_cast<Type*>(&data);
+	}
 	Type const& operator*() const {
-		return *reinterpret_cast<Type const*>(&data);}
+		return *reinterpret_cast<Type const*>(&data);
+	}
 	Type& operator*() {
-		return *reinterpret_cast<Type*>(&data);}
+		return *reinterpret_cast<Type*>(&data);
+	}
 
-	bool has_value() const {return has_value_;}
+	bool has_value() const { return has_value_; }
 	Type const& value() const
 	{
 		assert(has_value_);
@@ -201,12 +228,14 @@ public:
 		has_value_ = false;
 	}
 
-	bool safe_bool() const {return has_value_;}
-	
+	bool safe_bool() const { return has_value_; }
+
 private:
 	bool has_value_;
-	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
+	union { char data[1 + (sizeof(Type) - 1) / sizeof(char)]; };
 };
+#endif // 0
+
 
 ////////////////////////////////////////////////////////////////
 // Containers
