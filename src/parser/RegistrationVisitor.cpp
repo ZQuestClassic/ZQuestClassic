@@ -632,7 +632,7 @@ void RegistrationVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* 
 		if(host.valueIsArray(scope, this)) doRegister(host);
 		else
 		{
-			host.value = *host.content->getCompileTimeValue(this, scope);
+			host.value = host.content->getCompileTimeValue(this, scope).value_or(0L); // sometimes has no value
 			if(host.value) doRegister(host);
 		}
 	}

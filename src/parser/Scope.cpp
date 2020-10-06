@@ -571,7 +571,7 @@ BasicScope::~BasicScope()
 
 Scope* BasicScope::getChild(string const& name) const
 {
-	return find<Scope*>(children_, name).value_or(NULL);
+	return find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type());
 }
 
 vector<Scope*> BasicScope::getChildren() const
@@ -686,7 +686,7 @@ int BasicScope::useNamespace(std::string name, bool noUsing)
 
 DataType const* BasicScope::getLocalDataType(string const& name) const
 {
-	return find<DataType const*>(dataTypes_, name).value_or(NULL);
+	return find<DataType const*>(dataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 }
 
 optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
@@ -696,28 +696,28 @@ optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
 
 ZClass* BasicScope::getLocalClass(string const& name) const
 {
-	return find<ZClass*>(classes_, name).value_or(NULL);
+	return find<ZClass*>(classes_, name).value_or(boost::add_pointer<ZClass>::type());
 }
 
 Datum* BasicScope::getLocalDatum(string const& name) const
 {
-	return find<Datum*>(namedData_, name).value_or(NULL);
+	return find<Datum*>(namedData_, name).value_or(boost::add_pointer<Datum>::type());
 }
 
 Function* BasicScope::getLocalGetter(string const& name) const
 {
-	return find<Function*>(getters_, name).value_or(NULL);
+	return find<Function*>(getters_, name).value_or(boost::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalSetter(string const& name) const
 {
-	return find<Function*>(setters_, name).value_or(NULL);
+	return find<Function*>(setters_, name).value_or(boost::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalFunction(
 		FunctionSignature const& signature) const
 {
-	return find<Function*>(functionsBySignature_, signature).value_or(NULL);
+	return find<Function*>(functionsBySignature_, signature).value_or(boost::add_pointer<Function>::type());
 }
 
 vector<Function*> BasicScope::getLocalFunctions(string const& name) const
@@ -953,7 +953,7 @@ ScriptScope* FileScope::makeScriptChild(Script& script)
 NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 {
 	string name = node.name;
-	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	if (Scope* scope = find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type()))
 	{
 		if(scope->isNamespace())
 		{
@@ -1137,7 +1137,7 @@ Scope* RootScope::getChild(std::string const& name) const
 {
 	Scope* result = BasicScope::getChild(name);
 	if (!result)
-		result = find<Scope*>(descChildren_, name).value_or(NULL);
+		result = find<Scope*>(descChildren_, name).value_or(boost::add_pointer<Scope>::type());
 	return result;
 }
 
@@ -1145,7 +1145,7 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 {
 	DataType const* result = BasicScope::getLocalDataType(name);
 	if (!result)
-		result = find<DataType const*>(descDataTypes_, name).value_or(NULL);
+		result = find<DataType const*>(descDataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 	return result;
 }
 
@@ -1160,7 +1160,7 @@ ZClass* RootScope::getLocalClass(string const& name) const
 {
 	ZClass* result = BasicScope::getLocalClass(name);
 	if (!result)
-		result = find<ZClass*>(descClasses_, name).value_or(NULL);
+		result = find<ZClass*>(descClasses_, name).value_or(boost::add_pointer<ZClass>::type());
 	return result;
 }
 
@@ -1168,7 +1168,7 @@ Datum* RootScope::getLocalDatum(string const& name) const
 {
 	Datum* result = BasicScope::getLocalDatum(name);
 	if (!result)
-		result = find<Datum*>(descData_, name).value_or(NULL);
+		result = find<Datum*>(descData_, name).value_or(boost::add_pointer<Datum>::type());
 	return result;
 }
 
@@ -1176,7 +1176,7 @@ Function* RootScope::getLocalGetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalGetter(name);
 	if (!result)
-		result = find<Function*>(descGetters_, name).value_or(NULL);
+		result = find<Function*>(descGetters_, name).value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1184,7 +1184,7 @@ Function* RootScope::getLocalSetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalSetter(name);
 	if (!result)
-		result = find<Function*>(descSetters_, name).value_or(NULL);
+		result = find<Function*>(descSetters_, name).value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1194,7 +1194,7 @@ Function* RootScope::getLocalFunction(
 	Function* result = BasicScope::getLocalFunction(signature);
 	if (!result)
 		result = find<Function*>(descFunctionsBySignature_, signature)
-			.value_or(NULL);
+			.value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1306,7 +1306,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = cropPath(node->getFilename());
 	lowerstr(fname);
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(NULL))
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(boost::add_pointer<ASTImportDecl>::type()))
 	{
 		node->disable(); //Disable node.
 		switch(headerGuard)
@@ -1336,7 +1336,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 
 bool RootScope::isImported(string const& path)
 {
-	if(find<ASTImportDecl*>(importsByName_, path).value_or(NULL))
+	if(find<ASTImportDecl*>(importsByName_, path).value_or(boost::add_pointer<ASTImportDecl>::type()))
 		return true;
 	return false;
 }

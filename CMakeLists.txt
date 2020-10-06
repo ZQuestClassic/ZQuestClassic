@@ -43,6 +43,7 @@ include_directories(./include/dumb)
 include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
+include_directories(./src)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp

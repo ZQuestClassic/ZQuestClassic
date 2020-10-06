@@ -28,6 +28,7 @@
 #endif // new
 
 #include <boost/optional.hpp>
+#include <boost/type_traits.hpp>
 
 #include <cassert>
 #include <cstdarg>
@@ -123,118 +124,111 @@ bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     return false;	
 }
 
-// TODO: To be removed
-#if 0
+
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
+// Soley adapts existing code with boost::optional
 
+
+#if (__cplusplus < 201703L)
 // Empty optional instance.
-struct nullopt_t
-{
-	struct init {};
-	nullopt_t(init) {}
-};
-const nullopt_t nullopt((nullopt_t::init()));
+typedef boost::none_t nullopt_t;
+const nullopt_t nullopt(boost::none);
 
-template <class Type>
-class optional : public SafeBool<optional<Type> >
+template<typename T>
+class optional : public SafeBool<optional<T> >
 {
 public:
+	typedef T value_type;
+
 	// Construct empty optional. 
-	optional() : has_value_(false) {}
-	optional(nullopt_t) : has_value_(false) {}
+	optional() : data_() {}
+	optional(nullopt_t) : data_(nullopt) {}
 	// Construct with value.
-	optional(Type const& value) : has_value_(true)
-	{
-		new(&data) Type(value);
-	}
+	optional(const T& value) : data_(value) {}
 	// Construct with value (eliminate double optional).
-	optional(optional const& rhs) : has_value_(rhs.has_value_)
+	optional(const optional& rhs)
 	{
-		if (rhs.has_value_)
-			new(&data) Type(*rhs);
+		if (rhs.data_.has_value()) {
+			data_.emplace(*rhs);
+		}
 	}
 
 	~optional()
 	{
-		if (has_value_)
-			reinterpret_cast<Type*>(&data)->~Type();
+		data_.reset();
 	}
 
 	optional& operator=(nullopt_t)
 	{
-		reset();
+		data_.reset();
 		return *this;
 	}
-	optional& operator=(optional const& rhs)
+	optional& operator=(const optional& rhs)
 	{
-		if (has_value_ && !rhs.has_value_)
-			reset();
-		else if (!has_value_ && rhs.has_value_)
-		{
-			new(&data) Type(*rhs);
-			has_value_ = true;
-		}
-		else if (has_value_ && rhs.has_value_)
-			*reinterpret_cast<Type*>(&data) = *rhs;
+		data_.emplace(*rhs);
 		return *this;
 	}
 
-	Type const* operator->() const {
-		return reinterpret_cast<Type const*>(&data);
+	const T* operator->() const
+	{
+		assert(data_.has_value());
+		return &data_.value();
 	}
-	Type* operator->() {
-		return reinterpret_cast<Type*>(&data);
+	T* operator->() 
+	{
+		assert(data_.has_value());
+		return &data_.value();
 	}
-	Type const& operator*() const {
-		return *reinterpret_cast<Type const*>(&data);
-	}
-	Type& operator*() {
-		return *reinterpret_cast<Type*>(&data);
+	const T& operator*() const
+	{
+		assert(data_.has_value());
+		return data_.value();
 	}
 
-	bool has_value() const { return has_value_; }
-	Type const& value() const
+	T& operator*()
 	{
-		assert(has_value_);
-		return *reinterpret_cast<Type const*>(&data);
-	}
-	Type& value()
-	{
-		assert(has_value_);
-		return *reinterpret_cast<Type*>(&data);
+		assert(data_.has_value());
+		return data_.value();
 	}
 
+	bool has_value() const { return data_.has_value(); }
+	const T& value() const
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+	T& value()
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	template<typename U>
+	T value_or(const U& v) const
+	{
+		return data_.value_or(v);
+	}
+	
 	template <typename U>
-	Type const value_or(U const& v) const
+	T value_or(U& v)
 	{
-		return has_value_
-			? *reinterpret_cast<Type const*>(&data)
-			: *reinterpret_cast<Type const*>(&v);
-	}
-
-	template <typename U>
-	Type value_or(U& v)
-	{
-		return has_value_
-			? *reinterpret_cast<Type*>(&data)
-			: *reinterpret_cast<Type*>(&v);
+		return data_.value_or(v);
 	}
 
 	// Destroys the value if present.
 	void reset()
 	{
-		if (has_value_) reinterpret_cast<Type>(data).~Type();
-		has_value_ = false;
+		data_.reset(); 
 	}
 
-	bool safe_bool() const { return has_value_; }
+	bool safe_bool() const { return data_.has_value(); }
 
 private:
-	bool has_value_;
-	union { char data[1 + (sizeof(Type) - 1) / sizeof(char)]; };
+	boost::optional<T> data_;
 };
-#endif // 0
+#endif // (__cplusplus < 201703L)
+
 
 
 ////////////////////////////////////////////////////////////////

@@ -517,7 +517,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	{
 		int label = *unprocessedLabels.begin();
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(NULL);
+			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (function)
 		{
 			vector<Opcode*> const& functionCode = function->getCode();
@@ -543,7 +543,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	{
 		int label = *it;
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(NULL);
+			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (!function) continue;
         
 		vector<Opcode*> functionCode = function->getCode();
