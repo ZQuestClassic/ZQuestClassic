@@ -1,7 +1,16 @@
 // 2.55 Change Log
 // Updated 1st September, 2020
 
+//Alpha 85
+Updated allegro to v4.4.4
+Added a special colour (teal) to water combos when drowning is off
+	when viewing combo solidity. 
+	( ZoriaRPG, 16th October, 2020 )
+
 //Alpha 84
+
+Updated allegro to v4.4.4
+	( ZoriaRPG, 14th October, 2020 )
 
 Add forced NULL terminator to pointers passed to TraceS() and printf(),
 	to prevent crashes in the event that the user passes
