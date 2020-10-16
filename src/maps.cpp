@@ -2735,8 +2735,13 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
         int tx=((i&2)<<2)+xx;
         int ty=((i&1)<<3)+yy;
         
-        if(lyr==0 && iswater(cmbdat)!=0 && get_bit(quest_rules, qr_DROWN))
-            rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
+	if ( iswater(cmbdat)!=0 )
+	{
+		if(lyr==0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
+		else rectfill(dest,tx,ty,tx+7,ty+7,makecol(0,0,255));
+	}
+	
             
         if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE))  // Check for dried lake (watertype && not water)
         {

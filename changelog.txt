@@ -1,5 +1,11 @@
 ChangeLog for 2.53.1
 
+//Beta 55
+Updated allegro to v4.4.4
+Added a special colour (teal) to water combos when drowning is off
+	when viewing combo solidity. 
+	( ZoriaRPG, 16th October, 2020 )
+
 //Beta 54
 Fix Linux Console
 	( ZoriaRPG, 19th September, 2020 )

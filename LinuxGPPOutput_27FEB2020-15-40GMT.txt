@@ -1,0 +1,694 @@
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:566:32: error: invalid use of incomplete type ‘class CConsoleLogger’
+ CConsoleLogger::CConsoleLogger()
+                                ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:571:33: error: invalid use of incomplete type ‘class CConsoleLogger’
+ CConsoleLogger::~CConsoleLogger()
+                                 ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:590:46: error: invalid use of incomplete type ‘class CConsoleLogger’
+        const char *helper_executable/*=NULL*/)
+                                              ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:597:32: error: invalid use of incomplete type ‘class CConsoleLogger’
+ long CConsoleLogger::Close(void)
+                                ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:609:71: error: invalid use of incomplete type ‘class CConsoleLogger’
+ inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+                                                                       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:617:50: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::printf(const char *format,...)
+                                                  ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:628:44: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::SetAsDefaultOutput(void)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:636:44: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::ResetDefaultOutput(void)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:646:58: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::_print(const char *lpszText,int iSize)
+                                                          ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:50:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:659:36: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ CConsoleLoggerEx::CConsoleLoggerEx()
+                                    ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:670:60: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+                                                            ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:679:32: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::cls(void)
+                                ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:688:38: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::cls(word color)
+                                      ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:696:38: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::clear_eol(void)
+                                      ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:704:44: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::clear_eol(word color)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:713:42: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::gotoxy(int x,int y)
+                                          ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:722:68: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+                                                                    ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:731:53: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::cprintf(const char *format,...)
+                                                     ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:740:76: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+                                                                            ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:51:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:748:18: error: aggregate ‘CConsoleLoggerEx coloured_console’ has incomplete type and cannot be defined
+ CConsoleLoggerEx coloured_console;
+                  ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:749:18: error: aggregate ‘CConsoleLoggerEx zscript_coloured_console’ has incomplete type and cannot be defined
+ CConsoleLoggerEx zscript_coloured_console;
+                  ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp: In function ‘void ffdebug::print_disassembly(word)’:
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2634:83: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d), ", varToString(sarg1), get_register(sarg1));
+                                                                                   ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2636:62: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d), ", "immediate", sarg1);
+                                                              ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2639:83: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d)\n", varToString(sarg2), get_register(sarg2));
+                                                                                   ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2641:62: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d)\n", "immediate", sarg2);
+                                                              ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2648:83: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d)\n", varToString(sarg1), get_register(sarg1));
+                                                                                   ^
+/home/rory/zc/ZeldaClassic/src/ffscript.cpp:2650:62: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]
+             al_trace("%10s (val = %9d)\n", "immediate", sarg1);
+                                                              ^
+make[2]: *** [CMakeFiles/zelda.dir/src/ffscript.cpp.o] Error 1
+/home/rory/zc/ZeldaClassic/src/zelda.cpp:68:38: fatal error: metadata/sigs/devsig.h.sig: No such file or directory
+compilation terminated.
+make[2]: *** [CMakeFiles/zelda.dir/src/zelda.cpp.o] Error 1
+/home/rory/zc/ZeldaClassic/src/qst.cpp: In function ‘PACKFILE* open_quest_template(zquestheader*, char*, bool)’:
+/home/rory/zc/ZeldaClassic/src/qst.cpp:828:16: warning: converting ‘false’ to pointer type ‘PACKFILE*’ [-Wconversion-null]
+         return false;
+                ^
+/home/rory/zc/ZeldaClassic/src/qst.cpp:844:20: warning: converting ‘false’ to pointer type ‘PACKFILE*’ [-Wconversion-null]
+             return false;
+                    ^
+/home/rory/zc/ZeldaClassic/src/title.cpp: In function ‘void mainscreen(int)’:
+/home/rory/zc/ZeldaClassic/src/title.cpp:185:29: warning: converting to non-pointer type ‘char’ from NULL [-Wconversion-null]
+  char copyrbuf[80] = { NULL };
+                             ^
+/home/rory/zc/ZeldaClassic/src/title.cpp: In function ‘void DX_mainscreen(int)’:
+/home/rory/zc/ZeldaClassic/src/title.cpp:613:30: warning: converting to non-pointer type ‘char’ from NULL [-Wconversion-null]
+  char copyrbuf2[80] = { NULL };
+                              ^
+/home/rory/zc/ZeldaClassic/src/title.cpp: In function ‘void v25_mainscreen(int)’:
+/home/rory/zc/ZeldaClassic/src/title.cpp:735:32: warning: converting to non-pointer type ‘char’ from NULL [-Wconversion-null]
+     char copyrbuf[80] = { NULL };
+                                ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::draw(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:863:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::drawshadow(BITMAP*, bool, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:885:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::draw2(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:903:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::drawcloaked2(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:921:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int OnSaveZCConfig()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:4951:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1) 
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onQuit()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:6669:67: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+                             "will be reloaded from the last save.");
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:6669:67: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:6675:69: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+                             "be returned to the file select screen.");
+                                                                     ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:6675:69: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onEpilepsy()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:6772:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int on192b163compatibility()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7190:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onLinearQuestLoad()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7211:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onMIDIPatch()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7236:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int buggy_next_combo_secrets_emulation()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7261:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v250_dmap_intro_repeat()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7283:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v210_segment_drops()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7304:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v210_windrobes()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7332:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v210_grid_collision()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7353:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v192_tribbles()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7377:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int continuous_sword_triggers()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7405:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int eight_way_shot_sfx_fix()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7428:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v210_bombchus()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7452:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v190_linksprites()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7489:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v190_swimsprites()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7525:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int v210_brang_firetrail()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7558:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onDebugConsole()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7600:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘int onConsoleZScript()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:7637:8: warning: passing NULL to non-pointer argument 10 of ‘int jwin_alert3(const char*, const char*, const char*, const char*, const char*, const char*, const char*, int, int, int, FONT*)’ [-Wconversion-null]
+   lfont) == 1)
+        ^
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp: In function ‘void system_pal()’:
+/home/rory/zc/ZeldaClassic/src/zc_sys.cpp:8175:23: warning: NULL used in arithmetic [-Wpointer-arith]
+  if ( themefile[0] == NULL )
+                       ^
+make[2]: Target 'CMakeFiles/zelda.dir/build' not remade because of errors.
+make[1]: *** [CMakeFiles/zelda.dir/all] Error 2
+/home/rory/zc/ZeldaClassic/src/qst.cpp: In function ‘PACKFILE* open_quest_template(zquestheader*, char*, bool)’:
+/home/rory/zc/ZeldaClassic/src/qst.cpp:828:16: warning: converting ‘false’ to pointer type ‘PACKFILE*’ [-Wconversion-null]
+         return false;
+                ^
+/home/rory/zc/ZeldaClassic/src/qst.cpp:844:20: warning: converting ‘false’ to pointer type ‘PACKFILE*’ [-Wconversion-null]
+             return false;
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::draw(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:863:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::drawshadow(BITMAP*, bool, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:885:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::draw2(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:903:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/sprite.cpp: In member function ‘void sprite_list::drawcloaked2(BITMAP*, bool)’:
+/home/rory/zc/ZeldaClassic/src/sprite.cpp:921:20: warning: switch condition has type bool [-Wswitch-bool]
+     switch(lowfirst)
+                    ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp: In function ‘int readoneitem(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:1693:63: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneitem section_version: %d\n", section_version);
+                                                               ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:1694:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneitem section_cversion: %d\n", section_cversion);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:1703:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zitem packfile made using V_ITEMS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:1703:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp: At global scope:
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+ };
+ ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3058:1: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp: In function ‘int readonenpc(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3821:62: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readonenpc section_version: %d\n", section_version);
+                                                              ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3822:64: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readonenpc section_cversion: %d\n", section_cversion);
+                                                                ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3831:116: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .znpc packfile made using V_GUYS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                    ^
+/home/rory/zc/ZeldaClassic/src/zq_custom.cpp:3831:116: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_files.cpp: In function ‘int d_rulesettext_proc(int, DIALOG*, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_files.cpp:504:75: warning: format not a string literal and no format arguments [-Wformat-security]
+     textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
+                                                                           ^
+/home/rory/zc/ZeldaClassic/src/zq_files.cpp:505:92: warning: format not a string literal and no format arguments [-Wformat-security]
+     textprintf_ex(screen,f,d->x,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
+                                                                                            ^
+/home/rory/zc/ZeldaClassic/src/zq_files.cpp:506:93: warning: format not a string literal and no format arguments [-Wformat-security]
+     textprintf_ex(screen,f,d->x,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
+                                                                                             ^
+/home/rory/zc/ZeldaClassic/src/zq_files.cpp:507:93: warning: format not a string literal and no format arguments [-Wformat-security]
+     textprintf_ex(screen,f,d->x,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+                                                                                             ^
+/home/rory/zc/ZeldaClassic/src/zq_misc.cpp:26:38: fatal error: metadata/sigs/devsig.h.sig: No such file or directory
+compilation terminated.
+make[2]: *** [CMakeFiles/zquest.dir/src/zq_misc.cpp.o] Error 1
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp: In function ‘void edit_subscreen()’:
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:6631:35: warning: format not a string literal and no format arguments [-Wformat-security]
+     sprintf(tempss.name, css->name);
+                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:6726:39: warning: format not a string literal and no format arguments [-Wformat-security]
+         sprintf(css->name, tempss.name);
+                                       ^
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp: In function ‘int onEditSubscreens()’:
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:7056:94: warning: format not a string literal and no format arguments [-Wformat-security]
+                             sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                                                                                              ^
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:7063:95: warning: format not a string literal and no format arguments [-Wformat-security]
+                             sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                                                                                               ^
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:7108:94: warning: format not a string literal and no format arguments [-Wformat-security]
+                             sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                                                                                              ^
+/home/rory/zc/ZeldaClassic/src/zq_subscr.cpp:7116:95: warning: format not a string literal and no format arguments [-Wformat-security]
+                             sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                                                                                               ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readtilefile(PACKFILE*)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8393:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8394:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8404:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8404:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readtilefile_to_location(PACKFILE*, int, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8489:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8490:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8500:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8500:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readtilefile_to_location(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8598:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8599:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8609:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:8609:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readcombofile(PACKFILE*, int, byte)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12720:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12721:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12731:120: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                        ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12731:120: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readcombofile_to_location(PACKFILE*, int, byte, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12912:77: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readcombofile_to_location section_version: %d\n", section_version);
+                                                                             ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12913:79: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readcombofile_to_location section_cversion: %d\n", section_cversion);
+                                                                               ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12923:120: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                        ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:12923:120: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readcomboaliasfile(PACKFILE*)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13231:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13232:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13242:126: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                              ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13242:126: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp: In function ‘int readcomboaliasfile_to_location(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13382:82: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readcomboaliasfile_to_location section_version: %d\n", section_version);
+                                                                                  ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13383:84: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readcomboaliasfile_to_location section_cversion: %d\n", section_cversion);
+                                                                                    ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13393:126: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                              ^
+/home/rory/zc/ZeldaClassic/src/zq_tiles.cpp:13393:126: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/ffasm.cpp: In function ‘long int ffparse(char*)’:
+/home/rory/zc/ZeldaClassic/src/ffasm.cpp:1297:32: warning: format not a string literal and no format arguments [-Wformat-security]
+     sprintf(tempstring1, string);
+                                ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:33:1: error: ‘byte’ does not name a type
+ byte headerguard = 0;
+ ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:35:1: error: ‘byte’ does not name a type
+ byte __isZQuest = 1; //Shared functionscan reference this. -Z
+ ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:654:32: error: invalid use of incomplete type ‘class CConsoleLogger’
+ CConsoleLogger::CConsoleLogger()
+                                ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:659:33: error: invalid use of incomplete type ‘class CConsoleLogger’
+ CConsoleLogger::~CConsoleLogger()
+                                 ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:678:46: error: invalid use of incomplete type ‘class CConsoleLogger’
+        const char *helper_executable/*=NULL*/)
+                                              ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:685:32: error: invalid use of incomplete type ‘class CConsoleLogger’
+ long CConsoleLogger::Close(void)
+                                ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:697:71: error: invalid use of incomplete type ‘class CConsoleLogger’
+ inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+                                                                       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:705:50: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::printf(const char *format,...)
+                                                  ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:716:44: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::SetAsDefaultOutput(void)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:724:44: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::ResetDefaultOutput(void)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:734:58: error: invalid use of incomplete type ‘class CConsoleLogger’
+ int CConsoleLogger::_print(const char *lpszText,int iSize)
+                                                          ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:148:7: note: forward declaration of ‘class CConsoleLogger’
+ class CConsoleLogger;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:747:36: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ CConsoleLoggerEx::CConsoleLoggerEx()
+                                    ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:758:60: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+                                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:767:32: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::cls(void)
+                                ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:776:38: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::cls(word color)
+                                      ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:784:38: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::clear_eol(void)
+                                      ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:792:44: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::clear_eol(word color)
+                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:801:42: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ void CConsoleLoggerEx::gotoxy(int x,int y)
+                                          ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:810:68: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+                                                                    ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:819:53: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::cprintf(const char *format,...)
+                                                     ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:828:76: error: invalid use of incomplete type ‘class CConsoleLoggerEx’
+ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+                                                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:149:7: note: forward declaration of ‘class CConsoleLoggerEx’
+ class CConsoleLoggerEx;
+       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:837:18: error: aggregate ‘CConsoleLoggerEx coloured_console’ has incomplete type and cannot be defined
+ CConsoleLoggerEx coloured_console;
+                  ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:838:18: error: aggregate ‘CConsoleLoggerEx zscript_coloured_console’ has incomplete type and cannot be defined
+ CConsoleLoggerEx zscript_coloured_console;
+                  ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘void savesometiles(const char*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:2177:92: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+     al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+                                                                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘void savesomecombos(const char*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:2323:93: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+     al_trace("Saving combos %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+                                                                                             ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘void savesomecomboaliases(const char*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:2744:101: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+     al_trace("Saving combo aliasess %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+                                                                                                     ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘int readoneweapon(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:11694:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:11695:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:11705:122: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                          ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:11705:122: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘void wpnsprite_rclick_func(int, int, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:11791:44: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘weapon_struct’ [-Wformat=]
+  al_trace("biw[index] is: %d\n", biw[index]);
+                                            ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘int readsomedmaps(PACKFILE*)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15519:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readsomedmaps section_version: %d\n", section_version);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15520:67: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readsomedmaps section_cversion: %d\n", section_cversion);
+                                                                   ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15529:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15529:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘int readonedmap(PACKFILE*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15922:63: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readonedmap section_version: %d\n", section_version);
+                                                               ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15923:65: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+  al_trace("readonedmap section_cversion: %d\n", section_cversion);
+                                                                 ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15952:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+   al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+                                                                                                                      ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:15952:118: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘dword {aka long unsigned int}’ [-Wformat=]
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘int main(int, char**)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:26200:23: warning: NULL used in arithmetic [-Wpointer-arith]
+  if ( themefile[0] == NULL )
+                       ^
+/home/rory/zc/ZeldaClassic/src/zquest.cpp: In function ‘void __zc_always_assert(bool, const char*, const char*, int)’:
+/home/rory/zc/ZeldaClassic/src/zquest.cpp:28348:79: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+         sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
+                                                                               ^
+make[2]: *** [CMakeFiles/zquest.dir/src/zquest.cpp.o] Error 1
+make[2]: Target 'CMakeFiles/zquest.dir/build' not remade because of errors.
+make[1]: *** [CMakeFiles/zquest.dir/all] Error 2
+make[1]: Target 'all' not remade because of errors.
+make: *** [all] Error 2
+make: Target 'default_target' not remade because of errors.
