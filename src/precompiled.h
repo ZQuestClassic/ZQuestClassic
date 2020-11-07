@@ -17,6 +17,12 @@
 #include <vld.h>
 #endif // (VLD_FORCE_ENABLE == 1)
 
+//Boost
+#include <boost/make_shared.hpp>
+#include <boost/optional.hpp>
+#include <boost/smart_ptr.hpp>
+#include <boost/move/make_unique.hpp>
+
 //c standard lib
 #include <cassert>
 #include <cctype>
@@ -36,8 +42,8 @@
 #include "zc_alleg.h"
 
 //zc
-#include "mem_debug.h"
 #include "zc_malloc.h"
+#include "mem_debug.h"
 
 #endif // ZC_PCH
 #endif // !PRECOMPILED_H
