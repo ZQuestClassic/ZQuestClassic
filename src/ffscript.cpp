@@ -13992,8 +13992,27 @@ void set_register(const long arg, const long value)
 		case SCREENDATAVIEWY: 		SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 		case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
-		case SCREENDATAENTRYX: 		SET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
-		case SCREENDATAENTRYY: 		SET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+		case SCREENDATAENTRYX: 		
+		{
+			int newx = vbound((value/10000),0,255);
+			tmpscr->entry_x = newx;
+			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Link.entry_x = (zfix)(newx);
+			}
+			
+		}
+		case SCREENDATAENTRYY: 		
+		{
+			
+			int newy = vbound((value/10000),0,175);
+			tmpscr->entry_y = newy;
+			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Link.entry_y = (zfix)(newy);
+			}
+			break;	//B
+		}
 		//case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 
 		case SCREENDATANUMFF: 	
