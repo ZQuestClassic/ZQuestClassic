@@ -10,8 +10,11 @@
 #include "../ffscript.h"
 extern FFScript FFCore;
 
-using namespace std;
+
 using namespace ZScript;
+using std::vector;
+using std::string;
+using std::ostringstream;
 
 ////////////////////////////////////////////////////////////////
 // ZScript::Program

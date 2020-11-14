@@ -8,9 +8,10 @@
 #include "Types.h"
 #include "ZScript.h"
 
-using namespace std;
+
 using namespace ZScript;
 using namespace util;
+using std::set;
 
 ////////////////////////////////////////////////////////////////
 // Scope

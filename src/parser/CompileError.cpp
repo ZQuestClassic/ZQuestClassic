@@ -13,8 +13,12 @@ XTableHelper XH;
 #include <cstdarg>
 #include <cstdio>
 
-using namespace std;
+
 using namespace ZScript;
+using std::string;
+using std::ostringstream;
+using std::setfill;
+using std::setw;
 
 ////////////////////////////////////////////////////////////////
 // CompileError::Impl interface
