@@ -1,17 +1,68 @@
 // 2.55 Change Log
-// Updated 1st September, 2020
+// Updated 14th November, 2020
 
 //Alpha 85
-Updated allegro to v4.4.4
+
+Default new rule on in new quests or on Pick Ruleset.
+Fix position of new Instruction Rule in Dialogue
+Added a script quest instruction setting to cause Link's respawn
+	points to match script-written EntryX and EntryY for Screen->Entry*.
+Fixed the bug where Link's spin attack animation is mused when he falls
+	into pits if he is holding a charged sword.
+	( ZoriaRPG, 12th November, 2020 )
+	
+<std 1.7109> : Fix error message on invalid CanWalk dirs.
+	( ZoriaRPG, 5th November, 2020 )
+	
+Fix Keyboard Cheat Modifier Dialogue
+	( ZoriaRPG, 4th November, 2020 )
+
+Updated allegro to v4.4.4 (Lib file date 28-Sept-2020)
 Added a special colour (teal) to water combos when drowning is off
 	when viewing combo solidity. 
 	( ZoriaRPG, 16th October, 2020 )
-
+	
+Updated Classic.zh to v2.14, adding the itemdata script:
+	CollectHeartContainer. This allows showing a un iue message per 1/4
+	of the heart contaier collected.
+Updated Classic.txt.
+	( ZoriaRPG, 1st October, 2020 )
+Added, Classic.txt.
+	( ZoriaRPG, 29th September, 2020 )
+	
+The combo re-init code from the prior commit should also occur
+	on mapdata->ComboD[] if the mapdata pointer is to a tempscr or
+	a scrolling screen.
+Writing ComboD[] or SetLayerComboD for the current screen was
+	not launching the combodata script for the replacement combo.
+	In theory, this should fix it, but it i untested and if it starts feking
+	up the stac wity overflows or other errors, then combo scripts may
+	need another doscript state. (Yuck).
+	( ZoriaRPG, 24th September, 2020 )
+	
+Linux: Add option for monochrome debuggers to zc_sys on ifdef. (Unused)
+Linux console should now open with correct timing.
+Added two safety guards for free() calls.
+The Linux console will only tr to run if zscript_debugger!=0
+	( ZoriaRPG, 19th September, 2020 )
+	
+Further relocate linux console init.
+Move linux console to open after allegro init.
+	( ZoriaRPG, 18th September, 2020 )
+	
+Make storage class enum nonstatic for g++
+Don't use a label for quick quit. It breaks Linux.
+Writing eeLEV->CSet by Script also writes ->dcset
+`	This affects the submerged CSet.
+	( ZoriaRPG, 17th September, 2020 )
+	
+Link can no longer change his direction while stunned.
+Fix OoO issue in link.cpp
+Change stun debug messages to zprints.
+	( Venrob, 11th September, 2020 )
+	
+	
 //Alpha 84
-
-Updated allegro to v4.4.4
-	( ZoriaRPG, 14th October, 2020 )
-
 Add forced NULL terminator to pointers passed to TraceS() and printf(),
 	to prevent crashes in the event that the user passes
 	an ZScript client array w/o a NULL terminator.
