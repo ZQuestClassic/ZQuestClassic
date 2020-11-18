@@ -5587,7 +5587,29 @@ else \
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboData", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
+		ret = -10000;
+	}
+			
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->data[pos]*10000;
@@ -5595,8 +5617,6 @@ else \
                 ret=tmpscr2[layr].data[pos]*10000;
             else ret=TheMaps[scr].data[pos]*10000;
         }
-        else
-            ret = -10000;
     }
     break;
     
@@ -5608,7 +5628,29 @@ else \
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboCSet", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
+		ret = -10000;
+	}
+	
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
@@ -5616,8 +5658,7 @@ else \
                 ret=tmpscr2[layr].cset[pos]*10000;
             else ret=TheMaps[scr].cset[pos]*10000;
         }
-        else
-            ret = -10000;
+
     }
     break;
     
@@ -5628,8 +5669,29 @@ else \
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
-        
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	    
+        if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboFlag", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
+		ret = -10000;
+	}
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
@@ -5637,8 +5699,6 @@ else \
                 ret=tmpscr2[layr].sflag[pos]*10000;
             else ret=TheMaps[scr].sflag[pos]*10000;
         }
-        else
-            ret = -10000;
     }
     break;
     
@@ -5650,7 +5710,29 @@ else \
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboType", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
+		ret = -10000;
+	}
+	
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
@@ -5659,8 +5741,7 @@ else \
             else ret=combobuf[
                              TheMaps[scr].data[pos]].type*10000;
         }
-        else
-            ret = -10000;
+       
     }
     break;
     
@@ -5672,7 +5753,29 @@ else \
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboInherentFlag", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
+		ret = -10000;
+	}
+	
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
@@ -5680,8 +5783,7 @@ else \
                 ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
             else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
         }
-        else
-            ret = -10000;
+        
     }
     break;
     
@@ -5693,7 +5795,29 @@ else \
         long scr = zc_max(m*MAPSCRS+sc,0);
         int layr = whichlayer(scr);
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to GetComboSolid", pos);
+		ret = -10000;
+	}
+	else if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", scr);
+		ret = -10000;
+	}
+	else if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", sc);
+		ret = -10000;
+	}
+	else if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
+		ret = -10000;
+	}
+	
+        //if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+	else
         {
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
@@ -5701,8 +5825,7 @@ else \
                 ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
             else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
         }
-        else
-            ret = -10000;
+
     }
     break;
    
@@ -7797,7 +7920,29 @@ case COMBODDM:
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        //if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+	    
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to SetComboData", pos);
+		break;
+	}
+	if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", scr);
+		break;
+	}
+	if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
+		break;
+	}
+	if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
+		break;
+	}
+
         
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
@@ -7830,8 +7975,29 @@ case COMBODDM:
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        //if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
         
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to SetComboCSet", pos);
+		break;
+	}
+	if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", scr);
+		break;
+	}
+	if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
+		break;
+	}
+	if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
+		break;
+	}
+	
         TheMaps[scr].cset[pos]=(value/10000)&15;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -7851,8 +8017,30 @@ case COMBODDM:
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        //if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
         
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to SetComboFlag", pos);
+		break;
+	}
+	if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", scr);
+		break;
+	}
+	if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
+		break;
+	}
+	if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
+		break;
+	}
+	
+	
         TheMaps[scr].sflag[pos]=value/10000;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -7872,9 +8060,30 @@ case COMBODDM:
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
-            break;
+        //if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+        //    break;
             
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to SetComboType", pos);
+		break;
+	}
+	if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", scr);
+		break;
+	}
+	if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", sc);
+		break;
+	}
+	if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to SetComboType", m);
+		break;
+	}
+	
         int cdata = TheMaps[scr].data[pos];
         
         // Preprocess the screen's combos in case the combo changed is present on the screen. -L
@@ -7905,9 +8114,30 @@ case COMBODDM:
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
-            break;
+        //if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+        //    break;
             
+	if(pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to SetComboInherentFlag", pos);
+		break;
+	}
+	if(scr < 0) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboInherentFlag", scr);
+		break;
+	}
+	if(sc >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboInherentFlag", sc);
+		break;
+	}
+	if(m >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map ID (%d) passed to SetComboInherentFlag", m);
+		break;
+	}
+	
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
     }
     break;
@@ -7919,9 +8149,19 @@ case COMBODDM:
 		long scr = (ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000);
 		//This (below) us the precise code from 2.50.1 (?)
 		//long scr = zc_max((ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000),0); //Not below 0. 
-
-		if(pos < 0 || pos >= 176 || scr < 0) break;
-
+		
+		//if(pos < 0 || pos >= 176 || scr < 0) break;
+		if(pos < 0 || pos >= 176) 
+		{
+			Z_scripterrlog("Invalid combo position (%d) passed to GetSolid", pos);
+			break;
+		}
+		if(scr < 0) 
+		{
+			Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
+			break;
+		}
+		
 		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;	    
     }
     break;
