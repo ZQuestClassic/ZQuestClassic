@@ -4,7 +4,9 @@
 #ifndef _zc_malloc_h
 #define _zc_malloc_h
 
+#ifdef HAS_BOOST
 #include <boost/type_traits.hpp>
+#endif // HAS_BOOST
 
 #include <cassert>
 #include <cstdlib>
@@ -50,15 +52,17 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
 template <typename Pointer>
 inline void delete_s(Pointer p, bool is_array = false)
 {
-	//if (Pointer() != p) {
-		if (is_array) {
-			delete[] p;
-		}
-		else {
-			delete p;
-		}
-		p = Pointer();
-	//}
+#ifdef HAS_BOOST
+	BOOST_STATIC_ASSERT(boost::is_pointer<Pointer>::value);
+#endif // HAS_BOOST
+
+	if (is_array) {
+		delete[] p;
+	}
+	else {
+		delete p;
+	}
+	p = Pointer();
 }
 
 /***
@@ -70,7 +74,9 @@ inline void delete_s(Pointer p, bool is_array = false)
 template <typename Pointer>
 inline void free_s(Pointer p)
 {
+#ifdef HAS_BOOST
 	BOOST_STATIC_ASSERT(boost::is_pointer<Pointer>::value);
+#endif // HAS_BOOST
 	std::free(p);
 	p = Pointer();
 }

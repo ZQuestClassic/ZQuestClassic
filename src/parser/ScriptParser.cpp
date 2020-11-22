@@ -47,7 +47,7 @@ void ScriptParser::initialize()
 	CompileOption::initialize();
 }
 
-ScriptsData* ZScript::compile(string const& filename)
+unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
     ScriptParser::initialize();
 
@@ -104,12 +104,12 @@ ScriptsData* ZScript::compile(string const& filename)
 
 	ScriptParser::assemble(id.get());
 
-	ScriptsData* result = new ScriptsData(program);
+	unique_ptr<ScriptsData> result(new ScriptsData(program));
     
 	box_out("Success!");
 	box_eol();
 
-	return result;
+	return unique_ptr<ScriptsData>(result.release());
 }
 
 int ScriptParser::vid = 0;
@@ -220,7 +220,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 	return true;
 }
 
-IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
+unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
 	Scope* scope = &program.getScope();
@@ -232,7 +232,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     
 	//we now have labels for the functions and ids for the global variables.
 	//we can now generate the code to intialize the globals
-	IntermediateData *rval = new IntermediateData(fdata);
+	unique_ptr<IntermediateData> rval(new IntermediateData(fdata));
     
 	// Push 0s for init stack space.
 	/* Why? The stack should already be init'd to all 0, anyway?
@@ -289,10 +289,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		int stackSize = getStackSize(function);
         
 		// Start of the function.
-		Opcode* first = new OSetImmediate(new VarArgument(EXP1),
-		                                  new LiteralArgument(0));
+		unique_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+		                                  new LiteralArgument(0)));
 		first->setLabel(function.getLabel());
-		funccode.push_back(first);
+		funccode.push_back(first.release());
 
 		// Push on the this, if a script
 		if (isRun)
@@ -406,10 +406,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		appendElements(funccode, bo.getResult());
         
 		// Add appendix code.
-		Opcode* next = new OSetImmediate(new VarArgument(EXP2),
-		                                 new LiteralArgument(0));
+		unique_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+												  new LiteralArgument(0)));
 		next->setLabel(bo.getReturnLabelID());
-		funccode.push_back(next);
+		funccode.push_back(next.release());
         
 		// Pop off everything.
 		for (int i = 0; i < stackSize; ++i)
@@ -440,12 +440,12 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     
 	if (failure)
 	{
-		delete rval;
-		return NULL;
+		rval.reset();
+		return unique_ptr<IntermediateData>(rval.release());;
 	}
     
 	//Z_message("yes");
-	return rval;
+	return unique_ptr<IntermediateData>(rval.release());
 }
 
 void ScriptParser::assemble(IntermediateData *id)

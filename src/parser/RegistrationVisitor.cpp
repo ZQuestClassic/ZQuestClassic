@@ -11,11 +11,12 @@
 #include "CompileError.h"
 
 #include "../ffscript.h"
+#include <boost/move/unique_ptr.hpp>
 extern FFScript FFCore;
 using std::string;
 using std::vector;
 using namespace ZScript;
-
+using boost::movelib::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // RegistrationVisitor
 
@@ -281,13 +282,13 @@ void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 	DataType const& type = host.type->resolve(*scope, this);
 	if(!scope->addDataType(host.name, &type, &host))
 	{
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		DataType const* originalType = lookupDataType(*scope, *temp, this, true);
 		if (breakRecursion(host) || !originalType || (*originalType != type))
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-		delete temp;
+		temp.reset();
 	}
 }
 
@@ -296,17 +297,17 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 	if(!host.type)
 	{
 		//Don't allow use of a name that already exists
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-			delete temp;
+			temp.reset();
 			doRegister(host);
 			return;
 		}
-		delete temp;
+		temp.reset();
 		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);

@@ -8,11 +8,12 @@
 #include "Types.h"
 #include "ZScript.h"
 
+#include <boost/move/unique_ptr.hpp>
 
 using namespace ZScript;
 using namespace util;
 using std::set;
-
+using boost::movelib::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // Scope
 

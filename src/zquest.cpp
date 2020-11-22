@@ -25607,7 +25607,7 @@ int onCompileScript()
 			fclose(tempfile);
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-			ZScript::ScriptsData *result = ZScript::compile("tmp");
+			boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
 			unlink("tmp");
 			if ( result )
 			{
@@ -25705,7 +25705,7 @@ int onCompileScript()
 			
 			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
 			std::map<string, disassembled_script_data> scripts = result->theScripts;
-			delete result;
+			result.reset();
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
