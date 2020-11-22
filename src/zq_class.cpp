@@ -1122,8 +1122,21 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
         
-        if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-            rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+        if(combo_class_buf[c.type].water!=0)
+	{
+		
+		if (layer==0 && get_bit(quest_rules, qr_DROWN))
+		{
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+			//al_trace("water, drown\n");
+		}
+		else
+		{
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
+			//al_trace("water, no drown\n");
+		}
+	
+	}
             
         if(c.walk&(1<<i))
         {

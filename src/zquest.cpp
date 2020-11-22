@@ -24812,7 +24812,7 @@ static int zscript_settings_scripts_list[] =
 static int zscript_settings_instructions_list[] =
 {
 	7, 8, 15, 16, 19, 20, 23, 27,
-	28, 29, 30, 40, 41, 42, 43,
+	28, 29, 30, 40, 41, 42, 43, 45,
 	-1
 };
 
@@ -24901,6 +24901,7 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
 	{ jwin_check_proc,      10, 33+150,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
 	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
+	{ jwin_check_proc,      10, 33+160,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
 	// 45
 	
 	
@@ -24919,7 +24920,7 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2, qr_COMBOSCRIPTS_LAYER_3,
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
-	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,
+	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
     -1
 };
 

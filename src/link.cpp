@@ -10020,6 +10020,8 @@ void LinkClass::pitfall()
 			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
 			action=falling; FFCore.setLinkAction(falling);
+			spins = 0;
+			charging = 0;
 		}
 	}
 }
