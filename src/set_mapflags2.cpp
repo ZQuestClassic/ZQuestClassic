@@ -47,6 +47,8 @@ enum mapflagtype
 	MSF_CUSTOM4 = MSF_SCRIPT4,
 	MSF_SCRIPT5,
 	MSF_CUSTOM5 = MSF_SCRIPT5,
+	
+	MSF_DUMMY_8, 
 	MSF_LAST
 	
 	//t.b.a, enemy flags (EFlags)
@@ -68,6 +70,8 @@ enum mapflagtype
 
 	
 }
+
+//m->flags&8 IS A DUMMY PROC
 
 void set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 {
@@ -386,7 +390,13 @@ void set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 				m->flags8 |= 16;
 			else flags8 &= ~16;
 			break;
-				
+			
+		//This is a dummy proc, but may have been used at one point in older versions. 
+		case MSF_DUMMY_8:
+			if ( state )
+				m->flags |= 8;
+			else flags &= ~8;
+			break;
 		
 		default: Z_scripterrlog("Illegal flag value (%d) passed to SetMapscreenFlag", flagid);
 	}
@@ -541,6 +551,10 @@ void get_mapscreenflag_state(mapscr *m, int flagid)
 		case MSF_SCRIPT5:
 		case MSF_CUSTOM5:
 			return (m->flags8&16) ? 1 : 0;
+		
+		//This is a dummy proc, but may have been used at one point in older versions. 
+		case MSF_DUMMY_8:
+			return (m->flags&8) ? 1 : 0;
 				
 		
 		default: 
