@@ -69,9 +69,9 @@ enum mapflagtype
 	
 }
 
-void set_mapscreenflag_state(mapscr *m, int flag, bool state)
+void set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 {
-	switch(flag)
+	switch(flagid)
 	{
 		// Room Types
 		case MSF_INTERIOR: 
@@ -178,13 +178,22 @@ void set_mapscreenflag_state(mapscr *m, int flag, bool state)
 				m->flags3 |= 32;
 			else flags3 &= ~32;
 			break;
-			
-			//TODO
+
 		case MSF_DIRECTTIMEDWARPS:
+			if ( state )
+				m->flags4 |= 4;
+			else flags4 &= ~4;
+			break;
+			
 		case MSF_SECRETSISABLETIMEWRP:
+			if ( state )
+				m->flags4 |= 8;
+			else flags4 &= ~8;
+			break;
 		case MSF_RANDOMTIMEDWARP:
-		
-			//TODO 
+			if ( state )
+				m->flags5 |= 1;
+			else flags5 &= ~1;
 			break;
 		
 		// Item
@@ -199,11 +208,18 @@ void set_mapscreenflag_state(mapscr *m, int flag, bool state)
 			else flags7 &= ~64;
 			break;
 			
-			//TODO
 		case MSF_HOLDUP:
-		case MSF_FALLS:
-			//TODO 
+			if ( state )
+				m->flags3 |= 1;
+			else flags3 &= ~1;
 			break;
+			
+		case MSF_FALLS:
+			if ( state )
+				m->flags7 |= 4;
+			else flags7 &= ~4;
+			break;
+			
 			
 		// Combo
 		case MSF_MIDAIR: 
@@ -281,14 +297,37 @@ void set_mapscreenflag_state(mapscr *m, int flag, bool state)
 			break;
 			
 		// Enemies
-			//TODO
-		case MSF_INVISIBLEENEMIES:
 		case MSF_TRAPS_IGNORE_SOLID:
-		case MSF_EMELIESALWAYSRETURN:
-		case MSF_ENEMIES_ITEM:
+			//! May be wrong : Might be 4>>4 : ~4>>4;?
+			if ( state )
+				m->(flags2>>4) |= 4; 
+			else (flags2>>4) &= ~4;
+			break;
 		case MSF_ENEMEIS_SECRET:
+			//! May be wrong : Might be 8>>4 : ~8>>4;?
+			if ( state )
+				m->(flags2>>4) |= 8;
+			else (flags2>>4) &= ~8;
+			break;
+		case MSF_INVISIBLEENEMIES:
+			if ( state )
+				m->flags3 |= 4;
+			else flags3 &= ~4;
+		case MSF_EMELIESALWAYSRETURN:
+			if ( state )
+				m->flags3 |= 128;
+			else flags3 &= ~128;
+			break;
+		case MSF_ENEMIES_ITEM:
+			if ( state )
+				m->flags |= 2;
+			else flags &= ~2;
+			break;
+		
 		case MSF_ENEMIES_SECRET_PERM:
-			//TODO
+			if ( state )
+				m->flags4 |= 16;
+			else flags4 &= ~16;
 			break;
 			
 		// Misc
@@ -309,10 +348,12 @@ void set_mapscreenflag_state(mapscr *m, int flag, bool state)
 			else flags8 &= ~32;
 			break;
 		
-		//TODO
 		case MSF_SFXONENTRY:
+			if ( state )
+				m->flags |= 128;
+			else flags &= ~128;
 			break;
-		//TODO
+		
 			
 		// Custom / Script
 		case MSF_SCRIPT1: 
@@ -347,13 +388,13 @@ void set_mapscreenflag_state(mapscr *m, int flag, bool state)
 			break;
 				
 		
-		default: Z_scripterrlog("Illegal flag value (%d) passed to SetScreenFlags", flag);
+		default: Z_scripterrlog("Illegal flag value (%d) passed to SetMapscreenFlag", flagid);
 	}
 }
 				
-void get_mapscreenflag_state(mapscr *m, int flag)
+void get_mapscreenflag_state(mapscr *m, int flagid)
 {
-	switch(flag)
+	switch(flagid)
 	{
 		// Room Types
 		case MSF_INTERIOR: 
@@ -403,19 +444,19 @@ void get_mapscreenflag_state(mapscr *m, int flag)
 			return (m->flags8&64) ? 1 : 0;
 		case MSF_SPRITECARRY: 
 			return (m->flags3&32) ? 1 : 0;
-		
-		//TODO
 		case MSF_DIRECTTIMEDWARPS:
+			return (m->flags4&4) ? 1 : 0;
 		case MSF_SECRETSISABLETIMEWRP:
+			return (m->flags4&8) ? 1 : 0;
+		
 		case MSF_RANDOMTIMEDWARP:
-			return -2;
-		//TODO
+			return (m->flags5&1) ? 1 : 0;
 			
 		// Item
 		case MSF_HOLDUP: 
 			return (m->flags3&1) ? 1 : 0;
 		case MSF_FALLS: 
-			return (m->flags7&64) ? 1 : 0;
+			return (m->flags7&4) ? 1 : 0;
 		
 		// Combo
 		case MSF_MIDAIR: 
@@ -454,15 +495,23 @@ void get_mapscreenflag_state(mapscr *m, int flag)
 			return (m->flagsy7&128) ? 1 : 0;
 		
 		// Enemies
-			//TODO
-		case MSF_INVISIBLEENEMIES:
 		case MSF_TRAPS_IGNORE_SOLID:
-		case MSF_EMELIESALWAYSRETURN:
-		case MSF_ENEMIES_ITEM:
+			//! May be wrong : Might be 4>>4 : ~4>>4;?
+			return (m->(flags2>>4)&4) ? 1 : 0;
 		case MSF_ENEMEIS_SECRET:
+			//! May be wrong : Might be 8>>4 : ~8>>4;?
+			return (m->(flags2>>4)&8) ? 1 : 0;
+		
 		case MSF_ENEMIES_SECRET_PERM:
-			return -2;
-			//TODO
+			return (m->flags4&16) ? 1 : 0;
+		
+		case MSF_INVISIBLEENEMIES:
+			return (m->flags3&4) ? 1 : 0;
+		case MSF_EMELIESALWAYSRETURN:
+			return (m->flags3&128) ? 1 : 0;
+			
+		case MSF_ENEMIES_ITEM:
+			return (m->flags&2) ? 1 : 0;
 		
 		// Misc
 		case MSF_ALLOW_LADDER: 
@@ -473,10 +522,8 @@ void get_mapscreenflag_state(mapscr *m, int flag)
 		case MSF_LENSEFFECT:
 			return (m->flags8&32) ? 1 : 0;
 		
-		//TODO
 		case MSF_SFXONENTRY:
-			return -2;
-		//TODO
+			return (m->flags&128) ? 1 : 0;
 		
 		//Custom / Script 
 		case MSF_SCRIPT1: 
@@ -498,7 +545,7 @@ void get_mapscreenflag_state(mapscr *m, int flag)
 		
 		default: 
 		{
-			Z_scripterrlog("Illegal flag value (%d) passed to SetScreenFlags", flag);
+			Z_scripterrlog("Illegal flag value (%d) passed to GetMapscreenFlag", flagid);
 			return -1;
 		}
 	}
