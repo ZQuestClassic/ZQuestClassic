@@ -1,3 +1,135 @@
+/*
+	//List of map flags
+
+	// Room Types
+	MSF_INTERIOR
+	flags6&1
+	MSF_DUNGEON
+	flags6&2
+	MSF_SIDEVIEW
+	flags7&8
+
+	// View
+	MSF_INVISLINK
+	flags3&8
+	MSF_NOLINKMARKER
+	flags7&16
+	MSF_NOSUBSCREEN
+	flags3&16
+	MSF_NOOFFSET
+	flags3&64
+	MSF_LAYER2BG
+	lags7&2
+	MSF_LAYER3BG
+	flags7&1
+	MSF_DARKROOM
+	flags&4
+
+	// Secrets
+	MSF_BLOCKSHUT
+	flags&1
+	MSF_TEMPSECRETS
+	flags5&16
+	MSF_TRIGPERM
+	flags6&4
+	MSF_ALLTRIGFLAGS
+	flags6&32
+
+	// Warp
+	MSF_AUTODIRECT
+	flags5&4
+	MSF_SENDSIRECT
+	flags5&8
+	MSF_MAZEPATHS
+	flags&64
+	MSF_MAZEOVERRIDE
+	flags8&64
+	MSF_SPRITECARRY
+	flags3&32
+
+	// Item
+	MSF_HOLDUP
+	flags3&1
+	MSF_FALLS
+	flags7&4
+
+	// Combo
+	MSF_MIDAIR
+	(flags2>>4)&2
+	MSF_CYCLEINIT
+	flags3&2
+	MSF_IGNOREBOOTS
+	flags5&2
+	MSF_TOGGLERINGS
+	flags6&64
+
+	// Save
+	MSF_SAVECONTHERE
+	flags4&64
+	MSF_SAVEONENTRY
+	flags4&128
+	MSF_CONTHERE
+	flags6&8
+	MSF_NOCONTINUEWARP
+	flags6&16
+
+	// FFC
+	MSF_WRAPFFC
+	flags6&128
+	MSF_NOCARRYOVERFFC
+	flags5&128
+
+	// Whistle
+	MSF_STAIRS
+	flags&16
+	MSF_PALCHANGE
+	flags7&64
+	MSF_DRYLAKE
+	flags7&128
+
+	// Misc
+	MSF_ALLOW_LADDER
+	flags&32
+	MSF_NO_DIVING
+	flags5&64
+	MSF_SCRIPT1
+	flags8&1;
+	MSF_SCRIPT2
+	flags8&2;
+	MSF_SCRIPT3
+	flags8&4;
+	MSF_SCRIPT4
+	flags8&16;
+	MSF_SCRIPT5
+	flags8&32;
+	
+	ENEMYFLAGS
+	MSF_SPAWN_ZORA
+	enemyflags&1;
+	MSF_SPAWN_CORNERTRAP
+	enemyflags&2;
+	MSF_SPAWN_MIDDLETRAP
+	enemyflags&4;
+	MSF_SPAWN_ROCK
+	enemyflags&8;
+	MSF_SPAWN_SHOOTER
+	enemyflags&16;
+	f = m->enemyflags&16;
+	
+	MSF_RINGLEADER
+	enemyflags&32
+	MSF_ENEMYHASITEM
+	enemyflags&64
+	MSF_ENEMYISBOSS
+	enemyflags&128
+	
+f = m->enemyflags&2;
+f = m->enemyflags&4;
+f = m->enemyflags&8;
+f = m->enemyflags&16;
+
+*/
+
 enum mapflagtype
 {
 	// Room Types
@@ -31,7 +163,11 @@ enum mapflagtype
 	
 	// Enemies
 	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
-	MSF_ENEMIES_SECRET_PERM,
+	MSF_ENEMIES_SECRET_PERM,  
+	
+		//->enemyflags
+		MSF_SPAWN_ZORA, MSF_SPAWN_CORNERTRAP, MSF_SPAWN_MIDDLETRAP, MSF_SPAWN_ROCK, MSF_SPAWN_SHOOTER,
+		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS, 
 	
 	// Misc
 	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
@@ -50,24 +186,6 @@ enum mapflagtype
 	
 	MSF_DUMMY_8, 
 	MSF_LAST
-	
-	//t.b.a, enemy flags (EFlags)
-	
-	/*
-	case 0:
-		f = m->enemyflags&0x1F;
-		break;
-		
-	case 1:
-		f = ornextflag(m->enemyflags&32) | ornextflag(m->enemyflags&64) | ornextflag(m->flags3&4)
-			| ornextflag(m->enemyflags&128)| ornextflag((m->flags2>>4)&4);
-		break;
-		
-	case 2:
-		f = ornextflag(m->flags3&128)    | ornextflag(m->flags&2)       | ornextflag((m->flags2>>4)&8)
-			| ornextflag(m->flags4&16);
-	*/
-
 	
 }
 
@@ -334,6 +452,48 @@ void set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 			else flags4 &= ~16;
 			break;
 			
+		case MSF_SPAWN_ZORA:
+			if ( state )
+				m->enemyflags |= 1;
+			else m->enemyflags &= ~1;
+			break;
+		case MSF_SPAWN_CORNERTRAP:
+			if ( state )
+				m->enemyflags |= 2;
+			else m->enemyflags &= ~2;
+			break;
+		case MSF_SPAWN_MIDDLETRAP:
+			if ( state )
+				m->enemyflags |= 4;
+			else m->enemyflags &= ~4;
+			break;			
+		case MSF_SPAWN_ROCK:
+			if ( state )
+				m->enemyflags |= 8;
+			else m->enemyflags &= ~8;
+			break;
+		case MSF_SPAWN_SHOOTER:
+			if ( state )
+				m->enemyflags |= 16;
+			else m->enemyflags &= ~16;
+			break;
+			
+		case MSF_RINGLEADER:
+			if ( state )
+				m->enemyflags |= 32;
+			else m->enemyflags &= ~32;
+			break;
+		case MSF_ENEMYHASITEM:
+		if ( state )
+				m->enemyflags |= 64;
+			else m->enemyflags &= ~64;
+			break;
+		case MSF_ENEMYISBOSS:
+			if ( state )
+				m->enemyflags |= 128;
+			else m->enemyflags &= ~128;
+			break;
+
 		// Misc
 		case MSF_ALLOW_LADDER: 
 			if ( state )
@@ -514,6 +674,29 @@ void get_mapscreenflag_state(mapscr *m, int flagid)
 		
 		case MSF_ENEMIES_SECRET_PERM:
 			return (m->flags4&16) ? 1 : 0;
+		
+		case MSF_SPAWN_ZORA:
+			return (m->enemyflags&1) ? 1 : 0;
+			
+		case MSF_SPAWN_CORNERTRAP:
+			return (m->enemyflags&2) ? 1 : 0;
+		
+		case MSF_SPAWN_MIDDLETRAP:
+			return (m->enemyflags&3) ? 1 : 0;
+		
+		case MSF_SPAWN_ROCK:
+			return (m->enemyflags&4) ? 1 : 0;
+		
+		case MSF_SPAWN_SHOOTER:
+			return (m->enemyflags&16) ? 1 : 0;
+		
+		case MSF_RINGLEADER:
+			return (m->enemyflags&32) ? 1 : 0;
+		
+		case MSF_ENEMYHASITEM:
+			return (m->enemyflags&64) ? 1 : 0;
+		case MSF_ENEMYISBOSS:
+			return (m->enemyflags&128) ? 1 : 0;
 		
 		case MSF_INVISIBLEENEMIES:
 			return (m->flags3&4) ? 1 : 0;
