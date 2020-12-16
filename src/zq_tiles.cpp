@@ -19595,17 +19595,24 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
         
     case MSG_LPRESS:
         {
-            int x=gui_mouse_x()-(d->x+2);
-            massRecolorDraggedColor=colors[x/colorWidth];
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				massRecolorDraggedColor=colors[x];
+			}
         }
         break;
         
     case MSG_LRELEASE: // This isn't exactly right, but it'll do...
         if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
         {
-            int x=gui_mouse_x()-(d->x+2);
-            colors[x/colorWidth]=massRecolorDraggedColor;
-            d->flags|=D_DIRTY;
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				colors[x]=massRecolorDraggedColor;
+				d->flags|=D_DIRTY;
+			}
         }
         massRecolorDraggedColor=-1;
         break;
