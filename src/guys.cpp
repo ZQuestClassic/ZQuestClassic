@@ -12198,7 +12198,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	if(dmisc9==e9tARMOS && rand()&1)
 	{
-		step=zslongToFix(dstep*100);
+		step=zslongToFix(dmisc10*100);
 		
 		if(anim==aARMOS4) o_tile+=20;
 	}
