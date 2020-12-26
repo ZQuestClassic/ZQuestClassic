@@ -8121,7 +8121,16 @@ bool LinkClass::startwpn(int itemid)
             paymagiccost(current_item_id(itype_book));
             
         if(bookid != -1)
-            sfx(itemsbuf[bookid].usesound,pan(wx));
+	{
+		if (( itemsbuf[bookid].flags & ITEM_FLAG4 ))
+		{
+			sfx(itemsbuf[bookid].misc2,pan(wx));
+		}
+		else 
+		{
+			sfx(itemsbuf[itemid].usesound,pan(wx));
+		}
+	}
         else
             sfx(itemsbuf[itemid].usesound,pan(wx));
     }
