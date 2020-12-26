@@ -1677,8 +1677,11 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 			
 		// Combo
 		case MSF_MIDAIR: 
-		{
+		{ //FIX ME!
 			//! What the ever love of fuck mate?!
+			/*
+			byte *f2 = &(m->flags2);
+			f2 >>=4;
 			int f = 0;
 			f<<=1;
 			f |= state ? 1:0;
@@ -1687,6 +1690,7 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 			//if ( state )
 			//	(m->flags2>>4) |= 2;
 			//else (m->flags2>>4) &= ~2;
+			*/
 			break;
 		}
 		case MSF_CYCLEINIT: 
