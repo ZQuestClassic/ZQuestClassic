@@ -2540,10 +2540,13 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         {
         case dmOVERW:
         case dmBSOVERW:
-        
-            if(DMaps[get_currdmap()].minimap_1_tile)
+		{
+            int maptile=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
+            int mapcset=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
+            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+            if(maptile)
             {
-                draw_block(dest,x,y,DMaps[get_currdmap()].minimap_1_tile,DMaps[get_currdmap()].minimap_1_cset,5,3);
+                draw_block(dest,x,y,maptile,mapcset,5,3);
             }
             else if(c.new_overworld_map_tile)
             {
@@ -2560,9 +2563,10 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             }
             
             break;
-            
+        }
         case dmDNGN:
         case dmCAVE:
+		{
             int maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
             int mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
@@ -2592,6 +2596,7 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             }
             
             break;
+		}
         }
     }
     

@@ -781,7 +781,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, -1
+	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -801,6 +801,7 @@ static int compatrules[] =
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
+   qr_BROKEN_OVERWORLD_MINIMAP,
 	-1 
 };
 
@@ -852,7 +853,9 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Margins", NULL, NULL },
 	{ jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Frame Width/Height", NULL, NULL },
 	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Bugged ->Next Combos", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
+    // 35
+	{ jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld Minimap Ignores Map Item", NULL, NULL },
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
 int onCompatRules()
