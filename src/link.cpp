@@ -8111,6 +8111,7 @@ bool LinkClass::startwpn(int itemid)
 	    {
 		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->linkedItem = bookid;
+		//magic->dir = this->dir; //Save player dir for special weapons. 
                 Lwpns.add(magic);
 	    }
         if(!(misc_internal_link_flags & LF_PAID_WAND_COST))
