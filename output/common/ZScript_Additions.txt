@@ -3478,7 +3478,7 @@ int ItemY;
 
 int Palette;
 int CSet;
- * ? The screen palette. ?
+ * The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
 
 int TileWarpDMap[4];
  * The destination DMap for each of the four warp types.
