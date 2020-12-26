@@ -6324,7 +6324,7 @@ bool weapon::animate(int index)
 			//Step Speed
 			int tmpstep = (itemsbuf[linkedItem].misc3);
 			//zprint2("initial step: %d\n", tmpstep);
-			this->step =  (zfix)(tmpstep/100.0);
+			this->step =  zslongToFix(tmpstep*100);
 			//zprint2("true step: %d\n", this->step);
 			this->LOADGFX(itemsbuf[linkedItem].wpn3);
 			if ( itemsbuf[linkedItem].wpn > 0 )
