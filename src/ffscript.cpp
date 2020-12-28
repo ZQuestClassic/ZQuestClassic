@@ -38854,7 +38854,11 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->lwpn = Lwpns.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->lwpn = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 void FFScript::do_loadeweapon_by_script_uid(const bool v)
@@ -38866,7 +38870,11 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->ewpn = Lwpns.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->ewpn = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 
@@ -38879,7 +38887,11 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->guyref = guys.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->guyref = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 //Combo Scripts
