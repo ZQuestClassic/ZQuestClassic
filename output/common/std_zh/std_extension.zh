@@ -1,122 +1,89 @@
 //Extended functions for 2.53.0
-//2nd January, 2020
+//28th December, 2020
 
 //A
 
-//Constants for AdjacentCombo()
-//This now uses DIR_* constants, so you can do AdjacentCombo(cmb,Link->Dir)
 //Returns the Nth combo index of a combo based on a central point, and a direction.
 //For example, combo 22 + COMBO_UPRIGHT returns '7', 
 //as combo 7 is to the upper-right of combo 22.
+//Returns -1 on error. 
 int AdjacentCombo(int cmb, int dir)
 {
-	int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
-	if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-	if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
-	if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-	if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return 0; //if the left columb
-	if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return 0; //if the right column
-	if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return 0; //if the top row
-	if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return 0; //if the bottom row
-	else if ( cmb >= 0 && cmb <= 176 ) return cmb + combooffsets[dir];
-	else return -1;
+	int combooffsets[8]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+	if ( cmb < 0 ) return -1;
+	if ( cmb > 176 ) return -1;
+	if ( dir < DIR_UP ) return -1; 
+	if ( dir > DIR_RIGHTDOWN ) return -1; 
+	if ( !(cmb % 16) ) //if the left column
+	{
+		if ( dir == DIR_LEFT ) return -1;
+		if ( dir == DIR_LEFTUP ) return -1;
+		if ( dir == DIR_LEFTDOWN ) return -1;
+	}
+	if ( (cmb & 0xF) == 0xF ) //if the right column
+	{
+		if ( dir == DIR_RIGHT ) return -1;
+		if ( dir == DIR_RIGHTUP ) return -1;
+		if ( dir == DIR_RIGHTDOWN ) return -1;
+	}
+	if ( cmb < 0x10 ) //if the top row
+	{
+		if ( dir == DIR_UP ) return -1;
+		if ( dir == DIR_RIGHTUP ) return -1;
+		if ( dir == DIR_LEFTUP ) return -1;
+	}
+	if ( cmb > 0x9F ) //if it's on the bottom row
+	{
+		if ( dir == DIR_DOWN ) return -1;
+		if ( dir == DIR_RIGHTDOWN ) return -1;
+		if ( dir == DIR_LEFTDOWN ) return -1;
+	}
+	//if we reach here, then all is well
+	return cmb + combooffsets[dir];
 }   
-        
-///One of the following two versions of this function is bugged, and IDR which. -Z (17th January, 2018 )
 
-
-//! rETURNS THE COMBO id OF A COMBO BASED ON A LOCATION, IN A GIVEM DIRECTION, n COMBOS AWAY.
+//As AdjacentCombo(), but 'dist' tile squares away from the position of cmb. 
 int AdjacentCombo(int cmb, int dir, int dist)
 {
-	int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
-	if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-	if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
-	if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-	if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return 0; //if the left columb
-	if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return 0; //if the right column
-	if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return 0; //if the top row
-	if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return 0; //if the bottom row
-	else if ( cmb >= 0 && cmb <= 176 ) 
-	    {
-		int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
-	    
-		for ( cmbs[1] = 0; cmbs[1] < dist; cmbs[1]++ ) 
-		{
-			cmbs[0] = cmb;
-			cmb += (combooffsets[dir]);
-			if ( cmb < 0 || cmb > 175 ) return cmbs[0];
-			if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-			if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
-			if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
-			if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-			if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the left columb
-			if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return cmbs[0]; //if the right column
-			if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the top row
-			if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return cmbs[0]; //if the bottom row
-			
-		}
-		return cmb;
-	}
-	else return -1;
-}   
-
-    ///March 2016
-    
-//Constants for AdjacentCombo()
-//This now uses DIR_* constants, so you can do AdjacentCombo(cmb,Link->Dir)
-//Returns the Nth combo index of a combo based on a central point, and a direction.
-//For example, combo 22 + COMBO_UPRIGHT returns '7', 
-//as combo 7 is to the upper-right of combo 22.
-//dist is the number of combos away from cmb
-
-//! rETURNS THE COMBO id OF A COMBO BASED ON A LOCATION, IN A GIVEM DIRECTION, n COMBOS AWAY.
-int AdjacentCombo2(int cmb, int dir, int dist)
-{
-	int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
-	if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-	if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
-	if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-	if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) {
-	    return 0; //if the left columb
-	}
-	if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) {
-	    return 0; //if the left columb
-	}
-	if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) {
-	    return 0; //if the left columb
-	}
-	if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) {
-	    return 0; //if the left columb
-	}
-	int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
-	    
-	if ( cmb >= 0 && cmb < 176 ) 
+	int combooffsets[8]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+	if ( cmb < 0 ) return -1;
+	if ( cmb > 176 ) return -1;
+	if ( dir < DIR_UP ) return -1; 
+	if ( dir > DIR_RIGHTDOWN ) return -1; 
+	
+	int tmpcmb = cmb;
+	for ( int q = 0; q < dist; ++q )
 	{
-		cmbs[0] = cmb;
-		for ( cmbs[1] = 0; cmbs[1] < dist; ++cmbs[1] ) {
-			if ( dir == DIR_LEFT && ComboX(cmbs[0]) == 0 ) return cmbs[0];
-			if ( dir == DIR_RIGHT && ComboX(cmbs[0]) == 240 ) return cmbs[0];
-			if ( dir == DIR_UP && ComboY(cmbs[0]) == 0 ) return cmbs[0];
-			if ( dir == DIR_DOWN && ComboY(cmbs[0]) == 160 ) return cmbs[0];
-			cmbs[0] += (combooffsets[dir]);
-			if ( cmbs[0] < 0 || cmbs[0] > 175 ) return cmbs[0]; //Did I mean -1 here? -Z
-			if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-			if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
-			if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
-			if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-			if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the left columb
-				//Did I want 0 here? -Z No, these are the last logical position that was valid. 
-			if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return cmbs[0]; //if the right column
-			if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the top row
-			if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return cmbs[0]; //if the bottom row
+		if ( !(tmpcmb % 16) ) //if the left column
+		{
+			if ( dir == DIR_LEFT ) return -1;
+			if ( dir == DIR_LEFTUP ) return -1;
+			if ( dir == DIR_LEFTDOWN ) return -1;
 		}
-		return cmbs[0];
+		if ( (tmpcmb & 0xF) == 0xF ) //if the right column
+		{
+			if ( dir == DIR_RIGHT ) return -1;
+			if ( dir == DIR_RIGHTUP ) return -1;
+			if ( dir == DIR_RIGHTDOWN ) return -1;
+		}
+		if ( tmpcmb < 0x10 ) //if the top row
+		{
+			if ( dir == DIR_UP ) return -1;
+			if ( dir == DIR_RIGHTUP ) return -1;
+			if ( dir == DIR_LEFTUP ) return -1;
+		}
+		if ( tmpcmb > 0x9F ) //if it's on the bottom row
+		{
+			if ( dir == DIR_DOWN ) return -1;
+			if ( dir == DIR_RIGHTDOWN ) return -1;
+			if ( dir == DIR_LEFTDOWN ) return -1;
+		}
+		tmpcmb += combooffsets[dir];
+		
 	}
-	else return -1;
-}  
+	//if we reach here, then all is well
+	return tmpcmb;
+}   
 
 //B
 
@@ -3358,7 +3325,7 @@ void TraceArray(int arr)
 	TraceNL();
 	int _spc[2]=" ";
 	int sz = SizeOfArray(arr);
-	for ( int q = 0; q < sz; --q ) 
+	for ( int q = 0; q < sz; ++q ) 
 	{
 		Trace(arr[q]); TraceS(_spc);
 		if ( q % 10 == 0 ) TraceNL();
@@ -3368,7 +3335,8 @@ void TraceArray(int arr)
 void TraceArray(int arr, bool verbose)
 {
 	int sz = SizeOfArray(arr);
-	if ( verbose ) 	{
+	if ( verbose ) 	
+	{
 		int str[]="Tracing array with Pointer: ";
 		TraceNL(); TraceS(str); Trace(arr); TraceNL();
 
@@ -3380,7 +3348,8 @@ void TraceArray(int arr, bool verbose)
 			TraceNL();
 		}
 	}
-	else {
+	else 
+	{
 		TraceNL();
 		int _spc[2]=" ";
 		for ( int q = 0; q < sz; ++q ) 
@@ -3396,7 +3365,7 @@ void TraceArrayB(bool arr, int size)
 {
 	TraceNL();
 	int _spc[2]=" ";
-	for ( int q = 0; q < size; q++ ) 
+	for ( int q = 0; q < size; ++q ) 
 	{
 		TraceB(arr[q]); TraceS(_spc);
 		if ( q % 10 == 0 ) TraceNL();
@@ -3407,14 +3376,15 @@ void TraceArrayB(bool arr, int size)
 //Trace the indices of a Boolean array, allows verbose logging.
 void TraceArrayB(bool arr, int size, bool verbose)
 {
-	if ( verbose ) {
+	if ( verbose ) 
+	{
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
 		//int str[]="Tracing array with Pointer: ";
 		int str[]="Tracing Boolean Array: ";
 		TraceNL(); TraceS(str); TraceNL();
 		
 		int _spc[2]=" ";
-		for ( int q = 0; q < size; q++ ) 
+		for ( int q = 0; q < size; ++q ) 
 		{
 			int str2[]="Index: ";
 			int str3[]="is : ";
@@ -3422,10 +3392,11 @@ void TraceArrayB(bool arr, int size, bool verbose)
 			TraceNL();
 		}
 	}
-	else {
+	else 
+	{
 		TraceNL();
 		int _spc[2]=" ";
-		for ( int q = 0; q < size; q++ ) {
+		for ( int q = 0; q < size; ++q ) {
 			TraceB(arr[q]); TraceS(_spc);
 			if ( q % 10 == 0 ) TraceNL();
 		}	
