@@ -2256,6 +2256,34 @@ int HitboxTop(ffc a)
 
 //I
 
+//Returns if a layer is set as a background layer for the 
+//current screen.
+bool IsBackgroundLayer(int layer)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
+		case 3:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
+		default: return false;
+	}
+}
+
+//Returns if a layer is set as a background layer for a 
+//mapdata pointer.
+bool IsBackgroundLayer(int layer)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
+		case 3:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
+		default: return false;
+	}
+}
+
 //Returns the correct offset to be 'dist' pixels away from the front of a sprite facing in the direction 'dir'
 int InFrontX(int dir, int dist) 
 {
