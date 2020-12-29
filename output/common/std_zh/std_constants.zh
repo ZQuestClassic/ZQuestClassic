@@ -2439,13 +2439,13 @@ const int SIDEWARP_D		= 3;
 //Values : Game->GameOverScreen[20]
 const int GOS_BACKGROUND		= 0;
 const int GOS_TEXT_COLOUR		= 1;
-const int GOS_CUSRSOR_TILE		= 2;
+const int GOS_CURSOR_TILE		= 2;
 const int GOS_CURSOR_CSET		= 3;
 const int GOS_CURSOR_SOUND  		= 4;
 const int GOS_TEXT_CONTINUE_COLOUR	= 5;
 const int GOS_TEXT_SAVE_COLOUR		= 6;
 const int GOS_TEXT_RETRY_COLOUR		= 7;
-const int GOS_EXT_CONTINUE_FLASH	= 8;
+const int GOS_TEXT_CONTINUE_FLASH	= 8;
 const int GOS_TEXT_SAVE_FLASH		= 9;
 const int GOS_TEXT_RETRY_FLASH		= 10;
 const int GOS_MIDI 			= 11;
