@@ -233,7 +233,7 @@ static int weapon_eweapon_rules_tab[] =
 
 static int weapon_lweapon_rules_tab[] =
 {
-	//6
+	9,
     -1
 };
 
@@ -269,13 +269,14 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Unique Sprites for Custom EWeapons", NULL, NULL },
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Angular Reflected Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Mirrors Use Weapon Centre for Collision", NULL, NULL },
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int weaponrules[] =
 {
-   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE,
+   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
     -1
 };
 
@@ -439,6 +440,7 @@ static DIALOG itemrules_dlg[] =
 	{ jwin_check_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
 	{ jwin_check_proc,      10, 21+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reroll Useless Drops", NULL, NULL },
 	{ jwin_check_proc,      10, 21+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Ignore Sideview Platforms", NULL, NULL },
+	//{ jwin_check_proc,      10, 21+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
    
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
