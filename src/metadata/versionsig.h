@@ -7,7 +7,7 @@
 
 
 #define V_ZC_FIRST 2
-#define V_ZC_SECOND 56
+#define V_ZC_SECOND 55
 #define V_ZC_THIRD 0
 //alpha id
 #define V_ZC_FOURTH 0
