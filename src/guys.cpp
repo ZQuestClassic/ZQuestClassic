@@ -3741,7 +3741,7 @@ int enemy::resolveEnemyDefence(weapon *w)
 // 1: takehit returns 1
 // -1: do damage
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
-int enemy::defendNew(int wpnId, int *power, int edef)
+int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set return on brangs and hookshots
 {
 	int tempx = x;
 	int tempy = y;
@@ -4567,7 +4567,12 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	}
 	
 	case edSTUNORCHINK:
-		if(*power <= 0)
+		if (stunclk && get_bit(quest_rules, qr_NO_STUNLOCK))
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			return 1;
+		}
+		else if(*power <= 0)
 		{
 		//al_trace("defendNew() is at: %s\n", "returning edSTUNORCHINK");
 			sfx(WAV_CHINK,pan(int(x)));
@@ -4575,19 +4580,33 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		}
 		
 	case edSTUNORIGNORE:
-		if(*power <= 0)
+		if (stunclk && get_bit(quest_rules, qr_NO_STUNLOCK))
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			return 1;
+		}
+		else if(*power <= 0)
 			return 0;
 			
 	case edSTUNONLY:
-		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159){
-		//al_trace("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
-	   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
+		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
+		{
+			//al_trace("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
+		   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
+				return 1;
+		}
+		if (stunclk && get_bit(quest_rules, qr_NO_STUNLOCK))
+		{
+			sfx(WAV_CHINK,pan(int(x)));
 			return 1;
-	}
-		stunclk=160;
-	sfx(WAV_EHIT,pan(int(x)));
-		
-		return 1;
+		}
+		else
+		{
+			stunclk=160;
+			sfx(WAV_EHIT,pan(int(x)));
+			
+			return 1;
+		}
 		
 	case edCHINKL1:
 		if(*power >= 1*DAMAGE_MULTIPLIER) break;
@@ -4678,7 +4697,22 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	case edHALFDAMAGE:
 		*power = zc_max(1,*power/2);
 		break;
+	
+	case 0:
+	{
+		if (stunclk && get_bit(quest_rules, qr_NO_STUNLOCK) && *power == 0)
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			return 1;
+		}
+		
 	}
+		
+	
+	
+	}
+	
+	
 	
 	return -1;
 }
