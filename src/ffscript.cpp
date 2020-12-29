@@ -15281,9 +15281,8 @@ void set_register(const long arg, const long value)
 		{
 			long colour = value/10000;
 			int index = ri->d[0]/10000;
-			index = vbound(index,0,11);
-			al_trace("GameOverScreen Index: %d/n",index);
-			al_trace("GameOverScreen Value: %ld/n",colour);
+			index = vbound(index,0,SAVESC_LAST-1);
+			zprint("GameOverScreen Index,Value: %d,%ld/n",index,colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -15292,6 +15291,7 @@ void set_register(const long arg, const long value)
 		{
 			long arrayptr = value/10000;
 			int index = ri->d[0]/10000;
+			index = vbound(index,0,SAVESC_END-1);
 			string filename_str;
 			ArrayH::getString(arrayptr, filename_str, 73);
 			ChangeSubscreenText(index,filename_str.c_str());

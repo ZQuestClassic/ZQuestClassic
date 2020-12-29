@@ -597,10 +597,16 @@ volatile int framecnt=0;
 volatile int myvsync=0;
 
 
-//enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
-//SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MIDI
-//SAVESC_CUR_FLIP, SAVSC_TEXT_DONTSAVE_COLOUR, SAVESC_TEXT_SAVEQUIT_COLOUR, SAVESC_TEXT_SAVE2_COLOUR, 
-//	SAVESC_TEXT_QUIT_COLOUR, SAVESC_EXTRA1, SAVESC_EXTRA2};
+/*
+enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
+	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR, 
+	SAVESC_TEXT_SAVE_COLOUR, 	SAVESC_TEXT_RETRY_COLOUR, 	SAVESC_TEXT_CONTINUE_FLASH, 
+	SAVESC_TEXT_SAVE_FLASH, 	SAVESC_TEXT_RETRY_FLASH,	SAVESC_MIDI,
+	SAVESC_CUR_FLIP, 		    SAVESC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR, 
+	SAVESC_TEXT_SAVE2_COLOUR, 	SAVESC_TEXT_QUIT_COLOUR, 	SAVESC_TEXT_DONTSAVE_FLASH,
+	SAVESC_TEXT_SAVEQUIT_FLASH,	SAVESC_TEXT_SAVE2_FLASH, 	SAVESC_TEXT_QUIT_FLASH,
+	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,			
+	SAVESC_LAST	}; */
 #define SAVESC_DEF_TILE 2
 long SaveScreenSettings[24] = {
 	BLACK, 			WHITE, 			SAVESC_DEF_TILE, 
@@ -612,6 +618,34 @@ long SaveScreenSettings[24] = {
 	QMisc.colors.caption,	QMisc.colors.caption,	QMisc.colors.caption,
 	0, 			0, 			0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
 char SaveScreenText[7][32]={"CONTINUE", "SAVE", "RETRY", "DON'T SAVE", "SAVE AND QUIT", "SAVE", "QUIT" };
+
+void ResetSaveScreenSettings()
+{
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_MIDI] = ZC_MIDI_GAMEOVER;
+	SaveScreenSettings[SAVESC_BACKGROUND] = BLACK;
+	SaveScreenSettings[SAVESC_TEXT] = WHITE;
+	SaveScreenSettings[SAVESC_USETILE] = SAVESC_DEF_TILE;
+	SaveScreenSettings[SAVESC_CURSOR_CSET] = 1;
+	SaveScreenSettings[SAVESC_CUR_SOUND] =  WAV_CHINK;
+	SaveScreenSettings[SAVESC_CUR_FLIP] = 0;
+	SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_EXTRA1] = 0;
+	SaveScreenSettings[SAVESC_EXTRA2] = 0;
+	SaveScreenSettings[SAVESC_EXTRA3] = 0;
+}
 
 void SetSaveScreenSetting(int indx, int value)
 {
@@ -650,6 +684,36 @@ void SetSaveScreenSetting(int indx, int value)
 		case SAVESC_TEXT_RETRY_FLASH:
 			SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = vbound(value,0,255);
 			break;
+		case SAVESC_MIDI:
+			SaveScreenSettings[SAVESC_MIDI] = vbound(value,0,255);
+			break;
+		case SAVESC_CUR_FLIP:
+			SaveScreenSettings[SAVESC_CUR_FLIP] = vbound(value,0,3);
+			break;
+		case SAVESC_TEXT_DONTSAVE_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVEQUIT_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE2_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_QUIT_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_DONTSAVE_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVEQUIT_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE2_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_QUIT_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] = vbound(value,0,255);
+			break;
 		default: break;
 	}
 }
@@ -657,6 +721,7 @@ void SetSaveScreenSetting(int indx, int value)
 
 void ChangeSubscreenText(int index, const char *f)
 {
+	index = vbound(index, 0, SAVESC_END-1);
 	strncpy(SaveScreenText[index], f, 31);
 	SaveScreenText[index][32]='\0';
 }
@@ -1895,12 +1960,6 @@ int init_game()
     if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
     //zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
     
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption; 
     
     for(int x = 0; x < MAXITEMS; x++)
     {
@@ -1929,6 +1988,7 @@ int init_game()
     game->Copy(saves[currgame]);
     flushItemCache();
     
+	ResetSaveScreenSettings();
     
 //Load the quest
     //setPackfilePassword(datapwd);
