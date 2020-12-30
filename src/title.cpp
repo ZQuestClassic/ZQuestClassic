@@ -4031,11 +4031,11 @@ void game_over(int type)
 	//}
 	
 	if(Quit==qGAMEOVER)
-		jukebox(SaveScreenSettings[SAVESC_MIDI]);
+		jukebox(SaveScreenSettings[SAVESC_MIDI] + (ZC_MIDI_COUNT - 1));
 		
 	Quit=0;
 	
-	clear_bitmap(framebuf);
+	clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 	//  text_mode(-1);
 	
 	//Setting the colour via the array isn't working. Perhaps misc colours need to be assigned to the array in init.
@@ -4128,8 +4128,8 @@ void game_over(int type)
 			}
 		}
 		
-		rectfill(framebuf,72,72,79,127,0);
-		puttile8(framebuf,htile,72,pos*(type?12:24)+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
+		rectfill(framebuf,72,72,79,127,SaveScreenSettings[SAVESC_BACKGROUND]);
+		overtile8(framebuf,htile,72,pos*(type?12:24)+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
 		advanceframe(true);
 	}
 	while(!Quit && !done);
@@ -4240,7 +4240,7 @@ bool save_game(bool savepoint, int type)
 		int pos = 0;
 		int f=-1;
 		bool done2=false;
-		clear_bitmap(framebuf);
+		clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 		
 		//  text_mode(-1);
 		if(type)
@@ -4316,8 +4316,8 @@ bool save_game(bool savepoint, int type)
 				}
 			}
 			
-			rectfill(framebuf,72,72,79,127,0);
-			puttile8(framebuf,htile,72,pos*24+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
+			rectfill(framebuf,72,72,79,127,SaveScreenSettings[SAVESC_BACKGROUND]);
+			overtile8(framebuf,htile,72,pos*24+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
 			advanceframe(true);
 		}
 		while(!Quit && !done2);
