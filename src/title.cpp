@@ -4021,7 +4021,8 @@ void game_over(int type)
 	FFCore.skip_ending_credits = 0;
 	kill_sfx();
 	music_stop();
-	clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
+	clear_bitmap(screen);
+	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
 	//if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
@@ -4225,7 +4226,8 @@ bool save_game(bool savepoint, int type)
 {
 	kill_sfx();
 	//music_stop();
-	clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
+	clear_bitmap(screen);
+	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
 	//  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
@@ -4373,7 +4375,7 @@ bool save_game(bool savepoint, int type)
 			
 			if(pos==2)
 			{
-				clear_bitmap(framebuf);
+				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				//  text_mode(-1);
 				textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				textout_ex(framebuf,zfont,"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
