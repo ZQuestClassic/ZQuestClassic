@@ -609,6 +609,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0, 1);
 	set_bit(quest_rules, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, 1);
 	set_bit(quest_rules, qr_FFCSCROLL, 1);
+	set_bit(quest_rules, qr_GREATER_MAX_TIME, 1);
 	/* currently bugged: wBrang Lv2 and above. --I think we fixed this? -Z 8th Feb, 2020 */
 	set_bit(quest_rules, qr_WEAPONS_EXTRA_FRAME, 1);
 	set_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP, 1);
