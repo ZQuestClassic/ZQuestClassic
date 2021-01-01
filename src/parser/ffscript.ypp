@@ -1223,13 +1223,13 @@ Identifier :
 	;
 
 Expr_3_Call :
-	Expr_3 LPAREN RPAREN {
+	Identifier_List LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Expr_3 LPAREN Expr_3_Call_Parameters RPAREN {
+	| Identifier_List LPAREN Expr_3_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
