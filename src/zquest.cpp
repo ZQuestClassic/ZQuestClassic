@@ -24035,8 +24035,8 @@ int onEditSFX(int index)
 			//change spaces to dashes for f/s safety
 			for ( int q = 0; q < 36; ++q )
 			{
-				if(tempname[q] == 32) //SPACE
-					tempname[q] = 45;
+				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
+					tempname[q] = 45; //becomes hyphen
 			}
 			
 			strcpy(temppath,tempname);
