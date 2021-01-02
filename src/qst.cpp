@@ -98,7 +98,7 @@ const char *qst_error[] =
     "Version not supported","Obsolete version",
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
-    "Doesn't match saved game", "New quest version; please restart game",
+    "Doesn't match saved game", "Save file is for older version of quest; please start new save",
     "Out of memory", "File Debug Mode"
 };
 
