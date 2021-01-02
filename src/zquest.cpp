@@ -24804,31 +24804,41 @@ void showScriptInfo(zasm_meta const* meta)
 
 static int zscript_settings_scripts_list[] =
 {
-	6, 18, 22, 25, 26, 31, 32,
-	33, 34, 35, 36, 37, 38, 44,
+	7, 19, 23, 26, 27, 32, 33,
+	34, 35, 36, 37, 38, 39, 45,
 	-1
 };
 
-static int zscript_settings_instructions_list[] =
+static int zscript_settings_instructions[] =
 {
-	7, 8, 15, 16, 19, 20, 23, 27,
-	28, 29, 30, 40, 41, 42, 43, 45,
+	6,
+	-1
+};
+static int zscript_settings_instructions_1[] =
+{
+	8, 9, 16, 17, 20, 21, 24, 28,
+	29, 30, 31, 41, 42, 43,
+	-1
+};
+static int zscript_settings_instructions_2[] =
+{
+	44, 46, 47,
 	-1
 };
 
 static int zscript_settings_objects_list[] =
 {
-	12, 13, 14, 24, -1
+	13, 14, 15, 25, -1
 };
 
 static int zscript_settings_drawing_list[] =
 {
-	9, 11, -1
+	10, 12, -1
 };
 
 static int zscript_settings_bugfixes_list[] =
 {
-	10, 17, 21, 39,
+	11, 18, 22, 40,
 	-1
 };
 
@@ -24836,10 +24846,17 @@ static TABPANEL zscript_settings_tabs[] =
 {
     // (text)
     { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
-    { (char *)" Instructions ",    0,           zscript_settings_instructions_list, 0, NULL },
+    { (char *)" Instructions ",    0,           zscript_settings_instructions, 0, NULL },
     { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
     { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
     { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
+    { NULL,              0,           NULL,             0, NULL }
+};
+static TABPANEL zscript_settings_instructions_tabs[] =
+{
+    // (text)
+    { (char *)" 1 ",     D_SELECTED,  zscript_settings_instructions_1, 0, NULL },
+    { (char *)" 2 ",     0,           zscript_settings_instructions_2, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -24853,56 +24870,59 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
 	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	//6 Subtab (Instructions)
+	{ jwin_tab_proc,         7,   40,   286,  164,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_instructions_tabs, NULL, (void *)zscript_settings_dlg },
 	
-	// rules //6
+	// rules //7
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+	{ jwin_check_proc,      12, 47+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      12, 47+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
 	// 10
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
 	// 15
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
+	{ jwin_check_proc,      12, 47+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
+	{ jwin_check_proc,      12, 47+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
-	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
 	// 20
-	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
+	{ jwin_check_proc,      12, 47+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
+	{ jwin_check_proc,      12, 47+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
 	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
 	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
-	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
+	{ jwin_check_proc,      12, 47+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
 	// 25
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen Script", NULL, NULL },
 	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
-	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
+	{ jwin_check_proc,      12, 47+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
+	{ jwin_check_proc,      12, 47+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
 	// 30
-	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
+	{ jwin_check_proc,      12, 47+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
+	{ jwin_check_proc,      12, 47+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
 	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 0", NULL, NULL },
 	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 1", NULL, NULL },
 	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 2", NULL, NULL },
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
 	// 35
+	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
 	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
 	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
 	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
 	// 40
-	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
-	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
-	{ jwin_check_proc,      10, 33+150,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
-	{ jwin_check_proc,      10, 33+160,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
+	{ jwin_check_proc,      12, 47+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
+	{ jwin_check_proc,      12, 47+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
+	{ jwin_check_proc,      12, 47+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
+	{ jwin_check_proc,      12, 47+10,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
 	// 45
+	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
+	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
+	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -24921,6 +24941,7 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
 	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
+	qr_LOG_INVALID_UID_LOAD,
     -1
 };
 
@@ -28641,6 +28662,7 @@ static DIALOG sfx_edit_dlg[] =
     { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -28879,6 +28901,62 @@ int onSelectSFX()
     return D_O_K;
 }
 
+bool saveWAV(int slot, const char *filename)
+{
+    if (slot < 1 || slot >= 511 )
+        return false;
+
+    if (customsfxdata[slot].data == NULL)
+	return false;
+    
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs)
+        return false;
+    ofs.write("RIFF",4);
+    int32_t samplerate = customsfxdata[slot].freq;
+    int16_t channels = customsfxdata[slot].stereo ? 2 : 1;
+    int32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
+    int32_t size = 36 + datalen;
+    ofs.write((char *)&size, 4);
+    ofs.write("WAVE", 4);
+    ofs.write("fmt ", 4);
+    int32_t fmtlen = 16;
+    ofs.write((char *)&fmtlen, 4);
+    int16_t type = 1;
+    ofs.write((char *)&type, 2);
+    ofs.write((char *)&channels, 2);
+    ofs.write((char *)&samplerate, 4);
+    int32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
+    ofs.write((char *)&bytespersec, 4);
+    int16_t blockalign = channels*customsfxdata[slot].bits / 8;
+    ofs.write((char *)&blockalign, 2);
+    int16_t bitspersample = customsfxdata[slot].bits;
+    ofs.write((char *)&bitspersample, 2);
+    ofs.write("data", 4);
+    ofs.write((char *)&datalen, 4);
+    if (bitspersample == 8)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            char data = ((char *)customsfxdata[slot].data)[i];
+            data ^= 0x80;
+            ofs.write(&data, 1);
+        }
+    }
+    else if (bitspersample == 16)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            int16_t data = ((int16_t *)customsfxdata[slot].data)[i];
+            data ^= 0x8000;
+            ofs.write((char *)&data, 2);
+        }
+    }
+    else
+        return false;
+    return !!ofs;
+} 
+
 int onEditSFX(int index)
 {
     kill_sfx();
@@ -28907,92 +28985,137 @@ int onEditSFX(int index)
         
         switch(ret)
         {
-        case 1:
-            saved= false;
-            kill_sfx();
-            change_sfx(&customsfxdata[index],&templist[index]);
-            set_bit(customsfxflag,index-1,tempflag);
-            strcpy(sfx_string[index], name);
-            
-        case 2:
-        case 0:
-            // Fall Through
-            kill_sfx();
-            
-            for(int i=1; i<WAV_COUNT; i++)
-            {
-                if(templist[i].data != NULL)
-                {
-                    zc_free(templist[i].data);
-                    templist[i].data = NULL;
-                }
-            }
-            
-            break;
-            
-        case 3:
-            if(getname("Open .WAV file", "wav", NULL,temppath, true))
-            {
-                SAMPLE * temp_sample;
-                
-                if((temp_sample = load_wav(temppath))==NULL)
-                {
-                    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
-                }
-                else
-                {
-                    char sfxtitle[36];
-                    char *t = get_filename(temppath);
-                    int j;
-                    
-                    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-                    {
-                        sfxtitle[j]=t[j];
-                    }
-                    
-                    sfxtitle[j]=0;
-                    strcpy(name,sfxtitle);
-                    kill_sfx();
-                    change_sfx(&templist[index], temp_sample);
-                    destroy_sample(temp_sample);
-                    tempflag = 1;
-                }
-            }
-            
-            break;
-            
-        case 4:
-        {
-            kill_sfx();
-            
-            if(templist[index].data != NULL)
-            {
-                sfx(index, 128, false,true);
-            }
-        }
-        break;
-        
-        case 5:
-            kill_sfx();
-            break;
-            
-        case 6:
-            kill_sfx();
-            
-            if(index < WAV_COUNT)
-            {
-                SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-                change_sfx(&templist[index], temp_sample);
-                tempflag = 0;
-                sprintf(name,"s%03d", index);
-                
-                if(index <Z35)
-                {
-                    strcpy(name, old_sfx_string[index-1]);
-                }
-            }
-            
-            break;
+		case 1:
+		    saved= false;
+		    kill_sfx();
+		    change_sfx(&customsfxdata[index],&templist[index]);
+		    set_bit(customsfxflag,index-1,tempflag);
+		    strcpy(sfx_string[index], name);
+		    
+		case 2:
+		case 0:
+		    // Fall Through
+		    kill_sfx();
+		    
+		    for(int i=1; i<WAV_COUNT; i++)
+		    {
+			if(templist[i].data != NULL)
+			{
+			    zc_free(templist[i].data);
+			    templist[i].data = NULL;
+			}
+		    }
+		    
+		    break;
+		    
+		case 3:
+		    if(getname("Open .WAV file", "wav", NULL,temppath, true))
+		    {
+			SAMPLE * temp_sample;
+			
+			if((temp_sample = load_wav(temppath))==NULL)
+			{
+			    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+			}
+			else
+			{
+			    char sfxtitle[36];
+			    char *t = get_filename(temppath);
+			    int j;
+			    
+			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
+			    {
+				sfxtitle[j]=t[j];
+			    }
+			    
+			    sfxtitle[j]=0;
+			    strcpy(name,sfxtitle);
+			    kill_sfx();
+			    change_sfx(&templist[index], temp_sample);
+			    destroy_sample(temp_sample);
+			    tempflag = 1;
+			}
+		    }
+		    
+		    break;
+		    
+		case 4:
+		{
+		    kill_sfx();
+		    
+		    if(templist[index].data != NULL)
+		    {
+			sfx(index, 128, false,true);
+		    }
+		}
+		break;
+		
+		case 5:
+		    kill_sfx();
+		    break;
+		    
+		case 6:
+		    kill_sfx();
+		    
+		    if(index < WAV_COUNT)
+		    {
+			SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
+			change_sfx(&templist[index], temp_sample);
+			tempflag = 0;
+			sprintf(name,"s%03d", index);
+			
+			if(index <Z35)
+			{
+			    strcpy(name, old_sfx_string[index-1]);
+			}
+		    }
+		    
+		    break;
+		    
+	    
+		case 10:
+		{
+			memset(temppath, 0, sizeof(temppath));
+			char tempname[36];
+			strcpy(tempname,sfx_string[index]);
+			//change spaces to dashes for f/s safety
+			for ( int q = 0; q < 36; ++q )
+			{
+				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
+					tempname[q] = 45; //becomes hyphen
+			}
+			
+			tempname[35] = 0;
+			
+			strcpy(temppath,tempname);
+			
+			//zprint2("temppath is: %s\n", temppath);
+			//zprint2("tempname is: %s\n", tempname);
+			//save
+			if(templist[index].data != NULL)
+			{
+				if (getname("Save .WAV file", "wav", NULL, temppath, true))
+				{
+					if(!saveWAV(index, temppath))
+					{
+						jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+					}
+					else 
+					{
+						jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						
+					}
+				}
+				
+			}
+			else 
+			{
+				jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				
+			}		
+			break;
+		}
+	
         }
     }
     while(ret>2);

@@ -6313,14 +6313,31 @@ bool weapon::animate(int index)
         case wRefMagic:
     case wMagic:
     {
+	    
+	if (this->isLWeapon && (unsigned)linkedItem > 0 )
+	{
+		//using a book with magic
+		if ( ((unsigned)itemsbuf[linkedItem].flags&ITEM_FLAG6) > 0 && ((unsigned)itemsbuf[linkedItem].useweapon) < 128 )
+		{
+			//change id
+			this->id = itemsbuf[linkedItem].useweapon;
+			//Step Speed
+			int tmpstep = (itemsbuf[linkedItem].misc3);
+			//zprint2("initial step: %d\n", tmpstep);
+			this->step =  zslongToFix(tmpstep*100);
+			//zprint2("true step: %d\n", this->step);
+			this->LOADGFX(itemsbuf[linkedItem].wpn3);
+			if ( itemsbuf[linkedItem].wpn > 0 )
+				this->power = itemsbuf[linkedItem].wpn;
+			
+		}
+	}
+			    
         if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
         
         if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
         
         if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-	
-	    
-	
        
 	//Create an ER to use this in older quests -V
 	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )

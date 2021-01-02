@@ -8111,6 +8111,7 @@ bool LinkClass::startwpn(int itemid)
 	    {
 		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->linkedItem = bookid;
+		//magic->dir = this->dir; //Save player dir for special weapons. 
                 Lwpns.add(magic);
 	    }
         if(!(misc_internal_link_flags & LF_PAID_WAND_COST))
@@ -8121,7 +8122,16 @@ bool LinkClass::startwpn(int itemid)
             paymagiccost(current_item_id(itype_book));
             
         if(bookid != -1)
-            sfx(itemsbuf[bookid].usesound,pan(wx));
+	{
+		if (( itemsbuf[bookid].flags & ITEM_FLAG4 ))
+		{
+			sfx(itemsbuf[bookid].misc2,pan(wx));
+		}
+		else 
+		{
+			sfx(itemsbuf[itemid].usesound,pan(wx));
+		}
+	}
         else
             sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -23654,14 +23664,19 @@ void LinkClass::heroDeathAnimation()
 		
 		else if(f<350)//draw 'GAME OVER' text
 		{
-			clear_bitmap(framebuf);
-			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 			if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
 			{
 				Quit = qRELOAD;
-				skipcont = 1;	
-			}				
-			else textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
+				skipcont = 1;
+				clear_bitmap(framebuf);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			}
+			else
+			{
+				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);
+			}
 		}
 		else
 		{

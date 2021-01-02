@@ -4924,8 +4924,10 @@ bool CheatModifierKeys()
     return false;
 }
 
-// 99*360 + 59*60
-#define MAXTIME  21405240
+//99:05:54, for some reason?
+#define OLDMAXTIME  21405240
+//9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
+#define MAXTIME     1944000000
 
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
@@ -4965,7 +4967,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
     if(Quit)
         return;
         
-    if(Playing && game->get_time()<MAXTIME)
+    if(Playing && game->get_time()<(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
         game->change_time(1);
         
     Advance=false;

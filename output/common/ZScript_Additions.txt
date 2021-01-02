@@ -3478,7 +3478,7 @@ int ItemY;
 
 int Palette;
 int CSet;
- * ? The screen palette. ?
+ * The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
 
 int TileWarpDMap[4];
  * The destination DMap for each of the four warp types.
@@ -5427,7 +5427,7 @@ int LensLayer;
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.
  * These represent S.Flags1 and S.Flags2 flags.
- * See std_constants.zh (SFG* for the screen flag froup, 
+ * See std_constants.zh (SFG* for the screen flag group, 
  *	and SFX* for the screen flag value) for more information. 
 	
 int D[8];

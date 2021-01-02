@@ -122,7 +122,7 @@ const char *qst_error[] =
     "Version not supported","Obsolete version",
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
-    "Doesn't match saved game", "New quest version; please restart game",
+    "Doesn't match saved game", "Save file is for older version of quest; please start new save",
     "Out of memory", "File Debug Mode"
 };
 
@@ -3189,6 +3189,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
 		set_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 53) )
+	{
+		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
 	}
 	
 	//always set

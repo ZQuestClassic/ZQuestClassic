@@ -1948,8 +1948,8 @@ const int DMF_SCRIPT4 			= 0x4000;
 const int DMF_SCRIPT5 			= 0x8000;
 const int DMF_SIDEVIEW 			= 0x10000;
 const int DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
-const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
-const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
+//const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
+//const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
@@ -2439,13 +2439,13 @@ const int SIDEWARP_D		= 3;
 //Values : Game->GameOverScreen[20]
 const int GOS_BACKGROUND		= 0;
 const int GOS_TEXT_COLOUR		= 1;
-const int GOS_CUSRSOR_TILE		= 2;
+const int GOS_CURSOR_TILE		= 2;
 const int GOS_CURSOR_CSET		= 3;
 const int GOS_CURSOR_SOUND  		= 4;
 const int GOS_TEXT_CONTINUE_COLOUR	= 5;
 const int GOS_TEXT_SAVE_COLOUR		= 6;
 const int GOS_TEXT_RETRY_COLOUR		= 7;
-const int GOS_EXT_CONTINUE_FLASH	= 8;
+const int GOS_TEXT_CONTINUE_FLASH	= 8;
 const int GOS_TEXT_SAVE_FLASH		= 9;
 const int GOS_TEXT_RETRY_FLASH		= 10;
 const int GOS_MIDI 			= 11;
