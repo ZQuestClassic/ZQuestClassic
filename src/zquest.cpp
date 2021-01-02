@@ -28985,118 +28985,136 @@ int onEditSFX(int index)
         
         switch(ret)
         {
-        case 1:
-            saved= false;
-            kill_sfx();
-            change_sfx(&customsfxdata[index],&templist[index]);
-            set_bit(customsfxflag,index-1,tempflag);
-            strcpy(sfx_string[index], name);
-            
-        case 2:
-        case 0:
-            // Fall Through
-            kill_sfx();
-            
-            for(int i=1; i<WAV_COUNT; i++)
-            {
-                if(templist[i].data != NULL)
-                {
-                    zc_free(templist[i].data);
-                    templist[i].data = NULL;
-                }
-            }
-            
-            break;
-            
-        case 3:
-            if(getname("Open .WAV file", "wav", NULL,temppath, true))
-            {
-                SAMPLE * temp_sample;
-                
-                if((temp_sample = load_wav(temppath))==NULL)
-                {
-                    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
-                }
-                else
-                {
-                    char sfxtitle[36];
-                    char *t = get_filename(temppath);
-                    int j;
-                    
-                    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-                    {
-                        sfxtitle[j]=t[j];
-                    }
-                    
-                    sfxtitle[j]=0;
-                    strcpy(name,sfxtitle);
-                    kill_sfx();
-                    change_sfx(&templist[index], temp_sample);
-                    destroy_sample(temp_sample);
-                    tempflag = 1;
-                }
-            }
-            
-            break;
-            
-        case 4:
-        {
-            kill_sfx();
-            
-            if(templist[index].data != NULL)
-            {
-                sfx(index, 128, false,true);
-            }
-        }
-        break;
-        
-        case 5:
-            kill_sfx();
-            break;
-            
-        case 6:
-            kill_sfx();
-            
-            if(index < WAV_COUNT)
-            {
-                SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-                change_sfx(&templist[index], temp_sample);
-                tempflag = 0;
-                sprintf(name,"s%03d", index);
-                
-                if(index <Z35)
-                {
-                    strcpy(name, old_sfx_string[index-1]);
-                }
-            }
-            
-            break;
-	    
-	    
-	case 10:
-		//save
-		if(templist[index].data != NULL)
-		{
-			if (getname("Save .WAV file", "wav", NULL, temppath, true))
+		case 1:
+		    saved= false;
+		    kill_sfx();
+		    change_sfx(&customsfxdata[index],&templist[index]);
+		    set_bit(customsfxflag,index-1,tempflag);
+		    strcpy(sfx_string[index], name);
+		    
+		case 2:
+		case 0:
+		    // Fall Through
+		    kill_sfx();
+		    
+		    for(int i=1; i<WAV_COUNT; i++)
+		    {
+			if(templist[i].data != NULL)
 			{
-				if(!saveWAV(index, temppath))
-				{
-					jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-				}
-				else 
-				{
-					jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-					
-				}
+			    zc_free(templist[i].data);
+			    templist[i].data = NULL;
+			}
+		    }
+		    
+		    break;
+		    
+		case 3:
+		    if(getname("Open .WAV file", "wav", NULL,temppath, true))
+		    {
+			SAMPLE * temp_sample;
+			
+			if((temp_sample = load_wav(temppath))==NULL)
+			{
+			    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+			}
+			else
+			{
+			    char sfxtitle[36];
+			    char *t = get_filename(temppath);
+			    int j;
+			    
+			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
+			    {
+				sfxtitle[j]=t[j];
+			    }
+			    
+			    sfxtitle[j]=0;
+			    strcpy(name,sfxtitle);
+			    kill_sfx();
+			    change_sfx(&templist[index], temp_sample);
+			    destroy_sample(temp_sample);
+			    tempflag = 1;
+			}
+		    }
+		    
+		    break;
+		    
+		case 4:
+		{
+		    kill_sfx();
+		    
+		    if(templist[index].data != NULL)
+		    {
+			sfx(index, 128, false,true);
+		    }
+		}
+		break;
+		
+		case 5:
+		    kill_sfx();
+		    break;
+		    
+		case 6:
+		    kill_sfx();
+		    
+		    if(index < WAV_COUNT)
+		    {
+			SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
+			change_sfx(&templist[index], temp_sample);
+			tempflag = 0;
+			sprintf(name,"s%03d", index);
+			
+			if(index <Z35)
+			{
+			    strcpy(name, old_sfx_string[index-1]);
+			}
+		    }
+		    
+		    break;
+		    
+	    
+		case 10:
+		{
+			memset(temppath, 0, sizeof(temppath));
+			char tempname[36];
+			strcpy(tempname,sfx_string[index]);
+			//change spaces to dashes for f/s safety
+			for ( int q = 0; q < 36; ++q )
+			{
+				if(tempname[q] == 32) //SPACE
+					tempname[q] = 45;
 			}
 			
-		}
-		else 
-		{
-			jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+			tempname[35] = 0;
 			
-		}		
-		break;
+			strcpy(temppath,tempname);
+			
+			//zprint2("temppath is: %s\n", temppath);
+			//zprint2("tempname is: %s\n", tempname);
+			//save
+			if(templist[index].data != NULL)
+			{
+				if (getname("Save .WAV file", "wav", NULL, temppath, true))
+				{
+					if(!saveWAV(index, temppath))
+					{
+						jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+					}
+					else 
+					{
+						jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						
+					}
+				}
+				
+			}
+			else 
+			{
+				jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				
+			}		
+			break;
+		}
 	
         }
     }
