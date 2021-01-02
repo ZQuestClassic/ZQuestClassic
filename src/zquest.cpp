@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <fstream>
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -23634,6 +23635,7 @@ static DIALOG sfx_edit_dlg[] =
     { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -23854,6 +23856,62 @@ int onSelectSFX()
     return D_O_K;
 }
 
+bool saveWAV(int slot, const char *filename)
+{
+    if (slot < 1 || slot >= 511 )
+        return false;
+
+    if (customsfxdata[slot].data == NULL)
+	return false;
+    
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs)
+        return false;
+    ofs.write("RIFF",4);
+    int32_t samplerate = customsfxdata[slot].freq;
+    int16_t channels = customsfxdata[slot].stereo ? 2 : 1;
+    int32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
+    int32_t size = 36 + datalen;
+    ofs.write((char *)&size, 4);
+    ofs.write("WAVE", 4);
+    ofs.write("fmt ", 4);
+    int32_t fmtlen = 16;
+    ofs.write((char *)&fmtlen, 4);
+    int16_t type = 1;
+    ofs.write((char *)&type, 2);
+    ofs.write((char *)&channels, 2);
+    ofs.write((char *)&samplerate, 4);
+    int32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
+    ofs.write((char *)&bytespersec, 4);
+    int16_t blockalign = channels*customsfxdata[slot].bits / 8;
+    ofs.write((char *)&blockalign, 2);
+    int16_t bitspersample = customsfxdata[slot].bits;
+    ofs.write((char *)&bitspersample, 2);
+    ofs.write("data", 4);
+    ofs.write((char *)&datalen, 4);
+    if (bitspersample == 8)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            char data = ((char *)customsfxdata[slot].data)[i];
+            data ^= 0x80;
+            ofs.write(&data, 1);
+        }
+    }
+    else if (bitspersample == 16)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            int16_t data = ((int16_t *)customsfxdata[slot].data)[i];
+            data ^= 0x8000;
+            ofs.write((char *)&data, 2);
+        }
+    }
+    else
+        return false;
+    return !!ofs;
+} 
+
 int onEditSFX(int index)
 {
     kill_sfx();
@@ -23968,6 +24026,31 @@ int onEditSFX(int index)
             }
             
             break;
+	    
+	case 10:
+		//save
+		if(templist[index].data != NULL)
+		{
+			if (getname("Save .WAV file", "wav", NULL, temppath, true))
+			{
+				if(!saveWAV(index, temppath))
+				{
+					jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+				}
+				else 
+				{
+					jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+					
+				}
+			}
+			
+		}
+		else 
+		{
+			jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+			
+		}		
+		break;
         }
     }
     while(ret>2);
