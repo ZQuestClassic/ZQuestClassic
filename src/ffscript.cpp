@@ -14153,7 +14153,10 @@ void set_register(const long arg, const long value)
 				DMaps[ID].color = pal;
 
 			if(ID == currdmap)
+			{
 				loadlvlpal(DMaps[ID].color);
+				currcset = DMaps[ID].color;
+			}
 			break;
 		}
 		
@@ -16504,7 +16507,10 @@ void set_register(const long arg, const long value)
 		{
 			DMaps[ri->dmapsref].color= ((word)(value / 10000));
 			if(ri->dmapsref == currdmap)
+			{
 				loadlvlpal(DMaps[ri->dmapsref].color);
+				currcset = DMaps[ri->dmapsref].color;
+			}
 			break;
 		}
 		case DMAPDATAMIDI:	//byte
