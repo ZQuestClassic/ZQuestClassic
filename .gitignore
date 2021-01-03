@@ -31,7 +31,7 @@
 *.hex
 
 # Generated buidl directories
-[Dd]ebug/
+/[Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
