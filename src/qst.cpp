@@ -11150,7 +11150,8 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(keepdata)
             {
-                strcpy(sfx_string[i], tempname);
+		strcpy(sfx_string[i], tempname);
+		sfx_string[i][35] = 0; //Force NULL Termination
             }
         }
     }

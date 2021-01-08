@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 78
-Document Revision: 20th July, 2020
+Document for: 2.55, Alpha 86
+Document Revision: 8th January, 2021
 
 
  __           _   _                 
@@ -3600,15 +3600,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
@@ -5366,15 +5366,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
