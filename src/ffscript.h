@@ -4056,9 +4056,10 @@ enum ASM_DEFINE
 #define DMAPDATASUBINITD			0x13C0
 #define MODULEGETINT			0x13C1
 #define MODULEGETSTR			0x13C2
+#define DMAPDATACHARTED			0x13C3
 
 
-#define NUMVARIABLES         	0x13C3
+#define NUMVARIABLES         	0x13C4
 
 //} End variables
 

@@ -2143,6 +2143,7 @@ script_variable variable_list[]=
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
