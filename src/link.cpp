@@ -9426,6 +9426,39 @@ void LinkClass::do_hopping()
                 }
             }
             
+			//Softlock fix
+			bool foundLand = false;
+			bool foundWater = false;
+			{
+				if(iswater(MAPCOMBO(x,y+(bigHitbox?0:8))))
+					foundWater = true;
+				else foundLand = true;
+				
+				if(iswater(MAPCOMBO(x,y+15)))
+					foundWater = true;
+				else foundLand = true;
+				
+				if(iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8))))
+					foundWater = true;
+				else foundLand = true;
+				
+				if(iswater(MAPCOMBO(x+15,y+15)))
+					foundWater = true;
+				else foundLand = true;
+			}
+            if(foundLand && !foundWater)
+			{
+				hopclk=0;
+				diveclk=0;
+				action=none; FFCore.setLinkAction(none);
+				hopdir=-1;
+			}
+			else if(foundWater && !foundLand)
+			{
+				hopclk=0xFF;
+				diveclk=0;
+				action=swimming; FFCore.setLinkAction(swimming);
+			}
         }
         else
         {
