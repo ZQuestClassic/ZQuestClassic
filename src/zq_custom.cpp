@@ -9699,8 +9699,8 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 overtile16(buf,p[lt_tile]-TILES_PER_ROW,8,0,6,p[lt_flip]); //top middle
                 overtile16(buf,p[lt_tile]-TILES_PER_ROW-(p[lt_flip]?-1:1),-8,0,6,p[lt_flip]); //top left
                 overtile16(buf,p[lt_tile]-TILES_PER_ROW+(p[lt_flip]?-1:1),8+16,0,6,p[lt_flip]); //top right
-                overtile16(buf,p[lt_tile]-(p[lt_flip]?-1:1),-8,18,6,p[lt_flip]); //bottom left
-                overtile16(buf,p[lt_tile]+(p[lt_flip]?-1:1),8+16,18,6,p[lt_flip]); //bottom right
+                overtile16(buf,p[lt_tile]-(p[lt_flip]?-1:1),-8,16,6,p[lt_flip]); //bottom left
+                overtile16(buf,p[lt_tile]+(p[lt_flip]?-1:1),8+16,16,6,p[lt_flip]); //bottom right
                 overtile16(buf,p[lt_tile],8,16,6,p[lt_flip]);              //bottom middle
                 stretch_blit(buf, bigbmp, 0,0, 32, 32, 2, 2, w, h);
                 jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
