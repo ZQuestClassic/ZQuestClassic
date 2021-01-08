@@ -25629,7 +25629,13 @@ int onCompileScript()
 			fclose(tempfile);
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
+			time_t start_compile_time = time(NULL);
 			ZScript::ScriptsData *result = ZScript::compile("tmp");
+			time_t end_compile_time = time(NULL);
+			char buf[256] = {0};
+			sprintf(buf, "Compile took %ld seconds", end_compile_time - start_compile_time);
+			box_out(buf);
+			box_eol();
 			unlink("tmp");
 			if ( result )
 			{
@@ -26856,7 +26862,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
-				
+				time_t start_assign_time = time(NULL);
 				for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
@@ -27337,6 +27343,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				unlink("tmp");
+				time_t end_assign_time = time(NULL);
+				al_trace("Assign Slots took %ld seconds\n", end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
