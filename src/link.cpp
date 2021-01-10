@@ -21121,8 +21121,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 // How much to reduce Link's damage, taking into account various rings.
 int LinkClass::ringpower(int dmg)
 {
-    int divisor = 1;
-	float percentage = 1;
+    double divisor = 1;
+	double percentage = 1;
     int itemid = current_item_id(itype_ring);
     bool usering = false;
     
@@ -21132,11 +21132,15 @@ int LinkClass::ringpower(int dmg)
         paymagiccost(itemid);
 		if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			double perc = itemsbuf[itemid].power/100.0;
+			if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+			percentage *= perc;
 		}
 		else
 		{
-			divisor *= itemsbuf[itemid].power;
+			if(itemsbuf[itemid].power < 0)
+				divisor /= -(itemsbuf[itemid].power);
+			else divisor *= itemsbuf[itemid].power;
 		}
     }
     
@@ -21149,11 +21153,15 @@ int LinkClass::ringpower(int dmg)
         paymagiccost(itemid);
         if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			double perc = itemsbuf[itemid].power/100.0;
+			if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+			percentage *= perc;
 		}
 		else
 		{
-			divisor *= itemsbuf[itemid].power;
+			if(itemsbuf[itemid].power < 0)
+				divisor /= -(itemsbuf[itemid].power);
+			else divisor *= itemsbuf[itemid].power;
 		}
     }
     
@@ -21161,9 +21169,7 @@ int LinkClass::ringpower(int dmg)
     if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
         return 0;
 	
-	if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
-	
-    if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
+    //if ( divisor < 0 ) return dmg * percentage * (divisor*-1); //handle this further up now
     return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
 }
 
