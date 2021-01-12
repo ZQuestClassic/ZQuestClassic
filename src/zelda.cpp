@@ -3534,8 +3534,20 @@ void game_loop()
     
     // freezemsg if message is being printed && qr_MSGFREEZE is on,
     // or if a message is being prepared && qr_MSGDISAPPEAR is on.
+    int tscr=currscr<128?0:1;
+    bool isshop = false;
+    switch(tmpscr[tscr].room)
+    {
+	case rSP_ITEM:                                          // special item
+	case rRP_HC:      					// heart container or red potion
+	case rTAKEONE:                                          // take one
+	case rSHOP:                                             // shop
+		isshop = true;
+		break;
+	default: break;
+    }
     bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-                      && get_bit(quest_rules,qr_MSGFREEZE));
+                      && (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
