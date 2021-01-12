@@ -5390,9 +5390,222 @@ void LinkClass::check_pound_block(weapon *w)
 }
 
 //defend results should match defence types. 
+//RETURN VALUES: 
+// -1 iGNORE WEAPON
+// 0 No effects
+// 1 Effects, weapon is not ignored or removed
 int LinkClass::defend(weapon *w)
 {
-	return 0;
+	switch(defence[w->id])
+	{
+		
+		case edNORMAL: return 1;
+		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
+		{
+			w->power *= 0.5;
+			return 1;
+		}
+		case edQUARTDAMAGE:
+		{
+			w->power *= 0.25;
+			return 1;
+		}
+		case edSTUNONLY:
+		{
+			setStunClock(120);
+			return 1;
+		}
+		case edSTUNORCHINK: // : IMPLEMENTED : If damage > 0, stun instead. Else, bounce off.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+		}
+		case edSTUNORIGNORE: // : IMPLEMENTED : If damage > 0, stun instead. Else, ignore.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				return -1;
+			}
+		}
+		case edCHINKL1: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			if (w->power < 1) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL2: // : IMPLEMENTED : Bounce off unless damage >= 2
+		{
+			if (w->power < 2) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL4: //: IMPLEMENTED : Bounce off unless damage >= 4
+		{
+			if (w->power < 4) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL6: // : IMPLEMENTED : Bounce off unless damage >= 6
+		{
+			if (w->power < 6) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL8: // : IMPLEMENTED : Bounce off unless damage >= 8
+		{
+			if (w->power < 8) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINK: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			w->dead = 0;
+			return -1;
+		}
+		case edIGNOREL1: // : IMPLEMENTED : Ignore unless damage > 1.
+		{
+			if (w->power < 1) 
+			{
+				return -1;
+			}
+			else return 1;
+		}
+		case edIGNORE: // : IMPLEMENTED : Do Nothing
+		{
+			return -1;
+		}
+		case ed1HKO: // : IMPLEMENTED : One-hit knock-out
+		{
+			game->set_life(0);
+			return 1;
+		}
+		case edCHINKL10: //: IMPLEMENTED : If damage is less than 10
+		{
+			if (w->power < 10) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case ed2x: // : IMPLEMENTED : Double damage.
+		{
+			w->power *= 2;
+			return 1;
+		}
+		case ed3x: // : IMPLEMENTED : Triple Damage.
+		{
+			w->power *= 3;
+			return 1;
+		}
+		case ed4x: // : IMPLEMENTED : 4x damage.
+		{
+			w->power *= 4;
+			return 1;
+		}
+		case edHEAL: // : IMPLEMENTED : Gain the weapon damage in HP.
+		{
+			//sfx(WAV_HEAL,pan(int(x)));
+			game->set_life(zc_min(game->get_life()+w->power, game->get_maxlife()));
+			w->dead = 0;
+			return -1;
+		}
+	
+		case edFREEZE: return 1; //Not IMPLEMENTED
+	
+		case edLEVELDAMAGE: //Damage * item level
+		{
+			w->power *= w->family_level;
+			return 1;
+		}
+		case edLEVELREDUCTION: //Damage / item level
+		{
+			if ( w->family_level > 0 ) 
+			{
+				w->power /= w->family_level;
+			}
+			else w->power = 0;
+			return 1;
+		}
+	
+		//edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+		//edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
+		//edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
+		//edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	
+		//edSHOCK, //buzz blob
+	
+	
+		case edBREAKSHIELD: //destroy the player's present shield
+		{
+			w->power = 0;
+			w->dead = 0;
+			int itemid = current_item_id(itype_shield);
+			//sfx(WAV_BREAKSHIELD,pan(int(x)));
+			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
+				game->set_item(itemid, false);
+			//Remove Link's shield
+			return -1; 
+		}
+	
+	
+		
+		default: return 0;
+	}
 }
 
 int LinkClass::EwpnHit()
@@ -5408,6 +5621,7 @@ int LinkClass::EwpnHit()
                 break;
 	    
 	    int defresult = defend(ew);
+	    if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
                 
             if(ew->id==ewWind)
             {
