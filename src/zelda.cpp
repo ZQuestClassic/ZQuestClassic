@@ -912,8 +912,9 @@ int donew_shop_msg(int itmstr, int shopstr)
 	if(msg_onscreen || msg_active)
 			dismissmsg();
 	
-	int tempmsg;
+	int tempmsg = 0;
 	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
+	
 	//Disabling this for now.
 	/*
 	while ( tempmsgnext != 0 )
@@ -944,31 +945,39 @@ int donew_shop_msg(int itmstr, int shopstr)
         clear_bitmap(msg_txt_display_buf);
 	}
         
-    clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     clear_bitmap(msg_txt_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
     clear_bitmap(msg_portrait_bmp_buf);
-    
-	msg_bg(MsgStrings[msgstr]);
-    
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
+	prt_tile=MsgStrings[msgstr].portrait_tile;
+	prt_cset=MsgStrings[msgstr].portrait_cset;
+	prt_x=MsgStrings[msgstr].portrait_x;
+	prt_y=MsgStrings[msgstr].portrait_y;
+	prt_tw=MsgStrings[msgstr].portrait_tw;
+	prt_th=MsgStrings[msgstr].portrait_th;
+    
+    //transparency needs to occur here. -Z
+    msg_bg(MsgStrings[msgstr]);
+    msg_prt();
+    
 	for(int q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = MsgStrings[msgstr].margins[q];
+		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
 	}
     cursor_x=msg_margins[left];
     cursor_y=msg_margins[up];
-    return tempmsgnext;
+	return tempmsgnext;
 }
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
 {
