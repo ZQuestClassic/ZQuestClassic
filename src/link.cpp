@@ -21118,59 +21118,112 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 	}
 }
 
+
+
 // How much to reduce Link's damage, taking into account various rings.
 int LinkClass::ringpower(int dmg)
 {
-    double divisor = 1;
-	double percentage = 1;
-    int itemid = current_item_id(itype_ring);
-    bool usering = false;
+	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
+	{
+		int divisor = 1;
+		float percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
     
-    if(itemid>-1)  // current_item_id checks magic cost for rings
-    {
-        usering = true;
-        paymagiccost(itemid);
-		if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1)  // current_item_id checks magic cost for rings
 		{
-			double perc = itemsbuf[itemid].power/100.0;
-			if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
-			percentage *= perc;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			if(itemsbuf[itemid].power < 0)
-				divisor /= -(itemsbuf[itemid].power);
-			else divisor *= itemsbuf[itemid].power;
-		}
-    }
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
     
-    /* Now for the Peril Ring */
-    itemid = current_item_id(itype_perilring);
-    
-    if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
-    {
-        usering = true;
-        paymagiccost(itemid);
-        if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
 		{
-			double perc = itemsbuf[itemid].power/100.0;
-			if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
-			percentage *= perc;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			if(itemsbuf[itemid].power < 0)
-				divisor /= -(itemsbuf[itemid].power);
-			else divisor *= itemsbuf[itemid].power;
-		}
-    }
-    
-    // Ring divisor of 0 = no damage. -L
-    if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
-        return 0;
 	
-    //if ( divisor < 0 ) return dmg * percentage * (divisor*-1); //handle this further up now
-    return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+		return 0;
+	
+		if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+	
+		if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		
+	}
+	else
+	{
+		double divisor = 1;
+		double percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
+		    
+		if(itemid>-1)  // current_item_id checks magic cost for rings
+		{
+		usering = true;
+		paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
+	    
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		{
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+			return 0;
+		
+		//if ( divisor < 0 ) return dmg * percentage * (divisor*-1); //handle this further up now
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+	}
 }
 
 // Should swinging the hammer make the 'pound' sound?
