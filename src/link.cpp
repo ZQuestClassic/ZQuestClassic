@@ -5389,7 +5389,11 @@ void LinkClass::check_pound_block(weapon *w)
     return;
 }
 
-
+//defend results should match defence types. 
+int LinkClass::defend(weapon *w)
+{
+	return 0;
+}
 
 int LinkClass::EwpnHit()
 {
@@ -5402,6 +5406,8 @@ int LinkClass::EwpnHit()
             
             if((ew->ignoreLink)==true || ew->fallclk)
                 break;
+	    
+	    int defresult = defend(ew);
                 
             if(ew->id==ewWind)
             {
