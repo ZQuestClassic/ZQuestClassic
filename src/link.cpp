@@ -6586,7 +6586,7 @@ bool LinkClass::animate(int)
 			//zprint2("ydif is: %d\n", ydiff);
 			//zprint2("ydif is: %d\n", (int)fall);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
+			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
