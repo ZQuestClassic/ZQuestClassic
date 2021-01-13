@@ -632,7 +632,7 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL)
+	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL), abstract(false), defaultReturn(NULL)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)

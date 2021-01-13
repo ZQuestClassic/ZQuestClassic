@@ -930,7 +930,28 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
     OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
+	if(host.binding->abstract) //Abstract function
+	{
+		int startRefCount = arrayRefs.size(); //Store ref count
+		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
+		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			visit(*it, param);
+		}
+		
+		//Set the return to the default value
+		if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+		{
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+		}
+
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+	}
+	else if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
 	{
 		if(host.binding->isInternal())
 		{
@@ -983,7 +1004,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//Deallocate string/array literals from within the parameters
 			deallocateRefsUntilCount(startRefCount);
 			while ((int)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
+				arrayRefs.pop_back();
 		}
 		else
 		{

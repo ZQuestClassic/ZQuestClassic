@@ -600,17 +600,23 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
+	if(host.abstract)
+	{
+		visit(host.defaultReturn.get(), param);
+		breakRecursion(host.defaultReturn.get());
+	}
 	doRegister(host);
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host);
+			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
 	{
+		if(host.abstract) return; //Skip this error for abstract functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}
