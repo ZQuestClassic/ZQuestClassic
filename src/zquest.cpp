@@ -25629,11 +25629,11 @@ int onCompileScript()
 			fclose(tempfile);
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-			time_t start_compile_time = time(NULL);
+			clock_t start_compile_time = clock();
 			boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
-			time_t end_compile_time = time(NULL);
+			clock_t end_compile_time = clock();
 			char buf[256] = {0};
-			sprintf(buf, "Compile took %ld seconds", end_compile_time - start_compile_time);
+			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
 			box_out(buf);
 			box_eol();
 			unlink("tmp");
@@ -26862,7 +26862,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
-				time_t start_assign_time = time(NULL);
+				clock_t start_assign_time = clock();
 				for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
@@ -27343,8 +27343,10 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				unlink("tmp");
-				time_t end_assign_time = time(NULL);
-				al_trace("Assign Slots took %ld seconds\n", end_assign_time-start_assign_time);
+				clock_t end_assign_time = clock();
+				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				char buf[256] = {0};
+				sprintf(buf, "Assign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
@@ -27358,7 +27360,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
-				jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Done!","ZScripts successfully loaded into script slots",buf,NULL,"O&K",NULL,'k',0,lfont);
 				if ( compile_finish_sample > 0 )
 				{
 					if(sfx_voice[compile_finish_sample]!=-1)

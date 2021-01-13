@@ -5389,7 +5389,224 @@ void LinkClass::check_pound_block(weapon *w)
     return;
 }
 
-
+//defend results should match defence types. 
+//RETURN VALUES: 
+// -1 iGNORE WEAPON
+// 0 No effects
+// 1 Effects, weapon is not ignored or removed
+int LinkClass::defend(weapon *w)
+{
+	switch(defence[w->id])
+	{
+		
+		case edNORMAL: return 1;
+		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
+		{
+			w->power *= 0.5;
+			return 1;
+		}
+		case edQUARTDAMAGE:
+		{
+			w->power *= 0.25;
+			return 1;
+		}
+		case edSTUNONLY:
+		{
+			setStunClock(120);
+			return 1;
+		}
+		case edSTUNORCHINK: // : IMPLEMENTED : If damage > 0, stun instead. Else, bounce off.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+		}
+		case edSTUNORIGNORE: // : IMPLEMENTED : If damage > 0, stun instead. Else, ignore.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				return -1;
+			}
+		}
+		case edCHINKL1: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			if (w->power < 1) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL2: // : IMPLEMENTED : Bounce off unless damage >= 2
+		{
+			if (w->power < 2) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL4: //: IMPLEMENTED : Bounce off unless damage >= 4
+		{
+			if (w->power < 4) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL6: // : IMPLEMENTED : Bounce off unless damage >= 6
+		{
+			if (w->power < 6) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL8: // : IMPLEMENTED : Bounce off unless damage >= 8
+		{
+			if (w->power < 8) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINK: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			w->dead = 0;
+			return -1;
+		}
+		case edIGNOREL1: // : IMPLEMENTED : Ignore unless damage > 1.
+		{
+			if (w->power < 1) 
+			{
+				return -1;
+			}
+			else return 1;
+		}
+		case edIGNORE: // : IMPLEMENTED : Do Nothing
+		{
+			return -1;
+		}
+		case ed1HKO: // : IMPLEMENTED : One-hit knock-out
+		{
+			game->set_life(0);
+			return 1;
+		}
+		case edCHINKL10: //: IMPLEMENTED : If damage is less than 10
+		{
+			if (w->power < 10) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case ed2x: // : IMPLEMENTED : Double damage.
+		{
+			w->power *= 2;
+			return 1;
+		}
+		case ed3x: // : IMPLEMENTED : Triple Damage.
+		{
+			w->power *= 3;
+			return 1;
+		}
+		case ed4x: // : IMPLEMENTED : 4x damage.
+		{
+			w->power *= 4;
+			return 1;
+		}
+		case edHEAL: // : IMPLEMENTED : Gain the weapon damage in HP.
+		{
+			//sfx(WAV_HEAL,pan(int(x)));
+			game->set_life(zc_min(game->get_life()+w->power, game->get_maxlife()));
+			w->dead = 0;
+			return -1;
+		}
+	
+		case edFREEZE: return 1; //Not IMPLEMENTED
+	
+		case edLEVELDAMAGE: //Damage * item level
+		{
+			w->power *= w->family_level;
+			return 1;
+		}
+		case edLEVELREDUCTION: //Damage / item level
+		{
+			if ( w->family_level > 0 ) 
+			{
+				w->power /= w->family_level;
+			}
+			else w->power = 0;
+			return 1;
+		}
+	
+		//edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+		//edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
+		//edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
+		//edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	
+		//edSHOCK, //buzz blob
+	
+	
+		case edBREAKSHIELD: //destroy the player's present shield
+		{
+			w->power = 0;
+			w->dead = 0;
+			int itemid = current_item_id(itype_shield);
+			//sfx(WAV_BREAKSHIELD,pan(int(x)));
+			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
+				game->set_item(itemid, false);
+			//Remove Link's shield
+			return -1; 
+		}
+	
+	
+		
+		default: return 0;
+	}
+}
 
 int LinkClass::EwpnHit()
 {
@@ -5402,6 +5619,9 @@ int LinkClass::EwpnHit()
             
             if((ew->ignoreLink)==true || ew->fallclk)
                 break;
+	    
+	    int defresult = defend(ew);
+	    if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
                 
             if(ew->id==ewWind)
             {
@@ -6586,7 +6806,7 @@ bool LinkClass::animate(int)
 			//zprint2("ydif is: %d\n", ydiff);
 			//zprint2("ydif is: %d\n", (int)fall);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
+			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
@@ -21118,53 +21338,112 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 	}
 }
 
+
+
 // How much to reduce Link's damage, taking into account various rings.
 int LinkClass::ringpower(int dmg)
 {
-    int divisor = 1;
-	float percentage = 1;
-    int itemid = current_item_id(itype_ring);
-    bool usering = false;
+	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
+	{
+		int divisor = 1;
+		float percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
     
-    if(itemid>-1)  // current_item_id checks magic cost for rings
-    {
-        usering = true;
-        paymagiccost(itemid);
-		if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1)  // current_item_id checks magic cost for rings
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			divisor *= itemsbuf[itemid].power;
-		}
-    }
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
     
-    /* Now for the Peril Ring */
-    itemid = current_item_id(itype_perilring);
-    
-    if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
-    {
-        usering = true;
-        paymagiccost(itemid);
-        if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			divisor *= itemsbuf[itemid].power;
-		}
-    }
-    
-    // Ring divisor of 0 = no damage. -L
-    if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
-        return 0;
 	
-	if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+		return 0;
 	
-    if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
-    return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+	
+		if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		
+	}
+	else
+	{
+		double divisor = 1;
+		double percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
+		    
+		if(itemid>-1)  // current_item_id checks magic cost for rings
+		{
+		usering = true;
+		paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
+	    
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		{
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+			return 0;
+		
+		//if ( divisor < 0 ) return dmg * percentage * (divisor*-1); //handle this further up now
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+	}
 }
 
 // Should swinging the hammer make the 'pound' sound?

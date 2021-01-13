@@ -787,11 +787,17 @@ static int compatrules2_list[] =
 	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1
 };
 
+static int compatrules3_list[] =
+{
+	36, -1
+};
+
 static TABPANEL compatrules_tabs[] =
 {
     // (text)
     { (char *)" 1 ",     D_SELECTED,  compatrules1_list, 0, NULL },
     { (char *)" 2 ",     0,           compatrules2_list, 0, NULL },
+    { (char *)" 3 ",     0,           compatrules3_list, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -804,7 +810,7 @@ static int compatrules[] =
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
-   qr_BROKEN_OVERWORLD_MINIMAP,
+   qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER,
 	-1 
 };
 
@@ -858,6 +864,10 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Bugged ->Next Combos", NULL, NULL },
     // 35
 	{ jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld Minimap Ignores Map Item", NULL, NULL },
+	//36
+	{ jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Broken) Ring Power Maths", NULL, NULL },
+
+	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
