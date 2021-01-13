@@ -578,7 +578,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 Function* LibrarySymbols::getFunction(std::string const& name, int numParams) const
 {
 	std::pair<std::string, int> p = make_pair(name, numParams);
-	Function* ret = find<Function*>(functions, p).value_or(NULL);
+	Function* ret = find<Function*>(functions, p).value_or(boost::add_pointer<Function>::type());
 	/*if(!ret)
 		al_trace("Internal function %s not found with %d parameters!", name, numParams);*/
 	assert(ret);

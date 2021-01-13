@@ -3,12 +3,41 @@
 #ifndef ZSCRIPT_COMPILER_UTILS_H
 #define ZSCRIPT_COMPILER_UTILS_H
 
+// prevent compiler errors
+#ifdef ASTDINT_H
+#undef int8_t
+#undef uint8_t
+#undef int16_t
+#undef uint16_t
+#undef int32_t
+#undef uint32_t
+#undef intptr_t
+#undef uintptr_t
+#endif // ASTDINT_H
+
+#ifdef int64_t
+#undef int64_t
+#endif // int64_t
+
+#ifdef uint64_t
+#undef uint64_t
+#endif // uint64_t
+
+#ifdef new
+#undef new
+#endif // new
+
+#include <boost/optional.hpp>
+#include <boost/type_traits.hpp>
+
 #include <cassert>
-#include <vector>
+#include <cstdarg>
 #include <set>
 #include <sstream>
 #include <string>
-#include <cstdarg>
+#include <vector>
+
+#include "zc_malloc.h"
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -97,111 +126,112 @@ bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     return false;	
 }
 
+
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
+// Soley adapts existing code with boost::optional
 
+
+#if (__cplusplus < 201703L)
 // Empty optional instance.
-struct nullopt_t
-{
-    struct init{};
-    nullopt_t(init) {}
-};
-const nullopt_t nullopt((nullopt_t::init()));
+typedef boost::none_t nullopt_t;
+const nullopt_t nullopt(boost::none);
 
-template <class Type>
-class optional : public SafeBool<optional<Type> >
+template<typename T>
+class optional : public SafeBool<optional<T> >
 {
 public:
+	typedef T value_type;
+
 	// Construct empty optional. 
-	optional() : has_value_(false) {}
-	optional(nullopt_t) : has_value_(false) {}
+	optional() : data_() {}
+	optional(nullopt_t) : data_(nullopt) {}
 	// Construct with value.
-	optional(Type const& value) : has_value_(true)
-	{
-		new(&data) Type(value);
-	}
+	optional(const T& value) : data_(value) {}
 	// Construct with value (eliminate double optional).
-	optional(optional const& rhs) : has_value_(rhs.has_value_)
+	optional(const optional& rhs)
 	{
-		if (rhs.has_value_)
-			new(&data) Type(*rhs);
+		if (rhs.data_.has_value()) {
+			data_.emplace(*rhs);
+		}
 	}
 
 	~optional()
 	{
-		if (has_value_)
-			reinterpret_cast<Type*>(&data)->~Type();
+		data_.reset();
 	}
 
 	optional& operator=(nullopt_t)
 	{
-		reset();
+		data_.reset();
 		return *this;
 	}
-	optional& operator=(optional const& rhs)
+	optional& operator=(const optional& rhs)
 	{
-		if (has_value_ && !rhs.has_value_)
-			reset();
-		else if (!has_value_ && rhs.has_value_)
-		{
-			new(&data) Type(*rhs);
-			has_value_ = true;
-		}
-		else if (has_value_ && rhs.has_value_)
-			*reinterpret_cast<Type*>(&data) = *rhs;
+		data_.emplace(*rhs);
 		return *this;
 	}
 
-	Type const* operator->() const {
-		return reinterpret_cast<Type const*>(&data);}
-	Type* operator->() {
-		return reinterpret_cast<Type*>(&data);}
-	Type const& operator*() const {
-		return *reinterpret_cast<Type const*>(&data);}
-	Type& operator*() {
-		return *reinterpret_cast<Type*>(&data);}
-
-	bool has_value() const {return has_value_;}
-	Type const& value() const
+	const T* operator->() const
 	{
-		assert(has_value_);
-		return *reinterpret_cast<Type const*>(&data);
+		assert(data_.has_value());
+		return &data_.value();
 	}
-	Type& value()
+	T* operator->() 
 	{
-		assert(has_value_);
-		return *reinterpret_cast<Type*>(&data);
+		assert(data_.has_value());
+		return &data_.value();
+	}
+	const T& operator*() const
+	{
+		assert(data_.has_value());
+		return data_.value();
 	}
 
+	T& operator*()
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	bool has_value() const { return data_.has_value(); }
+	const T& value() const
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+	T& value()
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	template<typename U>
+	T value_or(const U& v) const
+	{
+		return data_.value_or(v);
+	}
+	
 	template <typename U>
-	Type const value_or(U const& v) const
+	T value_or(U& v)
 	{
-		return has_value_
-			? *reinterpret_cast<Type const*>(&data)
-			: *reinterpret_cast<Type const*>(&v);
-	}
-
-	template <typename U>
-	Type value_or(U& v)
-	{
-		return has_value_
-			? *reinterpret_cast<Type*>(&data)
-			: *reinterpret_cast<Type*>(&v);
+		return data_.value_or(v);
 	}
 
 	// Destroys the value if present.
 	void reset()
 	{
-		if (has_value_) reinterpret_cast<Type>(data).~Type();
-		has_value_ = false;
+		data_.reset(); 
 	}
 
-	bool safe_bool() const {return has_value_;}
-	
+	bool safe_bool() const { return data_.has_value(); }
+
 private:
-	bool has_value_;
-	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
+	boost::optional<T> data_;
 };
+#endif // (__cplusplus < 201703L)
+
+
 
 ////////////////////////////////////////////////////////////////
 // Containers
@@ -222,11 +252,13 @@ void appendElements(TargetContainer& target, SourceContainer const& source)
 
 // Delete all the elements in a container.
 template <typename Container>
-void deleteElements(Container const& container)
+void deleteElements(Container& container)
 {
-	for (typename Container::const_iterator it = container.begin();
-	     it != container.end(); ++it)
-		delete *it;
+	typedef typename Container::value_type value_type;
+	for (typename Container::iterator it = container.begin();
+		it != container.end(); ++it) {
+		delete_s(*it);
+	}
 }
 
 // Return the only element of a container, or nothing.
@@ -264,11 +296,12 @@ std::vector<Value> getSeconds(Map const& map)
 }
 
 template <typename Map>
-void deleteSeconds(Map const& map)
+void deleteSeconds(Map& map)
 {
-	for (typename Map::const_iterator it = map.begin();
-	     it != map.end(); ++it)
-		delete it->second;
+	for (typename Map::iterator it = map.begin();
+		it != map.end(); ++it) {
+		delete_s(it->second);
+	}
 }
 
 // Overwrite all key/value pairs in source onto target.
@@ -334,4 +367,14 @@ Value findLargest(
 	return largest;
 }
 
-#endif
+// HACK! This is to use mem_debug in PCH
+#if (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
+#if (VLD_FORCE_ENABLE == 0)
+#undef DEBUG_NEW
+#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
+
+
+#endif // !ZSCRIPT_COMPILER_UTILS_H

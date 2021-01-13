@@ -10,8 +10,11 @@
 #include "../ffscript.h"
 extern FFScript FFCore;
 
-using namespace std;
+
 using namespace ZScript;
+using std::vector;
+using std::string;
+using std::ostringstream;
 
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
@@ -38,12 +41,12 @@ Program::~Program()
 
 Script* Program::getScript(string const& name) const
 {
-	return find<Script*>(scriptsByName_, name).value_or(NULL);
+	return find<Script*>(scriptsByName_, name).value_or(boost::add_pointer<Script>::type());
 }
 
 Script* Program::getScript(ASTScript* node) const
 {
-	return find<Script*>(scriptsByNode_, node).value_or(NULL);
+	return find<Script*>(scriptsByNode_, node).value_or(boost::add_pointer<Script>::type());
 }
 
 Script* Program::addScript(

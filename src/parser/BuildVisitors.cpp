@@ -8,7 +8,11 @@
 #include "ZScript.h"
 
 using namespace ZScript;
-using namespace std;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
+using std::list;
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes

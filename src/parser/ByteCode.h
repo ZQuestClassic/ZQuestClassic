@@ -10,7 +10,7 @@
 
 #include <string>
 
-//using namespace std; //Don't do this! This is bad! -V
+// //Don't do this! This is bad! -V
 //{ START BYTECODE
 /*
  I will reserve the registers in the following scheme:

@@ -25630,7 +25630,7 @@ int onCompileScript()
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			clock_t start_compile_time = clock();
-			ZScript::ScriptsData *result = ZScript::compile("tmp");
+			boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
 			clock_t end_compile_time = clock();
 			char buf[256] = {0};
 			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
@@ -25733,7 +25733,7 @@ int onCompileScript()
 			
 			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
 			std::map<string, disassembled_script_data> scripts = result->theScripts;
-			delete result;
+			result.reset();
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
@@ -30419,7 +30419,11 @@ long exittimer = 10000, exittimer2 = 100;
 
 int main(int argc,char **argv)
 { 
-    
+#if (defined(_DEBUG) && defined(_MSC_VER))
+#if (VLD_FORCE_ENABLE == 0)
+    ::InitCrtDebug();
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER))
 	
 	if ( V_ZC_ALPHA )
 	{

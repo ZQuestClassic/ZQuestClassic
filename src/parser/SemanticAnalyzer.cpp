@@ -5,10 +5,12 @@
 #include "Scope.h"
 #include "Types.h"
 #include "CompileError.h"
+#include <boost/move/unique_ptr.hpp>
 
 using std::string;
 using std::vector;
 using std::ostringstream;
+using boost::movelib::unique_ptr;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
@@ -298,13 +300,13 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 	// Add type to the current scope under its new name.
 	if(!scope->addDataType(host.name, &type, &host))
 	{
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		DataType const* originalType = lookupDataType(*scope, *temp, this, true);
 		if (breakRecursion(host) || !originalType || (*originalType != type))
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-		delete temp;
+		temp.reset();
 		return;
 	}
 }
@@ -315,16 +317,16 @@ void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 	if(!host.type)
 	{
 		//Don't allow use of a name that already exists
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-			delete temp;
+			temp.reset();
 			return;
 		}
-		delete temp;
+		temp.reset();
 		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
