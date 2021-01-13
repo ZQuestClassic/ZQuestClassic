@@ -57,6 +57,7 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	if(function.abstract) return; //Abstract functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
 	Scope& functionScope = *function.internalScope;
@@ -662,16 +663,22 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
+	if(host.abstract)
+	{
+		visit(host.defaultReturn.get());
+		breakRecursion(host.defaultReturn.get());
+	}
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host);
+			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
 	{
+		if(host.abstract) return; //Skip this error for abstract functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}

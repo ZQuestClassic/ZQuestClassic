@@ -866,19 +866,96 @@ Function* BasicScope::addSetter(
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
+	bool abstract = false;
+	ASTExprConst* defRet = NULL;
+	if(node)
+	{
+		abstract = node->abstract;
+		if(abstract)
+		{
+			defRet = node->defaultReturn.get();
+		}
+	}
 	FunctionSignature signature(name, paramTypes);
-	if (find<Function*>(functionsBySignature_, signature))
-		return NULL;
-
+	Function* foundFunc = NULL;
+	optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
+	if(optFunc)
+		foundFunc = *optFunc;
+	else if(isFile() || isRoot())
+	{
+		optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
+		if(rootFunc)
+			foundFunc = *rootFunc;
+	}
+	if (foundFunc)
+	{
+		if(foundFunc->abstract) //Abstract function declared
+		{
+			if(abstract) //Another identical abstract being declared
+			{
+				//Check default returns
+				optional<long> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				optional<long> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
+				{
+					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					return NULL;
+				}
+				else //Same default return; disable duplicate abstract without error
+				{
+					node->disable();
+					return NULL; //NULL return gives no error if 'node->abstract'
+				}
+			}
+			else //Function can be replaced by the new implementation of the abstract definition
+			{
+				//Remove the unneeded abstract function
+				removeFunction(foundFunc);
+				//Disable the node which defined the abstract function, and nullify it's pointer to the Function
+				foundFunc->node->func = NULL;
+				foundFunc->node->disable();
+				//Delete the Function* to free memory
+				delete foundFunc;
+				//Continue to construct the new function
+			}
+		}
+		else return NULL; //NULL return gives no error if 'node->abstract'
+	}
+	
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, abstract, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
 	return fun;
+}
+
+void BasicScope::removeFunction(Function* function)
+{
+	if(!function) return;
+	FunctionSignature signature(function->name, function->paramTypes);
+	functionsBySignature_.erase(signature); //Erase from signature map
+	//Find in name map, and erase
+	optional<vector<Function*>> foundVector = find<vector<Function*> >(functionsByName_, function->name);
+	if(!foundVector) return;
+	vector<Function*>& funcvector = *foundVector;
+	if(funcvector.size() == 1 && funcvector.back() == function)
+	{
+		functionsByName_.erase(function->name);
+		return;
+	}
+	for (vector<Function*>::iterator it = funcvector.begin(); it != funcvector.end();)
+	{
+		Function* f = *it;
+		if(f == function) //Erase the function when found
+		{
+			it = funcvector.erase(it);
+			return; //Found function, and erased
+		}
+	}
 }
 
 void BasicScope::setDefaultOption(CompileOptionSetting value)
@@ -1023,14 +1100,23 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, paramNames, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node, handler);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
 	return result;
+}
+void FileScope::removeFunction(Function* function)
+{
+	BasicScope::removeFunction(function);
+	getRoot(*this)->removeFunction(function);
+}
+void FileScope::removeLocalFunction(Function* function)
+{
+	BasicScope::removeFunction(function);
 }
 
 bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
@@ -1299,6 +1385,40 @@ bool RootScope::registerFunction(Function* function)
 	descFunctionsByName_[signature.name].push_back(function);
 	descFunctionsBySignature_[signature] = function;
 	return true;
+}
+
+void RootScope::removeFunction(Function* function)
+{
+	if(!function) return;
+	BasicScope::removeFunction(function); //Remove from basic scope maps
+	//Make sure it is removed from it's parent file!
+	function->internalScope->getFile()->removeLocalFunction(function);
+	
+	FunctionSignature signature(function->name, function->paramTypes);
+	descFunctionsBySignature_.erase(signature); //Erase from signature map
+	//Find in name map, and erase
+	optional<vector<Function*>> foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
+	if(!foundVector) return;
+	vector<Function*>& funcvector = *foundVector;
+	if(funcvector.size() == 1 && funcvector.back() == function)
+	{
+		descFunctionsByName_.erase(function->name);
+		return;
+	}
+	for (vector<Function*>::iterator it = funcvector.begin(); it != funcvector.end();)
+	{
+		Function* f = *it;
+		if(f == function) //Erase the function when found
+		{
+			it = funcvector.erase(it);
+			return; //Found function, and erased
+		}
+	}
+}
+
+optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
+{
+	return find<Function*>(descFunctionsBySignature_, sig);
 }
 
 bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)

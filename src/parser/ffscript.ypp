@@ -659,6 +659,50 @@ Function :
 		func->block = block;
 		$$ = func;
 		delete name;}
+	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTFuncDecl* func = (ASTFuncDecl*)$4;
+		ASTBlock* block = (ASTBlock*)$6;
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->abstract = true;
+		func->defaultReturn = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$);
+		func->location = @$;
+		$$ = func;
+		delete name;}
+	| DataType IDENTIFIER LPAREN RPAREN SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->abstract = true;
+		func->defaultReturn = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$);
+		$$ = func;
+		delete name;}
+	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTFuncDecl* func = (ASTFuncDecl*)$4;
+		ASTBlock* block = (ASTBlock*)$6;
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->abstract = true;
+		func->defaultReturn = (ASTExprConst*)$8;
+		func->location = @$;
+		$$ = func;
+		delete name;}
+	| DataType IDENTIFIER LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->abstract = true;
+		func->defaultReturn = (ASTExprConst*)$7;
+		$$ = func;
+		delete name;}
 	;
 
 Function_Parameters_List :
