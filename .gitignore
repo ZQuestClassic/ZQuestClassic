@@ -32,6 +32,7 @@
 
 # Generated buidl directories
 /[Dd]ebug/
+/*.dir/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
