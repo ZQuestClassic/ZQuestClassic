@@ -774,7 +774,7 @@ namespace ZScript
 		owning_ptr<ASTBlock> block;
 		std::string invalidMsg;
 		Function* func;
-		bool abstract;
+		bool prototype;
 		owning_ptr<ASTExprConst> defaultReturn;
 	private:
 		int flags;

@@ -930,7 +930,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
     OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->abstract) //Abstract function
+	if(host.binding->prototype) //Prototype function
 	{
 		int startRefCount = arrayRefs.size(); //Store ref count
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.

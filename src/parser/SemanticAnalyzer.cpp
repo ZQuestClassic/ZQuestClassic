@@ -57,7 +57,7 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
-	if(function.abstract) return; //Abstract functions have no internals to analyze!
+	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
 	Scope& functionScope = *function.internalScope;
@@ -663,7 +663,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
-	if(host.abstract)
+	if(host.prototype)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get());
@@ -696,7 +696,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	// that name.
 	if (function == NULL)
 	{
-		if(host.abstract) return; //Skip this error for abstract functions; error is handled inside 'addFunction()' above
+		if(host.prototype) return; //Skip this error for prototype functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}

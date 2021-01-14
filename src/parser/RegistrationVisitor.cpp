@@ -600,7 +600,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
-	if(host.abstract)
+	if(host.prototype)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get(), param);
@@ -631,7 +631,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// that name.
 	if (function == NULL)
 	{
-		if(host.abstract) return; //Skip this error for abstract functions; error is handled inside 'addFunction()' above
+		if(host.prototype) return; //Skip this error for prototype functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}

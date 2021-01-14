@@ -666,7 +666,7 @@ Function :
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
 		func->name = name->getValue();
-		func->abstract = true;
+		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		func->location = @$;
 		$$ = func;
@@ -677,7 +677,7 @@ Function :
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
 		func->name = name->getValue();
-		func->abstract = true;
+		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		$$ = func;
 		delete name;}
@@ -688,7 +688,7 @@ Function :
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
 		func->name = name->getValue();
-		func->abstract = true;
+		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$8;
 		func->location = @$;
 		$$ = func;
@@ -699,7 +699,7 @@ Function :
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
 		func->name = name->getValue();
-		func->abstract = true;
+		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$7;
 		$$ = func;
 		delete name;}

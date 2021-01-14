@@ -432,11 +432,11 @@ string FunctionSignature::asString() const
 
 Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id,
-				   int flags, int internal_flags, bool abstract, ASTExprConst* defaultReturn)
+				   int flags, int internal_flags, bool prototype, ASTExprConst* defaultReturn)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
 	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
-	  abstract(abstract), defaultReturn(defaultReturn)
+	  prototype(prototype), defaultReturn(defaultReturn)
 {}
 
 Function::~Function()

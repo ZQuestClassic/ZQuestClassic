@@ -352,7 +352,7 @@ namespace ZScript
 	public:
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
-		         int id, int flags = 0, int internal_flags = 0, bool abstract = false, ASTExprConst* defaultReturn = NULL);
+		         int id, int flags = 0, int internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
 		~Function();
 		
 		DataType const* returnType;
@@ -394,7 +394,7 @@ namespace ZScript
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		int internal_flags;
-		bool abstract;
+		bool prototype;
 		ASTExprConst* defaultReturn;
 		
 	private:

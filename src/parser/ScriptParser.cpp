@@ -273,7 +273,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	{
 		Function& function = **it;
 		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
-		if(function.abstract) continue; //Skip abstract func decls, they are ALSO handled at the call location -V
+		if(function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);

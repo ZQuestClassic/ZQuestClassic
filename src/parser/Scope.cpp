@@ -868,12 +868,12 @@ Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
 		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
-	bool abstract = false;
+	bool prototype = false;
 	ASTExprConst* defRet = NULL;
 	if(node)
 	{
-		abstract = node->abstract;
-		if(abstract)
+		prototype = node->prototype;
+		if(prototype)
 		{
 			defRet = node->defaultReturn.get();
 		}
@@ -891,9 +891,9 @@ Function* BasicScope::addFunction(
 	}
 	if (foundFunc)
 	{
-		if(foundFunc->abstract) //Abstract function declared
+		if(foundFunc->prototype) //Prototype function declared
 		{
-			if(abstract) //Another identical abstract being declared
+			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
 				optional<long> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
@@ -903,17 +903,17 @@ Function* BasicScope::addFunction(
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
 					return NULL;
 				}
-				else //Same default return; disable duplicate abstract without error
+				else //Same default return; disable duplicate prototype without error
 				{
 					node->disable();
-					return NULL; //NULL return gives no error if 'node->abstract'
+					return NULL; //NULL return gives no error if 'node->prototype'
 				}
 			}
-			else //Function can be replaced by the new implementation of the abstract definition
+			else //Function can be replaced by the new implementation of the prototype definition
 			{
-				//Remove the unneeded abstract function
+				//Remove the unneeded prototype function
 				removeFunction(foundFunc);
-				//Disable the node which defined the abstract function, and nullify it's pointer to the Function
+				//Disable the node which defined the prototype function, and nullify it's pointer to the Function
 				foundFunc->node->func = NULL;
 				foundFunc->node->disable();
 				//Delete the Function* to free memory
@@ -921,11 +921,11 @@ Function* BasicScope::addFunction(
 				//Continue to construct the new function
 			}
 		}
-		else return NULL; //NULL return gives no error if 'node->abstract'
+		else return NULL; //NULL return gives no error if 'node->prototype'
 	}
 	
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, abstract, defRet);
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
