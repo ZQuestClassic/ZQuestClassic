@@ -87,6 +87,16 @@ void RecursiveVisitor::visit(AST* node, void* param)
 	if (node) visit(*node, param);
 }
 
+void RecursiveVisitor::checkCast(
+		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
+{
+	if (sourceType.canCastTo(targetType)) return;
+	if (twoWay && targetType.canCastTo(sourceType)) return;
+	handleError(
+		CompileError::IllegalCast(
+			node, sourceType.getName(), targetType.getName()));
+}
+
 ////////////////////////////////////////////////////////////////
 // Cases
 

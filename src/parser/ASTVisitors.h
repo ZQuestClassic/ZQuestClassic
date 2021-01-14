@@ -336,6 +336,12 @@ namespace ZScript
 		bool hasFailed() const {return failure;}
 		bool hasTempFailed() const {return failure_temp;}
 		
+		// Signal a compile error if source can't be cast to target.
+		void checkCast(ZScript::DataType const& sourceType,
+		               ZScript::DataType const& targetType,
+		               AST* node = NULL,
+		               bool twoWay = false);
+		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between

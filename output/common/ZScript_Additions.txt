@@ -1349,18 +1349,18 @@ You may now check if a file is included.
 
 This is considered a constant expression.
 
-//////////////////////////
-// Forward Declarations //
-//////////////////////////
+///////////////////////////
+//  Function Prototypes  //
+///////////////////////////
 
-You may now forward-declare a function, which can (but does not have to) be defined later.
+You may now declare a 'function prototype', which can (but does not have to) be defined later.
 	[example--
 	
 	int foo(int x, int y);
 	
 	--end example]
 
-This function has no body, unless you later declare the function in full.
+This prototype has no body, unless you later declare the function in full.
 	[example--
 	
 	int bar();
@@ -1375,9 +1375,9 @@ This function has no body, unless you later declare the function in full.
 	
 	--end example]
 
-If the function is declared later, then that is what runs; the forward decl is effectively ignored.
-If the function is NOT declared later, then calls to the function will *still compile*, though the function will do
-	nothing, aside from `return 0;`.
+If the function is declared later, then that is what runs; the prototype is effectively ignored.
+If the function is NOT declared later, then calls to the prototype will *still compile*, though the prototype will do
+	nothing, aside from `return NULL;`.
 	
 You may also specify the default return value, so it will return a value other than 0!
 	[example--
@@ -1397,6 +1397,9 @@ The value used for this default can be any constant expression, so the following
 	int foobar() : default (IS_INCLUDED("tango.zh") ? 10 : 2);
 	
 	--end example]
+
+Do note that the type of the default value must match the return type. The default return, 'NULL', is 'untyped', and
+	will work for any type.
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______

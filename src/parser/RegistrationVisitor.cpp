@@ -602,11 +602,26 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}
 	if(host.abstract)
 	{
+		//Check the default return
 		visit(host.defaultReturn.get(), param);
-		breakRecursion(host.defaultReturn.get());
+		if(breakRecursion(host.defaultReturn.get())) return;
+		if(!(registered(host.defaultReturn.get()))) return;
+		
+		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
+		if(!defValType.isResolved()) return;
+		//Check type validity of default return
+		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
+			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
+		{
+			//Default is null; don't check casting, as null needs to be valid even for things
+			//that untyped does not normally cast to, such as VOID! -V
+		}
+		else checkCast(defValType, returnType, &host);
 	}
+	
 	doRegister(host);
-
+	
+	if(breakRecursion(host)) return;
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);

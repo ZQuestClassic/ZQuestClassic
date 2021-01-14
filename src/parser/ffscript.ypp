@@ -667,7 +667,7 @@ Function :
 		func->returnType = returnType;
 		func->name = name->getValue();
 		func->abstract = true;
-		func->defaultReturn = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$);
+		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		func->location = @$;
 		$$ = func;
 		delete name;}
@@ -678,7 +678,7 @@ Function :
 		func->returnType = returnType;
 		func->name = name->getValue();
 		func->abstract = true;
-		func->defaultReturn = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$);
+		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		$$ = func;
 		delete name;}
 	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
@@ -1324,7 +1324,6 @@ Expr_2 : Expr_1 {$$ = $1;}
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* expr = (ASTExpr*)$4;
 		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
-		cast->operand = expr;
 		$$ = cast;}
 	;
 

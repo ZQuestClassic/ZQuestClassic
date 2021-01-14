@@ -1253,7 +1253,9 @@ void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 
 ASTExprCast::ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location)
 	: ASTUnaryExpr(location), type(type)
-{}
+{
+	operand = expr;
+}
 
 void ASTExprCast::execute(ASTVisitor& visitor, void* param)
 {

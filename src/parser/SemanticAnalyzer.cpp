@@ -665,9 +665,27 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	}
 	if(host.abstract)
 	{
+		//Check the default return
 		visit(host.defaultReturn.get());
-		breakRecursion(host.defaultReturn.get());
+		if(breakRecursion(host.defaultReturn.get())) return;
+		
+		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
+		if(!defValType.isResolved())
+		{
+			handleError(CompileError::UnresolvedType(&host, defValType.getName()));
+			return;
+		}
+		//Check type validity of default return
+		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
+			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
+		{
+			//Default is null; don't check casting, as null needs to be valid even for things
+			//that untyped does not normally cast to, such as VOID! -V
+		}
+		else checkCast(defValType, returnType, &host);
 	}
+	
+	if(breakRecursion(host)) return;
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
@@ -1400,16 +1418,6 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 
 void SemanticAnalyzer::caseIsIncluded(ASTIsIncluded& host, void*)
 {}
-
-void SemanticAnalyzer::checkCast(
-		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
-{
-	if (sourceType.canCastTo(targetType)) return;
-	if (twoWay && targetType.canCastTo(sourceType)) return;
-	handleError(
-		CompileError::IllegalCast(
-			node, sourceType.getName(), targetType.getName()));
-}
 
 void SemanticAnalyzer::analyzeUnaryExpr(
 		ASTUnaryExpr& host, DataType const& type)
