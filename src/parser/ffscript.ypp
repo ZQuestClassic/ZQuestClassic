@@ -1267,14 +1267,19 @@ Identifier :
 	IDENTIFIER {$$ = $1;}
 	;
 
+Func_Left :
+	Expr_Arrow {$$ = $1;}
+	| Identifier_List {$$ = $1;}
+	;
+
 Expr_3_Call :
-	Identifier_List LPAREN RPAREN {
+	Func_Left LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Identifier_List LPAREN Expr_3_Call_Parameters RPAREN {
+	| Func_Left LPAREN Expr_3_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
@@ -1323,6 +1328,14 @@ Expr_2 : Expr_1 {$$ = $1;}
 		$$ = cast;}
 	;
 
+Expr_Arrow :
+	Expr_3 ARROW IDENTIFIER {
+			ASTExpr* left = (ASTExpr*)$1;
+			ASTString* right = (ASTString*)$3;
+			$$ = new ASTExprArrow(left, right->getValue(), @$);
+			delete right;}
+	;
+
 Expr_3 : Expr_2 {$$ = $1;}
   // Post Increment
 	| Expr_3 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
@@ -1334,11 +1347,7 @@ Expr_3 : Expr_2 {$$ = $1;}
 	| Expr_3 LBRACKET Expression RBRACKET {
 		BINARY(ASTExprIndex, $$, $1, $3, @$);}
 	// Access
-	| Expr_3 ARROW IDENTIFIER {
-			ASTExpr* left = (ASTExpr*)$1;
-			ASTString* right = (ASTString*)$3;
-			$$ = new ASTExprArrow(left, right->getValue(), @$);
-			delete right;}
+	| Expr_Arrow {$$ = $1;}
 	;
 
 Expr_4 : Expr_3 {$$ = $1;}
