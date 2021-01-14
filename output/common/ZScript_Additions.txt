@@ -1400,6 +1400,17 @@ The value used for this default can be any constant expression, so the following
 
 Do note that the type of the default value must match the return type. The default return, 'NULL', is 'untyped', and
 	will work for any type.
+	
+	[example--
+	
+	ffc foo() : default <ffc>1; //correct
+	ffc foo() : default 1; //Type cast error
+	ffc foo(); //Returns a null pointer
+	ffc foo() : default NULL; //Same as above
+	
+	void foo() : default 1; //Type cast error
+	void foo(); //correct
+	--end example]
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______

@@ -941,9 +941,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		//Set the return to the default value
-		if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+		DataType const& retType = *host.binding->returnType;
+		if(retType != DataType::ZVOID)
 		{
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+			if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			{
+				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+			}
 		}
 
 		//Deallocate string/array literals from within the parameters
