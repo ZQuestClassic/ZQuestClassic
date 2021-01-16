@@ -7197,7 +7197,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
-	    if( version <= 0x253) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
+	    if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
 		{
 			switch(tempitem.family)
 			{
