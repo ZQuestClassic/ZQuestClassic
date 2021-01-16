@@ -7341,7 +7341,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7364,7 +7364,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7410,7 +7410,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7433,7 +7433,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7458,7 +7458,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7481,7 +7481,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7506,7 +7506,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7531,7 +7531,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7556,7 +7556,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7604,7 +7604,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7629,7 +7629,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7654,7 +7654,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7679,7 +7679,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7720,7 +7720,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7785,7 +7785,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7863,7 +7863,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7888,7 +7888,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7913,7 +7913,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7936,7 +7936,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7961,7 +7961,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -7984,7 +7984,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8009,7 +8009,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8051,7 +8051,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8073,7 +8073,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8098,7 +8098,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8121,7 +8121,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8146,7 +8146,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8193,7 +8193,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8218,7 +8218,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8241,7 +8241,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8265,7 +8265,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8288,7 +8288,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8312,7 +8312,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8336,7 +8336,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8359,7 +8359,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8382,7 +8382,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8406,7 +8406,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8429,7 +8429,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8453,7 +8453,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8478,7 +8478,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8502,7 +8502,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8526,7 +8526,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
@@ -8555,7 +8555,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn1 = 0;
+					tempitem.wpn = 0;
 					tempitem.wpn2 = 0;
 					tempitem.wpn3 = 0;
 					tempitem.wpn4 = 0;
