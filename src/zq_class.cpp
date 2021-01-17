@@ -53,6 +53,7 @@ extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
+extern unsigned char ViewLayer3BG, ViewLayer2BG; 
 
 
 using std::string;
@@ -2196,7 +2197,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=1; k<3; k++)
     {
-        if(k==1&&layer->flags7&fLAYER2BG)
+        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2224,7 +2225,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
         
-        if(k==2&&layer->flags7&fLAYER3BG)
+        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2238,7 +2239,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         for(int i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG))
+                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                         }
@@ -2247,7 +2248,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         for(int i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG))
+                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                         }
@@ -2265,7 +2266,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             byte cmbcset = layer->cset[i];
             int cmbflag = layer->sflag[i];
             
-            if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+            if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG||ViewLayer2BG||ViewLayer3BG)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
         }
@@ -2275,7 +2276,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=0; k<2; k++)
     {
-        if(k==1&&layer->flags7&fLAYER2BG) continue;
+        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2491,7 +2492,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=2; k<4; k++)
     {
-        if(k==2&&layer->flags7&fLAYER3BG) continue;
+        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {

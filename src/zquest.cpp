@@ -1317,38 +1317,40 @@ static int do_NewQuest()
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, NoScreenPreview, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
-bool Vsync, ShowFPS;
-int ComboBrush;                                             //show the brush instead of the normal mouse
-int ComboBrushPause;                                        //temporarily disable the combo brush
-int BrushPosition;                                          //top left, middle, bottom right, etc.
-int FloatBrush;                                             //makes the combo brush float a few pixels up and left
+unsigned char ViewLayer3BG = 0, ViewLayer2BG = 0; 
+bool Vsync = false, ShowFPS = false;
+int ComboBrush = 0;                                             //show the brush instead of the normal mouse
+int ComboBrushPause = 0;                                        //temporarily disable the combo brush
+int BrushPosition = 0;                                          //top left, middle, bottom right, etc.
+int FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
-int OpenLastQuest;                                          //makes the program reopen the quest that was
+int OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
-int ShowMisalignments;                                      //makes the program display arrows over combos that are
+int ShowMisalignments = 0;                                      //makes the program display arrows over combos that are
 //not aligned with the next screen.
-int AnimationOn;                                            //animate the combos in zquest?
-int AutoBackupRetention;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
-int AutoSaveInterval;                                       //how often a timed autosave is made (not overwriting the current file)
-int UncompressedAutoSaves;                                  //should timed saves be uncompressed/encrypted?
-int KeyboardRepeatDelay;                                    //the time in milliseconds after holding down a key that the key starts to repeat
-int KeyboardRepeatRate;                                     //the time in milliseconds between each repetition of a repeated key
+int AnimationOn = 0;                                            //animate the combos in zquest?
+int AutoBackupRetention = 0;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
+int AutoSaveInterval = 0;                                       //how often a timed autosave is made (not overwriting the current file)
+int UncompressedAutoSaves = 0;                                  //should timed saves be uncompressed/encrypted?
+int KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
+int KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
 
 time_t auto_save_time_start, auto_save_time_current;
-double auto_save_time_diff;
-int AutoSaveRetention;                                      //how many autosaves of a quest to keep
-int ImportMapBias;                                          //tells what has precedence on map importing
+double auto_save_time_diff = 0;
+int AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
+int ImportMapBias = 0;                                          //tells what has precedence on map importing
 int BrushWidth=1, BrushHeight=1;
 bool quit=false,saved=true;
 bool __debug=false;
 //bool usetiles=true;
-byte LayerMask[2];                                          //determines which layers are on or off.  0-15
-int LayerMaskInt[7];
+byte LayerMask[2]={0};                                          //determines which layers are on or off.  0-15
+int LayerMaskInt[7]={0};
 int CurrentLayer=0;
-int DuplicateAction[4];
-int OnlyCheckNewTilesForDuplicates;
+int DuplicateAction[4]={0};
+int OnlyCheckNewTilesForDuplicates = 0;
 int try_recovering_missing_scripts = 0;
 int zc_menu_on_left = 0;
 
@@ -1359,14 +1361,14 @@ int DMapEditorLastMaptileUsed = 0;
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
   */
-word msg_count, qt_count;
-int LeechUpdate;
-int LeechUpdateTiles;
-int SnapshotFormat;
+word msg_count = 0, qt_count = 0;
+int LeechUpdate = 0;
+int LeechUpdateTiles = 0;
+int SnapshotFormat = 0;
 
-int memrequested;
-byte Color;
-int jwin_pal[jcMAX];
+int memrequested = 0;
+byte Color = 0;
+int jwin_pal[jcMAX] = {0};
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
@@ -1828,6 +1830,18 @@ static MENU tool_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+int onLayer3BG()
+{
+	if ( ViewLayer3BG ) ViewLayer3BG = 0;
+	else ViewLayer3BG = 1;
+	return D_O_K;
+}
+int onLayer2BG()
+{
+	if ( ViewLayer2BG ) ViewLayer2BG = 0;
+	else ViewLayer2BG = 1;
+	return D_O_K;
+}
 static MENU view_menu[] =
 {
     { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
@@ -1842,6 +1856,8 @@ static MENU view_menu[] =
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
+    { (char *)"Layer 3 is Background",              onLayer3BG,              NULL,                     0,            NULL   },
+    { (char *)"Layer 2 is Background",              onLayer2BG,              NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -25103,8 +25119,8 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
     { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
     //10
-    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
-    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
    
     { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": On Error",                  NULL,   NULL                  },
@@ -31316,6 +31332,8 @@ int main(int argc,char **argv)
     PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
     PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
     PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
+    //ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
+    //ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
     
     
     //This is too much work to fix for 2.5. :| -Gleeok
@@ -32892,6 +32910,8 @@ int main(int argc,char **argv)
         view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
         view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
         view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
+        view_menu[12].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
+        view_menu[13].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
         view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
         view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
         view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info
