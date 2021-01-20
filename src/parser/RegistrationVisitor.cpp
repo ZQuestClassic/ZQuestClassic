@@ -166,23 +166,29 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
-		&& registered(host, host.variables) && registered(host, host.functions))
+	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
+		&& registered(host, host.variables) && registered(host, host.functions)))
+	{
+		return;
+	}
+	
+	if(script.getType() == ScriptType::untyped)
 	{
 		doRegister(host);
+		return;
 	}
-	else return;
 	//
-	if(script.getType() == ScriptType::untyped) return;
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
 		//script.getScope().getLocalFunctions("run");
 		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return; //Don't register
+		//handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		//if (breakRecursion(host)) return;
 	}
+	doRegister(host);
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));

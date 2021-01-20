@@ -712,9 +712,34 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		host.script = program.addScript(host, *scope, this);
 		if (breakRecursion(host)) return;
 	}
-	scope = &host.script->getScope();
+	Script& script = *host.script;
+	string name = script.getName();
+	scope = &script.getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
+	if(script.getType() == ScriptType::untyped) return;
+	
+	// Check for a valid run function.
+	// Always run this, to ensure it is correct after all registration phase.
+	vector<Function*> possibleRuns =
+		//script.getScope().getLocalFunctions("run");
+		script.getScope().getLocalFunctions(FFCore.scriptRunString);
+	if (possibleRuns.size() == 0)
+	{
+		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (possibleRuns.size() > 1)
+	{
+		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (*possibleRuns[0]->returnType != DataType::ZVOID)
+	{
+		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	script.setRun(possibleRuns[0]);
 }
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)

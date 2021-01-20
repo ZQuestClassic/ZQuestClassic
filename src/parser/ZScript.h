@@ -96,6 +96,8 @@ namespace ZScript
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
 		
+		bool isPrototypeRun() const;
+		
 		std::vector<Opcode*> code;
 
 	protected:
