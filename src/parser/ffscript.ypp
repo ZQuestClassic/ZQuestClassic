@@ -73,7 +73,7 @@ extern YYLTYPE noloc;
 }
 
 %glr-parser
-%expect 1
+%expect 5
 %error-verbose
 %start Init
 %parse-param {boost::movelib::unique_ptr<ZScript::ASTFile>& root}
@@ -636,73 +636,73 @@ Function :
 		else func->setFlag(FUNCFLAG_INLINE);
 		$$ = func;
 	}
-	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = (ASTFuncDecl*)$4;
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->block = block;
 		func->location = @$;
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN RPAREN Statement_Block {
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN Statement_Block {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTBlock* block = (ASTBlock*)$5;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->block = block;
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN SEMICOLON {
+		$$ = func;}
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = (ASTFuncDecl*)$4;
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		func->location = @$;
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN RPAREN SEMICOLON {
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN SEMICOLON {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		$$ = func;}
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = (ASTFuncDecl*)$4;
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$8;
 		func->location = @$;
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.front();
 		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$7;
-		$$ = func;
-		delete name;}
+		$$ = func;}
 	;
 
 Function_Parameters_List :

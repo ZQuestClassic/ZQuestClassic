@@ -770,6 +770,7 @@ namespace ZScript
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
+		owning_ptr<ASTExprIdentifier> iden;
 		std::string name;
 		owning_ptr<ASTBlock> block;
 		std::string invalidMsg;
