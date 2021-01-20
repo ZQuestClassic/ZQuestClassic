@@ -622,9 +622,25 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		scope = host.parentScope;
 	else if(host.iden->components.size() > 1)
 	{
-		ASSERT(false);
-		//host.parentScope = lookupScope(*scope, *(host.iden), host, this);
-		//scope = host.parentScope;
+		ASTExprIdentifier const& id = *(host.iden);
+		
+		vector<string> scopeNames(id.components.begin(), --id.components.end());
+		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+		if(!host.parentScope)
+		{
+			string scopeName = "";
+			vector<string>::const_iterator del = scopeDelimiters.begin();
+			for (vector<string>::const_iterator it = scopeNames.begin();
+			   it != scopeNames.end();
+			   ++it,++del)
+			{
+				scopeName = scopeName + *it + *del;
+			}
+			handleError(CompileError::NoScopeFound(&host, scopeName.c_str()));
+			return;
+		}
+		scope = host.parentScope;
 	}
 	else host.parentScope = scope;
 	
