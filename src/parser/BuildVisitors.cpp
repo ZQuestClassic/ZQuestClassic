@@ -679,6 +679,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
+	if(host.prototype) return; //Same for prototypes
 	int oldreturnlabelid = returnlabelid;
 	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();

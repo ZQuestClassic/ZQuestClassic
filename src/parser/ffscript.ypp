@@ -645,7 +645,7 @@ Function :
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->block = block;
 		func->location = @$;
 		$$ = func;}
@@ -656,7 +656,7 @@ Function :
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->block = block;
 		$$ = func;}
 	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
@@ -666,7 +666,7 @@ Function :
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		func->location = @$;
@@ -677,7 +677,7 @@ Function :
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		$$ = func;}
@@ -688,7 +688,7 @@ Function :
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$8;
 		func->location = @$;
@@ -699,7 +699,7 @@ Function :
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
 		func->iden = iden;
-		func->name = iden->components.front();
+		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$7;
 		$$ = func;}
