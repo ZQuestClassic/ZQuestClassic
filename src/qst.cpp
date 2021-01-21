@@ -4633,6 +4633,42 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 					tempDMap.sub_initD_label[q][w] = 0;
 			}
 		}
+		if(s_version >= 15)
+		{
+			if(!p_igetw(&tempDMap.onmap_script,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			for ( int q = 0; q < 8; ++q )
+			{
+				if(!p_igetl(&tempDMap.onmap_initD[q],f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for ( int w = 0; w < 65; ++w )
+				{
+					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+			}
+		}
+		else
+		{
+			tempDMap.onmap_script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				tempDMap.onmap_initD[q] = 0;
+				for(int w = 0; w < 65; ++w)
+				{
+					tempDMap.onmap_initD_label[q][w] = 0;
+				}
+			}
+		}
 	
 	
 		if(keepdata==true)

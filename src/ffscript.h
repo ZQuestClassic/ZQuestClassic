@@ -540,6 +540,7 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 bool runActiveSubscreenScriptEngine();
+bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
@@ -787,6 +788,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptOnMapScript();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
@@ -4123,9 +4125,11 @@ enum ASM_DEFINE
 #define MODULEGETINT			0x13C1
 #define MODULEGETSTR			0x13C2
 #define NPCORIGINALHP			0x13C3
+#define DMAPDATAMAPSCRIPT			0x13C4
+#define DMAPDATAMAPINITD			0x13C5
 
 
-#define NUMVARIABLES         	0x13C4
+#define NUMVARIABLES         	0x13C6
 
 //} End variables
 

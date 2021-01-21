@@ -1849,7 +1849,7 @@ Waitdraw Support:	Yes
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
 * 
-* There are three script slots in the DMap Editor:
+* There are four script slots in the DMap Editor:
 *	Active
 *		This script runs whenever the player is on the DMap.
 *		It has eight InitD args, and eight InitD strings.
@@ -1878,6 +1878,14 @@ Waitdraw Support:	Yes
 *			If using a scripted DMap Subscreen (Active) script, then you
 *			further have the option that this script continues to run while
 *			the scripted active subscreen is open.
+*	Scripted Map
+*		This script runs, if assigned, when the player presses the
+*		MAP button, IN PLACE OF THE NORMAL ENGINE MAP.
+*		This script type hasd eight InitD args and eight InitD strings.
+*		If the player warps while this is running, then the engie will
+*		load the Scripted Map DMap script from the destination DMap (if any).
+*		If the destination DMap lacks a Scripted Map DMap script,
+*		then the virtual map will terminate.
 *
 *
 *
@@ -5128,11 +5136,19 @@ untyped InitD[8];
 int ASubScript;
  * The 'Active Subscreen' script slot ID
 int PSubScript;
- * The 'Pctive Subscreen' script slot ID
+ * The 'Passive Subscreen' script slot ID
 
 untyped SubInitD[8];
  * The eight script args shared by the active/passive subscreen
  * script slots on this DMap.
+
+int MapScript;
+ * The 'Scripted Map' script slot ID
+
+untyped MapInitD[8];
+ * The eight script args for the scripted map that runs
+ * on this DMap.
+
 	
 void SetName(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 

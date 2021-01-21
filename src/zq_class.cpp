@@ -7049,6 +7049,27 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 					}
 				}
 			}
+			if(!p_iputw(DMaps[i].onmap_script,f))
+			{
+				new_return(38);
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				if(!p_iputl(DMaps[i].onmap_initD[q],f))
+				{
+					new_return(39);
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for(int w = 0; w < 65; ++w)
+				{
+					if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
+					{
+						new_return(40);
+					}
+				}
+			}
         }
         
         if(writecycle==0)

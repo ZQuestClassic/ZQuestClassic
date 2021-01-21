@@ -2144,6 +2144,8 @@ script_variable variable_list[]=
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
 	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

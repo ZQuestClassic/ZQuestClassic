@@ -1375,11 +1375,13 @@ refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
+refInfo onmapScriptData;
 refInfo activeSubscreenScriptData;
 refInfo passiveSubscreenScriptData;
 word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
+word onmap_doscript = 0;
 word active_subscreen_doscript = 0;
 word passive_subscreen_doscript = 0;
 word global_wait = 0;
@@ -1387,9 +1389,11 @@ bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 bool passive_subscreen_waitdraw = false;
 bool active_subscreen_waitdraw = false;
+bool onmap_waitdraw = false;
 word item_doscript[256] = {0};
 word item_collect_doscript[256] = {0};
 byte dmapscriptInitialised = 0;
+byte onmapInitialised = 0;
 byte activeSubscreenInitialised = 0;
 byte passiveSubscreenInitialised = 0;
 //Sprite script data
@@ -1427,6 +1431,7 @@ long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
 long dmap_stack[MAX_SCRIPT_REGISTERS];
+long onmap_stack[MAX_SCRIPT_REGISTERS];
 long active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 long passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 long screen_stack[MAX_SCRIPT_REGISTERS];
@@ -1456,6 +1461,11 @@ void clear_link_stack()
 void clear_dmap_stack()
 {
 	memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void clear_onmap_stack()
+{
+	memset(onmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void clear_active_subscreen_stack()
@@ -1491,6 +1501,15 @@ void FFScript::initZScriptActiveSubscreenScript()
 	clear_active_subscreen_stack();
 	activeSubscreenInitialised = 0;
 	active_subscreen_waitdraw = false;
+}
+
+void FFScript::initZScriptOnMapScript()
+{
+	onmap_doscript = 1;
+	onmapScriptData.Clear();
+	clear_onmap_stack();
+	onmapInitialised = 0;
+	onmap_waitdraw = false;
 }
 
 void FFScript::initZScriptLinkScripts()
@@ -9104,6 +9123,10 @@ long get_register(const long arg)
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
 		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			ret = (DMaps[ri->dmapsref].onmap_script) * 10000; break;
+		}
 		case DMAPDATAPSUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].passive_sub_script) * 10000; break;
@@ -9120,6 +9143,20 @@ long get_register(const long arg)
 			else
 			{
 				ret = DMaps[ri->dmapsref].sub_initD[indx]; break;
+			}
+		}
+		case DMAPDATAMAPINITD:	//byte[8] --array
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret = DMaps[ri->dmapsref].onmap_initD[indx]; break;
 			}
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
@@ -16651,6 +16688,11 @@ void set_register(const long arg, const long value)
 			FFScript::deallocateAllArrays(SCRIPT_ACTIVESUBSCREEN, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			FFScript::deallocateAllArrays(SCRIPT_ONMAP, ri->dmapsref);
+			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(SCRIPT_PASSIVESUBSCREEN, ri->dmapsref);
@@ -16674,6 +16716,18 @@ void set_register(const long arg, const long value)
 			else
 			{
 				DMaps[ri->dmapsref].sub_initD[indx] = value; break;
+			}
+		}
+		case DMAPDATAMAPINITD:
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx); break;
+			}
+			else
+			{
+				DMaps[ri->dmapsref].onmap_initD[indx] = value; break;
 			}
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
@@ -22436,6 +22490,23 @@ int run_script(const byte type, const word script, const long i)
 		}
 		break;
 		
+		case SCRIPT_ONMAP:
+		{
+			ri = &onmapScriptData;
+			curscript = dmapscripts[script];
+			stack = &onmap_stack;
+			ri->dmapsref = i;
+			if ( !onmapInitialised )
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
+				}
+				onmapInitialised = 1;
+			}
+		}
+		break;
+		
 		case SCRIPT_ACTIVESUBSCREEN:
 		{
 			ri = &activeSubscreenScriptData;
@@ -22636,6 +22707,7 @@ int run_script(const byte type, const word script, const long i)
 						zprint("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						zprint("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_ONMAP:
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
@@ -22676,6 +22748,7 @@ int run_script(const byte type, const word script, const long i)
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_ONMAP:
 						case SCRIPT_DMAP:
 						case SCRIPT_ACTIVESUBSCREEN:
 						case SCRIPT_PASSIVESUBSCREEN:
@@ -22717,6 +22790,7 @@ int run_script(const byte type, const word script, const long i)
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_ONMAP:
 						case SCRIPT_DMAP:
 						case SCRIPT_ACTIVESUBSCREEN:
 						case SCRIPT_PASSIVESUBSCREEN:
@@ -22760,6 +22834,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -22804,6 +22879,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -22848,6 +22924,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -22892,6 +22969,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -25377,6 +25455,7 @@ int run_script(const byte type, const word script, const long i)
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_ONMAP:
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
@@ -25462,6 +25541,10 @@ int run_script(const byte type, const word script, const long i)
 				
 			case SCRIPT_ACTIVESUBSCREEN:
 				active_subscreen_waitdraw = true;
+				break;
+				
+			case SCRIPT_ONMAP:
+				onmap_waitdraw = true;
 				break;
 			
 			case SCRIPT_SCREEN:
@@ -25560,6 +25643,12 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_DMAP:
 			dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 			dmapscriptInitialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+			break;
+		
+		case SCRIPT_ONMAP:
+			onmap_doscript = 0;
+			onmapInitialised = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
@@ -28991,6 +29080,49 @@ bool FFScript::runActiveSubscreenScriptEngine()
 			if(!activesubscript || !dmapscripts[activesubscript]->valid()) return true; //No script to run
 			passivesubscript = DMaps[currdmap].passive_sub_script;
 			dmapactivescript = DMaps[currdmap].script;
+			script_dmap = currdmap;
+			//Reset the background image
+			game_loop();
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			//Now loop without advancing frame, so that the subscreen script can draw immediately.
+		}
+	}
+	resume_all_sfx();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	return true;
+}
+bool FFScript::runOnMapScriptEngine()
+{
+	word onmap_script = DMaps[currdmap].onmap_script;
+	if(!onmap_script || !dmapscripts[onmap_script]->valid()) return false; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptOnMapScript();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	word script_dmap = currdmap;
+	pause_all_sfx();
+	while(onmap_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
+		if(onmap_waitdraw && onmap_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
+			onmap_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
+		doScriptMenuDraws();
+		//
+		advanceframe(true);
+		//Handle warps; run game_loop once!
+		if(currdmap != script_dmap)
+		{
+			onmap_script = DMaps[currdmap].onmap_script;
+			if(!onmap_script || !dmapscripts[onmap_script]->valid()) return true; //No script to run
 			script_dmap = currdmap;
 			//Reset the background image
 			game_loop();
@@ -34096,6 +34228,8 @@ script_variable ZASMVars[]=
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
 	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -34779,6 +34913,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif   
 			break;
 			
+			case SCRIPT_ONMAP:
 			case SCRIPT_ACTIVESUBSCREEN:
 			case SCRIPT_PASSIVESUBSCREEN:
 			case SCRIPT_DMAP:

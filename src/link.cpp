@@ -7243,19 +7243,10 @@ bool LinkClass::animate(int)
     }
         
     if(rPbtn())
-    
-        // #define PBUTTONDEBUG
-        
-#ifndef PBUTTONDEBUG
-        onViewMap();
-        
-#else
-        /* This is here to allow me to output something to allegro.log on demand. */
     {
-        al_trace("**********\n");
-    }
-#endif
-        
+        if( !FFCore.runOnMapScriptEngine() ) //OnMap script replaces the 'onViewMap()' call
+			onViewMap();
+    }   
     for(int i=0; i<Lwpns.Count(); i++)
     {
         weapon *w = ((weapon*)Lwpns.spr(i));
