@@ -9123,6 +9123,10 @@ long get_register(const long arg)
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
 		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			ret = (DMaps[ri->dmapsref].onmap_script) * 10000; break;
+		}
 		case DMAPDATAPSUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].passive_sub_script) * 10000; break;
@@ -9139,6 +9143,20 @@ long get_register(const long arg)
 			else
 			{
 				ret = DMaps[ri->dmapsref].sub_initD[indx]; break;
+			}
+		}
+		case DMAPDATAMAPINITD:	//byte[8] --array
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret = DMaps[ri->dmapsref].onmap_initD[indx]; break;
 			}
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
@@ -16670,6 +16688,11 @@ void set_register(const long arg, const long value)
 			FFScript::deallocateAllArrays(SCRIPT_ACTIVESUBSCREEN, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			FFScript::deallocateAllArrays(SCRIPT_ONMAP, ri->dmapsref);
+			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(SCRIPT_PASSIVESUBSCREEN, ri->dmapsref);
@@ -16693,6 +16716,18 @@ void set_register(const long arg, const long value)
 			else
 			{
 				DMaps[ri->dmapsref].sub_initD[indx] = value; break;
+			}
+		}
+		case DMAPDATAMAPINITD:
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx); break;
+			}
+			else
+			{
+				DMaps[ri->dmapsref].onmap_initD[indx] = value; break;
 			}
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
@@ -34193,6 +34228,8 @@ script_variable ZASMVars[]=
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
 	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
