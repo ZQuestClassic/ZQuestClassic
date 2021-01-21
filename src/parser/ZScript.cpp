@@ -133,6 +133,12 @@ Script::~Script()
 	deleteElements(code);
 }
 
+bool Script::isPrototypeRun() const
+{
+	if(runFunc && runFunc->prototype) return true;
+	return false;
+}
+
 // ZScript::UserScript
 
 UserScript::UserScript(Program& program, ASTScript& node)

@@ -110,5 +110,7 @@ X(	MixedSwitch,				CX,	A,	E,	VOID,	VOID,	"Switch contains both strings and numbe
 X(	AssertFail,				C,	A,	E,	STR,	VOID,	"Assert Failed! %s"				)
 X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Could not find included file '%s'. Please check your include paths!"			)
 X(  BadDefaultReturn,       S,  A,  E,  STR,    VOID,   "Function %s cannot have multiple differing default return values."	 					)
+X(	NoScopeFound,				P,	A,	E,	STR,	VOID,	"Scope '%s' was not found."				)
+
 
 #undef STR

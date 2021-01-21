@@ -615,9 +615,39 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
 	if(host.registered()) return; //Skip if already handled
+	
+	Scope* oldScope = scope;
+	
+	if(host.parentScope)
+		scope = host.parentScope;
+	else if(host.iden->components.size() > 1)
+	{
+		ASTExprIdentifier const& id = *(host.iden);
+		
+		vector<string> scopeNames(id.components.begin(), --id.components.end());
+		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+		if(!host.parentScope)
+		{
+			string scopeName = "";
+			vector<string>::const_iterator del = scopeDelimiters.begin();
+			for (vector<string>::const_iterator it = scopeNames.begin();
+			   it != scopeNames.end();
+			   ++it,++del)
+			{
+				scopeName = scopeName + *it + *del;
+			}
+			handleError(CompileError::NoScopeFound(&host, scopeName.c_str()));
+			return;
+		}
+		scope = host.parentScope;
+	}
+	else host.parentScope = scope;
+	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		scope = oldScope;
 		return;
 	}
 	/* This option is being disabled for now, as inlining of user functions is being disabled -V
@@ -628,11 +658,12 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	}*/
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) return;
+	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
 	if (!returnType.isResolved())
 	{
 		handleError(
 				CompileError::UnresolvedType(&host, returnType.getName()));
+		scope = oldScope;
 		return;
 	}
 
@@ -647,10 +678,11 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 		// Resolve the parameter type under current scope.
 		DataType const& type = *decl.resolveType(scope, this);
-		if (breakRecursion(decl)) return;
+		if (breakRecursion(decl)) {scope = oldScope; return;}
 		if (!type.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&decl, type.getName()));
+			scope = oldScope;
 			return;
 		}
 
@@ -658,6 +690,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		if (type == DataType::ZVOID)
 		{
 			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
+			scope = oldScope;
 			return;
 		}
 		paramNames.push_back(new string(decl.name));
@@ -667,12 +700,13 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get());
-		if(breakRecursion(host.defaultReturn.get())) return;
+		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
 		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
 		if(!defValType.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&host, defValType.getName()));
+			scope = oldScope;
 			return;
 		}
 		//Check type validity of default return
@@ -685,13 +719,14 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		else checkCast(defValType, returnType, &host);
 	}
 	
-	if(breakRecursion(host)) return;
+	if(breakRecursion(host)) {scope = oldScope; return;}
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
 
+	scope = oldScope;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
@@ -712,9 +747,34 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		host.script = program.addScript(host, *scope, this);
 		if (breakRecursion(host)) return;
 	}
-	scope = &host.script->getScope();
+	Script& script = *host.script;
+	string name = script.getName();
+	scope = &script.getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
+	if(script.getType() == ScriptType::untyped) return;
+	
+	// Check for a valid run function.
+	// Always run this, to ensure it is correct after all registration phase.
+	vector<Function*> possibleRuns =
+		//script.getScope().getLocalFunctions("run");
+		script.getScope().getLocalFunctions(FFCore.scriptRunString);
+	if (possibleRuns.size() == 0)
+	{
+		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (possibleRuns.size() > 1)
+	{
+		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (*possibleRuns[0]->returnType != DataType::ZVOID)
+	{
+		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	script.setRun(possibleRuns[0]);
 }
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)

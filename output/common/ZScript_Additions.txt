@@ -1412,6 +1412,38 @@ Do note that the type of the default value must match the return type. The defau
 	void foo(); //correct
 	--end example]
 
+/////////////////////////////
+//  Function Declarations  //
+/////////////////////////////
+	
+You can now declare functions in remote scopes.
+	[example--
+	
+	ffc script foo{}
+	//
+	void foo.run(int x)
+	{
+		Trace(x);
+	}
+	--end example]
+This is especially useful with function prototypes!
+	[example--
+	
+	ffc script foo
+	{
+		void run()
+		{
+			Trace(bar());
+		}
+		int bar();
+	}
+	//Another file
+	int foo.bar()
+	{
+		return 10;
+	}
+	--end example]
+
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______
  |    |  _/  |  \/ ___\   __\|  \  \/  // __ \ /  ___/

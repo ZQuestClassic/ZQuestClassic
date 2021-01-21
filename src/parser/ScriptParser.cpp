@@ -449,6 +449,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	return unique_ptr<IntermediateData>(rval.release());
 }
 
+static vector<Opcode*> blankScript()
+{
+	vector<Opcode*> rval;
+	rval.push_back(new OQuit());
+	return rval;
+}
+
 void ScriptParser::assemble(IntermediateData *id)
 {
 	Program& program = id->program;
@@ -460,7 +467,8 @@ void ScriptParser::assemble(IntermediateData *id)
     
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ScriptType::global)
+	if (userInit && userInit->getType() == ScriptType::global
+		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
 	{
 		int label = *getLabel(*userInit);
 		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
@@ -476,8 +484,15 @@ void ScriptParser::assemble(IntermediateData *id)
 		if (script.getName() == "~Init") continue;
 		if(script.getType() == ScriptType::untyped) continue;
 		Function& run = *script.getRun();
-		int numparams = script.getRun()->paramTypes.size();
-		script.code = assembleOne(program, run.getCode(), numparams);
+		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
+		{
+			script.code = blankScript();
+		}
+		else
+		{
+			int numparams = script.getRun()->paramTypes.size();
+			script.code = assembleOne(program, run.getCode(), numparams);
+		}
 	}
 }
 

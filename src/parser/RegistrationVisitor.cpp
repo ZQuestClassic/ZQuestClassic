@@ -166,23 +166,29 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
-		&& registered(host, host.variables) && registered(host, host.functions))
+	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
+		&& registered(host, host.variables) && registered(host, host.functions)))
+	{
+		return;
+	}
+	
+	if(script.getType() == ScriptType::untyped)
 	{
 		doRegister(host);
+		return;
 	}
-	else return;
 	//
-	if(script.getType() == ScriptType::untyped) return;
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
 		//script.getScope().getLocalFunctions("run");
 		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return; //Don't register
+		//handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		//if (breakRecursion(host)) return;
 	}
+	doRegister(host);
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
@@ -560,9 +566,29 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
+	Scope* oldScope = scope;
+	
+	if(host.parentScope)
+		scope = host.parentScope;
+	else if(host.iden->components.size() > 1)
+	{
+		ASTExprIdentifier const& id = *(host.iden);
+		
+		vector<string> scopeNames(id.components.begin(), --id.components.end());
+		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+		if(!host.parentScope)
+		{
+			return;
+		}
+		scope = host.parentScope;
+	}
+	else host.parentScope = scope;
+	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		scope = oldScope;
 		return;
 	}
 	/* This option is being disabled for now, as inlining of user functions is being disabled -V
@@ -573,8 +599,8 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}*/
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) return;
-	if (!returnType.isResolved()) return;
+	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
+	if (!returnType.isResolved()) {scope = oldScope; return;}
 
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
@@ -587,14 +613,15 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 		// Resolve the parameter type under current scope.
 		DataType const& type = *decl.resolveType(scope, this);
-		if (breakRecursion(decl)) return;
-		if (!type.isResolved()) return;
+		if (breakRecursion(decl)) {scope = oldScope; return;}
+		if (!type.isResolved()) {scope = oldScope; return;}
 
 		// Don't allow void params.
 		if (type == DataType::ZVOID)
 		{
 			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
 			doRegister(host);
+			scope = oldScope;
 			return;
 		}
 		paramNames.push_back(new string(decl.name));
@@ -604,11 +631,11 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get(), param);
-		if(breakRecursion(host.defaultReturn.get())) return;
-		if(!(registered(host.defaultReturn.get()))) return;
+		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
+		if(!(registered(host.defaultReturn.get()))) {scope = oldScope; return;}
 		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
-		if(!defValType.isResolved()) return;
+		if(!defValType.isResolved()) {scope = oldScope; return;}
 		//Check type validity of default return
 		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
 			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
@@ -621,12 +648,13 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	
 	doRegister(host);
 	
-	if(breakRecursion(host)) return;
+	if(breakRecursion(host)) {scope = oldScope; return;}
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
-
+	
+	scope = oldScope;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
