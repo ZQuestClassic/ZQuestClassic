@@ -540,6 +540,7 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 bool runActiveSubscreenScriptEngine();
+bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
@@ -787,6 +788,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptOnMapScript();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();

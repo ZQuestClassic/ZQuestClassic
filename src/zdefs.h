@@ -216,7 +216,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           15
 #define V_CSETS            4
 #define V_MAPS            22
-#define V_DMAPS            14
+#define V_DMAPS            15
 #define V_DOORS            1
 #define V_ITEMS           46
 #define V_WEAPONS          7
@@ -2493,6 +2493,7 @@ struct mapscr
 #define SCRIPT_ACTIVESUBSCREEN			12
 #define SCRIPT_PASSIVESUBSCREEN			13
 #define SCRIPT_COMBO					14
+#define SCRIPT_ONMAP					15
 
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
@@ -3264,6 +3265,9 @@ struct dmap
 	word passive_sub_script;
 	long sub_initD[8];
 	char sub_initD_label[8][65];
+	word onmap_script;
+	long onmap_initD[8];
+	char onmap_initD_label[8][65];
 };
 
 // DMap flags
