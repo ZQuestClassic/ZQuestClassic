@@ -93,12 +93,6 @@ namespace ZScript
 		
 		bool deprecateGlobals;
 
-		// Signal a compile error if source can't be cast to target.
-		void checkCast(ZScript::DataType const& sourceType,
-		               ZScript::DataType const& targetType,
-		               AST* node = NULL,
-		               bool twoWay = false);
-
 		void analyzeFunctionInternals(ZScript::Function& function);
 
 		////////////////////////////////////////////////////////////////

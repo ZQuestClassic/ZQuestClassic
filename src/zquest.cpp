@@ -82,6 +82,14 @@ void setZScriptVersion(int) { } //bleh...
 
 #include <fstream>
 
+//Windows mmemory tools
+#ifdef _WIN32
+#include <windows.h>
+#include <stdio.h>
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib") // Needed to avoid linker issues. -Z
+#endif
+
 //SDL_Surface *sdl_screen;
 
 #define IS_ZQUEST 1
@@ -1309,38 +1317,40 @@ static int do_NewQuest()
 int alignment_arrow_timer=0;
 int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll, SavePaths, CycleOn, ShowGrid, GridColor, TileProtection, InvalidStatic, NoScreenPreview, MMapCursorStyle, BlinkSpeed = 20, UseSmall, RulesetDialog, EnableTooltips, ShowFFScripts, ShowSquares, ShowInfo, skipLayerWarning;
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0;
 int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
-bool Vsync, ShowFPS;
-int ComboBrush;                                             //show the brush instead of the normal mouse
-int ComboBrushPause;                                        //temporarily disable the combo brush
-int BrushPosition;                                          //top left, middle, bottom right, etc.
-int FloatBrush;                                             //makes the combo brush float a few pixels up and left
+unsigned char ViewLayer3BG = 0, ViewLayer2BG = 0; 
+bool Vsync = false, ShowFPS = false;
+int ComboBrush = 0;                                             //show the brush instead of the normal mouse
+int ComboBrushPause = 0;                                        //temporarily disable the combo brush
+int BrushPosition = 0;                                          //top left, middle, bottom right, etc.
+int FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
-int OpenLastQuest;                                          //makes the program reopen the quest that was
+int OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
-int ShowMisalignments;                                      //makes the program display arrows over combos that are
+int ShowMisalignments = 0;                                      //makes the program display arrows over combos that are
 //not aligned with the next screen.
-int AnimationOn;                                            //animate the combos in zquest?
-int AutoBackupRetention;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
-int AutoSaveInterval;                                       //how often a timed autosave is made (not overwriting the current file)
-int UncompressedAutoSaves;                                  //should timed saves be uncompressed/encrypted?
-int KeyboardRepeatDelay;                                    //the time in milliseconds after holding down a key that the key starts to repeat
-int KeyboardRepeatRate;                                     //the time in milliseconds between each repetition of a repeated key
+int AnimationOn = 0;                                            //animate the combos in zquest?
+int AutoBackupRetention = 0;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
+int AutoSaveInterval = 0;                                       //how often a timed autosave is made (not overwriting the current file)
+int UncompressedAutoSaves = 0;                                  //should timed saves be uncompressed/encrypted?
+int KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
+int KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
 
 time_t auto_save_time_start, auto_save_time_current;
-double auto_save_time_diff;
-int AutoSaveRetention;                                      //how many autosaves of a quest to keep
-int ImportMapBias;                                          //tells what has precedence on map importing
+double auto_save_time_diff = 0;
+int AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
+int ImportMapBias = 0;                                          //tells what has precedence on map importing
 int BrushWidth=1, BrushHeight=1;
 bool quit=false,saved=true;
 bool __debug=false;
 //bool usetiles=true;
-byte LayerMask[2];                                          //determines which layers are on or off.  0-15
-int LayerMaskInt[7];
+byte LayerMask[2]={0};                                          //determines which layers are on or off.  0-15
+int LayerMaskInt[7]={0};
 int CurrentLayer=0;
-int DuplicateAction[4];
-int OnlyCheckNewTilesForDuplicates;
+int DuplicateAction[4]={0};
+int OnlyCheckNewTilesForDuplicates = 0;
 int try_recovering_missing_scripts = 0;
 int zc_menu_on_left = 0;
 
@@ -1351,14 +1361,14 @@ int DMapEditorLastMaptileUsed = 0;
   , HorizontalDuplicateAction;
   int VerticalDuplicateAction, BothDuplicateAction;
   */
-word msg_count, qt_count;
-int LeechUpdate;
-int LeechUpdateTiles;
-int SnapshotFormat;
+word msg_count = 0, qt_count = 0;
+int LeechUpdate = 0;
+int LeechUpdateTiles = 0;
+int SnapshotFormat = 0;
 
-int memrequested;
-byte Color;
-int jwin_pal[jcMAX];
+int memrequested = 0;
+byte Color = 0;
+int jwin_pal[jcMAX] = {0};
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
@@ -1820,6 +1830,18 @@ static MENU tool_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+int onLayer3BG()
+{
+	if ( ViewLayer3BG ) ViewLayer3BG = 0;
+	else ViewLayer3BG = 1;
+	return D_O_K;
+}
+int onLayer2BG()
+{
+	if ( ViewLayer2BG ) ViewLayer2BG = 0;
+	else ViewLayer2BG = 1;
+	return D_O_K;
+}
 static MENU view_menu[] =
 {
     { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
@@ -1834,6 +1856,8 @@ static MENU view_menu[] =
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
+    { (char *)"Layer 3 is Background",              onLayer3BG,              NULL,                     0,            NULL   },
+    { (char *)"Layer 2 is Background",              onLayer2BG,              NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -9511,6 +9535,7 @@ static MENU draw_ffc_rc_menu[] =
     { (char *)"Paste FFC data",           NULL,  NULL,              0, NULL },
     { (char *)"Edit FFC",            NULL,  NULL,              0, NULL },
     { (char *)"Clear FFC",           NULL,  NULL,              0, NULL },
+    { (char *)"Snap to Grid",           NULL,  NULL,              0, NULL },
     { NULL,                          NULL,  NULL,              0, NULL }
 };
 
@@ -10625,6 +10650,21 @@ void domouse()
                             }
                             
                             break;
+			    
+			    case 4: //snap to grid
+			    {
+				int oldffx = Map.CurrScr()->ffx[i]/10000;
+				int oldffy = Map.CurrScr()->ffy[i]/10000;
+				int pos = COMBOPOS(oldffx,oldffy);
+				int newffy = COMBOY(pos)*10000;
+				int newffx = COMBOX(pos)*10000;
+				Map.CurrScr()->ffx[i] = newffx;
+				Map.CurrScr()->ffy[i] = newffy;
+				//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
+				//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
+				saved = false;
+				break;
+			    }
                         }
                         
                         clickedffc = true;
@@ -15797,7 +15837,7 @@ char dmap_intro[73];
 static int editdmap_mechanics_list[] =
 {
     // dialog control number
-    19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, -1
+    19, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, -1
 };
 
 /*
@@ -15833,10 +15873,10 @@ static int editdmap_disableitems_list[] =
 
 static int editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,-1
 };
 
-static int editdmap_scripts_list[] =
+static int editdmap_script_active[] =
 {
     // dialog control number
 	130,131,132,133,134,135,136,137,//InitD Labels
@@ -15845,13 +15885,28 @@ static int editdmap_scripts_list[] =
 	-1
 };
 
-static int editdmap_sub_scripts_list[] =
+static int editdmap_script_subsc[] =
 {
     // dialog control number
 	148,149,150,151,152,153,154,155,//InitD Labels
 	156,157,158,159,160,161,162,163,//InitD Values
 	164,165,166,167, //TextProcs & Dropdowns
 	-1
+};
+
+static int editdmap_script_onmap[] =
+{
+    // dialog control number
+	169,170,171,172,173,174,175,176,//InitD Labels
+	177,178,179,180,181,182,183,184,//InitD Values
+	185,186, //TextProcs & Dropdowns
+	-1
+};
+
+static int editdmap_scripts_list[] =
+{
+    // dialog control number
+	28, -1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -15864,7 +15919,6 @@ static TABPANEL editdmap_tabs[] =
     { (char *)"Flags",          0,           editdmap_flags_list,          0,  NULL },
     { (char *)"Disable",        0, 		   editdmap_disableitems_list,   0,  NULL },
     { (char *)"Scripts",        0, 		   editdmap_scripts_list,   0,  NULL },
-    { (char *)"Sub. Scripts",   0, 		   editdmap_sub_scripts_list,   0,  NULL },
     { NULL,                     0,           NULL,                         0,  NULL }
 };
 
@@ -15885,6 +15939,15 @@ static TABPANEL editdmapmap_tabs[] =
     // (text)
     { (char *)"Without Map",  D_SELECTED,  editdmapmap_before_list, 0, NULL },
     { (char *)"With Map",     0,           editdmapmap_after_list, 0, NULL },
+    { NULL,                   0,           NULL, 0, NULL }
+};
+
+static TABPANEL editdmap_script_tabs[] =
+{
+    // (text)
+    { (char *)"Active",  D_SELECTED,  editdmap_script_active, 0, NULL },
+    { (char *)"Subscreen",     0,           editdmap_script_subsc, 0, NULL },
+    { (char *)"Map",     0,           editdmap_script_onmap, 0, NULL },
     { NULL,                   0,           NULL, 0, NULL }
 };
 
@@ -15935,13 +15998,13 @@ static DIALOG editdmap_dlg[] =
 {
     // (dialog proc)                (x)     (y)     (w)     (h)     (fg)                    (bg)                 (key)     (flags)   (d1)           (d2)   (dp)                                                   (dp2)                 (dp3)
     {  jwin_win_proc,                 0,      0,    320,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
-    {  jwin_button_proc,             89,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
-    {  jwin_button_proc,            164,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
+    {  jwin_button_proc,             89,    228,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
+    {  jwin_button_proc,            164,    228,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    300,    164,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
-    {  jwin_tab_proc,                10,     65,    292,    136,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    300,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
     {  d_maptile_proc,               33,     97,     80,     48,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
@@ -15967,7 +16030,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,              274,     65,     26,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           3,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,              28,    150,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Setting this tile disables",                                NULL,                 NULL                  },
     {  jwin_text_proc,              28,    158,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "the classic NES minimap.",                                NULL,                 NULL                  },
-    {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     //30
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -16086,7 +16149,7 @@ static DIALOG editdmap_dlg[] =
     {  d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     
     //127
-    {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Enable Sideview on All Screens",      NULL,                 NULL                  },
+    {  jwin_check_proc,              230,    115,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Sideview",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    185,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 3 is Background on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    195,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 2 is Background on All Screens",      NULL,                 NULL                  },
     //130
@@ -16102,53 +16165,77 @@ static DIALOG editdmap_dlg[] =
    */
     //130
     // If I make it possible to edit these, too, they'd be here. -Z
-    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     
     //138
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //146
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //148
-    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //156
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //164
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //166
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+28,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+28,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+28+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     
+    //168
+    {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Use Enemy List for Cellar Enemies",      NULL,                 NULL                  },
     
+	//169
+    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    //177
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //186
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+	
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16162,17 +16249,22 @@ void editdmap(int index)
 	
 	char initdvals[8][13]; //script
 	char subinitdvals[8][13]; //script
+	char onmapinitdvals[8][13]; //script
 	char initd_labels[8][65];
 	char sub_initd_labels[8][65];
+	char onmap_initd_labels[8][65];
 	
 	for ( int q = 0; q < 8; q++ )
 	{
 		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
 		strcpy(sub_initd_labels[q], DMaps[index].sub_initD_label[q]);
+		strcpy(onmap_initd_labels[q], DMaps[index].onmap_initD_label[q]);
 		if ( initd_labels[q][0] == NULL ) sprintf(initd_labels[q],"InitD[%d]",q);
 		if ( sub_initd_labels[q][0] == NULL ) sprintf(sub_initd_labels[q],"InitD[%d]",q);
+		if ( onmap_initd_labels[q][0] == NULL ) sprintf(onmap_initd_labels[q],"InitD[%d]",q);
 		editdmap_dlg[130+q].dp = initd_labels[q];
 		editdmap_dlg[148+q].dp = sub_initd_labels[q];
+		editdmap_dlg[169+q].dp = onmap_initd_labels[q];
 	}
     
 	
@@ -16187,7 +16279,7 @@ void editdmap(int index)
     sprintf(tmusicstr,"%s",DMaps[index].tmusic);
 	
 	//dmap script
-	build_bidmaps_list(); //lweapon scripts lister
+	build_bidmaps_list(); //dmap scripts lister
 	
 	for(int j = 0; j < bidmaps_cnt; j++)
 	{
@@ -16203,15 +16295,21 @@ void editdmap(int index)
 		{
 			editdmap_dlg[167].d1 = j; 
 		}
+		if(bidmaps[j].second == DMaps[index].onmap_script -1)
+		{
+			editdmap_dlg[186].d1 = j; 
+		}
 	}
     
 	for ( int q = 0; q < 8; q++ )
 	{
 		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
 		sprintf(subinitdvals[q],"%.4f",DMaps[index].sub_initD[q]/10000.0);
+		sprintf(onmapinitdvals[q],"%.4f",DMaps[index].onmap_initD[q]/10000.0);
 	 
 		editdmap_dlg[138+q].dp = initdvals[q];
 		editdmap_dlg[156+q].dp = subinitdvals[q];
+		editdmap_dlg[177+q].dp = onmapinitdvals[q];
 	}
 	
     editdmap_dlg[0].dp=dmapnumstr;
@@ -16234,10 +16332,8 @@ void editdmap(int index)
     editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
     editdmap_dlg[25].dp=levelstr;
     
-    for(int i=0; i<32; i++)
-    {
-        editdmap_dlg[26+i].dp2=is_large?nfont:spfont;
-    }
+    editdmap_dlg[26].dp2=is_large?nfont:spfont;
+    editdmap_dlg[27].dp2=is_large?nfont:spfont;
     
     for(int i=0; i<8; i++)
     {
@@ -16306,6 +16402,8 @@ void editdmap(int index)
     editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
     editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
     editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
+    
+    editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
     
     if(is_large)
     {
@@ -16464,12 +16562,14 @@ void editdmap(int index)
         f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
         f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
         f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
+        f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
         DMaps[index].flags = f;
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
 	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1;
 	DMaps[index].active_sub_script = bidmaps[editdmap_dlg[165].d1].second + 1;
 	DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
+	DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
 	
 	//for ( int q = 0; q < 8; ++q )
 	//{
@@ -16480,9 +16580,11 @@ void editdmap(int index)
 	{
 		DMaps[index].initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
 		DMaps[index].sub_initD[q] = vbound(ffparse(subinitdvals[q]),-2147483647, 2147483647);
+		DMaps[index].onmap_initD[q] = vbound(ffparse(onmapinitdvals[q]),-2147483647, 2147483647);
 		////initd_labels
 		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
-		sprintf(DMaps[index].sub_initD_label[q],"%s",initd_labels[q]);
+		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
+		sprintf(DMaps[index].onmap_initD_label[q],"%s",onmap_initd_labels[q]);
 //		strcpy(DMaps[index].initD_label[q], initd_labels[q]);
 		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 	}
@@ -16759,6 +16861,27 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 			for(int w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
+				{
+					new_return(37);
+				}
+			}
+		}
+		if(!p_iputw(DMaps[i].onmap_script,f))
+		{
+			new_return(35);
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_iputl(DMaps[i].onmap_initD[q],f))
+			{
+				new_return(36);
+			}
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int w = 0; w < 65; ++w)
+			{
+				if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
 				{
 					new_return(37);
 				}
@@ -17065,6 +17188,27 @@ int readsomedmaps(PACKFILE *f)
 							}
 						}
 					}
+					if(!p_igetw(&tempdmap.onmap_script,f,true))
+					{
+						return 0;
+					}
+					for(int q = 0; q < 8; ++q)
+					{
+						if(!p_igetl(&tempdmap.onmap_initD[q],f,true))
+						{
+							return 0;
+						}
+					}	
+					for(int q = 0; q < 8; ++q)
+					{
+						for(int w = 0; w < 65; ++w)
+						{
+							if(!p_getc(&tempdmap.onmap_initD_label[q][w],f,true))
+							{
+								return 0;
+							}
+						}
+					}
 				}
 			}
 		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
@@ -17299,6 +17443,27 @@ int writeonedmap(PACKFILE *f, int i)
 			for(int w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
+				{
+					new_return(37);
+				}
+			}
+		}
+		if(!p_iputw(DMaps[i].onmap_script,f))
+		{
+			new_return(35);
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_iputl(DMaps[i].onmap_initD[q],f))
+			{
+				new_return(36);
+			}
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int w = 0; w < 65; ++w)
+			{
+				if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
 				{
 					new_return(37);
 				}
@@ -17591,6 +17756,27 @@ int readonedmap(PACKFILE *f, int index)
 					for(int w = 0; w < 65; ++w)
 					{
 						if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
+						{
+							return 0;
+						}
+					}
+				}
+				if(!p_igetw(&tempdmap.onmap_script,f,true))
+				{
+					return 0;
+				}
+				for(int q = 0; q < 8; ++q)
+				{
+					if(!p_igetl(&tempdmap.onmap_initD[q],f,true))
+					{
+						return 0;
+					}
+				}	
+				for(int q = 0; q < 8; ++q)
+				{
+					for(int w = 0; w < 65; ++w)
+					{
+						if(!p_getc(&tempdmap.onmap_initD_label[q][w],f,true))
 						{
 							return 0;
 						}
@@ -24775,31 +24961,41 @@ void showScriptInfo(zasm_meta const* meta)
 
 static int zscript_settings_scripts_list[] =
 {
-	6, 18, 22, 25, 26, 31, 32,
-	33, 34, 35, 36, 37, 38, 44,
+	7, 19, 23, 26, 27, 32, 33,
+	34, 35, 36, 37, 38, 39, 45,
 	-1
 };
 
-static int zscript_settings_instructions_list[] =
+static int zscript_settings_instructions[] =
 {
-	7, 8, 15, 16, 19, 20, 23, 27,
-	28, 29, 30, 40, 41, 42, 43,
+	6,
+	-1
+};
+static int zscript_settings_instructions_1[] =
+{
+	8, 9, 16, 17, 20, 21, 24, 28,
+	29, 30, 31, 41, 42, 43,
+	-1
+};
+static int zscript_settings_instructions_2[] =
+{
+	44, 46, 47,
 	-1
 };
 
 static int zscript_settings_objects_list[] =
 {
-	12, 13, 14, 24, -1
+	13, 14, 15, 25, -1
 };
 
 static int zscript_settings_drawing_list[] =
 {
-	9, 11, -1
+	10, 12, -1
 };
 
 static int zscript_settings_bugfixes_list[] =
 {
-	10, 17, 21, 39,
+	11, 18, 22, 40,
 	-1
 };
 
@@ -24807,10 +25003,17 @@ static TABPANEL zscript_settings_tabs[] =
 {
     // (text)
     { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
-    { (char *)" Instructions ",    0,           zscript_settings_instructions_list, 0, NULL },
+    { (char *)" Instructions ",    0,           zscript_settings_instructions, 0, NULL },
     { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
     { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
     { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
+    { NULL,              0,           NULL,             0, NULL }
+};
+static TABPANEL zscript_settings_instructions_tabs[] =
+{
+    // (text)
+    { (char *)" 1 ",     D_SELECTED,  zscript_settings_instructions_1, 0, NULL },
+    { (char *)" 2 ",     0,           zscript_settings_instructions_2, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -24824,55 +25027,59 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
 	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	//6 Subtab (Instructions)
+	{ jwin_tab_proc,         7,   40,   286,  164,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_instructions_tabs, NULL, (void *)zscript_settings_dlg },
 	
-	// rules //6
+	// rules //7
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+	{ jwin_check_proc,      12, 47+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      12, 47+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
 	// 10
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
 	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
 	// 15
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
+	{ jwin_check_proc,      12, 47+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
+	{ jwin_check_proc,      12, 47+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
 	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
-	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
 	// 20
-	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
+	{ jwin_check_proc,      12, 47+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
+	{ jwin_check_proc,      12, 47+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
 	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
 	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
-	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
+	{ jwin_check_proc,      12, 47+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
 	// 25
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen Script", NULL, NULL },
 	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
-	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
+	{ jwin_check_proc,      12, 47+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
+	{ jwin_check_proc,      12, 47+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
 	// 30
-	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
+	{ jwin_check_proc,      12, 47+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
+	{ jwin_check_proc,      12, 47+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
 	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 0", NULL, NULL },
 	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 1", NULL, NULL },
 	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 2", NULL, NULL },
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
 	// 35
+	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
 	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
 	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
 	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
 	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
 	// 40
-	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
-	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
-	{ jwin_check_proc,      10, 33+150,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
+	{ jwin_check_proc,      12, 47+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
+	{ jwin_check_proc,      12, 47+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
+	{ jwin_check_proc,      12, 47+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
+	{ jwin_check_proc,      12, 47+10,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
 	// 45
+	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
+	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
+	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -24890,7 +25097,8 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2, qr_COMBOSCRIPTS_LAYER_3,
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
-	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,
+	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
+	qr_LOG_INVALID_UID_LOAD,
     -1
 };
 
@@ -25052,8 +25260,8 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
     { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
     //10
-    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
-    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
    
     { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": On Error",                  NULL,   NULL                  },
@@ -25453,6 +25661,11 @@ void clear_map_states()
 int onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
+	int memuse = 0;
+	#ifdef _WIN32
+	PROCESS_MEMORY_COUNTERS memCounter;
+	BOOL memresult = false;
+	#endif
 	
 	if(try_recovering_missing_scripts!=0)
 	{
@@ -25549,6 +25762,17 @@ int onCompileScript()
 		}
 		
 		case 5:
+			#ifdef _WIN32
+			memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
+			memuse = memCounter.WorkingSetSize / 1024 / 1024;
+			zprint2("Mem use: %d\n", memuse);
+			if ( memuse >= 3072 )
+			{
+				jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
+				return 0;
+			}	
+			#endif
+			//need elseif for linux here! -Z
 			//Compile!
 			FILE *tempfile = fopen("tmp","w");
 			
@@ -25562,7 +25786,13 @@ int onCompileScript()
 			fclose(tempfile);
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-			ZScript::ScriptsData *result = ZScript::compile("tmp");
+			clock_t start_compile_time = clock();
+			boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
+			clock_t end_compile_time = clock();
+			char buf[256] = {0};
+			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+			box_out(buf);
+			box_eol();
 			unlink("tmp");
 			if ( result )
 			{
@@ -25660,7 +25890,7 @@ int onCompileScript()
 			
 			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
 			std::map<string, disassembled_script_data> scripts = result->theScripts;
-			delete result;
+			result.reset();
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
@@ -26298,6 +26528,7 @@ script_slot_type getType(int type)
 		case SCRIPT_DMAP:
 		case SCRIPT_ACTIVESUBSCREEN:
 		case SCRIPT_PASSIVESUBSCREEN:
+		case SCRIPT_ONMAP:
 			return type_dmap;
 		case SCRIPT_SCREEN: return type_screen;
 		case SCRIPT_ITEMSPRITE: return type_itemsprite;
@@ -26789,7 +27020,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
-				
+				clock_t start_assign_time = clock();
 				for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
@@ -27270,6 +27501,10 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				unlink("tmp");
+				clock_t end_assign_time = clock();
+				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				char buf[256] = {0};
+				sprintf(buf, "Assign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
@@ -27283,7 +27518,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
-				jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Done!","ZScripts successfully loaded into script slots",buf,NULL,"O&K",NULL,'k',0,lfont);
 				if ( compile_finish_sample > 0 )
 				{
 					if(sfx_voice[compile_finish_sample]!=-1)
@@ -28595,6 +28830,7 @@ static DIALOG sfx_edit_dlg[] =
     { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -28833,6 +29069,62 @@ int onSelectSFX()
     return D_O_K;
 }
 
+bool saveWAV(int slot, const char *filename)
+{
+    if (slot < 1 || slot >= 511 )
+        return false;
+
+    if (customsfxdata[slot].data == NULL)
+	return false;
+    
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs)
+        return false;
+    ofs.write("RIFF",4);
+    int32_t samplerate = customsfxdata[slot].freq;
+    int16_t channels = customsfxdata[slot].stereo ? 2 : 1;
+    int32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
+    int32_t size = 36 + datalen;
+    ofs.write((char *)&size, 4);
+    ofs.write("WAVE", 4);
+    ofs.write("fmt ", 4);
+    int32_t fmtlen = 16;
+    ofs.write((char *)&fmtlen, 4);
+    int16_t type = 1;
+    ofs.write((char *)&type, 2);
+    ofs.write((char *)&channels, 2);
+    ofs.write((char *)&samplerate, 4);
+    int32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
+    ofs.write((char *)&bytespersec, 4);
+    int16_t blockalign = channels*customsfxdata[slot].bits / 8;
+    ofs.write((char *)&blockalign, 2);
+    int16_t bitspersample = customsfxdata[slot].bits;
+    ofs.write((char *)&bitspersample, 2);
+    ofs.write("data", 4);
+    ofs.write((char *)&datalen, 4);
+    if (bitspersample == 8)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            char data = ((char *)customsfxdata[slot].data)[i];
+            data ^= 0x80;
+            ofs.write(&data, 1);
+        }
+    }
+    else if (bitspersample == 16)
+    {
+        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        {
+            int16_t data = ((int16_t *)customsfxdata[slot].data)[i];
+            data ^= 0x8000;
+            ofs.write((char *)&data, 2);
+        }
+    }
+    else
+        return false;
+    return !!ofs;
+} 
+
 int onEditSFX(int index)
 {
     kill_sfx();
@@ -28861,92 +29153,137 @@ int onEditSFX(int index)
         
         switch(ret)
         {
-        case 1:
-            saved= false;
-            kill_sfx();
-            change_sfx(&customsfxdata[index],&templist[index]);
-            set_bit(customsfxflag,index-1,tempflag);
-            strcpy(sfx_string[index], name);
-            
-        case 2:
-        case 0:
-            // Fall Through
-            kill_sfx();
-            
-            for(int i=1; i<WAV_COUNT; i++)
-            {
-                if(templist[i].data != NULL)
-                {
-                    zc_free(templist[i].data);
-                    templist[i].data = NULL;
-                }
-            }
-            
-            break;
-            
-        case 3:
-            if(getname("Open .WAV file", "wav", NULL,temppath, true))
-            {
-                SAMPLE * temp_sample;
-                
-                if((temp_sample = load_wav(temppath))==NULL)
-                {
-                    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
-                }
-                else
-                {
-                    char sfxtitle[36];
-                    char *t = get_filename(temppath);
-                    int j;
-                    
-                    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-                    {
-                        sfxtitle[j]=t[j];
-                    }
-                    
-                    sfxtitle[j]=0;
-                    strcpy(name,sfxtitle);
-                    kill_sfx();
-                    change_sfx(&templist[index], temp_sample);
-                    destroy_sample(temp_sample);
-                    tempflag = 1;
-                }
-            }
-            
-            break;
-            
-        case 4:
-        {
-            kill_sfx();
-            
-            if(templist[index].data != NULL)
-            {
-                sfx(index, 128, false,true);
-            }
-        }
-        break;
-        
-        case 5:
-            kill_sfx();
-            break;
-            
-        case 6:
-            kill_sfx();
-            
-            if(index < WAV_COUNT)
-            {
-                SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-                change_sfx(&templist[index], temp_sample);
-                tempflag = 0;
-                sprintf(name,"s%03d", index);
-                
-                if(index <Z35)
-                {
-                    strcpy(name, old_sfx_string[index-1]);
-                }
-            }
-            
-            break;
+		case 1:
+		    saved= false;
+		    kill_sfx();
+		    change_sfx(&customsfxdata[index],&templist[index]);
+		    set_bit(customsfxflag,index-1,tempflag);
+		    strcpy(sfx_string[index], name);
+		    
+		case 2:
+		case 0:
+		    // Fall Through
+		    kill_sfx();
+		    
+		    for(int i=1; i<WAV_COUNT; i++)
+		    {
+			if(templist[i].data != NULL)
+			{
+			    zc_free(templist[i].data);
+			    templist[i].data = NULL;
+			}
+		    }
+		    
+		    break;
+		    
+		case 3:
+		    if(getname("Open .WAV file", "wav", NULL,temppath, true))
+		    {
+			SAMPLE * temp_sample;
+			
+			if((temp_sample = load_wav(temppath))==NULL)
+			{
+			    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+			}
+			else
+			{
+			    char sfxtitle[36];
+			    char *t = get_filename(temppath);
+			    int j;
+			    
+			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
+			    {
+				sfxtitle[j]=t[j];
+			    }
+			    
+			    sfxtitle[j]=0;
+			    strcpy(name,sfxtitle);
+			    kill_sfx();
+			    change_sfx(&templist[index], temp_sample);
+			    destroy_sample(temp_sample);
+			    tempflag = 1;
+			}
+		    }
+		    
+		    break;
+		    
+		case 4:
+		{
+		    kill_sfx();
+		    
+		    if(templist[index].data != NULL)
+		    {
+			sfx(index, 128, false,true);
+		    }
+		}
+		break;
+		
+		case 5:
+		    kill_sfx();
+		    break;
+		    
+		case 6:
+		    kill_sfx();
+		    
+		    if(index < WAV_COUNT)
+		    {
+			SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
+			change_sfx(&templist[index], temp_sample);
+			tempflag = 0;
+			sprintf(name,"s%03d", index);
+			
+			if(index <Z35)
+			{
+			    strcpy(name, old_sfx_string[index-1]);
+			}
+		    }
+		    
+		    break;
+		    
+	    
+		case 10:
+		{
+			memset(temppath, 0, sizeof(temppath));
+			char tempname[36];
+			strcpy(tempname,sfx_string[index]);
+			//change spaces to dashes for f/s safety
+			for ( int q = 0; q < 36; ++q )
+			{
+				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
+					tempname[q] = 45; //becomes hyphen
+			}
+			
+			tempname[35] = 0;
+			
+			strcpy(temppath,tempname);
+			
+			//zprint2("temppath is: %s\n", temppath);
+			//zprint2("tempname is: %s\n", tempname);
+			//save
+			if(templist[index].data != NULL)
+			{
+				if (getname("Save .WAV file", "wav", NULL, temppath, true))
+				{
+					if(!saveWAV(index, temppath))
+					{
+						jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+					}
+					else 
+					{
+						jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						
+					}
+				}
+				
+			}
+			else 
+			{
+				jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				
+			}		
+			break;
+		}
+	
         }
     }
     while(ret>2);
@@ -30240,7 +30577,11 @@ long exittimer = 10000, exittimer2 = 100;
 
 int main(int argc,char **argv)
 { 
-    
+#if (defined(_DEBUG) && defined(_MSC_VER))
+#if (VLD_FORCE_ENABLE == 0)
+    ::InitCrtDebug();
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER))
 	
 	if ( V_ZC_ALPHA )
 	{
@@ -31133,6 +31474,8 @@ int main(int argc,char **argv)
     PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
     PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
     PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
+    //ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
+    //ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
     
     
     //This is too much work to fix for 2.5. :| -Gleeok
@@ -32709,6 +33052,8 @@ int main(int argc,char **argv)
         view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
         view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
         view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
+        view_menu[12].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
+        view_menu[13].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
         view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
         view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
         view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info

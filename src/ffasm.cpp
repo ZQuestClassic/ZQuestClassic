@@ -2143,6 +2143,9 @@ script_variable variable_list[]=
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
@@ -2188,7 +2191,8 @@ long ffparse(char *string)
 		ret-=atoi(ptr);
 	else ret+=atoi(ptr);
 	
-	zc_free(tempstring1);
+	if(tempstring1) //may be safer
+		zc_free(tempstring1);
 	return ret;
 }
 

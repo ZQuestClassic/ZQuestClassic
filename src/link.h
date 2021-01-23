@@ -229,8 +229,7 @@ public:
 	ladderdir, // direction of ladder
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
-	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	stundir; //Direction facing when stunned
+	inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir; // scrolling direction
@@ -324,6 +323,7 @@ public:
     int get_scroll_delay(int scrolldir);
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    int defend(weapon *w);
     
 private:
     void walkdown(bool opening);

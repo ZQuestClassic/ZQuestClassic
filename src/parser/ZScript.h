@@ -96,6 +96,8 @@ namespace ZScript
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
 		
+		bool isPrototypeRun() const;
+		
 		std::vector<Opcode*> code;
 
 	protected:
@@ -352,7 +354,7 @@ namespace ZScript
 	public:
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
-		         int id, int flags = 0, int internal_flags = 0);
+		         int id, int flags = 0, int internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
 		~Function();
 		
 		DataType const* returnType;
@@ -394,6 +396,8 @@ namespace ZScript
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		int internal_flags;
+		bool prototype;
+		ASTExprConst* defaultReturn;
 		
 	private:
 		mutable optional<int> label;

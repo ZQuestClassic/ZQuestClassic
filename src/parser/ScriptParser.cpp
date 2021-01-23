@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <string>
 #include <memory>
+#include <boost/move/unique_ptr.hpp>
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -20,7 +21,7 @@
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
-using namespace std;
+using boost::movelib::unique_ptr;
 using namespace ZScript;
 
 extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
@@ -46,14 +47,14 @@ void ScriptParser::initialize()
 	CompileOption::initialize();
 }
 
-ScriptsData* ZScript::compile(string const& filename)
+unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
     ScriptParser::initialize();
 
 	box_out("Pass 1: Parsing");
 	box_eol();
 
-	auto_ptr<ASTFile> root(parseFile(filename));
+	unique_ptr<ASTFile> root(parseFile(filename));
 	if (!root.get())
 	{
 		box_out_err(CompileError::CantOpenSource(NULL));
@@ -94,7 +95,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_out("Pass 5: Generating object code");
 	box_eol();
     
-	auto_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
+	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return NULL;
     
@@ -103,12 +104,12 @@ ScriptsData* ZScript::compile(string const& filename)
 
 	ScriptParser::assemble(id.get());
 
-	ScriptsData* result = new ScriptsData(program);
+	unique_ptr<ScriptsData> result(new ScriptsData(program));
     
 	box_out("Success!");
 	box_eol();
 
-	return result;
+	return unique_ptr<ScriptsData>(result.release());
 }
 
 int ScriptParser::vid = 0;
@@ -182,7 +183,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 		box_out_err(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
 	}
-	auto_ptr<ASTFile> imported(parseFile(filename));
+	unique_ptr<ASTFile> imported(parseFile(filename));
 	if (!imported.get())
 	{
 		box_out_err(CompileError::CantParseImport(&importDecl, filename));
@@ -219,7 +220,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 	return true;
 }
 
-IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
+unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
 	Scope* scope = &program.getScope();
@@ -231,7 +232,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     
 	//we now have labels for the functions and ids for the global variables.
 	//we can now generate the code to intialize the globals
-	IntermediateData *rval = new IntermediateData(fdata);
+	unique_ptr<IntermediateData> rval(new IntermediateData(fdata));
     
 	// Push 0s for init stack space.
 	/* Why? The stack should already be init'd to all 0, anyway?
@@ -272,6 +273,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	{
 		Function& function = **it;
 		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
+		if(function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);
@@ -288,10 +290,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		int stackSize = getStackSize(function);
         
 		// Start of the function.
-		Opcode* first = new OSetImmediate(new VarArgument(EXP1),
-		                                  new LiteralArgument(0));
+		unique_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+		                                  new LiteralArgument(0)));
 		first->setLabel(function.getLabel());
-		funccode.push_back(first);
+		funccode.push_back(first.release());
 
 		// Push on the this, if a script
 		if (isRun)
@@ -405,10 +407,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		appendElements(funccode, bo.getResult());
         
 		// Add appendix code.
-		Opcode* next = new OSetImmediate(new VarArgument(EXP2),
-		                                 new LiteralArgument(0));
+		unique_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+												  new LiteralArgument(0)));
 		next->setLabel(bo.getReturnLabelID());
-		funccode.push_back(next);
+		funccode.push_back(next.release());
         
 		// Pop off everything.
 		for (int i = 0; i < stackSize; ++i)
@@ -439,11 +441,18 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     
 	if (failure)
 	{
-		delete rval;
-		return NULL;
+		rval.reset();
+		return unique_ptr<IntermediateData>(rval.release());;
 	}
     
 	//Z_message("yes");
+	return unique_ptr<IntermediateData>(rval.release());
+}
+
+static vector<Opcode*> blankScript()
+{
+	vector<Opcode*> rval;
+	rval.push_back(new OQuit());
 	return rval;
 }
 
@@ -458,7 +467,8 @@ void ScriptParser::assemble(IntermediateData *id)
     
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ScriptType::global)
+	if (userInit && userInit->getType() == ScriptType::global
+		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
 	{
 		int label = *getLabel(*userInit);
 		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
@@ -474,8 +484,15 @@ void ScriptParser::assemble(IntermediateData *id)
 		if (script.getName() == "~Init") continue;
 		if(script.getType() == ScriptType::untyped) continue;
 		Function& run = *script.getRun();
-		int numparams = script.getRun()->paramTypes.size();
-		script.code = assembleOne(program, run.getCode(), numparams);
+		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
+		{
+			script.code = blankScript();
+		}
+		else
+		{
+			int numparams = script.getRun()->paramTypes.size();
+			script.code = assembleOne(program, run.getCode(), numparams);
+		}
 	}
 }
 
@@ -502,21 +519,21 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
     
 	// Grab all labels directly jumped to.
-	set<int> usedLabels;
+	std::set<int> usedLabels;
 	for (vector<Opcode*>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 	{
 		GetLabels temp(usedLabels);
 		(*it)->execute(temp, NULL);
 	}
-	set<int> unprocessedLabels(usedLabels);
+	std::set<int> unprocessedLabels(usedLabels);
     
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
 	{
 		int label = *unprocessedLabels.begin();
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(NULL);
+			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (function)
 		{
 			vector<Opcode*> const& functionCode = function->getCode();
@@ -537,12 +554,12 @@ vector<Opcode*> ScriptParser::assembleOne(
 	     it != runCode.end(); ++it)
 		rval.push_back((*it)->makeClone());
     
-	for (set<int>::iterator it = usedLabels.begin();
+	for (std::set<int>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
 	{
 		int label = *it;
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(NULL);
+			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (!function) continue;
         
 		vector<Opcode*> functionCode = function->getCode();
@@ -574,13 +591,13 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope)
+std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
 	// includes the minus if this is a constant. - Saf
 	bool negative=false;
-	pair<long, bool> rval;
+	std::pair<long, bool> rval;
 	rval.second=true;
 	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
     

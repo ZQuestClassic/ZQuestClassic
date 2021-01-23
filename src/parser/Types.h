@@ -354,7 +354,9 @@ namespace ZScript
 		//Static functions
 		static DataType const* get(DataTypeId id);
 		static DataTypeClass const* getClass(int classId);
-		static DataTypeCustom const* getCustom(int customId) {return find<DataTypeCustom*>(customTypes, customId).value_or(NULL);};
+		static DataTypeCustom const* getCustom(int customId) {
+			return find<DataTypeCustom*>(customTypes, customId).value_or(boost::add_pointer<DataTypeCustom>::type());
+		};
 		static void addCustom(DataTypeCustom* custom);
 		static int getUniqueCustomId() {return nextCustomId_++;}
 		

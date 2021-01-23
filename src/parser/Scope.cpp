@@ -8,10 +8,12 @@
 #include "Types.h"
 #include "ZScript.h"
 
-using namespace std;
+#include <boost/move/unique_ptr.hpp>
+
 using namespace ZScript;
 using namespace util;
-
+using std::set;
+using boost::movelib::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // Scope
 
@@ -571,7 +573,7 @@ BasicScope::~BasicScope()
 
 Scope* BasicScope::getChild(string const& name) const
 {
-	return find<Scope*>(children_, name).value_or(NULL);
+	return find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type());
 }
 
 vector<Scope*> BasicScope::getChildren() const
@@ -686,7 +688,7 @@ int BasicScope::useNamespace(std::string name, bool noUsing)
 
 DataType const* BasicScope::getLocalDataType(string const& name) const
 {
-	return find<DataType const*>(dataTypes_, name).value_or(NULL);
+	return find<DataType const*>(dataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 }
 
 optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
@@ -696,28 +698,28 @@ optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
 
 ZClass* BasicScope::getLocalClass(string const& name) const
 {
-	return find<ZClass*>(classes_, name).value_or(NULL);
+	return find<ZClass*>(classes_, name).value_or(boost::add_pointer<ZClass>::type());
 }
 
 Datum* BasicScope::getLocalDatum(string const& name) const
 {
-	return find<Datum*>(namedData_, name).value_or(NULL);
+	return find<Datum*>(namedData_, name).value_or(boost::add_pointer<Datum>::type());
 }
 
 Function* BasicScope::getLocalGetter(string const& name) const
 {
-	return find<Function*>(getters_, name).value_or(NULL);
+	return find<Function*>(getters_, name).value_or(boost::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalSetter(string const& name) const
 {
-	return find<Function*>(setters_, name).value_or(NULL);
+	return find<Function*>(setters_, name).value_or(boost::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalFunction(
 		FunctionSignature const& signature) const
 {
-	return find<Function*>(functionsBySignature_, signature).value_or(NULL);
+	return find<Function*>(functionsBySignature_, signature).value_or(boost::add_pointer<Function>::type());
 }
 
 vector<Function*> BasicScope::getLocalFunctions(string const& name) const
@@ -864,19 +866,96 @@ Function* BasicScope::addSetter(
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
+	bool prototype = false;
+	ASTExprConst* defRet = NULL;
+	if(node)
+	{
+		prototype = node->prototype;
+		if(prototype)
+		{
+			defRet = node->defaultReturn.get();
+		}
+	}
 	FunctionSignature signature(name, paramTypes);
-	if (find<Function*>(functionsBySignature_, signature))
-		return NULL;
-
+	Function* foundFunc = NULL;
+	optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
+	if(optFunc)
+		foundFunc = *optFunc;
+	else if(isFile() || isRoot())
+	{
+		optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
+		if(rootFunc)
+			foundFunc = *rootFunc;
+	}
+	if (foundFunc)
+	{
+		if(foundFunc->prototype) //Prototype function declared
+		{
+			if(prototype) //Another identical prototype being declared
+			{
+				//Check default returns
+				optional<long> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				optional<long> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
+				{
+					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					return NULL;
+				}
+				else //Same default return; disable duplicate prototype without error
+				{
+					node->disable();
+					return NULL; //NULL return gives no error if 'node->prototype'
+				}
+			}
+			else //Function can be replaced by the new implementation of the prototype definition
+			{
+				//Remove the unneeded prototype function
+				removeFunction(foundFunc);
+				//Disable the node which defined the prototype function, and nullify it's pointer to the Function
+				foundFunc->node->func = NULL;
+				foundFunc->node->disable();
+				//Delete the Function* to free memory
+				delete foundFunc;
+				//Continue to construct the new function
+			}
+		}
+		else return NULL; //NULL return gives no error if 'node->prototype'
+	}
+	
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
 	return fun;
+}
+
+void BasicScope::removeFunction(Function* function)
+{
+	if(!function) return;
+	FunctionSignature signature(function->name, function->paramTypes);
+	functionsBySignature_.erase(signature); //Erase from signature map
+	//Find in name map, and erase
+	optional<vector<Function*>> foundVector = find<vector<Function*> >(functionsByName_, function->name);
+	if(!foundVector) return;
+	vector<Function*>& funcvector = *foundVector;
+	if(funcvector.size() == 1 && funcvector.back() == function)
+	{
+		functionsByName_.erase(function->name);
+		return;
+	}
+	for (vector<Function*>::iterator it = funcvector.begin(); it != funcvector.end();)
+	{
+		Function* f = *it;
+		if(f == function) //Erase the function when found
+		{
+			it = funcvector.erase(it);
+			return; //Found function, and erased
+		}
+	}
 }
 
 void BasicScope::setDefaultOption(CompileOptionSetting value)
@@ -953,7 +1032,7 @@ ScriptScope* FileScope::makeScriptChild(Script& script)
 NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 {
 	string name = node.name;
-	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	if (Scope* scope = find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type()))
 	{
 		if(scope->isNamespace())
 		{
@@ -1021,14 +1100,23 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, paramNames, flags, node);
+			returnType, name, paramTypes, paramNames, flags, node, handler);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
 	return result;
+}
+void FileScope::removeFunction(Function* function)
+{
+	BasicScope::removeFunction(function);
+	getRoot(*this)->removeFunction(function);
+}
+void FileScope::removeLocalFunction(Function* function)
+{
+	BasicScope::removeFunction(function);
 }
 
 bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
@@ -1137,7 +1225,7 @@ Scope* RootScope::getChild(std::string const& name) const
 {
 	Scope* result = BasicScope::getChild(name);
 	if (!result)
-		result = find<Scope*>(descChildren_, name).value_or(NULL);
+		result = find<Scope*>(descChildren_, name).value_or(boost::add_pointer<Scope>::type());
 	return result;
 }
 
@@ -1145,7 +1233,7 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 {
 	DataType const* result = BasicScope::getLocalDataType(name);
 	if (!result)
-		result = find<DataType const*>(descDataTypes_, name).value_or(NULL);
+		result = find<DataType const*>(descDataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 	return result;
 }
 
@@ -1160,7 +1248,7 @@ ZClass* RootScope::getLocalClass(string const& name) const
 {
 	ZClass* result = BasicScope::getLocalClass(name);
 	if (!result)
-		result = find<ZClass*>(descClasses_, name).value_or(NULL);
+		result = find<ZClass*>(descClasses_, name).value_or(boost::add_pointer<ZClass>::type());
 	return result;
 }
 
@@ -1168,7 +1256,7 @@ Datum* RootScope::getLocalDatum(string const& name) const
 {
 	Datum* result = BasicScope::getLocalDatum(name);
 	if (!result)
-		result = find<Datum*>(descData_, name).value_or(NULL);
+		result = find<Datum*>(descData_, name).value_or(boost::add_pointer<Datum>::type());
 	return result;
 }
 
@@ -1176,7 +1264,7 @@ Function* RootScope::getLocalGetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalGetter(name);
 	if (!result)
-		result = find<Function*>(descGetters_, name).value_or(NULL);
+		result = find<Function*>(descGetters_, name).value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1184,7 +1272,7 @@ Function* RootScope::getLocalSetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalSetter(name);
 	if (!result)
-		result = find<Function*>(descSetters_, name).value_or(NULL);
+		result = find<Function*>(descSetters_, name).value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1194,7 +1282,7 @@ Function* RootScope::getLocalFunction(
 	Function* result = BasicScope::getLocalFunction(signature);
 	if (!result)
 		result = find<Function*>(descFunctionsBySignature_, signature)
-			.value_or(NULL);
+			.value_or(boost::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1299,6 +1387,40 @@ bool RootScope::registerFunction(Function* function)
 	return true;
 }
 
+void RootScope::removeFunction(Function* function)
+{
+	if(!function) return;
+	BasicScope::removeFunction(function); //Remove from basic scope maps
+	//Make sure it is removed from it's parent file!
+	function->internalScope->getFile()->removeLocalFunction(function);
+	
+	FunctionSignature signature(function->name, function->paramTypes);
+	descFunctionsBySignature_.erase(signature); //Erase from signature map
+	//Find in name map, and erase
+	optional<vector<Function*>> foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
+	if(!foundVector) return;
+	vector<Function*>& funcvector = *foundVector;
+	if(funcvector.size() == 1 && funcvector.back() == function)
+	{
+		descFunctionsByName_.erase(function->name);
+		return;
+	}
+	for (vector<Function*>::iterator it = funcvector.begin(); it != funcvector.end();)
+	{
+		Function* f = *it;
+		if(f == function) //Erase the function when found
+		{
+			it = funcvector.erase(it);
+			return; //Found function, and erased
+		}
+	}
+}
+
+optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
+{
+	return find<Function*>(descFunctionsBySignature_, sig);
+}
+
 bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
@@ -1306,7 +1428,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = cropPath(node->getFilename());
 	lowerstr(fname);
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(NULL))
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(boost::add_pointer<ASTImportDecl>::type()))
 	{
 		node->disable(); //Disable node.
 		switch(headerGuard)
@@ -1336,7 +1458,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 
 bool RootScope::isImported(string const& path)
 {
-	if(find<ASTImportDecl*>(importsByName_, path).value_or(NULL))
+	if(find<ASTImportDecl*>(importsByName_, path).value_or(boost::add_pointer<ASTImportDecl>::type()))
 		return true;
 	return false;
 }

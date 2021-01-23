@@ -7,8 +7,10 @@
 #include "Types.h"
 #include "AST.h"
 
-using namespace std;
+
 using namespace ZScript;
+using std::string;
+using std::vector;
 
 ////////////////////////////////////////////////////////////////
 // TypeStore

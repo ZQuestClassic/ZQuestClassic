@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 78
-Document Revision: 20th July, 2020
+Document for: 2.55, Alpha 88
+Document Revision: 21st January, 2021
 
 
  __           _   _                 
@@ -1349,6 +1349,100 @@ You may now check if a file is included.
 
 This is considered a constant expression.
 
+///////////////////////////
+//  Function Prototypes  //
+///////////////////////////
+
+You may now declare a 'function prototype', which can (but does not have to) be defined later.
+	[example--
+	
+	int foo(int x, int y);
+	
+	--end example]
+
+This prototype has no body, unless you later declare the function in full.
+	[example--
+	
+	int bar();
+	
+	//Later, even in another file
+	
+	int bar()
+	{
+		Trace(10);
+		return 5;
+	}
+	
+	--end example]
+
+If the function is declared later, then that is what runs; the prototype is effectively ignored.
+If the function is NOT declared later, then calls to the prototype will *still compile*, though the prototype will do
+	nothing, aside from `return NULL;`.
+	
+You may also specify the default return value, so it will return a value other than 0!
+	[example--
+	
+	int foo() : default 7;
+	
+	--end example]
+If the function is never fully declared later, then this would simply `return 7;`.
+The value used for this default can be any constant expression, so the following are all valid:
+	[example--
+	
+	const int A = 5;
+	int foo() : default A;
+	
+	int bar() : default 5 * 7;
+	
+	int foobar() : default (IS_INCLUDED("tango.zh") ? 10 : 2);
+	
+	--end example]
+
+Do note that the type of the default value must match the return type. The default return, 'NULL', is 'untyped', and
+	will work for any type.
+	
+	[example--
+	
+	ffc foo() : default <ffc>1; //correct
+	ffc foo() : default 1; //Type cast error
+	ffc foo(); //Returns a null pointer
+	ffc foo() : default NULL; //Same as above
+	
+	void foo() : default 1; //Type cast error
+	void foo(); //correct
+	--end example]
+
+/////////////////////////////
+//  Function Declarations  //
+/////////////////////////////
+	
+You can now declare functions in remote scopes.
+	[example--
+	
+	ffc script foo{}
+	//
+	void foo.run(int x)
+	{
+		Trace(x);
+	}
+	--end example]
+This is especially useful with function prototypes!
+	[example--
+	
+	ffc script foo
+	{
+		void run()
+		{
+			Trace(bar());
+		}
+		int bar();
+	}
+	//Another file
+	int foo.bar()
+	{
+		return 10;
+	}
+	--end example]
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______
@@ -1787,7 +1881,7 @@ Waitdraw Support:	Yes
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
 * 
-* There are three script slots in the DMap Editor:
+* There are four script slots in the DMap Editor:
 *	Active
 *		This script runs whenever the player is on the DMap.
 *		It has eight InitD args, and eight InitD strings.
@@ -1816,6 +1910,14 @@ Waitdraw Support:	Yes
 *			If using a scripted DMap Subscreen (Active) script, then you
 *			further have the option that this script continues to run while
 *			the scripted active subscreen is open.
+*	Scripted Map
+*		This script runs, if assigned, when the player presses the
+*		MAP button, IN PLACE OF THE NORMAL ENGINE MAP.
+*		This script type hasd eight InitD args and eight InitD strings.
+*		If the player warps while this is running, then the engie will
+*		load the Scripted Map DMap script from the destination DMap (if any).
+*		If the destination DMap lacks a Scripted Map DMap script,
+*		then the virtual map will terminate.
 *
 *
 *
@@ -3478,7 +3580,7 @@ int ItemY;
 
 int Palette;
 int CSet;
- * ? The screen palette. ?
+ * The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
 
 int TileWarpDMap[4];
  * The destination DMap for each of the four warp types.
@@ -3600,15 +3702,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
@@ -5066,11 +5168,19 @@ untyped InitD[8];
 int ASubScript;
  * The 'Active Subscreen' script slot ID
 int PSubScript;
- * The 'Pctive Subscreen' script slot ID
+ * The 'Passive Subscreen' script slot ID
 
 untyped SubInitD[8];
  * The eight script args shared by the active/passive subscreen
  * script slots on this DMap.
+
+int MapScript;
+ * The 'Scripted Map' script slot ID
+
+untyped MapInitD[8];
+ * The eight script args for the scripted map that runs
+ * on this DMap.
+
 	
 void SetName(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
@@ -5366,15 +5476,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
@@ -5427,7 +5537,7 @@ int LensLayer;
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.
  * These represent S.Flags1 and S.Flags2 flags.
- * See std_constants.zh (SFG* for the screen flag froup, 
+ * See std_constants.zh (SFG* for the screen flag group, 
  *	and SFX* for the screen flag value) for more information. 
 	
 int D[8];

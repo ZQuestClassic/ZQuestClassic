@@ -15515,12 +15515,18 @@ static DIALOG advpaste_dlg[] =
     { jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
     { jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     
-    { jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
-    { jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
-    { jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
-    { jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
-    { jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
-    { jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
+    { jwin_check_proc,		 10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
+    { jwin_check_proc,		 10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
+    { jwin_check_proc,		 10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
+    { jwin_check_proc,		 10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
+    { jwin_check_proc,		 10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
+    { jwin_check_proc,		 10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
+    { jwin_check_proc,		 10,	   90,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attributes", NULL, NULL },
+    { jwin_check_proc,		 10,	  100,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attribytes", NULL, NULL },
+    { jwin_check_proc,		 10,	  110,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Flags", NULL, NULL },
+    { jwin_check_proc,		 10,	  120,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
+    { jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
+    { jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -15579,6 +15585,43 @@ int advpaste(int tile, int tile2, int copy)
         if(advpaste_dlg[8].flags & D_SELECTED)   // flag
         {
             combobuf[i].flag=combo.flag;
+        }
+        
+        if(advpaste_dlg[9].flags & D_SELECTED)   // attributes
+        {
+			for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+				combobuf[i].attributes[q] = combo.attributes[q];
+        }
+        
+        if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
+        {
+			for(int q = 0; q < 4; ++q)
+				combobuf[i].attribytes[q] = combo.attribytes[q];
+        }
+        
+        if(advpaste_dlg[11].flags & D_SELECTED)   // flags
+        {
+            combobuf[i].usrflags = combo.usrflags;
+        }
+        
+        if(advpaste_dlg[12].flags & D_SELECTED)   // label
+        {
+			for(int q = 0; q < 11; ++q)
+				combobuf[i].label[q] = combo.label[q];
+        }
+        
+        if(advpaste_dlg[13].flags & D_SELECTED)   // triggered by
+        {
+			for(int q = 0; q < 3; ++q)
+				combobuf[i].triggerflags[q] = combo.triggerflags[q];
+			combobuf[i].triggerlevel = combo.triggerlevel;
+        }
+        
+        if(advpaste_dlg[14].flags & D_SELECTED)   // script
+        {
+            combobuf[i].script = combo.script;
+			for(int q = 0; q < 2; ++q)
+				combobuf[i].initd[q] = combo.initd[q];
         }
     }
     
@@ -17628,8 +17671,12 @@ static ComboAttributesInfo comboattrinfo[]=
 	//{ Placeholders
 	{
 		 cSTEPSFX,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		//flags
+		{ (char*)"Landmine",(char*)"wCustom is LWeapon",(char*)"Don't Advance",(char*)"Direct Damage",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		//attributes
+		{ (char*)"Damage",NULL,NULL,NULL},
+		//attribytes
+		{ (char*)"Sound",(char*)"Weapon Type",(char*)"Initial Dir",(char*)"Sprite"}
 	},
 	{
 		 183,
@@ -19591,17 +19638,24 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
         
     case MSG_LPRESS:
         {
-            int x=gui_mouse_x()-(d->x+2);
-            massRecolorDraggedColor=colors[x/colorWidth];
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				massRecolorDraggedColor=colors[x];
+			}
         }
         break;
         
     case MSG_LRELEASE: // This isn't exactly right, but it'll do...
         if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
         {
-            int x=gui_mouse_x()-(d->x+2);
-            colors[x/colorWidth]=massRecolorDraggedColor;
-            d->flags|=D_DIRTY;
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				colors[x]=massRecolorDraggedColor;
+				d->flags|=D_DIRTY;
+			}
         }
         massRecolorDraggedColor=-1;
         break;

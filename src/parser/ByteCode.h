@@ -10,7 +10,7 @@
 
 #include <string>
 
-//using namespace std; //Don't do this! This is bad! -V
+// //Don't do this! This is bad! -V
 //{ START BYTECODE
 /*
  I will reserve the registers in the following scheme:
@@ -1235,10 +1235,13 @@
 #define DMAPDATASUBINITD			1161
 #define MODULEGETINT				1162
 #define MODULEGETSTR				1163
-#define DMAPDATACHARTED				1164
+#define NPCORIGINALHP				1164
+#define DMAPDATAMAPSCRIPT				1165
+#define DMAPDATAMAPINITD				1166
+#define DMAPDATACHARTED				1167
 
 
-#define LAST_BYTECODE 		1165
+#define LAST_BYTECODE 		1168
 
 //} END OF BYTECODE
 

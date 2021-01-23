@@ -632,7 +632,8 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL)
+	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL), prototype(false), defaultReturn(NULL),
+	  iden(NULL), parentScope(NULL)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -1253,7 +1254,9 @@ void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 
 ASTExprCast::ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location)
 	: ASTUnaryExpr(location), type(type)
-{}
+{
+	operand = expr;
+}
 
 void ASTExprCast::execute(ASTVisitor& visitor, void* param)
 {

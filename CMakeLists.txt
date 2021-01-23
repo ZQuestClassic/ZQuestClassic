@@ -43,6 +43,7 @@ include_directories(./include/dumb)
 include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
+include_directories(./src)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
@@ -124,7 +125,13 @@ if(MSVC)
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
+	
+	if(MSVC_VERSION GREATER 1600)
+	# MSVC 2012, v11 or above
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG")
+	else()
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG")
+	endif()
 
 	if(USE_PCH)
 		set(ZCPrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/zcprecompiled.pch")
@@ -239,16 +246,27 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
 endif()
 
-add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+set(Boost_DEBUG ON) # set to ON if you want to see more info in cmake
+set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/include/boost_1_74_0)
+set(Boost_INCLUDE_DIR ${BOOST_ROOT})
 
-target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
-if(MSVC AND USE_PCH)
-	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
-	target_compile_definitions(zquest PRIVATE ZC_PCH)
+find_package(Boost 1.74.0)
+
+if(Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+	add_definitions(-DHAS_BOOST)
+    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+
+	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	if(MSVC AND USE_PCH)
+		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
+		target_compile_definitions(zquest PRIVATE ZC_PCH)
+	endif()
+
+	if(MSVC)
+		target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+	endif()
 endif()
 
-if(MSVC)
-	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
-	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
-	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
-endif()

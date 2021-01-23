@@ -597,13 +597,19 @@ volatile int framecnt=0;
 volatile int myvsync=0;
 
 
-//enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
-//SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MIDI
-//SAVESC_CUR_FLIP, SAVSC_TEXT_DONTSAVE_COLOUR, SAVESC_TEXT_SAVEQUIT_COLOUR, SAVESC_TEXT_SAVE2_COLOUR, 
-//	SAVESC_TEXT_QUIT_COLOUR, SAVESC_EXTRA1, SAVESC_EXTRA2};
+/*
+enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
+	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR, 
+	SAVESC_TEXT_SAVE_COLOUR, 	SAVESC_TEXT_RETRY_COLOUR, 	SAVESC_TEXT_CONTINUE_FLASH, 
+	SAVESC_TEXT_SAVE_FLASH, 	SAVESC_TEXT_RETRY_FLASH,	SAVESC_MIDI,
+	SAVESC_CUR_FLIP, 		    SAVESC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR, 
+	SAVESC_TEXT_SAVE2_COLOUR, 	SAVESC_TEXT_QUIT_COLOUR, 	SAVESC_TEXT_DONTSAVE_FLASH,
+	SAVESC_TEXT_SAVEQUIT_FLASH,	SAVESC_TEXT_SAVE2_FLASH, 	SAVESC_TEXT_QUIT_FLASH,
+	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,			
+	SAVESC_LAST	}; */
 #define SAVESC_DEF_TILE 2
 long SaveScreenSettings[24] = {
-	BLACK, 			WHITE, 			SAVESC_DEF_TILE, 
+	0, 			1, 			SAVESC_DEF_TILE, 
 	1, 			WAV_CHINK,	 	QMisc.colors.msgtext,
 	QMisc.colors.msgtext,	QMisc.colors.msgtext,	QMisc.colors.caption,
 	QMisc.colors.caption,	QMisc.colors.caption,	ZC_MIDI_GAMEOVER,
@@ -612,6 +618,34 @@ long SaveScreenSettings[24] = {
 	QMisc.colors.caption,	QMisc.colors.caption,	QMisc.colors.caption,
 	0, 			0, 			0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
 char SaveScreenText[7][32]={"CONTINUE", "SAVE", "RETRY", "DON'T SAVE", "SAVE AND QUIT", "SAVE", "QUIT" };
+
+void ResetSaveScreenSettings()
+{
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_MIDI] = ZC_MIDI_GAMEOVER;
+	SaveScreenSettings[SAVESC_BACKGROUND] = BLACK;
+	SaveScreenSettings[SAVESC_TEXT] = WHITE;
+	SaveScreenSettings[SAVESC_USETILE] = SAVESC_DEF_TILE;
+	SaveScreenSettings[SAVESC_CURSOR_CSET] = 1;
+	SaveScreenSettings[SAVESC_CUR_SOUND] =  WAV_CHINK;
+	SaveScreenSettings[SAVESC_CUR_FLIP] = 0;
+	SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_EXTRA1] = 0;
+	SaveScreenSettings[SAVESC_EXTRA2] = 0;
+	SaveScreenSettings[SAVESC_EXTRA3] = 0;
+}
 
 void SetSaveScreenSetting(int indx, int value)
 {
@@ -650,6 +684,36 @@ void SetSaveScreenSetting(int indx, int value)
 		case SAVESC_TEXT_RETRY_FLASH:
 			SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = vbound(value,0,255);
 			break;
+		case SAVESC_MIDI:
+			SaveScreenSettings[SAVESC_MIDI] = vbound(value,0,255);
+			break;
+		case SAVESC_CUR_FLIP:
+			SaveScreenSettings[SAVESC_CUR_FLIP] = vbound(value,0,3);
+			break;
+		case SAVESC_TEXT_DONTSAVE_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVEQUIT_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE2_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_QUIT_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_DONTSAVE_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVEQUIT_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE2_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_QUIT_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] = vbound(value,0,255);
+			break;
 		default: break;
 	}
 }
@@ -657,6 +721,7 @@ void SetSaveScreenSetting(int indx, int value)
 
 void ChangeSubscreenText(int index, const char *f)
 {
+	index = vbound(index, 0, SAVESC_END-1);
 	strncpy(SaveScreenText[index], f, 31);
 	SaveScreenText[index][32]='\0';
 }
@@ -847,8 +912,9 @@ int donew_shop_msg(int itmstr, int shopstr)
 	if(msg_onscreen || msg_active)
 			dismissmsg();
 	
-	int tempmsg;
+	int tempmsg = 0;
 	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
+	
 	//Disabling this for now.
 	/*
 	while ( tempmsgnext != 0 )
@@ -879,31 +945,39 @@ int donew_shop_msg(int itmstr, int shopstr)
         clear_bitmap(msg_txt_display_buf);
 	}
         
-    clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+    set_clip_state(msg_portrait_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     clear_bitmap(msg_txt_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
     clear_bitmap(msg_portrait_bmp_buf);
-    
-	msg_bg(MsgStrings[msgstr]);
-    
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
     msg_h=MsgStrings[msgstr].h;
     msg_xpos=MsgStrings[msgstr].x;
     msg_ypos=MsgStrings[msgstr].y;
+	prt_tile=MsgStrings[msgstr].portrait_tile;
+	prt_cset=MsgStrings[msgstr].portrait_cset;
+	prt_x=MsgStrings[msgstr].portrait_x;
+	prt_y=MsgStrings[msgstr].portrait_y;
+	prt_tw=MsgStrings[msgstr].portrait_tw;
+	prt_th=MsgStrings[msgstr].portrait_th;
+    
+    //transparency needs to occur here. -Z
+    msg_bg(MsgStrings[msgstr]);
+    msg_prt();
+    
 	for(int q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = MsgStrings[msgstr].margins[q];
+		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
 	}
     cursor_x=msg_margins[left];
     cursor_y=msg_margins[up];
-    return tempmsgnext;
+	return tempmsgnext;
 }
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
 {
@@ -1895,12 +1969,6 @@ int init_game()
     if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
     //zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
     
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption; 
     
     for(int x = 0; x < MAXITEMS; x++)
     {
@@ -1929,6 +1997,7 @@ int init_game()
     game->Copy(saves[currgame]);
     flushItemCache();
     
+	ResetSaveScreenSettings();
     
 //Load the quest
     //setPackfilePassword(datapwd);
@@ -3474,8 +3543,20 @@ void game_loop()
     
     // freezemsg if message is being printed && qr_MSGFREEZE is on,
     // or if a message is being prepared && qr_MSGDISAPPEAR is on.
+    int tscr=currscr<128?0:1;
+    bool isshop = false;
+    switch(tmpscr[tscr].room)
+    {
+	case rSP_ITEM:                                          // special item
+	case rRP_HC:      					// heart container or red potion
+	case rTAKEONE:                                          // take one
+	case rSHOP:                                             // shop
+		isshop = true;
+		break;
+	default: break;
+    }
     bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-                      && get_bit(quest_rules,qr_MSGFREEZE));
+                      && (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
@@ -4545,82 +4626,6 @@ int main(int argc, char* argv[])
         zconsole = true;
     }
     
-#else //Unix
-
-    { // Let's try making a console for Linux -Z
-	pt = posix_openpt(O_RDWR);
-	if (pt == -1)
-	{
-		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	ptname = ptsname(pt);
-	if (!ptname)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	if (unlockpt(pt) == -1)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-	system(lxconsole_oss.str().c_str());
-
-	int xterm_fd = open(ptname,O_RDWR);
-	{
-		char c = 0; int tries = 10000; 
-		do 
-		{
-			read(xterm_fd, &c, 1); 
-			--tries;
-		} while (c!='\n' && tries > 0);
-	}
-
-	if (dup2(pt, 1) <0)
-	{
-		Z_error("Could not redirect standard output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	if (dup2(pt, 2) <0)
-	{
-		Z_error("Could not redirect standard error output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-    } //this is in a block because I want it in a block. -Z
-    
-    no_lx_console:
-    {
-	    //Z_error("Could not open Linux console.\n");
-    }
-    
-    
-	std::cout << "\n       _____   ____                  __ \n";
-	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
-	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
-	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
-	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
-	
-	std::cout << "Quest Data Logging & ZScript Debug Console\n";
-	std::cout << "ZConsole for Linux\n\n";
-    
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
-	}
-	//std::cerr << "Test cerr\n\n";
-	std::cin.ignore(1);
 #endif
     
     
@@ -4727,7 +4732,89 @@ int main(int argc, char* argv[])
     {
 	FFCore.ZScriptConsole(true);
     }
+
+#else //Unix
+
+    if(zscript_debugger)
+    { // Let's try making a console for Linux -Z
+	int termflags = 0;
+	termflags |= O_RDWR; //Open the device for both reading and writing.
+	//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
+	pt = posix_openpt(termflags);
+	if (pt == -1)
+	{
+		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	ptname = ptsname(pt);
+	if (!ptname)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	if (unlockpt(pt) == -1)
+	{
+		Z_error("Could not get pseudo terminal device name.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+
+	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+	system(lxconsole_oss.str().c_str());
+
+	int xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
+	{
+		char c = 0; int tries = 10000; 
+		do 
+		{
+			read(xterm_fd, &c, 1); 
+			--tries;
+		} while (c!='\n' && tries > 0);
+	}
+
+	if (dup2(pt, 1) <0)
+	{
+		Z_error("Could not redirect standard output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+	if (dup2(pt, 2) <0)
+	{
+		Z_error("Could not redirect standard error output.\n");
+		close(pt);
+		use_debug_console = 0; goto no_lx_console;
+	}
+    } //this is in a block because I want it in a block. -Z
+    else
+    {
+	al_trace("Linux console disabled by user.\n");
+    }
     
+    no_lx_console:
+    {
+	    //Z_error("Could not open Linux console.\n");
+    }
+    
+    
+	std::cout << "\n       _____   ____                  __ \n";
+	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
+	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
+	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
+	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
+	
+	std::cout << "Quest Data Logging & ZScript Debug Console\n";
+	std::cout << "ZConsole for Linux\n\n";
+    
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
 #endif
     
     if(install_timer() < 0)
@@ -5298,14 +5385,54 @@ int main(int argc, char* argv[])
         can_triplebuffer_in_windowed_mode = 1;
         Z_message("used switch: -triplebuffer\n");
     }
-    
+	
     const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
     
     // quick quit
     if(used_switch(argc,argv,"-q"))
     {
         printf("-q switch used, quitting program.\n");
-        goto quick_quit;
+        //restore user volume settings
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	{
+		master_volume(-1,((long)FFCore.usr_midi_volume));
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+	{
+		master_volume((long)(FFCore.usr_digi_volume),1);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+	{
+		emusic_volume = (long)FFCore.usr_music_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+	{
+		sfx_volume = (long)FFCore.usr_sfx_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (long)FFCore.usr_panstyle;
+	}
+	show_saving(screen);
+	save_savedgames();
+	save_game_configs();
+	Triplebuffer.Destroy();
+	set_gfx_mode(GFX_TEXT,80,25,0,0);
+	    //rest(250); // ???
+	    //  if(useCD)
+	    //    cd_exit();
+	quit_game();
+	Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
+	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
+	    
+	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
+	skipcont = 0;
+	if(forceExit) //fix for the allegro at_exit() hang.
+		exit(0);
+		
+	allegro_exit();
+	return 0;
     }
     
     // set video mode
@@ -5694,7 +5821,6 @@ int main(int argc, char* argv[])
     music_stop();
     kill_sfx();
     
-quick_quit:
     //restore user volume settings
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{

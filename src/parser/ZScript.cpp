@@ -10,8 +10,11 @@
 #include "../ffscript.h"
 extern FFScript FFCore;
 
-using namespace std;
+
 using namespace ZScript;
+using std::vector;
+using std::string;
+using std::ostringstream;
 
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
@@ -38,12 +41,12 @@ Program::~Program()
 
 Script* Program::getScript(string const& name) const
 {
-	return find<Script*>(scriptsByName_, name).value_or(NULL);
+	return find<Script*>(scriptsByName_, name).value_or(boost::add_pointer<Script>::type());
 }
 
 Script* Program::getScript(ASTScript* node) const
 {
-	return find<Script*>(scriptsByNode_, node).value_or(NULL);
+	return find<Script*>(scriptsByNode_, node).value_or(boost::add_pointer<Script>::type());
 }
 
 Script* Program::addScript(
@@ -128,6 +131,12 @@ Script::Script(Program& program)
 Script::~Script()
 {
 	deleteElements(code);
+}
+
+bool Script::isPrototypeRun() const
+{
+	if(runFunc && runFunc->prototype) return true;
+	return false;
 }
 
 // ZScript::UserScript
@@ -428,10 +437,12 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id, int flags, int internal_flags)
+				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id,
+				   int flags, int internal_flags, bool prototype, ASTExprConst* defaultReturn)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
-	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false)
+	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
+	  prototype(prototype), defaultReturn(defaultReturn)
 {}
 
 Function::~Function()

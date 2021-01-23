@@ -87,6 +87,16 @@ void RecursiveVisitor::visit(AST* node, void* param)
 	if (node) visit(*node, param);
 }
 
+void RecursiveVisitor::checkCast(
+		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
+{
+	if (sourceType.canCastTo(targetType)) return;
+	if (twoWay && targetType.canCastTo(sourceType)) return;
+	handleError(
+		CompileError::IllegalCast(
+			node, sourceType.getName(), targetType.getName()));
+}
+
 ////////////////////////////////////////////////////////////////
 // Cases
 
@@ -298,7 +308,9 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
 	if (breakRecursion(host, param)) return;
-	visit(host.block.get(), param);
+	if(host.prototype)
+		visit(host.defaultReturn.get(), param);
+	else visit(host.block.get(), param);
 }
 
 void RecursiveVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)

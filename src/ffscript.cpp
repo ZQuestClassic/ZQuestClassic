@@ -1375,11 +1375,13 @@ refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
+refInfo onmapScriptData;
 refInfo activeSubscreenScriptData;
 refInfo passiveSubscreenScriptData;
 word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
+word onmap_doscript = 0;
 word active_subscreen_doscript = 0;
 word passive_subscreen_doscript = 0;
 word global_wait = 0;
@@ -1387,9 +1389,11 @@ bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 bool passive_subscreen_waitdraw = false;
 bool active_subscreen_waitdraw = false;
+bool onmap_waitdraw = false;
 word item_doscript[256] = {0};
 word item_collect_doscript[256] = {0};
 byte dmapscriptInitialised = 0;
+byte onmapInitialised = 0;
 byte activeSubscreenInitialised = 0;
 byte passiveSubscreenInitialised = 0;
 //Sprite script data
@@ -1427,6 +1431,7 @@ long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
 long dmap_stack[MAX_SCRIPT_REGISTERS];
+long onmap_stack[MAX_SCRIPT_REGISTERS];
 long active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 long passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 long screen_stack[MAX_SCRIPT_REGISTERS];
@@ -1456,6 +1461,11 @@ void clear_link_stack()
 void clear_dmap_stack()
 {
 	memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void clear_onmap_stack()
+{
+	memset(onmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void clear_active_subscreen_stack()
@@ -1491,6 +1501,15 @@ void FFScript::initZScriptActiveSubscreenScript()
 	clear_active_subscreen_stack();
 	activeSubscreenInitialised = 0;
 	active_subscreen_waitdraw = false;
+}
+
+void FFScript::initZScriptOnMapScript()
+{
+	onmap_doscript = 1;
+	onmapScriptData.Clear();
+	clear_onmap_stack();
+	onmapInitialised = 0;
+	onmap_waitdraw = false;
 }
 
 void FFScript::initZScriptLinkScripts()
@@ -1529,6 +1548,579 @@ void FFScript::initZScriptItemScripts()
 	clear_dmap_stack();
 }
 */
+
+///----------------------------------------------//
+//           New Mapscreen Flags Tools           //
+///----------------------------------------------//
+
+void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
+{
+	switch(flagid)
+	{
+		// Room Types
+		case MSF_INTERIOR: 
+			if ( state )
+				m->flags6 |= 1;
+			else m->flags6 &= ~1;
+			break;
+		case MSF_DUNGEON: 
+			if ( state )
+				m->flags6 |= 2;
+			else m->flags6 &= ~2;
+			break;
+		case MSF_SIDEVIEW: 
+			if ( state )
+				m->flags7 |= 8;
+			else m->flags6 &= ~8;
+			break;
+		
+		// View
+		case MSF_INVISLINK: 
+			if ( state )
+				m->flags3 |= 8;
+			else m->flags3 &= ~8;
+			break;
+		case MSF_NOLINKMARKER: 
+			if ( state )
+				m->flags7 |= 16;
+			else m->flags7 &= ~16;
+			break;
+			
+		case MSF_NOSUBSCREEN: 
+			if ( state )
+				m->flags3 |= 16;
+			else m->flags3 &= ~16;
+			break;
+		case MSF_NOOFFSET: 
+			if ( state )
+				m->flags3 |= 64;
+			else m->flags3 &= ~64;
+			break;
+		
+		case MSF_LAYER2BG: 
+			if ( state )
+				m->flags7 |= 2;
+			else m->flags7 &= ~2;
+			break;
+		case MSF_LAYER3BG: 
+			if ( state )
+				m->flags7 |= 1;
+			else m->flags7 &= ~1;
+			break;
+		case MSF_DARKROOM: 
+			if ( state )
+				m->flags |= 4;
+			else m->flags &= ~4;
+			break;
+	
+		// Secrets
+		case MSF_BLOCKSHUT: 
+			if ( state )
+				m->flags |= 1;
+			else m->flags &= ~1;
+			break;
+		case MSF_TEMPSECRETS:
+			if ( state )
+				m->flags5 |= 16;
+			else m->flags5 &= ~16;
+			break;
+			
+		case MSF_TRIGPERM: 
+			if ( state )
+				m->flags6 |= 4;
+			else m->flags6 &= ~4;
+			break;
+		case MSF_ALLTRIGFLAGS: 
+			if ( state )
+				m->flags6 |= 32;
+			else m->flags6 &= ~32;
+			break;
+		// Warp
+		case MSF_AUTODIRECT: 
+			if ( state )
+				m->flags5 |= 4;
+			else m->flags5 &= ~4;
+			break;
+		case MSF_SENDSIRECT: 
+			if ( state )
+				m->flags5 |= 8;
+			else m->flags5 &= ~8;
+			break;
+		case MSF_MAZEPATHS: 
+			if ( state )
+				m->flags |= 64;
+			else m->flags &= ~64;
+			break;
+			
+		case MSF_MAZEOVERRIDE: 
+			if ( state )
+				m->flags8 |= 64;
+			else m->flags8 &= ~64;
+			break;
+		case MSF_SPRITECARRY: 
+			if ( state )
+				m->flags3 |= 32;
+			else m->flags3 &= ~32;
+			break;
+
+		case MSF_DIRECTTIMEDWARPS:
+			if ( state )
+				m->flags4 |= 4;
+			else m->flags4 &= ~4;
+			break;
+			
+		case MSF_SECRETSISABLETIMEWRP:
+			if ( state )
+				m->flags4 |= 8;
+			else m->flags4 &= ~8;
+			break;
+		case MSF_RANDOMTIMEDWARP:
+			if ( state )
+				m->flags5 |= 1;
+			else m->flags5 &= ~1;
+			break;
+		
+		// Item			
+		case MSF_HOLDUP:
+			if ( state )
+				m->flags3 |= 1;
+			else m->flags3 &= ~1;
+			break;
+			
+		case MSF_FALLS:
+			if ( state )
+				m->flags7 |= 4;
+			else m->flags7 &= ~4;
+			break;
+			
+			
+		// Combo
+		case MSF_MIDAIR: 
+		{ //FIX ME!
+			//! What the ever love of fuck mate?!
+			/*
+			byte *f2 = &(m->flags2);
+			f2 >>=4;
+			int f = 0;
+			f<<=1;
+			f |= state ? 1:0;
+			m->flags2 &= 0x0F;
+			m->flags2 |= f<<4;
+			//if ( state )
+			//	(m->flags2>>4) |= 2;
+			//else (m->flags2>>4) &= ~2;
+			*/
+			break;
+		}
+		case MSF_CYCLEINIT: 
+			if ( state )
+				m->flags3 |= 2;
+			else m->flags3 &= ~2;
+			break;
+		case MSF_IGNOREBOOTS: 
+			if ( state )
+				m->flags5 |= 2;
+			else m->flags5 &= ~2;
+			break;
+		case MSF_TOGGLERINGS: 
+			if ( state )
+				m->flags6 |= 64;
+			else m->flags6 &= ~64;
+			break;
+		// Save
+		case MSF_SAVECONTHERE: 
+			if ( state )
+				m->flags4 |= 64;
+			else m->flags4 &= ~64;
+			break;
+		case MSF_SAVEONENTRY:
+			if ( state )
+				m->flags4 |= 128;
+			else m->flags4 &= ~128;
+			break;			
+			
+		case MSF_CONTHERE: 
+			if ( state )
+				m->flags6 |= 8;
+			else m->flags6 &= ~8;
+			break;
+			
+		case MSF_NOCONTINUEWARP:  
+			if ( state )
+				m->flags6 |= 16;
+			else m->flags6 &= ~16;
+			break;
+	
+		// FFC
+		case MSF_WRAPFFC: 
+			if ( state )
+				m->flags6 |= 128;
+			else m->flags6 &= ~128;
+			break;
+			
+		case MSF_NOCARRYOVERFFC: 
+			if ( state )
+				m->flags5 |= 128;
+			else m->flags5 &= ~128;
+			break;
+	
+		// Whistle
+		case MSF_STAIRS: 
+			if ( state )
+				m->flags |= 16;
+			else m->flags &= ~16;
+			break;
+		case MSF_PALCHANGE: 
+			if ( state )
+				m->flags7 |= 64;
+			else m->flags7 &= ~64;
+			break;
+		case MSF_DRYLAKE:  
+			if ( state )
+				m->flags7 |= 128;
+			else m->flags7 &= ~128;
+			break;
+			
+		// Enemies
+		case MSF_TRAPS_IGNORE_SOLID:
+		{
+			//! What the ever love of fuck mate?!
+			int f = 0;
+			f<<=2;
+			f |= state ? 1:0;
+			m->flags2 &= 0x0F;
+			m->flags2 |= f<<4;
+			break;
+		
+			//! May be wrong : Might be 4>>4 : ~4>>4;?
+			//if ( state )
+			//	m->(flags2>>4) |= 4; 
+			//else (flags2>>4) &= ~4;
+			//break;
+		}
+		case MSF_ENEMEIS_SECRET:
+		{
+			//! What the ever love of fuck mate?!
+			int f = 0;
+			f<<=3;
+			f |= state ? 1:0;
+			m->flags2 &= 0x0F;
+			m->flags2 |= f<<4;
+			break;
+		
+			//! May be wrong : Might be 8>>4 : ~8>>4;?
+			//if ( state )
+			//	m->(flags2>>4) |= 8;
+			//else (flags2>>4) &= ~8;
+			//break;
+		}
+		case MSF_INVISIBLEENEMIES:
+			if ( state )
+				m->flags3 |= 4;
+			else m->flags3 &= ~4;
+		case MSF_EMELIESALWAYSRETURN:
+			if ( state )
+				m->flags3 |= 128;
+			else m->flags3 &= ~128;
+			break;
+		case MSF_ENEMIES_ITEM:
+			if ( state )
+				m->flags |= 2;
+			else m->flags &= ~2;
+			break;
+		
+		case MSF_ENEMIES_SECRET_PERM:
+			if ( state )
+				m->flags4 |= 16;
+			else m->flags4 &= ~16;
+			break;
+			
+		case MSF_SPAWN_ZORA:
+			if ( state )
+				m->enemyflags |= 1;
+			else m->enemyflags &= ~1;
+			break;
+		case MSF_SPAWN_CORNERTRAP:
+			if ( state )
+				m->enemyflags |= 2;
+			else m->enemyflags &= ~2;
+			break;
+		case MSF_SPAWN_MIDDLETRAP:
+			if ( state )
+				m->enemyflags |= 4;
+			else m->enemyflags &= ~4;
+			break;			
+		case MSF_SPAWN_ROCK:
+			if ( state )
+				m->enemyflags |= 8;
+			else m->enemyflags &= ~8;
+			break;
+		case MSF_SPAWN_SHOOTER:
+			if ( state )
+				m->enemyflags |= 16;
+			else m->enemyflags &= ~16;
+			break;
+			
+		case MSF_RINGLEADER:
+			if ( state )
+				m->enemyflags |= 32;
+			else m->enemyflags &= ~32;
+			break;
+		case MSF_ENEMYHASITEM:
+		if ( state )
+				m->enemyflags |= 64;
+			else m->enemyflags &= ~64;
+			break;
+		case MSF_ENEMYISBOSS:
+			if ( state )
+				m->enemyflags |= 128;
+			else m->enemyflags &= ~128;
+			break;
+
+		// Misc
+		case MSF_ALLOW_LADDER: 
+			if ( state )
+				m->flags |= 32;
+			else m->flags &= ~32;
+			break;
+		case MSF_NO_DIVING: 
+			if ( state )
+				m->flags5 |= 64;
+			else m->flags5 &= ~64;
+			break;
+			
+		case MSF_LENSEFFECT:
+			if ( state )
+				m->flags8 |= 32;
+			else m->flags8 &= ~32;
+			break;
+		
+		case MSF_SFXONENTRY:
+			if ( state )
+				m->flags |= 128;
+			else m->flags &= ~128;
+			break;
+		
+			
+		// Custom / Script
+		case MSF_SCRIPT1:
+			if ( state )
+				m->flags8 |= 1;
+			else m->flags8 &= ~1;
+			break;
+		case MSF_SCRIPT2: 
+			if ( state )
+				m->flags8 |= 2;
+			else m->flags8 &= ~2;
+			break;
+		case MSF_SCRIPT3: 
+			if ( state )
+				m->flags8 |= 4;
+			else m->flags8 &= ~4;
+			break;
+		case MSF_SCRIPT4:
+			if ( state )
+				m->flags8 |= 8;
+			else m->flags8 &= ~8;
+			break;
+		case MSF_SCRIPT5:
+			if ( state )
+				m->flags8 |= 16;
+			else m->flags8 &= ~16;
+			break;
+			
+		//This is a dummy proc, but may have been used at one point in older versions. 
+		case MSF_DUMMY_8:
+			if ( state )
+				m->flags |= 8;
+			else m->flags &= ~8;
+			break;
+		
+		default: Z_scripterrlog("Illegal flag value (%d) passed to SetMapscreenFlag", flagid);
+	}
+}
+				
+long FFScript::get_mapscreenflag_state(mapscr *m, int flagid)
+{
+	switch(flagid)
+	{
+		// Room Types
+		case MSF_INTERIOR: 
+			return (m->flags6&1) ? 1 : 0;
+		case MSF_DUNGEON: 
+			return (m->flags6&2) ? 1 : 0;
+		case MSF_SIDEVIEW: 
+			return (m->flags7&8) ? 1 : 0;
+		
+		// View
+		case MSF_INVISLINK: 
+			return (m->flags3&8) ? 1 : 0;
+		case MSF_NOLINKMARKER: 
+			return (m->flags7&16) ? 1 : 0;
+			
+		case MSF_NOSUBSCREEN: 
+			return (m->flags3&16) ? 1 : 0;
+		case MSF_NOOFFSET: 
+			return (m->flags3&64) ? 1 : 0;
+		
+		case MSF_LAYER2BG: 
+			return (m->flags7&2) ? 1 : 0;
+		case MSF_LAYER3BG: 
+			return (m->flags7&1) ? 1 : 0;
+		case MSF_DARKROOM: 
+			return (m->flags&4) ? 1 : 0;
+	
+		// Secrets
+		case MSF_BLOCKSHUT: 
+			return (m->flags&1) ? 1 : 0;
+		case MSF_TEMPSECRETS:
+			return (m->flags5&16) ? 1 : 0;
+		case MSF_TRIGPERM: 
+			return (m->flags6&4) ? 1 : 0;
+		case MSF_ALLTRIGFLAGS: 
+			return (m->flags6&32) ? 1 : 0;
+		
+		// Warp
+		case MSF_AUTODIRECT: 
+			return (m->flags5&4) ? 1 : 0;
+		case MSF_SENDSIRECT: 
+			return (m->flags5&8) ? 1 : 0;
+		case MSF_MAZEPATHS: 
+			return (m->flags&64) ? 1 : 0;
+			
+		case MSF_MAZEOVERRIDE: 
+			return (m->flags8&64) ? 1 : 0;
+		case MSF_SPRITECARRY: 
+			return (m->flags3&32) ? 1 : 0;
+		case MSF_DIRECTTIMEDWARPS:
+			return (m->flags4&4) ? 1 : 0;
+		case MSF_SECRETSISABLETIMEWRP:
+			return (m->flags4&8) ? 1 : 0;
+		
+		case MSF_RANDOMTIMEDWARP:
+			return (m->flags5&1) ? 1 : 0;
+			
+		// Item
+		case MSF_HOLDUP: 
+			return (m->flags3&1) ? 1 : 0;
+		case MSF_FALLS: 
+			return (m->flags7&4) ? 1 : 0;
+		
+		// Combo
+		case MSF_MIDAIR: 
+			return ((m->flags2>>4)&2) ? 1 : 0;
+		case MSF_CYCLEINIT: 
+			return (m->flags3&2) ? 1 : 0;
+		case MSF_IGNOREBOOTS: 
+			return (m->flags5&2) ? 1 : 0;
+		case MSF_TOGGLERINGS: 
+			return (m->flags6&64) ? 1 : 0;
+		// Save
+		case MSF_SAVECONTHERE: 
+			return (m->flags4&64) ? 1 : 0;
+		case MSF_SAVEONENTRY:
+			return (m->flags4&128) ? 1 : 0;		
+			
+		case MSF_CONTHERE: 
+			return (m->flags6&8) ? 1 : 0;
+			
+		case MSF_NOCONTINUEWARP:  
+			return (m->flags6&16) ? 1 : 0;
+	
+		// FFC
+		case MSF_WRAPFFC: 
+			return (m->flags6&128) ? 1 : 0;
+			
+		case MSF_NOCARRYOVERFFC: 
+			return (m->flags5&128) ? 1 : 0;
+	
+		// Whistle
+		case MSF_STAIRS: 
+			return (m->flags&16) ? 1 : 0;
+		case MSF_PALCHANGE: 
+			return (m->flags7&64) ? 1 : 0;
+		case MSF_DRYLAKE:  
+			return (m->flags7&128) ? 1 : 0;
+		
+		// Enemies
+		case MSF_TRAPS_IGNORE_SOLID:
+			//! May be wrong : Might be 4>>4 : ~4>>4;?
+			return ((m->flags2>>4)&4) ? 1 : 0;
+		
+		case MSF_ENEMEIS_SECRET:
+			//! May be wrong : Might be 8>>4 : ~8>>4;?
+			return ((m->flags2>>4)&8) ? 1 : 0;
+		
+		case MSF_ENEMIES_SECRET_PERM:
+			return (m->flags4&16) ? 1 : 0;
+		
+		case MSF_SPAWN_ZORA:
+			return (m->enemyflags&1) ? 1 : 0;
+			
+		case MSF_SPAWN_CORNERTRAP:
+			return (m->enemyflags&2) ? 1 : 0;
+		
+		case MSF_SPAWN_MIDDLETRAP:
+			return (m->enemyflags&3) ? 1 : 0;
+		
+		case MSF_SPAWN_ROCK:
+			return (m->enemyflags&4) ? 1 : 0;
+		
+		case MSF_SPAWN_SHOOTER:
+			return (m->enemyflags&16) ? 1 : 0;
+		
+		case MSF_RINGLEADER:
+			return (m->enemyflags&32) ? 1 : 0;
+		
+		case MSF_ENEMYHASITEM:
+			return (m->enemyflags&64) ? 1 : 0;
+		case MSF_ENEMYISBOSS:
+			return (m->enemyflags&128) ? 1 : 0;
+		
+		case MSF_INVISIBLEENEMIES:
+			return (m->flags3&4) ? 1 : 0;
+		case MSF_EMELIESALWAYSRETURN:
+			return (m->flags3&128) ? 1 : 0;
+			
+		case MSF_ENEMIES_ITEM:
+			return (m->flags&2) ? 1 : 0;
+		
+		// Misc
+		case MSF_ALLOW_LADDER: 
+			return (m->flags&32) ? 1 : 0;
+		case MSF_NO_DIVING: 
+			return (m->flags5&64) ? 1 : 0;
+		
+		case MSF_LENSEFFECT:
+			return (m->flags8&32) ? 1 : 0;
+		
+		case MSF_SFXONENTRY:
+			return (m->flags&128) ? 1 : 0;
+		
+		//Custom / Script 
+		case MSF_SCRIPT1: 
+			return (m->flags8&1) ? 1 : 0;
+		case MSF_SCRIPT2: 
+			return (m->flags8&2) ? 1 : 0;
+		case MSF_SCRIPT3:
+			return (m->flags8&4) ? 1 : 0;
+		case MSF_SCRIPT4:
+			return (m->flags8&8) ? 1 : 0;
+		case MSF_SCRIPT5:
+			return (m->flags8&16) ? 1 : 0;
+		
+		//This is a dummy proc, but may have been used at one point in older versions. 
+		case MSF_DUMMY_8:
+			return (m->flags&8) ? 1 : 0;
+				
+		
+		default: 
+		{
+			Z_scripterrlog("Illegal flag value (%d) passed to GetMapscreenFlag", flagid);
+			return -1;
+		}
+	}
+}
 
 //ScriptHelper
 class SH
@@ -4472,9 +5064,12 @@ long get_register(const long arg)
 			
 		case NPCDRAWTYPE:
 			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
-			
+		
 		case NPCHP:
 			GET_NPC_VAR_INT(hp, "npc->HP") break;
+
+		case NPCORIGINALHP:
+			GET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 		case NPCCOLLDET:
 			GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
@@ -6321,7 +6916,29 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboData", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
+				ret = -10000;
+			}
+					
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr->data[pos]*10000;
@@ -6329,8 +6946,7 @@ long get_register(const long arg)
 					ret=tmpscr2[layr].data[pos]*10000;
 				else ret=TheMaps[scr].data[pos]*10000;
 			}
-			else
-				ret = -10000;
+			
 		}
 		break;
 		
@@ -6342,7 +6958,29 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboCSet", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
+				ret = -10000;
+			}
+			
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr->cset[pos]*10000;
@@ -6350,8 +6988,7 @@ long get_register(const long arg)
 					ret=tmpscr2[layr].cset[pos]*10000;
 				else ret=TheMaps[scr].cset[pos]*10000;
 			}
-			else
-				ret = -10000;
+			
 		}
 		break;
 		
@@ -6363,7 +7000,28 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboFlag", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
+				ret = -10000;
+			}
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr->sflag[pos]*10000;
@@ -6371,8 +7029,7 @@ long get_register(const long arg)
 					ret=tmpscr2[layr].sflag[pos]*10000;
 				else ret=TheMaps[scr].sflag[pos]*10000;
 			}
-			else
-				ret = -10000;
+			
 		}
 		break;
 		
@@ -6384,7 +7041,29 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboType", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
+				ret = -10000;
+			}
+			
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=combobuf[tmpscr->data[pos]].type*10000;
@@ -6393,8 +7072,6 @@ long get_register(const long arg)
 				else ret=combobuf[
 								 TheMaps[scr].data[pos]].type*10000;
 			}
-			else
-				ret = -10000;
 		}
 		break;
 		
@@ -6406,16 +7083,36 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
 			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboInherentFlag", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
+				ret = -10000;
+			}
+			
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
+					{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=combobuf[tmpscr->data[pos]].flag*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
 				else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
 			}
-			else
-				ret = -10000;
 		}
 		break;
 		
@@ -6427,7 +7124,29 @@ long get_register(const long arg)
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
-			if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboSolid", pos);
+				ret = -10000;
+			}
+			else if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", scr);
+				ret = -10000;
+			}
+			else if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", sc);
+				ret = -10000;
+			}
+			else if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
+				ret = -10000;
+			}
+			
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
 					ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
@@ -6435,8 +7154,7 @@ long get_register(const long arg)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
 				else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
 			}
-			else
-				ret = -10000;
+		
 		}
 		break;
 		
@@ -8405,6 +9123,10 @@ long get_register(const long arg)
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
 		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			ret = (DMaps[ri->dmapsref].onmap_script) * 10000; break;
+		}
 		case DMAPDATAPSUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].passive_sub_script) * 10000; break;
@@ -8423,6 +9145,22 @@ long get_register(const long arg)
 				ret = DMaps[ri->dmapsref].sub_initD[indx]; break;
 			}
 		}
+		
+		case DMAPDATAMAPINITD:	//byte[8] --array
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret = DMaps[ri->dmapsref].onmap_initD[indx]; break;
+			}
+		}
+		
 		case DMAPDATACHARTED:
 		{
 			int scr = ri->d[0] / 10000;
@@ -12745,6 +13483,9 @@ void set_register(const long arg, const long value)
 			
 		case NPCHP:
 			SET_NPC_VAR_INT(hp, "npc->HP") break;
+		
+		case NPCORIGINALHP:
+			SET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
 			
 			//case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
 		case NPCDP:
@@ -12817,7 +13558,10 @@ void set_register(const long arg, const long value)
 		case NPCCSET:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
+			{
 				GuyH::getNPC()->cs = (value / 10000) & 0xF;
+				if(GuyH::getNPC()->family == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
+			}
 		}
 		break;
 		
@@ -13473,7 +14217,11 @@ void set_register(const long arg, const long value)
 			if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
 				DMaps[ID].color = pal;
 
-			loadlvlpal(DMaps[(ri->d[0] / 10000)].color);
+			if(ID == currdmap)
+			{
+				loadlvlpal(DMaps[ID].color);
+				currcset = DMaps[ID].color;
+			}
 			break;
 		}
 		
@@ -13529,6 +14277,13 @@ void set_register(const long arg, const long value)
             screen_combo_modify_preroutine(tmpscr,pos);
             tmpscr->data[pos]=(val);
             screen_combo_modify_postroutine(tmpscr,pos);
+	    //Start the script for the new combo
+		FFCore.clear_combo_stack(pos);
+		comboScriptData[pos].Clear();
+		combo_doscript[pos] = 1;
+		combo_initialised[pos] &= ~(1<<0);
+		//Not ure if combodata arrays clean themselves up, or leak. -Z
+		//Not sure if this could result in stack corruption. 
         }
     }
     break;
@@ -13651,11 +14406,36 @@ void set_register(const long arg, const long value)
 			int sc = (ri->d[2]/10000);
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
+			int layr = whichlayer(scr);
 			
-			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+	    
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to SetComboData", pos);
+				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", scr);
+				break;
+			}
+			if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
+				break;
+			}
+			if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
+				break;
+			}
 			long combo = vbound(value/10000,0,MAXCOMBOS);
 			if(scr==(currmap*MAPSCRS+currscr))
+			{
 				screen_combo_modify_preroutine(tmpscr,pos);
+				
+			}
 				
 			TheMaps[scr].data[pos]=combo;
 			
@@ -13663,9 +14443,14 @@ void set_register(const long arg, const long value)
 			{
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
+				//Start the script for the new combo
+				FFCore.clear_combo_stack(pos+(176*layr));
+				comboScriptData[pos+(176*layr)].Clear();
+				combo_doscript[pos+(176*layr)] = 1;
+				combo_initialised[pos] &= ~(1<<layr);
+				//Not ure if combodata arrays clean themselves up, or leak. -Z
+				//Not sure if this could result in stack corruption. 
 			}
-			
-			int layr = whichlayer(scr);
 			
 			if(layr>-1)
 			{
@@ -13685,7 +14470,28 @@ void set_register(const long arg, const long value)
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
-			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to SetComboCSet", pos);
+				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", scr);
+				break;
+			}
+			if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
+				break;
+			}
+			if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
+				break;
+			}
 			
 			TheMaps[scr].cset[pos]=(value/10000)&15;
 			
@@ -13706,7 +14512,28 @@ void set_register(const long arg, const long value)
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
-			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to SetComboFlag", pos);
+				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", scr);
+				break;
+			}
+			if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
+				break;
+			}
+			if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
+				break;
+			}
 			
 			TheMaps[scr].sflag[pos]=value/10000;
 			
@@ -13727,8 +14554,29 @@ void set_register(const long arg, const long value)
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
-			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+			//    break;
+			    
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to SetComboType", pos);
 				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", scr);
+				break;
+			}
+			if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", sc);
+				break;
+			}
+			if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboType", m);
+				break;
+			}
 				
 			int cdata = TheMaps[scr].data[pos];
 			
@@ -13760,8 +14608,29 @@ void set_register(const long arg, const long value)
 			int m = zc_max((ri->d[1]/10000)-1,0);
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
-			if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+			//    break;
+			    
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetComboInherentFlag", pos);
 				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", scr);
+				break;
+			}
+			if(sc >= MAPSCRS) 
+			{
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
+				break;
+			}
+			if(m >= map_count) 
+			{
+				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
+				break;
+			}
 				
 			combobuf[TheMaps[scr].data[pos]].flag=value/10000;
 		}
@@ -13775,7 +14644,17 @@ void set_register(const long arg, const long value)
 			//This (below) us the precise code from 2.50.1 (?)
 			//long scr = zc_max((ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000),0); //Not below 0. 
 
-			if(pos < 0 || pos >= 176 || scr < 0) break;
+			//if(pos < 0 || pos >= 176 || scr < 0) break;
+			if(pos < 0 || pos >= 176) 
+			{
+				Z_scripterrlog("Invalid combo position (%d) passed to GetSolid", pos);
+				break;
+			}
+			if(scr < 0) 
+			{
+				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
+				break;
+			}
 
 			combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;	    
 		}
@@ -13993,8 +14872,27 @@ void set_register(const long arg, const long value)
 		case SCREENDATAVIEWY: 		SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 		case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
-		case SCREENDATAENTRYX: 		SET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
-		case SCREENDATAENTRYY: 		SET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+		case SCREENDATAENTRYX: 		
+		{
+			int newx = vbound((value/10000),0,255);
+			tmpscr->entry_x = newx;
+			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Link.entry_x = (zfix)(newx);
+			}
+			
+		}
+		case SCREENDATAENTRYY: 		
+		{
+			
+			int newy = vbound((value/10000),0,175);
+			tmpscr->entry_y = newy;
+			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Link.entry_y = (zfix)(newy);
+			}
+			break;	//B
+		}
 		//case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 
 		case SCREENDATANUMFF: 	
@@ -14452,9 +15350,8 @@ void set_register(const long arg, const long value)
 		{
 			long colour = value/10000;
 			int index = ri->d[0]/10000;
-			index = vbound(index,0,11);
-			al_trace("GameOverScreen Index: %d/n",index);
-			al_trace("GameOverScreen Value: %ld/n",colour);
+			index = vbound(index,0,SAVESC_LAST-1);
+			zprint("GameOverScreen Index,Value: %d,%ld/n",index,colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -14463,6 +15360,7 @@ void set_register(const long arg, const long value)
 		{
 			long arrayptr = value/10000;
 			int index = ri->d[0]/10000;
+			index = vbound(index,0,SAVESC_END-1);
 			string filename_str;
 			ArrayH::getString(arrayptr, filename_str, 73);
 			ChangeSubscreenText(index,filename_str.c_str());
@@ -15357,6 +16255,60 @@ void set_register(const long arg, const long value)
 				screen_combo_modify_preroutine(m,pos);
 				m->data[pos]=val;
 				screen_combo_modify_postroutine(m,pos);
+				
+				switch(ri->mapsref)
+				{
+					case MAPSCR_TEMP0: 
+					case MAPSCR_SCROLL0:
+						FFCore.clear_combo_stack(pos);
+						comboScriptData[pos].Clear();
+						combo_doscript[pos] = 1;
+						combo_initialised[pos] &= ~(1<<0);
+						break;
+					case MAPSCR_TEMP1: 
+					case MAPSCR_SCROLL1:
+						FFCore.clear_combo_stack(pos+(176*1));
+						comboScriptData[pos+(176*1)].Clear();
+						combo_doscript[pos+(176*1)] = 1;
+						combo_initialised[pos] &= ~(1<<1);
+						break;
+					case MAPSCR_TEMP2: 
+					case MAPSCR_SCROLL2:
+						FFCore.clear_combo_stack(pos+(176*2));
+						comboScriptData[pos+(176*2)].Clear();
+						combo_doscript[pos+(176*2)] = 1;
+						combo_initialised[pos] &= ~(1<<2);
+						break;
+					case MAPSCR_TEMP3:
+					case MAPSCR_SCROLL3:
+						FFCore.clear_combo_stack(pos+(176*3));
+						comboScriptData[pos+(176*3)].Clear();
+						combo_doscript[pos+(176*3)] = 1;
+						combo_initialised[pos] &= ~(1<<3);
+						break;
+					case MAPSCR_TEMP4: 
+					case MAPSCR_SCROLL4:
+						FFCore.clear_combo_stack(pos+(176*4));
+						comboScriptData[pos+(176*4)].Clear();
+						combo_doscript[pos+(176*4)] = 1;
+						combo_initialised[pos] &= ~(1<<4);
+						break;
+					case MAPSCR_TEMP5:
+					case MAPSCR_SCROLL5:
+						FFCore.clear_combo_stack(pos+(176*5));
+						comboScriptData[pos+(176*5)].Clear();
+						combo_doscript[pos+(176*5)] = 1;
+						combo_initialised[pos] &= ~(1<<5);
+						break;
+					case MAPSCR_TEMP6:
+					case MAPSCR_SCROLL6:
+						FFCore.clear_combo_stack(pos+(176*6));
+						comboScriptData[pos+(176*6)].Clear();
+						combo_doscript[pos+(176*6)] = 1;
+						combo_initialised[pos] &= ~(1<<6);
+						break;
+					default: break;
+				}
 			}
 		}
 		break;
@@ -15618,7 +16570,13 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATAPALETTE:	//word
 		{
-			DMaps[ri->dmapsref].color= ((word)(value / 10000)); break;
+			DMaps[ri->dmapsref].color= ((word)(value / 10000));
+			if(ri->dmapsref == currdmap)
+			{
+				loadlvlpal(DMaps[ri->dmapsref].color);
+				currcset = DMaps[ri->dmapsref].color;
+			}
+			break;
 		}
 		case DMAPDATAMIDI:	//byte
 		{
@@ -15751,12 +16709,17 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATAFLAGS:	 //long
 		{
-			DMaps[ri->dmapsref].flags= ((byte)(value / 10000)); break;
+			DMaps[ri->dmapsref].flags = (value / 10000); break;
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(SCRIPT_ACTIVESUBSCREEN, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+		}
+		case DMAPDATAMAPSCRIPT:	//byte
+		{
+			FFScript::deallocateAllArrays(SCRIPT_ONMAP, ri->dmapsref);
+			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
@@ -15783,6 +16746,20 @@ void set_register(const long arg, const long value)
 				DMaps[ri->dmapsref].sub_initD[indx] = value; break;
 			}
 		}
+		
+		case DMAPDATAMAPINITD:
+		{
+			int indx = ri->d[0] / 10000;
+			if ( indx < 0 || indx > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->MapInitD[]: %d\n", indx); break;
+			}
+			else
+			{
+				DMaps[ri->dmapsref].onmap_initD[indx] = value; break;
+			}
+		}
+		
 		case DMAPDATACHARTED:
 		{
 			int scr = ri->d[0] / 10000;
@@ -21568,6 +22545,23 @@ int run_script(const byte type, const word script, const long i)
 		}
 		break;
 		
+		case SCRIPT_ONMAP:
+		{
+			ri = &onmapScriptData;
+			curscript = dmapscripts[script];
+			stack = &onmap_stack;
+			ri->dmapsref = i;
+			if ( !onmapInitialised )
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
+				}
+				onmapInitialised = 1;
+			}
+		}
+		break;
+		
 		case SCRIPT_ACTIVESUBSCREEN:
 		{
 			ri = &activeSubscreenScriptData;
@@ -21768,6 +22762,7 @@ int run_script(const byte type, const word script, const long i)
 						zprint("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						zprint("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_ONMAP:
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
@@ -21808,6 +22803,7 @@ int run_script(const byte type, const word script, const long i)
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_ONMAP:
 						case SCRIPT_DMAP:
 						case SCRIPT_ACTIVESUBSCREEN:
 						case SCRIPT_PASSIVESUBSCREEN:
@@ -21849,6 +22845,7 @@ int run_script(const byte type, const word script, const long i)
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_ONMAP:
 						case SCRIPT_DMAP:
 						case SCRIPT_ACTIVESUBSCREEN:
 						case SCRIPT_PASSIVESUBSCREEN:
@@ -21892,6 +22889,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -21936,6 +22934,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -21980,6 +22979,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -22024,6 +23024,7 @@ int run_script(const byte type, const word script, const long i)
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_ONMAP:
 							case SCRIPT_DMAP:
 							case SCRIPT_ACTIVESUBSCREEN:
 							case SCRIPT_PASSIVESUBSCREEN:
@@ -24509,6 +25510,7 @@ int run_script(const byte type, const word script, const long i)
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
+					case SCRIPT_ONMAP:
 					case SCRIPT_DMAP:
 					case SCRIPT_ACTIVESUBSCREEN:
 					case SCRIPT_PASSIVESUBSCREEN:
@@ -24594,6 +25596,10 @@ int run_script(const byte type, const word script, const long i)
 				
 			case SCRIPT_ACTIVESUBSCREEN:
 				active_subscreen_waitdraw = true;
+				break;
+				
+			case SCRIPT_ONMAP:
+				onmap_waitdraw = true;
 				break;
 			
 			case SCRIPT_SCREEN:
@@ -24692,6 +25698,12 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_DMAP:
 			dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 			dmapscriptInitialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+			break;
+		
+		case SCRIPT_ONMAP:
+			onmap_doscript = 0;
+			onmapInitialised = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
@@ -28135,6 +29147,49 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	return true;
 }
+bool FFScript::runOnMapScriptEngine()
+{
+	word onmap_script = DMaps[currdmap].onmap_script;
+	if(!onmap_script || !dmapscripts[onmap_script]->valid()) return false; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptOnMapScript();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	word script_dmap = currdmap;
+	pause_all_sfx();
+	while(onmap_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
+		if(onmap_waitdraw && onmap_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
+			onmap_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
+		doScriptMenuDraws();
+		//
+		advanceframe(true);
+		//Handle warps; run game_loop once!
+		if(currdmap != script_dmap)
+		{
+			onmap_script = DMaps[currdmap].onmap_script;
+			if(!onmap_script || !dmapscripts[onmap_script]->valid()) return true; //No script to run
+			script_dmap = currdmap;
+			//Reset the background image
+			game_loop();
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			//Now loop without advancing frame, so that the subscreen script can draw immediately.
+		}
+	}
+	resume_all_sfx();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	return true;
+}
 
 void FFScript::doScriptMenuDraws()
 {
@@ -28330,12 +29385,29 @@ void FFScript::lweaponScriptEngine()
 			}
 			
 			case wSSparkle:
-			{
-				break;
-			}
-			
 			case wFSparkle:
 			{
+				weapon *wa = (weapon*)Lwpns.spr(q);
+				if ( wa->Dead() ) break;
+				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+				{
+					weapon *w = (weapon*)Lwpns.spr(q);
+					if ( w->Dead() )
+					{
+						Lwpns.spr(q)->doscript = 0;
+						Lwpns.spr(q)->weaponscript = 0;
+						break;
+					}
+					else
+					{
+						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+						ri->lwpn = w->getUID();
+						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					}
+				}
 				break;
 			}
 			case wBait:
@@ -33210,6 +34282,9 @@ script_variable ZASMVars[]=
 	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
 	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
 	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
@@ -33520,6 +34595,7 @@ void FFScript::do_tracestring()
 	long arrayptr = get_register(sarg1) / 10000;
 	string str;
 	ArrayH::getString(arrayptr, str, 512);
+	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	traceStr(str);
 }
 
@@ -33722,6 +34798,7 @@ void FFScript::do_printf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	traceStr(zs_sprintf(formatstr.c_str(), num_args));
 }
@@ -33732,6 +34809,7 @@ void FFScript::do_sprintf(const bool v)
 	long format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
 	string output = zs_sprintf(formatstr.c_str(), num_args);
 	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
@@ -33891,6 +34969,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif   
 			break;
 			
+			case SCRIPT_ONMAP:
 			case SCRIPT_ACTIVESUBSCREEN:
 			case SCRIPT_PASSIVESUBSCREEN:
 			case SCRIPT_DMAP:
@@ -37976,7 +39055,11 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->lwpn = Lwpns.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->lwpn = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 void FFScript::do_loadeweapon_by_script_uid(const bool v)
@@ -37988,7 +39071,11 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->ewpn = Lwpns.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->ewpn = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 
@@ -38001,7 +39088,11 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 	if ( indx > -1 ) 
 		ri->guyref = guys.spr(indx)->getUID();
 	else
-		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	{
+		ri->guyref = 0;
+		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+			Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+	}
 }
 
 //Combo Scripts

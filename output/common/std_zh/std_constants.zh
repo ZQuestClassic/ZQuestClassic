@@ -1,5 +1,5 @@
 // std_constants.zh
-// 30th July, 2020 for ZC 2.55.0 Alpha 77
+// 31st September, 2020 for ZC 2.55.0 Alpha 82
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -11,9 +11,9 @@ const float PI				= 3.1416;
 const float PI2				= 6.2832;
 const float E				= 2.7183;
 
-const untyped NULL				= 0;
-const untyped null				= 0;
-const untyped Null				= 0;
+const untyped NULL			= 0;
+const untyped null			= 0;
+const untyped Null			= 0;
 
 const float RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
 const float DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
@@ -32,10 +32,10 @@ const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
 
-const int MAX_INT = 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
-const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
-const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
-const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
+const int MAX_INT 			= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MIN_INT 			= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MAX_FLOAT 			= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
+const int MIN_FLOAT 			= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 const int MAX_COUNTER 			= WORD_MAX; 
 const int MIN_COUNTER 			= WORD_MIN;
@@ -53,13 +53,13 @@ const int MIN_FFC			= 1;
 const int MAX_FFC			= 32; 
 const int MIN_OBJ			= 1; //Short, const for loops. 
 
-const int MIN_COUNTER_INDEX			= 0;
-const int MAX_COUNTER_INDEX			= 31;
-const int NUM_COUNTERS				= 32; //0 to 31
+const int MIN_COUNTER_INDEX		= 0;
+const int MAX_COUNTER_INDEX		= 31;
+const int NUM_COUNTERS			= 32; //0 to 31
 
-const int MIN_COMBO_POS 			= 0;
-const int MAX_COMBO_POS 			= 175;
-const int NUM_COMBO_POS 			= 176;
+const int MIN_COMBO_POS 		= 0;
+const int MAX_COMBO_POS 		= 175;
+const int NUM_COMBO_POS 		= 176;
 
 const int MAX_OBJECT_POINTERS 		= 255; //Max of any one type. 
 const int MAX_WEAPON_POINTERS 		= 510; //eweapon and lweapon combined.
@@ -127,8 +127,10 @@ const int SUBSCREEN_BOTTOM		= -1; //Bottom of passive subscreen.
 const int SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
 //! In stdExtra.zh, this is -64. ?!
 
-const int SCREEN_CENTER_X = 128;
-const int SCREEN_CENTER_Y = 88; 
+const int SCREEN_CENTER_X 		= 128;
+const int SCREEN_CENTRE_X 		= 128;
+const int SCREEN_CENTER_Y 		= 88; 
+const int SCREEN_CENTRE_Y 		= 88; 
 
 
 ///////////////////
@@ -1944,6 +1946,10 @@ const int DMF_SCRIPT2 			= 0x1000;
 const int DMF_SCRIPT3 			= 0x2000;
 const int DMF_SCRIPT4 			= 0x4000;
 const int DMF_SCRIPT5 			= 0x8000;
+const int DMF_SIDEVIEW 			= 0x10000;
+const int DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
+//const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
+//const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
@@ -2017,12 +2023,13 @@ enum HeroAction
 	LA_CAVEWALKDOWN,
 	LA_DYING,
 	LA_DROWNING,
+	LA_CLIMBING_RES,      // unused, RESERVED
 	LA_CHARGING,          // Charging the sword.
 	LA_SPINNING,          // Spin attack.
 	LA_DIVING, //24
-	//25,26 unused
+	//25,26 unused, RESERVED
 	LA_STUNNED = 27,
-	//28 unused
+	//28 unused, RESERVED
 	LA_FALLING = 29
 };
 
@@ -2432,13 +2439,13 @@ const int SIDEWARP_D		= 3;
 //Values : Game->GameOverScreen[20]
 const int GOS_BACKGROUND		= 0;
 const int GOS_TEXT_COLOUR		= 1;
-const int GOS_CUSRSOR_TILE		= 2;
+const int GOS_CURSOR_TILE		= 2;
 const int GOS_CURSOR_CSET		= 3;
 const int GOS_CURSOR_SOUND  		= 4;
 const int GOS_TEXT_CONTINUE_COLOUR	= 5;
 const int GOS_TEXT_SAVE_COLOUR		= 6;
 const int GOS_TEXT_RETRY_COLOUR		= 7;
-const int GOS_EXT_CONTINUE_FLASH	= 8;
+const int GOS_TEXT_CONTINUE_FLASH	= 8;
 const int GOS_TEXT_SAVE_FLASH		= 9;
 const int GOS_TEXT_RETRY_FLASH		= 10;
 const int GOS_MIDI 			= 11;

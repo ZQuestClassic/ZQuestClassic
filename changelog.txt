@@ -1,5 +1,278 @@
 // 2.55 Change Log
-// Updated 12th August, 2020
+// Updated 14th November, 2020
+
+//Alpha 85
+
+Default new rule on in new quests or on Pick Ruleset.
+Fix position of new Instruction Rule in Dialogue
+Added a script quest instruction setting to cause Link's respawn
+	points to match script-written EntryX and EntryY for Screen->Entry*.
+Fixed the bug where Link's spin attack animation is mused when he falls
+	into pits if he is holding a charged sword.
+	( ZoriaRPG, 12th November, 2020 )
+	
+<std 1.7109> : Fix error message on invalid CanWalk dirs.
+	( ZoriaRPG, 5th November, 2020 )
+	
+Fix Keyboard Cheat Modifier Dialogue
+	( ZoriaRPG, 4th November, 2020 )
+
+Updated allegro to v4.4.4 (Lib file date 28-Sept-2020)
+Added a special colour (teal) to water combos when drowning is off
+	when viewing combo solidity. 
+	( ZoriaRPG, 16th October, 2020 )
+	
+Updated Classic.zh to v2.14, adding the itemdata script:
+	CollectHeartContainer. This allows showing a un iue message per 1/4
+	of the heart contaier collected.
+Updated Classic.txt.
+	( ZoriaRPG, 1st October, 2020 )
+Added, Classic.txt.
+	( ZoriaRPG, 29th September, 2020 )
+	
+The combo re-init code from the prior commit should also occur
+	on mapdata->ComboD[] if the mapdata pointer is to a tempscr or
+	a scrolling screen.
+Writing ComboD[] or SetLayerComboD for the current screen was
+	not launching the combodata script for the replacement combo.
+	In theory, this should fix it, but it i untested and if it starts feking
+	up the stac wity overflows or other errors, then combo scripts may
+	need another doscript state. (Yuck).
+	( ZoriaRPG, 24th September, 2020 )
+	
+Linux: Add option for monochrome debuggers to zc_sys on ifdef. (Unused)
+Linux console should now open with correct timing.
+Added two safety guards for free() calls.
+The Linux console will only tr to run if zscript_debugger!=0
+	( ZoriaRPG, 19th September, 2020 )
+	
+Further relocate linux console init.
+Move linux console to open after allegro init.
+	( ZoriaRPG, 18th September, 2020 )
+	
+Make storage class enum nonstatic for g++
+Don't use a label for quick quit. It breaks Linux.
+Writing eeLEV->CSet by Script also writes ->dcset
+`	This affects the submerged CSet.
+	( ZoriaRPG, 17th September, 2020 )
+	
+Link can no longer change his direction while stunned.
+Fix OoO issue in link.cpp
+Change stun debug messages to zprints.
+	( Venrob, 11th September, 2020 )
+	
+	
+//Alpha 84
+Add forced NULL terminator to pointers passed to TraceS() and printf(),
+	to prevent crashes in the event that the user passes
+	an ZScript client array w/o a NULL terminator.
+	( ZoriaRPG, 6th September, 2020 )
+
+Added 'Snap to Grid' to FFC Right Click contextual menu.
+	( ZoriaRPG, 5th September, 2020 )
+
+Added npc->OriginalHP, **except** to globalsymbols. 
+	Waiting to see if we resolve parser issues before I modify those tables.
+Raised max deaths count from 999 to 65535. 
+	Requested by zcfan27330 on AGN as he hit 999 deaths in Gleeok's 6th.
+	( ZoriaRPG, 4th September, 2020 )
+
+//Alpha 83
+
+If the zquest.exe RAM use is >= 3GB the compiler will refuse to
+	compile and give a Memory Exhausted error instead of crashing.
+	This leaves a ~500MB buffer before crashing and is polite.
+	We need a Linux implementation for this, too.
+	( ZoriaRPG, 1st September, 2020 )
+	
+Added a flag to TF Fragments: Don't Dismiss Messages
+	If enabled and the cutscene is allowed to run Screen Messages (ZQ Strings)
+	will not be cleared by the cutscene.
+Added a flag to DMaps: Use Enemy List for Cellar Enemies
+	If enabled, when using item cellar and passageway screens, the
+	normal enemy list for screens 0x80 and 0x81 will determine the
+	enemies spawned (0 to 10) rather than fhardcoding precisely four
+	enemies, which if left unspecified (set to None) would spawn keese.
+	This allows cellars and passageways with no enemies, or any normal
+	combination of enemies.
+	Note that this uses the mapscreen from the map used to generate the
+	DMap, and thus will apply to all uses of screens 0x80 and 0x81 used by
+	any dungeon that shares the map.
+	--Fills feature reuest from user cbailey78
+	( ZoriaRPG, 31st August, 2020 )
+	
+Added an attribute to TF Shard items: Custom Refill Frame.
+	If this is > 0, then instead of the hardcoded frame 88, the engine
+	will refill HP/MP on the specified frame of the TF cutscene.
+	This does not appy if the cutscene is disabled.
+	If this is set to a value > Custom Cutscene Duration, it will not occur.
+	Refilling reduces the cutscen frame clock, until it completes, and thus
+		the duration of HP/MP refill adds to the total cutscene duration.
+The cutscene duration for TF Fragments can now be set to a custom value.
+	The cutscene will play until any of the following conditions are met:
+	The frame count is >= the custom duration (if>0) or 408 frames, otherwise.
+	The cutscene plays a MIDI and the MIDI is playing.
+	The cutscene affects music, music is playing and the music counter is < 800.
+		If the flag 'Don't affect music' is enabled, the music position check is skipped.
+		If the Don't play MIDI flag is enabled, then the MIDI pos check is ignored.
+The TF Shard cutscene no onger paues the action script if the
+	Run action script on collection flag is enabled uness the user
+	also enables the new flag:  Cutscene Interrupts Action Script
+TF Fragments now have a flag 'Don't affect music'. If the user
+	enables this flag then the item will not stop the current music
+	before the cutscene, or resume/play the level music after the cutscene.
+	This allows scripts to better control musical cues for the item.
+	( ZoriaRPG, 30th August, 2020 )
+
+//Alpha 82
+
+Updated classic_qst.dat with diagonal hookshot gfx.
+	( ZoriaRPG, 30th August, 2020 )
+	
+Fixed filename on zscript_manual.rtf.
+<std 1.7017> 
+	Added function set void HoldUpItem(..., int) to std_extension.
+	Fixed enum HeroAction values starting at LA_CLIMBING_RES.
+	( ZoriaRPG, 29th August, 2020 )
+
+Feat: Triforce Fragment Options
+	Added the ability for TF pieces to run an action script, on collection.
+		This requires enabling a flag: Run Action Script on Collection
+	Added the ability to play a second sound effect.
+		This requires enabling a flag: Play Second Sound Effect, and the
+		sound must be set in Attribute 'Second Collect Sound'.
+	Added a flag 'No Cutscene' to allow fully scripted cutscenes.
+	Added a flag 'No MIDI'. This allows the cutscene MIDI to be silent.
+	( ZoriaRPG, 27th August, 2020 )
+
+Continued work on ZS Docs.
+Added until() and unless() macros to zdefs.h.
+Spiral.zh: Initial Commit
+Feat: Boss keys also run scripts; identical to other keys.
+	Next: Door / lockblock combo sfx?
+Item action scripts on keys use the lowest numbered item of the
+	type I_KEY, and item action scripts use the lowest numbered item of
+	the type I_LKEYto determine what script to run.
+Allow keys to run action scripts.
+	( ZoriaRPG, 25th August, 2020 )
+
+The diagonal hookshot now uses the appropriate diagonal sprites.
+	Note: This has a visual bug, where if the player stops holding the
+	directional inputs as chainlinks are added, they default to the normal
+	sprite, so we need a way to forward to chainlinks that the PARENT
+	hookshot weapon's dir is diagonal.
+	( ZoriaRPG, 23rd August, 2020 )
+	
+Changed hardcoded tile offsets to use three new sprites in the
+	Item Ediitor, for Diagonal Action on the Hookshot:
+	wpn5 (Sprites[4]): Diagonal Tip
+	wpn6 (Sprites[5]): Diagonal Handle
+	wpn7 (Sprites[6]): Diagonal Chain
+	( ZoriaRPG, 22nd August, 2020 )
+	
+//Alpha 81
+
+Added diagonal hookshot test quest file to /output/tests
+Corrected visual offsets for diagonal hookshot handle and head.
+This may severely change where they visually connect with theit hitboxes
+	on HSGRAB combos, but those coordinates need refinement.
+Add diagonal tiles for hookshot and initial settings.
+Ported the diagonal hookshot from 2.future.
+This still requires code to set diagonal graphics, and some grab point
+	bugtesting and positional fixing.
+	( ZoriaRPG, 21st August, 2020 )
+	
+//Alpha 80
+
+With the QR SHOPCHEAT enabled, and the QR qr_NEVERDISABLEAMMOONSUBSCREEN
+	disabled, buying an item in shoppes would corrupt the A button item
+	slot if the total of dcounter was > than -mcounter.
+	This prevents abs(dcounter) from ever being greater than mcounter,
+		and prevents that corruption.
+	Having the QR qr_NEVERDISABLEAMMOONSUBSCREEN ENABLED also prevented
+		that corruption, but I did not see a spot where that behaviour
+		and shoppe code were entwined.
+	( ZoriaRPG, 20th August, 2020 )
+	
+Sparkle lweapons now run scripts.
+Fixed Sword Separation in Carryover through Warps
+	( ZoriaRPG, 19th August, 2020 )
+	
+Fix BS Patra Children not setting isCore.
+Parser: Fix logical OR with Short Circuit OFF.
+Parser: Apply logical AND for to logical OR. Logical XOR may
+	still need this, too!
+Fixed writing dmapdata->Flags and added DMap Intro Demo Script
+Added a Sprite Attribtes field, to select a custom weapon
+	sprite. and added the flag 'Direct Damage' to Step->Effects combos.
+	If the Sprite value is between 1 and 255, the weapon will use this
+	sprite, rather than its default sprite.
+	If the payer enables the 'Direct Damage' flag:
+		If the weapon type is an lweapon of a Custom/Script type, a Sparkle type, or
+		a Fire Sparkle type, then you may also set it to deal direct damage without
+		knocking the player backwards. This is useful, e.g., for fire floor tiles where
+		you want to create a fire sprite behind the player and damage the player if
+		they walk on them, every few steps.
+
+		This option respects ring damage divisors.
+Fixed some weapons not having the correct power.
+Step->Effects combos now have a 'Landmine' flag.
+If enabled, when the player steps on one, it will generate either an
+eweapon, or an lweapon.
+The user can set the weapon type in Attribytes[1]: 0 or invalid default to an eweapon bomb
+	explosion.
+The user can set the initial direction in Attribytes[2]. It defaults to up.
+The user can set the weapon damage in Attributes[0]. The defaut amount is 4.
+This combo type will always advance by one (as Next) if activated f the Landmine
+	flag is enabled, unless the user also toggles the flag 'Don't Advance'.
+	If that flag is enabled, the combo will spawn another weapon when the player
+	walks on it.
+Finally if the weapon type is set to a wScript (custom) weapon type, the weapon
+	that the engine generates will default as an eweapon, unless the user
+	toggles the flag 'wCustom is LWeapon'.
+	( ZoriaRPG, 18th August, 2020 )
+
+Fix sideview platform landing and solidity.
+Parser: Fixed short-circuit with lgical AND and negative 
+	numbers on RHS.
+	( Venrob, 17th August, 2020 )
+	
+Fix typo in classic.zh; version now 2.13.
+	( ZoriaRPG, 16th August, 2020 )
+
+Parser: Fix function matching with regards to namespaces/scripts.
+	( Venrob, 15th August, 2020 )
+	
+Updated classic.zh to v2.12. The 'ChangeRoomGuy' script now
+	ignores NPC_FIRE.
+Added a behavioural flag to walking enemies: 'Split in Place'.
+	If enabled, when the enemy splits the new enemies appear on the
+	x/y position of the enemy that split (on hit), rather than randomised
+	locations near the enemy that split (on hit).
+	This means that a Zol will split into two gels, with both gels
+	spawning where the Zol was when it was hit, rather than spawning
+	in nearby grid positions, potentially on top of the player, as
+	has been the case until now.
+Enemies that shoud split (e.g. Zol), now split again.
+Added a flag to Gleeok enemies in the Enemy Editor under the
+	Behavioural Flags dialogue, to centre the Gleeo over 
+	two tiles when spawning with the Obeys Spawn Flags behavioural
+	flag enabled.
+Allow setting enemy size on all types except lanmola, moldorm, and gleeok.
+	This means that you can set hit size and offsets, and draw
+	size and offsets on all normal enemies, and on some bosses, but
+	the results for bosses are not guaranteed.
+	This fixes some normal types not respecting the size settings.
+	( ZoriaRPG, 14th August, 2020 )
+	
+The following combo types now have a sfx option, that will play
+	an ambient sound when Link walks over them , while action==walking
+	and that sound is not playing:
+	Shallow Water
+	Tall Grass
+	Tall Grass->Next
+	Tall Grass (Touchy)
+	( ZoriaRPG, 13th August, 2020 )
 
 //Alpha 79
 
@@ -12,11 +285,12 @@ Added placed and inherent flags:
 		Enemies will never spawn here.
 	Spawn All Enemies:
 		EVERY enemy on the screen spawns here.
-	( ZoriaRPG, 12th September, 2020 )
+	( ZoriaRPG, 12th August, 2020 )
 	
 More fixes for script draws in warps.
 	( Venrob, 11th August 2020 )
 
+Add diagonal tiles for hookshot and initial settings.
 Display of quest metadata was stale in the console. This timing
 	change ensures that the data will be accurate.
 	( ZoriaRPG, 11th August 2020 )

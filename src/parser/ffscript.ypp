@@ -30,7 +30,7 @@ extern int yyleng;
 extern int yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
-void yyerror(ASTFile*& root, const char* s);
+void yyerror(boost::movelib::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int row = yyrow, int col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
@@ -64,18 +64,19 @@ extern YYLTYPE noloc;
 %}
 
 %code requires {
+	#include <boost/move/unique_ptr.hpp>
 	namespace ZScript
 	{
 		class ASTFile;
-		ASTFile* parseFile(std::string const& filename);
+		boost::movelib::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
 	};
 }
 
 %glr-parser
-%expect 1
+%expect 5
 %error-verbose
 %start Init
-%parse-param {ZScript::ASTFile*& root}
+%parse-param {boost::movelib::unique_ptr<ZScript::ASTFile>& root}
 
 %define api.token.prefix {TOK_}
 
@@ -238,7 +239,7 @@ Global_List :
 		root->options.push_back(option);
 		if (root->hasDeclarations())
 			yymsg("WARNING: Options should come before everything else.");}
-	| {root = new ASTFile(noloc);}
+	| {root.reset(new ASTFile(noloc));}
 	;
 
 Global_Statement :
@@ -635,29 +636,73 @@ Function :
 		else func->setFlag(FUNCFLAG_INLINE);
 		$$ = func;
 	}
-	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTFuncDecl* func = (ASTFuncDecl*)$4;
 		ASTBlock* block = (ASTBlock*)$6;
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.back();
 		func->block = block;
 		func->location = @$;
-		$$ = func;
-		delete name;}
-	| DataType IDENTIFIER LPAREN RPAREN Statement_Block {
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN Statement_Block {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTString* name = (ASTString*)$2;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
 		ASTBlock* block = (ASTBlock*)$5;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->returnType = returnType;
-		func->name = name->getValue();
+		func->iden = iden;
+		func->name = iden->components.back();
 		func->block = block;
-		$$ = func;
-		delete name;}
+		$$ = func;}
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
+		ASTFuncDecl* func = (ASTFuncDecl*)$4;
+		ASTBlock* block = (ASTBlock*)$6;
+		func->returnType = returnType;
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->prototype = true;
+		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
+		func->location = @$;
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->returnType = returnType;
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->prototype = true;
+		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
+		$$ = func;}
+	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
+		ASTFuncDecl* func = (ASTFuncDecl*)$4;
+		ASTBlock* block = (ASTBlock*)$6;
+		func->returnType = returnType;
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->prototype = true;
+		func->defaultReturn = (ASTExprConst*)$8;
+		func->location = @$;
+		$$ = func;}
+	| DataType Identifier_List LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTDataType* returnType = (ASTDataType*)$1;
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->returnType = returnType;
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->prototype = true;
+		func->defaultReturn = (ASTExprConst*)$7;
+		$$ = func;}
 	;
 
 Function_Parameters_List :
@@ -1222,14 +1267,19 @@ Identifier :
 	IDENTIFIER {$$ = $1;}
 	;
 
+Func_Left :
+	Expr_Arrow {$$ = $1;}
+	| Identifier_List {$$ = $1;}
+	;
+
 Expr_3_Call :
-	Expr_3 LPAREN RPAREN {
+	Func_Left LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Expr_3 LPAREN Expr_3_Call_Parameters RPAREN {
+	| Func_Left LPAREN Expr_3_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
@@ -1274,8 +1324,15 @@ Expr_2 : Expr_1 {$$ = $1;}
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* expr = (ASTExpr*)$4;
 		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
-		cast->operand = expr;
 		$$ = cast;}
+	;
+
+Expr_Arrow :
+	Expr_3 ARROW IDENTIFIER {
+			ASTExpr* left = (ASTExpr*)$1;
+			ASTString* right = (ASTString*)$3;
+			$$ = new ASTExprArrow(left, right->getValue(), @$);
+			delete right;}
 	;
 
 Expr_3 : Expr_2 {$$ = $1;}
@@ -1289,11 +1346,7 @@ Expr_3 : Expr_2 {$$ = $1;}
 	| Expr_3 LBRACKET Expression RBRACKET {
 		BINARY(ASTExprIndex, $$, $1, $3, @$);}
 	// Access
-	| Expr_3 ARROW IDENTIFIER {
-			ASTExpr* left = (ASTExpr*)$1;
-			ASTString* right = (ASTString*)$3;
-			$$ = new ASTExprArrow(left, right->getValue(), @$);
-			delete right;}
+	| Expr_Arrow {$$ = $1;}
 	;
 
 Expr_4 : Expr_3 {$$ = $1;}
@@ -1565,15 +1618,15 @@ void yymsg(string const& message, int row, int col)
     box_eol();
 }
 
-void yyerror(ASTFile*&, const char *s) {
+void yyerror(boost::movelib::unique_ptr<ASTFile>&, const char *s) {
 	yymsg(s);
 }
 
 namespace ZScript
 {
-	ASTFile* parseFile(std::string const& filename)
+	boost::movelib::unique_ptr<ASTFile> parseFile(std::string const& filename)
 	{
-		ASTFile* result = NULL;
+		boost::movelib::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
 		yyin = NULL;
@@ -1592,11 +1645,10 @@ namespace ZScript
 		// Run the parser.
 		if (yyparse(result))
 		{
-			delete result;
-			result = NULL;
+			result.reset();
 		}
 		fclose(yyin);
 		
-		return result;
+		return boost::movelib::unique_ptr<ASTFile>(result.release());
 	}
 };

@@ -8,7 +8,11 @@
 #include "ZScript.h"
 
 using namespace ZScript;
-using namespace std;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
+using std::list;
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
@@ -675,6 +679,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
+	if(host.prototype) return; //Same for prototypes
 	int oldreturnlabelid = returnlabelid;
 	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
@@ -926,7 +931,32 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
     OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
+	if(host.binding->prototype) //Prototype function
+	{
+		int startRefCount = arrayRefs.size(); //Store ref count
+		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
+		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			visit(*it, param);
+		}
+		
+		//Set the return to the default value
+		DataType const& retType = *host.binding->returnType;
+		if(retType != DataType::ZVOID)
+		{
+			if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			{
+				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+			}
+		}
+
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+	}
+	else if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
 	{
 		if(host.binding->isInternal())
 		{
@@ -979,7 +1009,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//Deallocate string/array literals from within the parameters
 			deallocateRefsUntilCount(startRefCount);
 			while ((int)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
+				arrayRefs.pop_back();
 		}
 		else
 		{
@@ -1225,7 +1255,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
-		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
@@ -1267,8 +1297,10 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		//Check left, skip if true
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
+		//Get rightx
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
 		Opcode* ocode = (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)) ? (Opcode*)(new OSetMore(new VarArgument(EXP1))) : (Opcode*)(new OSetMoreI(new VarArgument(EXP1)));
@@ -1285,6 +1317,8 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		visit(host.right.get(), param);
 		//Retrieve left
 		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP2)));
 		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))

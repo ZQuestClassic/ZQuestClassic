@@ -122,7 +122,7 @@ const char *qst_error[] =
     "Version not supported","Obsolete version",
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
-    "Doesn't match saved game", "New quest version; please restart game",
+    "Doesn't match saved game", "Save file is for older version of quest; please start new save",
     "Out of memory", "File Debug Mode"
 };
 
@@ -3134,6 +3134,14 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules, qr_OLD_PRINTF_ARGS, 1);
 	}
+	
+	
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 54) )
+	{
+		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
+		set_bit(quest_rules, qr_BROKEN_RING_POWER, 1);
+	}
+	
     if ( tempheader.zelda_version < 0x254 )
     {
 	    set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
@@ -3189,6 +3197,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
 		set_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 53) )
+	{
+		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
 	}
 	
 	//always set
@@ -4619,6 +4631,42 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 				tempDMap.sub_initD[q] = 0;
 				for(int w = 0; w < 65; ++w)
 					tempDMap.sub_initD_label[q][w] = 0;
+			}
+		}
+		if(s_version >= 15)
+		{
+			if(!p_igetw(&tempDMap.onmap_script,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			for ( int q = 0; q < 8; ++q )
+			{
+				if(!p_igetl(&tempDMap.onmap_initD[q],f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for ( int w = 0; w < 65; ++w )
+				{
+					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+			}
+		}
+		else
+		{
+			tempDMap.onmap_script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				tempDMap.onmap_initD[q] = 0;
+				for(int w = 0; w < 65; ++w)
+				{
+					tempDMap.onmap_initD_label[q][w] = 0;
+				}
 			}
 		}
 	
@@ -11146,7 +11194,8 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(keepdata)
             {
-                strcpy(sfx_string[i], tempname);
+		strcpy(sfx_string[i], tempname);
+		sfx_string[i][35] = 0; //Force NULL Termination
             }
         }
     }

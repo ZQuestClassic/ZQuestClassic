@@ -6,14 +6,17 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif
 
-#include <stdio.h>
-#include <map>
-#include <vector>
-#include <string>
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
 #include "../ffasmexport.h"
+
+#include <boost/move/unique_ptr.hpp>
+
+#include <cstdio>
+#include <map>
+#include <vector>
+#include <string>
 
 namespace ZScript
 {
@@ -57,8 +60,8 @@ namespace ZScript
 			if(label == -1)
 				return " " + toString() + "\n";
             
-			sprintf(buf, "l%d:", label);
-			return (showlabel ? std::string(buf) : " ")+ toString() + "\n";
+			sprintf(&buf[0], "l%d:", label);
+			return (showlabel ? std::string(&buf[0]) : " ")+ toString() + "\n";
 		}
 		Opcode * makeClone()
 		{
@@ -121,7 +124,7 @@ namespace ZScript
 		std::map<std::string, ScriptType> scriptTypes;
 	};
 
-	ScriptsData *compile(std::string const& filename);
+	boost::movelib::unique_ptr<ScriptsData> compile(std::string const& filename);
 
 	class ScriptParser
 	{
@@ -144,7 +147,7 @@ namespace ZScript
 		}
 		static bool preprocess_one(ASTImportDecl& decl, int reclevel);
 		static bool preprocess(ASTFile* root, int reclevel);
-		static IntermediateData* generateOCode(FunctionData& fdata);
+		static boost::movelib::unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
 		static void assemble(IntermediateData* id);
 		static void initialize();
 		static std::pair<long,bool> parseLong(

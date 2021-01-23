@@ -9,15 +9,15 @@
 namespace classic_zh
 {
 	//Version Info:
-	const float VERSION 			= 2.13;
-	const int DATE_DAY 			= 16;
-	const int DATE_MONTH 			= 8;
+	const float VERSION 			= 2.14;
+	const int DATE_DAY 			= 01;
+	const int DATE_MONTH 			= 10;
 	const int DATE_YEAR 			= 2020;
-	const int HOUR				= 4;
-	const int MINUTE			= 49;
+	const int HOUR				= 5;
+	const int MINUTE			= 3;
 	
 	//System Limits
-	const int MAX_ITEMS			= 512;
+	const int MAX_LEVELS			= 512;
 	
 	//Basic Settings
 	
@@ -126,7 +126,7 @@ const int I_MAGICCOMPASS 				= 148;
 
 //Scripts
 //Automatically lights dark rooms as a passive item.
-item script Z2_Lantern
+itemdata script Z2_Lantern
 {
 	void run()
 	{
@@ -138,7 +138,7 @@ item script Z2_Lantern
 	}
 }
 
-item script toggle_4_8_way_movement
+itemdata script toggle_4_8_way_movement
 {
 	void run()
 	{
@@ -146,7 +146,7 @@ item script toggle_4_8_way_movement
 	}
 }
 
-item script LearnSlash
+itemdata script LearnSlash
 {
 	void run()
 	{
@@ -154,7 +154,7 @@ item script LearnSlash
 	}
 }
 
-item script ItemMessage
+itemdata script ItemMessage
 {
 	void run(int m)
 	{
@@ -162,7 +162,7 @@ item script ItemMessage
 	}
 }
 
-item script ItemSound
+itemdata script ItemSound
 {
 	void run(int s)
 	{
@@ -514,11 +514,11 @@ ffc script DropHEARTCONTAINER
 
 
 //Collect script for Magic Boss Key--works in a levels
-item script MagicBossKey
+itemdata script MagicBossKey
 {
 	void run()
 	{
-		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
+		for ( int q = 0; q < classic_zh::MAX_LEVELS; ++q )
 		{
 			Game->LItems[q] |= LI_BOSSKEY;
 		}
@@ -526,11 +526,11 @@ item script MagicBossKey
 }
 
 //Collect script for Magic Map--works in a levels
-item script MagicMap
+itemdata script MagicMap
 {
 	void run()
 	{
-		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
+		for ( int q = 0; q < classic_zh::MAX_LEVELS; ++q )
 		{
 			Game->LItems[q] |= LI_MAP;
 		}
@@ -538,17 +538,25 @@ item script MagicMap
 }
 
 //Collect script for Magic Compass-works in all levels
-item script MagicCompass
+itemdata script MagicCompass
 {
 	void run()
 	{
-		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
+		for ( int q = 0; q < classic_zh::MAX_LEVELS; ++q )
 		{
 			Game->LItems[q] |= LI_COMPASS;
 		}
 	}
 }
 
+//Allows showing a uniue string for each of the four HC pieces. 
+itemdata script CollectHeartContainer
+{
+	void run(int m)
+	{
+		Screen->Message(m+Game->Generic[GEN_HEARTPIECES]);
+	}
+}
 
 ffc script ScreenGuyMusic
 {

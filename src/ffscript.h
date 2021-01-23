@@ -189,6 +189,69 @@ enum //ScrollingData indexes
 	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
 };
 
+///----------------------------------------------//
+//           New Mapscreen Flags Tools           //
+///----------------------------------------------//
+
+enum mapflagtype
+{
+	// Room Types
+	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
+	
+	// View
+	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
+	MSF_LAYER2BG, MSF_LAYER3BG, MSF_DARKROOM,
+	
+	// Secrets
+	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
+	
+	// Warp
+	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE,
+	MSF_SPRITECARRY, MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
+	
+	// Item
+	MSF_HOLDUP, MSF_FALLS,
+	
+	// Combo
+	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
+	
+	// Save
+	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
+	
+	// FFC
+	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
+	
+	// Whistle
+	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE, 
+	
+	// Enemies
+	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
+	MSF_ENEMIES_SECRET_PERM,  
+	
+		//->enemyflags
+		MSF_SPAWN_ZORA, MSF_SPAWN_CORNERTRAP, MSF_SPAWN_MIDDLETRAP, MSF_SPAWN_ROCK, MSF_SPAWN_SHOOTER,
+		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS, 
+	
+	// Misc
+	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
+		 
+	//Custom / Script 
+	MSF_SCRIPT1,
+	MSF_CUSTOM1 = MSF_SCRIPT1,
+	MSF_SCRIPT2,
+	MSF_CUSTOM2 = MSF_SCRIPT2,
+	MSF_SCRIPT3,
+	MSF_CUSTOM3 = MSF_SCRIPT3,
+	MSF_SCRIPT4,
+	MSF_CUSTOM4 = MSF_SCRIPT4,
+	MSF_SCRIPT5,
+	MSF_CUSTOM5 = MSF_SCRIPT5,
+	
+	MSF_DUMMY_8, 
+	MSF_LAST
+	
+};
+
 //User-generated / Script-Generated bitmap object
 #define UBMPFLAG_RESERVED		0x01
 #define UBMPFLAG_FREEING		0x02
@@ -457,6 +520,9 @@ void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
 void do_graphics_getpixel();
 
+void set_mapscreenflag_state(mapscr *m, int flagid, bool state);
+long get_mapscreenflag_state(mapscr *m, int flagid);
+
 void clearRunningItemScripts();
 bool itemScriptEngine();
 void npcScriptEngineOnWaitdraw();
@@ -474,6 +540,7 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 bool runActiveSubscreenScriptEngine();
+bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
@@ -721,6 +788,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptOnMapScript();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
@@ -4056,10 +4124,13 @@ enum ASM_DEFINE
 #define DMAPDATASUBINITD			0x13C0
 #define MODULEGETINT			0x13C1
 #define MODULEGETSTR			0x13C2
-#define DMAPDATACHARTED			0x13C3
+#define NPCORIGINALHP			0x13C3
+#define DMAPDATAMAPSCRIPT			0x13C4
+#define DMAPDATAMAPINITD			0x13C5
+#define DMAPDATACHARTED			0x13C6
 
 
-#define NUMVARIABLES         	0x13C4
+#define NUMVARIABLES         	0x13C7
 
 //} End variables
 

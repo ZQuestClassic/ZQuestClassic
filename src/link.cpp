@@ -245,7 +245,6 @@ int LinkClass::StunClock()
 void LinkClass::setStunClock(int v)
 {
     link_is_stunned=v;
-	stundir = dir;
 }
 
 LinkClass::LinkClass() : sprite()
@@ -5390,7 +5389,224 @@ void LinkClass::check_pound_block(weapon *w)
     return;
 }
 
-
+//defend results should match defence types. 
+//RETURN VALUES: 
+// -1 iGNORE WEAPON
+// 0 No effects
+// 1 Effects, weapon is not ignored or removed
+int LinkClass::defend(weapon *w)
+{
+	switch(defence[w->id])
+	{
+		
+		case edNORMAL: return 1;
+		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
+		{
+			w->power *= 0.5;
+			return 1;
+		}
+		case edQUARTDAMAGE:
+		{
+			w->power *= 0.25;
+			return 1;
+		}
+		case edSTUNONLY:
+		{
+			setStunClock(120);
+			return 1;
+		}
+		case edSTUNORCHINK: // : IMPLEMENTED : If damage > 0, stun instead. Else, bounce off.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+		}
+		case edSTUNORIGNORE: // : IMPLEMENTED : If damage > 0, stun instead. Else, ignore.
+		{
+			if (w->power > 0) 
+			{
+				setStunClock(120);
+				return 1;
+			}
+			else 
+			{
+				return -1;
+			}
+		}
+		case edCHINKL1: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			if (w->power < 1) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL2: // : IMPLEMENTED : Bounce off unless damage >= 2
+		{
+			if (w->power < 2) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL4: //: IMPLEMENTED : Bounce off unless damage >= 4
+		{
+			if (w->power < 4) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL6: // : IMPLEMENTED : Bounce off unless damage >= 6
+		{
+			if (w->power < 6) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINKL8: // : IMPLEMENTED : Bounce off unless damage >= 8
+		{
+			if (w->power < 8) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case edCHINK: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+		{
+			sfx(WAV_CHINK,pan(int(x)));
+			w->dead = 0;
+			return -1;
+		}
+		case edIGNOREL1: // : IMPLEMENTED : Ignore unless damage > 1.
+		{
+			if (w->power < 1) 
+			{
+				return -1;
+			}
+			else return 1;
+		}
+		case edIGNORE: // : IMPLEMENTED : Do Nothing
+		{
+			return -1;
+		}
+		case ed1HKO: // : IMPLEMENTED : One-hit knock-out
+		{
+			game->set_life(0);
+			return 1;
+		}
+		case edCHINKL10: //: IMPLEMENTED : If damage is less than 10
+		{
+			if (w->power < 10) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				w->dead = 0;
+				return -1;
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		case ed2x: // : IMPLEMENTED : Double damage.
+		{
+			w->power *= 2;
+			return 1;
+		}
+		case ed3x: // : IMPLEMENTED : Triple Damage.
+		{
+			w->power *= 3;
+			return 1;
+		}
+		case ed4x: // : IMPLEMENTED : 4x damage.
+		{
+			w->power *= 4;
+			return 1;
+		}
+		case edHEAL: // : IMPLEMENTED : Gain the weapon damage in HP.
+		{
+			//sfx(WAV_HEAL,pan(int(x)));
+			game->set_life(zc_min(game->get_life()+w->power, game->get_maxlife()));
+			w->dead = 0;
+			return -1;
+		}
+	
+		case edFREEZE: return 1; //Not IMPLEMENTED
+	
+		case edLEVELDAMAGE: //Damage * item level
+		{
+			w->power *= w->family_level;
+			return 1;
+		}
+		case edLEVELREDUCTION: //Damage / item level
+		{
+			if ( w->family_level > 0 ) 
+			{
+				w->power /= w->family_level;
+			}
+			else w->power = 0;
+			return 1;
+		}
+	
+		//edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+		//edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
+		//edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
+		//edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	
+		//edSHOCK, //buzz blob
+	
+	
+		case edBREAKSHIELD: //destroy the player's present shield
+		{
+			w->power = 0;
+			w->dead = 0;
+			int itemid = current_item_id(itype_shield);
+			//sfx(WAV_BREAKSHIELD,pan(int(x)));
+			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
+				game->set_item(itemid, false);
+			//Remove Link's shield
+			return -1; 
+		}
+	
+	
+		
+		default: return 0;
+	}
+}
 
 int LinkClass::EwpnHit()
 {
@@ -5403,6 +5619,9 @@ int LinkClass::EwpnHit()
             
             if((ew->ignoreLink)==true || ew->fallclk)
                 break;
+	    
+	    int defresult = defend(ew);
+	    if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
                 
             if(ew->id==ewWind)
             {
@@ -6587,7 +6806,7 @@ bool LinkClass::animate(int)
 			//zprint2("ydif is: %d\n", ydiff);
 			//zprint2("ydif is: %d\n", (int)fall);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
+			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
@@ -6838,16 +7057,12 @@ bool LinkClass::animate(int)
     {
 	    // also cancel Link's attack
 		attackclk = 0;
-		dir = stundir;
-	    actiontype lastaction = action; //cache the last action so that we can compare against it
 	    
-	    if( lastaction != freeze )  //stun sets freeze, so we only want to store a tempaction that was not freeze
+	    if( FFCore.getLinkAction() != stunned )
 	    {
-		    tempaction=lastaction; //update so future checks won't do this
-		    //action=freeze; //setting this somehow makes the FFCore link action 'swimming' ?!
+		    tempaction=action; //update so future checks won't do this
+		    //action=freeze; //setting this makes the player invincible while stunned -V
 		    FFCore.setLinkAction(stunned);
-		    Z_scripterrlog("The stunned action is: %d\n", (int)stunned);
-		    Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
 	    }
 	    --link_is_stunned;
     }
@@ -6856,7 +7071,7 @@ bool LinkClass::animate(int)
     if ( FFCore.getLinkAction() == stunned && !link_is_stunned )
     {
 	action=tempaction; FFCore.setLinkAction(tempaction);
-	     Z_scripterrlog("Unfreezing link to action: %d\n", (int)tempaction);
+	     zprint("Unfreezing link to action: %d\n", (int)tempaction);
        
 	//action=none; FFCore.setLinkAction(none);
 	    
@@ -7028,19 +7243,10 @@ bool LinkClass::animate(int)
     }
         
     if(rPbtn())
-    
-        // #define PBUTTONDEBUG
-        
-#ifndef PBUTTONDEBUG
-        onViewMap();
-        
-#else
-        /* This is here to allow me to output something to allegro.log on demand. */
     {
-        al_trace("**********\n");
-    }
-#endif
-        
+        if( !FFCore.runOnMapScriptEngine() ) //OnMap script replaces the 'onViewMap()' call
+			onViewMap();
+    }   
     for(int i=0; i<Lwpns.Count(); i++)
     {
         weapon *w = ((weapon*)Lwpns.spr(i));
@@ -7582,7 +7788,7 @@ bool LinkClass::animate(int)
     
     if(pushing>=24) dtype=dWALK;
     
-    if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting)
+    if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !link_is_stunned)
     {
         if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
         {
@@ -8116,6 +8322,7 @@ bool LinkClass::startwpn(int itemid)
 	    {
 		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->linkedItem = bookid;
+		//magic->dir = this->dir; //Save player dir for special weapons. 
                 Lwpns.add(magic);
 	    }
         if(!(misc_internal_link_flags & LF_PAID_WAND_COST))
@@ -8126,7 +8333,16 @@ bool LinkClass::startwpn(int itemid)
             paymagiccost(current_item_id(itype_book));
             
         if(bookid != -1)
-            sfx(itemsbuf[bookid].usesound,pan(wx));
+	{
+		if (( itemsbuf[bookid].flags & ITEM_FLAG4 ))
+		{
+			sfx(itemsbuf[bookid].misc2,pan(wx));
+		}
+		else 
+		{
+			sfx(itemsbuf[itemid].usesound,pan(wx));
+		}
+	}
         else
             sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8503,13 +8719,43 @@ bool LinkClass::startwpn(int itemid)
                     use_hookshot=false;
                 }
             }
+	    //Diagonal Hookshot (6)
+	    else if(dir==r_down)
+            {
+                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==l_down)
+            {
+                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==r_up)
+            {
+                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+	    else if(dir==l_up)
+            {
+                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
         }
         
         if(use_hookshot)
         {
             int hookitem = itemsbuf[itemid].fam_type;
             int hookpower = itemsbuf[itemid].power;
-            
+            byte allow_diagonal = (itemsbuf[itemid].flags & ITEM_FLAG2) ? 1 : 0; 
+		
             if(!Lwpns.has_space())
             {
                 Lwpns.del(0);
@@ -8564,7 +8810,49 @@ bool LinkClass::startwpn(int itemid)
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
-            
+            //Diagonal Hookshot (7)
+	    if(dir==r_down)
+            {
+                hookshot_used=true;
+		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==r_up)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==l_down)
+            {
+                hookshot_used=true;
+		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+	    if(dir==l_up)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
             hookshot_frozen=true;
         }
         
@@ -9953,12 +10241,15 @@ void LinkClass::pitfall()
 			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
 			action=falling; FFCore.setLinkAction(falling);
+			spins = 0;
+			charging = 0;
 		}
 	}
 }
 
 void LinkClass::movelink()
 {
+	if(link_is_stunned) return;
 	int xoff=x.getInt()&7;
 	int yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
@@ -14580,13 +14871,62 @@ bool usekey()
         if(game->lvlkeys[dlevel]!=0)
         {
             game->lvlkeys[dlevel]--;
-            return true;
+	    //run script for level key item
+		int key_item = 0; //current_item_id(itype_lkey); //not possible
+		for ( int q = 0; q < MAXITEMS; ++q )
+		{
+			if ( itemsbuf[q].family == itype_lkey )
+			{
+				key_item = q; break;
+			}
+		}
+		//zprint2("key_item is: %d\n",key_item);
+		//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+		{
+			ri = &(itemScriptData[key_item]);
+			for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+			ri->Clear();
+			item_doscript[key_item] = 1;
+			itemscriptInitialised[key_item] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+		}
+		return true;
         }
         
-        if(game->get_keys()==0)
-            return false;
-            
-        game->change_keys(-1);
+	else
+	{
+		if(game->get_keys()==0)
+		{
+		    return false;
+		}
+		else 
+		{
+			//run script for key item
+			int key_item = 0; //current_item_id(itype_key); //not possible
+			for ( int q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_key )
+				{
+					key_item = q; break;
+				}
+			}
+			//zprint2("key_item is: %d\n",key_item);
+			//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			game->change_keys(-1);
+		}
+	}
     }
     
     return true;
@@ -14835,6 +15175,27 @@ void LinkClass::checkbosslockblock()
     }
     
     if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+	
+    
+	// Run Boss Key Script
+	int key_item = 0; //current_item_id(itype_bosskey); //not possible
+	for ( int q = 0; q < MAXITEMS; ++q )
+	{
+		if ( itemsbuf[q].family == itype_bosskey )
+		{
+			key_item = q; break;
+		}
+	}
+	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+	{
+		ri = &(itemScriptData[key_item]);
+		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+		ri->Clear();
+		item_doscript[key_item] = 1;
+		itemscriptInitialised[key_item] = 0;
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+	}
     
     setmapflag(mBOSSLOCKBLOCK);
     remove_bosslockblocks((currscr>=128)?1:0);
@@ -14908,7 +15269,25 @@ void LinkClass::checkchest(int type)
         
     case cBOSSCHEST:
         if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
-        
+        // Run Boss Key Script
+	int key_item = 0; //current_item_id(itype_bosskey); //not possible
+	for ( int q = 0; q < MAXITEMS; ++q )
+	{
+		if ( itemsbuf[q].family == itype_bosskey )
+		{
+			key_item = q; break;
+		}
+	}
+	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+	{
+		ri = &(itemScriptData[key_item]);
+		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+		ri->Clear();
+		item_doscript[key_item] = 1;
+		itemscriptInitialised[key_item] = 0;
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+	}
         setmapflag(mBOSSCHEST);
         break;
     }
@@ -14999,6 +15378,25 @@ void LinkClass::checklocked()
 					    setmapflag(di, mDOOR_DOWN);
 					sfx(WAV_DOOR);
 					markBmap(-1);
+					// Run Boss Key Script
+					int key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int q = 0; q < MAXITEMS; ++q )
+					{
+						if ( itemsbuf[q].family == itype_bosskey )
+						{
+							key_item = q; break;
+						}
+					}
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					{
+						ri = &(itemScriptData[key_item]);
+						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						ri->Clear();
+						item_doscript[key_item] = 1;
+						itemscriptInitialised[key_item] = 0;
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+					}
 				    }
 				    else return;
 
@@ -15039,6 +15437,25 @@ void LinkClass::checklocked()
 					    setmapflag(di, mDOOR_UP);
 					sfx(WAV_DOOR);
 					markBmap(-1);
+					// Run Boss Key Script
+					int key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int q = 0; q < MAXITEMS; ++q )
+					{
+						if ( itemsbuf[q].family == itype_bosskey )
+						{
+							key_item = q; break;
+						}
+					}
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					{
+						ri = &(itemScriptData[key_item]);
+						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						ri->Clear();
+						item_doscript[key_item] = 1;
+						itemscriptInitialised[key_item] = 0;
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+					}
 				    }
 				    else return;
 				}
@@ -15077,6 +15494,25 @@ void LinkClass::checklocked()
 					    setmapflag(di, mDOOR_RIGHT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
+					// Run Boss Key Script
+					int key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int q = 0; q < MAXITEMS; ++q )
+					{
+						if ( itemsbuf[q].family == itype_bosskey )
+						{
+							key_item = q; break;
+						}
+					}
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					{
+						ri = &(itemScriptData[key_item]);
+						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						ri->Clear();
+						item_doscript[key_item] = 1;
+						itemscriptInitialised[key_item] = 0;
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+					}
 				    }
 				    else return;
 				}
@@ -15119,6 +15555,25 @@ void LinkClass::checklocked()
 					    setmapflag(di, mDOOR_LEFT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
+					// Run Boss Key Script
+					int key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int q = 0; q < MAXITEMS; ++q )
+					{
+						if ( itemsbuf[q].family == itype_bosskey )
+						{
+							key_item = q; break;
+						}
+					}
+					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					{
+						ri = &(itemScriptData[key_item]);
+						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						ri->Clear();
+						item_doscript[key_item] = 1;
+						itemscriptInitialised[key_item] = 0;
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+					}
 				    }
 				    else return;
 				}
@@ -15167,6 +15622,25 @@ void LinkClass::checklocked()
 						    setmapflag(di, mDOOR_DOWN);
 						sfx(WAV_DOOR);
 						markBmap(-1);
+						// Run Boss Key Script
+						int key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int q = 0; q < MAXITEMS; ++q )
+						{
+							if ( itemsbuf[q].family == itype_bosskey )
+							{
+								key_item = q; break;
+							}
+						}
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						{
+							ri = &(itemScriptData[key_item]);
+							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							ri->Clear();
+							item_doscript[key_item] = 1;
+							itemscriptInitialised[key_item] = 0;
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						}
 					    }
 					    else return;
 					}
@@ -15215,6 +15689,25 @@ void LinkClass::checklocked()
 						    setmapflag(di, mDOOR_UP);
 						sfx(WAV_DOOR);
 						markBmap(-1);
+						// Run Boss Key Script
+						int key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int q = 0; q < MAXITEMS; ++q )
+						{
+							if ( itemsbuf[q].family == itype_bosskey )
+							{
+								key_item = q; break;
+							}
+						}
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						{
+							ri = &(itemScriptData[key_item]);
+							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							ri->Clear();
+							item_doscript[key_item] = 1;
+							itemscriptInitialised[key_item] = 0;
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						}
 					    }
 					    else return;
 					}
@@ -15261,6 +15754,25 @@ void LinkClass::checklocked()
 						    setmapflag(di, mDOOR_RIGHT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
+						// Run Boss Key Script
+						int key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int q = 0; q < MAXITEMS; ++q )
+						{
+							if ( itemsbuf[q].family == itype_bosskey )
+							{
+								key_item = q; break;
+							}
+						}
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						{
+							ri = &(itemScriptData[key_item]);
+							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							ri->Clear();
+							item_doscript[key_item] = 1;
+							itemscriptInitialised[key_item] = 0;
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						}
 					    }
 					    else return;
 					}
@@ -15310,6 +15822,25 @@ void LinkClass::checklocked()
 						    setmapflag(di, mDOOR_LEFT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
+						// Run Boss Key Script
+						int key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int q = 0; q < MAXITEMS; ++q )
+						{
+							if ( itemsbuf[q].family == itype_bosskey )
+							{
+								key_item = q; break;
+							}
+						}
+						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //
+						{
+							ri = &(itemScriptData[key_item]);
+							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							ri->Clear();
+							item_doscript[key_item] = 1;
+							itemscriptInitialised[key_item] = 0;
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						}
 
 					    }
 					    else return;
@@ -16779,6 +17310,212 @@ void LinkClass::checkspecial2(int *ls)
 	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 		sfx(thesfx,pan((int)x));
+	if ( combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag1 && action==walking ) //landmine
+	{
+		int wpn = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1];
+		int wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
+		if ( ((unsigned)wpdir) > r_down )
+		{
+			wpdir = rand()&3;
+		}
+		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0];
+		switch(wpn)
+		{
+			//eweapons
+			case ewFireball:
+			case ewArrow:
+			case ewBrang:
+			case ewSword:
+			case ewRock:
+			case ewMagic:
+			case ewBomb:
+			case ewSBomb:
+			case ewLitBomb:
+			case ewLitSBomb:
+			case ewFireTrail:
+			case ewFlame:
+			case ewWind:
+			case ewFlame2:
+			case ewFlame2Trail:
+			case ewIce:
+			case ewFireball2:
+			
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
+			
+			case wBeam:
+			case wBrang:
+			case wBomb:
+			case wSBomb:
+			case wLitBomb:
+			case wLitSBomb:
+			case wArrow:
+			
+			case wWhistle:
+			case wBait:
+			case wMagic:
+			case wWind:
+			case wRefMagic:
+			case wRefFireball:
+			case wRefRock:
+			case wRefBeam:
+			case wIce:
+			case wFlame: 
+			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+			//case wThrowRock: 
+			//case wPot: //Thrown pot or rock -Z
+			//case wLit: //Lightning or Electric -Z
+			//case wBombos: 
+			//case wEther: 
+			//case wQuake:// -Z
+			//case wSword180: 
+			//case wSwordLA:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
+			
+			case wFire:
+				//if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
+				//{
+					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); break;
+				//}
+				//else //wscript ewpn
+				//{
+				//	Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,-1,false,0,0,0)); break;
+				//}
+				
+			//lweacase wScript1:
+			case wScript2: 
+			case wScript3:
+			case wScript4:
+			case wScript5:
+			case wScript6:
+			case wScript7:
+			case wScript8:
+			case wScript9:
+			case wScript10:
+			
+			//custo weapons (could be either type)
+			
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
+				{
+					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+					{
+						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+						w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+					}
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag4) //direct damage from custom/script lweapons
+					{
+						hitdir = -1;
+						if (action != rafting && action != freeze && !hclk)
+						{
+							if (action == swimming || hopclk == 0xFF)
+							{
+								action=swimhit; FFCore.setLinkAction(swimhit);
+							}
+							else
+							{
+								action=gothit; FFCore.setLinkAction(gothit);
+							}
+							if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+							{
+								spins = charging = attackclk = 0;
+								attack=none;
+								tapping = false;
+							}
+							int dmgamt = ((damg > 0) ? damg : 4);
+		
+							game->set_life(game->get_life()-ringpower(dmgamt));
+							
+							hclk=48;
+							sfx(getHurtSFX(),pan(x.getInt()));
+						}
+					}
+					break;
+				}
+				else //wscript ewpn
+				{
+					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+					if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+					{
+						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+						w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+					}
+					break;
+				}
+				
+			case wSSparkle:
+			case wFSparkle:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag4) //direct damage from custom/script lweapons
+				{
+					hitdir = -1;
+					if (action != rafting && action != freeze && !hclk)
+					{
+						if (action == swimming || hopclk == 0xFF)
+						{
+							action=swimhit; FFCore.setLinkAction(swimhit);
+						}
+						else
+						{
+							action=gothit; FFCore.setLinkAction(gothit);
+						}
+						if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+						{
+							spins = charging = attackclk = 0;
+							attack=none;
+							tapping = false;
+						}
+						int dmgamt = ((damg > 0) ? damg : 4);
+
+						game->set_life(game->get_life()-ringpower(dmgamt));
+						
+						hclk=48;
+						sfx(getHurtSFX(),pan(x.getInt()));
+					}
+				}
+				break;
+			
+			default: //enemy bomb
+				//(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
+				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); 
+				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3]);
+				}
+				break;
+			
+			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
+		}
+		if (!(combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag3) ) //Don't Advance
+		{
+			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
+			tmpscr->data[stepnext]++;
+		}
+		
+		
+		
+		
+	}
     }
     else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
     { 
@@ -17122,8 +17859,46 @@ const char *roomtype_string[rMAX] =
 
 bool LinkClass::dowarp(int type, int index, int warpsfx)
 {
-	 if(index<0)
-        return false;
+	byte reposition_sword_postwarp = 0;
+	if(index<0)
+	{
+		return false;
+	}
+	for ( int q = 0; q < Lwpns.Count(); ++q )
+	{
+		weapon *swd=NULL;
+		swd = (weapon*)Lwpns.spr(q);
+		if(swd->id == (attack==wSword ? wSword : wWand))
+		{
+			Lwpns.del(q);
+		}
+	}
+	
+	attackclk = charging = spins = tapping = 0;
+	attack = none;
+	if (tmpscr->flags3&fIWARPFULLSCREEN) // Sprites carry over
+	{
+		//zprint2("sprites carried over through warp\n");
+		//fix sword position.
+		//reposition_sword_postwarp = 1;
+		
+		//if(reposition_sword_postwarp)
+		//{
+		//	weapon *w=NULL;
+		//	for(int i=0; i<Lwpns.Count(); i++)
+		//	{
+		//	    swd = (weapon*)Lwpns.spr(i);
+		//	    
+		//	    if(w->id == (attack==wSword ? wSword : wWand))
+		//	    {
+		//		int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+		//		positionSword(swd,item_id);
+		//		break;
+		//	    }
+		//	}
+		//}
+		
+	}
     if ( warp_sound > 0 ) warpsfx = warp_sound;
     word wdmap=0;
     byte wscr=0,wtype=0,t=0;
@@ -17256,6 +18031,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             }
             
             reset_hookshot();
+		if(reposition_sword_postwarp)
+		{
+			weapon *swd=NULL;
+			for(int i=0; i<Lwpns.Count(); i++)
+			{
+			    swd = (weapon*)Lwpns.spr(i);
+			    
+			    if(swd->id == (attack==wSword ? wSword : wWand))
+			    {
+				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				positionSword(swd,item_id);
+				break;
+			    }
+			}
+		}
             stepforward(diagonalMovement?5:6, false);
         }
         else                                                  // item room
@@ -17292,6 +18083,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             }
             
             reset_hookshot();
+	    if(reposition_sword_postwarp)
+		{
+			weapon *swd=NULL;
+			for(int i=0; i<Lwpns.Count(); i++)
+			{
+			    swd = (weapon*)Lwpns.spr(i);
+			    
+			    if(swd->id == (attack==wSword ? wSword : wWand))
+			    {
+				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				positionSword(swd,item_id);
+				break;
+			    }
+			}
+		}
             lighting(false, true);
             if ( dontdraw < 2 ) { dontdraw=0; }
             stepforward(diagonalMovement?16:18, false);
@@ -17351,6 +18158,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         
         setEntryPoints(x,y=0);
         reset_hookshot();
+	if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
         if ( dontdraw < 2 ) { dontdraw=0; }
         stepforward(diagonalMovement?16:18, false);
         newscr_clk=frame;
@@ -17475,8 +18298,25 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         markBmap(dir^1);
         //preloaded freeform combos
         ffscript_engine(true);
+	
         reset_hookshot();
-        
+	if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
+
         if(isdungeon())
         {
             openscreen();
@@ -17557,7 +18397,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
         reset_hookshot();
-        
+        if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
         if(!intradmap)
         {
             currdmap = wdmap;
@@ -17648,6 +18503,8 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     case wtIWARPZAP:
     case wtIWARPWAVE:                                       // insta-warps
     {
+	    
+	
 	bool old_192 = false;
 	if ( FFCore.emulation[emu192b163] )
 	{
@@ -17789,7 +18646,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         {
             openscreen();
         }
-        
+        if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
         show_subscreen_life=true;
         show_subscreen_numbers=true;
         playLevelMusic();
@@ -17937,7 +18809,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		{
 		    openscreen();
 		}
-			
+		if(reposition_sword_postwarp)
+		{
+			weapon *swd=NULL;
+			for(int i=0; i<Lwpns.Count(); i++)
+			{
+			    swd = (weapon*)Lwpns.spr(i);
+			    
+			    if(swd->id == (attack==wSword ? wSword : wWand))
+			    {
+				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				positionSword(swd,item_id);
+				break;
+			    }
+			}
+		}
 		show_subscreen_life=true;
 		show_subscreen_numbers=true;
 		playLevelMusic();
@@ -17948,6 +18835,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	}
 	else
 	{
+		if(reposition_sword_postwarp)
+		{
+			weapon *swd=NULL;
+			for(int i=0; i<Lwpns.Count(); i++)
+			{
+			    swd = (weapon*)Lwpns.spr(i);
+			    
+			    if(swd->id == (attack==wSword ? wSword : wWand))
+			    {
+				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				positionSword(swd,item_id);
+				break;
+			    }
+			}
+		}
 		didpit=false;
 		update_subscreens();
 		warp_sound = 0;
@@ -17959,6 +18862,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         didpit=false;
         update_subscreens();
         warp_sound = 0;
+	if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
         return false;
     }
     
@@ -18109,6 +19028,22 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
                         "Insta-Warp");
                         
     eventlog_mapflags();
+    if(reposition_sword_postwarp)
+	{
+		weapon *swd=NULL;
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+		    swd = (weapon*)Lwpns.spr(i);
+		    
+		    if(swd->id == (attack==wSword ? wSword : wWand))
+		    {
+			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			positionSword(swd,item_id);
+			break;
+		    }
+		}
+	}
     FFCore.init_combo_doscript();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
@@ -20394,53 +21329,112 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 	}
 }
 
+
+
 // How much to reduce Link's damage, taking into account various rings.
 int LinkClass::ringpower(int dmg)
 {
-    int divisor = 1;
-	float percentage = 1;
-    int itemid = current_item_id(itype_ring);
-    bool usering = false;
+	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
+	{
+		int divisor = 1;
+		float percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
     
-    if(itemid>-1)  // current_item_id checks magic cost for rings
-    {
-        usering = true;
-        paymagiccost(itemid);
-		if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1)  // current_item_id checks magic cost for rings
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			divisor *= itemsbuf[itemid].power;
-		}
-    }
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
     
-    /* Now for the Peril Ring */
-    itemid = current_item_id(itype_perilring);
-    
-    if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
-    {
-        usering = true;
-        paymagiccost(itemid);
-        if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
 		{
-			percentage *= itemsbuf[itemid].power/100.0;
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				percentage *= itemsbuf[itemid].power/100.0;
+			}
+			else
+			{
+				divisor *= itemsbuf[itemid].power;
+			}
 		}
-		else
-		{
-			divisor *= itemsbuf[itemid].power;
-		}
-    }
-    
-    // Ring divisor of 0 = no damage. -L
-    if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
-        return 0;
 	
-	if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+		return 0;
 	
-    if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
-    return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+	
+		if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+		
+	}
+	else
+	{
+		double divisor = 1;
+		double percentage = 1;
+		int itemid = current_item_id(itype_ring);
+		bool usering = false;
+		    
+		if(itemid>-1)  // current_item_id checks magic cost for rings
+		{
+		usering = true;
+		paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		/* Now for the Peril Ring */
+		itemid = current_item_id(itype_perilring);
+	    
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		{
+			usering = true;
+			paymagiccost(itemid);
+			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			{
+				double perc = itemsbuf[itemid].power/100.0;
+				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
+				percentage *= perc;
+			}
+			else
+			{
+				if(itemsbuf[itemid].power < 0)
+					divisor /= -(itemsbuf[itemid].power);
+				else divisor *= itemsbuf[itemid].power;
+			}
+		}
+	    
+		// Ring divisor of 0 = no damage. -L
+		if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
+			return 0;
+		
+		//if ( divisor < 0 ) return dmg * percentage * (divisor*-1); //handle this further up now
+		return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
+	}
 }
 
 // Should swinging the hammer make the 'pound' sound?
@@ -21118,12 +22112,17 @@ void dospecialmoney(int index)
     case rINFO:                                             // pay for info
         if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
         {
-            if (game->get_spendable_rupies() < abs(prices[priceindex]) && !current_item_power(itype_wallet))
-                return;
+            
                 
             if(!current_item_power(itype_wallet))
 	    {
-                game->change_drupy(-abs(prices[priceindex]));
+		if (game->get_spendable_rupies() < abs(prices[priceindex])) 
+			return;
+		int tmpprice = -abs(prices[priceindex]);
+		int total = game->get_drupy()-tmpprice;
+		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+		game->set_drupy(game->get_drupy()-total);
+		//game->change_drupy(-abs(prices[priceindex]));
 	    }
 	    if ( current_item_power(itype_wallet)>0 )
 	    {
@@ -21155,6 +22154,7 @@ void dospecialmoney(int index)
         prices[0] = tmpscr[tmp].catchall;
         if (!current_item_power(itype_wallet))
             game->change_drupy(prices[0]);
+	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
         setmapflag();
@@ -21170,7 +22170,7 @@ void dospecialmoney(int index)
         for(int i=0; i<3; i++)
             prices[i]=gambledat[si++];
             
-        game->change_drupy(prices[priceindex]);
+	game->set_drupy(game->get_drupy()+prices[priceindex]);
         putprices(true);
         
         for(int i=1; i<4; i++)
@@ -21193,7 +22193,10 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-        game->change_drupy(price);
+	int total = game->get_drupy()-price;
+	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	game->set_drupy(game->get_drupy()-total);
+        //game->set_drupy(game->get_drupy()+price);
         setmapflag();
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
@@ -21236,7 +22239,11 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-        game->change_drupy(price);
+	int total = game->get_drupy()-price;
+	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	game->set_drupy(game->get_drupy()-total);
+
+	//game->set_drupy(game->get_drupy()+price);
         setmapflag();
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
@@ -21255,8 +22262,10 @@ void dospecialmoney(int index)
         {
             if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
                 return;
-                
-            game->change_drupy(-abs(tmpscr[tmp].catchall));
+	    int tmpprice = -abs(tmpscr[tmp].catchall);
+	    int total = game->get_drupy()-tmpprice;
+	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+	    game->set_drupy(game->get_drupy()-total);
         }
         else
         {
@@ -21632,14 +22641,17 @@ void LinkClass::checkitems(int index)
         case rSHOP:                                           // shop
             if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
             {
-                if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
-                    return;
                 
-                if(!current_item_power(itype_wallet))
+		if(!current_item_power(itype_wallet))
 		{
-                    game->change_drupy(-abs(prices[PriceIndex]));
+			if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+			int tmpprice = -abs(prices[PriceIndex]);
+			//game->change_drupy(-abs(prices[priceindex]));
+			int total = game->get_drupy()-tmpprice;
+			total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+			game->set_drupy(game->get_drupy()-total);
 		}
-		 if(current_item_power(itype_wallet))
+		else //infinite wallet
 		{
                     game->change_drupy(0);
 		}
@@ -21923,6 +22935,8 @@ void LinkClass::checkitems(int index)
 		switch(tmpscr[tmp].room)
 		{
 			case rSHOP: 
+			case rP_SHOP: 
+			case rTAKEONE: 
 			{
 				if ( PriceIndex >= 0 )
 				{
@@ -21961,10 +22975,14 @@ void LinkClass::checkitems(int index)
     
     if(itemsbuf[id2].family==itype_triforcepiece)
     {
-        if(itemsbuf[id2].misc2==1)
+        if(itemsbuf[id2].misc2>0) //Small TF Piece
+	{
             getTriforce(id2);
+	}
         else
+	{
             getBigTri(id2);
+	}
     }
 }
 
@@ -22131,7 +23149,7 @@ void LinkClass::getTriforce(int id2)
 {
 		
 	PALETTE flash_pal;
-
+	int refill_frame = ( (itemsbuf[id2].misc5 > 0) ? itemsbuf[id2].misc5 : 88 );
 	
 	for(int i=0; i<256; i++)
 	{
@@ -22155,13 +23173,32 @@ void LinkClass::getTriforce(int id2)
 	}
     
 	sfx(itemsbuf[id2].playsound);
-	music_stop();
-    
-	if(itemsbuf[id2].misc1)
-		jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
-	else
-		try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+	if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) music_stop();
 	
+	//If item flag six is enabled, and a sound is set to attributes[2], play that sound.
+	if ( (itemsbuf[id2].flags & ITEM_FLAG14) )
+	{
+		unsigned char playwav = itemsbuf[id2].misc3;
+		//zprint2("playwav is: %d\n", playwav);
+		sfx(playwav);
+		
+	}
+		
+	//itemsbuf[id2].flags & ITEM_FLAG9 : Don't dismiss Messages
+	//itemsbuf[id2].flags & ITEM_FLAG10 : Cutscene interrupts action script..
+	//itemsbuf[id2].flags & ITEM_FLAG11 : Don't change music.
+	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
+	//itemsbuf[id2].flags & ITEM_FLAG13 : Run Action Script On Collection
+	//itemsbuf[id2].flags & ITEM_FLAG14 : Play second sound (WAV) from Attributes[2] (misc2)
+	//itemsbuf[id2].flags & ITEM_FLAG15 : No MIDI
+    
+	if(!(itemsbuf[id2].flags & ITEM_FLAG15)) //No MIDI flag
+	{
+		if(itemsbuf[id2].misc1)
+			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
+		else
+			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{
 		game->lvlitems[dlevel]|=liTRIFORCE;
@@ -22171,13 +23208,70 @@ void LinkClass::getTriforce(int id2)
 	int x2=0;
 	int curtain_x=0;
 	int c=0;
-	
+	/*if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //Run collect script This happens w/o the flag. 
+		{
+			if(itemsbuf[id2].collect_script && !item_collect_doscript[id2])
+			{
+				//clear the item script stack for a new script
+				ri = &(itemCollectScriptData[id2]);
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+				ri->Clear();
+				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+				if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
+				{
+					item_collect_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
+				}
+				else if (!id2 && !item_collect_doscript[id2]) //item 0
+				{
+					item_collect_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+				}
+			}
+		}
+		*/
 	do
 	{
+		
+		
+		if ( (itemsbuf[id2].flags & ITEM_FLAG13) ) //Run action script on collection.
+		{
+			if ( itemsbuf[id2].script )
+			{
+				if ( !item_doscript[id2] ) 
+				{
+					ri = &(itemScriptData[id2]);
+					for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+					ri->Clear();
+					item_doscript[id2] = 1;
+					itemscriptInitialised[id2] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,(id2));
+				}
+				else
+				{
+					if ( !(itemsbuf[id2].flags & ITEM_FLAG10) ) //Cutscene halts the script it resumes after cutscene.
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2); //if flag is off, run the script every frame of the cutscene.
+				}
+			}
+		}
+		//if ( itemsbuf[id2].misc2 == 2 ) //No cutscene; what if people used '2' on older quests?
+		if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //No cutscene
+		{
+			return;
+		}
 		if(f==40)
 		{
 			actiontype oldaction = action;
-			ALLOFF(true, false);
+			ALLOFF((!(itemsbuf[id2].flags & ITEM_FLAG9)), false);
 			action=oldaction;                                    // have to reset this flag
 			FFCore.setLinkAction(oldaction);
 		}
@@ -22232,7 +23326,7 @@ void LinkClass::getTriforce(int id2)
 	
 		if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 		{
-			if(f==88)
+			if(f==refill_frame)
 			{
 				refill_what=REFILL_ALL;
 				refill_why=id2;
@@ -22240,7 +23334,7 @@ void LinkClass::getTriforce(int id2)
 				refill();
 			}
 	    
-			if(f==89)
+			if(f==(refill_frame+1))
 			{
 				if(refill())
 				{
@@ -22287,11 +23381,17 @@ void LinkClass::getTriforce(int id2)
 		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
 		//so this is not necessary -DD
 		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
-	
+		
+		//Run Triforce Script
 		advanceframe(true);
 		++f;
 	}
-	while(f<408 || midi_pos > 0 || (zcmusic!=NULL && zcmusic->position<800));   // 800 may not be just right, but it works
+	while
+	(
+		(f < ( (itemsbuf[id2].misc4 > 0) ? itemsbuf[id2].misc4 : 408)) 
+		|| (!(itemsbuf[id2].flags & ITEM_FLAG15) /*&& !(itemsbuf[id2].flags & ITEM_FLAG11)*/ && (midi_pos > 0)) 
+		|| (/*!(itemsbuf[id2].flags & ITEM_FLAG15) &&*/ !(itemsbuf[id2].flags & ITEM_FLAG11) && (zcmusic!=NULL) && (zcmusic->position<800) ) 
+	);   // 800 may not be just right, but it works
 
 	action=none; FFCore.setLinkAction(none);
 	holdclk=0;
@@ -22310,7 +23410,9 @@ void LinkClass::getTriforce(int id2)
 		dowarp(1,0); //side warp
 	}
 	else
-		playLevelMusic();
+	{
+		if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) playLevelMusic();
+	}
 }
 
 void red_shift()
@@ -22550,7 +23652,7 @@ void LinkClass::heroDeathAnimation()
 				decorations.clear();
 				Playing = false;
 					
-				game->set_deaths(zc_min(game->get_deaths()+1,999));
+				game->set_deaths(zc_min(game->get_deaths()+1,USHRT_MAX));
 				dir=down;
 				music_stop();
 				
@@ -22832,14 +23934,19 @@ void LinkClass::heroDeathAnimation()
 		
 		else if(f<350)//draw 'GAME OVER' text
 		{
-			clear_bitmap(framebuf);
-			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 			if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
 			{
 				Quit = qRELOAD;
-				skipcont = 1;	
-			}				
-			else textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
+				skipcont = 1;
+				clear_bitmap(framebuf);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			}
+			else
+			{
+				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);
+			}
 		}
 		else
 		{

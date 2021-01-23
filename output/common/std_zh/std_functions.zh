@@ -1,5 +1,5 @@
 // std_functions.zh
-// 7th August, 2020 for ZC 2.55.0 Alpha 79
+// 5th November, 2020 for ZC 2.55.0 Alpha 85
 
 //A
 
@@ -207,7 +207,7 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 		case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(x+8,yy+step)||Screen->isSolid(xx,yy+step));
 		case DIR_LEFT: return !(x-step<0||Screen->isSolid(x-step,y+c)||Screen->isSolid(x-step,y+c+7)||Screen->isSolid(x-step,yy));
 		case DIR_RIGHT: return !(xx+step>=256||Screen->isSolid(xx+step,y+c)||Screen->isSolid(xx+step,y+c+7)||Screen->isSolid(xx+step,yy));
-		default: { LogPrint("Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n",step); return false; } //invalid direction
+		default: { printf("Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n",dir); return false; } //invalid direction
 	}
 }
 
@@ -2255,6 +2255,34 @@ int HitboxTop(ffc a)
 
 
 //I
+
+//Returns if a layer is set as a background layer for the 
+//current screen.
+bool IsBackgroundLayer(int layer)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
+		case 3:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
+		default: return false;
+	}
+}
+
+//Returns if a layer is set as a background layer for a 
+//mapdata pointer.
+bool IsBackgroundLayer(int layer)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
+		case 3:
+			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
+		default: return false;
+	}
+}
 
 //Returns the correct offset to be 'dist' pixels away from the front of a sprite facing in the direction 'dir'
 int InFrontX(int dir, int dist) 

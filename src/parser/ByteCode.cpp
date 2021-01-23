@@ -11,7 +11,7 @@
 
 using namespace ZScript;
 using std::ostringstream;
-using namespace std;
+using std::string;
 
 string LiteralArgument::toString()
 {
@@ -1687,6 +1687,8 @@ string ZScript::VarToString(long ID)
 	case DMAPDATAASUBSCRIPT: return "DMAPDATAASUBSCRIPT";
 	case DMAPDATAPSUBSCRIPT: return "DMAPDATAPSUBSCRIPT";
 	case DMAPDATASUBINITD: return "DMAPDATASUBINITD";
+	case DMAPDATAMAPSCRIPT: return "DMAPDATAMAPSCRIPT";
+	case DMAPDATAMAPINITD: return "DMAPDATAMAPINITD";
 	case DMAPDATACHARTED: return "DMAPDATACHARTED";
 	
 	
@@ -1859,6 +1861,7 @@ string ZScript::VarToString(long ID)
 	case LWPNSPECIAL: return "LWPNSPECIAL";
 	case MODULEGETINT: return "MODULEGETINT";
 	case MODULEGETSTR: return "MODULEGETSTR";
+	case NPCORIGINALHP: return "NPCORIGINALHP";
 	
 	
 	default:

@@ -390,6 +390,11 @@ void load_game_configs()
     // And this one fixes patches unloading on some MIDI setups
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
+#else //UNIX
+    use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
+    zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
+    monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -4919,8 +4924,10 @@ bool CheatModifierKeys()
     return false;
 }
 
-// 99*360 + 59*60
-#define MAXTIME  21405240
+//99:05:54, for some reason?
+#define OLDMAXTIME  21405240
+//9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
+#define MAXTIME     1944000000
 
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
@@ -4960,7 +4967,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
     if(Quit)
         return;
         
-    if(Playing && game->get_time()<MAXTIME)
+    if(Playing && game->get_time()<(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
         game->change_time(1);
         
     Advance=false;
@@ -6138,18 +6145,18 @@ static DIALOG keyboard_control_dlg[] =
     { jwin_text_proc,      175,  86,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Right", NULL,  NULL },
     // 61
     { jwin_text_proc,      92-26,   101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod1, NULL,  NULL },
-    { jwin_text_proc,      92-26,   129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
-    { jwin_text_proc,      237-4-22,101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
+    { jwin_text_proc,      92-26,   129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
+    { jwin_text_proc,      237-4-22,101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
     { jwin_text_proc,      237-4-22,129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod2, NULL,  NULL },
 	// 65
     { d_kbutton_proc,      22,   100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main",     NULL, &cheat_modifier_keys[0]},
-    { d_kbutton_proc,      22,   128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[1]},
-    { d_kbutton_proc,      167,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main", NULL, &cheat_modifier_keys[2]},
+    { d_kbutton_proc,      22,   128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[2]},
+    { d_kbutton_proc,      167,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main", NULL, &cheat_modifier_keys[1]},
     { d_kbutton_proc,      167,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[3]},
     // 69
     { d_k_clearbutton_proc,      22+91,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[0]},
-    { d_k_clearbutton_proc,      22+91,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[1]},
-    { d_k_clearbutton_proc,      167+91, 100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[2]},
+    { d_k_clearbutton_proc,      22+91,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[2]},
+    { d_k_clearbutton_proc,      167+91, 100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[1]},
     { d_k_clearbutton_proc,      167+91, 128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[3]},
 	// 73
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -7012,8 +7019,8 @@ int onMIDICredits()
     if(listening)
         music_stop();
         
-    zc_free(text);
-    zc_free(zmi);
+    if(text) zc_free(text);
+    if(zmi) zc_free(zmi);
     return D_O_K;
 }
 
@@ -7180,7 +7187,7 @@ int onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-static enum uKey
+enum uKey
 {
 	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
 	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
