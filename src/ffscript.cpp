@@ -9165,7 +9165,7 @@ long get_register(const long arg)
 		{
 			int scr = ri->d[0] / 10000;
 			ret = -10000;
-			if(ri->dmapsref >= MAX_DMAPS)
+			if(ri->dmapsref >= MAXDMAPS)
 			{
 				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
 			}
@@ -16763,7 +16763,7 @@ void set_register(const long arg, const long value)
 		case DMAPDATACHARTED:
 		{
 			int scr = ri->d[0] / 10000;
-			if(ri->dmapsref >= MAX_DMAPS)
+			if(ri->dmapsref >= MAXDMAPS)
 			{
 				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
 			}
@@ -16771,7 +16771,7 @@ void set_register(const long arg, const long value)
 			{
 				Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
 			}
-			elseif(((unsigned)(scr)) > 127)
+			else if(((unsigned)(scr)) > 127)
 			{
 				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
 			}
