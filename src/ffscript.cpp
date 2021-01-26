@@ -32004,12 +32004,13 @@ void FFScript::do_strcpy(const bool a, const bool b)
 }
 void FFScript::do_arraycpy(const bool a, const bool b)
 {
-	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
-	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
-	long *P = NULL;
-	FFCore.getValues(arrayptr_a,P, FFCore.getSize(arrayptr_a));
+	long arrayptr_dest = SH::get_arg(sarg1, a) / 10000;
+	long arrayptr_src = SH::get_arg(sarg2, b) / 10000;
+	//long *P = NULL;
+	//FFCore.getValues(arrayptr_a,P, FFCore.getSize(arrayptr_a));
+	FFCore.copyValues(arrayptr_dest, arrayptr_src, FFCore.getSize(arrayptr_src));
 	//ZScriptArray& a = FFCore.getArray(arrayptr_a);
-	FFCore.setArray(arrayptr_b, FFCore.getSize(arrayptr_a), P);
+	//FFCore.setArray(arrayptr_b, FFCore.getSize(arrayptr_a), P);
 
 	//if(ArrayH::setArray(arrayptr_b, a.size(), a) == SH::_Overflow)
 	//	Z_scripterrlog("Dest string supplied to 'ArrayCopy()' not large enough\n");
