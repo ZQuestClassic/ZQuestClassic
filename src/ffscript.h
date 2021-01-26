@@ -1625,7 +1625,24 @@ enum __Error
             num_chars--;
         }
     }
-    
+    //Copies clues for ZS array b to a. 
+    void copyValues(const long ptr, const long ptr2, word num_values)
+    {
+        ZScriptArray& a = getArray(ptr);
+        ZScriptArray& b = getArray(ptr2);
+        
+        if(a == INVALIDARRAY)
+            return;
+	
+	if(b == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; ((checkUserArrayIndex(i, b.Size()) == _NoError) && (checkUserArrayIndex(i, a.Size()) == _NoError) ) && num_values != 0; i++)
+        {
+            a[i] = b[i];
+            num_values--;
+        }
+    }
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     void getValues(const long ptr, long* arrayPtr, word num_values)
     {
