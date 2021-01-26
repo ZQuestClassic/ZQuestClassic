@@ -39014,7 +39014,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 
 	int indx = FFCore.getEWeaponByScriptUID(sUID);
 	if ( indx > -1 ) 
-		ri->ewpn = Lwpns.spr(indx)->getUID();
+		ri->ewpn = Ewpns.spr(indx)->getUID();
 	else
 	{
 		ri->ewpn = 0;

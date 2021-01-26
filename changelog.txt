@@ -3,6 +3,7 @@
 
 //Alpha 88
 
+Fixed crash caused by eweapon->GetByUID() trying to load LWeapon data. 
 Fixed crash when using the ZASM command ARRAYCOPY;
 	ZScript `ArrayCopy(dest,src)` caused by an illegal pointer in the
 	interpreter.
