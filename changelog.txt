@@ -1,5 +1,242 @@
 // 2.55 Change Log
-// Updated 14th November, 2020
+// Updated 26th January, 2021
+
+//Alpha 88
+
+Fixed crash when using the ZASM command ARRAYCOPY;
+	ZScript `ArrayCopy(dest,src)` caused by an illegal pointer in the
+	interpreter.
+Added FFCore.copyValues(arr1, arr2). This functions like strcpy,
+	but for ZScript long arrays.
+	( ZoriaRPG, 26th January, 2021 )
+	
+Update ZScript_Additions.txt revision date
+Add script access and docs for onMap slot
+Implement onMap script slot
+	( Venrob, 21st January, 2021 )
+	
+Document scoped function declaration
+Add error when scope not found
+Handle scoped function decls at registration phase.
+Bison: Make function name 'Identifier_List'
+	No implementation to the list as of this commit.
+Handle prototype 'void run()' functions
+	( Venrob, 20th January, 2021 )
+	
+Forced all system vars in ZQ to init at 0, as SkyLizardGirl
+	reported that sometimes, the KB Repeat rate underflows to a random value.
+	This is just one step in diagnosis.
+
+Added View->Layer 3 is Background, View->Layer 2 is Background.
+	This forces these to view on the current screen (not on borders),
+	so that when the user wants to design an entire map with the layers
+	as GB layers, they can, and then they need only flip one bit in the
+	DMap settings for it. (i.e., this helps design maps to be used with the
+	DMap Flags 'Layer N is Background'.
+
+	TODO: Xor this with the Screen Bit, add the Edges  (zmap::draw,
+	zmap::drawrow,	and zmap::drawcolumn) in zq_class.cpp.
+
+	( ZoriaRPG, 17th Jan, 2021 )
+
+Update docs, 'void' saves 1 opcode
+Change internal names from 'abstract' to 'prototype'
+Rework of function prototypes to obey typing
+CRITICAL FIX: Fix parser crashing when using extra parens on a function.
+	( Venrob, 14th January, 2021 )
+	
+Add 'forward-decl' / 'abstract' functions
+A function can be forward-declared, and if not found, will be treated
+	as a valid function which simply returns a default value.
+	The default value can be set by the user, or left at '0'.
+	( Venrob, 13th January, 2021 )
+
+//Alpha 87
+
+Merged rewrites of ZScript Parser/Compuler by SyrianBallaS to reduce leaks and overhead.
+	( ZoriaRPG [merge] , SyrianBallaS [work], 13th Jan, 2021 ; commit 787b72600d2a9a7c20cede67ac11f5b2bdd5f97b ; commit d64a4c7cf3229520f45216ae906e0f27dd949d53)
+	
+Improve compile timer to be more precise.
+	( Venrob, 13th January, 2021 )
+
+//Alpha 86
+
+Fix sideview platform ignoring right half of Link's hitbox
+	( Venrob, 12th January, 2021 )
+
+Added the preliminary implementation of LinkClass::Defend.
+	This should be viable, but it requires testing.
+	At present, Defence[] can only be written by script, but a GUI
+		panel is forthcoming.
+	This requires extensive tests, and it will require two new SFX,
+		set by the special SFX control panel, same as pitfall sounds.
+Added QR for fixes to LinkClass::Ringpower().
+Build now 56.
+Fixed incorrect margins on item collect strings and cloned
+	new string properties to them.
+Fixed item messages breaking shops and take one item rooms.
+	( ZoriaRPG, 12th January, 2021 )
+	
+Fix negative power ring math
+	( Venrob, 10th January, 2021 )
+
+Fix inverted TILE_WIDTH and TILE_HEIGHT sizeflags
+	( Venrob, 9th January, 2021 )
+
+Fix dialogue issue pointing to now invalid menu option.
+	( ZoriaRPG, 8th January, 2021 )
+
+Add compile time traces
+Correct <std> documentation: Showed 'SCR_SEC_*' as std_constants prefix, should be 'SECCMB_*'
+	( Venrob, 8th January, 2021 )
+
+Force null termination when loading WAV names in qst.cpp.
+	( ZoriaRPG, 3rd January, 2021 )
+
+Fix 'currcset' not updating via script-change of palette
+Fix DMap Palette via script issues 
+	Level pal only needs to be recalculated for 'Game->DMapPalette[]' if
+	ID == currdmap! Doing otherwise can cause large lag in certain
+	circumstances.
+	The same is true of 'dmapdata->Palette', which was NEVER recalculating it;
+		it MUST recalculate it if 'ri->dmapsref == currdmap'!
+	( Venrob, 3rd January, 2021 )
+
+lib: Added boost files that couldn't be added because of gitignore rules
+	( SyrianBallaS, 3rd January, 2021 )
+	
+Fix pixel misalign in 32x32 link preview
+	( Venrob, 2nd Jan, 2021 )
+	
+Also convert slash and bslash in track names to hyphens.
+When saving a WAV file from the SFX Editor in ZQuest. the save
+	dialogue defaults to the in-ZQ name of the sound effect, converting
+	spaces to hyphens, for maximum filesystem compatibility.
+Better error message when quest version and required version. 
+	(Sideported from a DD commit IN A DEAD BRANCH.)
+Feat: Add Save WAV / SFX / Sound Effects to ZQuest
+	( ZoriaRPG, 2nd Jan, 2021 )
+	
+Fix issue '#double-function-call-crash', maybe?
+	( Venrob, 1st January, 2021 )
+	
+Max Playtime, with QR enabled (on by default for new quests)
+	is now expanded from 99:05:54 (arbitrary much?) to
+	9000:00:00 (A nice even number close to MAX_INT frames).
+	This is *375 DAYS* of playtime.
+	( Venrob, 31st December, 2020 )
+
+More options for Advanced Paste of combos
+Fix background issue on Game->GameOverScreen[]
+Further work on Game->GameOverScreen[]
+	( Venrob, 30th December, 2020 )
+	
+ 
+Attempt to implement Game->GameOverScreen[] fully
+Revert version to 2.55; was incorrectly changed by Z. 
+std_constants: Comment out too-large contants
+Fix constant typos in <std_constants>.
+	( Venrob, 29th December, 2020 )
+	
+You can now set the rule 'Weapons Cannot Stunlock Enemies' in
+	Options->Weapons->LWeapons. If enabled, weapons that would stun an
+	enemy are blocked if that enemy is already stunned, replicating the
+	behaviour of Z3.
+	( ZoriaRPG, 29th December, 2020 )
+	
+<std 1.7110> Rewrote AdjacentCombo, Added IsBackgroundLayer
+	( ZoriaRPG, 28th December, 2020 )
+	
+Add rule for invalid UID logging
+	( Venrob, 28th December, 2020 )
+	
+Fix step for new wand stuff
+Fix Minimap always using 'Without Map' map on overworlds, regardless
+	of having the map or not.
+	This uses a backwards-compatibility rule for older builds.
+Document 'Screen->Palette' for zscript
+	( Venrob, 26th December, 2020 )
+	
+Magic Book items can now fully replace the primary weapon of the wand,
+	instead of adding a weapon on impact.
+	THis occurs if the user does the following:
+	 1. On the Book item Flags tab, enable the flag 'Replace Wand Weapon'.
+	 2. On the weapon tab, set the Weapon Type to something other than 'none'.
+	 3. The new weapon will have the sprite set on the Action tab as 'Projectile Sprite'.
+	 4. The weapon will use the step value provided in the Data tab as 'Special Step'.
+	 5. The weapon will have the damage value provided on the Data tab as 'W.Damage',
+		unless that value is zero, in which case it inherits the damage power of the wand.
+
+	Note: The Special Step field feels off to me. Rob, please look at this in weapons.cpp, line 6327!!!
+Fixed the wand playing the book sound when the player has a book.
+Added the ability to override the wand SFX using book items.
+Fixed the wand playing the book sound when the player has a book.
+Added the ability to override the wand SFX using book items.
+Alpha now 56. -----This was an ERROR. I meanty to bump Alpha vers, but I bumped SUBVERS. This was later fixed 
+	and some of these commits, until 29th December, 2020, represent an interim version that misrepresented itself 
+	in its metadata. 
+	( ZoriaRPG, 26th December, 2020 )
+	
+Fix armos speed not varying
+	( Venrob, 21st December, 2020 )
+	
+Prevent random memory read/writes in recolor dialog
+	( Venrob, 16th December, 2020 )
+	
+Fix cmake file for MSVC > 15.xx.
+	( ZoriaRPG, 7th December, 2020 )
+	
+Moved mapscreen flag/enemyflag into class FFScript/FFCore.
+Added helper functions and an enum to ffscript.cpp to assist
+	with reading the clustre fcuk that is mapscr->flag* and ->enemyflag.
+	The enum, and the new functions are:
+
+	enum mapflagtype
+	void set_mapscreenflag_state(mapscr *m, int flagid, bool state)
+	long get_mapscreenflag_state(mapscr *m, int flagid)
+
+	These can be used for a new array for r/w flags and enemy flags for
+	both the Screen-> pointer and mapdata-> pointers.
+
+	I'm going to call the array ScreenFlags[MSF_LAST]. This will overshadow
+	->Flags[],EFlags[] and similar and should be used in its place.
+
+	I can also add a rule that these functions should be called in place
+	of the original Flags[].
+
+	NOTE: The following cases are very probably wrong for each function:
+	case MSF_MIDAIR
+	case MSF_TRAPS_IGNORE_SOLID
+	case MSF_ENEMEIS_SECRET
+
+	I have no clue what the bitshift magic is intended to do, right now.
+
+	This is entirely untested, and has no implementation in the interpreter,
+	and no implementation inthe parser at this time, but it should be easy to
+	add.
+
+	On a final note, it may be best to move this into class ffscript.
+Added ->enemyflags to set_mapflags2 file
+Added the missing dummy proc element.
+	TODO: m->enemyflags and spawnflags
+Fix and add missing screen flags to set_mapflags2.cpp
+Files: Mapflag setter files
+	( ZoriaRPG, 3rd December, 2020 )
+	
+These files are needed to compile
+Make some pointers related to parser unique for extra speed
+	( SyrianBallaS 22nd November, 2020 )
+
+Rework sanity checks on Get/SetCombo*
+	Let's see if this breaks aught. 
+	( ZoriaRPG, 18th November, 2020 )
+
+Fix CMakeLists to set linker flags based on MSVC version.
+Fix CMakeLists to set linker flags based on MSVC version.
+	( ZoriaRPG, 14th November, 2020 )
+
+Get rid of all "using namespace std;" in parser folder.
+	( SyrianBallaS, 14th November, 2020 )
 
 //Alpha 85
 
