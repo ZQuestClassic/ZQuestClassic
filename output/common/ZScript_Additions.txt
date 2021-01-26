@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 88
-Document Revision: 21st January, 2021
+Document Revision: 26th January, 2021
 
 
  __           _   _                 
@@ -2444,6 +2444,17 @@ Available annotations:
 //////////////
 //  Global  //
 //////////////								// Global
+
+void ArrayCopy(untyped *dest, untyped *src);
+ * Copies the data from array src to array dest. 
+ * If the arrays are the same size, then the data of 'dest' will be
+ * identical to the data of 'src'.
+ * If 'dest' is larger, than any data already in indices above
+ * the max index of 'src' is unaffected.
+ * If 'dest' is smaller than 'src', then data is copied until
+ * 'dest' is full, and verflow is ignored (harmless), but there is 
+ * no error or warning on any overflow. 
+ * This is an exceptionally fast command, when compared to for loop copying. 
 
 int Floor(float n);
  * Truncates n to the nearest integer, rounding downwards.
