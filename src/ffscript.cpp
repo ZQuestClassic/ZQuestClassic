@@ -9169,20 +9169,20 @@ long get_register(const long arg)
 			{
 				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
 			}
-			else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
-			{
-				Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
-			}
+			// else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
+			// {
+				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
+			// }
 			else if(((unsigned)(scr)) > 127)
 			{
 				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
 			}
 			else 
 			{
-				int col = (scr&15)-DMaps[ri->dmapsref].xoff;
-				if(((unsigned)col) > 7)
+				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt read!
-				int di = ((ri->dmapsref-1) << 6) + ((scr>>4)<<3) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
 				ret = 10000 * game->bmaps[di];
 			}
 			break;
@@ -16767,20 +16767,20 @@ void set_register(const long arg, const long value)
 			{
 				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
 			}
-			else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
-			{
-				Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
-			}
+			// else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
+			// {
+				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
+			// }
 			else if(((unsigned)(scr)) > 127)
 			{
 				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
 			}
 			else 
 			{
-				int col = (scr&15)-DMaps[ri->dmapsref].xoff;
-				if(((unsigned)col) > 7)
+				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt write!
-				int di = ((ri->dmapsref-1) << 6) + ((scr>>4)<<3) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
 				game->bmaps[di] = (value/10000)&0x8F;
 			}
 			break;

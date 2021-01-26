@@ -54,7 +54,7 @@ void gamedata::Clear()
     _continue_dmap=0;
     std::fill(_generic, _generic+256, 0);
     std::fill(visited, visited+MAXDMAPS, 0);
-    std::fill(bmaps, bmaps+MAXDMAPS*64, 0);
+    std::fill(bmaps, bmaps+MAXDMAPS*128, 0);
     std::fill(maps, maps+MAXMAPS2*MAPSCRSNORMAL, 0);
     std::fill(guys, guys+MAXMAPS2*MAPSCRSNORMAL, 0);
     std::fill(qstpath, qstpath+2048, 0);
@@ -119,7 +119,7 @@ void gamedata::Copy(const gamedata& g)
     for(word i = 0; i < MAXDMAPS; i++)
         visited[i] = g.visited[i];
         
-    for(word i = 0; i < MAXDMAPS*64; i++)
+    for(dword i = 0; i < MAXDMAPS*128; i++)
         bmaps[i] = g.bmaps[i];
         
     for(dword i = 0; i < MAXMAPS2*MAPSCRSNORMAL; i++)
