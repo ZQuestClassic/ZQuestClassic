@@ -3939,6 +3939,14 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case CLOCKACTIVE:
+			ret=watch?10000:0;
+			break;
+		
+		case CLOCKCLK:
+			ret=clockclk*10000;
+			break;
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -4228,6 +4236,7 @@ long get_register(const long arg)
 			ret = joybtn(button)?10000:0;
 		}
 		break;
+		
 		
 		case MOUSEARR:
 		{	
@@ -11180,6 +11189,16 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case CLOCKACTIVE:
+		{
+			Link.setClock(watch=(value?true:false));
+			break;
+		}
+		
+		case CLOCKCLK:
+			clockclk = vbound((value/10000), 0, 214748);
+			break;
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
@@ -34231,6 +34250,8 @@ script_variable ZASMVars[]=
 	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
 	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
 	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
+	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
+	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

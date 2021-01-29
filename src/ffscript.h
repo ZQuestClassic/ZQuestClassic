@@ -4145,8 +4145,11 @@ enum ASM_DEFINE
 #define DMAPDATAMAPSCRIPT			0x13C4
 #define DMAPDATAMAPINITD			0x13C5
 
+#define CLOCKCLK			0x13C6
+#define CLOCKACTIVE			0x13C7
 
-#define NUMVARIABLES         	0x13C6
+
+#define NUMVARIABLES         	0x13C8
 
 //} End variables
 
