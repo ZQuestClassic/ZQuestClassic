@@ -3592,7 +3592,12 @@ long get_register(const long arg)
 
 			break;
 		}
-			
+		
+		case LINKCSET:
+		{
+			ret = Link.cs * 10000;
+			break;
+		}		
 		case LINKY:
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
@@ -10608,7 +10613,12 @@ void set_register(const long arg, const long value)
 			}
 		}
 		break;
-			
+		
+		case LINKCSET:
+		{
+			Link.cs = value/10000;
+			break;
+		}
 		case LINKY:
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
@@ -34285,7 +34295,7 @@ script_variable ZASMVars[]=
 	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
 	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
 	{ "DMAPDATAFLAGARR", DMAPDATAFLAGARR, 0, 0 },
-	{ "PADDINGZ0", PADDINGZ0, 0, 0 },
+	{ "LINKCSET", LINKCSET, 0, 0 },
 	{ "PADDINGZ1", PADDINGZ1, 0, 0 },
 	{ "PADDINGZ2", PADDINGZ2, 0, 0 },
 	{ "PADDINGZ3", PADDINGZ3, 0, 0 },

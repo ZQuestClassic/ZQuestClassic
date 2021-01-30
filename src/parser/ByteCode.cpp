@@ -1866,6 +1866,7 @@ string ZScript::VarToString(long ID)
 	case CLOCKACTIVE: return "CLOCKACTIVE";
 	case NPCHITDIR: return "NPCHITDIR";
 	case DMAPDATAFLAGARR: return "DMAPDATAFLAGARR";
+	case LINKCSET: return "LINKCSET";
 	
 	
 	default:

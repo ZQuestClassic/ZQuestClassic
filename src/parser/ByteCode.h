@@ -1244,7 +1244,7 @@
 #define NPCHITDIR				1169
 #define DMAPDATAFLAGARR				1170
 
-#define PADDINGZ0			1171
+#define LINKCSET			1171
 #define PADDINGZ1			1172
 #define PADDINGZ2			1173
 #define PADDINGZ3			1174

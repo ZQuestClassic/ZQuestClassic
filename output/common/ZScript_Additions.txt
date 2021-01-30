@@ -4398,6 +4398,11 @@ int FireSound;
 ///  Hero  ///
 //////////////									// Hero // Player
 
+int CSet;
+ * Returns the current CSet used to draw the player sprite.
+ * This normally only changes when the player is hurt, and flashing.
+ * Writing to this is permitted, but it will be overwritten on the next frame.
+ 
 int ClockTimer;
  * Returns the current ticks of a stopwatch/clock item countdown timer.
  * Writing to this while ClockActive is true sets or changes the duration of
