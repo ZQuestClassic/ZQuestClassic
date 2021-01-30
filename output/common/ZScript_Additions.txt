@@ -4071,12 +4071,6 @@ int AClock
 int Dropset;
  * Alias for npc->ItemSet. 
  * Read or write the item dropset used by the npc.
- 
-int HitDir;
- * Read-Only.
- * Returns a direction constant if the npc is being knocked back.
- * Returns -1 if the npc is not being knockd back.
- * Writing to this has no effect, and is ignored. 
 
 int Random;
  * Corresponds to the Enemy Editor Random Rate value.
@@ -4158,6 +4152,13 @@ bool Knockback(int time, int dir, int speed);
  *     The enemy is dead
  *     'bool npc->NoKnockback;' was set true for this enemy
 
+int HitDir;
+ * Read-Only.
+ * Returns a direction constant if the npc is being knocked back.
+ * Returns -1 if the npc is not being knockd back.
+ * Writing to this has no effect, and is ignored. 
+ * This value is set both from engine, and from scripted knockback.
+ 
 void Remove(); 
  * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
  * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
