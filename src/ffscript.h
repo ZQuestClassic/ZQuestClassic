@@ -4145,8 +4145,35 @@ enum ASM_DEFINE
 #define DMAPDATAMAPSCRIPT			0x13C4
 #define DMAPDATAMAPINITD			0x13C5
 
+#define CLOCKCLK			0x13C6
+#define CLOCKACTIVE			0x13C7
+#define NPCHITDIR			0x13C8
+#define DMAPDATAFLAGARR			0x13C9
 
-#define NUMVARIABLES         	0x13C6
+#define LINKCSET			0x13CA
+#define PADDINGZ1			0x13CB
+#define PADDINGZ2			0x13CC
+#define PADDINGZ3			0x13CD
+#define PADDINGZ4			0x13CE
+#define PADDINGZ5			0x13CF
+#define PADDINGZ6			0x13D0
+#define PADDINGZ7			0x13D1
+#define PADDINGZ8			0x13D2
+#define PADDINGZ9			0x13D3
+
+#define PADDINGR0			0x13D4
+#define PADDINGR1			0x13D5
+#define PADDINGR2			0x13D6
+#define PADDINGR3			0x13D7
+#define PADDINGR4			0x13D8
+#define PADDINGR5			0x13D9
+#define PADDINGR6			0x13DA
+#define PADDINGR7			0x13DB
+#define PADDINGR8			0x13DC
+#define PADDINGR9			0x13DD
+
+
+#define NUMVARIABLES         	0x13DE
 
 //} End variables
 
