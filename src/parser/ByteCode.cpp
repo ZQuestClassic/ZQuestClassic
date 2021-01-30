@@ -1864,6 +1864,7 @@ string ZScript::VarToString(long ID)
 	
 	case CLOCKCLK: return "CLOCKCLK";
 	case CLOCKACTIVE: return "CLOCKACTIVE";
+	case NPCHITDIR: return "NPCHITDIR";
 	
 	
 	default:

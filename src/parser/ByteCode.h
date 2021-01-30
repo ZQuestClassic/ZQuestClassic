@@ -1241,9 +1241,10 @@
 
 #define CLOCKCLK				1167
 #define CLOCKACTIVE				1168
+#define NPCHITDIR				1169
 
 
-#define LAST_BYTECODE 		1169
+#define LAST_BYTECODE 		1170
 
 //} END OF BYTECODE
 

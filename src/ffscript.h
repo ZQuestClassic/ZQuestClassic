@@ -4147,9 +4147,10 @@ enum ASM_DEFINE
 
 #define CLOCKCLK			0x13C6
 #define CLOCKACTIVE			0x13C7
+#define NPCHITDIR			0x13C8
 
 
-#define NUMVARIABLES         	0x13C8
+#define NUMVARIABLES         	0x13C9
 
 //} End variables
 

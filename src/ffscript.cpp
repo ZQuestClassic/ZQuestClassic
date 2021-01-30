@@ -5056,6 +5056,14 @@ long get_register(const long arg)
 				
 			break;
 			
+		case NPCHITDIR:
+			if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->hitdir * 10000);
+				
+			break;
+			
 		case NPCRATE:
 			GET_NPC_VAR_INT(rate, "npc->Rate") break;
 			
@@ -34252,6 +34260,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
 	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
+	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

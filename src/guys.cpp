@@ -2321,7 +2321,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	
 	stickclk = 0;
 	submerged = 0;
-	
+	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
 	editorflags = d->editorflags; //set by Enemy Editor 
 	//Set the drawing flag for this sprite.
@@ -2513,6 +2513,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//waitdraw(other.waitdraw),			//int
 	weaponscript(other.weaponscript),			//int
 	stickclk(other.stickclk),			//int
+	hitdir(other.hitdir),			//int
 	submerged(other.submerged),			//int
 	
 	dialogue_str(other.dialogue_str),			//int
@@ -2876,7 +2877,7 @@ bool enemy::animate(int index)
 			fallCombo = check_pits();
 		}
 	}
-	
+	hitdir = -1;
 	runKnockback(); //scripted knockback handling
 	
 	// clk is incremented here
@@ -7087,18 +7088,22 @@ int enemy::slide()
 		switch(sclk>>8)
 		{
 		case up:
+			hitdir = up;
 			y-=thismove;
 			break;
 			
 		case down:
+			hitdir = down;
 			y+=thismove;
 			break;
 			
 		case left:
+			hitdir = left;
 			x-=thismove;
 			break;
 			
 		case right:
+			hitdir = right;
 			x+=thismove;
 			break;
 		}
@@ -7136,8 +7141,10 @@ int enemy::slide()
 	}
 	
 	if((sclk&255)==0)
+	{
+		hitdir = -1;
 		sclk=0;
-		
+	}
 	return 2;
 }
 
@@ -7285,6 +7292,7 @@ bool enemy::runKnockback()
 	{
 		int thismove = zc_min(8, move);
 		move -= thismove;
+		hitdir = kb_dir;
 		switch(kb_dir)
 		{
 			case r_up:
@@ -15588,6 +15596,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	id=guys.Count();
 	yofs=playing_field_offset;
 	tile=o_tile;
+	hitdir = -1;
 	stickclk = 0;
 	
 	/*

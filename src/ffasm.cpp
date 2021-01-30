@@ -2148,6 +2148,7 @@ script_variable variable_list[]=
 	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
 	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
 	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
+	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
