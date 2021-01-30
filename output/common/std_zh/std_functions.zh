@@ -1,5 +1,5 @@
 // std_functions.zh
-// 5th November, 2020 for ZC 2.55.0 Alpha 85
+// 30th January, 2021 for ZC 2.55.0 Alpha 89
 
 //A
 
@@ -2255,20 +2255,6 @@ int HitboxTop(ffc a)
 
 
 //I
-
-//Returns if a layer is set as a background layer for the 
-//current screen.
-bool IsBackgroundLayer(int layer)
-{
-	switch(layer)
-	{
-		case 2:
-			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
-		case 3:
-			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
-		default: return false;
-	}
-}
 
 //Returns if a layer is set as a background layer for a 
 //mapdata pointer.
