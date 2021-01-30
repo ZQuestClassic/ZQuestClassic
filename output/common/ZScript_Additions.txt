@@ -4284,7 +4284,6 @@ bool Shield[5];
  * [0] through [3] correspond to DIR* constants (wherein DIR_UP represents FRONT, and DIR_DOWN represents BACK)
  * [4] corresponds to 'Shield can be broken'.
 
-
 bool Core;
  * This returns true if the NPC is the core segment of a segmented engine enemy.
 
@@ -4353,35 +4352,6 @@ int ItemSet;
 int Dropset;
  * The Dropset ID that this enemy will drop from when killed
 
-/* The following commands are valid, but do not yet have in-engine use, */
-
-int Frozen;
- * Returns the number of frames for which the npc remains frozen
-
-int FrozenTile;
- * Unimplemented at this time.
- 
-int FrozenCSet;
- * Unimplemented at this time.
- 
-int npcscript;
- * The script ID used by this NPC.
-
-untyped InitD[8];
- * InitialD for the npc script.
-
-untyped IntiA[2];
- * InitialA for the npc script.
-
-int Movement[32];
- * NPC Movement patterns, and args.
-
-int WeaponPattern[32];
- * NPC weapon movement patterns and args.
-
-int FireSound;
- * The sound that plays when the npc fires a weapon.
-
 int Falling;
  * The timer indicating how long left the npc will be falling
  * If 0, the npc is not falling
@@ -4400,6 +4370,27 @@ bool MoveFlags[3];
  * [1] == Can fall in pitfalls
  * [2] == Can walk over pitfalls
  * Read-Write
+ 
+/* The following commands are valid, but do not yet have in-engine use, */
+
+int Frozen;
+ * Returns the number of frames for which the npc remains frozen
+
+int FrozenTile;
+ * Unimplemented at this time.
+ 
+int FrozenCSet;
+ * Unimplemented at this time.
+
+int Movement[32];
+ * NPC Movement patterns, and args.
+
+int WeaponPattern[32];
+ * NPC weapon movement patterns and args.
+
+int FireSound;
+ * The sound that plays when the npc fires a weapon.
+
 
 /************************************************************************************************************/
 
