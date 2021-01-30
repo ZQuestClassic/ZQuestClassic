@@ -2256,8 +2256,8 @@ int HitboxTop(ffc a)
 
 //I
 
-//Returns if a layer is set as a background layer for a 
-//mapdata pointer.
+//Returns if a layer is set as a background layer for the 
+//current screen.
 bool IsBackgroundLayer(int layer)
 {
 	switch(layer)
@@ -2266,6 +2266,20 @@ bool IsBackgroundLayer(int layer)
 			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
 		case 3:
 			return ( (Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
+		default: return false;
+	}
+}
+
+//Returns if a layer is set as a background layer for a 
+//mapdata pointer.
+bool IsBackgroundLayer(int layer, mapdata m)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( (m->Flags[SF_VIEW]&SFV_LAYER2BG) ? true : false );
+		case 3:
+			return ( (m->Flags[SF_VIEW]&SFV_LAYER3BG) ? true : false );
 		default: return false;
 	}
 }
