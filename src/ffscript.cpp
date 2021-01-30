@@ -9132,6 +9132,17 @@ long get_register(const long arg)
 				ret = ((byte)DMaps[ri->dmapsref].disableditems[indx]) * 10000; break;
 			}
 		}
+		case DMAPDATAFLAGARR:	 //long
+		{
+			int indx = ri->d[0] / 10000;
+			if ( ((unsigned)indx) > 31 )
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Flags[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			ret = ((DMaps[ri->dmapsref].flags&(1<<indx)) ? 10000:0);
+		}
 		case DMAPDATAFLAGS:	 //long
 		{
 			ret = (DMaps[ri->dmapsref].flags) * 10000; break;
@@ -16705,6 +16716,18 @@ void set_register(const long arg, const long value)
 			{
 				DMaps[ri->dmapsref].disableditems[indx] = ((byte)(value / 10000)); break;
 			}
+		}
+		
+		case DMAPDATAFLAGARR:	 //long
+		{
+			int indx = ri->d[0] / 10000;
+			if ( ((unsigned)indx) > 31 )
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Flags[]: %d\n", indx);
+				break;
+			}
+			if ( value ) DMaps[ri->dmapsref].flags |= (1<<indx);
+			else DMaps[ri->dmapsref].flags &= ~(1<<indx);
 		}
 		case DMAPDATAFLAGS:	 //long
 		{
@@ -34261,6 +34284,27 @@ script_variable ZASMVars[]=
 	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
 	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
 	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
+	{ "DMAPDATAFLAGARR", DMAPDATAFLAGARR, 0, 0 },
+	{ "PADDINGZ0", PADDINGZ0, 0, 0 },
+	{ "PADDINGZ1", PADDINGZ1, 0, 0 },
+	{ "PADDINGZ2", PADDINGZ2, 0, 0 },
+	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
+	{ "PADDINGZ4", PADDINGZ4, 0, 0 },
+	{ "PADDINGZ5", PADDINGZ5, 0, 0 },
+	{ "PADDINGZ6", PADDINGZ6, 0, 0 },
+	{ "PADDINGZ7", PADDINGZ7, 0, 0 },
+	{ "PADDINGZ8", PADDINGZ8, 0, 0 },
+	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
+	{ "PADDINGR0", PADDINGR0, 0, 0 },
+	{ "PADDINGR1", PADDINGR1, 0, 0 },
+	{ "PADDINGR2", PADDINGR2, 0, 0 },
+	{ "PADDINGR3", PADDINGR3, 0, 0 },
+	{ "PADDINGR4", PADDINGR4, 0, 0 },
+	{ "PADDINGR5", PADDINGR5, 0, 0 },
+	{ "PADDINGR6", PADDINGR6, 0, 0 },
+	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "PADDINGR8", PADDINGR8, 0, 0 },
+	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

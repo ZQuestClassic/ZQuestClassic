@@ -5153,7 +5153,34 @@ int MapCSet[2];
  
 int DisabledItems[256];
  * The items that are disabled on the active subscreen for this DMap.
- 
+
+int Flagset[32];
+ * This is similar to int FLags, but Flags cannot handle enough bits for the now current
+ * number of bits used by the engine. Thus, this replaces it. 
+ * Indices in use:
+	DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
+	DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
+	DMFS_WWIND			= 2; //Allow whistle whirlwinds
+	DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
+	DMFS_NOCOMPASS			= 4; //Don't display compass marker in minimap
+	DMFS_WAVY 			= 5; //Underwater wave effect
+	DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+	DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
+	DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
+	DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
+	DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
+	DMFS_MINIMAPCOLOURFIX 		= 11; //Use minimap foreground colour 2
+	DMFS_SCRIPT1 			= 12; //DMap Script Flags
+	DMFS_SCRIPT2 			= 13;
+	DMFS_SCRIPT3 			= 14;
+	DMFS_SCRIPT4 			= 15;
+	DMFS_SCRIPT5 			= 16;
+	DMFS_SIDEVIEW 			= 17; //DMap is Sideview
+	DMFS_LAYER3ISBACKGROUND 	= 18; //Layer 3 is Background
+	DMFS_LAYER2ISBACKGROUND 	= 19; //Layer 2 is bBackground
+	DMFS_TRUECELLARENEMIES 		= 20; //True Cellar Enemies
+ * Indices 21 to 31 are reserved for future expansion. Please do not use these. 
+
 int Flags;
  * The flags used by the DMap. These are OR'd together. 
  * The values are:

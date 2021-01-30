@@ -1,5 +1,5 @@
 // std_constants.zh
-// 29th December, 2020 for ZC 2.55.0 Alpha 86
+// 30th January, 2021 for ZC 2.55.0 Alpha 89
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -1950,6 +1950,29 @@ const int DMF_SIDEVIEW 			= 0x10000;
 const int DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
 //const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
 //const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
+
+//dmapdata->Flagset[32] indices
+const int DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
+const int DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
+const int DMFS_WWIND			= 2; //Allow whistle whirlwinds
+const int DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
+const int DMFS_NOCOMPASS		= 4; //Don't display compass marker in minimap
+const int DMFS_WAVY 			= 5; //Underwater wave effect
+const int DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+const int DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
+const int DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
+const int DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
+const int DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
+const int DMFS_MINIMAPCOLOURFIX 	= 11; //Use minimap foreground colour 2
+const int DMFS_SCRIPT1 			= 12; //DMap Script Flags
+const int DMFS_SCRIPT2 			= 13;
+const int DMFS_SCRIPT3 			= 14;
+const int DMFS_SCRIPT4 			= 15;
+const int DMFS_SCRIPT5 			= 16;
+const int DMFS_SIDEVIEW 		= 17; //DMap is Sideview
+const int DMFS_LAYER3ISBACKGROUND 	= 18; //Layer 3 is Background
+const int DMFS_LAYER2ISBACKGROUND 	= 19; //Layer 2 is bBackground
+const int DMFS_TRUECELLARENEMIES 	= 20; //True Cellar Enemies
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
