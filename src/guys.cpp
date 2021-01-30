@@ -2768,6 +2768,7 @@ bool enemy::Dead(int index)
 // the guys sprite list; index is the enemy's index in the list.
 bool enemy::animate(int index)
 {
+	if(sclk <= 0) hitdir = -1;
 	if(do_falling(index)) return true;
 	else if(fallclk)
 	{
@@ -2877,7 +2878,7 @@ bool enemy::animate(int index)
 			fallCombo = check_pits();
 		}
 	}
-	hitdir = -1;
+	
 	runKnockback(); //scripted knockback handling
 	
 	// clk is incremented here
@@ -7085,25 +7086,22 @@ int enemy::slide()
 	{
 		int thismove = zc_min(8, move);
 		move -= thismove;
+		hitdir = (sclk>>8);
 		switch(sclk>>8)
 		{
 		case up:
-			hitdir = up;
 			y-=thismove;
 			break;
 			
 		case down:
-			hitdir = down;
 			y+=thismove;
 			break;
 			
 		case left:
-			hitdir = left;
 			x-=thismove;
 			break;
 			
 		case right:
-			hitdir = right;
 			x+=thismove;
 			break;
 		}
@@ -7142,7 +7140,7 @@ int enemy::slide()
 	
 	if((sclk&255)==0)
 	{
-		hitdir = -1;
+		//hitdir = -1;
 		sclk=0;
 	}
 	return 2;
@@ -7212,7 +7210,7 @@ bool enemy::fslide()
 		
 		break;
 	}
-	
+	hitdir = (sclk>>8);
 	switch(sclk>>8)
 	{
 	case up:
@@ -7271,6 +7269,7 @@ bool enemy::knockback(int time, int dir, int speed)
 	if(!canmove(dir,(zfix)speed,0,0,0,15,15,true)) return false; //from slide(); collision check
 	bool ret = sprite::knockback(time, dir, speed);
 	if(ret) sclk = 0; //kill engine knockback if interrupted
+	//! Perhaps also set hitdir here, if needed for timing? -Z
 	return ret;
 }
 
