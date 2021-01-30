@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 88
-Document Revision: 26th January, 2021
+Document for: 2.55, Alpha 89
+Document Revision: 30th January, 2021
 
 
  __           _   _                 
@@ -3467,7 +3467,8 @@ void DrawBitmapEx	( int layer,
  * const int BITDX_VFLIP = 0x08; //Vertical Flip.
  * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
  * If these are non-zero, the rotation anchor point will centre on these coordinates.
- * You may specify a colour to 'int lit' to use a lit mode. 
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
 
 
 void FastCombo()
@@ -4070,6 +4071,12 @@ int AClock
 int Dropset;
  * Alias for npc->ItemSet. 
  * Read or write the item dropset used by the npc.
+ 
+int HitDir;
+ * Read-Only.
+ * Returns a direction constant if the npc is being knocked back.
+ * Returns -1 if the npc is not being knockd back.
+ * Writing to this has no effect, and is ignored. 
 
 int Random;
  * Corresponds to the Enemy Editor Random Rate value.
@@ -4398,6 +4405,18 @@ bool MoveFlags[3];
 //////////////
 ///  Hero  ///
 //////////////									// Hero // Player
+
+int ClockTimer;
+ * Returns the current ticks of a stopwatch/clock item countdown timer.
+ * Writing to this while ClockActive is true sets or changes the duration of
+ * the clock effect; if no stopwatch/clock is active, it pre-sets the value
+ * so that you may start a timed effect by writing ClockActive = true. 
+
+bool ClockActive;
+ * Returns true if a stopwatch/clock is active.
+ * Writing to this acts like picking up a stopwatch/clock item, and sets the
+ * duration of its effect based on ClockTimer. If ClockTimer is 0, the effect 
+ * lasts until the player changes screens.
 
 int Steps[8];
  * The number of pixels that the player moves in a frame, based on
@@ -6532,6 +6551,18 @@ void Blit
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap target'.
  * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
+ *
+ * Blit supports multiple MODES, OR'd together as a bitmask:
+ * const int BITDX_NORMAL = 0;
+ * const int BITDX_TRANS = 0x01; //Translucent
+ * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
+ * const int BITDX_HFLIP = 0x04; //Horizontal Flip
+ * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
+ * If these are non-zero, the rotation anchor point will centre on these coordinates.
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
+
 
 void RevBlit 
 void BlitTo 
@@ -6549,6 +6580,17 @@ void BlitTo
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap source'.
  * To draw from a user created bitmap, pass its pointer to 'bitmap source.
+ *
+ * RevBlit supports multiple MODES, OR'd together as a bitmask:
+ * const int BITDX_NORMAL = 0;
+ * const int BITDX_TRANS = 0x01; //Translucent
+ * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
+ * const int BITDX_HFLIP = 0x04; //Horizontal Flip
+ * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
+ * If these are non-zero, the rotation anchor point will centre on these coordinates.
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
 
 void Rectangle(int layer, 
 			int x, int y, int x2, int y2, 
