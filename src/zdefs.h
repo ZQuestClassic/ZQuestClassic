@@ -2851,7 +2851,7 @@ without needing the user to have bit precision. -Z
 
 struct newcombo
 {
-    int tile; //16 bits
+    int tile; //32 bits
     byte flip; //8 bits
     byte walk; //8 bits
     byte type; //8 bits
