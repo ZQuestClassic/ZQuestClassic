@@ -4113,6 +4113,7 @@ int SlideClock;
  * The timer used for enemy knockback.
  * The first byte is the clock.
  * The second byte is the dir.
+ * Enemies that split do not slide. 
 
 bool NoScriptKnockback;
  * 'false' by default.
