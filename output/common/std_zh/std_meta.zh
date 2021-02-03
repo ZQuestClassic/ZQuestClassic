@@ -2,10 +2,10 @@
 
 const float STD_VERSION = 1.7112;
 const int STD_DATE_YEAR = 2021;
-const int STD_DATE_MONTH = 1;
-const int STD_DATE_DAY = 30;
-const int STD_DATE_HOUR = 1;
-const int STD_DATE_MINUTE = 3;
+const int STD_DATE_MONTH = 2;
+const int STD_DATE_DAY = 3;
+const int STD_DATE_HOUR = 6;
+const int STD_DATE_MINUTE = 14;
 
 namespace std
 {
