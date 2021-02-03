@@ -1248,13 +1248,13 @@ void Z_scripterrlog(const char * const format,...)
             break;
 	
 	case SCRIPT_LINK:
-            al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
+            al_trace("Hero script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
 		#else //Unix
 			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+			printf("Hero script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
 		#endif 
 	break;
 	
@@ -1360,7 +1360,7 @@ void Z_scripterrlog(const char * const format,...)
 	break;
 	
 	case SCRIPT_COMBO:
-            al_trace("Subscreen script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+            al_trace("Combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
