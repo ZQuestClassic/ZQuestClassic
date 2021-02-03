@@ -4111,6 +4111,8 @@ bool NoSlide;
 
 int SlideClock;
  * The timer used for enemy knockback.
+ * The first byte is the clock.
+ * The second byte is the dir.
 
 bool NoScriptKnockback;
  * 'false' by default.
