@@ -30901,7 +30901,7 @@ void FFScript::do_npcattack()
 }
 void FFScript::do_npc_newdir()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -30930,7 +30930,7 @@ void FFScript::do_npc_newdir()
 
 void FFScript::do_npc_constwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	//zprint("Array size passed to do_npc_constwalk: %d\n", sz);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
@@ -30981,7 +30981,7 @@ void FFScript::do_npc_varwalk()
 
 void FFScript::do_npc_varwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	//void variable_walk_8(int rate,int homing,int newclk,int special);
@@ -31012,7 +31012,7 @@ void FFScript::do_npc_varwalk8()
 
 void FFScript::do_npc_constwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	//void variable_walk_8(int rate,int homing,int newclk,int special);
@@ -31037,7 +31037,7 @@ void FFScript::do_npc_constwalk8()
 
 void FFScript::do_npc_haltwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31060,7 +31060,7 @@ void FFScript::do_npc_haltwalk()
 
 void FFScript::do_npc_haltwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31084,7 +31084,7 @@ void FFScript::do_npc_haltwalk8()
 
 void FFScript::do_npc_floatwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31115,7 +31115,7 @@ void FFScript::do_npc_floatwalk()
 
 void FFScript::do_npc_breathefire()
 {
-	bool seek = (get_register(sarg2));
+	bool seek = (get_register(sarg1));
 	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -31127,7 +31127,7 @@ void FFScript::do_npc_breathefire()
 
 void FFScript::do_npc_newdir8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
