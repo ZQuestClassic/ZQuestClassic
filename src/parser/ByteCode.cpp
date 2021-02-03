@@ -1867,6 +1867,8 @@ string ZScript::VarToString(long ID)
 	case NPCHITDIR: return "NPCHITDIR";
 	case DMAPDATAFLAGARR: return "DMAPDATAFLAGARR";
 	case LINKCSET: return "LINKCSET";
+	case NPCSLIDECLK: return "NPCSLIDECLK";
+	case NPCFADING: return "NPCFADING";
 	
 	
 	default:

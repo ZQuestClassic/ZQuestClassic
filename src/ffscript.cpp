@@ -5062,10 +5062,26 @@ long get_register(const long arg)
 			break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
 				ret = -10000;
 			else
 				ret = (GuyH::getNPC()->hitdir * 10000);
+				
+			break;
+			
+		case NPCSLIDECLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->sclk * 10000);
+				
+			break;
+			
+		case NPCFADING:
+			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->fading * 10000);
 				
 			break;
 			
@@ -13482,6 +13498,24 @@ void set_register(const long arg, const long value)
 		
 		case NPCDIR:
 			SET_NPC_VAR_INT(dir, "npc->Dir") break;
+			
+		case NPCHITDIR:
+			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
+				
+			break;
+			
+		case NPCSLIDECLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+				(GuyH::getNPC()->sclk) = vbound(value/10000,0,255);
+				
+			break;
+			
+		case NPCFADING:
+			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
+				
+			break;
 			
 		case NPCRATE:
 			SET_NPC_VAR_INT(rate, "npc->Rate") break;
@@ -34296,8 +34330,8 @@ script_variable ZASMVars[]=
 	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
 	{ "DMAPDATAFLAGARR", DMAPDATAFLAGARR, 0, 0 },
 	{ "LINKCSET", LINKCSET, 0, 0 },
-	{ "PADDINGZ1", PADDINGZ1, 0, 0 },
-	{ "PADDINGZ2", PADDINGZ2, 0, 0 },
+	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
+	{ "NPCFADING", NPCFADING, 0, 0 },
 	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
 	{ "PADDINGZ4", PADDINGZ4, 0, 0 },
 	{ "PADDINGZ5", PADDINGZ5, 0, 0 },
