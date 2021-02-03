@@ -17772,6 +17772,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         dmapmap.clear();
         screenmap.clear();
         itemspritemap.clear();
+        comboscriptmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -17822,6 +17823,10 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
         {
             itemspritemap[i].clear();
+        }
+	for(int i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
+        {
+            comboscriptmap[i].clear();
         }
         
         reset_scripts();
