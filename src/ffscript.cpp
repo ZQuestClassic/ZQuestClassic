@@ -1121,10 +1121,10 @@ CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
 
 
-const char script_types[14][16]=
+const char script_types[16][16]=
 {
-	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata"
+	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
 };
 	
 	
