@@ -4160,8 +4160,8 @@ enum ASM_DEFINE
 #define STDARR				0x13CE
 #define GHOSTARR			0x13CF
 #define TANGOARR			0x13D0
-#define PADDINGZ7			0x13D1
-#define PADDINGZ8			0x13D2
+#define NPCHALTCLK			0x13D1
+#define NPCMOVESTATUS			0x13D2
 #define PADDINGZ9			0x13D3
 
 #define PADDINGR0			0x13D4

@@ -1872,6 +1872,8 @@ string ZScript::VarToString(long ID)
 	case STDARR: return "STDARR";
 	case GHOSTARR: return "GHOSTARR";
 	case TANGOARR: return "TANGOARR";
+	case NPCHALTCLK: return "NPCHALTCLK";
+	case NPCMOVESTATUS: return "NPCMOVESTATUS";
 	
 	
 	default:

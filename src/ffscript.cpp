@@ -5077,6 +5077,22 @@ long get_register(const long arg)
 				
 			break;
 			
+		case NPCHALTCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->clk2 * 10000);
+				
+			break;
+			
+		case NPCMOVESTATUS:
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->movestatus * 10000);
+				
+			break;
+			
 		case NPCFADING:
 			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
 				ret = -10000;
@@ -13561,6 +13577,18 @@ void set_register(const long arg, const long value)
 		case NPCFADING:
 			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
 				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
+				
+			break;
+			
+		case NPCHALTCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+				
+			break;
+		
+		case NPCMOVESTATUS:
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
 				
 			break;
 			
@@ -34436,8 +34464,8 @@ script_variable ZASMVars[]=
 	{ "STDARR", STDARR, 0, 0 },
 	{ "GHOSTARR", GHOSTARR, 0, 0 },
 	{ "TANGOARR", TANGOARR, 0, 0 },
-	{ "PADDINGZ7", PADDINGZ7, 0, 0 },
-	{ "PADDINGZ8", PADDINGZ8, 0, 0 },
+	{ "NPCHALTCLK", NPCHALTCLK, 0, 0 },
+	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
 	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
 	{ "PADDINGR0", PADDINGR0, 0, 0 },
 	{ "PADDINGR1", PADDINGR1, 0, 0 },

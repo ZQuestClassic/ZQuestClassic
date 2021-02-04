@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 89
-Document Revision: 30th January, 2021
+Document Revision: 4th February, 2021
 
 
  __           _   _                 
@@ -4085,6 +4085,13 @@ int AClock
 							// NPC
 int Fading;
  * The death effect for the npc. Use the enum NPCFadeType in std_constants.
+ 
+int Halt;
+ * The clock for how long an npc is halted.
+ 
+int MoveStatus;
+ * The movement status of an npc, usually flying. 
+ * See enum NPCMoveStatus in <std.zh>.
  
 int Dropset;
  * Alias for npc->ItemSet. 

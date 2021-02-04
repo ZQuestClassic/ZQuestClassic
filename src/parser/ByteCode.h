@@ -1251,8 +1251,8 @@
 #define STDARR				1175
 #define GHOSTARR			1176
 #define TANGOARR			1177
-#define PADDINGZ7			1178
-#define PADDINGZ8			1179
+#define NPCHALTCLK			1178
+#define NPCMOVESTATUS			1179
 #define PADDINGZ9			1180
 
 #define PADDINGR0			1181
