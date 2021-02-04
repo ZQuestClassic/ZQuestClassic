@@ -13507,7 +13507,7 @@ void set_register(const long arg, const long value)
 			
 		case NPCSLIDECLK:
 			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
-				(GuyH::getNPC()->sclk) = vbound(value/10000,0,255);
+				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
 				
 			break;
 			
