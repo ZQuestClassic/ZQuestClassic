@@ -2642,8 +2642,23 @@ __________      .__        __                    _____                ___.
 
 ////////////
 //  Game  //
-////////////								// Game
-
+////////////	
+							// Game
+untyped STD[256];
+ * An array used internally by the <std> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
+ untyped Ghost[256];
+ * An array used internally by the <ghost> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
+ untyped Tango[256];
+ * An array used internally by the <tango> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
 bool Suspend[susptLAST];
  * Each index represents an aspect of the game engine that you 
  * can suspend or resume by writing to this array.

@@ -740,6 +740,9 @@ char includePaths[MAX_INCLUDE_PATHS][512];
 char includePathString[(MAX_INCLUDE_PATHS+1)*512];
 char scriptRunString[21];
 int warpex[wexLast];
+int StdArray[256];
+int GhostArray[256];
+int TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
@@ -4154,9 +4157,9 @@ enum ASM_DEFINE
 #define NPCSLIDECLK			0x13CB
 #define NPCFADING			0x13CC
 #define PADDINGZ3			0x13CD
-#define PADDINGZ4			0x13CE
-#define PADDINGZ5			0x13CF
-#define PADDINGZ6			0x13D0
+#define STDARR				0x13CE
+#define GHOSTARR			0x13CF
+#define TANGOARR			0x13D0
 #define PADDINGZ7			0x13D1
 #define PADDINGZ8			0x13D2
 #define PADDINGZ9			0x13D3

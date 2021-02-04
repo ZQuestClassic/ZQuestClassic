@@ -6700,11 +6700,57 @@ long get_register(const long arg)
 		case GAMELKEYSD:
 			ret=game->lvlkeys[(ri->d[0])/10000]*10000;
 			break;
-			
+
+		case TANGOARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.TangoArray[inx]*10000;
+				break;
+			}
+		}
+		case GHOSTARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.GhostArray[inx]*10000;
+				break;
+			}
+		}
+		case STDARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.StdArray[inx]*10000;
+				break;
+			}
+		}
 		case GAMEGRAVITY:
 		{
 			int indx = ri->d[0]/10000;
-			if(indx < 0 || indx > 2)
+			if ( ((unsigned)indx) > 2 )
+			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
 				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
@@ -6730,7 +6776,8 @@ long get_register(const long arg)
 		case GAMESCROLLING:
 		{
 			int indx = ri->d[0]/10000;
-			if(indx < 0 || indx >= SZ_SCROLLDATA)
+			if ( ((unsigned)indx) >= SZ_SCROLLDATA )
+			//if(indx < 0 || indx >= SZ_SCROLLDATA)
 			{
 				Z_scripterrlog("Invalid index used to access Game->Scrolling[]: %d\n", indx);
 			}
@@ -14180,7 +14227,51 @@ void set_register(const long arg, const long value)
 		case GAMELITEMSD:
 			game->lvlitems[(ri->d[0])/10000]=value/10000;
 			break;
+		
+		case TANGOARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
+				break;
+			}
+			else
+			{
+				FFCore.TangoArray[inx]=value/10000;
+				break;
+			}
+		}
+		
+		case GHOSTARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
+				break;
+			}
+			else
+			{
 			
+				FFCore.GhostArray[inx]=value/10000;;
+				break;
+			}
+		}
+		case STDARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
+				break;
+			}
+			else
+			{
+				FFCore.StdArray[inx]=value/10000;
+				break;
+			}
+		}
 		case GAMELKEYSD:
 			game->lvlkeys[(ri->d[0])/10000]=value/10000;
 			break;
@@ -28026,6 +28117,15 @@ void FFScript::init()
 	enemy_removal_point[spriteremovalX2] = 32767;
 	enemy_removal_point[spriteremovalZ1] = -32767;
 	enemy_removal_point[spriteremovalZ2] = 32767;
+	
+	//Clear internal arrays for use by <std>, <ghost>, <tango>
+	for ( int q = 0; q < 256; ++q )
+	{
+		StdArray[q] = 0;
+		GhostArray[q] = 0;
+		TangoArray[q] = 0;
+	}
+		
 	for ( int q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
@@ -34333,9 +34433,9 @@ script_variable ZASMVars[]=
 	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
 	{ "NPCFADING", NPCFADING, 0, 0 },
 	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
-	{ "PADDINGZ4", PADDINGZ4, 0, 0 },
-	{ "PADDINGZ5", PADDINGZ5, 0, 0 },
-	{ "PADDINGZ6", PADDINGZ6, 0, 0 },
+	{ "STDARR", STDARR, 0, 0 },
+	{ "GHOSTARR", GHOSTARR, 0, 0 },
+	{ "TANGOARR", TANGOARR, 0, 0 },
 	{ "PADDINGZ7", PADDINGZ7, 0, 0 },
 	{ "PADDINGZ8", PADDINGZ8, 0, 0 },
 	{ "PADDINGZ9", PADDINGZ9, 0, 0 },

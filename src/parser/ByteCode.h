@@ -1248,9 +1248,9 @@
 #define NPCSLIDECLK			1172
 #define NPCFADING			1173
 #define PADDINGZ3			1174
-#define PADDINGZ4			1175
-#define PADDINGZ5			1176
-#define PADDINGZ6			1177
+#define STDARR				1175
+#define GHOSTARR			1176
+#define TANGOARR			1177
 #define PADDINGZ7			1178
 #define PADDINGZ8			1179
 #define PADDINGZ9			1180
