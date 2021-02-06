@@ -4756,7 +4756,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
             roomcolor = misc->colors.bmap_fg;
         }
         
-        si=(get_currdmap()-1)<<6;
+        si=(get_currdmap() << 7);
         
         for(int y2=y+8; y2<y+72; y2+=8)
         {
@@ -4776,6 +4776,8 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
                 }
                 
                 ++si;
+				while(/*DMaps[get_currdmap()].type!=dmOVERW &&*/ ((si&0xF)-DMaps[get_currdmap()].xoff)>7)
+					++si;
             }
         }
     }

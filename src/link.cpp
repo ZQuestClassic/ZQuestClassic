@@ -20712,10 +20712,16 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
     
-    if((DMaps[currdmap].type&dmfTYPE)==dmCAVE)
-        markBmap(scrolldir);
-        
-        
+	switch(DMaps[currdmap].type&dmfTYPE)
+	{
+		case dmOVERW: case dmBSOVERW:
+			if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+				break;
+		case dmCAVE:
+			markBmap(scrolldir);
+			break;
+	}
+	
     if(fixed_door)
     {
         unsetmapflag(mSECRET);

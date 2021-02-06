@@ -9257,6 +9257,7 @@ long get_register(const long arg)
 				ret = DMaps[ri->dmapsref].sub_initD[indx]; break;
 			}
 		}
+		
 		case DMAPDATAMAPINITD:	//byte[8] --array
 		{
 			int indx = ri->d[0] / 10000;
@@ -9270,6 +9271,33 @@ long get_register(const long arg)
 			{
 				ret = DMaps[ri->dmapsref].onmap_initD[indx]; break;
 			}
+		}
+		
+		case DMAPDATACHARTED:
+		{
+			int scr = ri->d[0] / 10000;
+			ret = -10000;
+			if(ri->dmapsref >= MAXDMAPS)
+			{
+				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
+			}
+			// else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
+			// {
+				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
+			// }
+			else if(((unsigned)(scr)) > 127)
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
+			}
+			else 
+			{
+				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
+					break; //Out-of-bounds; don't attempt read!
+				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				ret = 10000 * game->bmaps[di];
+			}
+			break;
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
 		//case DMAPDATAJUMPLAYER:	 //unimplemented
@@ -16931,6 +16959,7 @@ void set_register(const long arg, const long value)
 				DMaps[ri->dmapsref].sub_initD[indx] = value; break;
 			}
 		}
+		
 		case DMAPDATAMAPINITD:
 		{
 			int indx = ri->d[0] / 10000;
@@ -16942,6 +16971,32 @@ void set_register(const long arg, const long value)
 			{
 				DMaps[ri->dmapsref].onmap_initD[indx] = value; break;
 			}
+		}
+		
+		case DMAPDATACHARTED:
+		{
+			int scr = ri->d[0] / 10000;
+			if(ri->dmapsref >= MAXDMAPS)
+			{
+				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
+			}
+			// else if((DMaps[get_currdmap()].type&dmfTYPE) == dmOVERW)
+			// {
+				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
+			// }
+			else if(((unsigned)(scr)) > 127)
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
+			}
+			else 
+			{
+				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
+					break; //Out-of-bounds; don't attempt write!
+				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				game->bmaps[di] = (value/10000)&0x8F;
+			}
+			break;
 		}
 		//case DMAPDATAGRAVITY:	 //unimplemented
 		//case DMAPDATAJUMPLAYER:	 //unimplemented
@@ -34467,7 +34522,7 @@ script_variable ZASMVars[]=
 	{ "NPCHALTCLK", NPCHALTCLK, 0, 0 },
 	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
 	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
-	{ "PADDINGR0", PADDINGR0, 0, 0 },
+	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ "PADDINGR1", PADDINGR1, 0, 0 },
 	{ "PADDINGR2", PADDINGR2, 0, 0 },
 	{ "PADDINGR3", PADDINGR3, 0, 0 },

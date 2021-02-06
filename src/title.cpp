@@ -1591,9 +1591,30 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			
 			for(int j=0; j<OLDMAXDMAPS*64; ++j)
 			{
-				if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+				byte tempBMaps[OLDMAXDMAPS*64] = {0};
+				for(int j=0; j<OLDMAXDMAPS*64; ++j)
 				{
-					return 35;
+					if(!p_getc(&(tempBMaps[j]),f,true))
+					{
+						return 35;
+					}
+				}
+				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				for(int dm = 0; dm < OLDMAXDMAPS; ++dm)
+				{
+					for(int scr = 0; scr < 128; ++scr)
+					{
+						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
+							continue;
+						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						if(si < 0)
+						{
+							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							continue;
+						}
+						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+					}
 				}
 			}
 		}
@@ -1607,11 +1628,42 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 			
-			for(int j=0; j<MAXDMAPS*64; ++j)
+			if(section_version < 17)
 			{
-				if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+				byte tempBMaps[MAXDMAPS*64] = {0};
+				for(int j=0; j<MAXDMAPS*64; ++j)
 				{
-					return 35;
+					if(!p_getc(&(tempBMaps[j]),f,true))
+					{
+						return 35;
+					}
+				}
+				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				for(int dm = 0; dm < MAXDMAPS; ++dm)
+				{
+					for(int scr = 0; scr < 128; ++scr)
+					{
+						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
+							continue;
+						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						if(si < 0)
+						{
+							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							continue;
+						}
+						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+					}
+				}
+			}
+			else
+			{
+				for(int j=0; j<MAXDMAPS*128; ++j)
+				{
+					if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+					{
+						return 35;
+					}
 				}
 			}
 		}
@@ -2226,7 +2278,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			return 34;
 		}
 		
-		if(!pfwrite(savedata[i].bmaps,MAXDMAPS*64,f))
+		if(!pfwrite(savedata[i].bmaps,MAXDMAPS*128,f))
 		{
 			return 35;
 		}

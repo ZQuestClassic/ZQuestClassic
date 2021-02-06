@@ -1,5 +1,5 @@
 // std_constants.zh
-// 3rd February, 2021 for ZC 2.55.0 Alpha 89
+// 6th February, 2021 for ZC 2.55.0 Alpha 89
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -876,7 +876,7 @@ const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
 const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
 const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
 const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and start returning to Link.
+                                      // make it 'bounce off' and begin returning to Link.
 
 
 ////////////////////
@@ -3095,6 +3095,12 @@ enum NPCMoveFlag
 	NPCMV_CAN_PIT_WALK
 };
 
+define CHRT_VISITED = 10000000b;
+define CHRT_UP =      00000001b;
+define CHRT_DOWN =    00000010b;
+define CHRT_LEFT =    00000100b;
+define CHRT_RIGHT =   00001000b;
+
 // "special" walk flags
 enum NPCWalkType
 {
@@ -3112,3 +3118,4 @@ enum NPCMoveStatus
 {
 	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
 };
+
