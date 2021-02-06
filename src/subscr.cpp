@@ -4776,7 +4776,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
                 }
                 
                 ++si;
-				while(DMaps[get_currdmap()].type!=dmOVERW && ((si&0xF)-DMaps[get_currdmap()].xoff)>7)
+				while(/*DMaps[get_currdmap()].type!=dmOVERW &&*/ ((si&0xF)-DMaps[get_currdmap()].xoff)>7)
 					++si;
             }
         }
