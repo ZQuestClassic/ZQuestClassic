@@ -41,8 +41,6 @@ public:
 
 	long getInt() const
 	{
-		//return val/10000L; //breaks rounding
-		//return val/10000L + zfixvbound((val%10000L),-1,1); //nope
 		return val/10000L + zfixvbound((val%10000L)/5000L,-1,1);
 	}
 	double getFloat() const
@@ -64,6 +62,10 @@ public:
 	{
 		val = (val / 10000) * 10000;
 		return *this;
+	}
+	long getFloor() const
+	{
+		return val / 10000L;
 	}
 	zfix& doAbs()
 	{
