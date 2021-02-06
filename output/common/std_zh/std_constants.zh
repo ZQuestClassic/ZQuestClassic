@@ -1,5 +1,5 @@
 // std_constants.zh
-// 23rd January, 2021 for ZC 2.55.0 Alpha 88
+// 6th February, 2021 for ZC 2.55.0 Alpha 89
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -876,7 +876,7 @@ const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
 const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
 const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
 const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and start returning to Link.
+                                      // make it 'bounce off' and begin returning to Link.
 
 
 ////////////////////
@@ -1950,6 +1950,29 @@ const int DMF_SIDEVIEW 			= 0x10000;
 const int DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
 //const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
 //const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
+
+//dmapdata->Flagset[32] indices
+const int DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
+const int DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
+const int DMFS_WWIND			= 2; //Allow whistle whirlwinds
+const int DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
+const int DMFS_NOCOMPASS		= 4; //Don't display compass marker in minimap
+const int DMFS_WAVY 			= 5; //Underwater wave effect
+const int DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+const int DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
+const int DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
+const int DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
+const int DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
+const int DMFS_MINIMAPCOLOURFIX 	= 11; //Use minimap foreground colour 2
+const int DMFS_SCRIPT1 			= 12; //DMap Script Flags
+const int DMFS_SCRIPT2 			= 13;
+const int DMFS_SCRIPT3 			= 14;
+const int DMFS_SCRIPT4 			= 15;
+const int DMFS_SCRIPT5 			= 16;
+const int DMFS_SIDEVIEW 		= 17; //DMap is Sideview
+const int DMFS_LAYER3ISBACKGROUND 	= 18; //Layer 3 is Background
+const int DMFS_LAYER2ISBACKGROUND 	= 19; //Layer 2 is bBackground
+const int DMFS_TRUECELLARENEMIES 	= 20; //True Cellar Enemies
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
@@ -3077,4 +3100,22 @@ define CHRT_UP =      00000001b;
 define CHRT_DOWN =    00000010b;
 define CHRT_LEFT =    00000100b;
 define CHRT_RIGHT =   00001000b;
+
+// "special" walk flags
+enum NPCWalkType
+{
+	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
+	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
+};
+
+// death & fade defs
+enum NPCFadeType
+{
+	NPCF_NONE, NPCF_FLICKER, NPCF_INVISIBLE, NPCF_FLASH, NPCF_POOF
+};
+
+enum NPCMoveStatus
+{
+	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
+};
 

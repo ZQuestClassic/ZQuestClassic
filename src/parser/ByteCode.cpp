@@ -1863,6 +1863,19 @@ string ZScript::VarToString(long ID)
 	case MODULEGETSTR: return "MODULEGETSTR";
 	case NPCORIGINALHP: return "NPCORIGINALHP";
 	
+	case CLOCKCLK: return "CLOCKCLK";
+	case CLOCKACTIVE: return "CLOCKACTIVE";
+	case NPCHITDIR: return "NPCHITDIR";
+	case DMAPDATAFLAGARR: return "DMAPDATAFLAGARR";
+	case LINKCSET: return "LINKCSET";
+	case NPCSLIDECLK: return "NPCSLIDECLK";
+	case NPCFADING: return "NPCFADING";
+	case STDARR: return "STDARR";
+	case GHOSTARR: return "GHOSTARR";
+	case TANGOARR: return "TANGOARR";
+	case NPCHALTCLK: return "NPCHALTCLK";
+	case NPCMOVESTATUS: return "NPCMOVESTATUS";
+	
 	
 	default:
 	{

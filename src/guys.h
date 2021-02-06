@@ -114,6 +114,7 @@ public:
 	
 	bool immortal;
 	bool noSlide;
+	signed short hitdir;
 	
 	int getScriptUID();
 	void setScriptUID(int new_id);

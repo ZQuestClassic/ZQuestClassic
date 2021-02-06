@@ -740,6 +740,9 @@ char includePaths[MAX_INCLUDE_PATHS][512];
 char includePathString[(MAX_INCLUDE_PATHS+1)*512];
 char scriptRunString[21];
 int warpex[wexLast];
+int StdArray[256];
+int GhostArray[256];
+int TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
@@ -4144,10 +4147,36 @@ enum ASM_DEFINE
 #define NPCORIGINALHP			0x13C3
 #define DMAPDATAMAPSCRIPT			0x13C4
 #define DMAPDATAMAPINITD			0x13C5
-#define DMAPDATACHARTED			0x13C6
+
+#define CLOCKCLK			0x13C6
+#define CLOCKACTIVE			0x13C7
+#define NPCHITDIR			0x13C8
+#define DMAPDATAFLAGARR			0x13C9
+
+#define LINKCSET			0x13CA
+#define NPCSLIDECLK			0x13CB
+#define NPCFADING			0x13CC
+#define PADDINGZ3			0x13CD
+#define STDARR				0x13CE
+#define GHOSTARR			0x13CF
+#define TANGOARR			0x13D0
+#define NPCHALTCLK			0x13D1
+#define NPCMOVESTATUS			0x13D2
+#define PADDINGZ9			0x13D3
+
+#define DMAPDATACHARTED			0x13D4
+#define PADDINGR1			0x13D5
+#define PADDINGR2			0x13D6
+#define PADDINGR3			0x13D7
+#define PADDINGR4			0x13D8
+#define PADDINGR5			0x13D9
+#define PADDINGR6			0x13DA
+#define PADDINGR7			0x13DB
+#define PADDINGR8			0x13DC
+#define PADDINGR9			0x13DD
 
 
-#define NUMVARIABLES         	0x13C7
+#define NUMVARIABLES         	0x13DE
 
 //} End variables
 

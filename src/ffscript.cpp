@@ -1121,10 +1121,10 @@ CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
 
 
-const char script_types[14][16]=
+const char script_types[16][16]=
 {
-	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata"
+	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
 };
 	
 	
@@ -3592,7 +3592,12 @@ long get_register(const long arg)
 
 			break;
 		}
-			
+		
+		case LINKCSET:
+		{
+			ret = Link.cs * 10000;
+			break;
+		}		
 		case LINKY:
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
@@ -3939,6 +3944,14 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case CLOCKACTIVE:
+			ret=watch?10000:0;
+			break;
+		
+		case CLOCKCLK:
+			ret=clockclk*10000;
+			break;
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -4228,6 +4241,7 @@ long get_register(const long arg)
 			ret = joybtn(button)?10000:0;
 		}
 		break;
+		
 		
 		case MOUSEARR:
 		{	
@@ -5044,6 +5058,46 @@ long get_register(const long arg)
 				ret = -10000;
 			else
 				ret = zc_max(GuyH::getNPC()->dir * 10000, 0);
+				
+			break;
+			
+		case NPCHITDIR:
+			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->hitdir * 10000);
+				
+			break;
+			
+		case NPCSLIDECLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->sclk * 10000);
+				
+			break;
+			
+		case NPCHALTCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->clk2 * 10000);
+				
+			break;
+			
+		case NPCMOVESTATUS:
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->movestatus * 10000);
+				
+			break;
+			
+		case NPCFADING:
+			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->fading * 10000);
 				
 			break;
 			
@@ -6662,11 +6716,57 @@ long get_register(const long arg)
 		case GAMELKEYSD:
 			ret=game->lvlkeys[(ri->d[0])/10000]*10000;
 			break;
-			
+
+		case TANGOARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.TangoArray[inx]*10000;
+				break;
+			}
+		}
+		case GHOSTARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.GhostArray[inx]*10000;
+				break;
+			}
+		}
+		case STDARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
+				ret = -10000;
+				break;
+			}
+			else
+			{
+				ret=FFCore.StdArray[inx]*10000;
+				break;
+			}
+		}
 		case GAMEGRAVITY:
 		{
 			int indx = ri->d[0]/10000;
-			if(indx < 0 || indx > 2)
+			if ( ((unsigned)indx) > 2 )
+			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
 				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
@@ -6692,7 +6792,8 @@ long get_register(const long arg)
 		case GAMESCROLLING:
 		{
 			int indx = ri->d[0]/10000;
-			if(indx < 0 || indx >= SZ_SCROLLDATA)
+			if ( ((unsigned)indx) >= SZ_SCROLLDATA )
+			//if(indx < 0 || indx >= SZ_SCROLLDATA)
 			{
 				Z_scripterrlog("Invalid index used to access Game->Scrolling[]: %d\n", indx);
 			}
@@ -9115,6 +9216,17 @@ long get_register(const long arg)
 				ret = ((byte)DMaps[ri->dmapsref].disableditems[indx]) * 10000; break;
 			}
 		}
+		case DMAPDATAFLAGARR:	 //long
+		{
+			int indx = ri->d[0] / 10000;
+			if ( ((unsigned)indx) > 31 )
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Flags[]: %d\n", indx);
+				ret = -10000;
+				break;
+			}
+			ret = ((DMaps[ri->dmapsref].flags&(1<<indx)) ? 10000:0);
+		}
 		case DMAPDATAFLAGS:	 //long
 		{
 			ret = (DMaps[ri->dmapsref].flags) * 10000; break;
@@ -10608,7 +10720,12 @@ void set_register(const long arg, const long value)
 			}
 		}
 		break;
-			
+		
+		case LINKCSET:
+		{
+			Link.cs = value/10000;
+			break;
+		}
 		case LINKY:
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
@@ -11208,6 +11325,16 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case CLOCKACTIVE:
+		{
+			Link.setClock(watch=(value?true:false));
+			break;
+		}
+		
+		case CLOCKCLK:
+			clockclk = vbound((value/10000), 0, 214748);
+			break;
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
@@ -13463,6 +13590,36 @@ void set_register(const long arg, const long value)
 		case NPCDIR:
 			SET_NPC_VAR_INT(dir, "npc->Dir") break;
 			
+		case NPCHITDIR:
+			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
+				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
+				
+			break;
+			
+		case NPCSLIDECLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
+				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
+				
+			break;
+			
+		case NPCFADING:
+			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
+				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
+				
+			break;
+			
+		case NPCHALTCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+				
+			break;
+		
+		case NPCMOVESTATUS:
+			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
+				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
+				
+			break;
+			
 		case NPCRATE:
 			SET_NPC_VAR_INT(rate, "npc->Rate") break;
 			
@@ -14126,7 +14283,51 @@ void set_register(const long arg, const long value)
 		case GAMELITEMSD:
 			game->lvlitems[(ri->d[0])/10000]=value/10000;
 			break;
+		
+		case TANGOARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
+				break;
+			}
+			else
+			{
+				FFCore.TangoArray[inx]=value/10000;
+				break;
+			}
+		}
+		
+		case GHOSTARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
+				break;
+			}
+			else
+			{
 			
+				FFCore.GhostArray[inx]=value/10000;;
+				break;
+			}
+		}
+		case STDARR:
+		{
+			int inx = (ri->d[0])/10000;
+			if ( ((unsigned)inx) > 255 )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
+				break;
+			}
+			else
+			{
+				FFCore.StdArray[inx]=value/10000;
+				break;
+			}
+		}
 		case GAMELKEYSD:
 			game->lvlkeys[(ri->d[0])/10000]=value/10000;
 			break;
@@ -16706,6 +16907,18 @@ void set_register(const long arg, const long value)
 			{
 				DMaps[ri->dmapsref].disableditems[indx] = ((byte)(value / 10000)); break;
 			}
+		}
+		
+		case DMAPDATAFLAGARR:	 //long
+		{
+			int indx = ri->d[0] / 10000;
+			if ( ((unsigned)indx) > 31 )
+			{
+				Z_scripterrlog("Invalid index supplied to dmapdata->Flags[]: %d\n", indx);
+				break;
+			}
+			if ( value ) DMaps[ri->dmapsref].flags |= (1<<indx);
+			else DMaps[ri->dmapsref].flags &= ~(1<<indx);
 		}
 		case DMAPDATAFLAGS:	 //long
 		{
@@ -27987,6 +28200,15 @@ void FFScript::init()
 	enemy_removal_point[spriteremovalX2] = 32767;
 	enemy_removal_point[spriteremovalZ1] = -32767;
 	enemy_removal_point[spriteremovalZ2] = 32767;
+	
+	//Clear internal arrays for use by <std>, <ghost>, <tango>
+	for ( int q = 0; q < 256; ++q )
+	{
+		StdArray[q] = 0;
+		GhostArray[q] = 0;
+		TangoArray[q] = 0;
+	}
+		
 	for ( int q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
@@ -30896,7 +31118,7 @@ void FFScript::do_npcattack()
 }
 void FFScript::do_npc_newdir()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -30925,7 +31147,7 @@ void FFScript::do_npc_newdir()
 
 void FFScript::do_npc_constwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	//zprint("Array size passed to do_npc_constwalk: %d\n", sz);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
@@ -30976,7 +31198,7 @@ void FFScript::do_npc_varwalk()
 
 void FFScript::do_npc_varwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	//void variable_walk_8(int rate,int homing,int newclk,int special);
@@ -31007,7 +31229,7 @@ void FFScript::do_npc_varwalk8()
 
 void FFScript::do_npc_constwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	//void variable_walk_8(int rate,int homing,int newclk,int special);
@@ -31032,7 +31254,7 @@ void FFScript::do_npc_constwalk8()
 
 void FFScript::do_npc_haltwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31055,7 +31277,7 @@ void FFScript::do_npc_haltwalk()
 
 void FFScript::do_npc_haltwalk8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31079,7 +31301,7 @@ void FFScript::do_npc_haltwalk8()
 
 void FFScript::do_npc_floatwalk()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -31110,7 +31332,7 @@ void FFScript::do_npc_floatwalk()
 
 void FFScript::do_npc_breathefire()
 {
-	bool seek = (get_register(sarg2));
+	bool seek = (get_register(sarg1));
 	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -31122,7 +31344,7 @@ void FFScript::do_npc_breathefire()
 
 void FFScript::do_npc_newdir8()
 {
-	long arrayptr = get_register(sarg2) / 10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
@@ -34286,7 +34508,30 @@ script_variable ZASMVars[]=
 	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
 	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
 	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
+	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
+	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
+	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
+	{ "DMAPDATAFLAGARR", DMAPDATAFLAGARR, 0, 0 },
+	{ "LINKCSET", LINKCSET, 0, 0 },
+	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
+	{ "NPCFADING", NPCFADING, 0, 0 },
+	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
+	{ "STDARR", STDARR, 0, 0 },
+	{ "GHOSTARR", GHOSTARR, 0, 0 },
+	{ "TANGOARR", TANGOARR, 0, 0 },
+	{ "NPCHALTCLK", NPCHALTCLK, 0, 0 },
+	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
+	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
+	{ "PADDINGR1", PADDINGR1, 0, 0 },
+	{ "PADDINGR2", PADDINGR2, 0, 0 },
+	{ "PADDINGR3", PADDINGR3, 0, 0 },
+	{ "PADDINGR4", PADDINGR4, 0, 0 },
+	{ "PADDINGR5", PADDINGR5, 0, 0 },
+	{ "PADDINGR6", PADDINGR6, 0, 0 },
+	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "PADDINGR8", PADDINGR8, 0, 0 },
+	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -39070,7 +39315,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 
 	int indx = FFCore.getEWeaponByScriptUID(sUID);
 	if ( indx > -1 ) 
-		ri->ewpn = Lwpns.spr(indx)->getUID();
+		ri->ewpn = Ewpns.spr(indx)->getUID();
 	else
 	{
 		ri->ewpn = 0;

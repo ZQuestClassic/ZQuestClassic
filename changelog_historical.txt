@@ -1881,3 +1881,10 @@ ZC Version 0.72	August.01.1999
 
 ZC Version 0.64	July.23.1999
 First demo of Zelda DX. Tons of new stuff. It is playable (up to the beginning of level 9). There may be some bugs. Tell us if you find any, and please note the situation in which the bug occured so we can fix it. You can even hit F12 to take a snapshot.
+
+////////////////
+/// Previous ///
+////////////////
+
+Lots of SPHINX C-- demos without specific names; generally 
+    called 'Zelda clone'.
