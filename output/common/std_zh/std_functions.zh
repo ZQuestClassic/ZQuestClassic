@@ -2333,6 +2333,12 @@ bool InputRightClick()
 	return (Link->InputMouseB&MB_RIGHTCLICK);
 }
 
+//Returns true if the present screen is a dungen type. 
+bool IsDungeon() 
+{
+	return ((Screen->Flags[SF_ROOMTYPE] & 1) || Game->LoadDMapData(Game->GetCurDMap())->Type == DMAP_DUNGEON);
+}
+
 //Returns true if Link is on a Dungeon (flagged) screen
 bool IsDungeonFlag() 
 {
