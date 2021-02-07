@@ -455,10 +455,16 @@ appx_equal	TOKEN( APPXEQUAL );
 0x[0-9a-fA-F]+ 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc) );
 }
+0x[0-9a-fA-F]+L 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_HEX, yylloc) );
+}
 [0-1]+b			{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
 }
 [0-1]+Lb			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
+}
+[0-1]+bL			{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
 }
 

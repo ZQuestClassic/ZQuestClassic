@@ -402,6 +402,11 @@ long		-2,147,483,648 -> 2,147,483,647
 	Long is a special datatype, which uses special number literals. It gives access to a long integer value,
 	taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
 	A long value '502L' is equivalent to a float value '0.0502'.
+	Long literals:
+		13432423L (== 1343.2423)
+		0xFL (== 0.0015, == 15L)
+		101010Lb (== 0.0042, == 42L)
+		00011bL (== 0.0003, == 3L)
 	
 
 untyped : A special datatype that can be cast to and from any other type.

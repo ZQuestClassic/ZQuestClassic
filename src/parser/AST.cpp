@@ -166,7 +166,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 	bool is_long = false;
 	switch(type)
 	{
-		case TYPE_L_DECIMAL: case TYPE_L_BINARY:
+		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX:
 			is_long = true;
 			break;
 	}
@@ -219,10 +219,19 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			break;
 		}
 		
+		case TYPE_L_HEX:
 		case TYPE_HEX:
 		{
-			// Trim off the "0x".
-			f = f.substr(2,f.size()-2);
+			if(is_long)
+			{
+				// Trim off the "0x" and "L".
+				f = f.substr(2,f.size()-3);
+			}
+			else
+			{
+				// Trim off the "0x".
+				f = f.substr(2,f.size()-2);
+			}
 			// Parse the hex.
 			long val2=0;
 		
@@ -242,9 +251,20 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			if(negative && val2 > 0) val2 *= -1;
 
 			char temp[60];
-			sprintf(temp, "%ld", val2);
-			intpart = temp;
-			fpart = "";
+			char temp2[60];
+			if(is_long)
+			{
+				sprintf(temp, "%ld", val2 / 10000L);
+				sprintf(temp2, "%ld", val2 % 10000L);
+				intpart = temp;
+				fpart = temp2;
+			}
+			else
+			{
+				sprintf(temp, "%ld", val2);
+				intpart = temp;
+				fpart = "";
+			}
 			break;
 		}
 
