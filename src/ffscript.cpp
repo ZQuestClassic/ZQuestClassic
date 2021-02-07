@@ -32355,25 +32355,22 @@ void FFScript::do_itoacat()
 			Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
 			set_register(sarg1, 0);
 		}
-		//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
 		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 		return;
 	}
-	else
+
+	
+	for(int i = 0; i < digits; ++i)
+		strB[pos + ret + i] = ((long)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
+	
+	string strC = strA + strB;
+	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 	{
-		for(int i = 0; i < digits; ++i)
-			strB[pos + ret + i] = ((long)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
-		
-		string strC = strA + strB;
-		
-		if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
-		{
-			Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
-			set_register(sarg1, 0);
-		}
-		//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
-		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+		Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
+		set_register(sarg1, 0);
 	}
+	//set_register(sarg1, (strcat((char)strB.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 
 /*
