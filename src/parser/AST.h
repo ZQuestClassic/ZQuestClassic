@@ -135,6 +135,7 @@ namespace ZScript
 	// Literals
 	class ASTLiteral; // virtual
 	class ASTNumberLiteral;
+	class ASTLongNumberLiteral;
 	class ASTBoolLiteral;
 	class ASTStringLiteral;
 	class ASTArrayLiteral;
@@ -304,7 +305,7 @@ namespace ZScript
 	class ASTFloat : public AST
 	{
 	public:
-		enum Type {TYPE_DECIMAL, TYPE_BINARY, TYPE_HEX};
+		enum Type {TYPE_DECIMAL, TYPE_BINARY, TYPE_HEX, TYPE_L_DECIMAL, TYPE_L_BINARY};
 	
 		ASTFloat(char* value, Type type,
 		         LocationData const& location = LocationData::NONE);
@@ -1771,6 +1772,17 @@ namespace ZScript
 		void negate();
 	
 		owning_ptr<ASTFloat> value;
+	};
+	
+	class ASTLongNumberLiteral : public ASTNumberLiteral
+	{
+	public:
+		ASTLongNumberLiteral(
+				ASTFloat* value = NULL,
+				LocationData const& location = LocationData::NONE);
+		ASTLongNumberLiteral* clone() const {return new ASTLongNumberLiteral(*this);}
+
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::LONG;}
 	};
 	
 	class ASTCharLiteral : public ASTLiteral

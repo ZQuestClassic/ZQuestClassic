@@ -220,6 +220,7 @@ extern YYLTYPE noloc;
 %token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
+%token LONGNUMBER
 %token SCRIPTSTRUCT
 
 %%
@@ -1507,6 +1508,9 @@ Literal :
 	NUMBER {
 		ASTFloat* val = (ASTFloat*)$1;
 		$$ = new ASTNumberLiteral(val, @$);}
+	| LONGNUMBER {
+		ASTFloat* val = (ASTFloat*)$1;
+		$$ = new ASTLongNumberLiteral(val, @$);}
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
 		char val[15];

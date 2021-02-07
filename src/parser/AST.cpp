@@ -163,96 +163,132 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 	string f = value;
 	string intpart;
 	string fpart;
+	bool is_long = false;
+	switch(type)
+	{
+		case TYPE_L_DECIMAL: case TYPE_L_BINARY:
+			is_long = true;
+			break;
+	}
 
 	switch(type)
 	{
-	case TYPE_DECIMAL:
-	{
-		bool founddot = false;
-
-		for(unsigned int i=0; i<f.size(); i++)
+		case TYPE_DECIMAL:
 		{
-			if(f.at(i) == '.')
+			bool founddot = false;
+
+			for(unsigned int i=0; i<f.size(); i++)
 			{
-				intpart = f.substr(0, i);
-				fpart = f.substr(i+1,f.size()-i-1);
-				founddot = true;
-				break;
+				if(f.at(i) == '.')
+				{
+					intpart = f.substr(0, i);
+					fpart = f.substr(i+1,f.size()-i-1);
+					founddot = true;
+					break;
+				}
 			}
+
+			if(!founddot)
+			{
+				intpart = f;
+				fpart = "";
+			}
+
+			if(negative) intpart = "-" + intpart;
+
+			break;
 		}
-
-		if(!founddot)
-		{
-			intpart = f;
-			fpart = "";
-		}
-
-		if(negative) intpart = "-" + intpart;
-
-		break;
-	}
-
-	case TYPE_HEX:
-	{
-		// Trim off the "0x".
-		f = f.substr(2,f.size()-2);
-		// Parse the hex.
-		long val2=0;
-    
-		for(unsigned int i=0; i<f.size(); i++)
-		{
-			char d = f.at(i);
-			val2*=16;
-
-			if('0' <= d && d <= '9')
-				val2+=(d-'0');
-			else if('A' <= d && d <= 'F')
-				val2+=(10+d-'A');
-			else
-				val2+=(10+d-'a');
-		}
-    
-		if(negative && val2 > 0) val2 *= -1;
-
-		char temp[60];
-		sprintf(temp, "%ld", val2);
-		intpart = temp;
-		fpart = "";
-		break;
-	}
-
-	case TYPE_BINARY:
-	{
-		//trim off the 'b'
-		f = f.substr(0,f.size()-1);
-		long val2=0;
 		
-		for(unsigned int i=0; i<f.size(); i++)
+		case TYPE_L_DECIMAL:
 		{
-			char b = f.at(i);
-			val2<<=1;
-			val2+=b-'0';
+			// Trim off the "L".
+			f = f.substr(0,f.size()-1);
+			//Add leading zero's up to the decimal place
+			while(f.size() < 4)
+				f = "0" + f;
+			if(f.size() == 4)
+			{
+				intpart = "0";
+				fpart = f;
+			}
+			else
+			{
+				intpart = f.substr(0, f.size()-4);
+				fpart = f.substr(f.size()-4, 4);
+			}
+			break;
 		}
-
-		if(negative && val2 > 0) val2 *= -1;
-
-		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0)
+		
+		case TYPE_HEX:
 		{
-			char temp[60];
-			sprintf(temp, "%ld", val2/10000);
-			intpart = temp;
-			sprintf(temp, "%04ld", abs(val2%10000));
-			fpart = temp;
-		}
-		else
-		{
+			// Trim off the "0x".
+			f = f.substr(2,f.size()-2);
+			// Parse the hex.
+			long val2=0;
+		
+			for(unsigned int i=0; i<f.size(); i++)
+			{
+				char d = f.at(i);
+				val2*=16;
+
+				if('0' <= d && d <= '9')
+					val2+=(d-'0');
+				else if('A' <= d && d <= 'F')
+					val2+=(10+d-'A');
+				else
+					val2+=(10+d-'a');
+			}
+		
+			if(negative && val2 > 0) val2 *= -1;
+
 			char temp[60];
 			sprintf(temp, "%ld", val2);
 			intpart = temp;
 			fpart = "";
+			break;
 		}
-		break;
-	}
+
+		case TYPE_L_BINARY:
+		case TYPE_BINARY:
+		{
+			if(is_long)
+			{
+				//trim off the 'Lb'
+				f = f.substr(0,f.size()-2);
+			}
+			else
+			{
+				//trim off the 'b'
+				f = f.substr(0,f.size()-1);
+			}
+			long val2=0;
+			
+			for(unsigned int i=0; i<f.size(); i++)
+			{
+				char b = f.at(i);
+				val2<<=1;
+				val2+=b-'0';
+			}
+
+			if(negative && val2 > 0) val2 *= -1;
+
+			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			{
+				char temp[60];
+				sprintf(temp, "%ld", val2/10000);
+				intpart = temp;
+				sprintf(temp, "%04ld", abs(val2%10000));
+				fpart = temp;
+			}
+			else
+			{
+				char temp[60];
+				sprintf(temp, "%ld", val2);
+				intpart = temp;
+				fpart = "";
+			}
+			break;
+		}
 	}
 
 	return pair<string,string>(intpart, fpart);
@@ -1951,6 +1987,14 @@ void ASTNumberLiteral::negate()
 {
 	if(value) value.get()->negative = true;
 }
+
+// ASTLongNumberLiteral
+
+ASTLongNumberLiteral::ASTLongNumberLiteral(
+		ASTFloat* value, LocationData const& location)
+	: ASTNumberLiteral(value, location)
+{}
+
 
 // ASTCharLiteral
 
