@@ -114,6 +114,7 @@ bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
 char32		TOKEN( ZCHAR );
+long		TOKEN( ZLONG );
 bitmap		TOKEN( BITMAP );
 cheatdata		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );
@@ -448,11 +449,32 @@ appx_equal	TOKEN( APPXEQUAL );
 [0-9]*\.?[0-9]+ 	{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc) );
 }
+[0-9]+L 	{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_DECIMAL, yylloc) );
+}
 0x[0-9a-fA-F]+ 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc) );
 }
+0x[0-9a-fA-F]+L 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_HEX, yylloc) );
+}
 [0-1]+b			{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
+}
+[0-1]+Lb			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
+}
+[0-1]+bL			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
+}
+[0-7]+o 		{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );
+}
+[0-7]+oL 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
+}
+[0-7]+Lo 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
 }
 
  /* Char */

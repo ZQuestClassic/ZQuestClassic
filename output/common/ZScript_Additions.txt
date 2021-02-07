@@ -398,6 +398,17 @@ char32		-214748, 214748
 			foo("str\n"); 	//Will call: foo(char32)
 			foo(16);	//Will call: foo(int);
 
+long		-2,147,483,648 -> 2,147,483,647
+	Long is a special datatype, which uses special number literals. It gives access to a long integer value,
+	taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
+	A long value '502L' is equivalent to a float value '0.0502'.
+	Long literals:
+		13432423L (== 1343.2423)
+		0xFL (== 0.0015, == 15L)
+		101010Lb (== 0.0042, == 42L)
+		00011bL (== 0.0003, == 3L)
+	
+
 untyped : A special datatype that can be cast to and from any other type.
 	This has no distinct type of its own.
 	
@@ -2493,10 +2504,10 @@ void LoadSRAM("filename.zcsram", int flags);
  *	dmapdata	0x10
  *	mapdata 	0x20
 
-void SRand(int seed);
+void SRand(long seed);
  * Sets the current random seed to a given value, input from script. (DOES NOT /10000)
 
-int SRand(); 
+long SRand(); 
  * Generates a random seed, sets it, and returns it.
 	
 int utol(*string);
@@ -2952,6 +2963,10 @@ int ZScriptVersion;
  * to read and store the correct/current version, and temporarily 
  * modify it during the execution of --that script--, restoring it thereafter.
 
+long Time;
+ * Represents the current game time as a 'long', wherein '1L == 1 frame' of the game clock.
+ * Only change from 2.50.2 is that the type is now 'long'
+
 bool DisableActiveSubscreen;		
  * If set true, the active subscreen will not fall into view when the player presses Start.
 
@@ -3330,19 +3345,19 @@ char32 UngetChar(char32 c);
  *     but further read operations will find this as the next character to be read.
  * Useful if you read a character, then realize you don't want it.
 
-int Pos;
+long Pos;
  * Read-only.
  * This represents the current position in the file.
  * In binary modes ('Open()', 'Create()', or 'OpenMode()' including "b"), this is the number
- *     of bytes into the file, / 10000. (i.e. 1 byte in == 0.0001).
+ *     of bytes into the file, as a long; i.e. '10L' == 10 bytes.
  * In text modes ('OpenMode()' not including "b"),
  *     the numerical value may not be meaningful but can still be used to restore the position
  *     to the same position later using 'Seek()' (if there are characters put back using
  *     'UngetChar()' still pending of being read, the behavior is undefined).
 
-bool Seek(int pos, bool from_current);
+bool Seek(long pos, bool from_current);
  * Moves the current position of the file.
- * 'pos' is a 32b value, where '0.0001' represents 1 byte; similar to 'Pos'.
+ * 'pos' is a 32b value, where '1L' represents 1 byte; similar to 'Pos'.
  * If 'from_current' is true, it moves forward from the current position.
  * Otherwise, it moves so that 'Pos' is equal to 'pos'.
  * Using 'from_current'==true in a file open in text mode ('OpenMode()' not

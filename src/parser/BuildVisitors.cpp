@@ -1157,7 +1157,8 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 
     visit(host.operand.get(), param);
 	
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.operand.get()->isLong(scope, this))
 		addOpcode(new O32BitNot(new VarArgument(EXP1)));
 	else
 		addOpcode(new ONot(new VarArgument(EXP1)));
@@ -1751,7 +1752,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1770,7 +1773,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1789,7 +1794,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1808,7 +1815,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
@@ -1828,7 +1837,9 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitRShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));

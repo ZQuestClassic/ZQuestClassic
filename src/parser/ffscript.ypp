@@ -122,6 +122,7 @@ extern YYLTYPE noloc;
 %token ZBOOL
 %token ZFLOAT
 %token ZCHAR
+%token ZLONG
 %token BITMAP
 %token CHEAT
 %token COMBO
@@ -219,6 +220,7 @@ extern YYLTYPE noloc;
 %token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
+%token LONGNUMBER
 %token SCRIPTSTRUCT
 
 %%
@@ -508,6 +510,7 @@ DataType : ZCONST DataType {
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
 	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
+	| ZLONG {$$ = new ASTDataType(DataType::LONG, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -1505,6 +1508,9 @@ Literal :
 	NUMBER {
 		ASTFloat* val = (ASTFloat*)$1;
 		$$ = new ASTNumberLiteral(val, @$);}
+	| LONGNUMBER {
+		ASTFloat* val = (ASTFloat*)$1;
+		$$ = new ASTLongNumberLiteral(val, @$);}
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
 		char val[15];
