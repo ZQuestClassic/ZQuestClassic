@@ -23595,6 +23595,7 @@ int run_script(const byte type, const word script, const long i)
 			case STRSTR: FFCore.do_strstr(); break;
 			case XTOA: FFCore.do_xtoa(); break;
 			case ITOA: FFCore.do_itoa(); break;
+			case ITOACAT: FFCore.do_itoacat(); break;
 			case STRCAT: FFCore.do_strcat(); break;
 			case STRSPN: FFCore.do_strspn(); break;
 			case STRCHR: FFCore.do_strchr(); break;
@@ -32298,6 +32299,43 @@ void FFScript::do_itoa()
 	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
+
+void FFScript::do_itoacat()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	double num = ri->d[1]/10000.0;
+	int pos = 0;
+	int ret = 0;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	if(num < 0)
+	{
+		strB[pos] = '-';
+		++ret;
+		num = -num;
+	}
+	else if(num == 0)
+	{
+		strB[pos] = '0';
+	}
+
+	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
+	for(int i = 0; i < digits; ++i)
+		strB[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
+	
+	string strC = strA + strB;
+	
+	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+}
+
 /*
 void FFScript::do_itoa()
 {

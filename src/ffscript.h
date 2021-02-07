@@ -629,6 +629,7 @@ void do_atoi2();
 void do_ilen2();
 void do_xlen2();
 void do_itoa();
+void do_itoacat();
 void do_xtoa();
 
 void do_tracebool(const bool v);
