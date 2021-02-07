@@ -32269,14 +32269,14 @@ void FFScript::do_itoa()
 	double num = ri->d[1]/10000.0;
 	
 	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
-	
+	zprint2("itoa_c, digits is: %f\n",digits);
 	int pos = 0;
 	int ret = 0;
 	string strA;
 	strA.resize((long)digits);
 	if(num < 0)
 	{
-		stra.resize((long)digits+1);
+		strA.resize((long)digits+1);
 		strA[pos] = '-';
 		++ret;
 		num = -num;
@@ -32312,6 +32312,7 @@ void FFScript::do_itoacat()
 	long arrayptr_a = ri->d[0]/10000;
 	double num = ri->d[1]/10000.0;
 	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
+	zprint2("itoacat, digits is: %f\n",digits);
 	int pos = 0;
 	int ret = 0;
 	string strA;
