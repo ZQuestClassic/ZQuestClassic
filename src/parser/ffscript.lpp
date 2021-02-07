@@ -114,6 +114,7 @@ bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
 char32		TOKEN( ZCHAR );
+long		TOKEN( ZLONG );
 bitmap		TOKEN( BITMAP );
 cheatdata		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );

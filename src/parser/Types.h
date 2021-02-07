@@ -78,6 +78,7 @@ namespace ZScript
 		ZVARTYPEID_FLOAT,
 		ZVARTYPEID_CHAR,
 		ZVARTYPEID_BOOL,
+		ZVARTYPEID_LONG,
 		ZVARTYPEID_PRIMITIVE_END,
 
 		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
@@ -135,6 +136,8 @@ namespace ZScript
 				return "INT";
 			case ZVARTYPEID_CHAR:
 				return "CHAR32";
+			case ZVARTYPEID_LONG:
+				return "LONG";
 			case ZVARTYPEID_BOOL:
 				return "BOOL";
 			case ZVARTYPEID_GAME:
@@ -232,6 +235,8 @@ namespace ZScript
 			return ZVARTYPEID_FLOAT;
 		else if(name == "CHAR32")
 			return ZVARTYPEID_CHAR;
+		else if(name == "LONG")
+			return ZVARTYPEID_LONG;
 		else if(name == "BOOL")
 			return ZVARTYPEID_BOOL;
 		else if(name == "GAME")
@@ -347,6 +352,7 @@ namespace ZScript
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
 		virtual bool isCustom() const {return false;}
+		virtual bool isLong() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
@@ -375,11 +381,13 @@ namespace ZScript
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
 		static DataTypeSimpleConst CCHAR;
+		static DataTypeSimpleConst CLONG;
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
 		static DataTypeSimple CHAR;
+		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
@@ -499,6 +507,7 @@ namespace ZScript
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZVARTYPEID_UNTYPED;}
 		virtual bool isVoid() const {return simpleId == ZVARTYPEID_VOID;}
+		virtual bool isLong() const {return simpleId == ZVARTYPEID_LONG;}
 
 		int getId() const {return simpleId;}
 
