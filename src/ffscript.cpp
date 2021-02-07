@@ -32267,11 +32267,16 @@ void FFScript::do_itoa()
 	
 	long arrayptr_a = ri->d[0]/10000;
 	double num = ri->d[1]/10000.0;
+	
+	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
+	
 	int pos = 0;
 	int ret = 0;
 	string strA;
+	strA.resize((long)digits);
 	if(num < 0)
 	{
+		stra.resize((long)digits+1);
 		strA[pos] = '-';
 		++ret;
 		num = -num;
@@ -32283,17 +32288,18 @@ void FFScript::do_itoa()
 		{
 			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
 			set_register(sarg1, 0);
-			return;
 		}
+		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+		return;
 	}
 
-	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
+	
 	for(int i = 0; i < digits; ++i)
 		strA[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
 	
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
-		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
+		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
 		set_register(sarg1, 0);
 	}
 	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
@@ -32305,13 +32311,16 @@ void FFScript::do_itoacat()
 	
 	long arrayptr_a = ri->d[0]/10000;
 	double num = ri->d[1]/10000.0;
+	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
 	int pos = 0;
 	int ret = 0;
 	string strA;
 	string strB;
+	strB.resize((long)digits);
 	FFCore.getString(arrayptr_a, strA);
 	if(num < 0)
 	{
+		strB.resize((long)digits+1);
 		strB[pos] = '-';
 		++ret;
 		num = -num;
@@ -32319,9 +32328,17 @@ void FFScript::do_itoacat()
 	else if(num == 0)
 	{
 		strB[pos] = '0';
+		string strC = strA + strB;
+		if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
+			set_register(sarg1, 0);
+		}
+		//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+		return;
 	}
 
-	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
 	for(int i = 0; i < digits; ++i)
 		strB[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
 	
