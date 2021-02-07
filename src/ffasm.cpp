@@ -968,6 +968,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
 	
 	{ "MODULEGETIC",             2,   0,   0,   0},
+	{ "ITOACAT",                1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

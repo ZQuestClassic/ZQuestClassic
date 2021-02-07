@@ -4995,7 +4995,12 @@ string Oxtoa::toString()
 
 string Oitoa::toString()
 {
-    return "ITOA " + getArgument()->toString();
+    return "ITOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string Oitoacat::toString()
+{
+    return "ITOACAT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OSaveGameStructs::toString()

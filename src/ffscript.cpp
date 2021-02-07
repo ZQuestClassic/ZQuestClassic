@@ -32247,6 +32247,58 @@ void FFScript::do_xlen2()
 	FFCore.getString(arrayptr_a, strA);
 	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
+
+int Log10(double temp)
+{
+	int ret = 0;
+	if(temp > 0)
+		ret = long(log10(temp) * 10000.0);
+	else if(temp == 0)
+	{
+		ret = -LONG_MAX;
+	}
+	else ret = 0;
+	return ret;
+}
+
+void FFScript::do_itoa()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	double num = ri->d[1]/10000.0;
+	int pos = 0;
+	int ret = 0;
+	string strA;
+	if(num < 0)
+	{
+		strA[pos] = '-';
+		++ret;
+		num = -num;
+	}
+	else if(num == 0)
+	{
+		strA[pos] = '0';
+		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+			set_register(sarg1, 0);
+			return;
+		}
+	}
+
+	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
+	for(int i = 0; i < digits; ++i)
+		strA[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
+	
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+}
+/*
 void FFScript::do_itoa()
 {
 	
@@ -32260,6 +32312,7 @@ void FFScript::do_itoa()
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
 	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
 }
+*/
 void FFScript::do_xtoa()
 {
 	//not implemented, xtoa not found

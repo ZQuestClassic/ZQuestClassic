@@ -8462,16 +8462,28 @@ namespace ZScript
 		}
 	};
 	
-	class Oitoa : public UnaryOpcode
+	class Oitoa : public BinaryOpcode
 	{
 	public:
-		Oitoa(Argument *A) : UnaryOpcode(A) {}
+		Oitoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new Oitoa(a->clone());
+			return new Oitoa(a->clone(),b->clone());
 		}
 	};
+	
+	class Oitoacat : public BinaryOpcode
+	{
+	public:
+		Oitoacat(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new Oitoacat(a->clone(),b->clone());
+		}
+	};
+	
 	class OSaveGameStructs : public BinaryOpcode
 	{
 	public:
