@@ -32341,7 +32341,7 @@ void FFScript::do_itoacat()
 	FFCore.getString(arrayptr_a, strA);
 	if(num < 0)
 	{
-		strA.resize(digits+1);
+		strB.resize(digits+1);
 		strB[pos] = '-';
 		++ret;
 		num = -num;
