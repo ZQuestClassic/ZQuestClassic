@@ -32262,21 +32262,36 @@ int Log10(double temp)
 	return ret;
 }
 
+int numDigits(long number)
+{
+	int digits = 0;
+	while (number) 
+	{
+		number /= 10;
+		digits++;
+	}
+	return digits;
+}
+
 void FFScript::do_itoa()
 {
+	long arrayptr_a = get_register(sarg1) / 10000;
+	long number = get_register(sarg2) / 10000;
 	
-	long arrayptr_a = ri->d[0]/10000;
-	double num = ri->d[1]/10000.0;
-	
-	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
-	zprint2("itoa_c, digits is: %f\n",digits);
+	zprint2("itoa_c arrayptr_a is: %d\n",arrayptr_a);
+	zprint2("itoa_c number is: %d\n",number);
+		
+	double num = number;
+	zprint2("itoa_c(), num is: %f\n", num);
+	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	zprint2("itoa_c, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
 	string strA;
-	strA.resize((long)digits);
+	strA.resize(digits);
 	if(num < 0)
 	{
-		strA.resize((long)digits+1);
+		strA.resize(digits+1);
 		strA[pos] = '-';
 		++ret;
 		num = -num;
@@ -32295,7 +32310,7 @@ void FFScript::do_itoa()
 
 	
 	for(int i = 0; i < digits; ++i)
-		strA[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
+		strA[pos + ret + i] = ((long)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
 	
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
@@ -32309,19 +32324,24 @@ void FFScript::do_itoa()
 void FFScript::do_itoacat()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	double num = ri->d[1]/10000.0;
-	double digits = floor((double)Log10(num) + 1); //long(log10(temp) * 10000.0)
-	zprint2("itoacat, digits is: %f\n",digits);
+	long arrayptr_a = get_register(sarg1) / 10000;
+	long number = get_register(sarg2) / 10000;
+	
+	zprint2("itoacat arrayptr_a is: %d\n",arrayptr_a);
+	zprint2("itoacat number is: %d\n",number);
+		
+	double num = number;
+	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	zprint2("itoacat, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
 	string strA;
 	string strB;
-	strB.resize((long)digits);
+	strB.resize(digits);
 	FFCore.getString(arrayptr_a, strA);
 	if(num < 0)
 	{
-		strB.resize((long)digits+1);
+		strB.resize(digits+1);
 		strB[pos] = '-';
 		++ret;
 		num = -num;
@@ -32335,22 +32355,21 @@ void FFScript::do_itoacat()
 			Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
 			set_register(sarg1, 0);
 		}
-		//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
 		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 		return;
 	}
 
+	
 	for(int i = 0; i < digits; ++i)
-		strB[pos + ret + i] = ((long)floor((double)(num / pow(10, digits - i - 1))) % 10) + '0';
+		strB[pos + ret + i] = ((long)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
 	
 	string strC = strA + strB;
-	
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'itoacat()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	//set_register(sarg1, (strcat((char)strB.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 

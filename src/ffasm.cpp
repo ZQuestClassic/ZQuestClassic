@@ -819,7 +819,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STRCSPN",                1,   0,   0,   0},
 	{ "STRSTR",                1,   0,   0,   0},
 	{ "XTOA",                1,   0,   0,   0},
-	{ "ITOA",                1,   0,   0,   0},
+	{ "ITOA",                2,   0,   0,   0},
 	{ "STRCAT",                1,   0,   0,   0},
 	{ "STRSPN",                1,   0,   0,   0},
 	{ "STRCHR",                1,   0,   0,   0},
@@ -968,7 +968,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
 	
 	{ "MODULEGETIC",             2,   0,   0,   0},
-	{ "ITOACAT",                1,   0,   0,   0},
+	{ "ITOACAT",                2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

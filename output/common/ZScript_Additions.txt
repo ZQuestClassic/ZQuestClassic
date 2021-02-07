@@ -2523,6 +2523,10 @@ int itoa(dest_string[], int value);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
 
+int itoacat(dest_string[], int value);
+ * Appends value into a string as char, combining itoa() with strcat().
+ * Returns the number of characters used in the conversion. 
+
 int strcmp(string_a[], string_b[]);
  * Iterates through string_a and string_b until a character is found which is not the same in
  * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
