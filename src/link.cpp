@@ -11054,7 +11054,7 @@ void LinkClass::movelink()
 						{
 							info = walkflag(x,(bigHitbox?0:8)+(y-link_newstep),2,up);
 							
-							if(x.getInt() & 7)
+							if(x.getFloor() & 7)
 								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-link_newstep),1,up);
 							else if(blockmoving)
 								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-link_newstep));
@@ -11065,7 +11065,7 @@ void LinkClass::movelink()
 							{
 								if(y != y.getInt())
 								{
-									y = floor((double)y);
+									y.doFloor();
 								}
 								else if(link_newstep > 1)
 								{
@@ -11101,12 +11101,12 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x = floor((double)x);
+										x.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11122,12 +11122,12 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x = floor((double)x);
+												x.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11154,12 +11154,12 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x = floor((double)x);
+										x.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11175,12 +11175,12 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x = floor((double)x);
+												x.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11276,7 +11276,7 @@ void LinkClass::movelink()
 						{
 							info = walkflag(x,15+(y+link_newstep),2,down);
 							
-							if(x.getInt() & 7)
+							if(x.getFloor() & 7)
 								info = info || walkflag(x+16,15+(y+link_newstep),1,down);
 							else if(blockmoving)
 								info = info || walkflagMBlock(x+16, 15+(y+link_newstep));
@@ -11287,7 +11287,7 @@ void LinkClass::movelink()
 							{
 								if(y != y.getInt())
 								{
-									y = floor((double)y);
+									y.doFloor();
 								}
 								else if(link_newstep > 1)
 								{
@@ -11323,12 +11323,12 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x = floor((double)x);
+										x.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11344,12 +11344,12 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x = floor((double)x);
+												x.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11376,12 +11376,12 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x = floor((double)x);
+										x.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11397,12 +11397,12 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x = floor((double)x);
+												x.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11488,7 +11488,7 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x-link_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep,y+8,1,left);
 						
-						if(y.getInt() & 7)
+						if(y.getFloor() & 7)
 							info = info || walkflag(x-link_newstep,y+16,1,left);
 							
 						execute(info);
@@ -11497,7 +11497,7 @@ void LinkClass::movelink()
 						{
 							if(x != x.getInt())
 							{
-								x = floor((double)x);
+								x.doFloor();
 							}
 							else if(link_newstep > 1)
 							{
@@ -11532,12 +11532,12 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y = floor((double)y);
+										y.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11553,12 +11553,12 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y = floor((double)y);
+												y.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11585,12 +11585,12 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y = floor((double)y);
+										y.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11606,12 +11606,12 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y = floor((double)y);
+												y.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11704,7 +11704,7 @@ void LinkClass::movelink()
 					{
 						info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep,y+8,1,right);;
 						
-						if(y.getInt() & 7)
+						if(y.getFloor() & 7)
 							info = info || walkflag(x+15+link_newstep,y+16,1,right);
 							
 						execute(info);
@@ -11713,7 +11713,7 @@ void LinkClass::movelink()
 						{
 							if(x != x.getInt())
 							{
-								x = floor((double)x);
+								x.doFloor();
 							}
 							else if(link_newstep > 1)
 							{
@@ -11748,12 +11748,12 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y = floor((double)y);
+										y.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11769,12 +11769,12 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y = floor((double)y);
+												y.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -11801,12 +11801,12 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y = floor((double)y);
+										y.doFloor();
 									}
 									else if(link_newstep_diag > 1)
 									{
-										if(link_newstep_diag != int(link_newstep_diag)) //floor
-											link_newstep_diag = floor((double)link_newstep_diag);
+										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+											link_newstep_diag.doFloor();
 										else --link_newstep_diag;
 									}
 									else
@@ -11822,12 +11822,12 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y = floor((double)y);
+												y.doFloor();
 											}
 											else if(link_newstep_diag > 1)
 											{
-												if(link_newstep_diag != int(link_newstep_diag)) //floor
-													link_newstep_diag = floor((double)link_newstep_diag);
+												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
+													link_newstep_diag.doFloor();
 												else --link_newstep_diag;
 											}
 											else
@@ -14124,7 +14124,7 @@ void LinkClass::moveOld(int d2)
 
 LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int cnt,byte d2)
 {
-	return walkflag(int(floor(double(fx))), int(floor(double(fy))), cnt, d2);
+	return walkflag(fx.getInt(), fy.getInt(), cnt, d2);
 }
 LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 {
@@ -20712,10 +20712,16 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
     
-    if((DMaps[currdmap].type&dmfTYPE)==dmCAVE)
-        markBmap(scrolldir);
-        
-        
+	switch(DMaps[currdmap].type&dmfTYPE)
+	{
+		case dmOVERW: case dmBSOVERW:
+			if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+				break;
+		case dmCAVE:
+			markBmap(scrolldir);
+			break;
+	}
+	
     if(fixed_door)
     {
         unsetmapflag(mSECRET);

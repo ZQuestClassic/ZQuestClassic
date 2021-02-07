@@ -302,7 +302,7 @@ void markBmap(int dir, int sc)
     
     byte drow = DMaps[get_currdmap()].grid[sc>>4];
     byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
-    int di = ((get_currdmap()-1)<<6) + ((sc>>4)<<3) + ((sc&15)-DMaps[get_currdmap()].xoff);
+    int di = (get_currdmap() << 7) + (sc & 0x70) + ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int code = 0;
     
     
@@ -326,7 +326,8 @@ void markBmap(int dir, int sc)
         break;
         
     case dmOVERW:
-        break;
+		if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+			break;
         
     default:
         game->bmaps[di] |= 128;

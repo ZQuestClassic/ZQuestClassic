@@ -3138,8 +3138,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 54) )
 	{
-		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
 		set_bit(quest_rules, qr_BROKEN_RING_POWER, 1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 56) )
+	{
+		set_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING, 1);
 	}
 	
     if ( tempheader.zelda_version < 0x254 )

@@ -5266,6 +5266,15 @@ untyped MapInitD[8];
  * The eight script args for the scripted map that runs
  * on this DMap.
 
+int Charted[128];
+ * Stores map exploration data for each screen on the DMap.
+ * Does not work on overworld dmaps at present.
+ * Data is stored bitwise, using the 'CHRT_' constants in std_constants.zh
+ *     Ex: To read visited state, use 'dm->Charted[scr] & CHRT_VISITED'
+ * If the screen value is off the edge of the dmap, it will return '-1'.
+ * If the screen values is >127 or the dmapref is invalid,
+ *     an error will be logged, and it will return '-1'.
+
 	
 void SetName(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
