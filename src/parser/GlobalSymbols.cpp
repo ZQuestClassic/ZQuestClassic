@@ -1723,7 +1723,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new Oitoacat(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new Oitoa(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
