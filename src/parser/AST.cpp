@@ -166,7 +166,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 	bool is_long = false;
 	switch(type)
 	{
-		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX:
+		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX: case TYPE_L_OCTAL:
 			is_long = true;
 			break;
 	}
@@ -255,7 +255,51 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			if(is_long)
 			{
 				sprintf(temp, "%ld", val2 / 10000L);
-				sprintf(temp2, "%ld", val2 % 10000L);
+				sprintf(temp2, "%04ld", val2 % 10000L);
+				intpart = temp;
+				fpart = temp2;
+			}
+			else
+			{
+				sprintf(temp, "%ld", val2);
+				intpart = temp;
+				fpart = "";
+			}
+			break;
+		}
+
+		case TYPE_L_OCTAL:
+		case TYPE_OCTAL:
+		{
+			if(is_long)
+			{
+				// Trim off the "oL".
+				f = f.substr(0,f.size()-2);
+			}
+			else
+			{
+				// Trim off the "o".
+				f = f.substr(0,f.size()-1);
+			}
+			// Parse the octal.
+			long val2=0;
+		
+			for(unsigned int i=0; i<f.size(); i++)
+			{
+				char d = f.at(i);
+				val2*=8;
+
+				val2+=(d-'0');
+			}
+		
+			if(negative && val2 > 0) val2 *= -1;
+
+			char temp[60];
+			char temp2[60];
+			if(is_long)
+			{
+				sprintf(temp, "%ld", val2 / 10000L);
+				sprintf(temp2, "%04ld", val2 % 10000L);
 				intpart = temp;
 				fpart = temp2;
 			}

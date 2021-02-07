@@ -467,6 +467,15 @@ appx_equal	TOKEN( APPXEQUAL );
 [0-1]+bL			{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
 }
+[0-7]+o 		{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );
+}
+[0-7]+oL 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
+}
+[0-7]+Lo 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
+}
 
  /* Char */
 \'[^\']?\' {
