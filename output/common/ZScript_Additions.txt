@@ -2963,6 +2963,10 @@ int ZScriptVersion;
  * to read and store the correct/current version, and temporarily 
  * modify it during the execution of --that script--, restoring it thereafter.
 
+long Time;
+ * Represents the current game time as a 'long', wherein '1L == 1 frame' of the game clock.
+ * Only change from 2.50.2 is that the type is now 'long'
+
 bool DisableActiveSubscreen;		
  * If set true, the active subscreen will not fall into view when the player presses Start.
 
