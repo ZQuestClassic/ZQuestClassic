@@ -32262,22 +32262,15 @@ int Log10(double temp)
 	return ret;
 }
 
-int numDigits(int number)
+int numDigits(long number)
 {
-   	int digits = 0;
-	bool neg = false;
-	if (number < 0) 
-	{
-		neg = true; 
-		number *= -1;
-	}
+	int digits = 0;
 	while (number) 
 	{
 		number /= 10;
 		digits++;
 	}
-    
-	return digits+(neg?1:0);
+	return digits;
 }
 
 void FFScript::do_itoa()
@@ -32298,6 +32291,7 @@ void FFScript::do_itoa()
 	strA.resize(digits);
 	if(num < 0)
 	{
+		strA.resize(digits+1);
 		strA[pos] = '-';
 		++ret;
 		num = -num;
@@ -32347,6 +32341,7 @@ void FFScript::do_itoacat()
 	FFCore.getString(arrayptr_a, strA);
 	if(num < 0)
 	{
+		strA.resize(digits+1);
 		strB[pos] = '-';
 		++ret;
 		num = -num;
