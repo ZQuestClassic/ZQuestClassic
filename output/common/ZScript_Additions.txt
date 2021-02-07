@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 89
-Document Revision: 4th February, 2021
+Document Revision: 7th February, 2021
 
 
  __           _   _                 
@@ -2519,7 +2519,7 @@ int ilen(string[]);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
 
-int itoa(int value, dest_string[]);
+int itoa(dest_string[], int value);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
 
