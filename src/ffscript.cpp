@@ -9739,7 +9739,7 @@ long get_register(const long arg)
 			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((ri->comboposref)%16*16) ) * 10000); //comboscriptstack[i]
+				ret = (( COMBOX(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
 				//this may be wrong...may need a special new var for this, storing the exact combopos
 				//i is the current script number
 			}
@@ -9755,11 +9755,11 @@ long get_register(const long arg)
 		{
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((ri->comboposref)&0xF0) ) * 10000); //comboscriptstack[i]
+				ret = (( COMBOY(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
-				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->Y() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -17416,7 +17416,9 @@ void set_register(const long arg, const long value)
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
-
+	
+	
+		
 
 
 		//COMBOCLASS STRUCT
@@ -39348,7 +39350,7 @@ int FFScript::getCombodataPos(int c, int scripttype)
 {
 	if ( scripttype != SCRIPT_COMBO )
 	{
-		Z_scripterrlog("combodata->YPos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Pos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
 		return -1;
 	}
 	else return ((c%176));
