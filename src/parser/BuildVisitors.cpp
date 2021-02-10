@@ -1816,8 +1816,7 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
 	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || host.left.get()->isLong(scope, this)
-	   || host.right.get()->isLong(scope, this))
+	   || host.left.get()->isLong(scope, this))
 		addOpcode(new O32BitLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
@@ -1838,8 +1837,7 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
 	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || host.left.get()->isLong(scope, this)
-	   || host.right.get()->isLong(scope, this))
+	   || host.left.get()->isLong(scope, this))
 		addOpcode(new O32BitRShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
