@@ -1266,7 +1266,9 @@
 #define PADDINGR8			1189
 #define PADDINGR9			1190
 
-#define LAST_BYTECODE 		1191
+#define NPCFRAME			1191
+
+#define LAST_BYTECODE 		1192
 
 //} END OF BYTECODE
 

@@ -2171,6 +2171,8 @@ script_variable variable_list[]=
 	{ "PADDINGR7", PADDINGR7, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	
+	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -5085,6 +5085,14 @@ long get_register(const long arg)
 				
 			break;
 			
+		case NPCFRAME:
+			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (GuyH::getNPC()->clk * 10000);
+				
+			break;
+			
 		case NPCMOVESTATUS:
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
 				ret = -10000;
@@ -13610,6 +13618,12 @@ void set_register(const long arg, const long value)
 			
 		case NPCHALTCLK:
 			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
+				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+				
+			break;
+			
+		case NPCFRAME:
+			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
 				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
 				
 			break;
@@ -34662,6 +34676,7 @@ script_variable ZASMVars[]=
 	{ "PADDINGR7", PADDINGR7, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 89
-Document Revision: 7th February, 2021
+Document Revision: 10th February, 2021
 
 
  __           _   _                 
@@ -4102,6 +4102,9 @@ int AClock
 /////////////	
 	
 							// NPC
+int Frame;
+ * The current frame of the npc's animation.
+ 
 int Fading;
  * The death effect for the npc. Use the enum NPCFadeType in std_constants.
  

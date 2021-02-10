@@ -1875,6 +1875,7 @@ string ZScript::VarToString(long ID)
 	case TANGOARR: return "TANGOARR";
 	case NPCHALTCLK: return "NPCHALTCLK";
 	case NPCMOVESTATUS: return "NPCMOVESTATUS";
+	case NPCFRAME: return "NPCFRAME";
 	
 	
 	default:
