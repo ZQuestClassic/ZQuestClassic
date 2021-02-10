@@ -6308,15 +6308,26 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	
 	BITMAP *destBMP=NULL;
-	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//zprint2("mode 7 bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
-		case -1:
-			destBMP = framebuf; //Drawing to the screen.
-			break;
 		case -2:
-			destBMP = bmp; //Drawing to the current RenderTarget.
+		{
+			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			//zprint2("current RT is: %d\n", curr_rt);
+			if ( curr_rt >= 0 && curr_rt < 7 ) 
+				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
+			else destBMP = bmp; //screen
 			break;
+		}
+		case -1:
+			destBMP = bmp; //this is framebuf, by default
+			break;
+			//zscriptDrawingRenderTarget->SetCurrentRenderTarget(bitmapIndex);
+			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+			//destBMP = framebuf; //Drawing to the screen.
+			//break;
+		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6327,12 +6338,17 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		case 6: 
 		{
 			//This gets a render target.
-		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			
+			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			//sdci[18] = bitmapIndex;
+			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			//sdci[18] = usr_bitmap_index;
 			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
 			{
 				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
@@ -6515,7 +6531,6 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	*/
 	
-
 	int bitmapIndex = sdci[2]/10000;
 	int usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
@@ -6578,21 +6593,33 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	if(!sourceBitmap)
 	{
+		
 		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
 	
 	BITMAP *destBMP=NULL;
-	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//zprint2("blit () bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
-		case -1:
-			destBMP = framebuf; //Drawing to the screen.
-			break;
 		case -2:
-			destBMP = bmp; //Drawing to the current RenderTarget.
+		{
+			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			//zprint2("current RT is: %d\n", curr_rt);
+			if ( curr_rt >= 0 && curr_rt < 7 ) 
+				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
+			else destBMP = bmp; //screen
 			break;
+		}
+		case -1:
+			destBMP = bmp; //this is framebuf, by default
+			break;
+			//zscriptDrawingRenderTarget->SetCurrentRenderTarget(bitmapIndex);
+			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+			//destBMP = framebuf; //Drawing to the screen.
+			//break;
+		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6603,12 +6630,17 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		case 6: 
 		{
 			//This gets a render target.
-		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			
+			//destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			//sdci[18] = bitmapIndex;
+			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			//sdci[18] = usr_bitmap_index;
 			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
 			{
 				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
@@ -6627,6 +6659,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	if (!destBMP)
 	{
+		
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
@@ -6680,6 +6713,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         
 		if(!subBmp)
 		{
+			
 			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 			return;
 		}
@@ -6826,6 +6860,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 					
 					
@@ -6964,6 +6999,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					break;
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 				
 				}
@@ -7107,6 +7143,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 					
 					
@@ -7244,6 +7281,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					break;
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 				
 				}
@@ -7390,6 +7428,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 					
 					
@@ -7526,6 +7565,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					break;
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 				
 				}
@@ -7668,6 +7708,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 					
 					
@@ -7805,6 +7846,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					break;
 					
 					default:
+						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
 				
 				}
@@ -7945,15 +7987,27 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	
 	BITMAP *destBMP=NULL;
-	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//zprint2("RevBlit bitmap index is: %d\n",bitmapIndex);
+	
 	switch(bitmapIndex)
 	{
-		case -1:
-			destBMP = framebuf; //Drawing to the screen.
-			break;
 		case -2:
-			destBMP = bmp; //Drawing to the current RenderTarget.
+		{
+			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			//zprint2("current RT is: %d\n", curr_rt);
+			if ( curr_rt >= 0 && curr_rt < 7 ) 
+				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
+			else destBMP = bmp; //screen
 			break;
+		}
+		case -1:
+			destBMP = bmp; //this is framebuf, by default
+			break;
+			//zscriptDrawingRenderTarget->SetCurrentRenderTarget(bitmapIndex);
+			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+			//destBMP = framebuf; //Drawing to the screen.
+			//break;
+		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -7964,12 +8018,17 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		case 6: 
 		{
 			//This gets a render target.
-		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+			
+			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			//sdci[18] = bitmapIndex;
+			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: 
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			//sdci[18] = usr_bitmap_index;
 			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
 			{
 				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
