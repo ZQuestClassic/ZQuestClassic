@@ -969,6 +969,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "MODULEGETIC",             2,   0,   0,   0},
 	{ "ITOACAT",                2,   0,   0,   0},
+	
+	{ "FRAMER",                0,   0,   0,   0},
+	{ "BMPFRAMER",                0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

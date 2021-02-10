@@ -3703,6 +3703,16 @@ namespace ZScript
 		}
 	};
 
+	class OFrameRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFrameRegister();
+		}
+	};
+
 	class OCircleRegister : public Opcode
 	{
 	public:
@@ -7780,6 +7790,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPRectangleRegister();
+		}
+	};
+	class OBMPFrameRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPFrameRegister();
 		}
 	};
 	
