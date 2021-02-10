@@ -35100,8 +35100,8 @@ string zs_sprintf(char const* format, int num_args)
 						{
 							char argbuf[32] = {0};
 							if(min_digits)
-								sprintf(argbuf,mindigbuf,arg_val / 10000);
-							else zc_itoa(arg_val / 10000, argbuf);
+								sprintf(argbuf,mindigbuf,abs(arg_val / 10000));
+							else zc_itoa(abs(arg_val / 10000), argbuf);
 							int inx = 0; for( ; argbuf[inx]; ++inx );
 							argbuf[inx++] = '.';
 							argbuf[inx++] = '0' + abs( ( (arg_val / 1000) % 10 ) );
@@ -35114,7 +35114,9 @@ string zs_sprintf(char const* format, int num_args)
 								else break;
 							}
 							++next_arg;
-							oss << buf << argbuf;
+							char buf2[32] = {0};
+							sprintf(buf2, "%s%s", arg_val < 0 ? "-" : "", argbuf);
+							oss << buf << buf2;
 							q = 300; //break main loop
 							break;
 						}
