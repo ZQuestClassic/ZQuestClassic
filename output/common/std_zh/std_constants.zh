@@ -1,5 +1,5 @@
 // std_constants.zh
-// 10th February, 2021 for ZC 2.55.0 Alpha 89
+// 6th February, 2021 for ZC 2.55.0 Alpha 89
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -876,7 +876,7 @@ const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
 const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
 const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
 const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and start returning to Link.
+                                      // make it 'bounce off' and begin returning to Link.
 
 
 ////////////////////
@@ -1759,7 +1759,7 @@ const int OP_TRANS              = 64;
 const int OP_OPAQUE             = 128;
 
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
-const int RT_CURRENT		= -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
+const int RT_CURRENT            = -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
 const int RT_SCREEN             = -1; // draws to screen
 const int RT_BITMAP0            = 0; // draws to off-screen bitmap 0
 const int RT_BITMAP1            = 1; // draws to off-screen bitmap 1
@@ -3095,6 +3095,12 @@ enum NPCMoveFlag
 	NPCMV_CAN_PITFALL,
 	NPCMV_CAN_PIT_WALK
 };
+
+define CHRT_VISITED = 10000000b;
+define CHRT_UP =      00000001b;
+define CHRT_DOWN =    00000010b;
+define CHRT_LEFT =    00000100b;
+define CHRT_RIGHT =   00001000b;
 
 // "special" walk flags
 enum NPCWalkType
