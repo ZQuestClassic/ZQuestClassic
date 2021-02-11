@@ -20419,17 +20419,17 @@ int onHeader()
         
         header_dlg[0].h-=18;
 	
-	header_dlg[4].flags |= D_DISABLED;
-	header_dlg[5].flags |= D_DISABLED;
+	//header_dlg[4].flags |= D_DISABLED;
+	//header_dlg[5].flags |= D_DISABLED;
         //header_dlg[4].proc=d_dummy_proc;
         //header_dlg[5].proc=d_dummy_proc;
     }
     
-    if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-    {
-	header_dlg[4].flags &= ~D_DISABLED;
-	header_dlg[5].flags &= ~D_DISABLED;    
-    }
+    //if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
+    //{
+	//header_dlg[4].flags &= ~D_DISABLED;
+	//header_dlg[5].flags &= ~D_DISABLED;    
+    //}
     
     jwin_center_dialog(header_dlg);
     
