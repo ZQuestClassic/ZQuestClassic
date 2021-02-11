@@ -3560,6 +3560,15 @@ void Polygon(int layer, int num_points, int vertices[], int colour, int transpar
 	ZASM: POLYGON
  * Draws a polygon to the screen, with a number of points specified as int points,
  * with vertices supplied as an array. 
+ 
+void DrawFrame(int layer,
+			int x, int y, int tile, int cset,
+			int width, int height, bool overlay,
+			int opacity);
+ * Draws a frame using a 2x2 block of tiles, where the upper-left corner of which is the 'tile' value
+ * This works based on how the engine subscreen frame object works, stretching the frame from those tiles
+ *     to whatever size you specify.
+ * Width/height are in 8-pixel increments; ex. 4,4 would give a 2x2 tile block; 8,8 would give a 4x4.
 
 int Valid;
  * ?
@@ -6781,6 +6790,12 @@ void DrawLayer(int layer,
 			int source_map, int source_screen, int source_layer, 
 			int x, int y, float rotation, int opacity);
  * Identical to Screen->DrawLayer(), but it draws to a target bitmap.
+ 
+void DrawFrame(int layer,
+			int x, int y, int tile, int cset,
+			int width, int height, bool overlay,
+			int opacity);
+ * Identical to Screen->DrawFrame(), but it draws to a target bitmap.
 
 Quad( int layer, 
 	int x1, int y1, int x2, int y2, 

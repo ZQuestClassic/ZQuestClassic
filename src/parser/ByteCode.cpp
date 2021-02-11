@@ -2830,6 +2830,11 @@ string ORectangleRegister::toString()
     return "RECT";
 }
 
+string OFrameRegister::toString()
+{
+    return "FRAMER";
+}
+
 string OCircleRegister::toString()
 {
     return "CIRCLE";
@@ -4544,6 +4549,11 @@ string OMonoHueR::toString()
 string OBMPRectangleRegister::toString()
 {
     return "BMPRECTR";
+}
+
+string OBMPFrameRegister::toString()
+{
+    return "BMPFRAMER";
 }
 
 string OBMPCircleRegister::toString()

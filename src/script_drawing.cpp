@@ -522,6 +522,31 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
+void do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=x
+    //sdci[3]=y
+    //sdci[4]=tile
+    //sdci[5]=cset
+    //sdci[6]=width
+    //sdci[7]=height
+    //sdci[8]=overlay
+    //sdci[9]=opacity
+    
+    int x=sdci[2]/10000;
+    int y=sdci[3]/10000;
+    
+    int tile=sdci[4]/10000;
+    int cs=sdci[5]/10000;
+    int w=sdci[6]/10000;
+    int h=sdci[7]/10000;
+    bool overlay=sdci[8];
+    bool trans=(sdci[9]/10000<=127);
+    
+	frame2x2(bmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+}
+
 
 
 void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
@@ -4106,6 +4131,40 @@ void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
+void bmp_do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=x
+    //sdci[3]=y
+    //sdci[4]=tile
+    //sdci[5]=cset
+    //sdci[6]=width
+    //sdci[7]=height
+    //sdci[8]=overlay
+    //sdci[9]=opacity
+
+	if ( sdci[17] <= 0 ) 
+	{
+		Z_scripterrlog("bitmap->DrawFrame() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
+
+    int x=sdci[2]/10000;
+    int y=sdci[3]/10000;
+    
+    int tile=sdci[4]/10000;
+    int cs=sdci[5]/10000;
+    int w=sdci[6]/10000;
+    int h=sdci[7]/10000;
+    bool overlay=sdci[8];
+    bool trans=(sdci[9]/10000<=127);
+    
+	frame2x2(refbmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+}
 
 
 void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
@@ -10771,6 +10830,11 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
             do_rectr(bmp, sdci, xoffset, yoffset);
         }
         break;
+        case FRAMER:
+        {
+            do_framer(bmp, sdci, xoffset, yoffset);
+        }
+        break;
 	
         
         case CIRCLER:
@@ -10954,6 +11018,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
         break;
 	
 	case 	BMPRECTR: bmp_do_rectr(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPFRAMER: bmp_do_framer(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPCIRCLER: bmp_do_circler(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPARCR: bmp_do_arcr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPELLIPSER: bmp_do_ellipser(bmp, sdci, xoffset, yoffset); break;

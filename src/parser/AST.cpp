@@ -164,6 +164,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 	string intpart;
 	string fpart;
 	bool is_long = false;
+	bool neg = negative;
 	switch(type)
 	{
 		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX: case TYPE_L_OCTAL:
@@ -194,7 +195,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				fpart = "";
 			}
 
-			if(negative) intpart = "-" + intpart;
+			if(neg) intpart = "-" + intpart;
 
 			break;
 		}
@@ -203,6 +204,11 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 		{
 			// Trim off the "L".
 			f = f.substr(0,f.size()-1);
+			if(f.at(0) == '-')
+			{
+				neg = !neg;
+				f = f.substr(1, f.size()-1);
+			}
 			//Add leading zero's up to the decimal place
 			while(f.size() < 4)
 				f = "0" + f;
@@ -216,6 +222,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				intpart = f.substr(0, f.size()-4);
 				fpart = f.substr(f.size()-4, 4);
 			}
+			if(neg) intpart = "-" + intpart;
 			break;
 		}
 		
@@ -248,15 +255,16 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 					val2+=(10+d-'a');
 			}
 		
-			if(negative && val2 > 0) val2 *= -1;
+			if(neg && val2 > 0) val2 *= -1;
 
 			char temp[60];
 			char temp2[60];
 			if(is_long)
 			{
-				sprintf(temp, "%ld", val2 / 10000L);
-				sprintf(temp2, "%04ld", val2 % 10000L);
+				sprintf(temp, "%ld", abs(val2 / 10000L));
+				sprintf(temp2, "%04ld", abs(val2 % 10000L));
 				intpart = temp;
+				if(val2 < 0) intpart = "-" + intpart;
 				fpart = temp2;
 			}
 			else
@@ -292,15 +300,16 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				val2+=(d-'0');
 			}
 		
-			if(negative && val2 > 0) val2 *= -1;
+			if(neg && val2 > 0) val2 *= -1;
 
 			char temp[60];
 			char temp2[60];
 			if(is_long)
 			{
-				sprintf(temp, "%ld", val2 / 10000L);
-				sprintf(temp2, "%04ld", val2 % 10000L);
+				sprintf(temp, "%ld", abs(val2 / 10000L));
+				sprintf(temp2, "%04ld", abs(val2 % 10000L));
 				intpart = temp;
+				if(val2 < 0) intpart = "-" + intpart;
 				fpart = temp2;
 			}
 			else
@@ -326,21 +335,40 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				f = f.substr(0,f.size()-1);
 			}
 			long val2=0;
+			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			{
+				if(f.size() > 32)
+				{
+					f = f.substr(f.size() - 32, 32);
+				}
+				if(f.size() == 32)
+				{
+					/*if(f.find_first_of('0') == string::npos)
+					{
+						val2 = -1;
+						goto parselong_skipbinary;
+					}*/
+				}
+			}
+			else if(f.size() > 18)
+			{
+				f = f.substr(f.size() - 18, 18);
+			}
 			
 			for(unsigned int i=0; i<f.size(); i++)
 			{
-				char b = f.at(i);
 				val2<<=1;
-				val2+=b-'0';
+				if(f.at(i) == '1') val2 |= 1;
 			}
 
-			if(negative && val2 > 0) val2 *= -1;
+			if(neg && val2 > 0) val2 *= -1;
 
 			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
 			{
 				char temp[60];
-				sprintf(temp, "%ld", val2/10000);
+				sprintf(temp, "%ld", abs(val2/10000));
 				intpart = temp;
+				if(val2 < 0) intpart = "-" + intpart;
 				sprintf(temp, "%04ld", abs(val2%10000));
 				fpart = temp;
 			}
@@ -2031,7 +2059,7 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 
 void ASTNumberLiteral::negate()
 {
-	if(value) value.get()->negative = true;
+	if(value) value.get()->negative = !(value.get()->negative);
 }
 
 // ASTLongNumberLiteral

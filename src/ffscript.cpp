@@ -20668,6 +20668,10 @@ void do_drawing_command(const int script_command)
 		set_drawing_command_args(j, 12);
 		break;
 		
+	case FRAMER:
+		set_drawing_command_args(j, 9);
+		break;
+		
 	case CIRCLER:
 		set_drawing_command_args(j, 11);
 		break;
@@ -20981,9 +20985,16 @@ void do_drawing_command(const int script_command)
 	break;
 	
 	case BMPRECTR:	
-		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
+		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);
 		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
-		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
+		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12.
+		break;
+	
+	case BMPFRAMER:	
+		set_user_bitmap_command_args(j, 9);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+		break;
+		
 	case CLEARBITMAP:	
 	{
 		set_user_bitmap_command_args(j, 1);
@@ -24620,6 +24631,7 @@ int run_script(const byte type, const word script, const long i)
 			case DRAWLAYERR:
 			case DRAWSCREENR:
 			case POLYGONR:
+			case FRAMER:
 				do_drawing_command(scommand);
 				break;
 			
@@ -24663,6 +24675,7 @@ int run_script(const byte type, const word script, const long i)
 			case WRITEBITMAP:
 			case CLEARBITMAP:
 			case BITMAPCLEARTOCOLOR:
+			case BMPFRAMER:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -33483,6 +33496,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DRAWSTRINGR2",		       0,   0,   0,   0},
 	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
 	
+	{ "MODULEGETIC",             2,   0,   0,   0},
+	{ "ITOACAT",                2,   0,   0,   0},
+	
+	{ "FRAMER",                0,   0,   0,   0},
+	{ "BMPFRAMER",                0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35082,8 +35100,8 @@ string zs_sprintf(char const* format, int num_args)
 						{
 							char argbuf[32] = {0};
 							if(min_digits)
-								sprintf(argbuf,mindigbuf,arg_val / 10000);
-							else zc_itoa(arg_val / 10000, argbuf);
+								sprintf(argbuf,mindigbuf,abs(arg_val / 10000));
+							else zc_itoa(abs(arg_val / 10000), argbuf);
 							int inx = 0; for( ; argbuf[inx]; ++inx );
 							argbuf[inx++] = '.';
 							argbuf[inx++] = '0' + abs( ( (arg_val / 1000) % 10 ) );
@@ -35096,7 +35114,9 @@ string zs_sprintf(char const* format, int num_args)
 								else break;
 							}
 							++next_arg;
-							oss << buf << argbuf;
+							char buf2[32] = {0};
+							sprintf(buf2, "%s%s", arg_val < 0 ? "-" : "", argbuf);
+							oss << buf << buf2;
 							q = 300; //break main loop
 							break;
 						}

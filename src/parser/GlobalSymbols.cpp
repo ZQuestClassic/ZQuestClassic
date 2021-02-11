@@ -2775,6 +2775,8 @@ static AccessorTable ScreenTable[] =
 	{ "LoadLWeaponByUID",                      ZVARTYPEID_LWPN,           FUNCTION,     0,                                1,            FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadEWeaponByUID",                      ZVARTYPEID_EWPN,           FUNCTION,     0,                                1,            FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           {  ZVARTYPEID_SCREEN,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
 	
 	
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -3031,6 +3033,20 @@ void ScreenSymbols::generateCode()
         
         function->giveCode(code);
     }
+	//void DrawFrame(screen, float, float, float, float, float, float, float, bool, float)
+	{
+		Function* function = getFunction("DrawFrame", 10);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OFrameRegister());
+		LABELBACK(label);
+		POP_ARGS(9, NUL);
+		//pop pointer, and ignore it
+        POPREF();
+		RETURN();
+        
+		function->giveCode(code);
+	}
     //void Circle(screen, float, float, float, float, float, float, float, float, float, bool, float)
     {
 	    Function* function = getFunction("Circle", 12);
@@ -8589,6 +8605,7 @@ static AccessorTable BitmapTable[] =
 	{ "Polygon",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    6,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
 	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_BITMAP,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -8642,6 +8659,20 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OBMPRectangleRegister());
 		LABELBACK(label);
 		POP_ARGS(12, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		RETURN();
+        
+		function->giveCode(code);
+	}
+	//void DrawFrame(bitmap, float, float, float, float, float, float, float, bool, float)
+	{
+		Function* function = getFunction("DrawFrame", 10);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBMPFrameRegister());
+		LABELBACK(label);
+		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
