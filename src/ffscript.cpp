@@ -15137,7 +15137,17 @@ void set_register(const long arg, const long value)
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
-		case SCREENDATAOCEANSFX:	 	SET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+		case SCREENDATAOCEANSFX:
+		{
+			int v = vbound(value/10000, 0, 255);
+			if(tmpscr->oceansfx != v)
+			{
+				stop_sfx(tmpscr->oceansfx);
+				tmpscr->oceansfx = v;
+				cont_sfx(tmpscr->oceansfx);
+			}
+			break;
+		}
 		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
@@ -16384,7 +16394,27 @@ void set_register(const long arg, const long value)
 		case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
-		case MAPDATAOCEANSFX:	 	SET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+		case MAPDATAOCEANSFX:
+		{
+			if ( ri->mapsref == LONG_MAX )
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","OceanSFX");
+				break;
+			}
+			else
+			{
+				mapscr *m = GetMapscr(ri->mapsref);
+				int v = vbound(value/10000, 0, 255);
+				if(m == tmpscr && m->oceansfx != v)
+				{
+					stop_sfx(m->oceansfx);
+					m->oceansfx = v;
+					cont_sfx(m->oceansfx);
+				}
+				else m->oceansfx = v;
+			}
+			break;
+		}
 		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
