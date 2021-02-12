@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 89
-Document Revision: 10th February, 2021
+Document Revision: 12th February, 2021
 
 
  __           _   _                 
@@ -403,10 +403,11 @@ long		-2,147,483,648 -> 2,147,483,647
 	taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
 	A long value '502L' is equivalent to a float value '0.0502'.
 	Long literals:
-		13432423L (== 1343.2423)
-		0xFL (== 0.0015, == 15L)
-		101010Lb (== 0.0042, == 42L)
-		00011bL (== 0.0003, == 3L)
+		13432423L (== 1343.2423) //Decimal long
+		0xFL (== 0.0015, == 15L) //Hex long
+		101010Lb (== 0.0042, == 42L) //Binary long
+		00011bL (== 0.0003, == 3L) //Binary long
+		17oL, 17Lo (== 0.0015, == 15L) //Octal long
 	
 
 untyped : A special datatype that can be cast to and from any other type.
@@ -750,12 +751,12 @@ the values in the enumerated list.
 		
 		//If you call:
 		
-		othertype(walk, n, e);
+		myoverloads(walk, n, e);
 			//This will use 'myns::othertype myoverloads(actiontype a, npc b, eweapon c)'
 			
 		//If you instead call:
 		
-		othertype(1, n, e);
+		myoverloads(1, n, e);
 			//This will use 'myoverloads(int a, npc b, eweapon c)'
 		
 	--end example]
@@ -934,8 +935,29 @@ You may now use escape sequences in a SINGLECHAR type:
 	
 	If no type is specified, the array will default to 'untyped'.
 
+//////////////////////
+/// Octal Literals ///
+//////////////////////
 
-	
+Similarly to hex and binary literals, you can now specify numbers using octal literals.
+To specify an octal literal, the digits of the number must be 0-7, and the number must have an 'o' appended.
+
+Ex: 17o == 15
+Ex: 47o == 39	
+
+/////////////////////
+/// Long Literals ///
+/////////////////////
+
+Long is a special datatype, which uses special number literals. It gives access to a long integer value,
+taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
+A long value '502L' is equivalent to a float value '0.0502'.
+Long literals:
+	13432423L (== 1343.2423) //Decimal long
+	0xFL (== 0.0015, == 15L) //Hex long
+	101010Lb (== 0.0042, == 42L) //Binary long
+	00011bL (== 0.0003, == 3L) //Binary long
+	17oL, 17Lo (== 0.0015, == 15L) //Octal long
 
  _______                  ___________            __                               
  \      \   ______  _  __ \_   _____/___ _____ _/  |_ __ _________   ____   ______
