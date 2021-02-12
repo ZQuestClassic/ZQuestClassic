@@ -1,5 +1,5 @@
 // std_constants.zh
-// 6th February, 2021 for ZC 2.55.0 Alpha 89
+// 10th February, 2021 for ZC 2.55.0 Alpha 89
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
