@@ -3144,6 +3144,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING, 1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 57) )
+	{
+		set_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
+	}
 	
     if ( tempheader.zelda_version < 0x254 )
     {

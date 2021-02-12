@@ -20714,9 +20714,16 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
 	switch(DMaps[currdmap].type&dmfTYPE)
 	{
+		case dmDNGN:
+			if(!get_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING))
+			{
+				markBmap(scrolldir);
+			}
+			break;
 		case dmOVERW: case dmBSOVERW:
 			if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
 				break;
+			
 		case dmCAVE:
 			markBmap(scrolldir);
 			break;
