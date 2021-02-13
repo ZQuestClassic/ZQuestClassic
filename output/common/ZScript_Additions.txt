@@ -4132,7 +4132,7 @@ int AClock
 ///  NPC  ///
 /////////////	
 	
-							// NPC
+										// NPC
 
 float ParentUID;
  * Returns the UID of the NPC that is a parent, or core (bool Core)
