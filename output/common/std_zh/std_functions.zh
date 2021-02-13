@@ -4081,6 +4081,19 @@ bool UsingItem(int id)
 
 //V
 
+float vbound(int x, int high, int low) 
+{
+        if ( high < low ) //if high is less than low, invert them
+	{
+		high = high ^ low;
+		low = high ^ low; 
+		high = high ^ low;
+	}
+	if(x<low) x=low;
+	else if(x>high) x=high;
+	return x;
+}`
+
 //same as Clamp, but with reversed values.
 int VBound(int x, int high, int low) 
 {
