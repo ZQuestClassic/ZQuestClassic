@@ -309,20 +309,23 @@ void markBmap(int dir, int sc)
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
-    
-        // check dmap
-        if((drow&mask)==0)
-            return;
-            
-        // calculate code
-        for(int i=3; i>=0; i--)
-        {
-            code <<= 1;
-            code += tmpscr->door[i]&1;
-        }
-        
-        // mark the map
-        game->bmaps[di] = code|128;
+		if(get_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING))
+		{
+			// check dmap
+			if((drow&mask)==0) //Only squares marked in dmap editor can be charted
+				return;
+				
+			// calculate code
+			for(int i=3; i>=0; i--)
+			{
+				code <<= 1;
+				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
+			}
+			
+			// mark the map
+			game->bmaps[di] = code|128;
+		}
+		else goto bmaps_default;
         break;
         
     case dmOVERW:
@@ -330,6 +333,7 @@ void markBmap(int dir, int sc)
 			break;
         
     default:
+	bmaps_default:
         game->bmaps[di] |= 128;
         
         if(dir>=0)

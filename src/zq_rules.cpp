@@ -789,7 +789,7 @@ static int compatrules2_list[] =
 
 static int compatrules3_list[] =
 {
-	36, 37, -1
+	36, 37, 38, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -810,7 +810,7 @@ static int compatrules[] =
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
-   qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING,
+   qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
 	-1 
 };
 
@@ -867,6 +867,7 @@ static DIALOG compatrules_dlg[] =
 	//36
 	{ jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Broken) Ring Power Maths", NULL, NULL },
 	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld DMaps Do Not Chart Progress", NULL, NULL },
+	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Dungeon DMaps Use Classic Charting", NULL, NULL },
 
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
