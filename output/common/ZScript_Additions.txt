@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 89
-Document Revision: 10th February, 2021
+Document Revision: 13th February, 2021
 
 
  __           _   _                 
@@ -4062,7 +4062,7 @@ bool MoveFlags[2];
 ///  EWeapon  Specific  ///
 ///////////////////////////							// EWeapon
 
-int ParentUID;
+float ParentUID;
  * Returns the UID of the NPC that controls this eweapon.
  * Useful in weapon scripts, using Screen->LoadNPCBYUID(this->ParentUID).
  * Returns 0 is there is no npc controlling the weapon.
@@ -4111,6 +4111,19 @@ int AClock
 /////////////	
 	
 							// NPC
+
+float ParentUID;
+ * Returns the UID of the NPC that is a parent, or core (bool Core)
+ * of the NPC assigned to the present pointer. 
+ * If there is no parent, then this returns NULL.
+ * Useful in npc scripts, using Screen->LoadNPCBYUID(this->ParentUID).
+ 
+float UID;
+ * Each npc created by ZC in in a given session is assigned a unique ID (UID).
+ * Returns the UID of an npc.
+ * UIDs begin at 00000.0001 and overflow at 217478.3648. 
+ *	Note: This allows for 2,147,483,647 unique npcs, per-session.
+
 int Frame;
  * The current frame of the npc's animation.
  
@@ -4391,12 +4404,6 @@ int Defense[MAX_DEFENSE];
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
-
-float UID;
- * Each npc created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an npc.
- * UIDs begin at 00000.0001 and overflow at 217478.3648. 
- *	Note: This allows for 2,147,483,647 unique npcs, per-session.
 
 int InvFrames;				
  * Returns the number of remaining invincibility frames if the enemy is invincible, otherwise 0. 
