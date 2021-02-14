@@ -23,6 +23,11 @@ extern script_bitmaps scb;
 #include <stdio.h>
 #include <fstream>
 
+//glibc 2.28 and later require this: -Z
+#ifdef __GNUG__
+	#define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
@@ -55,7 +60,6 @@ fixed radians_to_fixed(T d)
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
-
 
 
 
