@@ -3,6 +3,11 @@
 
 //! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
+//glibc 2.28 and later require this: -Z
+#ifdef __GNUG__
+	#define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 #define LOG_BMPBLIT_LEVEL 0
 #include "precompiled.h" //always first
 
@@ -22,11 +27,6 @@ extern refInfo *ri;
 extern script_bitmaps scb;
 #include <stdio.h>
 #include <fstream>
-
-//glibc 2.28 and later require this: -Z
-#ifdef __GNUG__
-	#define ALLEGRO_NO_FIX_ALIASES
-#endif
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
