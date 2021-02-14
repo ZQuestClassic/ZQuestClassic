@@ -84,6 +84,7 @@ extern char zc_builddate[80];
 extern char zc_aboutstr[80];
 
 int DMapEditorLastMaptileUsed = 0;
+int switch_type = 0; //Init here to avoid Linux building error in g++.
 
 #include "init.h"
 #include <assert.h>
@@ -4473,7 +4474,7 @@ int onFullscreen()
 	    set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
-	    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
 	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
@@ -5530,7 +5531,7 @@ int main(int argc, char* argv[])
     }
     
     sbig = (screen_scale > 1);
-    int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
     set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);zq_screen_w = resx;
     zq_screen_h = resy;
     
