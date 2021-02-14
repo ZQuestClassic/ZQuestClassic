@@ -3,6 +3,11 @@
 
 //! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
+//glibc 2.28 and later require this: -Z
+#ifdef __GNUG__
+	#define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 #include "precompiled.h" //always first
 
 #include <allegro.h>
@@ -13,11 +18,6 @@
 #include "zelda.h"
 #include "ffscript.h"
 #include <stdio.h>
-
-//glibc 2.28 and later require this: -Z
-#ifdef __GNUG__
-	#define ALLEGRO_NO_FIX_ALIASES
-#endif
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
