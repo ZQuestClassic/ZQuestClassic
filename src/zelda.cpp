@@ -3485,11 +3485,11 @@ int main(int argc, char* argv[])
 	std::cout << "Quest Data Logging & ZScript Debug Console\n";
 	std::cout << "ZConsole for Linux\n\n";
     
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
+	//if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	//{
+	//	printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	//}
+	//else
 	{
 		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	}
