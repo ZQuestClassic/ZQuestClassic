@@ -393,6 +393,28 @@ struct user_file
 	}
 };
 
+#define MAX_USER_DIRS 256
+struct user_dir
+{
+	FLIST* list;
+	std::string filepath;
+	bool reserved;
+	
+	user_dir() : list(NULL), reserved(false), filepath("") {}
+	
+	void clear();
+	void setPath(char* buf);
+	
+	int size()
+	{
+		return list->size;
+	}
+	bool get(int index, char* buf)
+	{
+		return list->get(index, buf);
+	}
+};
+
 
 //Module System.
 //Putting this here for now.
@@ -665,7 +687,9 @@ long getQuestHeaderInfo(int type)
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_files_init();
+void user_dirs_init();
 int get_free_file(bool skipError = false);
+int get_free_dir(bool skipError = false);
 bool get_scriptfile_path(char* buf, const char* path);
 void do_fopen(const bool v, const char* f_mode);
 void do_fremove();

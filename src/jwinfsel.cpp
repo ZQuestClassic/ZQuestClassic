@@ -76,15 +76,6 @@ static int fs_dlist_proc(int, DIALOG *, int);
 static const char *fs_dlist_getter(int, int *);
 #endif
 
-#define FLIST_SIZE      2048
-
-typedef struct FLIST
-{
-    char dir[1024];
-    int size;
-    char *name[FLIST_SIZE];
-} FLIST;
-
 static FLIST *flist = NULL;
 
 /* file extensions */
@@ -1367,5 +1358,56 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     }
     
     return TRUE;
+}
+
+
+void FLIST::load(char* path)
+{
+	char tmp[32];
+	for(int i=0; i<size; i++)
+		if(name[i])
+			zc_free(name[i]);
+
+	size = 0;
+
+	replace_filename(dir, path, uconvert_ascii("*.*", tmp), sizeof(dir));
+	
+	FLIST* tmplist = flist;
+	flist = this;
+	
+	/* The semantics of the attributes passed to file_select_ex() is
+	  * different from that of for_each_file_ex() in one case: when
+	  * the 'd' attribute is not mentioned in the set of characters,
+	  * the other attributes are not taken into account for directories,
+	  * i.e the directories are all included. So we can't filter with
+	  * for_each_file_ex() in that case.
+	  */
+	if(attrb_state[ATTRB_DIREC] == ATTRB_ABSENT)
+		/* accept all dirs */
+		for_each_file_ex(dir, 0 , FA_LABEL, fs_flist_putter, (void *)1UL /* check */);
+	else
+		/* don't check */
+		for_each_file_ex(dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)0UL);
+	
+	flist = tmplist;
+	
+	usetc(get_filename(dir), 0);
+}
+
+bool FLIST::get(int index, char* buf)
+{
+	if(index < 0 || index >= size)
+		return false;
+	strcpy(buf, name[index]);
+	return true;
+}
+
+void FLIST::clear()
+{
+	for(int i=0; i<size; i++)
+		if(name[i])
+			zc_free(name[i]);
+	
+	size = 0;
 }
 

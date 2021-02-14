@@ -30,6 +30,24 @@
 
 #include "jwin.h"
 
+
+#define FLIST_SIZE      2048
+typedef struct FLIST
+{
+	char dir[1024];
+	int size;
+	char *name[FLIST_SIZE];
+	
+	void load(char* path);
+	bool get(int index, char* buf);
+	void clear();
+} FLIST;
+
+void init_fs_flist(FLIST* list, char* dir);
+int get_fs_size(FLIST* list);
+bool get_fs_file(FLIST* list, int index, char* buf);
+void destroy_fs_flist(FLIST* list);
+
 #ifdef __cplusplus
 extern "C"
 {

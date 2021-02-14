@@ -31,6 +31,7 @@ extern byte use_dwm_flush;
 #include "script_drawing.h"
 #include "util.h"
 #include "ending.h"
+#include "zc_malloc.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -60,6 +61,7 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
+user_dir script_dirs[MAX_USER_DIRS];
 
 FONT *get_zc_font(int index);
 
@@ -79,6 +81,29 @@ const char scripttypenames[15][40]=
 	"DMap ActSub Script", "DMap PasSub Script", "Combo Script"
 };
 
+void user_dir::clear()
+{
+	filepath = "";
+	reserved = false;
+	if(list)
+	{
+		list->clear();
+		zc_free(list);
+		list = NULL;
+	}
+}
+void user_dir::setPath(char* buf)
+{
+	if(!list)
+	{
+		list = (FLIST *) zc_malloc(sizeof(FLIST));
+	}
+	reserved = true;
+	if(buf)
+		filepath = buf;
+	else filepath = "";
+	list->load(buf);
+}
 
 int CScriptDrawingCommands::GetCount()
 {
@@ -1126,8 +1151,6 @@ const char script_types[16][16]=
 	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
 	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
 };
-	
-	
 	
 int FFScript::UpperToLower(std::string *s)
 {
@@ -3312,6 +3335,22 @@ user_file *checkFile(long ref, const char *what, bool req_file = false, bool ski
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_dir *checkDir(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_DIRS)
+	{
+		user_dir* dr = &script_dirs[ref-1];
+		if(dr->reserved)
+		{
+			return dr;
+		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -26146,6 +26185,14 @@ void FFScript::user_files_init()
 	}
 }
 
+void FFScript::user_dirs_init()
+{
+	for(int q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].clear();
+	}
+}
+
 int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
@@ -26157,6 +26204,20 @@ int FFScript::get_free_file(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+
+int FFScript::get_free_dir(bool skipError)
+{
+	for(int q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		if(!script_dirs[q].reserved)
+		{
+			script_dirs[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_dir() could not find a valid free directory pointer!\n");
 	return 0;
 }
 #ifdef _WIN32
