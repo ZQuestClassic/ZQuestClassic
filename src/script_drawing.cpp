@@ -14,6 +14,11 @@
 #include "ffscript.h"
 #include <stdio.h>
 
+//glibc 2.28 and later require this: -Z
+#ifdef __GNUG__
+	#define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 

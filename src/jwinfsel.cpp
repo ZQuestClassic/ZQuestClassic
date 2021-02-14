@@ -52,6 +52,11 @@
 #include "zsys.h"
 #include "zc_malloc.h"
 
+//glibc 2.28 and later require this: -Z
+#ifdef __GNUG__
+	#define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 extern FONT *lfont_l;
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
