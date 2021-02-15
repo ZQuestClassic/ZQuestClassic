@@ -1786,6 +1786,7 @@ string ZScript::VarToString(long ID)
 	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
 	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	case REFFILE: return "REFFILE";
+	case REFDIRECTORY: return "REFDIRECTORY";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
@@ -1876,6 +1877,8 @@ string ZScript::VarToString(long ID)
 	case NPCHALTCLK: return "NPCHALTCLK";
 	case NPCMOVESTATUS: return "NPCMOVESTATUS";
 	case NPCFRAME: return "NPCFRAME";
+	
+	case DIRECTORYSIZE: return "DIRECTORYSIZE";
 	
 	
 	default:
@@ -2567,6 +2570,11 @@ string OLoadMessageDataRegister::toString()
 string OLoadDMapDataRegister::toString()
 {
     return "LOADDMAPDATAR " + getArgument()->toString();
+}
+
+string OLoadDirectoryRegister::toString()
+{
+    return "LOADDIRECTORYR " + getArgument()->toString();
 }
 
 string OLoadDropsetRegister	::toString()
@@ -5341,6 +5349,21 @@ string OFileRemove::toString()
 {
 	return "FILEREMOVE";
 };
+
+string ODirectoryGet::toString()
+{
+	return "DIRECTORYGET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string ODirectoryReload::toString()
+{
+	return "DIRECTORYRELOAD";
+}
+
+string ODirectoryFree::toString()
+{
+	return "DIRECTORYFREE";
+}
 
 string OModuleGetIC::toString()
 {

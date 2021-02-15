@@ -1361,7 +1361,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
 }
 
 
-void FLIST::load(char* path)
+void FLIST::load(const char* path)
 {
 	char tmp[32];
 	for(int i=0; i<size; i++)

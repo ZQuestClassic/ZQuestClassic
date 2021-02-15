@@ -399,6 +399,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_FILESYSTEM: return &FileSystemSymbols::getInst();
 	case ZVARTYPEID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
 	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
+	case ZVARTYPEID_DIRECTORY: return &DirectorySymbols::getInst();
 	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
     default: return NULL;
     }
@@ -12612,6 +12613,7 @@ static AccessorTable FileSystemTable[] =
 	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "FileExists",             ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadDirectory",          ZVARTYPEID_DIRECTORY,     FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -12663,6 +12665,20 @@ void FileSystemSymbols::generateCode()
         //pop pointer
         POPREF();
         code.push_back(new OFileSystemRemove(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+	//directory LoadDirectory(FileSystem, char32*)
+    {
+	    Function* function = getFunction("LoadDirectory", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        code.push_back(new OLoadDirectoryRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }
@@ -13023,6 +13039,70 @@ void FileSymbols::generateCode()
 		POPREF();
 		LABELBACK(label);
 		code.push_back(new OFileRemove());
+		RETURN();
+		function->giveCode(code);
+	}
+}
+
+DirectorySymbols DirectorySymbols::singleton = DirectorySymbols();
+
+static AccessorTable DirectoryTable[] =
+{
+//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+	{ "getSize",                ZVARTYPEID_FLOAT,         GETTER,       DIRECTORYSIZE,    1,             0,                                    1,           {  ZVARTYPEID_DIRECTORY,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFilename",            ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    3,           {  ZVARTYPEID_DIRECTORY,         ZVARTYPEID_FLOAT,                               ZVARTYPEID_CHAR,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Reload",                 ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           {  ZVARTYPEID_DIRECTORY,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           {  ZVARTYPEID_DIRECTORY,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+DirectorySymbols::DirectorySymbols()
+{
+    table = DirectoryTable;
+    refVar = REFDIRECTORY;
+}
+
+void DirectorySymbols::generateCode()
+{
+	//bool GetFilename(directory, int, char32)
+	{
+		Function* function = getFunction("GetFilename", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ODirectoryGet(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Reload(directory)
+	{
+		Function* function = getFunction("Reload", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ODirectoryReload());
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Free(directory)
+	{
+		Function* function = getFunction("Free", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ODirectoryFree());
 		RETURN();
 		function->giveCode(code);
 	}

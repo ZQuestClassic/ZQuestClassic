@@ -1256,8 +1256,8 @@
 #define PADDINGZ9			1180
 
 #define DMAPDATACHARTED				1181
-#define PADDINGR1			1182
-#define PADDINGR2			1183
+#define REFDIRECTORY			1182
+#define DIRECTORYSIZE			1183
 #define PADDINGR3			1184
 #define PADDINGR4			1185
 #define PADDINGR5			1186
@@ -2818,6 +2818,18 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadDMapDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadDirectoryRegister : public UnaryOpcode
+	{
+	public:
+		OLoadDirectoryRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadDirectoryRegister(a->clone());
 		}
 	};
 
@@ -9195,6 +9207,37 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileOpenMode(a->clone(), b->clone());
+		}
+	};
+	
+	class ODirectoryGet : public BinaryOpcode
+	{
+	public:
+		ODirectoryGet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryGet(a->clone(), b->clone());
+		}
+	};
+	
+	class ODirectoryReload : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryReload();
+		}
+	};
+	
+	class ODirectoryFree : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryFree();
 		}
 	};
 	

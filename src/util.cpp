@@ -219,7 +219,10 @@ namespace util
 
 		if(stat( path, &info ) != 0)
 			return false;
-		else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+		else
+		{
+			return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+		}
 	}
 
 	void safe_al_trace(const char* str)

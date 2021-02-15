@@ -595,6 +595,20 @@ private:
     void generateCode();
 };
 
+class DirectorySymbols : public LibrarySymbols
+{
+public:
+    static DirectorySymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static DirectorySymbols singleton;
+    DirectorySymbols();
+    void generateCode();
+};
+
 class SubscreenDataSymbols : public LibrarySymbols
 {
 public:

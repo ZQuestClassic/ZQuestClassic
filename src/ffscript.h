@@ -403,8 +403,13 @@ struct user_dir
 	user_dir() : list(NULL), reserved(false), filepath("") {}
 	
 	void clear();
-	void setPath(char* buf);
-	
+	void setPath(const char* buf);
+	void refresh()
+	{
+		if(list)
+			list->load(filepath.c_str());
+		else setPath(filepath.c_str());
+	}
 	int size()
 	{
 		return list->size;
@@ -689,8 +694,9 @@ bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY
 void user_files_init();
 void user_dirs_init();
 int get_free_file(bool skipError = false);
-int get_free_dir(bool skipError = false);
+int get_free_directory(bool skipError = false);
 bool get_scriptfile_path(char* buf, const char* path);
+
 void do_fopen(const bool v, const char* f_mode);
 void do_fremove();
 void do_fclose();
@@ -712,6 +718,11 @@ void do_file_clearerr();
 void do_file_rewind();
 void do_file_seek();
 void do_file_geterr();
+
+void do_loaddirectory();
+void do_directory_get();
+void do_directory_reload();
+void do_directory_free();
 
 void user_bitmaps_init();
 
@@ -2853,7 +2864,13 @@ enum ASM_DEFINE
 	
 	FRAMER,
 	BMPFRAMER,
-	NUMCOMMANDS           //0x0193
+	
+	LOADDIRECTORYR,
+	DIRECTORYGET,
+	DIRECTORYRELOAD,
+	DIRECTORYFREE,
+	
+	NUMCOMMANDS           //0x0197
 };
 
 
@@ -4193,8 +4210,8 @@ enum ASM_DEFINE
 #define PADDINGZ9			0x13D3
 
 #define DMAPDATACHARTED			0x13D4
-#define PADDINGR1			0x13D5
-#define PADDINGR2			0x13D6
+#define REFDIRECTORY			0x13D5
+#define DIRECTORYSIZE			0x13D6
 #define PADDINGR3			0x13D7
 #define PADDINGR4			0x13D8
 #define PADDINGR5			0x13D9

@@ -152,6 +152,7 @@ extern YYLTYPE noloc;
 %token LINK
 %token ITEMSPRITE
 %token FILE
+%token DIRECTORY
 %token SUBSCREENDATA
 %token PARTICLE
 %token DECORATION
@@ -535,6 +536,7 @@ DataType : ZCONST DataType {
 	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
 	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
+	| DIRECTORY {$$ = new ASTDataType(DataType::DIRECTORY, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}

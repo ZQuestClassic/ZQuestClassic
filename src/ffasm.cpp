@@ -972,6 +972,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	
 	{ "FRAMER",                0,   0,   0,   0},
 	{ "BMPFRAMER",                0,   0,   0,   0},
+	
+	{ "LOADDIRECTORYR",                1,   0,   0,   0},
+	{ "DIRECTORYGET",                2,   0,   0,   0},
+	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
+	{ "DIRECTORYFREE",                0,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2165,8 +2171,8 @@ script_variable variable_list[]=
 	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
 	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
-	{ "PADDINGR1", PADDINGR1, 0, 0 },
-	{ "PADDINGR2", PADDINGR2, 0, 0 },
+	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
+	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
 	{ "PADDINGR3", PADDINGR3, 0, 0 },
 	{ "PADDINGR4", PADDINGR4, 0, 0 },
 	{ "PADDINGR5", PADDINGR5, 0, 0 },

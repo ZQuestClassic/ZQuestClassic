@@ -337,7 +337,7 @@ Another example:
 		Used to get information on fonts, or to display text.
 
 	FileSystem->
-		Used to get information on the user filesystem, such as fileexists(), pathexists().
+		Used to get information on the user filesystem, such as FileExists(), DirExists().
 	
 	Module->
 		Use to read values or strings used by the current module.
@@ -532,8 +532,11 @@ untyped : A special datatype that can be cast to and from any other type.
 		the dropset; or read its editor values for other use.
 		
 	file :
-		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
+		Object type for accessing files on the system. All files accessed must exist in "[zc root]/files/[questname]/".
 		These files can contain either text, or raw binary number data, based on which functions you use.
+		
+	directory :
+		Object type for accessing directories on the system. All directories accessed must exist in "[zc root]/files/[questname]/".
 	
 	//Planned/Incomplete
 	warpringdata : t/b/a
@@ -3185,6 +3188,9 @@ bool Remove(char32[] "filepath");
  * Deletes the file pointed to by 'filepath'.
  * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
  *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+ 
+directory LoadDirectory(char32[] path);
+ * Opens the directory named by 'path'
 
 /************************************************************************************************************/
 
@@ -3414,6 +3420,29 @@ void ClearError();
 void GetError(char32[] buf);
  * Stores a string describing the current error into the buffer provided.
  * Stores an empty string if 'Error == 0'.
+
+
+/************************************************************************************************************/
+
+/////////////////////
+///   Directory   ///
+/////////////////////
+
+int Size;
+ * The number of files/folders contained in the directory
+ 
+bool GetFilename(int index, char32 buf);
+ * Loads the name of the 'index' file (0 <= index < Size)
+ * The name will be placed in the buffer
+ * Returns true if successful, false if it fails.
+
+void Reload();
+ * Refreshes the directory, so that it can 'see' changes to files.
+
+void Free();
+ * This will deallocate the directory pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many directory pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
 
 
 /************************************************************************************************************/
