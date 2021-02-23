@@ -1,0 +1,2 @@
+This is here because some unzip programs don't create folders that have nothing in them.
+You can delete it if you want.
