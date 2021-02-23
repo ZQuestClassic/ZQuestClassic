@@ -1,9 +1,87 @@
-/*
-  midi.cc
-  From edmid.cc
+//--------------------------------------------------------
+//  Zelda Classic
+//  by Jeremy Craner, 1999-2000
+//
+//  midi.cc
+//
+//  save_midi() and code for midi info.
+//
+//--------------------------------------------------------
 
-  All this code just to calculate the length of a MIDI song.
+
+/*  Allegro MIDI struct
+
+typedef struct MIDI                    // a midi file
+{
+   int divisions;                      // number of ticks per quarter note
+   struct {
+      unsigned char *data;             // MIDI message stream
+      int len;                         // length of the track data
+   } track[MIDI_TRACKS]; 
+} MIDI;
+
 */
+
+
+
+/* save_midi:
+ *  Saves a standard MIDI file, returning 0 on success,
+ *  or non-zero on error.
+ */
+int save_midi(char *filename, MIDI *midi)
+{
+   int c;
+   long len;
+   PACKFILE *fp;
+   int num_tracks = 0;
+
+   if(!midi)
+      return 1;
+
+   fp = pack_fopen(filename, F_WRITE);       /* open the file */
+   if (!fp)
+      return 2;
+
+   for (c=0; c<MIDI_TRACKS; c++)
+      if(midi->track[c].len > 0)
+         num_tracks++;
+
+   pack_fwrite((void *) "MThd", 4, fp);               /* write midi header */
+
+   pack_mputl(6, fp);                        /* header chunk length = 6 */
+
+   pack_mputw((num_tracks==1) ? 0 : 1, fp);  /* MIDI file type */
+
+   pack_mputw(num_tracks, fp);               /* number of tracks */
+
+   pack_mputw(midi->divisions, fp);          /* beat divisions (negatives?) */
+
+   for (c=0; c<num_tracks; c++) {            /* write each track */
+      pack_fwrite((void *) "MTrk", 4, fp);            /* write track header */
+
+      len = midi->track[c].len;
+      pack_mputl(len, fp);                   /* length of track chunk */
+
+      if (pack_fwrite(midi->track[c].data, len, fp) != len)
+	 goto err;
+   }
+
+   pack_fclose(fp);
+   return 0;
+
+   /* oh dear... */
+   err:
+   pack_fclose(fp);
+   delete_file(filename);
+   return 3;
+}
+
+
+
+
+
+/* ---  All this code just to calculate the length of a MIDI song.  --- */
+
 
 
 #define MAX_TEMPO_CHANGES 512

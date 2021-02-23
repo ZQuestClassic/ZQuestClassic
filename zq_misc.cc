@@ -1,34 +1,30 @@
-/*
-  ZQ_MISC.CC
-*/
+//--------------------------------------------------------
+//  Zelda Classic
+//  by Jeremy Craner, 1999-2000
+//
+//  zq_misc.cc
+//
+//  Misc. stuff for ZQuest.
+//
+//--------------------------------------------------------
 
-inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+
+//inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+inline void SCRFIX() {}
 
 
-#define FILENAME8_3   0
-#define FILENAME8__   1
-
-void extract_name(char *path,char *name,int type)
+inline int popup_menu(MENU *menu,int x,int y)
 {
- int l=strlen(path);
- int i=l;
- while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
-  i--;
- int n=0;
- if(type==FILENAME8__) {
-   while(i<l && n<8 && path[i]!='.')
-     name[n++]=path[i++];
-   }
- else {
-   while(i<l && n<12 )
-     name[n++]=path[i++];
-   }
- name[n]=0;
+  while(mouse_b);
+  return do_menu(menu,x,y);
 }
 
 
-enum { ftBIN=1, ftBMP, ftTIL };
-char *imgstr[4] = { "Not loaded", "Binary/ROM", "Image", "ZC Tiles" };
+
+
+enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
+char *imgstr[6] = { "Not loaded", "Binary/ROM", "Image", "ZC Tiles",
+                    "ZC Tiles", "ZC Tiles" };
 
 int filetype(char *path)
 {
@@ -40,9 +36,15 @@ int filetype(char *path)
   strupr(ext);
 
   if(strcmp(ext,"BMP")==0) return ftBMP;
+  if(strcmp(ext,"GIF")==0) return ftBMP;
   if(strcmp(ext,"PCX")==0) return ftBMP;
   if(strcmp(ext,"TGA")==0) return ftBMP;
   if(strcmp(ext,"TIL")==0) return ftTIL;
+  if(strcmp(ext,"ZGP")==0) return ftZGP;
+  if(strcmp(ext,"QSU")==0) return ftQSU;
+  if(strcmp(ext,"DAT")==0) return 0;
+  if(strcmp(ext,"HTM")==0) return 0;
+  if(strcmp(ext,"HTML")==0) return 0;
   if(strcmp(ext,"TXT")==0) return 0;
   if(strcmp(ext,"ZIP")==0) return 0;
   return ftBIN;
@@ -54,6 +56,14 @@ void load_mice()
  for(int i=0; i<MAXMICE; i++) {
   mouse_bmp[i] = create_bitmap(16,16);
   blit((BITMAP*)data[BMP_MOUSE].dat,mouse_bmp[i],i*17+1,1,0,0,16,16);
+  }
+}
+
+void load_arrows()
+{
+ for(int i=0; i<MAXARROWS; i++) {
+  arrow_bmp[i] = create_bitmap(16,16);
+  blit((BITMAP*)data[BMP_ARROWS].dat,arrow_bmp[i],i*17+1,1,0,0,16,16);
   }
 }
 
@@ -168,6 +178,9 @@ RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
   return x;
 }
 
+void reset_pal_cycling();
+void cycle_palette();
+
 void load_cset(RGB *pal,int cset_index,int dataset)
 {
   byte *si = colordata + CSET(dataset)*3;
@@ -184,30 +197,28 @@ void set_pal()
 }
 
 
-void loadfullpal()
+void loadlvlpal(int level)
 {
+  // full pal
   for(int i=0; i<192; i++)
     RAMpal[i] = _RGB(colordata+i*3);
 
-  set_pal();
-}
-
-
-
-void loadlvlpal(int level)
-{
+  // level pal
   byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
 
-  for(int i=0; i<16*3; i++) {
+  for(int i=0; i<16*3; i++)
+  {
     RAMpal[CSET(2)+i] = _RGB(si);
     si+=3;
-    }
+  }
 
-  for(int i=0; i<16; i++) {
+  for(int i=0; i<16; i++)
+  {
     RAMpal[CSET(9)+i] = _RGB(si);
     si+=3;
-    }
+  }
 
+  reset_pal_cycling();
   set_pal();
 }
 
@@ -215,17 +226,16 @@ void loadlvlpal(int level)
 
 void loadfadepal(int dataset)
 {
+  byte *si = colordata + CSET(dataset)*3;
 
- byte *si = colordata + CSET(dataset)*3;
+  for(int i=0; i<16*3; i++)
+  {
+    RAMpal[CSET(2)+i] = _RGB(si);
+    si+=3;
+  }
 
- for(int i=0; i<16*3; i++) {
-   RAMpal[CSET(2)+i] = _RGB(si);
-   si+=3;
-   }
-
- set_pal();
+  set_pal();
 }
-
 
 
 
@@ -246,74 +256,143 @@ void setup_lcolors()
 
 void refresh_pal()
 {
- loadfullpal();
- loadlvlpal(Color);
- setup_lcolors();
+  loadlvlpal(Color);
+  setup_lcolors();
 }
 
 
 
 
-#define MAXITEMS   40
-char *item_string[MAXITEMS] = {
+#define ITEMCNT   iMax
+char *item_string[ITEMCNT] = {
 "(none)", "blue rupee", "heart", "bombs", "clock",
-"sword", "white sword", "magic sword", "magic shield", "key",
+"wooden sword", "white sword", "magic sword", "magic shield", "key",
 "blue candle", "red candle", "letter", "arrow", "silver arrow",
 "bow", "bait", "blue ring", "red ring", "power bracelet",
-"triforce", "map", "compass", "wood boomerang", "magic boomerang",
+"triforce", "map", "compass", "wooden boomerang", "magic boomerang",
 "wand", "raft", "ladder", "heart container", "blue potion",
 "red potion", "whistle", "magic book", "magic key", "(fairy)",
-"fire boomerang", "Excalibur", "mirror shield", "20 rupies", "50 rupies" };
+"fire boomerang", "Master sword", "mirror shield", "20 rupies", "50 rupies",
+"200 rupies", "small wallet (500)", "large wallet (999)", "dust pile",
+"big triforce", "selection", "misc 1", "misc 2", "super bomb","HC piece",
+"cross", "flippers", "hookshot", "lens of truth", "hammer", "boots",
+"L2 bracelet", "golden arrow", "magic container", "magic jar (sm)",
+"magic jar (lg)", "golden ring" };
+
+
+#define WPNCNT    wMAX
+char *weapon_string[WPNCNT] = {
+"wooden sword", "white sword", "magic sword", "master sword",
+"wooden boomerang", "magic boomerang", "fire boomerang", "bomb",
+"super bomb", "explosion", "arrow", "silver arrow", "fire", "whirlwind",
+"bait", "wand", "magic", "fire ball", "rock", "enemy arrow", "enemy sword",
+"enemy magic", "MISC: spawn", "MISC: death", "MISC: swim", "Hammer",
+"Hookshot Head", "Hookshot Chain", "Hookshot Handle", "MISC: SArw Sparkle",
+"MISC: GArw Sparkle", "MISC: MBrg Sparkle", "MISC: FBrg Sparkle",
+"MISC: Smack", "golden arrow", "enemy flame", "enemy wind", "MISC: Magic Meter",
+"DF 1a", "DF 1b","DF Spark 1a", "DF Spark 1b"
+};
+
 
 #define MAXROOMTYPES   rMAX
 char *roomtype_string[MAXROOMTYPES] = {
 "(none)","special item","pay for info","secret money","gamble",
 "door repair","heart container","feed the Goriya","level 9 entrance",
 "potion shop","shop","more bombs","leave money or life","10 rupies",
-"3-stair warp","Ganon","Zelda" };
+"3-stair warp","Ganon","Zelda", "item pond", "magic upgrade" };
 
 char *catchall_string[MAXROOMTYPES] = {
-" ","Sp.Item","Info Type","Amount"," ","Repair Fee"," "," "," "," ",
-"Shop Type","Price","Price"," ","Warp Ring"," "," " };
+" ","Sp.Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
+"Shop Type","Price","Price"," ","Warp Ring"," "," ", "Item Pond Type", " " };
 
 
-#define MAXWARPTYPES   4
+#define MAXWARPTYPES   wtMAX-1 // minus whistle
 char *warptype_string[MAXWARPTYPES] = {
-"cave/item room","passageway","entrance/exit","scrolling warp"
+"cave/item room","passageway","entrance/exit","scrolling warp",
+"insta-warp","i-warp w/ blkout","i-warp w/ openscrn","i-warp w/ zap FX",
+"no warp"
 };
 
 
 #define MAXCOMBOTYPES  cMAX
 char *combotype_string[MAXCOMBOTYPES] = {
 "-","stairs","cave","water","armos","grave","dock",
-"undefined","push-wait","push-heavy","push-hw","l statue","r statue" };
-
-
-#define MAXFLAGS    16
-char *flag_string[MAXFLAGS] = {
-" 0 (none)"," 1 push up/down"," 2 push 4-way"," 3 burn"," 4 burn->stair",
-" 5 bomb"," 6 bomb->cave"," 7 fairy"," 8 raft"," 9 armos->stair",
-"10 armos->item","11","12","13","14","15 Zelda"
+"undefined","push-wait","push-heavy","push-hw","l statue","r statue",
+"slow walk","convey up","convey down","convey left","convey right",
+"swim warp","dive warp","ladder only","trigger temp","trigger perm",
+"win game","slash","slash->item", "push-heavy2", "push-hw2", "pound",
+"HS grab", "HS bridge", "Damage 1/2", "Damage 1", "Damage 2", "Damage 4",
+"c statue", "trap - horizontal", "trap - vertical", "trap - 4-way",
+"trap - left/right", "trap - up/down", "pit", "hookshot over", "overhead",
+"no fly zone", "m. mirror +", "m. mirror /", "m. mirror \\", "m. prism (3-way)",
+"m. prism (4-way)", "m. sponge", "cave 2"
 };
 
 
-#define MAXGUYS    9
+#define MAXFLAGS    mfMAX
+char *flag_string[MAXFLAGS] = {
+" 0 (none)"," 1 push up/down"," 2 push 4-way"," 3 whistle"," 4 burn",
+" 5 arrow"," 6 bomb"," 7 fairy"," 8 raft"," 9 armos->secret",
+"10 armos->item","11 super bomb","12 raft branch",
+"13 dive for item",
+"14 all-purpose flag",
+"15 Zelda",
+"16 secret tile 0",
+"17 secret tile 1",
+"18 secret tile 2",
+"19 secret tile 3",
+"20 secret tile 4",
+"21 secret tile 5",
+"22 secret tile 6",
+"23 secret tile 7",
+"24 secret tile 8",
+"25 secret tile 9",
+"26 secret tile 10",
+"27 secret tile 11",
+"28 secret tile 12",
+"29 secret tile 13",
+"30 secret tile 14",
+"31 secret tile 15",
+"32 trap horizontal",
+"33 trap vertical",
+"34 trap 4-way",
+"35 trap left/right",
+"36 trap up/down",
+"37 enemy 1",
+"38 enemy 2",
+"39 enemy 3",
+"40 enemy 4",
+"41 enemy 5",
+"42 enemy 6",
+"43 enemy 7",
+"44 enemy 8",
+"45 enemy 9",
+"46 enemy 10"
+};
+
+
+#define zqMAXGUYS    9
 // eMAXGUYS is defined in zdefs.h
 char *guy_string[eMAXGUYS] = {
 "(none)","abei","ama","merchant","molblin","fire","fairy","goriya","Zelda","",
 /*10*/ "octorok - red, slow","octorok - blue, slow","octorok - red, fast","octorok - blue, fast","tektite - red",
 /*15*/ "tektite - blue","leever - red","leever - blue","molblin - red","molblin - black",
 /*20*/ "lynel - red","lynel - blue","peahat","zora (sp)","rock (sp)",
-/*25*/ "ghini","-<ghini 2>","-<armos>","keese - blue","keese - red",
+/*25*/ "ghini","ghini 2","armos","keese - blue","keese - red",
 /*30*/ "keese - level color","stalfos","gel","zol","rope",
 /*35*/ "goriya - red","goriya - blue","-<trap>","wall master","darknut - red",
 /*40*/ "darknut - blue","bubble","vire","like like","gibdo",
-/*45*/ "pols voice","wizzrobe - red","wizzrobe - blue","aquamentus","moldorm",
-/*50*/ "dodongo","manhandla","gleeok - 2 heads","gleeok - 3 heads","gleeok - 4 heads",
-/*55*/ "digdogger - 1 kid","digdogger - 3 kids","gohma - red","gohma - blue","lanmola - red",
+/*45*/ "pols voice","wizzrobe - red","wizzrobe - blue","aquamentus - right","moldorm",
+/*50*/ "dodongo","manhandla","gleeok - 1 head","gleeok - 2 heads","gleeok - 3 heads","gleeok - 4 heads",
+/*55*/ "digdogger - 1 kid","digdogger - 3 kids","digdogger kid","gohma - red","gohma - blue","lanmola - red",
 /*60*/ "lanmola - blue","patra - big circle","patra - oval","-<Ganon>","stalfos 2",
-/*65*/ "rope 2","bubble - red","bubble - blue","-<fire shooter>","-<item fairy>",
-/*70*/ "-<fire>"
+/*65*/ "rope 2","bubble - red","bubble - blue","fire shooter","-<item fairy>",
+/*70*/ "fire","octorok - on crack", "darknut - death knight", "gel tribble", "zol tribble",
+/*75*/ "keese tribble", "vire tribble", "darknut - super", "aquamentus - left", "manhandla 2",
+/*80*/ "-<trap h>", "-<trap v>", "-<trap lr>", "-<trap ud>", "wizzrobe - fire",
+/*85*/ "wizzrobe - wind", "-ceiling master", "-floor master", "patra (bs)", "patra 2",
+/*90*/ "patra 3", "bat", "wizzrobe - bat", "-wizzrobe - bat2", "gleeok2 - 1 head", "gleeok2 - 2 heads",
+/*95*/ "gleeok2 - 3 heads","gleeok2 - 4 heads", "wizzrobe - mirror", "dodongo (bs)", "-dodongo - fire", "trigger"
 };
 
 #define MAXPATTERNS  2
@@ -321,6 +400,9 @@ char *pattern_string[MAXPATTERNS] = {
 "random","enter from sides"
 };
 
+char *short_pattern_string[MAXPATTERNS] = {
+"random", "sides"
+};
 
 #define MAXMIDIS_ZQ  4+MAXMIDIS
 char *midi_string[MAXMIDIS_ZQ] = {
@@ -335,6 +417,10 @@ char *midi_string[MAXMIDIS_ZQ] = {
 #define cWALK      1
 #define cFLAGS     2
 #define cDARK      4
+#define cCSET      8
+#define cNODARK    16
+#define cNOITEM    32
+#define cCTYPE     64
 #define cDEBUG     128
 
 #define rMAP       1
@@ -350,13 +436,23 @@ void domouse();
 
 int onNew();
 int onOpen();
+int onOpen2();
 int onSave();
+int onUpgrade();
 int onSaveAs();
-int onImport();
+
+/*I guess this is a legacy import function.
+  Compiles fine with it commented out.
+
+  int onImport();
+*/
 
 int onUndo();
 int onCopy();
 int onPaste();
+int onPasteAll();
+int onPasteToAll();
+int onPasteAllToAll();
 int onDelete();
 int onDeleteMap();
 
@@ -365,6 +461,7 @@ int onDoors();
 int onCSetFix();
 int onFlags();
 int onShowPal();
+int onReTemplate();
 
 int playTune();
 int playMIDI();
@@ -377,10 +474,12 @@ int onRight();
 int onPgUp();
 int onPgDn();
 
-int onHelp();
+int  onHelp();
+void doHelp(int bg,int fg);
 
 int onScrFlags();
 int onGuy();
+int onEndString();
 int onString();
 int onRType();
 int onCatchall();
@@ -391,9 +490,12 @@ int onPath();
 int onEnemies();
 int onEnemyFlags();
 int onUnderCombo();
+int onSecretCombo();
 
 int onHeader();
 int onRules();
+int onRules2();
+int onCheats();
 int onStrings();
 int onDmaps();
 int onTiles();
@@ -403,8 +505,14 @@ int onShopTypes();
 int onInfoTypes();
 int onWarpRings();
 int onWhistle();
-int onMapColors();
+int onMiscColors();
+int onMapStyles();
 int onTriPieces();
+int onIcons();
+int onInit();
+int onLayers();
+int onScreenPalette();
+int xtoi(char *hexstr);
 
 int onColors_Main();
 int onColors_Levels();
@@ -416,6 +524,8 @@ int onImport_Msgs();
 int onImport_Combos();
 int onImport_Tiles();
 int onImport_Pals();
+int onImport_ZGP();
+int onImport_UnencodedQuest();
 
 int onExport_Map();
 int onExport_DMaps();
@@ -423,28 +533,59 @@ int onExport_Msgs();
 int onExport_Combos();
 int onExport_Tiles();
 int onExport_Pals();
+int onExport_ZGP();
+int onExport_UnencodedQuest();
 
-int onMap1();
-int onMap2();
-int onMap3();
-int onMap4();
-int onMap5();
-int onMap6();
-int onMap7();
-int onMap8();
-int onMap9();
-int onMap10();
+
+int onGotoMap();
 int onMapCount();
 
 int onViewPic();
-int onEditTemplate();
+int onViewMap();
+int onComboPage();
 
 int onDefault_Pals();
 int onDefault_Tiles();
 int onDefault_Combos();
-int onDefault_MapColors();
+int onDefault_Sprites();
+int onDefault_MapStyles();
 
-void edit_combo(int c,bool freshen);
+int onCustomItems();
+int onCustomWpns();
+int onCustomGuys();
+
+int onTest();
+int onTestOptions();
+
+int onOptions();
+
+void edit_combo(int c,bool freshen,int cs);
+
+void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
+void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);
+
+int onSpacebar()
+{
+
+
+  return D_O_K;
+}
+
+
+int onSnapshot()
+{
+  struct ffblk f;
+  char buf[20];
+  int num=0;
+  do {
+    sprintf(buf,"zelda%03d.bmp",++num);
+  } while(num<999 && !findfirst(buf,&f,0));
+  blit(screen,screen2,0,0,0,0,320,240);
+  save_bmp(buf,screen2,RAMpal);
+  return D_O_K;
+}
+
+
 
 int gocnt=0;
 
@@ -522,15 +663,26 @@ int onAbout()
  char buf1[40];
  char buf2[40];
  char buf3[40];
- sprintf(buf1,"ZQuest %s",VerStr(ZELDA_VERSION));
  if(debug)
  {
+   if (IS_BETA) {
+     sprintf(buf1,"ZQuest %s Beta (Build %d) - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+   } else {
+     sprintf(buf1,"ZQuest %s (Build %d) - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+   }
+//   sprintf(buf1,"ZQuest %s - DEBUG",VerStr(ZELDA_VERSION));
    sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
    sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
    alert(buf1,buf2,buf3,"OK", NULL, 13, 27);
  }
  else
  {
+   if (IS_BETA) {
+     sprintf(buf1,"ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+   } else {
+     sprintf(buf1,"ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+   }
+//   sprintf(buf1,"ZQuest %s",VerStr(ZELDA_VERSION));
    alert(buf1,"Zelda Classic Quest Editor","by Phantom Menace", "OK", NULL, 13, 27);
  }
  return D_O_K;
@@ -551,19 +703,71 @@ int onF()
  return D_O_K;
 }
 
-int onL()
+int onQ()
 {
- loadfadepal(Color*pdLEVEL+poFADE3);
- readkey();
- loadlvlpal(Color);
+ if(Flags&cCSET)
+ {
+   Flags ^= cCSET;
+   Flags |= cCTYPE;
+ }
+ else if(Flags&cCTYPE)
+ {
+   Flags ^= cCTYPE;
+ }
+ else
+ {
+   Flags |= cCSET;
+ }
+
+ refresh(rMAP);
  return D_O_K;
 }
 
+int onL()
+{
+ if(get_bit(header.rules,qr1_FADE))
+ {
+   int last = CSET(5)-1;
+
+   if(get_bit(header.rules,qr1_FADECS5))
+     last += 16;
+
+   byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;
+   for(int i=0; i<16; i++)
+   {
+     int light = si[0]+si[1]+si[2];
+     si+=3;
+     fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
+   }
+   fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
+   set_palette(RAMpal);
+
+   readkey();
+
+   load_cset(RAMpal,5,5);
+   loadlvlpal(Color);
+ }
+ else
+ {
+   loadfadepal(Color*pdLEVEL+poFADE3);
+   readkey();
+   loadlvlpal(Color);
+ }
+ return D_O_K;
+}
+
+
+int onM()
+{
+  return D_O_K;
+}
+
+
 int onPlus()
 {
- CSet=wrap(CSet+1,0,5);
- refresh(rCOMBOS+rMENU+rCOMBO);
- return D_O_K;
+  CSet=wrap(CSet+1,0,5);
+  refresh(rCOMBOS+rMENU+rCOMBO);
+  return D_O_K;
 }
 
 int onMinus()
@@ -581,7 +785,10 @@ void setFlagColor()
 
 int onTimes()
 {
- Flag=(Flag+1)&15;
+ Flag=(Flag+1);
+ if (Flag==mfMAX) {
+   Flag=0;
+ }
  setFlagColor();
  refresh(rMENU);
  return D_O_K;
@@ -589,7 +796,10 @@ int onTimes()
 
 int onDivide()
 {
- Flag=(Flag-1)&15;
+ if (Flag==0) {
+   Flag=mfMAX;
+ }
+ Flag=(Flag-1);
  setFlagColor();
  refresh(rMENU);
  return D_O_K;
