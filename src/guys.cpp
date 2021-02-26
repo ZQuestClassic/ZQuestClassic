@@ -5610,20 +5610,26 @@ hitclock:
 		
 		if(wpnId==wArrow)
 		{
-			if(item<0)
-				item=current_item_id(itype_arrow);
-				
-			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG1))
+			//If we use an arrow type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
+			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG1) && (itemsbuf[parent_item].family == itype_arrow))
 				return 0;
+			else if(get_bit(quest_rules,qr_ARROWS_ALWAYS_PENETRATE)) return 0;
+			//if(item<0)
+			else
+				item=current_item_id(itype_arrow);	
 		}
 		
 		else
 		{
-			if(item<0)
-				item=current_item_id(itype_sword);
-				
-			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG3))
+
+			//If we use an swordbeam type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
+			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG3) && (itemsbuf[parent_item].family == itype_sword))
 				return 0;
+			
+			else if(get_bit(quest_rules,qr_SWORDBEAMS_ALWAYS_PENETRATE)) return 0;
+			else
+			//if(item<0)
+				item=current_item_id(itype_sword);
 		}
 	}
 	

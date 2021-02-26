@@ -233,7 +233,7 @@ static int weapon_eweapon_rules_tab[] =
 
 static int weapon_lweapon_rules_tab[] =
 {
-	9,
+	9,10,11,
     -1
 };
 
@@ -270,6 +270,8 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Angular Reflected Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Mirrors Use Weapon Centre for Collision", NULL, NULL },
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Arrows Always Penetrate", NULL, NULL },
+    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Swordbeams Always Penetrate", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -277,6 +279,7 @@ static DIALOG weaponrules_dlg[] =
 static int weaponrules[] =
 {
    qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE,
     -1
 };
 
