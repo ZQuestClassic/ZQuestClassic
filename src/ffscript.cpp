@@ -1138,10 +1138,11 @@ int FFScript::UpperToLower(std::string *s)
 	}
 	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
-		if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
-		{
-			s->at(q) += 32;
-		}
+		//if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
+		//{
+		//	s->at(q) += 32;
+		//}
+		s->at(q) += 32 * (s->at(q) >= 'A' && s->at(q) <= 'Z');
 	}
 	return 1;
 }
@@ -1155,10 +1156,11 @@ int FFScript::LowerToUpper(std::string *s)
 	}
 	for ( unsigned int q = 0; q < s->size(); ++q )
 	{
-		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
-		{
-			s->at(q) -= 32;
-		}
+		//if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
+		//{
+		//	s->at(q) -= 32;
+		//}
+		s->at(q) -= 32 * (s->at(q) >= 'a' && s->at(q) <= 'z');
 	}
 	return 1;
 }
@@ -31789,7 +31791,7 @@ void FFScript::do_stricmp()
 void FFScript::do_LowerToUpper(const bool v)
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
@@ -31799,17 +31801,14 @@ void FFScript::do_LowerToUpper(const bool v)
 	}
 	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
-		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
-		{
-			if ( strA[q] < 'a' ) { continue; }
-			else strA[q] -= 32;
-			continue;
-		}
-		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
+		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		//{
-		//	strA[q] += 32;
+		//	if ( strA[q] < 'a' ) { continue; }
+		//	else strA[q] -= 32;
 		//	continue;
 		//}
+		
 	}
 	//zprint("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
@@ -31823,7 +31822,7 @@ void FFScript::do_LowerToUpper(const bool v)
 void FFScript::do_UpperToLower(const bool v)
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
@@ -31833,15 +31832,11 @@ void FFScript::do_UpperToLower(const bool v)
 	}
 	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
-		if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
-		{
-			if ( strA[q] < 'a' ) { strA[q] += 32; }
-			else continue;
-			continue;
-		}
-		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
+		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
 		//{
-		//	strA[q] += 32;
+		//	if ( strA[q] < 'a' ) { strA[q] += 32; }
+		//	else continue;
 		//	continue;
 		//}
 	}
@@ -32101,8 +32096,7 @@ void FFScript::do_getdmapbyname()
 
 void FFScript::do_ConvertCase(const bool v)
 {
-	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
@@ -32112,17 +32106,23 @@ void FFScript::do_ConvertCase(const bool v)
 	}
 	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
-		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
-		{
-			if ( strA[q] < 'a' ) { strA[q] += 32; }
-			else strA[q] -= 32;
-			continue;
-		}
-		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		if ( strA[q] < 'a' )
+			strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
+			
+		else 
+			strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
+		//strA[q] -= (32 * (strA[q] >= 'a' && strA[q] <= 'z')) * (-1*((strA[q] >= 'A' && strA[q] <= 'Z')));
+		//int n = 'c';
+		
+		//strA[q] -= 32 * ((strA[q] >= 'a' && strA[q] <= 'z')) * (-1*((strA[q] >= 'A' && strA[q] <= 'Z')));
+		//zprint2("n is %d\n", n);
+		//if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		//{
-		//	strA[q] += 32;
+		//	if ( strA[q] < 'a' ) { strA[q] += 32; }
+		//	else strA[q] -= 32;
 		//	continue;
 		//}
+		
 	}
 	//zprint("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
