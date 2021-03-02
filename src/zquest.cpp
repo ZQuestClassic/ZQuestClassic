@@ -1929,7 +1929,7 @@ static MENU etc_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Ambient Music",        NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"Ambient Music   ",        NULL,                      tunes_menu,               0,            NULL   },
 	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
 	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
 	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
