@@ -8472,16 +8472,7 @@ namespace ZScript
 			return new Ostrstr(a->clone());
 		}
 	};
-	class Oxtoa : public UnaryOpcode
-	{
-	public:
-		Oxtoa(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new Oxtoa(a->clone());
-		}
-	};
+	
 	
 	class Oitoa : public BinaryOpcode
 	{
@@ -8491,6 +8482,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new Oitoa(a->clone(),b->clone());
+		}
+	};
+	
+	class Oxtoa : public BinaryOpcode
+	{
+	public:
+		Oxtoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new Oxtoa(a->clone(),b->clone());
 		}
 	};
 	

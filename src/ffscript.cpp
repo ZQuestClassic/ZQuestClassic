@@ -31768,8 +31768,8 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 
 void FFScript::do_strcmp()
 {
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000 ?
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -31779,8 +31779,8 @@ void FFScript::do_strcmp()
 
 void FFScript::do_stricmp()
 {
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32094,6 +32094,9 @@ void FFScript::do_getdmapbyname()
 	set_register(sarg1, (num * 10000));
 }
 
+////////////////////////
+/// String Utilities ///
+////////////////////////
 void FFScript::do_ConvertCase(const bool v)
 {
 	long arrayptr_a = get_register(sarg1) / 10000;
@@ -32143,16 +32146,132 @@ void FFScript::do_xlen(const bool v)
 	//zprint("strlen string size is: %d\n", str.length());
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
+
+//xtoi, conv hex string to integer
+int FFScript::xtoi(char *hexstring)
+{
+	int	i = 0;
+	signed char isneg = 1;
+	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
+	
+	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
+		  hexstring += 2;// + (isneg?1:0);
+	while (*hexstring)
+	{
+		char c = toupper(*hexstring++);
+		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
+			break;
+		c -= '0';
+		if (c > 9)
+			c -= 7;
+		i = (i << 4) + c;
+	}
+	//zprint2("FFCore.xtoi result is %d\n", i);
+	return i * (isneg);
+}
+
 void FFScript::do_xtoi(const bool v)
 {
-	//not implemented, xtoi not found
-	//zprint("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//zprint("strlen string size is: %d\n", str.length());
-	//set_register(sarg1, (xtoi(str.c_str()) * 10000));
+	//zprint2("xtoi array pointer is: %d\n", arrayptr);
+	//zprint2("xtoi string is %s\n", str.c_str());
+	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	//zprint2("xtoi val is %f\n", val);
+	set_register(sarg1, (long)(val) * 10000);
 }
+void FFScript::do_xtoi2() 
+{
+	//Not implemented, xtoi not found
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+}
+
+// Calculates log2 of number.  
+double Log2( double n )  
+{  
+    // log(n)/log(2) is log2.  
+    return log( (double)n ) / log( (double)2 );  
+}  
+
+//xtoa, convert hex number to hex ascii
+void FFScript::do_xtoa()
+{
+	
+	long arrayptr_a = get_register(sarg1) / 10000;
+	long number = ri->d[3]/10000; //why are you not in sarg2?!!
+	
+	//for ( int q = 0; q < 6; ++q )
+	//	zprint2("ri->d[%d] is %d", q, ri->d[q]);
+	
+	zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
+	zprint2("xtoa_c number is: %d\n",number);
+		
+	
+	
+	
+	bool isneg = false;
+	if ( number < 0 ) 
+	{
+		isneg = true; 
+		number *= -1;
+	}
+	double num = number;
+	zprint2("xtoa_c(), num is: %f\n", num);
+	int digits = floor(FFCore.LogToBase(num, (double)16) + 1);
+	//sizeof(number)*CHAR_BIT/4;
+	zprint2("xtoa_c, digits is: %d\n",digits);
+	
+	
+	int pos = 0;
+	string strA;
+	if(number == 0) //Needs to precede str.resize(digits+3) as if the number is <= 0 then this breaks.
+	{
+		strA.resize(3);
+		strA[pos+2] = '0';
+		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+			set_register(sarg1, 0);
+		}
+		else set_register(sarg1, 30000); //returns the pointer to the dest
+		return;
+	}
+	int ret = 0;
+	strA.resize(digits+3+(isneg?1:0));
+	//num = Floor(Abs(num));
+	if ( isneg )
+	{
+		strA[pos] = '-';
+		strA[pos+1] = '0';
+		strA[pos+2] = 'x';
+		ret = 3;
+	}
+	else
+	{
+		strA[pos] = '0';
+		strA[pos+1] = 'x';
+		ret = 2;
+	}
+
+	int alphaoffset = 'A' - 0xA;
+	for(int i = 0; i < digits; ++i)
+	{
+		int coeff = ((long)floor((double)(((double)number) / pow((float)0x10, digits - i - 1))) % 0x10);
+		strA[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
+	}
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'xtoa()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, (ret + digits -(isneg?1:0))*10000); //don't count the - sign as a digit
+}
+
 void FFScript::do_ilen(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32161,6 +32280,8 @@ void FFScript::do_ilen(const bool v)
 	//zprint("strlen string size is: %d\n", str.length());
 	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
 }
+
+//! Note atoi2 (atoi(str, len) can be accompished with str.resize after getString.
 void FFScript::do_atoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32169,13 +32290,11 @@ void FFScript::do_atoi(const bool v)
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
 }
 
-
-
 void FFScript::do_strstr()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32192,8 +32311,8 @@ void FFScript::do_strstr()
 void FFScript::do_strcat()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32213,8 +32332,8 @@ void FFScript::do_strcat()
 void FFScript::do_strspn()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32225,7 +32344,7 @@ void FFScript::do_strspn()
 void FFScript::do_strcspn()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	long arrayptr_b = ri->d[1]/10000;
 	string strA;
 	string strB;
@@ -32237,7 +32356,7 @@ void FFScript::do_strcspn()
 void FFScript::do_strchr()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
@@ -32252,7 +32371,7 @@ void FFScript::do_strchr()
 }
 void FFScript::do_strrchr()
 {
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
@@ -32264,23 +32383,17 @@ void FFScript::do_strrchr()
 	}
 	set_register(sarg1,strA.find_last_of(chr_to_find)*10000);
 }
-void FFScript::do_xtoi2()
-{
-	//Not implemented, xtoi not found
-	long arrayptr_a = ri->d[0]/10000;
-	string strA;
-	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
-}
+
 void FFScript::do_remchr2()
 {
 	//Not implemented, remchr not found
 	//not part of any standard library
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
 	//set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
+//Bookmark
 void FFScript::do_atoi2()
 {
 	//not implemented; atoi does not take 2 params
@@ -32306,30 +32419,6 @@ void FFScript::do_xlen2()
 	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 
-int Log10(double temp)
-{
-	int ret = 0;
-	if(temp > 0)
-		ret = long(log10(temp) * 10000.0);
-	else if(temp == 0)
-	{
-		ret = -LONG_MAX;
-	}
-	else ret = 0;
-	return ret;
-}
-
-int numDigits(long number)
-{
-	int digits = 0;
-	while (number) 
-	{
-		number /= 10;
-		digits++;
-	}
-	return digits;
-}
-
 void FFScript::do_itoa()
 {
 	long arrayptr_a = get_register(sarg1) / 10000;
@@ -32340,7 +32429,7 @@ void FFScript::do_itoa()
 		
 	double num = number;
 	zprint2("itoa_c(), num is: %f\n", num);
-	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	int digits = FFCore.numDigits(number); //long(log10(temp) * 10000.0)
 	zprint2("itoa_c, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
@@ -32388,7 +32477,7 @@ void FFScript::do_itoacat()
 	zprint2("itoacat number is: %d\n",number);
 		
 	double num = number;
-	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	int digits = FFCore.numDigits(number); //long(log10(temp) * 10000.0)
 	zprint2("itoacat, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
@@ -32445,14 +32534,6 @@ void FFScript::do_itoa()
 	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
 }
 */
-void FFScript::do_xtoa()
-{
-	//not implemented, xtoa not found
-	long arrayptr_a = ri->d[0]/10000;
-	string strA;
-	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
-}
 
 void FFScript::do_strcpy(const bool a, const bool b)
 {
@@ -32583,6 +32664,58 @@ void FFScript::get_npcdata_initd_label(const bool v)
 		
 	if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
+}
+
+/////////////////////
+/// MATHS HELPERS ///
+/////////////////////
+
+//Returns the log of val to the base 10. Any value <= 0 will return 0.
+int FFScript::Log10(double temp)
+{
+	int ret = 0;
+	if(temp > 0)
+		ret = long(log10(temp) * 10000.0);
+	else if(temp == 0)
+	{
+		ret = -LONG_MAX;
+	}
+	else ret = 0;
+	return ret;
+}
+
+//Returns the number of digits in a given integer. 
+int FFScript::numDigits(long number)
+{
+	int digits = 0;
+	while (number) 
+	{
+		number /= 10;
+		digits++;
+	}
+	return digits;
+}
+
+// Returns the natural logarithm of val (to the base e). Any value <= 0 will return 0.
+double FFScript::ln(double temp)
+{
+	
+	if(temp > 0)
+		return (log(temp));
+	else if(temp == 0)
+	{
+		return ((double)(-LONG_MAX));
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Returns the logarithm of x to the given base.
+double FFScript::LogToBase(double x, double base)
+{
+	return FFCore.ln(x)/FFCore.ln(base);
 }
 
 script_command ZASMcommands[NUMCOMMANDS+1]=

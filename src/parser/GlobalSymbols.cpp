@@ -693,6 +693,8 @@ static AccessorTable GlobalTable[] =
 	//overload, 2 args
 		// { "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "itoa_c",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "xtoa_c",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "xtoi_c",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SaveSRAM",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadSRAM",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
@@ -1724,6 +1726,29 @@ void GlobalSymbols::generateCode()
 		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		code.push_back(new Oitoa(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void xtoa_c(str* dest, int)
+	{
+		Function* function = getFunction("xtoa_c", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		code.push_back(new Oxtoa(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int xtoi(*p)
+	{
+		Function* function = getFunction("xtoi_c", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
