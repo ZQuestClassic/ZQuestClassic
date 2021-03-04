@@ -32650,7 +32650,7 @@ int FFScript::numDigits(long number)
 }
 
 // Returns the natural logarithm of val (to the base e). Any value <= 0 will return 0.
-double FFSCript::ln(double temp)
+double FFScript::ln(double temp)
 {
 	
 	if(temp > 0)
