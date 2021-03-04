@@ -559,6 +559,7 @@ void AlloffLimited(int flagset);
 void do_xlen(const bool v);
 int xtoi(char *hexstring);
 double ln(double temp);
+double Log2( double n );
 int numDigits(long number);
 int Log10(double temp);
 double LogToBase(double x, double base);

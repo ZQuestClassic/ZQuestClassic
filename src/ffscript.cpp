@@ -32214,7 +32214,7 @@ void FFScript::do_xtoi2()
 }
 
 // Calculates log2 of number.  
-double Log2( double n )  
+double FFScript::Log2( double n )  
 {  
     // log(n)/log(2) is log2.  
     return log( (double)n ) / log( (double)2 );  
