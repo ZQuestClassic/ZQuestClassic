@@ -32186,10 +32186,20 @@ void FFScript::do_xtoi2()
 //xtoa, convert hex number to hex ascii
 void FFScript::do_xtoa()
 {
+	
 	long arrayptr_a = get_register(sarg1) / 10000;
 	long number = get_register(sarg2) / 10000;
+	
+	zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
+	zprint2("xtoa_c number is: %d\n",number);
+		
 	double num = number;
-	int digits = floor(FFCore.LogToBase(num, (double)16) + 1);
+	zprint2("xtoa_c(), num is: %f\n", num);
+	int digits = sizeof(number)*CHAR_BIT/4;
+	zprint2("xtoa_c, digits is: %d\n",digits);
+	
+	
+	//floor(FFCore.LogToBase(num, (double)16) + 1);
 	int pos = 0;
 	string strA;
 	strA.resize(digits+3);
@@ -32198,7 +32208,7 @@ void FFScript::do_xtoa()
 	strA[pos+1] = 'x';
 	int ret = 2;
 
-	if(num == 0)
+	if(number == 0)
 	{
 		strA[pos+2] = '0';
 		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
@@ -32214,7 +32224,7 @@ void FFScript::do_xtoa()
 	int alphaoffset = 'A' - 0xA;
 	for(int i = 0; i < digits; ++i)
 	{
-		int coeff = ((long)floor((double)(num / pow((float)0x10, digits - i - 1))) % 0x10);
+		int coeff = ((long)floor((double)(((double)number) / pow((float)0x10, digits - i - 1))) % 0x10);
 		strA[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
 	}
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
@@ -32655,7 +32665,7 @@ double FFScript::ln(double temp)
 {
 	
 	if(temp > 0)
-		return (log(temp) * 10000.0);
+		return (log(temp));
 	else if(temp == 0)
 	{
 		return ((double)(-LONG_MAX));
