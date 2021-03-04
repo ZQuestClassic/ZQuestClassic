@@ -31768,8 +31768,8 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 
 void FFScript::do_strcmp()
 {
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000 ?
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -31779,8 +31779,8 @@ void FFScript::do_strcmp()
 
 void FFScript::do_stricmp()
 {
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32143,16 +32143,109 @@ void FFScript::do_xlen(const bool v)
 	//zprint("strlen string size is: %d\n", str.length());
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
+
+//xtoi, conv hex string to integer
+static int xtoi(char *hexstring)
+{
+	int	i = 0;
+	
+	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
+		  hexstring += 2;
+	while (*hexstring)
+	{
+		char c = toupper(*hexstring++);
+		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
+			break;
+		c -= '0';
+		if (c > 9)
+			c -= 7;
+		i = (i << 4) + c;
+	}
+	return i;
+}
+
 void FFScript::do_xtoi(const bool v)
 {
-	//not implemented, xtoi not found
-	//zprint("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//zprint("strlen string size is: %d\n", str.length());
-	//set_register(sarg1, (xtoi(str.c_str()) * 10000));
+	set_register(sarg1, (xtoi(const_cast<char*>(str.c_str())) * 10000));
 }
+void FFScript::do_xtoi2() 
+{
+	//Not implemented, xtoi not found
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+}
+
+//xtoa, convert hex number to hex ascii
+static double ln(double temp)
+{
+	
+	if(temp > 0)
+		return (log(temp) * 10000.0);
+	else if(temp == 0)
+	{
+		return ((double)(-LONG_MAX));
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+static double LogToBase(double x, double base)
+{
+	return ln(x)/ln(base);
+}
+
+void FFScript::do_xtoa()
+{
+	long arrayptr_a = get_register(sarg1) / 10000;
+	long number = get_register(sarg2) / 10000;
+	double num = number;
+	int digits = floor(LogToBase(num, (double)16) + 1);
+	int pos = 0;
+	string strA;
+	strA.resize(digits+3);
+	//num = Floor(Abs(num));
+	strA[pos] = '0';
+	strA[pos+1] = 'x';
+	int ret = 2;
+
+	if(num == 0)
+	{
+		strA[pos+2] = '0';
+		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+			set_register(sarg1, 0);
+		}
+		else set_register(sarg1, 3); //returns the pointer to the dest
+		return;
+	}
+
+	
+	int alphaoffset = 'A' - 0xA;
+	for(int i = 0; i < digits; ++i)
+	{
+		int coeff = ((long)floor((double)(num / pow((float)0x10, digits - i - 1))) % 0x10);
+		strA[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
+	}
+	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, (ret + digits)); //returns the pointer to the dest
+}
+
+
+
+
 void FFScript::do_ilen(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32174,8 +32267,8 @@ void FFScript::do_atoi(const bool v)
 void FFScript::do_strstr()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32192,8 +32285,8 @@ void FFScript::do_strstr()
 void FFScript::do_strcat()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32213,8 +32306,8 @@ void FFScript::do_strcat()
 void FFScript::do_strspn()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
+	long arrayptr_b = ri->d[1]/10000; //get_register(sarg2) / 10000?
 	string strA;
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
@@ -32225,7 +32318,7 @@ void FFScript::do_strspn()
 void FFScript::do_strcspn()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	long arrayptr_b = ri->d[1]/10000;
 	string strA;
 	string strB;
@@ -32237,7 +32330,7 @@ void FFScript::do_strcspn()
 void FFScript::do_strchr()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
@@ -32252,7 +32345,7 @@ void FFScript::do_strchr()
 }
 void FFScript::do_strrchr()
 {
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
@@ -32264,23 +32357,17 @@ void FFScript::do_strrchr()
 	}
 	set_register(sarg1,strA.find_last_of(chr_to_find)*10000);
 }
-void FFScript::do_xtoi2()
-{
-	//Not implemented, xtoi not found
-	long arrayptr_a = ri->d[0]/10000;
-	string strA;
-	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
-}
+
 void FFScript::do_remchr2()
 {
 	//Not implemented, remchr not found
 	//not part of any standard library
-	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_a = ri->d[0]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
 	//set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
+//Bookmark
 void FFScript::do_atoi2()
 {
 	//not implemented; atoi does not take 2 params
@@ -32445,14 +32532,6 @@ void FFScript::do_itoa()
 	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
 }
 */
-void FFScript::do_xtoa()
-{
-	//not implemented, xtoa not found
-	long arrayptr_a = ri->d[0]/10000;
-	string strA;
-	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
-}
 
 void FFScript::do_strcpy(const bool a, const bool b)
 {

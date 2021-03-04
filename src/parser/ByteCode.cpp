@@ -4999,14 +4999,14 @@ string Ostrstr::toString()
     return "STRSTR " + getArgument()->toString();
 }
 
-string Oxtoa::toString()
-{
-    return "XTOA " + getArgument()->toString();
-}
-
 string Oitoa::toString()
 {
     return "ITOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string Oxtoa::toString()
+{
+    return "XTOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string Oitoacat::toString()
