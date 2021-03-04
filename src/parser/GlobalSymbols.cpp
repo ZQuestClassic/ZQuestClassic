@@ -1644,17 +1644,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int xtoi(*p)
-	{
-		Function* function = getFunction("xtoi_c", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
 	/*int atoi2(*a, *b)
 	{
 		Function* function = getFunction("atoi",2);
@@ -1740,7 +1729,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void xtoa_c(str* dest, int)
 	{
 		Function* function = getFunction("xtoa_c", 2);
@@ -1750,6 +1738,17 @@ void GlobalSymbols::generateCode()
 		LABELBACK(label);
 		code.push_back(new OPopRegister(new VarArgument(EXP1)));
 		code.push_back(new Oxtoa(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int xtoi(*p)
+	{
+		Function* function = getFunction("xtoi_c", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1837,17 +1836,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int xtoi(*p)
-	//{
-	//	Function* function = getFunction("xtoi", 1);
-	//	int label = function->getLabel();
-	//	vector<Opcode *> code;
-	//	code.push_back(new OPopRegister(new VarArgument(EXP2)));
-	//	LABELBACK(label);
-	//	code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
-	//	RETURN();
-	//	function->giveCode(code);
-	//}
 	/*
 	//int xlen(*p)
 	{
