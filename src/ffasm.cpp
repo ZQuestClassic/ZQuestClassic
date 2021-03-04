@@ -818,7 +818,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	//2 INPUT, 1 RET, based on strcmp
 	{ "STRCSPN",                1,   0,   0,   0},
 	{ "STRSTR",                1,   0,   0,   0},
-	{ "XTOA",                1,   0,   0,   0},
+	{ "XTOA",                2,   0,   0,   0},
 	{ "ITOA",                2,   0,   0,   0},
 	{ "STRCAT",                1,   0,   0,   0},
 	{ "STRSPN",                1,   0,   0,   0},

@@ -32202,7 +32202,7 @@ void FFScript::do_xtoa()
 {
 	
 	long arrayptr_a = get_register(sarg1) / 10000;
-	long number = ri->d[3]/10000; //why are you not in sarg2?!!
+	long number = get_register(sarg2) / 10000;//ri->d[3]/10000; //why are you not in sarg2?!!
 	
 	//for ( int q = 0; q < 6; ++q )
 	//	zprint2("ri->d[%d] is %d", q, ri->d[q]);
@@ -33509,8 +33509,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	//2 INPUT, 1 RET, based on strcmp
 	{ "STRCSPN",                1,   0,   0,   0},
 	{ "STRSTR",                1,   0,   0,   0},
-	{ "XTOA",                1,   0,   0,   0},
-	{ "ITOA",                1,   0,   0,   0},
+	{ "XTOA",                2,   0,   0,   0},
+	{ "ITOA",                2,   0,   0,   0},
 	{ "STRCAT",                1,   0,   0,   0},
 	{ "STRSPN",                1,   0,   0,   0},
 	{ "STRCHR",                1,   0,   0,   0},
