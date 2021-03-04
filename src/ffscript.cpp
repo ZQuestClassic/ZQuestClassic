@@ -32148,7 +32148,7 @@ void FFScript::do_xlen(const bool v)
 }
 
 //xtoi, conv hex string to integer
-int FFSCript::xtoi(char *hexstring)
+int FFScript::xtoi(char *hexstring)
 {
 	int	i = 0;
 	

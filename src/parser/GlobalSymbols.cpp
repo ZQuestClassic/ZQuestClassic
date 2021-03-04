@@ -1838,16 +1838,16 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//int xtoi(*p)
-	{
-		Function* function = getFunction("xtoi", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
+	//{
+	//	Function* function = getFunction("xtoi", 1);
+	//	int label = function->getLabel();
+	//	vector<Opcode *> code;
+	//	code.push_back(new OPopRegister(new VarArgument(EXP2)));
+	//	LABELBACK(label);
+	//	code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
+	//	RETURN();
+	//	function->giveCode(code);
+	//}
 	/*
 	//int xlen(*p)
 	{
