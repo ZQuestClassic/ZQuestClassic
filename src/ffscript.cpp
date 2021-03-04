@@ -32216,7 +32216,7 @@ void FFScript::do_xtoa()
 			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
 			set_register(sarg1, 0);
 		}
-		else set_register(sarg1, 3); //returns the pointer to the dest
+		else set_register(sarg1, 30000); //returns the pointer to the dest
 		return;
 	}
 
