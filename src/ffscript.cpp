@@ -32094,6 +32094,9 @@ void FFScript::do_getdmapbyname()
 	set_register(sarg1, (num * 10000));
 }
 
+////////////////////////
+/// String Utilities ///
+////////////////////////
 void FFScript::do_ConvertCase(const bool v)
 {
 	long arrayptr_a = get_register(sarg1) / 10000;
@@ -32145,7 +32148,7 @@ void FFScript::do_xlen(const bool v)
 }
 
 //xtoi, conv hex string to integer
-static int xtoi(char *hexstring)
+int FFSCript::xtoi(char *hexstring)
 {
 	int	i = 0;
 	
@@ -32169,7 +32172,7 @@ void FFScript::do_xtoi(const bool v)
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	set_register(sarg1, (xtoi(const_cast<char*>(str.c_str())) * 10000));
+	set_register(sarg1, (FFCore.xtoi(const_cast<char*>(str.c_str())) * 10000));
 }
 void FFScript::do_xtoi2() 
 {
@@ -32181,32 +32184,12 @@ void FFScript::do_xtoi2()
 }
 
 //xtoa, convert hex number to hex ascii
-static double ln(double temp)
-{
-	
-	if(temp > 0)
-		return (log(temp) * 10000.0);
-	else if(temp == 0)
-	{
-		return ((double)(-LONG_MAX));
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-static double LogToBase(double x, double base)
-{
-	return ln(x)/ln(base);
-}
-
 void FFScript::do_xtoa()
 {
 	long arrayptr_a = get_register(sarg1) / 10000;
 	long number = get_register(sarg2) / 10000;
 	double num = number;
-	int digits = floor(LogToBase(num, (double)16) + 1);
+	int digits = floor(FFCore.LogToBase(num, (double)16) + 1);
 	int pos = 0;
 	string strA;
 	strA.resize(digits+3);
@@ -32243,9 +32226,6 @@ void FFScript::do_xtoa()
 	else set_register(sarg1, (ret + digits)); //returns the pointer to the dest
 }
 
-
-
-
 void FFScript::do_ilen(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32254,6 +32234,7 @@ void FFScript::do_ilen(const bool v)
 	//zprint("strlen string size is: %d\n", str.length());
 	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
 }
+
 void FFScript::do_atoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32261,8 +32242,6 @@ void FFScript::do_atoi(const bool v)
 	FFCore.getString(arrayptr, str);
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
 }
-
-
 
 void FFScript::do_strstr()
 {
@@ -32393,30 +32372,6 @@ void FFScript::do_xlen2()
 	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 
-int Log10(double temp)
-{
-	int ret = 0;
-	if(temp > 0)
-		ret = long(log10(temp) * 10000.0);
-	else if(temp == 0)
-	{
-		ret = -LONG_MAX;
-	}
-	else ret = 0;
-	return ret;
-}
-
-int numDigits(long number)
-{
-	int digits = 0;
-	while (number) 
-	{
-		number /= 10;
-		digits++;
-	}
-	return digits;
-}
-
 void FFScript::do_itoa()
 {
 	long arrayptr_a = get_register(sarg1) / 10000;
@@ -32427,7 +32382,7 @@ void FFScript::do_itoa()
 		
 	double num = number;
 	zprint2("itoa_c(), num is: %f\n", num);
-	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	int digits = FFCore.numDigits(number); //long(log10(temp) * 10000.0)
 	zprint2("itoa_c, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
@@ -32475,7 +32430,7 @@ void FFScript::do_itoacat()
 	zprint2("itoacat number is: %d\n",number);
 		
 	double num = number;
-	int digits = numDigits(number); //long(log10(temp) * 10000.0)
+	int digits = FFCore.numDigits(number); //long(log10(temp) * 10000.0)
 	zprint2("itoacat, digits is: %d\n",digits);
 	int pos = 0;
 	int ret = 0;
@@ -32662,6 +32617,58 @@ void FFScript::get_npcdata_initd_label(const bool v)
 		
 	if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
+}
+
+/////////////////////
+/// MATHS HELPERS ///
+/////////////////////
+
+//Returns the log of val to the base 10. Any value <= 0 will return 0.
+int FFScript::Log10(double temp)
+{
+	int ret = 0;
+	if(temp > 0)
+		ret = long(log10(temp) * 10000.0);
+	else if(temp == 0)
+	{
+		ret = -LONG_MAX;
+	}
+	else ret = 0;
+	return ret;
+}
+
+//Returns the number of digits in a given integer. 
+int FFScript::numDigits(long number)
+{
+	int digits = 0;
+	while (number) 
+	{
+		number /= 10;
+		digits++;
+	}
+	return digits;
+}
+
+// Returns the natural logarithm of val (to the base e). Any value <= 0 will return 0.
+double FFSCript::ln(double temp)
+{
+	
+	if(temp > 0)
+		return (log(temp) * 10000.0);
+	else if(temp == 0)
+	{
+		return ((double)(-LONG_MAX));
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Returns the logarithm of x to the given base.
+double FFScript::LogToBase(double x, double base)
+{
+	return FFCore.ln(x)/FFCore.ln(base);
 }
 
 script_command ZASMcommands[NUMCOMMANDS+1]=
