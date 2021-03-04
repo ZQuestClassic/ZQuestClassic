@@ -52,8 +52,8 @@ using std::ostringstream;
  SP - stack pointer
  D4 - stack frame pointer
  D6 - stack frame offset accumulator
- D2 - expression accumulator #1
- D3 - expression accumulator #2
+ D2 - expression accumulator #1 (sarg1)
+ D3 - expression accumulator #2 (sarg2)
  D0 - array index accumulator
  D1 - secondary array index accumulator
  D5 - pure SETR sink
