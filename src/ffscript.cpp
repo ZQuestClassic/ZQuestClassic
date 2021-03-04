@@ -32151,9 +32151,11 @@ void FFScript::do_xlen(const bool v)
 int FFScript::xtoi(char *hexstring)
 {
 	int	i = 0;
+	signed char isneg = 1;
+	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
 	
 	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
-		  hexstring += 2;
+		  hexstring += 2;// + (isneg?1:0);
 	while (*hexstring)
 	{
 		char c = toupper(*hexstring++);
@@ -32164,7 +32166,8 @@ int FFScript::xtoi(char *hexstring)
 			c -= 7;
 		i = (i << 4) + c;
 	}
-	return i;
+	//zprint2("FFCore.xtoi result is %d\n", i);
+	return i * (isneg);
 }
 
 void FFScript::do_xtoi(const bool v)
@@ -32172,7 +32175,11 @@ void FFScript::do_xtoi(const bool v)
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	set_register(sarg1, (FFCore.xtoi(const_cast<char*>(str.c_str())) * 10000));
+	//zprint2("xtoi array pointer is: %d\n", arrayptr);
+	//zprint2("xtoi string is %s\n", str.c_str());
+	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	//zprint2("xtoi val is %f\n", val);
+	set_register(sarg1, (long)(val) * 10000);
 }
 void FFScript::do_xtoi2() 
 {
