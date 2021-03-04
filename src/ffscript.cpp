@@ -32235,6 +32235,7 @@ void FFScript::do_ilen(const bool v)
 	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
 }
 
+//! Note atoi2 (atoi(str, len) can be accompished with str.resize after getString.
 void FFScript::do_atoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
