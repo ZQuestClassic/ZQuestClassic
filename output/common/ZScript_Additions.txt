@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 89
-Document Revision: 13th February, 2021
+Document for: 2.55, Alpha 90
+Document Revision: 5th March, 2021
 
 
  __           _   _                 
@@ -2552,9 +2552,19 @@ int ilen(string[]);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
 
-int itoa(dest_string[], int value);
+int itoa_c(dest_string[], int value);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
+ * This will be renamed to itoa() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::itoa.
+ 
+int xtoa_c(dest_string[], int value);
+ * Places a hexidecimal value into a string as char. 
+ * Returns the number of characters used in the conversion. 
+ * This will be renamed to xtoa() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::xtoa.
 
 int itoacat(dest_string[], int value);
  * Appends value into a string as char, combining itoa() with strcat().
@@ -2591,6 +2601,13 @@ void strcpy(string_dest[], string_src[]);
 int atoi(string[]);
  * Returns the decimal value of a string consisting of a number.
  * e.g. ("26" would return 26).
+ 
+int xtoi_c(string[]);
+ * Converts a hexidecimal value presented as a string into an integer. 
+ * e.g. ("0x100" would return 256, which is 0x100).
+ * This will be renamed to xtoi() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::xtoi.
  
 int strcat(atring_a[], string_b[]);
  * Append the contents of string_b onto string_a.
@@ -4709,7 +4726,7 @@ void WarpEx(int ptr[])
   Valid array params are:
 	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags})
 	and
-	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir}
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir})
 
 	type:
 		Warp types are:
