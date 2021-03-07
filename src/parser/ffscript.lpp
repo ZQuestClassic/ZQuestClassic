@@ -146,6 +146,7 @@ link	TOKEN( LINK );
 hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
+directory	TOKEN( DIRECTORY );
 subscreendata	TOKEN( SUBSCREENDATA );
 particlesprite	TOKEN( PARTICLE );
 decorationsprite	TOKEN( DECORATION );

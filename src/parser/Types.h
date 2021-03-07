@@ -119,6 +119,7 @@ namespace ZScript
 		ZVARTYPEID_SUBSCREENDATA,
 		ZVARTYPEID_FILE,
 		ZVARTYPEID_MODULE,
+		ZVARTYPEID_DIRECTORY,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -212,6 +213,8 @@ namespace ZScript
 				return "SUBSCREENDATA";
 			case ZVARTYPEID_FILE:
 				return "FILE";
+			case ZVARTYPEID_DIRECTORY:
+				return "DIRECTORY";
 			case ZVARTYPEID_MODULE:
 				return "MODULE";
 			default:
@@ -311,6 +314,8 @@ namespace ZScript
 			return ZVARTYPEID_SUBSCREENDATA;
 		else if(name == "FILE")
 			return ZVARTYPEID_FILE;
+		else if(name == "DIRECTORY")
+			return ZVARTYPEID_DIRECTORY;
 		else if(name == "MODULE")
 			return ZVARTYPEID_MODULE;
 		
@@ -429,6 +434,7 @@ namespace ZScript
 		static DataTypeClassConst CWARPRING;
 		static DataTypeClassConst CSUBSCREENDATA;
 		static DataTypeClassConst CFILE;
+		static DataTypeClassConst CDIRECTORY;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -457,6 +463,7 @@ namespace ZScript
 		static DataTypeClass WARPRING;
 		static DataTypeClass SUBSCREENDATA;
 		static DataTypeClass FILE;
+		static DataTypeClass DIRECTORY;
 	};
 
 	bool operator==(DataType const&, DataType const&);

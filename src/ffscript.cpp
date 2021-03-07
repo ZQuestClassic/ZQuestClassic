@@ -31,6 +31,7 @@ extern byte use_dwm_flush;
 #include "script_drawing.h"
 #include "util.h"
 #include "ending.h"
+#include "zc_malloc.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -83,6 +84,7 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
+user_dir script_dirs[MAX_USER_DIRS];
 
 FONT *get_zc_font(int index);
 
@@ -102,6 +104,28 @@ const char scripttypenames[15][40]=
 	"DMap ActSub Script", "DMap PasSub Script", "Combo Script"
 };
 
+void user_dir::clear()
+{
+	filepath = "";
+	reserved = false;
+	if(list)
+	{
+		list->clear();
+		zc_free(list);
+		list = NULL;
+	}
+}
+void user_dir::setPath(const char* buf)
+{
+	if(!list)
+	{
+		list = (FLIST *) zc_malloc(sizeof(FLIST));
+	}
+	reserved = true;
+	filepath = std::string(buf) + "/";
+	regulate_path(filepath);
+	list->load(filepath.c_str());
+}
 
 int CScriptDrawingCommands::GetCount()
 {
@@ -1149,8 +1173,6 @@ const char script_types[16][16]=
 	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
 	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
 };
-	
-	
 	
 int FFScript::UpperToLower(std::string *s)
 {
@@ -3337,6 +3359,22 @@ user_file *checkFile(long ref, const char *what, bool req_file = false, bool ski
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_dir *checkDir(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_DIRS)
+	{
+		user_dir* dr = &script_dirs[ref-1];
+		if(dr->reserved)
+		{
+			return dr;
+		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -10444,6 +10482,18 @@ long get_register(const long arg)
 		}
 		
 		///----------------------------------------------------------------------------------------------------//
+		//Directory->
+		case DIRECTORYSIZE:
+		{
+			if(user_dir* dr = checkDir(ri->directoryref, "Size()", true))
+			{
+				ret = dr->size() * 10000L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
 		//Module->
 		
 		case MODULEGETINT:
@@ -10523,6 +10573,7 @@ long get_register(const long arg)
 		case REFGAMEDATA: ret = ri->gamedataref; break;
 		case REFCHEATS: ret = ri->cheatsref; break;
 		case REFFILE: ret = ri->fileref; break;
+		case REFDIRECTORY: ret = ri->directoryref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		
 			
@@ -20111,6 +20162,40 @@ void FFScript::do_loaddmapdata(const bool v)
 	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
 }
 
+void FFScript::do_loaddirectory()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string path;
+	ArrayH::getString(arrayptr, path, 2048);
+	
+	if(path.find("../") != string::npos
+		|| path.find("..\\") != string::npos)
+	{
+		Z_scripterrlog("Error: Script attempted to go up a directory in directory load '%s'\n", path.c_str());
+		return;
+	}
+	
+	size_t pos = path.find_last_not_of("/\\");
+	if(pos != string::npos && !(path.find_last_of("/\\") < pos))
+		path = path.substr(0, pos+1);
+	char buf[2048];
+	get_scriptfile_path(buf, path.c_str());
+	regulate_path(buf);
+	
+	if(valid_dir(buf) && checkPath(buf, true))
+	{
+		ri->directoryref = get_free_directory(false);
+		if(!ri->directoryref) return;
+		user_dir* d = checkDir(ri->directoryref, "LoadDirectory", true);
+		set_register(sarg1, ri->directoryref);
+		d->setPath(buf);
+		return;
+	}
+	Z_scripterrlog("Path '%s' empty or points to a file; must point to a directory!\n",path.c_str());
+	ri->directoryref = 0;
+	set_register(sarg1, 0);
+}
+
 void FFScript::do_loaddropset(const bool v)
 {
 	long ID = SH::get_arg(sarg1, v) / 10000;
@@ -24322,6 +24407,8 @@ int run_script(const byte type, const word script, const long i)
 				FFScript::do_loaddmapdata(false); break;
 			case LOADDMAPDATAV: //command
 				FFScript::do_loaddmapdata(true); break;
+			case LOADDIRECTORYR:
+				FFCore.do_loaddirectory(); break;
 			case LOADDROPSETR: //command
 				FFScript::do_loaddropset(false); break;
 
@@ -25741,6 +25828,22 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			}
 			
+			case DIRECTORYGET:
+			{
+				FFCore.do_directory_get();
+				break;
+			}
+			case DIRECTORYRELOAD:
+			{
+				FFCore.do_directory_reload();
+				break;
+			}
+			case DIRECTORYFREE:
+			{
+				FFCore.do_directory_free();
+				break;
+			}
+			
 			case MODULEGETIC:
 			{
 				
@@ -26171,6 +26274,14 @@ void FFScript::user_files_init()
 	}
 }
 
+void FFScript::user_dirs_init()
+{
+	for(int q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].clear();
+	}
+}
+
 int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
@@ -26182,6 +26293,20 @@ int FFScript::get_free_file(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+
+int FFScript::get_free_directory(bool skipError)
+{
+	for(int q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		if(!script_dirs[q].reserved)
+		{
+			script_dirs[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_directory() could not find a valid free directory pointer!\n");
 	return 0;
 }
 #ifdef _WIN32
@@ -26625,6 +26750,39 @@ void FFScript::do_file_geterr()
 		}
 	}
 }
+///----------------------------------------------------------------------------------------------------
+//Directory
+
+void FFScript::do_directory_get()
+{
+	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	{
+		int indx = get_register(sarg1) / 10000L;
+		long arrayptr = get_register(sarg2) / 10000L;
+		char buf[2048] = {0};
+		set_register(sarg1, dr->get(indx, buf) ? 10000L : 0L);
+		if(ArrayH::setArray(arrayptr, string(buf)) == SH::_Overflow)
+			Z_scripterrlog("Array supplied to 'directory->GetFilename()' not large enough\n");
+	}
+	else set_register(sarg1, 0L);
+}
+
+void FFScript::do_directory_reload()
+{
+	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	{
+		dr->refresh();
+	}
+}
+
+void FFScript::do_directory_free()
+{
+	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	{
+		dr->clear();
+	}
+}
+
 ///----------------------------------------------------------------------------------------------------
 
 
@@ -33687,6 +33845,12 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	
 	{ "FRAMER",                0,   0,   0,   0},
 	{ "BMPFRAMER",                0,   0,   0,   0},
+	
+	{ "LOADDIRECTORYR",                1,   0,   0,   0},
+	{ "DIRECTORYGET",                2,   0,   0,   0},
+	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
+	{ "DIRECTORYFREE",                0,   0,   0,   0},
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34871,8 +35035,8 @@ script_variable ZASMVars[]=
 	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
 	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
-	{ "PADDINGR1", PADDINGR1, 0, 0 },
-	{ "PADDINGR2", PADDINGR2, 0, 0 },
+	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
+	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
 	{ "PADDINGR3", PADDINGR3, 0, 0 },
 	{ "PADDINGR4", PADDINGR4, 0, 0 },
 	{ "PADDINGR5", PADDINGR5, 0, 0 },
