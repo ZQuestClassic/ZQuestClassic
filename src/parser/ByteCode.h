@@ -9179,6 +9179,17 @@ namespace ZScript
 		}
 	};
 	
+	class OFileWriteBytes : public BinaryOpcode
+	{
+	public:
+		OFileWriteBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileWriteBytes(a->clone(), b->clone());
+		}
+	};
+	
 	class OFileWriteInts : public BinaryOpcode
 	{
 	public:

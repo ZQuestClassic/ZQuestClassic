@@ -715,6 +715,7 @@ void do_file_readchars();
 void do_file_readstring();
 void do_file_readints();
 void do_file_writechars();
+void do_file_writebytes();
 void do_file_writestring();
 void do_file_writeints();
 void do_file_getchar();
@@ -2875,6 +2876,7 @@ enum ASM_DEFINE
 	DIRECTORYGET,
 	DIRECTORYRELOAD,
 	DIRECTORYFREE,
+	FILEWRITEBYTES,
 	
 	NUMCOMMANDS           //0x0197
 };

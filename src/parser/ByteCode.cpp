@@ -5330,6 +5330,11 @@ string OFileWriteChars::toString()
 	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
 
+string OFileWriteBytes::toString()
+{
+	return "FILEWRITEBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OFileWriteInts::toString()
 {
 	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
