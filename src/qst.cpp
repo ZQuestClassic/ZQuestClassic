@@ -7240,6 +7240,1378 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
+	    if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
+		{
+			switch(tempitem.family)
+			{
+				case itype_sword:
+				{
+					tempitem.flags &= ~(ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_brang:
+				{
+					tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_arrow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_candle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whistle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bait:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_letter:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_potion:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wand:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wallet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_amulet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_shield:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_raft:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ladder:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_book:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magickey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bracelet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_flippers:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_boots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hookshot:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lens:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hammer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_dinsfire:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_faroreswind:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_nayruslove:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					break;
+				}
+				case itype_bomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_sbomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_clock:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_key:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magiccontainer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_triforcepiece:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_map:	case itype_compass:	case itype_bosskey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quiver:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lkey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_cbyrna:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rupee: case itype_arrowammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_fairy:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bombbag:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rocs:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hoverboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_crossscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whispring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_chargering:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wealthmedal:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_heartring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magicring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_agony:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_stompboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whimsicalring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
+				case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
+				case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
+				case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
+				case itype_bowandarrow: case itype_letterpotion: case itype_misc:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+			}
+		}
 	    //Port quest rules to items
 	    if( s_version <= 31) 
 	    {
