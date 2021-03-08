@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding = "UTF-8"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="zquest"
+	ProjectGUID="{14AECCF8-06C1-320E-900D-B8286DD1E14D}"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="C:\Users\joshu\Desktop\ZC Dev\Debug"
+			IntermediateDirectory="zquest.dir\Debug"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				AssemblerListingLocation="$(IntDir)\"
+				BasicRuntimeChecks="3"
+				CompileAs="2"
+				DebugInformationFormat="3"
+				ExceptionHandling="1"
+				InlineFunctionExpansion="0"
+				Optimization="0"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32;_WINDOWS;ZCM_DLL_IMPORT;ALLEGRO_MSVC;_CRT_SECURE_NO_WARNINGS;HAS_BOOST;CMAKE_INTDIR=\&quot;Debug\&quot;"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				PreprocessorDefinitions="WIN32;_WINDOWS;ZCM_DLL_IMPORT;ALLEGRO_MSVC;_CRT_SECURE_NO_WARNINGS;HAS_BOOST;CMAKE_INTDIR=\&quot;Debug\&quot;"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCManifestTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Debug\zcsound.lib libs\win32dbg\al_gif.lib libs\win32dbg\libpng.lib libs\win32dbg\zlibd.lib libs\win32dbg\loadpng.lib libs\win32dbg\libjpgal.lib libs\win32dbg\alleg44-debug.lib libs\win32dbg\aldmd.lib libs\win32dbg\almp3.lib libs\win32dbg\alogg.lib libs\win32dbg\dumbd.lib libs\win32dbg\gme.lib "
+				OutputFile="C:\Users\joshu\Desktop\ZC Dev\Debug\zquest.exe"
+				Version="0.0"
+				AdditionalOptions="/machine:X86 /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG /debug"
+				IgnoreDefaultLibraryNames="LIBCD"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="C:\Users\joshu\Desktop\ZC Dev\Debug/zquest.pdb"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				ImportLibrary="C:\Users\joshu\Desktop\ZC Dev\Debug\zquest.lib"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="C:\Users\joshu\Desktop\ZC Dev\Release"
+			IntermediateDirectory="zquest.dir\Release"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				AssemblerListingLocation="$(IntDir)\"
+				CompileAs="2"
+				ExceptionHandling="1"
+				FloatingPointModel="2"
+				InlineFunctionExpansion="2"
+				Optimization="2"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				WarningLevel="3"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ZCM_DLL_IMPORT;ALLEGRO_MSVC;_CRT_SECURE_NO_WARNINGS;HAS_BOOST;CMAKE_INTDIR=\&quot;Release\&quot;"
+				ObjectFile="$(IntDir)\"
+/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ZCM_DLL_IMPORT;ALLEGRO_MSVC;_CRT_SECURE_NO_WARNINGS;HAS_BOOST;CMAKE_INTDIR=\&quot;Release\&quot;"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="C:\Users\joshu\Desktop\ZC Dev\.\allegro\include;C:\Users\joshu\Desktop\ZC Dev\.\include\lpng1212;C:\Users\joshu\Desktop\ZC Dev\.\include\zlib123;C:\Users\joshu\Desktop\ZC Dev\.\include\loadpng;C:\Users\joshu\Desktop\ZC Dev\.\include\jpgalleg-2.5;C:\Users\joshu\Desktop\ZC Dev\.\include\dumb;C:\Users\joshu\Desktop\ZC Dev\.\include\alogg;C:\Users\joshu\Desktop\ZC Dev\.\include\almp3;C:\Users\joshu\Desktop\ZC Dev\.\include\gme;C:\Users\joshu\Desktop\ZC Dev\.\src;C:\Users\joshu\Desktop\ZC Dev\include\boost_1_74_0"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(InputName).tlb"
+				OutputDirectory="$(IntDir)"
+				HeaderFileName="$(InputName).h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="$(InputName)_i.c"
+				ProxyFileName="$(InputName)_p.c"/>
+			<Tool
+				Name="VCManifestTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Release\zcsound.lib libs\win32\al_gif.lib libs\win32\libpng.lib libs\win32\zlib.lib libs\win32\loadpng.lib libs\win32\libjpgal.lib libs\win32\alleg44.lib libs\win32\aldmb.lib libs\win32\almp3.lib libs\win32\alogg.lib libs\win32\dumb.lib libs\win32\gme.lib "
+				OutputFile="C:\Users\joshu\Desktop\ZC Dev\Release\zquest.exe"
+				Version="0.0"
+				AdditionalOptions="/machine:X86 /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG"
+				IgnoreDefaultLibraryNames="LIBCD"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="C:\Users\joshu\Desktop\ZC Dev\Release/zquest.pdb"
+				SubSystem="1"
+				ImportLibrary="C:\Users\joshu\Desktop\ZC Dev\Release\zquest.lib"/>
+		</Configuration>
+	</Configurations>
+	<Files>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\modules\zquest\ZQuestCore.txt">
+				<FileConfiguration
+					Name="Debug|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\modules\zquest\ZQuestGUI.txt">
+				<FileConfiguration
+					Name="Debug|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\modules\zquest\ZQuestMisc.txt">
+				<FileConfiguration
+					Name="Debug|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\modules\zquest\ZQuestZScript.txt">
+				<FileConfiguration
+					Name="Debug|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\modules\zquest\ZQuestZScriptNP.txt">
+				<FileConfiguration
+					Name="Debug|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32" ExcludedFromBuild="true">
+					<Tool
+					Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\CMakeLists.txt">
+			</File>
+		<Filter
+			Name="Source Files"
+			Filter="">
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\colors.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\defdata.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\editbox.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\EditboxModel.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\EditboxView.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\gamedata.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\midi.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\md5.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\particles.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\qst.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\save_gif.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\sprite.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\subscr.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zc_custom.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\init.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\alleg_compat.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\util.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_class.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_cset.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_custom.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_doors.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_files.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_init.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_items.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_misc.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_sprite.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_subscr.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_strings.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_tiles.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zqscale.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zsys.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zq_rules.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\jwin.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\items.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\questReport.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\ffasm.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\zquest.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\gui.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\jwinfsel.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\tab_ctl.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\tiles.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\load_gif.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\win32.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\ffasmexport.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\AST.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\ASTVisitors.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\BuildVisitors.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\ByteCode.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\CompilerUtils.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\CompileError.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\CompileOption.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\DataStructs.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\GlobalSymbols.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\Scope.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\ScriptParser.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\SemanticAnalyzer.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\RegistrationVisitor.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\Types.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\ZScript.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\zq_icon.rc">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.cpp">
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\lex.yy.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCLCompilerTool"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.hpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCLCompilerTool"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.hpp&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="">
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.hpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="CMake Rules"
+			Filter="">
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.cpp.rule">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="[BISON][ZScriptParser] Building parser with bison 3.0.4"
+					CommandLine="cd &quot;C:\Users\joshu\Desktop\ZC Dev&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:\winflexbison\win_bison.exe -v -d -o &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/y.tab.cpp&quot; &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/ffscript.ypp&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\ffscript.ypp&quot;;"
+					Outputs="C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.cpp;C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.hpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="[BISON][ZScriptParser] Building parser with bison 3.0.4"
+					CommandLine="cd &quot;C:\Users\joshu\Desktop\ZC Dev&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:\winflexbison\win_bison.exe -v -d -o &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/y.tab.cpp&quot; &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/ffscript.ypp&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\ffscript.ypp&quot;;"
+					Outputs="C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.cpp;C:\Users\joshu\Desktop\ZC Dev\src\parser\y.tab.hpp"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="C:\Users\joshu\Desktop\ZC Dev\src\parser\lex.yy.cpp.rule">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="[FLEX][ZScriptLexer] Building scanner with win_flex 2.6.4"
+					CommandLine="cd &quot;C:\Users\joshu\Desktop\ZC Dev&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:\winflexbison\win_flex.exe --wincompat &quot;-oC:/Users/joshu/Desktop/ZC Dev/src/parser/lex.yy.cpp&quot; &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/ffscript.lpp&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\ffscript.lpp&quot;;"
+					Outputs="C:\Users\joshu\Desktop\ZC Dev\src\parser\lex.yy.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+					Name="VCCustomBuildTool"
+					Description="[FLEX][ZScriptLexer] Building scanner with win_flex 2.6.4"
+					CommandLine="cd &quot;C:\Users\joshu\Desktop\ZC Dev&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:&#x0D;&#x0A;if errorlevel 1 goto :VCReportError&#x0D;&#x0A;C:\winflexbison\win_flex.exe --wincompat &quot;-oC:/Users/joshu/Desktop/ZC Dev/src/parser/lex.yy.cpp&quot; &quot;C:/Users/joshu/Desktop/ZC Dev/src/parser/ffscript.lpp&quot;&#x0D;&#x0A;if errorlevel 1 goto :VCReportError"
+					AdditionalDependencies="&quot;C:\Users\joshu\Desktop\ZC Dev\src\parser\ffscript.lpp&quot;;"
+					Outputs="C:\Users\joshu\Desktop\ZC Dev\src\parser\lex.yy.cpp"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
