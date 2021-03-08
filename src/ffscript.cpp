@@ -26488,7 +26488,11 @@ void FFScript::do_file_readchars()
 		{
 			return;
 		}
-		if(pos >= a.Size()) return;
+		if(pos >= a.Size()) 
+		{
+		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "ReadChars()", arrayptr);
+		    return;
+		}
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		int limit = pos+count;
 		char c;
@@ -26572,7 +26576,11 @@ void FFScript::do_file_readints()
 		{
 			return;
 		}
-		if(pos >= a.Size()) return;
+		if(pos >= a.Size()) 
+		{
+		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "ReadInts()", arrayptr);
+		    return;
+		}
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		
 		/*
@@ -26618,6 +26626,7 @@ void FFScript::do_file_writechars()
 	}
 	ri->d[rEXP1] = 0L;
 }
+
 void FFScript::do_file_writebytes()
 {
 	if(user_file* f = checkFile(ri->fileref, "WriteBytes()", true))
@@ -26633,7 +26642,11 @@ void FFScript::do_file_writebytes()
 		{
 			return;
 		}
-		if(pos >= a.Size()) return;
+		if(pos >= a.Size()) 
+		{
+		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "WriteBytes()", arrayptr);
+		    return;
+		}
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		std::vector<unsigned char> data(count);
 		for(int q = 0; q < count; ++q)
@@ -26680,7 +26693,12 @@ void FFScript::do_file_writeints()
 		{
 			return;
 		}
-		if(pos >= a.Size()) return;
+		if(pos >= a.Size()) 
+		{
+		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "WriteInts()", arrayptr);
+		    return;
+		}
+		
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		std::vector<long> data(count);
 		for(int q = 0; q < count; ++q)
