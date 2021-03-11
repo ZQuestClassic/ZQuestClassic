@@ -1,12 +1,14 @@
 Tile Editor Hotkeys
+v1.1
 
 E : 	Opens the selected tile int the pixel editor.
 C : 	Copies a tile, or a tile block to swap memory.
 V : 	If a tile or block is copied into swap, pressing V will paste it to a selected dest.
 	Otherwise, this vertically flips a selection.
-	Hold CONTROL to paste a single copied tile to a selected block of tiles.
+	Hold CONTROL to paste a single copied tile to every tile of a selected block of tiles.
 O : 	If a tile or block is copied into swap, pressing O will overlay it to a selected dest.
-	Hold CONTROL to perform mass overlay of a single copied tile to a destination block.
+	Hold SHIFT to perform mass overlay of a single copied tile to a destination block.
+	Hold CONTROL to underlay the image, instead of overlaying it. 
 H : 	Performs an horizontal flip on the selection.
 P :	Opens a dialogue to jump to a desired tile page.
 G : 	Opens the Tile Grabber.
