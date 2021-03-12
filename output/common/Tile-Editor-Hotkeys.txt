@@ -1,5 +1,5 @@
 Tile Editor Hotkeys & Operation
-v1.2
+v1.3
 
 SELECTING TILES
 
@@ -46,3 +46,10 @@ PAGE DOWN: Increments the tile page by one. Hold CONTROL to jump to the last til
 HOME: Jumps to the first tile on the present tile page. Hold CONTROL to jump to tile 0.
 END: Jumps to the last tile on the present tile page. Hold CONTROL to jump the last legal tile. 
 DELETE: Deletes a tile, clearing its pixels to 0. A dialogue appears to confirm this action.
+
+MOVING TILE ALIGNMENT
+
+You can move the alignment of a single tile or a tile block on a page by first selecting a tile,
+	or a block of tiles (including across multiple tile pages)., then when holding the ALT key, 
+	press the ARROW keys to move tiles by one pixel at a time. This affects the entire selection; 
+	and it is very useful when you wish to rip tiles, but the rip does not align to the Tile Editor grid.
