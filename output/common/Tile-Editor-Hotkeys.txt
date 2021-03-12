@@ -1,5 +1,21 @@
-Tile Editor Hotkeys
-v1.1
+Tile Editor Hotkeys & Operation
+v1.2
+
+SELECTING TILES
+
+To select multiple tiles, click one tile, hold SHIFT and click another tile. This will select
+	a block of tiles from tile A to tile B if you are in rectangular selection mode.
+To select multiple rows or columbs of tiles, click a tile hold SHIFT, and then press the ARROW keys.
+You can select an entire column of tiles by selecting a tile, holding SHIFT and clicking on a tile in a
+	lower column of the same row.
+You can select an entire row of tiles by selecting a tile, holding SHIFT and selecting another tile in 
+	same row.
+You can add rows or comumns of tiles to those that you have selected, by holding SHIFT and using 
+	the ARROW keys to add the desired area. 
+To select an entire page of tiles, press HOME, then hold SHIFT and PRESS END. 
+To select multiple pages of tiles, after selecting an entire page, press SHIFT then PAGE DOWN or PAGE UP.
+
+HOTKEYS
 
 E : 	Opens the selected tile int the pixel editor.
 C : 	Copies a tile, or a tile block to swap memory.
