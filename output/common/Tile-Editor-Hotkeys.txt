@@ -1,23 +1,23 @@
 Tile Editor Hotkeys & Operation
-v1.3
+v1.4
 
 SELECTING TILES
 
 To select multiple tiles, click one tile, hold SHIFT and click another tile. This will select
 	a block of tiles from tile A to tile B if you are in rectangular selection mode.
-To select multiple rows or columbs of tiles, click a tile hold SHIFT, and then press the ARROW keys.
+To select multiple rows or columns of tiles, click a tile hold SHIFT, and then press the ARROW keys.
 You can select an entire column of tiles by selecting a tile, holding SHIFT and clicking on a tile in a
 	lower column of the same row.
 You can select an entire row of tiles by selecting a tile, holding SHIFT and selecting another tile in 
 	same row.
-You can add rows or comumns of tiles to those that you have selected, by holding SHIFT and using 
+You can add rows or columns of tiles to those that you have selected, by holding SHIFT and using 
 	the ARROW keys to add the desired area. 
-To select an entire page of tiles, press HOME, then hold SHIFT and PRESS END. 
+To select an entire page of tiles, press HOME, then hold SHIFT and press END. 
 To select multiple pages of tiles, after selecting an entire page, press SHIFT then PAGE DOWN or PAGE UP.
 
 HOTKEYS
 
-E : 	Opens the selected tile int the pixel editor.
+E : 	Opens the selected tile in the pixel editor.
 C : 	Copies a tile, or a tile block to swap memory.
 V : 	If a tile or block is copied into swap, pressing V will paste it to a selected dest.
 	Otherwise, this vertically flips a selection.
@@ -45,7 +45,7 @@ PAGE UP: Decrements the tile page by one. Hold CONTROL to jump to the first tile
 PAGE DOWN: Increments the tile page by one. Hold CONTROL to jump to the last tile page.
 HOME: Jumps to the first tile on the present tile page. Hold CONTROL to jump to tile 0.
 END: Jumps to the last tile on the present tile page. Hold CONTROL to jump the last legal tile. 
-DELETE: Deletes a tile, clearing its pixels to 0. A dialogue appears to confirm this action.
+DELETE: Deletes a tile, clearing its pixels to colour 0. A dialogue appears to confirm this action.
 
 MOVING TILE ALIGNMENT
 
