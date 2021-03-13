@@ -24979,7 +24979,7 @@ static int zscript_settings_instructions_1[] =
 };
 static int zscript_settings_instructions_2[] =
 {
-	44, 46, 47,
+	44, 46, 47, 48,
 	-1
 };
 
@@ -25080,6 +25080,7 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
 	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
 	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
+	{ jwin_check_proc,      12, 47+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Combodata->InitD[]", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -25098,7 +25099,7 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
 	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
-	qr_LOG_INVALID_UID_LOAD,
+	qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK,
     -1
 };
 

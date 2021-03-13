@@ -2789,6 +2789,10 @@ int Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
  * Returns -1 if there is no match.
  
+int Game->GetComboScript("name");
+ * Returns the slot ID of the combodata script 'name'.
+ * Returns -1 if there is no match.
+ 
 int Game->GetLWeaponScript("name");
  * Returns the slot ID of the lweapon script 'name'.
  * Returns -1 if there is no match.

@@ -606,6 +606,7 @@ void do_ConvertCase(const bool v);
 void do_stricmp();
 void do_strnicmp();
 
+void do_getcomboscript();
 void do_getnpcscript();
 void do_getlweaponscript();
 void do_geteweaponscript();
@@ -2877,6 +2878,7 @@ enum ASM_DEFINE
 	DIRECTORYRELOAD,
 	DIRECTORYFREE,
 	FILEWRITEBYTES,
+	GETCOMBOSCRIPT,         
 	
 	NUMCOMMANDS           //0x0197
 };

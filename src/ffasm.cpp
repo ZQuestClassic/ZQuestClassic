@@ -978,7 +978,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
 	{ "DIRECTORYFREE",                0,   0,   0,   0},
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
-	
+	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

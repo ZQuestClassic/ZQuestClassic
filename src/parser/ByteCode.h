@@ -4356,6 +4356,17 @@ namespace ZScript
 			return new OGetFFCScript(a->clone());
 		}
 	};
+	
+	class OGetComboScript : public UnaryOpcode
+	{
+	public:
+		OGetComboScript(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGetComboScript(a->clone());
+		}
+	};
 
 	class OGetItemScript : public UnaryOpcode
 	{

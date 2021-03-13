@@ -4318,6 +4318,7 @@ static AccessorTable gameTable[] =
 	{ "getDMapMap[]",                  ZVARTYPEID_FLOAT,         GETTER,       DMAPMAP,              512,            0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setDMapMap[]",                  ZVARTYPEID_VOID,          SETTER,       DMAPMAP,              512,            0,                                    3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetFFCScript",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetComboScript",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //	Get an item script ID, similar to GetFFCScript()
 	{ "GetItemScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetNPCScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -5463,6 +5464,21 @@ void GameSymbols::generateCode()
         //pop pointer, and ignore it
         POPREF();
         code.push_back(new OGetFFCScript(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    
+    //int GetComboScript(game, int)
+    {
+	    Function* function = getFunction("GetComboScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        code.push_back(new OGetComboScript(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }

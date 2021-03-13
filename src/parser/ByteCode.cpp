@@ -3269,6 +3269,11 @@ string OGetFFCScript::toString()
     return "GETFFCSCRIPT " + getArgument()->toString();
 }
 
+string OGetComboScript::toString()
+{
+    return "GETCOMBOSCRIPT " + getArgument()->toString();
+}
+
 //2.54
 
 string OGreyscaleOn::toString()

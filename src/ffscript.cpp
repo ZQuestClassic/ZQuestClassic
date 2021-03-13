@@ -9899,7 +9899,26 @@ long get_register(const long arg)
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
 		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
 		case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
-		case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		//case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATAINITD:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+				ret = -10000;
+			}
+			else if ( ((unsigned)indx) > 2 )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+				ret = -10000;
+			} 
+			else 
+			{ 
+				ret = (combobuf[ri->combosref].initd[indx] * (get_bit(quest_rules, qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
+			} 
+			break;
+		}
 		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
@@ -17586,7 +17605,26 @@ void set_register(const long arg, const long value)
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
 		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
-		case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		//case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATAINITD:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
+			}
+			else if ( ((unsigned)indx) > 2 )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
+			} 
+			else 
+			{ 
+				combobuf[ri->combosref].initd[indx] = (value * ( get_bit(quest_rules, qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
+			} 
+			break;
+		}
+		
+		
 		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
@@ -23775,6 +23813,7 @@ int run_script(const byte type, const word script, const long i)
 			case CONVERTCASE: FFCore.do_ConvertCase(false); break;
 				
 			case GETNPCSCRIPT:	FFCore.do_getnpcscript(); break;
+			case GETCOMBOSCRIPT:	FFCore.do_getcomboscript(); break;
 			case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
 			case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
 			case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
@@ -32098,6 +32137,25 @@ void FFScript::do_getnpcscript()
 	}
 	set_register(sarg1, (script_num * 10000));
 }
+
+void FFScript::do_getcomboscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	
+	for(int q = 0; q < NUMSCRIPTSCOMBODATA; q++)
+	{
+		if(!(strcmp(the_string.c_str(), comboscriptmap[q].scriptname.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+
 void FFScript::do_getlweaponscript()
 {
 	long arrayptr = get_register(sarg1) / 10000;
@@ -33902,6 +33960,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
 	{ "DIRECTORYFREE",                0,   0,   0,   0},
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
+	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	
 	{ "",                    0,   0,   0,   0}
 };
