@@ -3217,7 +3217,6 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
     }
-    
     return 0;
 }
 

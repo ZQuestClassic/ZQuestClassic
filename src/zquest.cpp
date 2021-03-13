@@ -25111,7 +25111,7 @@ int onZScriptSettings()
     
     for(int i=0; zscriptrules[i]!=-1; i++)
     {
-        zscript_settings_dlg[i+6].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
+        zscript_settings_dlg[i+7].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
     }
     
     int ret = zc_popup_dialog(zscript_settings_dlg,4);
@@ -25122,7 +25122,7 @@ int onZScriptSettings()
         
         for(int i=0; zscriptrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, zscriptrules[i], zscript_settings_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, zscriptrules[i], (zscript_settings_dlg[i+7].flags & D_SELECTED));
         }
     }
     
