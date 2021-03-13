@@ -1,6 +1,156 @@
 // 2.55 Change Log
-// Updated 26th January, 2021
+// Updated 13th March, 2021
 
+//Alpha 90
+Fix off by one error in ZScript Settings Dialogue
+	( ZoriaRPG, 13th March, 2021 )
+
+Added docs/Tile-Editor-Hotkeys.txt, now at v1.4.
+	( ZoriaRPG, 11th, 12th March, 2021 )
+	
+Added error messages to WriteBytes, and related functions is pos is OoB
+	( ZoriaRPG, 8th March, 2021 )
+	
+Added WriteBytes() to ZScript
+	( Dimi, 8th March, 2020 )
+	
+Merged: Merge pull request #671 from ArmageddonGames/2.55-listfiles 
+	( ZoriaRPG, 7th March, 2021 )
+
+Made Log2 part of class FFScript/FFCore.
+	Note nothing uses this, but it is missing in c++03 and is part
+	of the C99 spec.
+	Should probably make a maths header and struct for all of this nonsense.
+Replaced literals in ri->d[] ffscript to use register names.
+Correct xtoa in ffasm and fix ffscript.cpp COMMAND_LIST entry for itoa.
+xtoi now handles negative string values
+xtoa() now works as intended, using hardocded ri->d[3].
+Move static maths helpers into class FFScript.
+	These formerly static or file-only functions are now part of
+	class FFScript/FFCore:
+
+	int xtoi(char *hexstring);
+	double ln(double temp);
+	int numDigits(long number);
+	int Log10(double temp);
+	double LogToBase(double x, double base);
+Add/Fix Experimental xtoi() and xtoa() internal ZS commands.
+	( ZoriaRPG, 3rd March, 2021 )
+	
+Add padding to 'Ambient Music' for arrow.
+Fixed and optimised speed for ZScript utol, ltou, and convcase.
+	( ZoriaRPG, 2nd March, 2021 )
+
+Fixed the behaviour of items where the Item Editor Weapon type field is
+	set to Arrow or Sword from using the wrong flags to determine if they pierce
+	or penetrate enemies.
+Added QRs under the Options->Weapons->LWeapons tab: Arrows Always penetrate, and
+	Swordbeams Always Penetrate to allow scripted / other weapons to always penetrate.
+	( ZoriaRPG, 26th February, 2021 )
+	
+Add directory access from ZScript
+	( Venrob, 15th February, 2021 )
+	
+Preliminary work for ZScript directory reading
+	( Venrob, 14th February, 2021 )
+	
+//Alpha 89
+
+Move the GNUG check to the top.
+Add patch for allegro 'fix' class conflict and glibc 2.28+
+Patch for Linux/G++ bitching about gotos crossing an initialisation.
+	( ZoriaRPG, 14th February, 2021 )
+
+<std> Add vbound(int x, int h, int l) with auto rev-args.
+Properly document npc->ParentUID in ZSA.txt
+	( ZoriaRPG, 13th February, 2021 )
+	
+Add QR related to NES dungeon dmap 'bmaps' data
+Script modification of 'Screen->OceanSFX' now updates the playing sound.
+	( Venrob, 12th February, 2021 )
+
+Removed the requirement to hold shift to set Quest Number.
+	( ZoriaRPG, 11th February, 2021 )
+	
+Fix minor errors with long/octal
+Fix 'printf' error with values '-1 < x < 0'
+Fix nonsensical 32-bit binary mode on l/r bitshift operators
+Add 'DrawFrame()' function for 'frame2x2()' script draws
+	( Venrob, 10th February, 2021 )
+	
+Feat: Added npc->Frame to ZScript.
+<std> Added const RT_CURRENT
+Fixed Blit(), RevBlit(), Mode7() use of RT_SCREEN and RT_CURRENT (-2)
+	( ZoriaRPG, 10th February, 2021 )
+	
+Added IsDungeon() to <std>
+	( ZoriaRPG, 7th February, 2021 )
+
+Make 'Game->Time' long typed
+Add octal literals, '7o', and long variant, '7oL' or '7Lo'
+Add hex long literal
+Document 'long'; convert internal variables that should be 'long'
+Handle binary operations as 32-bit with regards to 'long'
+Added decimal long literals: '50L' == '0.0050'
+Added binary long literals: '1010Lb' == '0.0010'
+Add 'long' type, with auto-cast to int.
+	( Venrob, 7th February, 2021 )
+
+Documented itoacat in ZSA. Next step, change itoa_c to itoa.
+Fixed remaining issues with itoa_c and itoacat.
+Fix negative values leadign with zero on itoa_c and itoacat.
+itoa_c and itoacat now work, but negative numbers have leading zero.
+Fix typo, add traces to itoa_c() (FFCore.do_itoa)
+Resize itoa_c() and itoacat() strings based on digits.
+Add (untested) implementation for itoacat()
+Fix: Try to fix itoa_c() and add itoacat() initial stuff.
+Fix Daira NPC Script (Classic.zh)
+Experimental change to combodatga->Pos commands.
+Corrected ZSA Docs for itoa(). The args order was documented backwards.
+	( ZoriaRPG, 7th February, 2021 )
+
+Fix new hero movement clipping through combos
+Fix overworld map charting offset
+	( Venrob, 6th February, 2021 )
+
+Changelog: Added npc->Halt to r/w the halt clock of enemies.
+Added npc->MoveStatus to r/w the MoveStatus of npcs.
+Added enum NPCMoveStatus to <std>.
+Added Game->STD[256], Ghost[256], Tango[256] to ZScript.
+Removed a vbound in SlideClock
+	( ZoriaRPG, 4th February, 2021 )
+
+Fixed bad script types in debug prints
+	( Venrob, 4th February, 2021 )
+
+Further clarify SlideClock for splitters.
+Clarify int SlideClock in ZSA.txt
+Added npc->Fading, npc->SlideClock to ZScript.
+	Fading is used for when npcs die to determine how they wink out,
+	and uses the types provided in the enum NPCFadeType in <std>.
+	SlideClock is the timer used for knockback.
+Added enums NPCWalkType and NPCFadeType to std_constants.zh
+Fixed logging combodata script errors as subscreen script errors.
+Changed 'Link' script to 'Hero' script in script errors.
+Combodata scripts now clear on quest load, like other scripts.
+Fixed the array pointer passed to some npc functions being random memory.
+	( ZoriaRPG, 3rd February, 2021 )
+
+Fixed default game over MIDI.
+Added Hero->CSet to ZScript.
+IsBackgroundLayer now XOR checks dmap layer flags; fix globalsymbols.
+Added dmapdata->Flagset[32]; added DMFS_* constants for it to <std>.
+<std 1.7112> Added IsBackgroundLayer(int,mapdata)
+<std 1.7112> Removed duplicate IsBackgroundLayer() function.
+Fixed a bug with npc->HitDir.
+Added npc->hitDir as an experimental, READ-ONLY ZScript variable.
+	( ZoriaRPG, 30th January, 2021 )
+
+Added Hero->ClockActive and Hero->ClockTimer. These r/w the
+	Clock/Stopwatch item states.
+	Made the array inputs for ArrayCopy untyped.
+	( ZoriaRPG, 29th January, 2021 )
+	
 //Alpha 88
 
 <std> version now 1.7111.
