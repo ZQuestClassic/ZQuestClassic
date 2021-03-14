@@ -3,6 +3,11 @@
 
 //Alpha 90
 
+Renamed itoa_c, xtoa_c, and xtoi_c to itoa, xtoa, and xtoi.
+<std> now v1.7113. 
+Moved the <std> versions in string_functions of them into std::string.
+	( ZoriaRPG, 14th March, 2021 )
+
 Fixed Combodata->initD[] multiplying by 10,000. 
 	There is now a rule bit for this behaviour.
 Added Game->GetComboScript("NAME");

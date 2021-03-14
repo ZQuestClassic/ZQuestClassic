@@ -1,5 +1,5 @@
 //string_functions.zh
-//12th January, 2020 for ZC 2.55 Alpha 48
+//14th February, 2021for ZC 2.55 Alpha 90
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -495,10 +495,6 @@ int xtoi(char32 ptr, int pos)
 		ret = ret*0x10 + (isNumber(ptr[pos + i]) ? ptr[pos + i] - '0' : LowerToUpper(ptr[pos + i]) - 'A' + 0xA);
 	return ret;
 }
-int xtoi(char32 ptr)
-{
-	return xtoi(ptr, 0);
-}
 
 //Hexadecimal Length
 //Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
@@ -624,11 +620,6 @@ int itoa(char32 ptr, int pos, int num)
 	return ret + digits;
 }
 
-int itoa(char32 ptr, int num)
-{
-	return itoa(ptr, 0, num);
-}
-
 //Hexadecimal Integer to ASCII
 //Places integer 'num' into string 'string' in base 16 without checking for overflow,
 //and returns the number of characters used
@@ -657,10 +648,6 @@ int xtoa(char32 ptr, int pos, int num, bool upper)
 int xtoa(char32 ptr, int num, bool upper)
 {
 	return xtoa(ptr, 0, num, upper);
-}
-int xtoa(char32 ptr, int num)
-{
-	return xtoa(ptr, 0, num, true);
 }
 
 //Float to ASCII
@@ -1934,6 +1921,20 @@ namespace std
 		int ilen(char32 ptr)
 		{
 			return ilen(ptr, 0);
+		}
+		int xtoi(char32 ptr)
+		{
+			return xtoi(ptr, 0);
+		}
+		
+		int itoa(char32 ptr, int num)
+		{
+			return itoa(ptr, 0, num);
+		}
+		
+		int xtoa(char32 ptr, int num)
+		{
+			return xtoa(ptr, 0, num, true);
 		}
 		
 		//printf / sprintf now internal

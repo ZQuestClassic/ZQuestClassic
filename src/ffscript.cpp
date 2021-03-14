@@ -14590,6 +14590,28 @@ void set_register(const long arg, const long value)
 	    //Start the script for the new combo
 		FFCore.clear_combo_stack(pos);
 		comboScriptData[pos].Clear();
+		
+		/*
+		ri = &(comboScriptData[i]);
+
+			curscript = comboscripts[script];
+			stack = &(combo_stack[i]);
+			int pos = ((i%176));
+			int lyr = i/176;
+			int id = comboscript_combo_ids[i]; 
+
+			if(!(combo_initialised[pos] & (1<<lyr)))
+			{
+				memset(ri->d, 0, 8 * sizeof(long));
+				for ( int q = 0; q < 2; q++ )
+					ri->d[q] = combobuf[id].initd[q];
+				combo_initialised[pos] |= 1<<lyr;
+			}
+
+			ri->combosref = id; //'this' pointer
+			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
+			break;
+			*/
 		combo_doscript[pos] = 1;
 		combo_initialised[pos] &= ~(1<<0);
 		//Not ure if combodata arrays clean themselves up, or leak. -Z

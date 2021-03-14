@@ -1,5 +1,5 @@
 // std_functions.zh
-// 30th January, 2021 for ZC 2.55.0 Alpha 89
+// 14th March, 2021 for ZC 2.55.0 Alpha 90
 
 //A
 
@@ -4092,7 +4092,7 @@ float vbound(int x, int high, int low)
 	if(x<low) x=low;
 	else if(x>high) x=high;
 	return x;
-}`
+}
 
 //same as Clamp, but with reversed values.
 int VBound(int x, int high, int low) 

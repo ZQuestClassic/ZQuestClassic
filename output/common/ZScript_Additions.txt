@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 90
-Document Revision: 5th March, 2021
+Document Revision: 14th March, 2021
 
 
  __           _   _                 
@@ -2555,14 +2555,14 @@ int ilen(string[]);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
 
-int itoa_c(dest_string[], int value);
+int itoa(dest_string[], int value);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
  * This will be renamed to itoa() in the near future and <string> will be
  * updated to reflect the change. The old <string> function will remain
  * available as std::string::itoa.
  
-int xtoa_c(dest_string[], int value);
+int xtoa(dest_string[], int value);
  * Places a hexidecimal value into a string as char. 
  * Returns the number of characters used in the conversion. 
  * This will be renamed to xtoa() in the near future and <string> will be
@@ -2605,7 +2605,7 @@ int atoi(string[]);
  * Returns the decimal value of a string consisting of a number.
  * e.g. ("26" would return 26).
  
-int xtoi_c(string[]);
+int xtoi(string[]);
  * Converts a hexidecimal value presented as a string into an integer. 
  * e.g. ("0x100" would return 256, which is 0x100).
  * This will be renamed to xtoi() in the near future and <string> will be
