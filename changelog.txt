@@ -1,5 +1,9 @@
 ChangeLog for 2.53.1
 
+//Beta 56
+Allow resx of 256 for CRTs.
+	( ZoriaRPG, 18th march, 2021 )
+
 //Beta 55
 Updated allegro to v4.4.4
 Added a special colour (teal) to water combos when drowning is off
