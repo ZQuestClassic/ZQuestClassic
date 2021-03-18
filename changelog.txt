@@ -1,6 +1,12 @@
 // 2.55 Change Log
 // Updated 18th March, 2021
 
+//ALpha 92
+
+Allow scaling resx in ZC Player to 256 to fit CRT televisions,
+	as requested by user 'Zabii'.
+	( ZoriaRPG, 18th march, 2021 )
+
 //Aplha 91
 
 <std 1.7114> Added enum itemslots with consts ITM_SLOT_* for all four slots. 
