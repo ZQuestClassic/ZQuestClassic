@@ -3958,6 +3958,16 @@ long get_register(const long arg)
 			ret = Awpn *10000;
 			break;
 		
+		case LINKITEMX:
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			ret = Xwpn *10000;
+			break;
+		
+		case LINKITEMY:
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			ret = Ywpn *10000;
+			break;
+		
 		case LINKTILEMOD:
 			ret = Link.getTileModifier() * 10000;
 			break;
@@ -11061,79 +11071,150 @@ void set_register(const long arg, const long value)
 			*/
 			if ( force == 0 )
 			{
-				if ( slot == 1 )
+				switch(slot)
 				{
-					Awpn = itm;
-					game->items_off[itm] = 0;
-					game->awpn = itm;
-					game->forced_awpn = itm;
-					//directItemA = directItem;
-				}
-				else 
-				{
+					case 0: //b
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
 					game->forced_bwpn = itm;
-					//directItemB = directItem;
+					break;
+					
+					case 1: //a
+					Awpn = itm;
+					game->items_off[itm] = 0;
+					game->awpn = itm;
+					game->forced_awpn = itm;
+					break;
+					
+					case 2: //x
+					Xwpn = itm;
+					game->items_off[itm] = 0;
+					game->xwpn = itm;
+					game->forced_xwpn = itm;
+					break;
+					
+					case 3: //y
+					Ywpn = itm;
+					game->items_off[itm] = 0;
+					game->ywpn = itm;
+					game->forced_ywpn = itm;
+					break;
 				}
 			}
 			else if ( force == 1 )
 			{
-				if(slot == 1 && game->item[itm])
+				if (game->item[itm])
 				{
-					Awpn = itm;
-					game->items_off[itm] = 0;
-					game->awpn = itm;
-					game->forced_awpn = itm;
-					//directItemA = directItem;
-					
-				}
-				else if ( game->item[itm] ) 
-				{
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					game->forced_bwpn = itm;
-					//directItemB = directItem;
+					switch(slot)
+					{
+						case 0: //b
+						Bwpn = itm;
+						game->items_off[itm] = 0;
+						game->bwpn = itm;
+						game->forced_bwpn = itm;
+						break;
+						
+						case 1: //a
+						Awpn = itm;
+						game->items_off[itm] = 0;
+						game->awpn = itm;
+						game->forced_awpn = itm;
+						break;
+						
+						case 2: //x
+						Xwpn = itm;
+						game->items_off[itm] = 0;
+						game->xwpn = itm;
+						game->forced_xwpn = itm;
+						break;
+						
+						case 3: //y
+						Ywpn = itm;
+						game->items_off[itm] = 0;
+						game->ywpn = itm;
+						game->forced_ywpn = itm;
+						break;
+					}
 				}
 			}
 			else if ( force == 2 )
 			{
-				if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) )
+				switch(slot)
 				{
-					Awpn = itm;
-					game->items_off[itm] = 0;
-					game->awpn = itm;
-					game->forced_awpn = itm;
-					//directItemA = directItem;
-				}
-				else 
-				{ 
+					case 0: //b
 					Bwpn = itm;
 					game->items_off[itm] = 0;
 					game->bwpn = itm;
 					game->forced_bwpn = itm;
-					//directItemB = directItem;
+					break;
+					
+					case 1: //a
+					{
+						if (get_bit(quest_rules,qr_SELECTAWPN))
+						{
+							Awpn = itm;
+							game->items_off[itm] = 0;
+							game->awpn = itm;
+							game->forced_awpn = itm;
+						}
+					break;
+					}
+					
+					case 2:  //x
+					Xwpn = itm;
+					game->items_off[itm] = 0;
+					game->xwpn = itm;
+					game->forced_xwpn = itm;
+					break;
+					
+					case 3: //y
+					Ywpn = itm;
+					game->items_off[itm] = 0;
+					game->ywpn = itm;
+					game->forced_ywpn = itm;
+					break;
 				}
 			}
 			else if ( force == 3 ) //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
 			{
-				if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm])
+				if ( game->item[itm] )
 				{
-					Awpn = itm;
-					game->items_off[itm] = 0;
-					game->awpn = itm;
-					game->forced_awpn = itm;
-					//directItemA = directItem;
-				}
-				else if(game->item[itm])
-				{ 
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					game->forced_bwpn = itm;
-					//directItemB = directItem;
+					switch(slot)
+					{
+						case 0: //b
+						Bwpn = itm;
+						game->items_off[itm] = 0;
+						game->bwpn = itm;
+						game->forced_bwpn = itm;
+						break;
+						
+						case 1: //a
+						{
+							if (get_bit(quest_rules,qr_SELECTAWPN))
+							{
+								Awpn = itm;
+								game->items_off[itm] = 0;
+								game->awpn = itm;
+								game->forced_awpn = itm;
+							}
+						break;
+						}
+						
+						case 2: //x
+						Xwpn = itm;
+						game->items_off[itm] = 0;
+						game->xwpn = itm;
+						game->forced_xwpn = itm;
+						break;
+						
+						case 3: //y
+						Ywpn = itm;
+						game->items_off[itm] = 0;
+						game->ywpn = itm;
+						game->forced_ywpn = itm;
+						break;
+					}
 				}
 			}
 		}
@@ -11332,6 +11413,48 @@ void set_register(const long arg, const long value)
 			break;
 		}
 		
+		case LINKITEMX:
+		{
+			if ( value/10000 < -1 ) 
+			{
+				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				break;
+			}		
+			if ( value/10000 > MAXITEMS-1 ) 
+			{
+				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				break;
+			}		
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			
+			Xwpn = value/10000;
+			game->xwpn = value/10000;
+			game->items_off[value/10000] = 0;
+			game->forced_xwpn = value/10000;
+			//directItemB = directItem;
+			break;
+		}
+		case LINKITEMY:
+		{
+			if ( value/10000 < -1 ) 
+			{
+				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				break;
+			}		
+			if ( value/10000 > MAXITEMS-1 ) 
+			{
+				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				break;
+			}		
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			
+			Ywpn = value/10000;
+			game->ywpn = value/10000;
+			game->items_off[value/10000] = 0;
+			game->forced_ywpn = value/10000;
+			//directItemB = directItem;
+			break;
+		}
 		case LINKTILEMOD:
 		{
 			Link.setTileModifier(value/10000);
@@ -35178,6 +35301,8 @@ script_variable ZASMVars[]=
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
+	{ "LINKITEMX",           LINKITEMX,            0,             0 },
+	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

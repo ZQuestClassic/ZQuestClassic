@@ -4704,8 +4704,15 @@ int ItemA;
 int ItemB;				
  * Contains the item IDs of what is currently equiped to Link's B button.
 
+int ItemX;				
+ * Contains the item IDs of what is currently equiped to Link's X (Ex1) button.
+ 
+int ItemY;				
+ * Contains the item IDs of what is currently equiped to Link's Y (Ex2) button.
+
 int SetItemSlot(int itm_id, int button, int force);				
  * This allows you to set Link's button items without binary operation with options for forcing them.
+ * Use the constants ITM_REQUIRE_* and ITM_SLOT_* from <std> when passing values into this function. 
 
 int UsingItem;			
  * Returns the ID of an item used when Link uses an item. Returns -1 if Link is not using an item this frame. 
