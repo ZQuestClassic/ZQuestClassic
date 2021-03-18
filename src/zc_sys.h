@@ -157,6 +157,10 @@ bool DrunkrMbtn();
 bool DrunkrLbtn();
 bool DrunkrRbtn();
 bool DrunkrPbtn();
+bool DrunkrEx1btn();
+bool DrunkrEx2btn();
+bool DrunkrEx3btn();
+bool DrunkrEx4btn();
 
 int after_time();
 

@@ -1278,6 +1278,8 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	word tempword = 0;
 	word tempword2 = 0;
 	word tempword3 = 0;
+	word tempword4 = 0;
+	word tempword5 = 0;
 	dword tempdword = 0;
 	long section_id=0;
 	word section_version=0;
@@ -1918,7 +1920,47 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			savedata[i].forced_awpn = -1;
 			savedata[i].forced_bwpn = -1;
 		}
+		if (section_version > 17)
+		{
+			
+			if(!p_getc(&tempbyte, f, true))
+			{
+				return 58;
+			}
+			
+			savedata[i].xwpn = tempbyte;
+			
+			if(!p_getc(&tempbyte, f, true))
+			{
+				return 59;
+			}
+			
+			savedata[i].ywpn = tempbyte;
+		
+			
+			if(!p_igetw(&tempword3, f, true))
+			{
+				return 60;
+			}
+			
+			savedata[i].forced_xwpn = tempword3;
+			
+			if(!p_igetw(&tempword4, f, true))
+			{
+				return 61;
+			}
+			
+			savedata[i].forced_ywpn = tempword4;
+		}
+		else
+		{
+			savedata[i].xwpn = 0;
+			savedata[i].ywpn = 0;
+			savedata[i].forced_xwpn = -1;
+			savedata[i].forced_ywpn = -1;
+		}
 	}
+	
 	
 	return 0;
 }
@@ -2393,7 +2435,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 				if(!p_iputl(a[k], f))
 					return 53;
 		}
-	if(!p_iputw(savedata[i].forced_awpn, f))
+		if(!p_iputw(savedata[i].forced_awpn, f))
 		{
 			return 54;
 		}
@@ -2401,6 +2443,24 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		if(!p_iputw(savedata[i].forced_bwpn, f))
 		{
 			return 55;
+		}
+	
+		if(!p_iputw(savedata[i].forced_xwpn, f))
+		{
+			return 56;
+		}
+		
+		if(!p_iputw(savedata[i].forced_ywpn, f))
+		{
+			return 57;
+		}
+		if(!p_putc(savedata[i].xwpn, f))
+		{
+			return 58;
+		}
+		if(!p_putc(savedata[i].ywpn, f))
+		{
+			return 59;
 		}
 	}
 	

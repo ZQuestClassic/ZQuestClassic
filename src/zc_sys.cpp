@@ -11064,6 +11064,22 @@ bool DrunkrBbtn()
 {
     return getInput(btnB, true, true);
 }
+bool DrunkrEx1btn()
+{
+    return getInput(btnEx1, true, true);
+}
+bool DrunkrEx2btn()
+{
+    return getInput(btnEx2, true, true);
+}
+bool DrunkrEx3btn()
+{
+    return getInput(btnEx3, true, true);
+}
+bool DrunkrEx4btn()
+{
+    return getInput(btnEx4, true, true);
+}
 bool DrunkrSbtn()
 {
     return getInput(btnS, true, true);

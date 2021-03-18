@@ -79,6 +79,8 @@ int dowpn = -1;
 int directItem = -1; //Is set if Link is currently using an item directly
 int directItemA = -1;
 int directItemB = -1;
+int directItemX = -1;
+int directItemY = -1;
 int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;
@@ -10313,6 +10315,18 @@ void LinkClass::movelink()
 			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
+		}
+		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx1btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			dowpn = Xwpn&0xFFF;
+			directWpn = directItemX;
+		}
+		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx2btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			dowpn = Ywpn&0xFFF;
+			directWpn = directItemY;
 		}
 		
 		if(directWpn > 255) directWpn = 0;

@@ -227,7 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            42
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        17 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        18 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      7
 #define V_SUBSCREEN        6
@@ -962,7 +962,7 @@ enum
 	//27
 	qr_BROKEN_OVERWORLD_MINIMAP, qr_NO_STUNLOCK, qr_GREATER_MAX_TIME, qr_BROKEN_RING_POWER,
 	qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
-	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_SETXYBUTTONITEMS,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3729,8 +3729,8 @@ struct gamedata
     long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
     
-    byte awpn, bwpn;											// Currently selected weapon slots
-    signed short forced_awpn, forced_bwpn;
+    byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
+    signed short forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     

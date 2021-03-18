@@ -227,8 +227,8 @@ extern subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
 extern subscreen_group *current_subscreen_active;
 extern subscreen_group *current_subscreen_passive;
 
-extern item *Bitem, *Aitem;
-extern int   Bid, Aid;
+extern item *Bitem, *Aitem, *Yitem, *Xitem;
+extern int   Bid, Aid, Xid, Yid;
 const byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,

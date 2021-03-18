@@ -2916,8 +2916,8 @@ void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shado
 
 /****  Subscr items code  ****/
 
-item *Bitem = NULL, *Aitem = NULL;
-int   Bid = 0, Aid = 0;
+item *Bitem = NULL, *Aitem = NULL, *Yitem = NULL, *Xitem = NULL;
+int   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
 
 void reset_subscr_items()
 {
@@ -2932,8 +2932,19 @@ void reset_subscr_items()
         delete Bitem;
         Bitem = NULL;
     }
+    if(Yitem)
+    {
+        delete Yitem;
+        Yitem = NULL;
+    }
     
-    Aid = Bid = 0;
+    if(Xitem)
+    {
+        delete Xitem;
+        Xitem = NULL;
+    }
+    
+    Aid = Bid = Yid = Xid = 0;
 }
 
 
@@ -3011,11 +3022,87 @@ void update_subscr_items()
         }
     }
     
+    if(Xid != Xwpn)
+    {
+        Xid = 0;
+        
+        if(Xitem)
+        {
+            delete Xitem;
+            Xitem = NULL;
+        }
+        
+        if(Xwpn > 0)
+        {
+            Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Xwpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Xwpn&0xF000)==0xF000)
+                {
+                    Xitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Xitem != NULL)
+            {
+                Xid = Xwpn;
+                Xitem->yofs = 0;
+                Xitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
+    if(Yid != Ywpn)
+    {
+        Yid = 0;
+        
+        if(Yitem)
+        {
+            delete Yitem;
+            Yitem = NULL;
+        }
+        
+        if(Ywpn > 0)
+        {
+            Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Ywpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Ywpn&0xF000)==0xF000)
+                {
+                    Yitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Yitem != NULL)
+            {
+                Yid = Ywpn;
+                Yitem->yofs = 0;
+                Yitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
     if(Bitem)
         Bitem->animate(0);
         
     if(Aitem)
         Aitem->animate(0);
+    
+    if(Xitem)
+        Xitem->animate(0);
+        
+    if(Yitem)
+        Yitem->animate(0);
 }
 
 void add_subscr_item(item *newItem)
@@ -3612,7 +3699,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 {
                     drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
                 }
-                
+                //zprint2("Button item ID is: %d\n", css->objects[i].d1);
                 buttonitem(dest, css->objects[i].d1, x, y);
                 
                 if(css->objects[i].d2)
@@ -3941,6 +4028,76 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             
             Bitem->drawzcboss(dest);
         }
+        
+        break;
+	
+	case 2:  //X button
+        if(Xitem&&show_subscreen_items)
+        {
+		//Y button
+		//zprint2("Drawing X Item\n");
+            Xitem->x=x;
+            Xitem->y=y;
+            
+            switch(itemsbuf[Xitem->id].family)
+            {
+            case itype_arrow:
+                if(Xitem && Xitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Xitem->drawzcboss(dest);
+        }
+	//else zprint2("Xitem is NULL\n");
+        
+        break;
+        
+	case 3:  
+        if(Yitem&&show_subscreen_items)
+        {
+		//Y button
+		//zprint2("Drawing Y Item\n");
+            Yitem->x=x;
+            Yitem->y=y;
+            
+            switch(itemsbuf[Yitem->id].family)
+            {
+            case itype_arrow:
+                if(Yitem && Yitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Yitem->drawzcboss(dest);
+        }
+	//else zprint2("Yitem is NULL\n");
         
         break;
         
