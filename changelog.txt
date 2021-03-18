@@ -6,6 +6,7 @@
 <std 1.7114> Added enum itemslots with consts ITM_SLOT_* for all four slots. 
 Added Hero->ItemX and ItemY variables to match ItemA and ItemB. 
 Added support code to hero->SetItemSlot() for new button slots.
+Updated the save format to V18 to have new slot data and forced slot data. 
 Added to additional button item slots (X and Y) that function
 	on buttons Ex1 and Ex2 if the QR 'Options>>>2>>>Experimental X and Y Buttons'
 	is enabled.
