@@ -482,14 +482,14 @@ const char *rowslist(int index, int *list_size)
 
 const char *button_str[2] =
 {
-    "A", "B"
+    "A", "B", "X", "Y"
 };
 
 const char *buttonlist(int index, int *list_size)
 {
     if(index<0)
     {
-        *list_size = 2;
+        *list_size = 4;
         return NULL;
     }
     

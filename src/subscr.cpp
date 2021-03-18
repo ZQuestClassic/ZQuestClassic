@@ -3954,6 +3954,70 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
         }
         
         break;
+	
+	case 2:  //X button
+        if(Xitem&&show_subscreen_items)
+        {
+            Xitem->x=x;
+            Xitem->y=y;
+            
+            switch(itemsbuf[Xitem->id].family)
+            {
+            case itype_arrow:
+                if(Xitem && Xitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Xitem->drawzcboss(dest);
+        }
+        
+        break;
+        
+	case 3:  //Y button
+        if(Yitem&&show_subscreen_items)
+        {
+            Yitem->x=x;
+            Yitem->y=y;
+            
+            switch(itemsbuf[Yitem->id].family)
+            {
+            case itype_arrow:
+                if(Yitem && Yitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Yitem->drawzcboss(dest);
+        }
+        
+        break;
         
     default:
         break;
