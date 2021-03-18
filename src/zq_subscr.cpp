@@ -480,7 +480,7 @@ const char *rowslist(int index, int *list_size)
     return rows_str[index];
 }
 
-const char *button_str[2] =
+const char *button_str[4] =
 {
     "A", "B", "X", "Y"
 };
