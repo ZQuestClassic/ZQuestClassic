@@ -5476,7 +5476,7 @@ int main(int argc, char* argv[])
     }
     
     //set scale
-    if(resx < 320) resx = 320;
+    if(resx < 256) resx = 256;
     
     if(resy < 240) resy = 240;
     
