@@ -4231,9 +4231,11 @@ enum ASM_DEFINE
 #define PADDINGR9			0x13DD
 
 #define NPCFRAME			0x13DE
+#define LINKITEMX			0x13DF
+#define LINKITEMY			0x13E0
 
 
-#define NUMVARIABLES         	0x13DF
+#define NUMVARIABLES         	0x13E1
 
 //} End variables
 

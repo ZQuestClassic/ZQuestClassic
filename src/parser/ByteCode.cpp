@@ -275,6 +275,8 @@ string ZScript::VarToString(long ID)
 	case LINKITEMB: return "LINKITEMB";
 
 	case LINKITEMA: return "LINKITEMA";
+	case LINKITEMX: return "LINKITEMX";
+	case LINKITEMY: return "LINKITEMY";
 	case SETITEMSLOT: return "SETITEMSLOT";
 	case GAMESETB: return "GAMESETB";
 	case GAMESETA: return "GAMESETA";

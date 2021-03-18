@@ -2183,6 +2183,8 @@ script_variable variable_list[]=
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
+	{ "LINKITEMX",           LINKITEMX,            0,             0 },
+	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
