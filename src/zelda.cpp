@@ -4047,7 +4047,9 @@ int main(int argc, char* argv[])
     
     if(resy < 240) resy = 240;
     
-    screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
+    int noborder = (resx % 256);
+    
+    screen_scale = zc_max(zc_min(resx / (noborder?320:256), resy / 240), 1);
     
     if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
     {

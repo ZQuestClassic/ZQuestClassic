@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 56
+Correct scaling for 256 increments of resx.
 Allow resx of 256 for CRTs.
 	( ZoriaRPG, 18th march, 2021 )
 
