@@ -28,6 +28,8 @@ extern LinkClass   Link;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
+extern int directItemY;
+extern int directItemX;
 
 //DIALOG *sso_properties_dlg;
 

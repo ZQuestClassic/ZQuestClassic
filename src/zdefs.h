@@ -3730,7 +3730,7 @@ struct gamedata
     std::vector< ZCArray <long> > globalRAM;
     
     byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-    signed short forced_awpn, forced_bwpn, forxed_xwpn, forced_ywpn;
+    signed short forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     
