@@ -10316,6 +10316,18 @@ void LinkClass::movelink()
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
+		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx3btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			dowpn = Xwpn&0xFFF;
+			directWpn = directItemX;
+		}
+		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx4btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			dowpn = Ywpn&0xFFF;
+			directWpn = directItemY;
+		}
 		
 		if(directWpn > 255) directWpn = 0;
 		
