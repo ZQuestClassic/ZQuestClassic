@@ -1210,7 +1210,7 @@ int get_bmaps(int si);
 
 bool no_subscreen();
 
-extern int Awpn, Bwpn, Bpos;
+extern int Awpn, Bwpn, Bpos, Xwpn, Ywpn;
 extern sprite_list Sitems;
 
 int main(int argc,char **argv);

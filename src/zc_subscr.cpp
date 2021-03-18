@@ -167,6 +167,42 @@ void dosubscr(miscQdata *misc)
         
         if(get_bit(quest_rules,qr_SELECTAWPN))
         {
+		if(get_bit(quest_rules,qr_SETXYBUTTONITEMS))
+		{
+			if(rEx3btn())
+			{
+				if(Xwpn == Bweapon(Bpos))
+				{
+				    Xwpn = Bwpn;
+				    game->xwpn = game->bwpn;
+				    directItemX = directItemB;
+				}
+				
+				Xwpn = Bweapon(Bpos);
+				game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
+				sfx(WAV_PLACE);
+				
+				game->xwpn = Bpos;
+				directItemX = directItem;
+			}
+			if(rEx4btn())
+			{
+				if(Ywpn == Bweapon(Bpos))
+				{
+				    Ywpn = Bwpn;
+				    game->xwpn = game->bwpn;
+				    directItemY = directItemB;
+				}
+				
+				Ywpn = Bweapon(Bpos);
+				game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
+				sfx(WAV_PLACE);
+				
+				game->ywpn = Bpos;
+				directItemY = directItem;
+			}
+			
+		}
             if(rBbtn())
             {
                 if(Awpn == Bweapon(Bpos))

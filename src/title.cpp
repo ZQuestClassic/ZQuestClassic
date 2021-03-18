@@ -1278,6 +1278,8 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	word tempword = 0;
 	word tempword2 = 0;
 	word tempword3 = 0;
+	word tempword4 = 0;
+	word tempword5 = 0;
 	dword tempdword = 0;
 	long section_id=0;
 	word section_version=0;
@@ -1918,6 +1920,27 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			savedata[i].forced_awpn = -1;
 			savedata[i].forced_bwpn = -1;
 		}
+	}
+	(section_version > 17)
+	{
+		if(!p_igetw(&tempword3, f, true))
+		{
+			return 58;
+		}
+		
+		savedata[i].forced_xwpn = tempword3;
+		
+		if(!p_igetw(&tempword4, f, true))
+		{
+			return 59;
+		}
+		
+		savedata[i].forced_ywpn = tempword4;
+	}
+	else
+	{
+		savedata[i].forced_xwpn = -1;
+		savedata[i].forced_ywpn = -1;
 	}
 	
 	return 0;

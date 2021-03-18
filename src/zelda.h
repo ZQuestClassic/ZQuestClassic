@@ -385,7 +385,7 @@ extern char *SAVE_FILE;
 
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
+extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;

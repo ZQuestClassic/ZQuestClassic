@@ -79,6 +79,8 @@ int dowpn = -1;
 int directItem = -1; //Is set if Link is currently using an item directly
 int directItemA = -1;
 int directItemB = -1;
+int directItemX = -1;
+int directItemY = -1;
 int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;

@@ -67,8 +67,12 @@ void gamedata::Clear()
     globalRAM.clear();
     awpn=0;
     bwpn=0;
+    xwpn=0;
+    ywpn=0;
     forced_awpn = -1; 
     forced_bwpn = -1;
+    forced_xwpn = -1; 
+    forced_ywpn = -1;
     isclearing=false;
 }
 
@@ -146,9 +150,13 @@ void gamedata::Copy(const gamedata& g)
         
     awpn = g.awpn;
     bwpn = g.bwpn;
+    xwpn = g.xwpn;
+    ywpn = g.ywpn;
     
     forced_awpn = g.forced_awpn; 
     forced_bwpn = g.forced_bwpn;
+    forced_xwpn = g.forced_xwpn; 
+    forced_ywpn = g.forced_ywpn;
 }
 
 char *gamedata::get_name()

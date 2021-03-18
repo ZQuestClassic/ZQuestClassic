@@ -2916,8 +2916,8 @@ void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shado
 
 /****  Subscr items code  ****/
 
-item *Bitem = NULL, *Aitem = NULL;
-int   Bid = 0, Aid = 0;
+item *Bitem = NULL, *Aitem = NULL, *Yitem = NULL, *Xitem = NULL;
+int   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
 
 void reset_subscr_items()
 {
@@ -2931,6 +2931,17 @@ void reset_subscr_items()
     {
         delete Bitem;
         Bitem = NULL;
+    }
+    if(Yitem)
+    {
+        delete Yitem;
+        Yitem = NULL;
+    }
+    
+    if(Xitem)
+    {
+        delete Xitem;
+        Xitem = NULL;
     }
     
     Aid = Bid = 0;

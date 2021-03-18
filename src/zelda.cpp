@@ -146,6 +146,8 @@ int passive_subscreen_offset=0;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
+extern int directItemY;
+extern int directItemX;
 extern int hangcount;
 
 extern bool kb_typing_mode;
@@ -2482,8 +2484,12 @@ int init_game()
     {
 	game->awpn=0;
 	game->bwpn=0;
+	game->ywpn=0;
+	game->xwpn=0;
 	game->forced_awpn = -1; 
-	game->forced_bwpn = -1;    
+	game->forced_bwpn = -1;  
+	game->forced_xwpn = -1; 
+	game->forced_ywpn = -1;    
     }
         
     update_subscreens();
