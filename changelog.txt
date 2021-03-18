@@ -3,6 +3,7 @@
 
 //ALpha 92
 
+Correct scaling for 256 increments of resx.
 Allow scaling resx in ZC Player to 256 to fit CRT televisions,
 	as requested by user 'Zabii'.
 	( ZoriaRPG, 18th march, 2021 )
