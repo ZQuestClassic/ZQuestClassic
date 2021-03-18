@@ -30572,7 +30572,7 @@ bool no_subscreen()
     return false;
 }
 
-int Awpn=0, Bwpn=0, Bpos=0;
+int Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 long exittimer = 10000, exittimer2 = 100;
 
