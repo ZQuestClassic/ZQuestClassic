@@ -2944,7 +2944,7 @@ void reset_subscr_items()
         Xitem = NULL;
     }
     
-    Aid = Bid = 0;
+    Aid = Bid = Yid = Xid = 0;
 }
 
 
@@ -3022,11 +3022,87 @@ void update_subscr_items()
         }
     }
     
+    if(Xid != Xwpn)
+    {
+        Xid = 0;
+        
+        if(Xitem)
+        {
+            delete Xitem;
+            Xitem = NULL;
+        }
+        
+        if(Xwpn > 0)
+        {
+            Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Xwpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Xwpn&0xF000)==0xF000)
+                {
+                    Xitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Xitem != NULL)
+            {
+                Xid = Xwpn;
+                Xitem->yofs = 0;
+                Xitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
+    if(Yid != Ywpn)
+    {
+        Yid = 0;
+        
+        if(Yitem)
+        {
+            delete Yitem;
+            Yitem = NULL;
+        }
+        
+        if(Ywpn > 0)
+        {
+            Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Ywpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Ywpn&0xF000)==0xF000)
+                {
+                    Yitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Yitem != NULL)
+            {
+                Yid = Ywpn;
+                Yitem->yofs = 0;
+                Yitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
     if(Bitem)
         Bitem->animate(0);
         
     if(Aitem)
         Aitem->animate(0);
+    
+    if(Xitem)
+        Xitem->animate(0);
+        
+    if(Yitem)
+        Yitem->animate(0);
 }
 
 void add_subscr_item(item *newItem)
@@ -3623,7 +3699,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 {
                     drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
                 }
-                
+                //zprint2("Button item ID is: %d\n", css->objects[i].d1);
                 buttonitem(dest, css->objects[i].d1, x, y);
                 
                 if(css->objects[i].d2)
@@ -3958,6 +4034,8 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
 	case 2:  //X button
         if(Xitem&&show_subscreen_items)
         {
+		//Y button
+		//zprint2("Drawing X Item\n");
             Xitem->x=x;
             Xitem->y=y;
             
@@ -3984,12 +4062,15 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             
             Xitem->drawzcboss(dest);
         }
+	//else zprint2("Xitem is NULL\n");
         
         break;
         
-	case 3:  //Y button
+	case 3:  
         if(Yitem&&show_subscreen_items)
         {
+		//Y button
+		//zprint2("Drawing Y Item\n");
             Yitem->x=x;
             Yitem->y=y;
             
@@ -4016,6 +4097,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             
             Yitem->drawzcboss(dest);
         }
+	//else zprint2("Yitem is NULL\n");
         
         break;
         

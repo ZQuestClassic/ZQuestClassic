@@ -2063,7 +2063,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[115],button_caption);
         ListData button_list(buttonlist, is_large? &lfont_l : &font);
         replacedp(sso_properties_dlg[119],(char *)&button_list);
-        
+        //al_trace("tempsso->d1 is: %d\n", tempsso->d1);
         sso_properties_dlg[119].d1=tempsso->d1;
     }
     break;

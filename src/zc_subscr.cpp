@@ -208,37 +208,44 @@ void dosubscr(miscQdata *misc)
 			//zprint2("qr_SETXYBUTTONITEMS\n");
 			else if(rEx1btn()) //WTF? WHy is this not reading?
 			{
-				zprint2("Trying to set X Weapon\n");
+				//zprint2("Trying to set X Weapon\n");
 				if(Xwpn == Bweapon(Bpos))
 				{
 				    Xwpn = Bwpn;
 				    game->xwpn = game->bwpn;
 				    directItemX = directItemB;
 				}
-				
+				zprint2("X, BWweapon(Bpos) is: %d\n", Bweapon(Bpos));
 				Xwpn = Bweapon(Bpos);
 				game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
 				sfx(WAV_PLACE);
 				
 				game->xwpn = Bpos;
 				directItemX = directItem;
+				
+				//printf("game->xwpn is: %d\n",game->xwpn);
+				//printf("directItemX is: %d\n",directItemX);
+				//printf("Xwpn is: %d\n",Xwpn);
 			}
 			else if(rEx2btn())
 			{
-				zprint2("Trying to set Y Weapon\n");
+				//zprint2("Trying to set Y Weapon\n");
 				if(Ywpn == Bweapon(Bpos))
 				{
 				    Ywpn = Bwpn;
 				    game->xwpn = game->bwpn;
 				    directItemY = directItemB;
 				}
-				
+				//zprint2("Y, BWweapon(Bpos) is: %d\n", Bweapon(Bpos));
 				Ywpn = Bweapon(Bpos);
 				game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
 				sfx(WAV_PLACE);
 				
 				game->ywpn = Bpos;
 				directItemY = directItem;
+				//printf("game->ywpn is: %d\n",game->ywpn);
+				//printf("directItemY is: %d\n",directItemY);
+				//printf("Ywpn is: %d\n",Ywpn);
 			}
 			
 		}
