@@ -232,7 +232,7 @@ A function can be forward-declared, and if not found, will be treated
 
 //Alpha 87
 
-Merged rewrites of ZScript Parser/Compuler by SyrianBallaS to reduce leaks and overhead.
+Merged rewrites of ZScript Parser/Compiler by SyrianBallaS to reduce leaks and overhead.
 	( ZoriaRPG [merge] , SyrianBallaS [work], 13th Jan, 2021 ; commit 787b72600d2a9a7c20cede67ac11f5b2bdd5f97b ; commit d64a4c7cf3229520f45216ae906e0f27dd949d53)
 	
 Improve compile timer to be more precise.
