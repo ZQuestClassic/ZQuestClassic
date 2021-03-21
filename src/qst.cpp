@@ -18576,6 +18576,17 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{	
 		temp_zinit.heroStep = 150; //1.5 pixels per frame
 	}
+	if ( s_version >= 21 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+	{
+		if(!p_igetw(&temp_zinit.subscrSpeed,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{	
+		temp_zinit.subscrSpeed = 1; //3 pixels per frame
+	}
         //old only
         if((Header->zelda_version == 0x192)&&(Header->build<174))
         {

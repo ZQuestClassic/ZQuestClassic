@@ -1881,6 +1881,7 @@ string ZScript::VarToString(long ID)
 	case NPCFRAME: return "NPCFRAME";
 	
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
+	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	
 	
 	default:

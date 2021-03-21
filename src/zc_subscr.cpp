@@ -98,7 +98,7 @@ void dosubscr(miscQdata *misc)
         
     }
         
-    for(int y=176-2; y>=6; y-=3)
+    for(int y=176-2; y>=6; y-=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();
@@ -337,7 +337,7 @@ void dosubscr(miscQdata *misc)
     }
     while(!done);
     
-    for(int y=6; y<=174; y+=3)
+    for(int y=6; y<=174; y+=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();

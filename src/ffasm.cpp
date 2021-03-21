@@ -2185,6 +2185,7 @@ script_variable variable_list[]=
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
+	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
