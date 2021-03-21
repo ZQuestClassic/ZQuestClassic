@@ -3555,7 +3555,7 @@ void game_loop()
     bool isshop = false;
     switch(tmpscr[tscr].room)
     {
-	case rSP_ITEM:                                          // special item
+	//case rSP_ITEM:                                          // special item
 	case rRP_HC:      					// heart container or red potion
 	case rTAKEONE:                                          // take one
 	case rSHOP:                                             // shop
@@ -5724,6 +5724,7 @@ int main(int argc, char* argv[])
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.init_combo_doscript(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 			   
@@ -5778,6 +5779,7 @@ int main(int argc, char* argv[])
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
 				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.init_combo_doscript();
 				//Run global script OnExit
 				//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
 				//while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
