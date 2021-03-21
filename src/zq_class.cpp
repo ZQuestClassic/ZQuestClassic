@@ -12355,6 +12355,10 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(73);
         }
+	if(!p_iputw(zinit.subscrSpeed,f))
+        {
+            new_return(74);
+        }
         
         if(writecycle==0)
         {

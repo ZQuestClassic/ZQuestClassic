@@ -877,7 +877,7 @@ char *walkstylelist(int index, int *list_size)
 }
 
 
-DIALOG init_dlg[3267]; /* 	This array is used instead of a const static dialogue array. 
+DIALOG init_dlg[3269]; /* 	This array is used instead of a const static dialogue array. 
 				PopulateInitDialog() fills its elements and generates the init dialoigue.
 				The size of this array must be equal to the number of calls to initPopulate in 
 					PopulateInitDialog() + 1.
@@ -1507,8 +1507,13 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
     //3265
     initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
-    
-    // 3266 -- Termination
+     
+    //3266
+    initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
+    //3267
+    initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+     
+    // 3268 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     
     /*
@@ -1767,6 +1772,7 @@ int doInit(zinitdata *local_zinit)
     char arrowstring[6];
     char maxarrowstring[6];
     char herostepstr[6];
+    char subscrspeedstr[6];
     sprintf(bombstring, "%d", local_zinit->nBombs);
     sprintf(maxbombstring, "%d", local_zinit->nBombmax);
     sprintf(sbombstring, "%d", local_zinit->nSbombs);
@@ -1774,6 +1780,7 @@ int doInit(zinitdata *local_zinit)
     sprintf(arrowstring, "%d", local_zinit->nArrows);
     sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
     sprintf(herostepstr, "%d", local_zinit->heroStep);
+    sprintf(subscrspeedstr, "%d", local_zinit->subscrSpeed);
     
     
     //This is the format for storing values into Init Data. -Z
@@ -1853,8 +1860,8 @@ int doInit(zinitdata *local_zinit)
         init_dlg[1676+i].flags = get_bit(&local_zinit->triforce,i) ? D_SELECTED : 0;
     }
     
-    init_dlg[1684].flags = get_bit(local_zinit->misc,idM_CANSLASH) ? D_SELECTED : 0;
-    init_dlg[1689].dp=magicstring;
+    init_dlg[1684].flags = get_bit(loca_zinit->misc,idM_CANSLASH) ? D_SELECTED : 0;
+    init_dlg[1689].dp=magicstring;l
     init_dlg[1690].dp=maxmagicstring;
     init_dlg[1691].flags = get_bit(local_zinit->misc,idM_DOUBLEMAGIC) ? D_SELECTED : 0;
     
@@ -1870,6 +1877,7 @@ int doInit(zinitdata *local_zinit)
     init_dlg[1705].dp=thresholdstring;
     //Hero->Step
     init_dlg[3265].dp=herostepstr;
+    init_dlg[3267].dp=subscrspeedstr;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -1961,6 +1969,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
+        local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,20);
         onInitOK();
     }
     
