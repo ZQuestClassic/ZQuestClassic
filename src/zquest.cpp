@@ -36300,7 +36300,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
-		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX"
+		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE"
 		    
 		};
 		

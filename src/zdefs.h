@@ -744,6 +744,8 @@ enum
 	cSCRIPT14, cSCRIPT15, cSCRIPT16, cSCRIPT17, cSCRIPT18, 
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
+	//165
+	cBRIDGE,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
