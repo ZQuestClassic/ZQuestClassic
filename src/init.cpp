@@ -699,7 +699,7 @@ static int init_misc_list[] =
 static int init_const_list[] =
 {
     1700, 1701, 1702, 1703, 1704, 1705, 1706, 
-	3264, 3265,
+	3264, 3265, 3266, 3267,
 	-1
 };
 
