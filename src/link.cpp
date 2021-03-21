@@ -14546,6 +14546,14 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 				}
 			}
             
+	     for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && !_walkflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
+				if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
+			}
+		}
             bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy)));
             
             if((diagonalMovement||NO_GRIDLOCK))
