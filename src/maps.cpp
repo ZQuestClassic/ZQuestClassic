@@ -4107,7 +4107,9 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     FFCore.clear_screen_stack();
     screenScriptData.Clear();
     FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+    FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
     //reset combo script doscripts
+    //Init combo scripts
     FFCore.init_combo_doscript();
     if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
     {
