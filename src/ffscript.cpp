@@ -14427,7 +14427,7 @@ void set_register(const long arg, const long value)
 			break; // Can't multiply by 10000 or the maximum result is too big
 		
 		case ACTIVESSSPEED:
-			Link.subscr_speed = (value/10000);
+			Link.subscr_speed = vbound((value/10000),1,85);
 			break; // Can't multiply by 10000 or the maximum result is too big
 			
 		case GAMETIMEVALID:

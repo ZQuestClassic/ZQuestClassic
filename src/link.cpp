@@ -1118,7 +1118,7 @@ void LinkClass::init()
     walkable=false;
     moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
     warp_sound = 0;
-    subscr_speed = 1;
+    subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))

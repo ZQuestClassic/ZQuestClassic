@@ -1509,9 +1509,9 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
      
     //3266
-    initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     72+41,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
     //3267
-    initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            162,     68+39,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
      
     // 3268 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1860,8 +1860,8 @@ int doInit(zinitdata *local_zinit)
         init_dlg[1676+i].flags = get_bit(&local_zinit->triforce,i) ? D_SELECTED : 0;
     }
     
-    init_dlg[1684].flags = get_bit(loca_zinit->misc,idM_CANSLASH) ? D_SELECTED : 0;
-    init_dlg[1689].dp=magicstring;l
+    init_dlg[1684].flags = get_bit(local_zinit->misc,idM_CANSLASH) ? D_SELECTED : 0;
+    init_dlg[1689].dp=magicstring;
     init_dlg[1690].dp=maxmagicstring;
     init_dlg[1691].flags = get_bit(local_zinit->misc,idM_DOUBLEMAGIC) ? D_SELECTED : 0;
     
@@ -1969,7 +1969,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
-        local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,20);
+        local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,85);
         onInitOK();
     }
     
