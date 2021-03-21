@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 91
-Document Revision: 18th March, 2021
+Document for: 2.55, Alpha 93
+Document Revision: 21st March, 2021
 
 
  __           _   _                 
@@ -2701,6 +2701,10 @@ __________      .__        __                    _____                ___.
 //  Game  //
 ////////////	
 							// Game
+int SubscreenSpeed;
+ * The speed multiplier for the active subscreen falling or raising.
+ * The base speed (1) is 3 pixels per frame. The maximum value is 85.
+
 untyped STD[256];
  * An array used internally by the <std> header.
  * Safe to read values; you should avoid writing to this array or using it
