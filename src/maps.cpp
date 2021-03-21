@@ -305,7 +305,14 @@ int MAPFLAG(int x,int y)
 
 int COMBOTYPE(int x,int y)
 {
-    return combobuf[MAPCOMBO(x,y)].type;
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+		}
+	}
+	return combobuf[MAPCOMBO(x,y)].type;
 }
 
 int FFCOMBOTYPE(int x,int y)
@@ -430,8 +437,17 @@ int MAPFLAG2(int layer,int x,int y)
 
 int COMBOTYPE2(int layer,int x,int y)
 {
+    if(layer < 1)
+    {
+	for (int i = layer+1; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+		}
+	}
+    }
     if(layer==-1) return COMBOTYPE(x,y);
-    
     if(tmpscr2[layer].valid==0)
     {
         return 0;
@@ -4628,7 +4644,13 @@ bool _walkflag(int x,int y,int cnt)
     
     if(y&8) b<<=1;
     
-    if(((c.walk&b) || (c1.walk&b) || (c2.walk&b)) && !dried)
+    int cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    
+    if((cwalkflag&b) && !dried)
         return true;
         
     if(cnt==1) return false;
@@ -4648,8 +4670,12 @@ bool _walkflag(int x,int y,int cnt)
         
         if(y&8) b<<=1;
     }
-    
-    return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+    cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    return (cwalkflag&b) ? !dried : false;
 }
 
 //used by mapdata->isSolid(x,y) in ZScript:
@@ -4703,7 +4729,13 @@ bool _walkflag(int x,int y,int cnt, mapscr* m)
     
     if(y&8) b<<=1;
     
-    if(((c.walk&b) || (c1.walk&b) || (c2.walk&b)) && !dried)
+    int cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    
+    if((cwalkflag&b) && !dried)
         return true;
         
     if(cnt==1) return false;
@@ -4724,7 +4756,12 @@ bool _walkflag(int x,int y,int cnt, mapscr* m)
         if(y&8) b<<=1;
     }
     
-    return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+    cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    return (cwalkflag&b) ? !dried : false;
 }
 
 bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2)
@@ -4766,7 +4803,13 @@ bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2)
     
     if(y&8) b<<=1;
     
-    if(((c.walk&b) || (c1.walk&b) || (c2.walk&b)) && !dried)
+    int cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    
+    if((cwalkflag&b) && !dried)
         return true;
         
     if(cnt==1) return false;
@@ -4787,7 +4830,12 @@ bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2)
         if(y&8) b<<=1;
     }
     
-    return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+    cwalkflag = c.walk;
+    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    return (cwalkflag&b) ? !dried : false;
 }
 
 //Only check the given mapscr*, not it's layer 1&2
