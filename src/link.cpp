@@ -24190,7 +24190,7 @@ void LinkClass::ganon_intro()
             conveyclk=3;
             int tmp_subscr_clk = frame;
             dosubscr(&QMisc);
-            newscr_clk += frame - tmp_subscr_clk * subscr_speed;
+            newscr_clk += frame - tmp_subscr_clk;
         }
         
     }
