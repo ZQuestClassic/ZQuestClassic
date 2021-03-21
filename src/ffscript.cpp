@@ -11465,6 +11465,9 @@ void set_register(const long arg, const long value)
 		case LINKEATEN:
 			Link.setEaten(value/10000);
 			break;
+		case LINKPUSH:
+			Link.pushing = zc_max((value/10000),0);
+			break;
 		case LINKSTUN:
 			Link.setStunClock(value/10000);
 			break;
