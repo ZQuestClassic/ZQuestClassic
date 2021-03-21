@@ -17580,8 +17580,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{//165
 		cBRIDGE,
-		{ (char *)"Warp",NULL,(char *)"Damage is Percent",(char *)"Allow Ladder",(char *)"No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,(char *)"Pull Sensitivity",NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
 	},
 	{
 		cMAX,

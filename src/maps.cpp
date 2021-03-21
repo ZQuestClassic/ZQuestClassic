@@ -923,9 +923,30 @@ bool ispitfall(int combo)
 
 bool ispitfall(int x, int y)
 {
+	/*
 	if(int c = MAPFFCOMBO(x,y))
 		return ispitfall(c);
 	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
+	*/
+	if(int c = MAPFFCOMBO(x,y))
+	{
+		return ispitfall(c) ? true : false;
+	}
+	int c = MAPCOMBOL(2,x,y);
+	if(ispitfall(c)) return true;
+	if(tmpscr2[1].valid!=0)
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return false;
+	}
+	c = MAPCOMBOL(1,x,y);
+	if(ispitfall(c)) return true;
+	if(tmpscr2[0].valid!=0)
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return false;
+	}
+	c = MAPCOMBO(x,y);
+	if(ispitfall(c)) return true;
+	return false;
 }
 
 int getpitfall(int x, int y) //Return the highest-layer active pit combo at the given position
@@ -936,8 +957,16 @@ int getpitfall(int x, int y) //Return the highest-layer active pit combo at the 
 	}
 	int c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return c;
+	if(tmpscr2[1].valid!=0)
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+	}
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return c;
+	if(tmpscr2[0].valid!=0)
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+	}
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return c;
 	return 0;

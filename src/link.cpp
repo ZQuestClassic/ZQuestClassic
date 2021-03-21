@@ -6356,6 +6356,17 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modtotal=0;
     
+    for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) hp_mod[0] = 0;
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) hp_mod[1] = 0;
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) hp_mod[2] = 0;
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) hp_mod[3] = 0;
+		}
+	}
+    
     for(int i=0; i<4; i++)
     {
         if(get_bit(quest_rules,qr_DMGCOMBOPRI))
@@ -6383,6 +6394,17 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	else hp_mod[3]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount;
     
     int hp_modtotalffc = 0;
+    
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) hp_mod[0] = 0;
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) hp_mod[1] = 0;
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) hp_mod[2] = 0;
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) hp_mod[3] = 0;
+		}
+	}
     
     for(int i=0; i<4; i++)
     {
@@ -13650,6 +13672,13 @@ void LinkClass::move(int d2, int forceRate)
 	
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
                      (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+		}
+	}
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.link_swim_speed>60);
@@ -15039,12 +15068,31 @@ void LinkClass::checklockblock()
 	foundlayer = 0;
     }
     
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+		}
+	}
+    
    
     // Layers
     if(!found)
     {
+	cid = 0;
+	foundlayer = -1;
         for(int i=0; i<2; i++)
         {
+	    if (i == 0)
+	    {
+		if(tmpscr2[1].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+		} 
+	    }
             if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK)
 	    {
                 found=true;
@@ -15170,10 +15218,27 @@ void LinkClass::checkbosslockblock()
         found=true;
     }
     
+    for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+		}
+	}
+    
     if(!found)
     {
         for(int i=0; i<2; i++)
         {
+	    if (i == 0)
+	    {
+		if(tmpscr2[1].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+		} 
+	    }
             if((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSLOCKBLOCK)||
                     (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSLOCKBLOCK))
             {
@@ -15250,11 +15315,27 @@ void LinkClass::checkchest(int type)
     {
         found=true;
     }
+    for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+		}
+	}
     
     if(!found)
     {
         for(int i=0; i<2; i++)
         {
+	    if (i == 0)
+	    {
+		if(tmpscr2[1].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+		}    
+            }
             if((combobuf[MAPCOMBO2(i,bx,by)].type==type)||
                     (combobuf[MAPCOMBO2(i,bx2,by)].type==type))
             {
@@ -16002,6 +16083,13 @@ void LinkClass::fairycircle(int type)
 
 int touchcombo(int x,int y)
 {
+    for (int i = 0; i <= 1; ++i)
+{
+	if(tmpscr2[i].valid!=0)
+	{
+		if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+	}
+}
     switch(combobuf[MAPCOMBO(x,y)].type)
     {
     case cBSGRAVE:
@@ -24207,6 +24295,13 @@ void LinkClass::check_conveyor()
         is_on_conveyor=false;
         int ctype;
         ctype=(combobuf[MAPCOMBO(x+7,y+(bigHitbox?8:12))].type);
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) ctype = cNONE;
+		}
+	}
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
         
