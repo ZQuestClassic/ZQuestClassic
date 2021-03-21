@@ -4233,9 +4233,10 @@ enum ASM_DEFINE
 #define NPCFRAME			0x13DE
 #define LINKITEMX			0x13DF
 #define LINKITEMY			0x13E0
+#define ACTIVESSSPEED			0x13E1
 
 
-#define NUMVARIABLES         	0x13E1
+#define NUMVARIABLES         	0x13E2
 
 //} End variables
 

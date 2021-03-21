@@ -1118,6 +1118,7 @@ void LinkClass::init()
     walkable=false;
     moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
     warp_sound = 0;
+    subscr_speed = 1;
 	steprate = zinit.heroStep;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
@@ -24189,7 +24190,7 @@ void LinkClass::ganon_intro()
             conveyclk=3;
             int tmp_subscr_clk = frame;
             dosubscr(&QMisc);
-            newscr_clk += frame - tmp_subscr_clk;
+            newscr_clk += frame - tmp_subscr_clk * subscr_speed;
         }
         
     }

@@ -6695,6 +6695,9 @@ long get_register(const long arg)
 		case GAMETIME:
 			ret=game->get_time();
 			break;// Can't multiply by 10000 or the maximum result is too big
+		case ACTIVESSSPEED:
+			ret=Link.subscr_speed*10000;
+			break;// Can't multiply by 10000 or the maximum result is too big
 			
 		case GAMETIMEVALID:
 			ret=game->get_timevalid()?10000:0;
@@ -14421,6 +14424,10 @@ void set_register(const long arg, const long value)
 			
 		case GAMETIME:
 			game->set_time(value);
+			break; // Can't multiply by 10000 or the maximum result is too big
+		
+		case ACTIVESSSPEED:
+			Link.subscr_speed = (value/10000);
 			break; // Can't multiply by 10000 or the maximum result is too big
 			
 		case GAMETIMEVALID:
@@ -35306,6 +35313,7 @@ script_variable ZASMVars[]=
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
+	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

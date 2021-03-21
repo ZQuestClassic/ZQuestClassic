@@ -251,7 +251,7 @@ public:
     bool bigHitbox;
 	int steprate;
     byte defence[wMax];
-	
+	int subscr_speed;
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);
