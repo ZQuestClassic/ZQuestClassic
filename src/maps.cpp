@@ -2973,14 +2973,31 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
 {
     newcombo c = combobuf[cmbdat];
     
+    if (c.type == cBRIDGE) return;
+    
     int xx = x-xofs;
     int yy = y+playing_field_offset-yofs;
+    
+    int bridgedetected = 0;
     
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+xx;
         int ty=((i&1)<<3)+yy;
-        
+	int tx2=((i&2)<<2)+x;
+        int ty2=((i&1)<<3)+y;
+	for (int m = lyr-1; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+	if ((bridgedetected & (1<<i))) 
+	{
+		if (i >= 3) break;
+		else continue;
+	}
         if ( iswater(cmbdat)!=0 )
 	{
 		if(lyr==0 && get_bit(quest_rules, qr_DROWN))
@@ -3017,10 +3034,29 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
                
     if(dmg)
     {
-        for(int k=0; k<16; k+=2)
-            for(int j=0; j<16; j+=2)
-                if(((k+j)/2)%2)
-                    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	int color = makecol(255,255,0);
+	if (bridgedetected <= 0)
+	{
+		for(int k=0; k<16; k+=2)
+		    for(int j=0; j<16; j+=2)
+			if(((k+j)/2)%2)
+			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,color);
+	}
+	else
+	{
+		for(int i=0; i<4; i++)
+		{
+			if (!(bridgedetected & (1<<i)))
+			{
+				int tx=((i&2)<<2)+x;
+				int ty=((i&1)<<3)+y;
+				for(int k=0; k<8; k+=2)
+				    for(int j=0; j<8; j+=2)
+					if((k+j)%4 < 2)
+					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
+			}
+		}
+	}
     }
 }
 

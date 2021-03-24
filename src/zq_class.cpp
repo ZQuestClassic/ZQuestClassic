@@ -1070,12 +1070,29 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     
     newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
     
+    if (c.type == cBRIDGE) return;
+    
+    int bridgedetected = 0;
+    
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
-        
-        if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+        for (int m = layer; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+	if (bridgedetected & (1<<i))
+	{
+		if (i >= 3) break;
+		else continue;
+	}
+        if(layer==-1 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
             
         if(c.walk&(1<<i))
@@ -1100,17 +1117,51 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
         }
     }
     
+    bridgedetected = 0;
+     for(int i=0; i<4; i++)
+    {
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+	for (int m = 0; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+    }
+    
     // Draw damage combos
     bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
+	       
+	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
                
     if(dmg)
     {
-        for(int k=0; k<16; k+=2)
-            for(int j=0; j<16; j+=2)
-                if(((k+j)/2)%2)
-                    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	if (bridgedetected <= 0)
+	{
+		for(int k=0; k<16; k+=2)
+		    for(int j=0; j<16; j+=2)
+			if(((k+j)/2)%2)
+			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	}
+	else
+	{
+		for(int i=0; i<4; i++)
+		{
+			if (!(bridgedetected & (1<<i)))
+			{
+				int tx=((i&2)<<2)+x;
+				int ty=((i&1)<<3)+y;
+				for(int k=0; k<8; k+=2)
+				    for(int j=0; j<8; j+=2)
+					if(((k+j)/2)%2)
+					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+			}
+		}
+	}
     }
 }
 
@@ -1118,11 +1169,27 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 {
     newcombo c = combobuf[cmbdat];
     
+    if (c.type == cBRIDGE) return;
+    
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
         
+	bool bridgedetected = false;
+	/*
+	for (int m = -1; m <= 1; m++)
+	{
+		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
+		{
+			bridgedetected = true;
+		}
+        }*/
+	if (bridgedetected)
+	{
+		if (i >= 3) break;
+		else continue;
+	}
         if(combo_class_buf[c.type].water!=0)
 	{
 		
@@ -1163,9 +1230,9 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         // Draw damage combos
         if(combo_class_buf[c.type].modify_hp_amount != 0)
         {
-            for(int k=0; k<8; k+=2)
-                for(int j=0; j<8; j+=2)
-                    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
+	    for(int k=0; k<8; k+=2)
+		for(int j=0; j<8; j+=2)
+		    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
         }
     }
 }
@@ -2614,7 +2681,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
             for(int i=0; i<176; i++)
             {
-                put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+                //put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+		put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
             }
         }
         
