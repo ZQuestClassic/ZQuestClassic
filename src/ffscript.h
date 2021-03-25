@@ -713,6 +713,7 @@ void do_file_isallocated();
 void do_file_isvalid();
 void do_fflush();
 void do_file_readchars();
+void do_file_readbytes();
 void do_file_readstring();
 void do_file_readints();
 void do_file_writechars();
@@ -2878,7 +2879,8 @@ enum ASM_DEFINE
 	DIRECTORYRELOAD,
 	DIRECTORYFREE,
 	FILEWRITEBYTES,
-	GETCOMBOSCRIPT,         
+	GETCOMBOSCRIPT,  
+	FILEREADBYTES,
 	
 	NUMCOMMANDS           //0x0197
 };

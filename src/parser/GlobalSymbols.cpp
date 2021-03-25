@@ -12763,6 +12763,7 @@ static AccessorTable FileTable[] =
 	{ "GetError",               ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FILE,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "WriteBytes",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ReadBytes",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           {  ZVARTYPEID_FILE,                ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -13102,6 +13103,21 @@ void FileSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		code.push_back(new OFileWriteBytes(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int ReadBytes(file, char32*, int, int)
+	{
+		Function* function = getFunction("ReadBytes", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new OFileReadBytes(new VarArgument(EXP1),new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
