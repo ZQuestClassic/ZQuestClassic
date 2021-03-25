@@ -33,6 +33,8 @@ int FFORCOMBOTYPE(int x, int y);
 int FFORCOMBO_L(int layer, int x, int y);
 int FFORCOMBOTYPE_L(int layer, int x, int y);
 int MAPCOMBO2(int layer,int x,int y);
+int MAPCOMBO3(int map, int screen, int layer,int x,int y);
+int MAPCOMBO3(int map, int screen, int layer,int pos);
 int MAPCSET2(int layer,int x,int y);
 int MAPFLAG2(int layer,int x,int y);
 int MAPCOMBOFLAG2(int layer,int x,int y);
@@ -74,6 +76,7 @@ bool isCuttableType(int type);
 bool isCuttableItemType(int type);
 bool isstepable(int combo);                                 //can use ladder on it
 bool ishookshottable(int bx, int by);
+bool ishookshottable(int map, int screen, int bx, int by);
 bool hiddenstair(int tmp, bool redraw);                      // tmp = index of tmpscr[]
 bool remove_lockblocks(int tmp);                // tmp = index of tmpscr[]
 bool remove_bosslockblocks(int tmp);            // tmp = index of tmpscr[]

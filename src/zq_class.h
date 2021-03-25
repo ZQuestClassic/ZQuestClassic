@@ -83,6 +83,7 @@ public:
     bool isDungeon(int scr);
     bool isstepable(int combo);
     bool ishookshottable(int bx, int by, int i);
+    bool ishookshottable(int map, int screen, int bx, int by, int i);
     int warpindex(int combo);
     bool clearall(bool validate);
     bool reset_templates(bool validate);
@@ -91,9 +92,12 @@ public:
     void clearzcmap(int map);
     int  load(const char *path);
     int  save(const char *path);
+    int MAPCOMBO3(int map, int screen, int layer, int x,int y);
+    int MAPCOMBO3(int map, int screen, int layer, int pos);
     int MAPCOMBO2(int lyr,int x,int y, int map = -1, int scr = -1);
     int MAPCOMBO(int x,int y, int map = -1, int scr = -1);
     void put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer);
+    void put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int layer, int map, int screen);
     bool misaligned(int map, int scr, int i, int dir);
     void check_alignments(BITMAP* dest,int x,int y,int scr=-1);
     void draw(BITMAP *dest,int x,int y,int flags,int map,int scr);
