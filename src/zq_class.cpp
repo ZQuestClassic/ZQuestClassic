@@ -1217,8 +1217,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
         }
 	if (bridgedetected & (1<<i))
 	{
-		if (i >= 3) break;
-		else continue;
+		continue;
 	}
         if(layer==-1 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
@@ -1882,8 +1881,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -1892,7 +1891,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
+	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
@@ -1901,7 +1901,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
+	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1912,7 +1913,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
+	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
@@ -1921,7 +1923,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
+	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if(((combocheck1.walk&5)*2)!=(combocheck2.walk&10))
@@ -1945,8 +1948,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         
         //check layer 1
@@ -1956,7 +1959,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
@@ -1965,7 +1969,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1975,7 +1980,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
@@ -1984,7 +1990,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if((combocheck1.walk&10)!=((combocheck2.walk&5)*2))
@@ -2008,8 +2015,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -2018,7 +2025,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
@@ -2027,7 +2035,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -2037,7 +2046,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
@@ -2046,7 +2056,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if(((combocheck1.walk&3)*4)!=(combocheck2.walk&12))
@@ -2071,8 +2082,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -2081,7 +2092,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
@@ -2090,7 +2102,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -2100,7 +2113,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
@@ -2110,7 +2124,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
             
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if((combocheck1.walk&12)!=((combocheck2.walk&3)*4))
@@ -2290,6 +2305,8 @@ int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
 	if(m->valid==0) return 0;
 	
 	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
 	
@@ -3536,7 +3553,42 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         rectfill(dest,x,y,x+15,y+15,0);
     }
     
+    for(int k=1; k<3; k++)
+    {
+        if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
+        {
+            layermap=layer->layermap[k]-1;
+            
+            if(layermap>-1 && layermap<map_count)
+            {
+                layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
+                
+                for(int i=c; i<176; i+=16)
+                {
+                    if(layer->layeropacity[k]<255)
+                    {
+                        overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
+                    }
+                    else
+                    {
+                        overcombo(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                    }
+                }
+            }
+        }
+    }
+    
     // int cs=2;
+    if(LayerMaskInt[0]!=0)
+    {
+        word cmbdat = layer->data[c];
+        byte cmbcset = layer->cset[c];
+        int cmbflag = layer->sflag[c];
+        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+			overcombo(dest,x,y,cmbdat,cmbcset);
+		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
+    }
+    
     
     for(int k=0; k<2; k++)
     {
@@ -3558,16 +3610,6 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
             }
         }
-    }
-    
-    if(LayerMaskInt[0]!=0)
-    {
-        word cmbdat = layer->data[c];
-        byte cmbcset = layer->cset[c];
-        int cmbflag = layer->sflag[c];
-        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-			overcombo(dest,x,y,cmbdat,cmbcset);
-		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
     }
 	
     for(int k=2; k<4; k++)

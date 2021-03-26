@@ -403,33 +403,71 @@ int MAPCOMBO2(int layer,int x,int y)
     return tmpscr2[layer].data[combo];                        // entire combo code
 }
 
-int MAPCOMBO3(int map, int screen, int layer, int x,int y)
+int MAPCOMBO3(int map, int screen, int layer, int x,int y, bool secrets)
 {
-	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y));
+	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
 }
 
-int MAPCOMBO3(int map, int screen, int layer, int pos)
+int MAPCOMBO3(int map, int screen, int layer, int pos, bool secrets)
 { 
 	if (map < 0 || screen < 0) return 0;
 	
 	if(pos>175 || pos < 0)
 		return 0;
 		
-	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
+	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	
 	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
+	int flags = 0;
+	
+	if(secrets && game->maps[(map*MAPSCRSNORMAL)+screen])
+	{
+		flags = game->maps[(map*MAPSCRSNORMAL)+screen];
+		//secrets = false;
+	}
+	
 	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
 	
-	if(scr->data.empty()) return 0;
+	if(scr.data.empty()) return 0;
     
-	if(scr->valid==0) return 0;
-		
-	return scr->data[pos];						// entire combo code
+	if(scr.valid==0) return 0;
+	
+	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
+	{
+		hiddenstair2(&scr, false);
+		hidden_entrance2(&scr, (mapscr*)NULL, false, -3);
+	}
+	if(flags&mLOCKBLOCK)              // if special stuff done before
+	{
+	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKBLOCK, cLOCKBLOCK2);
+	}
+
+	if(flags&mBOSSLOCKBLOCK)          // if special stuff done before
+	{
+	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+	}
+
+	if(flags&mCHEST)              // if special stuff done before
+	{
+	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cCHEST, cCHEST2);
+	}
+
+	if(flags&mCHEST)              // if special stuff done before
+	{
+	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKEDCHEST, cLOCKEDCHEST2);
+	}
+
+	if(flags&mBOSSCHEST)              // if special stuff done before
+	{
+	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cBOSSCHEST, cBOSSCHEST2);
+	}
+	
+	return scr.data[pos];						// entire combo code
 }
 
 int MAPCSET2(int layer,int x,int y)
@@ -1118,7 +1156,11 @@ bool ishookshottable(int map, int screen, int bx, int by)
 
 bool hiddenstair(int tmp,bool redraw)                       // tmp = index of tmpscr[]
 {
-    mapscr *s = tmpscr + tmp;
+    return hiddenstair2(tmpscr + tmp,redraw);
+}
+
+bool hiddenstair2(mapscr *s,bool redraw)                       // tmp = index of tmpscr[]
+{
     
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
     {
@@ -1138,8 +1180,13 @@ bool hiddenstair(int tmp,bool redraw)                       // tmp = index of tm
 
 bool remove_screenstatecombos(int tmp, int what1, int what2)
 {
-    mapscr *s = tmpscr + tmp;
-    mapscr *t = tmpscr2;
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	return remove_screenstatecombos2(s, t, what1, what2);
+}
+
+bool remove_screenstatecombos2(mapscr *s, mapscr *t, int what1, int what2)
+{
     bool didit=false;
     
     for(int i=0; i<176; i++)
@@ -1152,19 +1199,22 @@ bool remove_screenstatecombos(int tmp, int what1, int what2)
         }
     }
     
-    for(int j=0; j<6; j++)
+    if(t)
     {
-        if(t[j].data.empty()) continue;
-        
-        for(int i=0; i<176; i++)
-        {
-            if((combobuf[t[j].data[i]].type== what1) ||
-                    (combobuf[t[j].data[i]].type== what2))
-            {
-                t[j].data[i]++;
-                didit=true;
-            }
-        }
+	    for(int j=0; j<6; j++)
+	    {
+		if(t[j].data.empty()) continue;
+		
+		for(int i=0; i<176; i++)
+		{
+		    if((combobuf[t[j].data[i]].type== what1) ||
+			    (combobuf[t[j].data[i]].type== what2))
+		    {
+			t[j].data[i]++;
+			didit=true;
+		    }
+		}
+	    }
     }
     
     return didit;
@@ -1320,579 +1370,590 @@ int findtrigger(int scombo, bool ff)
 // -2: triggered by Enemies->Secret
 // -3: triggered by Secrets screen state
 // -4: Screen->TriggerSecrets()
-void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
+void hidden_entrance(int tmp,bool refresh, bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
 {
-    //There are no calls to 'hidden_entrance' in the code where tmp != 0
-    Z_eventlog("%sScreen Secrets triggered%s.\n",
-               single>-1? "Restricted ":"",
-               single==-2? " by the 'Enemies->Secret' screen flag":
-               single==-3? " by the 'Secrets' screen state" :
-               single==-4? " by a script":"");
-    mapscr *s = tmpscr + tmp;
-    mapscr *t = tmpscr2;
-    int ft=0; //Flag trigger?
-    int msflag=0; // Misc. secret flag
-    
-    for(int i=0; i<176; i++) //Do the 'trigger flags' (non 16-31)
-    {
-        if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
-        
-        bool putit;
-        
-        // Remember the misc. secret flag; if triggered, use this instead
-        if(s->sflag[i]>=mfSECRETS01 && s->sflag[i]<=mfSECRETS16)
-            msflag=sSECRET01+(s->sflag[i]-mfSECRETS01);
-        else if(combobuf[s->data[i]].flag>=mfSECRETS01 && combobuf[s->data[i]].flag<=mfSECRETS16)
-            msflag=sSECRET01+(combobuf[s->data[i]].flag-mfSECRETS01);
-        else
-            msflag=0;
-            
-        if(!high16only || single>=0)
-        {
-            int newflag = -1;
-            
-            
-            for(int iter=0; iter<2; ++iter)
-            {
-                putit=true;
-                int checkflag=combobuf[s->data[i]].flag; //Inherent
-                
-                if(iter==1) checkflag=s->sflag[i]; //Placed
-                
-                switch(checkflag)
-                {
-                case mfBCANDLE:
-                    ft=sBCANDLE;
-                    break;
-                    
-                case mfRCANDLE:
-                    ft=sRCANDLE;
-                    break;
-                    
-                case mfWANDFIRE:
-                    ft=sWANDFIRE;
-                    break;
-                    
-                case mfDINSFIRE:
-                    ft=sDINSFIRE;
-                    break;
-                    
-                case mfARROW:
-                    ft=sARROW;
-                    break;
-                    
-                case mfSARROW:
-                    ft=sSARROW;
-                    break;
-                    
-                case mfGARROW:
-                    ft=sGARROW;
-                    break;
-                    
-                case mfSBOMB:
-                    ft=sSBOMB;
-                    break;
-                    
-                case mfBOMB:
-                    ft=sBOMB;
-                    break;
-                    
-                case mfBRANG:
-                    ft=sBRANG;
-                    break;
-                    
-                case mfMBRANG:
-                    ft=sMBRANG;
-                    break;
-                    
-                case mfFBRANG:
-                    ft=sFBRANG;
-                    break;
-                    
-                case mfWANDMAGIC:
-                    ft=sWANDMAGIC;
-                    break;
-                    
-                case mfREFMAGIC:
-                    ft=sREFMAGIC;
-                    break;
-                    
-                case mfREFFIREBALL:
-                    ft=sREFFIREBALL;
-                    break;
-                    
-                case mfSWORD:
-                    ft=sSWORD;
-                    break;
-                    
-                case mfWSWORD:
-                    ft=sWSWORD;
-                    break;
-                    
-                case mfMSWORD:
-                    ft=sMSWORD;
-                    break;
-                    
-                case mfXSWORD:
-                    ft=sXSWORD;
-                    break;
-                    
-                case mfSWORDBEAM:
-                    ft=sSWORDBEAM;
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    ft=sWSWORDBEAM;
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    ft=sMSWORDBEAM;
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    ft=sXSWORDBEAM;
-                    break;
-                    
-                case mfHOOKSHOT:
-                    ft=sHOOKSHOT;
-                    break;
-                    
-                case mfWAND:
-                    ft=sWAND;
-                    break;
-                    
-                case mfHAMMER:
-                    ft=sHAMMER;
-                    break;
-                    
-                case mfSTRIKE:
-                    ft=sSTRIKE;
-                    break;
-                    
-                default:
-                    putit = false;
-                    break;
-                }
-                
-                if(putit)  //Change the combos for the secret
-                {
-                    // Use misc. secret flag instead if one is present
-                    if(msflag!=0)
-                        ft=msflag;
-                        
-                    screen_combo_modify_preroutine(s,i);
-                    s->data[i] = s->secretcombo[ft];
-                    s->cset[i] = s->secretcset[ft];
-                    newflag = s->secretflag[ft];
-                    screen_combo_modify_postroutine(s,i);
-                }
-            }
-            
-            if(newflag >-1) s->sflag[i] = newflag; //Tiered secret
-            
-            for(int j=0; j<6; j++)  //Layers
-            {
-                if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer isn't used
-                
-                if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
-                
-                int newflag2 = -1;
-                
-                // Remember the misc. secret flag; if triggered, use this instead
-                if(t[j].sflag[i]>=mfSECRETS01 && t[j].sflag[i]<=mfSECRETS16)
-                    msflag=sSECRET01+(t[j].sflag[i]-mfSECRETS01);
-                else if(combobuf[t[j].data[i]].flag>=mfSECRETS01 && combobuf[t[j].data[i]].flag<=mfSECRETS16)
-                    msflag=sSECRET01+(combobuf[t[j].data[i]].flag-mfSECRETS01);
-                else
-                    msflag=0;
-                    
-                for(int iter=0; iter<2; ++iter)
-                {
-                    putit=true;
-                    int checkflag=combobuf[t[j].data[i]].flag; //Inherent
-                    
-                    if(iter==1) checkflag=t[j].sflag[i];  //Placed
-                    
-                    switch(checkflag)
-                    {
-                    case mfBCANDLE:
-                        ft=sBCANDLE;
-                        break;
-                        
-                    case mfRCANDLE:
-                        ft=sRCANDLE;
-                        break;
-                        
-                    case mfWANDFIRE:
-                        ft=sWANDFIRE;
-                        break;
-                        
-                    case mfDINSFIRE:
-                        ft=sDINSFIRE;
-                        break;
-                        
-                    case mfARROW:
-                        ft=sARROW;
-                        break;
-                        
-                    case mfSARROW:
-                        ft=sSARROW;
-                        break;
-                        
-                    case mfGARROW:
-                        ft=sGARROW;
-                        break;
-                        
-                    case mfSBOMB:
-                        ft=sSBOMB;
-                        break;
-                        
-                    case mfBOMB:
-                        ft=sBOMB;
-                        break;
-                        
-                    case mfBRANG:
-                        ft=sBRANG;
-                        break;
-                        
-                    case mfMBRANG:
-                        ft=sMBRANG;
-                        break;
-                        
-                    case mfFBRANG:
-                        ft=sFBRANG;
-                        break;
-                        
-                    case mfWANDMAGIC:
-                        ft=sWANDMAGIC;
-                        break;
-                        
-                    case mfREFMAGIC:
-                        ft=sREFMAGIC;
-                        break;
-                        
-                    case mfREFFIREBALL:
-                        ft=sREFFIREBALL;
-                        break;
-                        
-                    case mfSWORD:
-                        ft=sSWORD;
-                        break;
-                        
-                    case mfWSWORD:
-                        ft=sWSWORD;
-                        break;
-                        
-                    case mfMSWORD:
-                        ft=sMSWORD;
-                        break;
-                        
-                    case mfXSWORD:
-                        ft=sXSWORD;
-                        break;
-                        
-                    case mfSWORDBEAM:
-                        ft=sSWORDBEAM;
-                        break;
-                        
-                    case mfWSWORDBEAM:
-                        ft=sWSWORDBEAM;
-                        break;
-                        
-                    case mfMSWORDBEAM:
-                        ft=sMSWORDBEAM;
-                        break;
-                        
-                    case mfXSWORDBEAM:
-                        ft=sXSWORDBEAM;
-                        break;
-                        
-                    case mfHOOKSHOT:
-                        ft=sHOOKSHOT;
-                        break;
-                        
-                    case mfWAND:
-                        ft=sWAND;
-                        break;
-                        
-                    case mfHAMMER:
-                        ft=sHAMMER;
-                        break;
-                        
-                    case mfSTRIKE:
-                        ft=sSTRIKE;
-                        break;
-                        
-                    default:
-                        putit = false;
-                        break;
-                    }
-                    
-                    if(putit)  //Change the combos for the secret
-                    {
-                        // Use misc. secret flag instead if one is present
-                        if(msflag!=0)
-                            ft=msflag;
-                            
-                        t[j].data[i] = t[j].secretcombo[ft];
-                        t[j].cset[i] = t[j].secretcset[ft];
-                        newflag2 = t[j].secretflag[ft];
-                        int c=t[j].data[i];
-                        int cs=t[j].cset[i];
-                        
-                        if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-                            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
-                    }
-                }
-                
-                if(newflag2 >-1) t[j].sflag[i] = newflag2;  //Tiered secret
-            }
-        }
-    }
-    
-    for(int i=0; i<32; i++) //FFC 'trigger flags'
-    {
-        if(single>=0) if(i+176!=single) continue;
-        
-        bool putit;
-        
-        if((!high16only)||(single>=0))
-        {
-            //for (int iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
-            {
-                putit=true;
-                int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
-                
-                //No placed flags yet
-                switch(checkflag)
-                {
-                case mfBCANDLE:
-                    ft=sBCANDLE;
-                    break;
-                    
-                case mfRCANDLE:
-                    ft=sRCANDLE;
-                    break;
-                    
-                case mfWANDFIRE:
-                    ft=sWANDFIRE;
-                    break;
-                    
-                case mfDINSFIRE:
-                    ft=sDINSFIRE;
-                    break;
-                    
-                case mfARROW:
-                    ft=sARROW;
-                    break;
-                    
-                case mfSARROW:
-                    ft=sSARROW;
-                    break;
-                    
-                case mfGARROW:
-                    ft=sGARROW;
-                    break;
-                    
-                case mfSBOMB:
-                    ft=sSBOMB;
-                    break;
-                    
-                case mfBOMB:
-                    ft=sBOMB;
-                    break;
-                    
-                case mfBRANG:
-                    ft=sBRANG;
-                    break;
-                    
-                case mfMBRANG:
-                    ft=sMBRANG;
-                    break;
-                    
-                case mfFBRANG:
-                    ft=sFBRANG;
-                    break;
-                    
-                case mfWANDMAGIC:
-                    ft=sWANDMAGIC;
-                    break;
-                    
-                case mfREFMAGIC:
-                    ft=sREFMAGIC;
-                    break;
-                    
-                case mfREFFIREBALL:
-                    ft=sREFFIREBALL;
-                    break;
-                    
-                case mfSWORD:
-                    ft=sSWORD;
-                    break;
-                    
-                case mfWSWORD:
-                    ft=sWSWORD;
-                    break;
-                    
-                case mfMSWORD:
-                    ft=sMSWORD;
-                    break;
-                    
-                case mfXSWORD:
-                    ft=sXSWORD;
-                    break;
-                    
-                case mfSWORDBEAM:
-                    ft=sSWORDBEAM;
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    ft=sWSWORDBEAM;
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    ft=sMSWORDBEAM;
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    ft=sXSWORDBEAM;
-                    break;
-                    
-                case mfHOOKSHOT:
-                    ft=sHOOKSHOT;
-                    break;
-                    
-                case mfWAND:
-                    ft=sWAND;
-                    break;
-                    
-                case mfHAMMER:
-                    ft=sHAMMER;
-                    break;
-                    
-                case mfSTRIKE:
-                    ft=sSTRIKE;
-                    break;
-                    
-                default:
-                    putit = false;
-                    break;
-                }
-                
-                if(putit)  //Change the ffc's combo
-                {
-                    s->ffdata[i] = s->secretcombo[ft];
-                    s->ffcset[i] = s->secretcset[ft];
-                }
-            }
-        }
-    }
-    
-    if(checktrigger) //Hit all triggers->16-31
-    {
-        checktrigger=false;
-        
-        if(tmpscr->flags6&fTRIGGERF1631)
-        {
-            int tr = findtrigger(-1,false);  //Normal flags
-            
-            if(tr)
-            {
-                Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
-                goto endhe;
-            }
-            
-            int ftr = findtrigger(-1,true); //FFCs
-            
-            if(ftr)
-            {
-                Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-                goto endhe;
-            }
-        }
-    }
-    
-    for(int i=0; i<176; i++) // Do the 16-31 secrets
-    {
-        //If it's an enemies->secret screen, only do the high 16 if told to
-        //That way you can have secret and burn/bomb entrance separately
-        if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
-        {
-            int newflag = -1;
-            
-            for(int iter=0; iter<2; ++iter)
-            {
-                int checkflag=combobuf[s->data[i]].flag; //Inherent
-                
-                if(iter==1) checkflag=s->sflag[i];  //Placed
-                
-                if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
-                {
-                    screen_combo_modify_preroutine(s,i);
-                    s->data[i] = s->secretcombo[checkflag-16+4];
-                    s->cset[i] = s->secretcset[checkflag-16+4];
-                    newflag = s->secretflag[checkflag-16+4];
-                    screen_combo_modify_postroutine(s,i);
-                }
-            }
-            
-            if(newflag >-1) s->sflag[i] = newflag;  //Tiered flag
-            
-            for(int j=0; j<6; j++)  //Layers
-            {
-                if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer is not valid (surely checking for 'valid' would be better?)
-                
-                int newflag2 = -1;
-                
-                for(int iter=0; iter<2; ++iter)
-                {
-                    int checkflag=combobuf[t[j].data[i]].flag; //Inherent
-                    
-                    if(iter==1) checkflag=t[j].sflag[i];  //Placed
-                    
-                    if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
-                    {
-                        t[j].data[i] = t[j].secretcombo[checkflag-16+4];
-                        t[j].cset[i] = t[j].secretcset[checkflag-16+4];
-                        newflag2 = t[j].secretflag[checkflag-16+4];
-                    }
-                }
-                
-                if(newflag2 >-1) t[j].sflag[i] = newflag2;  //Tiered flag
-            }
-        }
-        
-        /*
-          if(putit && refresh)
-          putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-          */
-    }
-    
-    for(int i=0; i<32; i++) // FFCs
-    {
-        if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
-        {
-            for(int iter=0; iter<1; ++iter)  // Only one kind of FFC flag now.
-            {
-                int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
-                
-                //No placed flags yet
-                if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
-                {
-                    s->ffdata[i] = s->secretcombo[checkflag-16+4];
-                    s->ffcset[i] = s->secretcset[checkflag-16+4];
-                }
-            }
-        }
-    }
-    
+	//There are no calls to 'hidden_entrance' in the code where tmp != 0
+	Z_eventlog("%sScreen Secrets triggered%s.\n",
+			   single>-1? "Restricted ":"",
+			   single==-2? " by the 'Enemies->Secret' screen flag":
+			   single==-3? " by the 'Secrets' screen state" :
+			   single==-4? " by a script":"");
+	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
+}
+void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
+{
+	/*
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	*/
+	int ft=0; //Flag trigger?
+	int msflag=0; // Misc. secret flag
+	
+	for(int i=0; i<176; i++) //Do the 'trigger flags' (non 16-31)
+	{
+		if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
+		
+		bool putit;
+		
+		// Remember the misc. secret flag; if triggered, use this instead
+		if(s->sflag[i]>=mfSECRETS01 && s->sflag[i]<=mfSECRETS16)
+			msflag=sSECRET01+(s->sflag[i]-mfSECRETS01);
+		else if(combobuf[s->data[i]].flag>=mfSECRETS01 && combobuf[s->data[i]].flag<=mfSECRETS16)
+			msflag=sSECRET01+(combobuf[s->data[i]].flag-mfSECRETS01);
+		else
+			msflag=0;
+			
+		if(!high16only || single>=0)
+		{
+			int newflag = -1;
+			
+			
+			for(int iter=0; iter<2; ++iter)
+			{
+				putit=true;
+				int checkflag=combobuf[s->data[i]].flag; //Inherent
+				
+				if(iter==1) checkflag=s->sflag[i]; //Placed
+				
+				switch(checkflag)
+				{
+				case mfBCANDLE:
+					ft=sBCANDLE;
+					break;
+					
+				case mfRCANDLE:
+					ft=sRCANDLE;
+					break;
+					
+				case mfWANDFIRE:
+					ft=sWANDFIRE;
+					break;
+					
+				case mfDINSFIRE:
+					ft=sDINSFIRE;
+					break;
+					
+				case mfARROW:
+					ft=sARROW;
+					break;
+					
+				case mfSARROW:
+					ft=sSARROW;
+					break;
+					
+				case mfGARROW:
+					ft=sGARROW;
+					break;
+					
+				case mfSBOMB:
+					ft=sSBOMB;
+					break;
+					
+				case mfBOMB:
+					ft=sBOMB;
+					break;
+					
+				case mfBRANG:
+					ft=sBRANG;
+					break;
+					
+				case mfMBRANG:
+					ft=sMBRANG;
+					break;
+					
+				case mfFBRANG:
+					ft=sFBRANG;
+					break;
+					
+				case mfWANDMAGIC:
+					ft=sWANDMAGIC;
+					break;
+					
+				case mfREFMAGIC:
+					ft=sREFMAGIC;
+					break;
+					
+				case mfREFFIREBALL:
+					ft=sREFFIREBALL;
+					break;
+					
+				case mfSWORD:
+					ft=sSWORD;
+					break;
+					
+				case mfWSWORD:
+					ft=sWSWORD;
+					break;
+					
+				case mfMSWORD:
+					ft=sMSWORD;
+					break;
+					
+				case mfXSWORD:
+					ft=sXSWORD;
+					break;
+					
+				case mfSWORDBEAM:
+					ft=sSWORDBEAM;
+					break;
+					
+				case mfWSWORDBEAM:
+					ft=sWSWORDBEAM;
+					break;
+					
+				case mfMSWORDBEAM:
+					ft=sMSWORDBEAM;
+					break;
+					
+				case mfXSWORDBEAM:
+					ft=sXSWORDBEAM;
+					break;
+					
+				case mfHOOKSHOT:
+					ft=sHOOKSHOT;
+					break;
+					
+				case mfWAND:
+					ft=sWAND;
+					break;
+					
+				case mfHAMMER:
+					ft=sHAMMER;
+					break;
+					
+				case mfSTRIKE:
+					ft=sSTRIKE;
+					break;
+					
+				default:
+					putit = false;
+					break;
+				}
+				
+				if(putit)  //Change the combos for the secret
+				{
+					// Use misc. secret flag instead if one is present
+					if(msflag!=0)
+						ft=msflag;
+						
+					screen_combo_modify_preroutine(s,i);
+					s->data[i] = s->secretcombo[ft];
+					s->cset[i] = s->secretcset[ft];
+					newflag = s->secretflag[ft];
+					screen_combo_modify_postroutine(s,i);
+				}
+			}
+			
+			if(newflag >-1) s->sflag[i] = newflag; //Tiered secret
+			
+			if (t)
+			{
+				for(int j=0; j<6; j++)  //Layers
+				{
+					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer isn't used
+					
+					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
+					
+					int newflag2 = -1;
+					
+					// Remember the misc. secret flag; if triggered, use this instead
+					if(t[j].sflag[i]>=mfSECRETS01 && t[j].sflag[i]<=mfSECRETS16)
+						msflag=sSECRET01+(t[j].sflag[i]-mfSECRETS01);
+					else if(combobuf[t[j].data[i]].flag>=mfSECRETS01 && combobuf[t[j].data[i]].flag<=mfSECRETS16)
+						msflag=sSECRET01+(combobuf[t[j].data[i]].flag-mfSECRETS01);
+					else
+						msflag=0;
+						
+					for(int iter=0; iter<2; ++iter)
+					{
+						putit=true;
+						int checkflag=combobuf[t[j].data[i]].flag; //Inherent
+						
+						if(iter==1) checkflag=t[j].sflag[i];  //Placed
+						
+						switch(checkflag)
+						{
+						case mfBCANDLE:
+						ft=sBCANDLE;
+						break;
+						
+						case mfRCANDLE:
+						ft=sRCANDLE;
+						break;
+						
+						case mfWANDFIRE:
+						ft=sWANDFIRE;
+						break;
+						
+						case mfDINSFIRE:
+						ft=sDINSFIRE;
+						break;
+						
+						case mfARROW:
+						ft=sARROW;
+						break;
+						
+						case mfSARROW:
+						ft=sSARROW;
+						break;
+						
+						case mfGARROW:
+						ft=sGARROW;
+						break;
+						
+						case mfSBOMB:
+						ft=sSBOMB;
+						break;
+						
+						case mfBOMB:
+						ft=sBOMB;
+						break;
+						
+						case mfBRANG:
+						ft=sBRANG;
+						break;
+						
+						case mfMBRANG:
+						ft=sMBRANG;
+						break;
+						
+						case mfFBRANG:
+						ft=sFBRANG;
+						break;
+						
+						case mfWANDMAGIC:
+						ft=sWANDMAGIC;
+						break;
+						
+						case mfREFMAGIC:
+						ft=sREFMAGIC;
+						break;
+						
+						case mfREFFIREBALL:
+						ft=sREFFIREBALL;
+						break;
+						
+						case mfSWORD:
+						ft=sSWORD;
+						break;
+						
+						case mfWSWORD:
+						ft=sWSWORD;
+						break;
+						
+						case mfMSWORD:
+						ft=sMSWORD;
+						break;
+						
+						case mfXSWORD:
+						ft=sXSWORD;
+						break;
+						
+						case mfSWORDBEAM:
+						ft=sSWORDBEAM;
+						break;
+						
+						case mfWSWORDBEAM:
+						ft=sWSWORDBEAM;
+						break;
+						
+						case mfMSWORDBEAM:
+						ft=sMSWORDBEAM;
+						break;
+						
+						case mfXSWORDBEAM:
+						ft=sXSWORDBEAM;
+						break;
+						
+						case mfHOOKSHOT:
+						ft=sHOOKSHOT;
+						break;
+						
+						case mfWAND:
+						ft=sWAND;
+						break;
+						
+						case mfHAMMER:
+						ft=sHAMMER;
+						break;
+						
+						case mfSTRIKE:
+						ft=sSTRIKE;
+						break;
+						
+						default:
+						putit = false;
+						break;
+						}
+						
+						if(putit)  //Change the combos for the secret
+						{
+						// Use misc. secret flag instead if one is present
+						if(msflag!=0)
+							ft=msflag;
+							
+						t[j].data[i] = t[j].secretcombo[ft];
+						t[j].cset[i] = t[j].secretcset[ft];
+						newflag2 = t[j].secretflag[ft];
+						int c=t[j].data[i];
+						int cs=t[j].cset[i];
+						
+						if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
+							addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+						}
+					}
+					
+					if(newflag2 >-1) t[j].sflag[i] = newflag2;  //Tiered secret
+				}
+			}
+		}
+	}
+	
+	for(int i=0; i<32; i++) //FFC 'trigger flags'
+	{
+		if(single>=0) if(i+176!=single) continue;
+		
+		bool putit;
+		
+		if((!high16only)||(single>=0))
+		{
+			//for (int iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
+			{
+				putit=true;
+				int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+				
+				//No placed flags yet
+				switch(checkflag)
+				{
+				case mfBCANDLE:
+					ft=sBCANDLE;
+					break;
+					
+				case mfRCANDLE:
+					ft=sRCANDLE;
+					break;
+					
+				case mfWANDFIRE:
+					ft=sWANDFIRE;
+					break;
+					
+				case mfDINSFIRE:
+					ft=sDINSFIRE;
+					break;
+					
+				case mfARROW:
+					ft=sARROW;
+					break;
+					
+				case mfSARROW:
+					ft=sSARROW;
+					break;
+					
+				case mfGARROW:
+					ft=sGARROW;
+					break;
+					
+				case mfSBOMB:
+					ft=sSBOMB;
+					break;
+					
+				case mfBOMB:
+					ft=sBOMB;
+					break;
+					
+				case mfBRANG:
+					ft=sBRANG;
+					break;
+					
+				case mfMBRANG:
+					ft=sMBRANG;
+					break;
+					
+				case mfFBRANG:
+					ft=sFBRANG;
+					break;
+					
+				case mfWANDMAGIC:
+					ft=sWANDMAGIC;
+					break;
+					
+				case mfREFMAGIC:
+					ft=sREFMAGIC;
+					break;
+					
+				case mfREFFIREBALL:
+					ft=sREFFIREBALL;
+					break;
+					
+				case mfSWORD:
+					ft=sSWORD;
+					break;
+					
+				case mfWSWORD:
+					ft=sWSWORD;
+					break;
+					
+				case mfMSWORD:
+					ft=sMSWORD;
+					break;
+					
+				case mfXSWORD:
+					ft=sXSWORD;
+					break;
+					
+				case mfSWORDBEAM:
+					ft=sSWORDBEAM;
+					break;
+					
+				case mfWSWORDBEAM:
+					ft=sWSWORDBEAM;
+					break;
+					
+				case mfMSWORDBEAM:
+					ft=sMSWORDBEAM;
+					break;
+					
+				case mfXSWORDBEAM:
+					ft=sXSWORDBEAM;
+					break;
+					
+				case mfHOOKSHOT:
+					ft=sHOOKSHOT;
+					break;
+					
+				case mfWAND:
+					ft=sWAND;
+					break;
+					
+				case mfHAMMER:
+					ft=sHAMMER;
+					break;
+					
+				case mfSTRIKE:
+					ft=sSTRIKE;
+					break;
+					
+				default:
+					putit = false;
+					break;
+				}
+				
+				if(putit)  //Change the ffc's combo
+				{
+					s->ffdata[i] = s->secretcombo[ft];
+					s->ffcset[i] = s->secretcset[ft];
+				}
+			}
+		}
+	}
+	
+	if(checktrigger) //Hit all triggers->16-31
+	{
+		checktrigger=false;
+		
+		if(tmpscr->flags6&fTRIGGERF1631)
+		{
+			int tr = findtrigger(-1,false);  //Normal flags
+			
+			if(tr)
+			{
+				Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
+				goto endhe;
+			}
+			
+			int ftr = findtrigger(-1,true); //FFCs
+			
+			if(ftr)
+			{
+				Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
+				goto endhe;
+			}
+		}
+	}
+	
+	for(int i=0; i<176; i++) // Do the 16-31 secrets
+	{
+		//If it's an enemies->secret screen, only do the high 16 if told to
+		//That way you can have secret and burn/bomb entrance separately
+		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
+		{
+			int newflag = -1;
+			
+			for(int iter=0; iter<2; ++iter)
+			{
+				int checkflag=combobuf[s->data[i]].flag; //Inherent
+				
+				if(iter==1) checkflag=s->sflag[i];  //Placed
+				
+				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
+				{
+					screen_combo_modify_preroutine(s,i);
+					s->data[i] = s->secretcombo[checkflag-16+4];
+					s->cset[i] = s->secretcset[checkflag-16+4];
+					newflag = s->secretflag[checkflag-16+4];
+					screen_combo_modify_postroutine(s,i);
+				}
+			}
+			
+			if(newflag >-1) s->sflag[i] = newflag;  //Tiered flag
+			if (t)
+			{
+				for(int j=0; j<6; j++)  //Layers
+				{
+					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer is not valid (surely checking for 'valid' would be better?)
+					
+					int newflag2 = -1;
+					
+					for(int iter=0; iter<2; ++iter)
+					{
+						int checkflag=combobuf[t[j].data[i]].flag; //Inherent
+						
+						if(iter==1) checkflag=t[j].sflag[i];  //Placed
+						
+						if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
+						{
+							t[j].data[i] = t[j].secretcombo[checkflag-16+4];
+							t[j].cset[i] = t[j].secretcset[checkflag-16+4];
+							newflag2 = t[j].secretflag[checkflag-16+4];
+						}
+					}
+					
+					if(newflag2 >-1) t[j].sflag[i] = newflag2;  //Tiered flag
+				}
+			}
+		}
+		
+		/*
+		  if(putit && refresh)
+		  putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+		  */
+	}
+	
+	for(int i=0; i<32; i++) // FFCs
+	{
+		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
+		{
+			for(int iter=0; iter<1; ++iter)  // Only one kind of FFC flag now.
+			{
+				int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+				
+				//No placed flags yet
+				if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
+				{
+					s->ffdata[i] = s->secretcombo[checkflag-16+4];
+					s->ffcset[i] = s->secretcset[checkflag-16+4];
+				}
+			}
+		}
+	}
+	
 endhe:
 
-    if(tmpscr->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
-    {
-        activated_timed_warp=true;
-        tmpscr->timedwarptics = 0;
-    }
+	if(tmpscr->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
+	{
+		activated_timed_warp=true;
+		tmpscr->timedwarptics = 0;
+	}
 }
 
 

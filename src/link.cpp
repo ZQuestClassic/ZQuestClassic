@@ -19858,6 +19858,8 @@ bool LinkClass::nextcombo_solid(int d2)
         
     // want actual screen index, not game->maps[] index
     ns = (ns&127) + (ns>>7)*MAPSCRS;
+    int screen = (ns%MAPSCRS);
+    int map = (ns - screen) / MAPSCRS;
     
     int cx = x;
     int cy = y;
@@ -19885,6 +19887,7 @@ bool LinkClass::nextcombo_solid(int d2)
     
     if(d2==left||d2==right) cy+=bigHitbox?0:8;
     
+    
     // from MAPCOMBO()
     
     for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)); cy+=8,i++)
@@ -19896,16 +19899,36 @@ bool LinkClass::nextcombo_solid(int d2)
             return true;
         }
         
-        newcombo c = combobuf[TheMaps[ns].data[cmb]];
-        bool dried = iswater_type(c.type) && DRIEDLAKE;
-        bool swim = iswater_type(c.type) && (current_item(itype_flippers) || action==rafting) && !dried;
-        int b=1;
+        newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, true)];
+	
+	int b=1;
         
         if(cx&8) b<<=2;
         
         if(cy&8) b<<=1;
+	
+	//bool bridgedetected = false;
+	
+	int walk = c.walk;
+	
+	for (int m = 0; m <= 1; m++)
+	{
+		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
+		if (cmb.type == cBRIDGE && !(cmb.walk&b)) 
+		{
+			walk &= cmb.walk;
+		}
+		else walk |= cmb.walk;
+        }
+	/*
+	if (bridgedetected)
+	{
+		continue;
+	}*/
+	
+        bool swim = iswater_type(c.type) && (current_item(itype_flippers) || action==rafting);
         
-        if((c.walk&b) && !dried && !swim)
+        if((walk&b) && !swim)
         {
             return true;
         }
