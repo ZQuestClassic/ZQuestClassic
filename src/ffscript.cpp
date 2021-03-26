@@ -25996,6 +25996,11 @@ int run_script(const byte type, const word script, const long i)
 				FFCore.do_file_readchars();
 				break;
 			}
+			case FILEREADBYTES:
+			{
+				FFCore.do_file_readbytes();
+				break;
+			}
 			case FILEREADINTS:
 			{
 				FFCore.do_file_readints();
@@ -26710,6 +26715,36 @@ void FFScript::do_file_readchars()
 		}
 		a[q] = 0; //Force null-termination
 		ri->d[rEXP1] *= 10000L;
+		check_file_error(ri->fileref);
+		return;
+	}
+	ri->d[rEXP1] = 0L;
+}
+void FFScript::do_file_readbytes()
+{
+	if(user_file* f = checkFile(ri->fileref, "ReadBytes()", true))
+	{
+		unsigned int pos = zc_max(ri->d[rINDEX] / 10000,0);
+		int count = get_register(sarg2) / 10000;
+		if(count == 0) return;
+		long arrayptr = get_register(sarg1) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if(a == INVALIDARRAY)
+		{
+			return;
+		}
+		if(pos >= a.Size()) 
+		{
+		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "ReadBytes()", arrayptr);
+		    return;
+		}
+		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
+		std::vector<unsigned char> data(count);
+		ri->d[rEXP1] = 10000L * fread((void*)&(data[0]), 1, count, f->file);
+		for(int q = 0; q < count; ++q)
+		{
+			a[q+pos] = 10000L * data[q];
+		}
 		check_file_error(ri->fileref);
 		return;
 	}
@@ -34116,7 +34151,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DIRECTORYFREE",                0,   0,   0,   0},
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
-	
+	{ "FILEREADBYTES",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

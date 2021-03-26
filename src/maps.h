@@ -33,6 +33,8 @@ int FFORCOMBOTYPE(int x, int y);
 int FFORCOMBO_L(int layer, int x, int y);
 int FFORCOMBOTYPE_L(int layer, int x, int y);
 int MAPCOMBO2(int layer,int x,int y);
+int MAPCOMBO3(int map, int screen, int layer,int x,int y, bool secrets = false);
+int MAPCOMBO3(int map, int screen, int layer,int pos, bool secrets = false);
 int MAPCSET2(int layer,int x,int y);
 int MAPFLAG2(int layer,int x,int y);
 int MAPCOMBOFLAG2(int layer,int x,int y);
@@ -74,7 +76,10 @@ bool isCuttableType(int type);
 bool isCuttableItemType(int type);
 bool isstepable(int combo);                                 //can use ladder on it
 bool ishookshottable(int bx, int by);
+bool ishookshottable(int map, int screen, int bx, int by);
 bool hiddenstair(int tmp, bool redraw);                      // tmp = index of tmpscr[]
+bool hiddenstair2(mapscr *s, bool redraw);                      
+bool remove_screenstatecombos2(mapscr *s, mapscr *t, int what1, int what2);
 bool remove_lockblocks(int tmp);                // tmp = index of tmpscr[]
 bool remove_bosslockblocks(int tmp);            // tmp = index of tmpscr[]
 bool remove_chests(int tmp);                    // tmp = index of tmpscr[]
@@ -83,6 +88,7 @@ bool remove_bosschests(int tmp);                // tmp = index of tmpscr[]
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int i);
 void hidden_entrance(int tmp,bool refresh, bool high16only=false,int single=-1);
+void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int single=-1);
 void update_freeform_combos();
 bool findentrance(int x, int y, int flag, bool setflag);
 bool hitcombo(int x, int y, int combotype);
