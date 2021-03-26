@@ -9171,6 +9171,17 @@ namespace ZScript
 		}
 	};
 	
+	class OFileReadBytes : public BinaryOpcode
+	{
+	public:
+		OFileReadBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileReadBytes(a->clone(), b->clone());
+		}
+	};
+	
 	class OFileReadInts : public BinaryOpcode
 	{
 	public:

@@ -5328,6 +5328,11 @@ string OFileReadChars::toString()
 	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
 
+string OFileReadBytes::toString()
+{
+	return "FILEREADBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OFileReadInts::toString()
 {
 	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

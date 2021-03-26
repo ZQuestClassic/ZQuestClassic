@@ -3347,6 +3347,17 @@ int ReadChars(char32[] buf, int count, int pos);
  * If 'count' is positive, reads 'count' characters into 'buf'.
  * Will always add a null character at the end of the read characters.
  * Returns the number of characters read, excluding the added null character.
+ 
+int ReadBytes(untyped[] buf, int count, int pos);
+ * Reads a section of binary data from the file.
+ * Starts placing data at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * The binary data read will be 8b; such that reading '1' will place '1' into buf.
+ *     This means that the binary data cannot contain decimal places.
+ * Returns the number of bytes read.
 
 int ReadInts(untyped[] buf, int count, int pos);
  * Reads a section of binary data from the file.
@@ -3371,6 +3382,17 @@ int WriteChars(char32[] buf, int count, int pos);
  * If 'count' is negative, writes from 'buf' until it finds a null character, or reaches the end of 'buf'.
  * If 'count' is positive, writes 'count' characters from buf.
  * Returns the number of characters successfully written.
+ 
+int WriteBytes(untyped[] arr, int count, int pos);
+ * Writes 8b binary data from 'arr' to file.
+ * The binary data written will be 8b; such that writing '1' will write '1' to file.
+ *     This means that the binary data cannot contain decimal places.
+ * Starts at 'arr[pos]'.
+ *     If 'pos' is negative, starts at 'arr[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'arr' until it reaches the end of 'arr'.
+ * If 'count' is positive, writes 'count' ints from arr.
+ * Returns the number of bytes successfully written.
 
 int WriteInts(untyped[] arr, int count, int pos);
  * Writes 32b binary data from 'arr' to file.
