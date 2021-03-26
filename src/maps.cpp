@@ -403,20 +403,49 @@ int MAPCOMBO2(int layer,int x,int y)
     return tmpscr2[layer].data[combo];                        // entire combo code
 }
 
+int MAPCOMBO3(int map, int screen, int layer, int x,int y)
+{
+	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y));
+}
+
+int MAPCOMBO3(int map, int screen, int layer, int pos)
+{ 
+	if (map < 0 || screen < 0) return 0;
+	
+	if(pos>175 || pos < 0)
+		return 0;
+		
+	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
+	
+	if(m->data.empty()) return 0;
+    
+	if(m->valid==0) return 0;
+	
+	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	
+	if(scr->data.empty()) return 0;
+    
+	if(scr->valid==0) return 0;
+		
+	return scr->data[pos];						// entire combo code
+}
+
 int MAPCSET2(int layer,int x,int y)
 {
-    if(layer==-1) return MAPCSET(x,y);
-    
-    if(tmpscr2[layer].cset.empty()) return 0;
-    
-    if(tmpscr2[layer].valid==0) return 0;
-    
-    int combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer].cset[combo];                        // entire combo code
+	if(layer==-1) return MAPCSET(x,y);
+	
+	if(tmpscr2[layer].cset.empty()) return 0;
+	
+	if(tmpscr2[layer].valid==0) return 0;
+	
+	int combo = COMBOPOS(x,y);
+	
+	if(combo>175 || combo < 0)
+		return 0;
+		
+	return tmpscr2[layer].cset[combo];						// entire combo code
 }
 
 int MAPFLAG2(int layer,int x,int y)
@@ -1048,6 +1077,43 @@ bool ishookshottable(int bx, int by)
     }
     
     return ret;
+}
+
+bool ishookshottable(int map, int screen, int bx, int by)
+{
+	if (map < 0 || screen < 0) return false;
+		
+	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+	
+	if(m->data.empty()) return false;
+	
+	if(m->valid==0) return false;
+	
+	if(!_walkflag(bx,by,1, m))
+		return true;
+		
+	bool ret = true;
+	
+	for(int i=2; i>=0; i--)
+	{
+		int c = MAPCOMBO3(map, screen, i-1,bx,by);
+		int t = combobuf[c].type;
+		
+		if(i == 0 && (t == cHOOKSHOTONLY || t == cLADDERHOOKSHOT)) return true;
+		
+		//bool dried = (iswater_type(t) && DRIEDLAKE);
+		
+		int b=1;
+		
+		if(bx&8) b<<=2;
+		
+		if(by&8) b<<=1;
+		
+		if(combobuf[c].walk&b && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
+			ret = false;
+	}
+	
+	return ret;
 }
 
 bool hiddenstair(int tmp,bool redraw)                       // tmp = index of tmpscr[]
@@ -2973,14 +3039,31 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
 {
     newcombo c = combobuf[cmbdat];
     
+    if (c.type == cBRIDGE) return;
+    
     int xx = x-xofs;
     int yy = y+playing_field_offset-yofs;
+    
+    int bridgedetected = 0;
     
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+xx;
         int ty=((i&1)<<3)+yy;
-        
+	int tx2=((i&2)<<2)+x;
+        int ty2=((i&1)<<3)+y;
+	for (int m = lyr-1; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+	if ((bridgedetected & (1<<i))) 
+	{
+		if (i >= 3) break;
+		else continue;
+	}
         if ( iswater(cmbdat)!=0 )
 	{
 		if(lyr==0 && get_bit(quest_rules, qr_DROWN))
@@ -3017,10 +3100,29 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
                
     if(dmg)
     {
-        for(int k=0; k<16; k+=2)
-            for(int j=0; j<16; j+=2)
-                if(((k+j)/2)%2)
-                    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	int color = makecol(255,255,0);
+	if (bridgedetected <= 0)
+	{
+		for(int k=0; k<16; k+=2)
+		    for(int j=0; j<16; j+=2)
+			if(((k+j)/2)%2)
+			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,color);
+	}
+	else
+	{
+		for(int i=0; i<4; i++)
+		{
+			if (!(bridgedetected & (1<<i)))
+			{
+				int tx=((i&2)<<2)+x;
+				int ty=((i&1)<<3)+y;
+				for(int k=0; k<8; k+=2)
+				    for(int j=0; j<8; j+=2)
+					if((k+j)%4 < 2)
+					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
+			}
+		}
+	}
     }
 }
 
