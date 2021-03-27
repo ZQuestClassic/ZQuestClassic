@@ -1922,7 +1922,7 @@ attack:
             
             if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideViewLink()))
             {
-                sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
+                sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
             }
             
             xofs=oxofs;
@@ -1951,7 +1951,7 @@ attack:
     if(action != casting)
     {
         // Keep this consistent with checkspecial2, line 7800-ish...
-        bool inwater = iswater(MAPCOMBO(x+4,y+9))  && iswater(MAPCOMBO(x+4,y+15)) &&  iswater(MAPCOMBO(x+11,y+9)) && iswater(MAPCOMBO(x+11,y+15));
+        bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
         
         int jumping2 = int(jumping*(zinit.gravity/16.0));
         
@@ -7012,7 +7012,7 @@ bool LinkClass::animate(int)
 		{
 			if(fall > 0)
 			{
-				if((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+				if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
 					sfx(WAV_ZN1SPLASH,x.getInt());
 					
 				stomping = true;
@@ -9472,16 +9472,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
+                    if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
+                    else if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
+                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9496,16 +9496,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x,y+16)) && !iswater(MAPCOMBO(x+8,y+16)) && !iswater(MAPCOMBO(x+15,y+16)))
+                    if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x,y+16)) && !iswater(MAPCOMBO(x+7,y+16)) && iswater(MAPCOMBO(x+15,y+16)))
+                    else if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
+                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9520,16 +9520,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12))) && !iswater(MAPCOMBO(x-1,y+15)))
+                    if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11))) && iswater(MAPCOMBO(x-1,y+15)))
+                    else if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
+                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9544,16 +9544,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12))) && !iswater(MAPCOMBO(x+16,y+15)))
+                    if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11))) && iswater(MAPCOMBO(x+16,y+15)))
+                    else if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(!iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
+                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -9573,16 +9573,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
+                    if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
+                    else if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
+		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9596,16 +9596,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x,y+16)) && iswater(MAPCOMBO(x+8,y+16)) && iswater(MAPCOMBO(x+15,y+16)))
+                    if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x,y+16)) && iswater(MAPCOMBO(x+7,y+16)) && !iswater(MAPCOMBO(x+15,y+16)))
+                    else if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt(),y.getInt()+15)))
+		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9620,16 +9620,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12))) && iswater(MAPCOMBO(x-1,y+15)))
+                    if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11))) && !iswater(MAPCOMBO(x-1,y+15)))
+                    else if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
+		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9644,16 +9644,16 @@ void LinkClass::do_hopping()
                     
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12))) && iswater(MAPCOMBO(x+16,y+15)))
+                    if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11))) && !iswater(MAPCOMBO(x+16,y+15)))
+                    else if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(iswater(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)))&&iswater(MAPCOMBO(x.getInt()+15,y.getInt()+8)))
+		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -9671,7 +9671,7 @@ void LinkClass::do_hopping()
                 hopclk = 0;
                 diveclk = 0;
                 
-                if(iswater(MAPCOMBO(x.getInt(),y.getInt()+8)))
+                if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+8), currmap, currscr, -1, x.getInt(),y.getInt()+8, true, false))
                 {
                     // hopped in
                     attackclk = charging = spins = 0;
@@ -12616,10 +12616,10 @@ void LinkClass::movelink()
 			}
 		}
 		
-		bool wtry  = iswater(MAPCOMBO(x,y+15));
-		bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
-		bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));
-		bool wtrx8 = iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)));
+		bool wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+		bool wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+		bool wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+		bool wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
 		
 		if(can_use_item(itype_flippers,i_flippers)&&!(ladderx+laddery)&&z==0)
 		{
@@ -12776,8 +12776,8 @@ void LinkClass::movelink()
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
 						
 						if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1) &&
-								!(iswater(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step)) &&
-								  iswater(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step))))
+								!(iswaterex(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x, temp_y+(bigHitbox?0:8)-temp_step, true, false) &&
+								  iswaterex(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, true, false)))
 							info.setUnwalkable(true);
 					}
 					else
@@ -12906,8 +12906,8 @@ void LinkClass::movelink()
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
 						
 						if(_walkflag(temp_x+15, temp_y+15+temp_step, 1) &&
-								!(iswater(MAPCOMBO(temp_x, temp_y+15+temp_step)) &&
-								  iswater(MAPCOMBO(temp_x+15, temp_y+15+temp_step))))
+								!(iswaterex(MAPCOMBO(temp_x, temp_y+15+temp_step), currmap, currscr, -1, temp_x, temp_y+15+temp_step, true, false) &&
+								  iswaterex(MAPCOMBO(temp_x+15, temp_y+15+temp_step), currmap, currscr, -1, temp_x+15, temp_y+15+temp_step, true, false)))
 							info.setUnwalkable(true);
 					}
 					else
@@ -13299,8 +13299,8 @@ LEFTRIGHT_NEWMOVE:
 					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
 					
 					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]), 1) &&
-							!(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]))) &&
-							  iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])))))
+							!(iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])) &&
+							  iswaterex(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
@@ -13404,8 +13404,8 @@ LEFTRIGHT_NEWMOVE:
 					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
 					
 					if(_walkflag(x+15, y+15+int(lsteps[y.getInt()&7]), 1) &&
-							!(iswater(MAPCOMBO(x, y+15+int(lsteps[y.getInt()&7]))) &&
-							  iswater(MAPCOMBO(x+15, y+15+int(lsteps[y.getInt()&7])))))
+							!(iswaterex(MAPCOMBO(x, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int(lsteps[y.getInt()&7])) &&
+							  iswaterex(MAPCOMBO(x+15, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
@@ -14245,8 +14245,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     //int vy=((int)y+4)&0xFFF8;
                     if(d2==left)
                     {
-                        if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?6:11))) &&
-                           !iswater(MAPCOMBO(x-1,y+(bigHitbox?9:12))) &&
+                        if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?6:11)), currmap, currscr, -1, x-1,y+(bigHitbox?6:11)) &&
+                           !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?9:12)), currmap, currscr, -1, x-1,y+(bigHitbox?9:12)) &&
                            !_walkflag(x-1,y+(bigHitbox?6:11),1) &&
                            !_walkflag(x-1,y+(bigHitbox?9:12),1))
                         {
@@ -14257,8 +14257,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==right)
                     {
-                        if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?6:11))) &&
-                           !iswater(MAPCOMBO(x+16,y+(bigHitbox?9:12))) &&
+                        if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?6:11)), currmap, currscr, -1, x+16,y+(bigHitbox?6:11)) &&
+                           !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?9:12)), currmap, currscr, -1, x+16,y+(bigHitbox?9:12)) &&
                            !_walkflag(x+16,y+(bigHitbox?6:11),1) &&
                            !_walkflag(x+16,y+(bigHitbox?9:12),1))
                         {
@@ -14269,8 +14269,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==up)
                     {
-                        if(!iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) &&
-                           !iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) &&
+                        if(!iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1) &&
+                           !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1) &&
                            !_walkflag(x+7,y+(bigHitbox?0:8)-1,1) &&
                            !_walkflag(x+8,y+(bigHitbox?0:8)-1,1))
                         {
@@ -14281,8 +14281,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==down)
                     {
-                        if(!iswater(MAPCOMBO(x+7,y+16)) &&
-                           !iswater(MAPCOMBO(x+8,y+16)) &&
+                        if(!iswaterex(MAPCOMBO(x+7,y+16), currmap, currscr, -1, x+7,y+16) &&
+                           !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16) &&
                            !_walkflag(x+7,y+16,1) &&
                            !_walkflag(x+8,y+16,1))
                         {
@@ -14298,7 +14298,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 else if(wx>240&&cnt==2);
                 else if(wy>168);
                 else if(get_bit(quest_rules, qr_DROWN) && !ilswim);
-                else if(iswater(MAPCOMBO(wx,wy)) && iswater(MAPCOMBO(wx,wy)))
+		//if(iswaterex(MAPCOMBO(wx,wy)) && iswaterex(MAPCOMBO(wx,wy)))
+                else if(iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
                 {
                     ret.setUnwalkable(false);
                     return ret;
@@ -14312,8 +14313,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         }
         else
         {
-            bool wtrx  = iswater(MAPCOMBO(wx,wy));
-            bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+            bool wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
             
             if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
@@ -14324,8 +14325,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     }
     else if(ladderx+laddery)                                  // ladder is being used
     {
-        int lx = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wx : x;
-        int ly = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wy : y;
+        int lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1)) ? wx : x;
+        int ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1)) ? wy : y;
         
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -14449,14 +14450,14 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // definitions of unwalkablex and unwalkablex8.
             // * Instead, prevent the ladder from being used in the
             // one frame where Link has landed on water before drowning.
-            unwalkablex = unwalkablex8 = !iswater(MAPCOMBO(x+4,y+11));
+            unwalkablex = unwalkablex8 = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
         }
         
         // check if he can swim
         if(current_item(itype_flippers) && z==0)
         {
-            bool wtrx  = iswater(MAPCOMBO(wx,wy));
-            bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+            bool wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
             //ladder ignores water combos that are now walkable thanks to flippers -DD
             unwalkablex = unwalkablex && !wtrx;
             unwalkablex8 = unwalkablex8 && !wtrx8;
@@ -14500,8 +14501,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // laddersetup
         {
             // Check if there's water to use the ladder over
-            bool wtrx = iswater(MAPCOMBO(wx,wy));
-            bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+            bool wtrx = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy);
 			int ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
@@ -14554,7 +14555,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 				if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
 			}
 		}
-            bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy)));
+            bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy));
             
             if((diagonalMovement||NO_GRIDLOCK))
             {
@@ -14576,8 +14577,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                             int lx=wx&0xF0;
                             if(current_item(itype_flippers) && z==0)
                             {
-                                if(iswater(MAPCOMBO(lx, y)) && iswater(MAPCOMBO(lx+15, y)) &&
-                                  iswater(MAPCOMBO(lx, y+15)) && iswater(MAPCOMBO(lx+15, y+15)))
+                                if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
+				iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
+                                iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
+				iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
                                     deployLadder=false;
                             }
                             if(deployLadder)
@@ -16682,741 +16685,751 @@ void LinkClass::checkspecial()
 
 void LinkClass::checkspecial2(int *ls)
 {
-    if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
-    {
-        if(y.getInt()&7)
-            return;
-            
-        if(x.getInt()&7)
-            return;
-    }
-    
-    if(toogam) return;
-    
-    bool didstrig = false;
-    
-    for(int i=bigHitbox?0:8; i<16; i+=bigHitbox?15:7)
-    {
-        for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
-        {
-            int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
+	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
+	{
+		if(y.getInt()&7)
+			return;
+			
+		if(x.getInt()&7)
+			return;
+	}
+	
+	if(toogam) return;
+	
+	bool didstrig = false;
+	
+	for(int i=bigHitbox?0:8; i<16; i+=bigHitbox?15:7)
+	{
+		for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
+		{
+			int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
 		int warpsound = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].attribytes[0];
-            
-            if(stype==cSWARPA)
-            {
-                if(tmpscr->flags5&fDIRECTSWARP)
-                {
-                    didpit=true;
-                    pitx=x;
-                    pity=y;
-                }
-                
-                sdir=dir;
-                dowarp(0,0,warpsound);
-                return;
-            }
-            
-            if(stype==cSWARPB)
-            {
-                if(tmpscr->flags5&fDIRECTSWARP)
-                {
-                    didpit=true;
-                    pitx=x;
-                    pity=y;
-                }
-                
-                sdir=dir;
-                dowarp(0,1,warpsound);
-                return;
-            }
-            
-            if(stype==cSWARPC)
-            {
-                if(tmpscr->flags5&fDIRECTSWARP)
-                {
-                    didpit=true;
-                    pitx=x;
-                    pity=y;
-                }
-                
-                sdir=dir;
-                dowarp(0,2,warpsound);
-                return;
-            }
-            
-            if(stype==cSWARPD)
-            {
-                if(tmpscr->flags5&fDIRECTSWARP)
-                {
-                    didpit=true;
-                    pitx=x;
-                    pity=y;
-                }
-                
-                sdir=dir;
-                dowarp(0,3,warpsound);
-                return;
-            }
-            
-            if(stype==cSWARPR)
-            {
-                if(tmpscr->flags5&fDIRECTSWARP)
-                {
-                    didpit=true;
-                    pitx=x;
-                    pity=y;
-                }
-                
-                sdir=dir;
-                dowarp(0,(rand()%4),warpsound);
-                return;
-            }
-            
-            if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
-            {
+			
+			if(stype==cSWARPA)
+			{
+				if(tmpscr->flags5&fDIRECTSWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				
+				sdir=dir;
+				dowarp(0,0,warpsound);
+				return;
+			}
+			
+			if(stype==cSWARPB)
+			{
+				if(tmpscr->flags5&fDIRECTSWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				
+				sdir=dir;
+				dowarp(0,1,warpsound);
+				return;
+			}
+			
+			if(stype==cSWARPC)
+			{
+				if(tmpscr->flags5&fDIRECTSWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				
+				sdir=dir;
+				dowarp(0,2,warpsound);
+				return;
+			}
+			
+			if(stype==cSWARPD)
+			{
+				if(tmpscr->flags5&fDIRECTSWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				
+				sdir=dir;
+				dowarp(0,3,warpsound);
+				return;
+			}
+			
+			if(stype==cSWARPR)
+			{
+				if(tmpscr->flags5&fDIRECTSWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
+				}
+				
+				sdir=dir;
+				dowarp(0,(rand()%4),warpsound);
+				return;
+			}
+			
+			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
+			{
 		zprint("Step Secs\n");
-                if(stype==cSTRIGFLAG && canPermSecret())
-                { 
-                    if(!didstrig)
-                    {
-                        stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
-                        
-                        if(!(tmpscr->flags5&fTEMPSECRETS))
-                        {
-                            setmapflag(mSECRET);
-                        }
+				if(stype==cSTRIGFLAG && canPermSecret())
+				{ 
+					if(!didstrig)
+					{
+						stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+						
+						if(!(tmpscr->flags5&fTEMPSECRETS))
+						{
+							setmapflag(mSECRET);
+						}
 			//int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 			//zprint("Step Secrets SFX: %d\n", thesfx);
-                        sfx(warpsound,pan((int)x));
-                        hidden_entrance(0,true,false); 
-                        didstrig = true;
-                    }
-                }
-                else
-                { 
-                    if(!didstrig)
-                    {
-                        stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
-                        hidden_entrance(0,true,true); 
-                        didstrig = true;
+						sfx(warpsound,pan((int)x));
+						hidden_entrance(0,true,false); 
+						didstrig = true;
+					}
+				}
+				else
+				{ 
+					if(!didstrig)
+					{
+						stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+						hidden_entrance(0,true,true); 
+						didstrig = true;
 			//play trigger sound
 			//int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 			//zprint("Step Secrets SFX: %d\n", thesfx);
-                        //sfx(thesfx,pan((int)x));
+						//sfx(thesfx,pan((int)x));
 			sfx(warpsound,pan((int)x));
-                    }
-                }
-            }
-        }
-    }
-    
-    // check if he's standing on a warp he just came out of
-    if(((int)y>=warpy-8&&(int)y<=warpy+7)&&warpy!=-1)
-    {
-        if(((int)x>=warpx-8&&(int)x<=warpx+7)&&warpx!=-1)
-        {
-            return;
-        }
-    }
-    
-    warpy=255;
-    int tx=x;
-    int ty=y;
-    
-    int flag=0;
-    int flag2=0;
-    int flag3=0;
-    int type=0;
-    bool water=false;
-    int index = 0;
-    
-    //bool gotpit=false;
-    
-    int x1,x2,y1,y2;
-    x1 = tx;
-    x2 = tx+15;
-    y1 = ty;
-    y2 = ty+15;
-    
-    if((diagonalMovement||NO_GRIDLOCK))
-    {
-        x1 = tx+4;
-        x2 = tx+11;
-        y1 = ty+4;
-        y2 = ty+11;
-    }
-    
-    int types[4];
-    types[0]=types[1]=types[2]=types[3]=-1;
-    int cids[4];
-    int ffcids[4];
-    cids[0]=cids[1]=cids[2]=cids[3]=-1;
-    ffcids[0]=ffcids[1]=ffcids[2]=ffcids[3]=-1;
-    //
-    // First, let's find flag1 (combo flag), flag2 (inherent flag) and flag3 (FFC flag)...
-    //
-    types[0] = MAPFLAG(x1,y1);
-    types[1] = MAPFLAG(x1,y2);
-    types[2] = MAPFLAG(x2,y1);
-    types[3] = MAPFLAG(x2,y2);
-    
-    
-    //MAPFFCOMBO
-    
-    
-    if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-        flag = types[0];
-        
-    // 2.10 compatibility...
-    else if(y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
-        flag = types[0];
-        
-        
-    types[0] = MAPCOMBOFLAG(x1,y1);
-    types[1] = MAPCOMBOFLAG(x1,y2);
-    types[2] = MAPCOMBOFLAG(x2,y1);
-    types[3] = MAPCOMBOFLAG(x2,y2);
-    
-    if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-        flag2 = types[0];
-        
-    types[0] = MAPFFCOMBOFLAG(x1,y1);
-    types[1] = MAPFFCOMBOFLAG(x1,y2);
-    types[2] = MAPFFCOMBOFLAG(x2,y1);
-    types[3] = MAPFFCOMBOFLAG(x2,y2);
-    
-    
-    //
-    
-    if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-        flag3 = types[0];
-        
-    //
-    // Now, let's check for warp combos...
-    //
-    
-    //
-    
-    cids[0] = MAPCOMBO(x1,y1);
-    cids[1] = MAPCOMBO(x1,y2);
-    cids[2] = MAPCOMBO(x2,y1);
-    cids[3] = MAPCOMBO(x2,y2);
-    
-    types[0] = COMBOTYPE(x1,y1);
-    
-    if(MAPFFCOMBO(x1,y1))
-    {
-        types[0] = FFCOMBOTYPE(x1,y1);
+					}
+				}
+			}
+		}
+	}
+	
+	// check if he's standing on a warp he just came out of
+	if(((int)y>=warpy-8&&(int)y<=warpy+7)&&warpy!=-1)
+	{
+		if(((int)x>=warpx-8&&(int)x<=warpx+7)&&warpx!=-1)
+		{
+			return;
+		}
+	}
+	
+	warpy=255;
+	int tx=x;
+	int ty=y;
+	
+	int flag=0;
+	int flag2=0;
+	int flag3=0;
+	int type=0;
+	bool water=false;
+	int index = 0;
+	
+	//bool gotpit=false;
+	
+	int x1,x2,y1,y2;
+	x1 = tx;
+	x2 = tx+15;
+	y1 = ty;
+	y2 = ty+15;
+	
+	if((diagonalMovement||NO_GRIDLOCK))
+	{
+		x1 = tx+4;
+		x2 = tx+11;
+		y1 = ty+4;
+		y2 = ty+11;
+	}
+	
+	int types[4];
+	types[0]=types[1]=types[2]=types[3]=-1;
+	int cids[4];
+	int ffcids[4];
+	cids[0]=cids[1]=cids[2]=cids[3]=-1;
+	ffcids[0]=ffcids[1]=ffcids[2]=ffcids[3]=-1;
+	//
+	// First, let's find flag1 (combo flag), flag2 (inherent flag) and flag3 (FFC flag)...
+	//
+	types[0] = MAPFLAG(x1,y1);
+	types[1] = MAPFLAG(x1,y2);
+	types[2] = MAPFLAG(x2,y1);
+	types[3] = MAPFLAG(x2,y2);
+	
+	
+	//MAPFFCOMBO
+	
+	
+	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		flag = types[0];
+		
+	// 2.10 compatibility...
+	else if(y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
+		flag = types[0];
+		
+		
+	types[0] = MAPCOMBOFLAG(x1,y1);
+	types[1] = MAPCOMBOFLAG(x1,y2);
+	types[2] = MAPCOMBOFLAG(x2,y1);
+	types[3] = MAPCOMBOFLAG(x2,y2);
+	
+	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		flag2 = types[0];
+		
+	types[0] = MAPFFCOMBOFLAG(x1,y1);
+	types[1] = MAPFFCOMBOFLAG(x1,y2);
+	types[2] = MAPFFCOMBOFLAG(x2,y1);
+	types[3] = MAPFFCOMBOFLAG(x2,y2);
+	
+	
+	//
+	
+	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		flag3 = types[0];
+		
+	//
+	// Now, let's check for warp combos...
+	//
+	
+	//
+	
+	cids[0] = MAPCOMBO(x1,y1);
+	cids[1] = MAPCOMBO(x1,y2);
+	cids[2] = MAPCOMBO(x2,y1);
+	cids[3] = MAPCOMBO(x2,y2);
+	
+	types[0] = COMBOTYPE(x1,y1);
+	
+	if(MAPFFCOMBO(x1,y1))
+	{
+		types[0] = FFCOMBOTYPE(x1,y1);
 	cids[0] = MAPFFCOMBO(x1,y1);
-    }
-        
-    types[1] = COMBOTYPE(x1,y2);
-    
-    if(MAPFFCOMBO(x1,y2))
-    {
-        types[1] = FFCOMBOTYPE(x1,y2);
+	}
+		
+	types[1] = COMBOTYPE(x1,y2);
+	
+	if(MAPFFCOMBO(x1,y2))
+	{
+		types[1] = FFCOMBOTYPE(x1,y2);
 	cids[1] = MAPFFCOMBO(x1,y2);
-    }
-        
-    types[2] = COMBOTYPE(x2,y1);
-    
-    if(MAPFFCOMBO(x2,y1))
-    {
-        types[2] = FFCOMBOTYPE(x2,y1);
-        cids[2] = MAPFFCOMBO(x2,y1);
-    }
-    types[3] = COMBOTYPE(x2,y2);
-    
-    if(MAPFFCOMBO(x2,y2))
-    {
-        types[3] = FFCOMBOTYPE(x2,y2);
+	}
+		
+	types[2] = COMBOTYPE(x2,y1);
+	
+	if(MAPFFCOMBO(x2,y1))
+	{
+		types[2] = FFCOMBOTYPE(x2,y1);
+		cids[2] = MAPFFCOMBO(x2,y1);
+	}
+	types[3] = COMBOTYPE(x2,y2);
+	
+	if(MAPFFCOMBO(x2,y2))
+	{
+		types[3] = FFCOMBOTYPE(x2,y2);
 	cids[3] = MAPFFCOMBO(x2,y2);
-    }
-    int warpsfx2 = 0;
-    // Change B, C and D warps into A, for the comparison below...
-    for(int i=0; i<4; i++)
-    {
-        if(types[i]==cCAVE)
-        {
-            index=0;
-	    warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cCAVEB)
-        {
-            types[i]=cCAVE;
-            index=1;
-	    warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cCAVEC)
-        {
-            types[i]=cCAVE;
-            index=2;
-	    warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cCAVED)
-        {
-            types[i]=cCAVE;
-            index=3;
-	    warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        
-        if(types[i]==cPIT) 
+	}
+	int warpsfx2 = 0;
+	// Change B, C and D warps into A, for the comparison below...
+	for(int i=0; i<4; i++)
+	{
+		if(types[i]==cCAVE)
+		{
+			index=0;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
+		else if(types[i]==cCAVEB)
+		{
+			types[i]=cCAVE;
+			index=1;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
+		else if(types[i]==cCAVEC)
+		{
+			types[i]=cCAVE;
+			index=2;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
+		else if(types[i]==cCAVED)
+		{
+			types[i]=cCAVE;
+			index=3;
+		warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
+		
+		if(types[i]==cPIT) 
 	{
 		index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 	}
-        else if(types[i]==cPITB)
-        {
-            types[i]=cPIT;
+		else if(types[i]==cPITB)
+		{
+			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=1;
-        }
-        else if(types[i]==cPITC)
-        {
-            types[i]=cPIT;
+			index=1;
+		}
+		else if(types[i]==cPITC)
+		{
+			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=2;
-        }
-        else if(types[i]==cPITD)
-        {
-            types[i]=cPIT;
+			index=2;
+		}
+		else if(types[i]==cPITD)
+		{
+			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=3;
-        }
-        else if(types[i]==cPITR)
-        {
-            types[i]=cPIT;
+			index=3;
+		}
+		else if(types[i]==cPITR)
+		{
+			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=rand()%4;
-        }
-        
-        if(types[i]==cSTAIR)
-        {
-            index=0;
+			index=rand()%4;
+		}
+		
+		if(types[i]==cSTAIR)
+		{
+			index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cSTAIRB)
-        {
-            types[i]=cSTAIR;
+		}
+		else if(types[i]==cSTAIRB)
+		{
+			types[i]=cSTAIR;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=1;
-        }
-        else if(types[i]==cSTAIRC)
-        {
-            types[i]=cSTAIR;
+			index=1;
+		}
+		else if(types[i]==cSTAIRC)
+		{
+			types[i]=cSTAIR;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=2;
-        }
-        else if(types[i]==cSTAIRD)
-        {
-            types[i]=cSTAIR;
+			index=2;
+		}
+		else if(types[i]==cSTAIRD)
+		{
+			types[i]=cSTAIR;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=3;
-        }
-        else if(types[i]==cSTAIRR)
-        {
-            types[i]=cSTAIR;
-            index=rand()%4;
+			index=3;
+		}
+		else if(types[i]==cSTAIRR)
+		{
+			types[i]=cSTAIR;
+			index=rand()%4;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        
-        if(types[i]==cCAVE2)
-        {
-            index=0;
+		}
+		
+		if(types[i]==cCAVE2)
+		{
+			index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cCAVE2B)
-        {
-            types[i]=cCAVE2;
-            index=1;
+		}
+		else if(types[i]==cCAVE2B)
+		{
+			types[i]=cCAVE2;
+			index=1;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cCAVE2C)
-        {
-            types[i]=cCAVE2;
+		}
+		else if(types[i]==cCAVE2C)
+		{
+			types[i]=cCAVE2;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=2;
-        }
-        else if(types[i]==cCAVE2D)
-        {
-            types[i]=cCAVE2;
+			index=2;
+		}
+		else if(types[i]==cCAVE2D)
+		{
+			types[i]=cCAVE2;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=3;
-        }
-        
-        if(types[i]==cSWIMWARP) 
+			index=3;
+		}
+		
+		if(types[i]==cSWIMWARP) 
 	{
 		index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 	}
-        else if(types[i]==cSWIMWARPB)
-        {
-            types[i]=cSWIMWARP;
+		else if(types[i]==cSWIMWARPB)
+		{
+			types[i]=cSWIMWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=1;
-        }
-        else if(types[i]==cSWIMWARPC)
-        {
-            types[i]=cSWIMWARP;
+			index=1;
+		}
+		else if(types[i]==cSWIMWARPC)
+		{
+			types[i]=cSWIMWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=2;
-        }
-        else if(types[i]==cSWIMWARPD)
-        {
-            types[i]=cSWIMWARP;
+			index=2;
+		}
+		else if(types[i]==cSWIMWARPD)
+		{
+			types[i]=cSWIMWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=3;
-        }
-        
-        if(types[i]==cDIVEWARP) 
+			index=3;
+		}
+		
+		if(types[i]==cDIVEWARP) 
 	{
 		index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 	}
-        else if(types[i]==cDIVEWARPB)
-        {
-            types[i]=cDIVEWARP;
+		else if(types[i]==cDIVEWARPB)
+		{
+			types[i]=cDIVEWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=1;
-        }
-        else if(types[i]==cDIVEWARPC)
-        {
-            types[i]=cDIVEWARP;
+			index=1;
+		}
+		else if(types[i]==cDIVEWARPC)
+		{
+			types[i]=cDIVEWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=2;
-        }
-        else if(types[i]==cDIVEWARPD)
-        {
-            types[i]=cDIVEWARP;
+			index=2;
+		}
+		else if(types[i]==cDIVEWARPD)
+		{
+			types[i]=cDIVEWARP;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-            index=3;
-        }
-        
-        if(types[i]==cSTEP) warpsfx2 = combobuf[cids[i]].attribytes[0];
-        else if(types[i]==cSTEPSAME) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0];}
-        else if(types[i]==cSTEPALL) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0]; }
-    }
-    
-    // Special case for step combos; otherwise, they act oddly in some cases
-    if((types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])||(types[1]==cSTEP&&types[3]==cSTEP))
-    {
-        if(action!=freeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
-            type = types[1];
-    }
-    
-    //
-    // Now, let's check for Save combos...
-    //
-    x1 = tx+4;
-    x2 = tx+11;
-    y1 = ty+4;
-    y2 = ty+11;
-    
-    types[0] = COMBOTYPE(x1,y1);
-    
-    if(MAPFFCOMBO(x1,y1))
-        types[0] = FFCOMBOTYPE(x1,y1);
-        
-    types[1] = COMBOTYPE(x1,y2);
-    
-    if(MAPFFCOMBO(x1,y2))
-        types[1] = FFCOMBOTYPE(x1,y2);
-        
-    types[2] = COMBOTYPE(x2,y1);
-    
-    if(MAPFFCOMBO(x2,y1))
-        types[2] = FFCOMBOTYPE(x2,y1);
-        
-    types[3] = COMBOTYPE(x2,y2);
-    
-    if(MAPFFCOMBO(x2,y2))
-        types[3] = FFCOMBOTYPE(x2,y2);
-        
-    bool setsave=false;
-    
-    for(int i=0; i<4; i++)
-    {
-        if(types[i]==cSAVE) setsave=true;
-        
-        if(types[i]==cSAVE2) setsave=true;
-    }
-    
-    if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-        if(setsave)
-        {
-            type = types[0];
-        }
-        
-        
-    //
-    // Now, let's check for Drowning combos...
-    //
-    if(get_bit(quest_rules,qr_DROWN))
-    {
-        y1 = ty+9;
-        y2 = ty+15;
-        types[0] = COMBOTYPE(x1,y1);
-        
-        if(MAPFFCOMBO(x1,y1))
-            types[0] = FFCOMBOTYPE(x1,y1);
-            
-        types[1] = COMBOTYPE(x1,y2);
-        
-        if(MAPFFCOMBO(x1,y2))
-            types[1] = FFCOMBOTYPE(x1,y2);
-            
-        types[2] = COMBOTYPE(x2,y1);
-        
-        if(MAPFFCOMBO(x2,y1))
-            types[2] = FFCOMBOTYPE(x2,y1);
-            
-        types[3] = COMBOTYPE(x2,y2);
-        
-        if(MAPFFCOMBO(x2,y2))
-            types[3] = FFCOMBOTYPE(x2,y2);
-            
-        if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-                combo_class_buf[types[2]].water && combo_class_buf[types[3]].water)
-            water = true;
-    }
-    
-    // Pits have a bigger 'hitbox' than stairs...
-    x1 = tx+7;
-    x2 = tx+8;
-    y1 = ty+7+(bigHitbox?0:4);
-    y2 = ty+8+(bigHitbox?0:4);
-    
-    types[0] = COMBOTYPE(x1,y1);
-    cids[0] = MAPCOMBO(x1,y1);
-    
-    if(MAPFFCOMBO(x1,y1))
-    {
-        types[0] = FFCOMBOTYPE(x1,y1);
+			index=3;
+		}
+		
+		if(types[i]==cSTEP) warpsfx2 = combobuf[cids[i]].attribytes[0];
+		else if(types[i]==cSTEPSAME) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0];}
+		else if(types[i]==cSTEPALL) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0]; }
+	}
+	
+	// Special case for step combos; otherwise, they act oddly in some cases
+	if((types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])||(types[1]==cSTEP&&types[3]==cSTEP))
+	{
+		if(action!=freeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
+			type = types[1];
+	}
+	
+	//
+	// Now, let's check for Save combos...
+	//
+	x1 = tx+4;
+	x2 = tx+11;
+	y1 = ty+4;
+	y2 = ty+11;
+	
+	types[0] = COMBOTYPE(x1,y1);
+	
+	if(MAPFFCOMBO(x1,y1))
+		types[0] = FFCOMBOTYPE(x1,y1);
+		
+	types[1] = COMBOTYPE(x1,y2);
+	
+	if(MAPFFCOMBO(x1,y2))
+		types[1] = FFCOMBOTYPE(x1,y2);
+		
+	types[2] = COMBOTYPE(x2,y1);
+	
+	if(MAPFFCOMBO(x2,y1))
+		types[2] = FFCOMBOTYPE(x2,y1);
+		
+	types[3] = COMBOTYPE(x2,y2);
+	
+	if(MAPFFCOMBO(x2,y2))
+		types[3] = FFCOMBOTYPE(x2,y2);
+		
+	bool setsave=false;
+	
+	for(int i=0; i<4; i++)
+	{
+		if(types[i]==cSAVE) setsave=true;
+		
+		if(types[i]==cSAVE2) setsave=true;
+	}
+	
+	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		if(setsave)
+		{
+			type = types[0];
+		}
+		
+		
+	//
+	// Now, let's check for Drowning combos...
+	//
+	if(get_bit(quest_rules,qr_DROWN))
+	{
+		y1 = ty+9;
+		y2 = ty+15;
+		if (get_bit(quest_rules, qr_SMARTER_WATER))
+		{
+			if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = true;
+		}
+		else
+		{
+			types[0] = COMBOTYPE(x1,y1);
+			
+			if(MAPFFCOMBO(x1,y1))
+				types[0] = FFCOMBOTYPE(x1,y1);
+				
+			types[1] = COMBOTYPE(x1,y2);
+			
+			if(MAPFFCOMBO(x1,y2))
+				types[1] = FFCOMBOTYPE(x1,y2);
+				
+			types[2] = COMBOTYPE(x2,y1);
+			
+			if(MAPFFCOMBO(x2,y1))
+				types[2] = FFCOMBOTYPE(x2,y1);
+				
+			types[3] = COMBOTYPE(x2,y2);
+			
+			if(MAPFFCOMBO(x2,y2))
+				types[3] = FFCOMBOTYPE(x2,y2);
+				
+			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water)
+				water = true;
+		}
+	}
+	
+	// Pits have a bigger 'hitbox' than stairs...
+	x1 = tx+7;
+	x2 = tx+8;
+	y1 = ty+7+(bigHitbox?0:4);
+	y2 = ty+8+(bigHitbox?0:4);
+	
+	types[0] = COMBOTYPE(x1,y1);
+	cids[0] = MAPCOMBO(x1,y1);
+	
+	if(MAPFFCOMBO(x1,y1))
+	{
+		types[0] = FFCOMBOTYPE(x1,y1);
 	cids[0] = MAPFFCOMBO(x1,y1);
-    }
-        
-    types[1] = COMBOTYPE(x1,y2);
-    cids[1] = MAPCOMBO(x1,y2);
-    
-    if(MAPFFCOMBO(x1,y2))
-    {
-        types[1] = FFCOMBOTYPE(x1,y2);
-        cids[1] = MAPFFCOMBO(x1,y2);
-    }
-    types[2] = COMBOTYPE(x2,y1);
-    cids[2] = MAPCOMBO(x2,y1);
-    
-    if(MAPFFCOMBO(x2,y1))
-    {
-        types[2] = FFCOMBOTYPE(x2,y1);
+	}
+		
+	types[1] = COMBOTYPE(x1,y2);
+	cids[1] = MAPCOMBO(x1,y2);
+	
+	if(MAPFFCOMBO(x1,y2))
+	{
+		types[1] = FFCOMBOTYPE(x1,y2);
+		cids[1] = MAPFFCOMBO(x1,y2);
+	}
+	types[2] = COMBOTYPE(x2,y1);
+	cids[2] = MAPCOMBO(x2,y1);
+	
+	if(MAPFFCOMBO(x2,y1))
+	{
+		types[2] = FFCOMBOTYPE(x2,y1);
 	cids[2] = MAPFFCOMBO(x2,y1);
-    }
-        
-    types[3] = COMBOTYPE(x2,y2);
-    cids[3] = MAPCOMBO(x2,y2);
-    
-    if(MAPFFCOMBO(x2,y2))
-    {
-        types[3] = FFCOMBOTYPE(x2,y2);
+	}
+		
+	types[3] = COMBOTYPE(x2,y2);
+	cids[3] = MAPCOMBO(x2,y2);
+	
+	if(MAPFFCOMBO(x2,y2))
+	{
+		types[3] = FFCOMBOTYPE(x2,y2);
 	cids[3] = MAPFFCOMBO(x2,y2);
-    }
-        
-    for(int i=0; i<4; i++)
-    {
-        if(types[i]==cPIT) 
+	}
+		
+	for(int i=0; i<4; i++)
+	{
+		if(types[i]==cPIT) 
 	{
 		index=0;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 	}
-        else if(types[i]==cPITB)
-        {
-            types[i]=cPIT;
-            index=1;
+		else if(types[i]==cPITB)
+		{
+			types[i]=cPIT;
+			index=1;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cPITC)
-        {
-            types[i]=cPIT;
-            index=2;
+		}
+		else if(types[i]==cPITC)
+		{
+			types[i]=cPIT;
+			index=2;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-        else if(types[i]==cPITD)
-        {
-            types[i]=cPIT;
-            index=3;
+		}
+		else if(types[i]==cPITD)
+		{
+			types[i]=cPIT;
+			index=3;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-        }
-    }
-    
-    if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
-        if(action!=freeze&& (!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
-            type=cPIT;
-            
-    //
-    // Time to act on our results for type, flag, flag2 and flag3...
-    //
-    if(type==cSAVE&&currscr<128)
-        *ls=1;
-        
-    if(type==cSAVE2&&currscr<128)
-        *ls=2;
-        
-    if(refilling==REFILL_LIFE || flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
-    {
-        fairycircle(REFILL_LIFE);
-        
-        if(fairyclk!=0) return;
-    }
-    
-    if(refilling==REFILL_MAGIC || flag==mfMAGICFAIRY||flag2==mfMAGICFAIRY||flag3==mfMAGICFAIRY)
-    {
-        fairycircle(REFILL_MAGIC);
-        
-        if(fairyclk!=0) return;
-    }
-    
-    if(refilling==REFILL_ALL || flag==mfALLFAIRY||flag2==mfALLFAIRY||flag3==mfALLFAIRY)
-    {
-        fairycircle(REFILL_ALL);
-        
-        if(fairyclk!=0) return;
-    }
-    
-    // Just in case Link was moved off of the fairy flag
-    if(refilling==REFILL_FAIRYDONE)
-    {
-        fairycircle(REFILL_NONE);
-        
-        if(fairyclk!=0) return;
-    }
-    
-    if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
-    {
+		}
+	}
+	
+	if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
+		if(action!=freeze&& (!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
+			type=cPIT;
+			
+	//
+	// Time to act on our results for type, flag, flag2 and flag3...
+	//
+	if(type==cSAVE&&currscr<128)
+		*ls=1;
+		
+	if(type==cSAVE2&&currscr<128)
+		*ls=2;
+		
+	if(refilling==REFILL_LIFE || flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
+	{
+		fairycircle(REFILL_LIFE);
+		
+		if(fairyclk!=0) return;
+	}
+	
+	if(refilling==REFILL_MAGIC || flag==mfMAGICFAIRY||flag2==mfMAGICFAIRY||flag3==mfMAGICFAIRY)
+	{
+		fairycircle(REFILL_MAGIC);
+		
+		if(fairyclk!=0) return;
+	}
+	
+	if(refilling==REFILL_ALL || flag==mfALLFAIRY||flag2==mfALLFAIRY||flag3==mfALLFAIRY)
+	{
+		fairycircle(REFILL_ALL);
+		
+		if(fairyclk!=0) return;
+	}
+	
+	// Just in case Link was moved off of the fairy flag
+	if(refilling==REFILL_FAIRYDONE)
+	{
+		fairycircle(REFILL_NONE);
+		
+		if(fairyclk!=0) return;
+	}
+	
+	if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
+	{
 	attackclk = 0; //get rid of Link's sword if it was stuck out, charged. 
-        saved_Zelda();
-        return;
-    }
-    
-    if(z>0 && !(tmpscr->flags2&fAIRCOMBOS))
-        return;
-        
-    if((type==cTRIGNOFLAG || type==cTRIGFLAG))
-    { 
-    
-        if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
-        {
-            stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
-	    sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int)x));
-	    //zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
-            
-            if(type==cTRIGFLAG && canPermSecret())
-            { 
-                if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
-                
-                hidden_entrance(0,true,false);
-            }
-            else 
-	    {  hidden_entrance(0,true,true);  }
-        }
-    }
-    else if(!didstrig)
-    {
-        stepsecret = -1; 
-    }
-    
-    // Drown if:
-    // * Water (obviously walkable),
-    // * Quest Rule allows it,
-    // * Not on stepladder,
-    // * Not jumping,
-    // * Not hovering,
-    // * Not rafting,
-    // * Not swimming,
-    // * Not swallowed,
-    // * Not a dried lake.
-    if(water && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !isSwimming() && !inlikelike && !DRIEDLAKE)
-    {
-        if(!current_item(itype_flippers))
-        {
-            Drown();
-        }
-        else
-        {
-            attackclk = charging = spins = 0;
-            action=swimming; FFCore.setLinkAction(swimming);
-            landswim=0;
-        }
-        
-        return;
-    }
-    
-    
-    if(type==cSTEP)
-    { 
+		saved_Zelda();
+		return;
+	}
+	
+	if(z>0 && !(tmpscr->flags2&fAIRCOMBOS))
+		return;
+		
+	if((type==cTRIGNOFLAG || type==cTRIGFLAG))
+	{ 
+	
+		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
+		{
+			stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
+		sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int)x));
+		//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
+			
+			if(type==cTRIGFLAG && canPermSecret())
+			{ 
+				if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				
+				hidden_entrance(0,true,false);
+			}
+			else 
+		{  hidden_entrance(0,true,true);  }
+		}
+	}
+	else if(!didstrig)
+	{
+		stepsecret = -1; 
+	}
+	
+	// Drown if:
+	// * Water (obviously walkable),
+	// * Quest Rule allows it,
+	// * Not on stepladder,
+	// * Not jumping,
+	// * Not hovering,
+	// * Not rafting,
+	// * Not swimming,
+	// * Not swallowed,
+	// * Not a dried lake.
+	if(water && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !isSwimming() && !inlikelike && !DRIEDLAKE)
+	{
+		if(!current_item(itype_flippers))
+		{
+			Drown();
+		}
+		else
+		{
+			attackclk = charging = spins = 0;
+			action=swimming; FFCore.setLinkAction(swimming);
+			landswim=0;
+		}
+		
+		return;
+	}
+	
+	
+	if(type==cSTEP)
+	{ 
 	zprint2("Link.HasHeavyBoots(): is: %s\n", ( (Link.HasHeavyBoots()) ? "true" : "false" ));
-        if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
-        {
-            stepnext=((ty+8)&0xF0)+((tx+8)>>4);
-            
-            if
-	    (
+		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
+		{
+			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
+			
+			if
+		(
 		COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
-		    (!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) )
+			(!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) )
 			&& /*HEAVY*/
 			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
-	    )
+		)
 		
-	    {
+		{
 		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int)x));
-                tmpscr->data[stepnext]++;
+				tmpscr->data[stepnext]++;
 		
-            }
-            
-            if
-	    (
+			}
+			
+			if
+		(
 		COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
-		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
 			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
-	    )
-            {
-                int stepc = tmpscr->data[stepnext];
-                sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
-                for(int k=0; k<176; k++)
-                {
-                    if(tmpscr->data[k]==stepc)
-                    {
-                        tmpscr->data[k]++;
-                    }
-                }
-            }
-            
-            if
-	    (
-		    COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
-		    (!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+		)
+			{
+				int stepc = tmpscr->data[stepnext];
+				sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
+				for(int k=0; k<176; k++)
+				{
+					if(tmpscr->data[k]==stepc)
+					{
+						tmpscr->data[k]++;
+					}
+				}
+			}
+			
+			if
+		(
+			COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
+			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
 			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
-	    )
-            {
+		)
+			{
 		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
-                for(int k=0; k<176; k++)
-                {
-                    if(
-                        (combobuf[tmpscr->data[k]].type==cSTEP)||
-                        (combobuf[tmpscr->data[k]].type==cSTEPSAME)||
-                        (combobuf[tmpscr->data[k]].type==cSTEPALL)||
-                        (combobuf[tmpscr->data[k]].type==cSTEPCOPY)
-                    )
-                    {
-                        tmpscr->data[k]++;
-                    }
-                }
-            }
-        }
-    }
-    else if(type==cSTEPSFX)
-    { 
+				for(int k=0; k<176; k++)
+				{
+					if(
+						(combobuf[tmpscr->data[k]].type==cSTEP)||
+						(combobuf[tmpscr->data[k]].type==cSTEPSAME)||
+						(combobuf[tmpscr->data[k]].type==cSTEPALL)||
+						(combobuf[tmpscr->data[k]].type==cSTEPCOPY)
+					)
+					{
+						tmpscr->data[k]++;
+					}
+				}
+			}
+		}
+	}
+	else if(type==cSTEPSFX)
+	{ 
 	//We probably only want to do this when the player is moving.
 	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
@@ -17627,282 +17640,282 @@ void LinkClass::checkspecial2(int *ls)
 		
 		
 	}
-    }
-    else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
-    { 
+	}
+	else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
+	{ 
 	//We probably only want to do this when the player is moving.
 	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 		sfx(thesfx,pan((int)x));
-    }
-    else if(type==cSHALLOWWATER)
-    { 
+	}
+	else if(type==cSHALLOWWATER)
+	{ 
 	//We probably only want to do this when the player is moving.
 	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 		sfx(thesfx,pan((int)x));
-    }
-    else stepnext = -1;
-    
-    detail_int[0]=tx;
-    detail_int[1]=ty;
-    
-    if(!((type==cCAVE || type==cCAVE2) && z==0) && type!=cSTAIR &&
-            type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
-            !(type==cDIVEWARP && isDiving()))
-    {
-        switch(flag)
-        {
-        case mfDIVE_ITEM:
-            if(isDiving() && !getmapflag())
-            {
-                additem(x, y, tmpscr->catchall,
-                        ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
-                sfx(tmpscr->secretsfx);
-            }
-            
-            return;
-            
-        case mfRAFT:
-        case mfRAFT_BRANCH:
-        
-            //        if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-            if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
-            {
-                if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
-                {
-                    reset_swordcharge();
-                    action=rafting; FFCore.setLinkAction(rafting);
-					raftclk=0;
-                    sfx(tmpscr->secretsfx);
-                }
-            }
-            
-            return;
-            
-        default:
-            break;
-            //return;
-        }
-        
-        switch(flag2)
-        {
-        case mfDIVE_ITEM:
-            if(isDiving() && !getmapflag())
-            {
-                additem(x, y, tmpscr->catchall,
-                        ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
-                sfx(tmpscr->secretsfx);
-            }
-            
-            return;
-            
-        case mfRAFT:
-        case mfRAFT_BRANCH:
-        
-            //        if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-            if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
-            {
-                if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
-                {
-                    reset_swordcharge();
-                    action=rafting; FFCore.setLinkAction(rafting);
-					raftclk=0;
-                    sfx(tmpscr->secretsfx);
-                }
-            }
-            
-            return;
-            
-        default:
-            break;
-            //return;
-        }
-        
-        switch(flag3)
-        {
-        case mfDIVE_ITEM:
-            if(isDiving() && !getmapflag())
-            {
-                additem(x, y, tmpscr->catchall,
-                        ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
-                sfx(tmpscr->secretsfx);
-            }
-            
-            return;
-            
-        case mfRAFT:
-        case mfRAFT_BRANCH:
-        
-            //      if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-            if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
-            {
-                if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
-                {
-                    reset_swordcharge();
-                    action=rafting; FFCore.setLinkAction(rafting);
-					raftclk=0;
-                    sfx(tmpscr->secretsfx);
-                }
-            }
-            
-            return;
-            
-        default:
-            return;
-        }
-    }
-    
+	}
+	else stepnext = -1;
 	
-    int t=(currscr<128)?0:1;
-    
-    if((type==cCAVE || type==cCAVE2) && (tmpscr[t].tilewarptype[index]==wtNOWARP)) return;
-    
-    //don't do this for canceled warps -DD
-    //I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
-    /*if(tmpscr[t].tilewarptype[index] != wtNOWARP)
-    {
-    	draw_screen(tmpscr);
-    	advanceframe(true);
-    }*/
-    
-    bool skippedaframe=false;
-    
-    if(type==cCAVE || type==cCAVE2 || type==cSTAIR)
-    {
-        // Stop music only if:
-        // * entering a Guy Cave
-        // * warping to a DMap whose music is different.
-        
-        int tdm = tmpscr[t].tilewarpdmap[index];
-        
-        if(tmpscr[t].tilewarptype[index]<=wtPASS)
-        {
-            if((DMaps[currdmap].flags&dmfCAVES) && tmpscr[t].tilewarptype[index] == wtCAVE)
-                music_stop();
-        }
-        else
-        {
-            if(zcmusic!=NULL)
-            {
-                if(strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
-                        zcmusic->track!=DMaps[tdm].tmusictrack)
-                    music_stop();
-            }
-            else if(DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
-                    TheMaps[(DMaps[tdm].map*MAPSCRS + (tmpscr[t].tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4))
-                music_stop();
-        }
-        
-        stop_sfx(WAV_ER);
-        bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
-                        ? false : COOLSCROLL);
-                        
+	detail_int[0]=tx;
+	detail_int[1]=ty;
+	
+	if(!((type==cCAVE || type==cCAVE2) && z==0) && type!=cSTAIR &&
+			type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
+			!(type==cDIVEWARP && isDiving()))
+	{
+		switch(flag)
+		{
+		case mfDIVE_ITEM:
+			if(isDiving() && !getmapflag())
+			{
+				additem(x, y, tmpscr->catchall,
+						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+				sfx(tmpscr->secretsfx);
+			}
+			
+			return;
+			
+		case mfRAFT:
+		case mfRAFT_BRANCH:
+		
+			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
+			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
+			{
+				if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
+				{
+					reset_swordcharge();
+					action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
+					sfx(tmpscr->secretsfx);
+				}
+			}
+			
+			return;
+			
+		default:
+			break;
+			//return;
+		}
+		
+		switch(flag2)
+		{
+		case mfDIVE_ITEM:
+			if(isDiving() && !getmapflag())
+			{
+				additem(x, y, tmpscr->catchall,
+						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+				sfx(tmpscr->secretsfx);
+			}
+			
+			return;
+			
+		case mfRAFT:
+		case mfRAFT_BRANCH:
+		
+			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
+			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
+			{
+				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+				{
+					reset_swordcharge();
+					action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
+					sfx(tmpscr->secretsfx);
+				}
+			}
+			
+			return;
+			
+		default:
+			break;
+			//return;
+		}
+		
+		switch(flag3)
+		{
+		case mfDIVE_ITEM:
+			if(isDiving() && !getmapflag())
+			{
+				additem(x, y, tmpscr->catchall,
+						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+				sfx(tmpscr->secretsfx);
+			}
+			
+			return;
+			
+		case mfRAFT:
+		case mfRAFT_BRANCH:
+		
+			//	  if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
+			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
+			{
+				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+				{
+					reset_swordcharge();
+					action=rafting; FFCore.setLinkAction(rafting);
+					raftclk=0;
+					sfx(tmpscr->secretsfx);
+				}
+			}
+			
+			return;
+			
+		default:
+			return;
+		}
+	}
+	
+	
+	int t=(currscr<128)?0:1;
+	
+	if((type==cCAVE || type==cCAVE2) && (tmpscr[t].tilewarptype[index]==wtNOWARP)) return;
+	
+	//don't do this for canceled warps -DD
+	//I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
+	/*if(tmpscr[t].tilewarptype[index] != wtNOWARP)
+	{
+		draw_screen(tmpscr);
+		advanceframe(true);
+	}*/
+	
+	bool skippedaframe=false;
+	
+	if(type==cCAVE || type==cCAVE2 || type==cSTAIR)
+	{
+		// Stop music only if:
+		// * entering a Guy Cave
+		// * warping to a DMap whose music is different.
+		
+		int tdm = tmpscr[t].tilewarpdmap[index];
+		
+		if(tmpscr[t].tilewarptype[index]<=wtPASS)
+		{
+			if((DMaps[currdmap].flags&dmfCAVES) && tmpscr[t].tilewarptype[index] == wtCAVE)
+				music_stop();
+		}
+		else
+		{
+			if(zcmusic!=NULL)
+			{
+				if(strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
+						zcmusic->track!=DMaps[tdm].tmusictrack)
+					music_stop();
+			}
+			else if(DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
+					TheMaps[(DMaps[tdm].map*MAPSCRS + (tmpscr[t].tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4))
+				music_stop();
+		}
+		
+		stop_sfx(WAV_ER);
+		bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
+						? false : COOLSCROLL);
+						
 		FFCore.warpScriptCheck();
-        draw_screen(tmpscr);
-        advanceframe(true);
-        
-        skippedaframe=true;
-        
-        if(type==cCAVE2) walkup2(opening);
-        else if(type==cCAVE) walkdown(opening);
-    }
-    
-    if(type==cPIT)
-    {
-        didpit=true;
-        pitx=x;
-        pity=y;
+		draw_screen(tmpscr);
+		advanceframe(true);
+		
+		skippedaframe=true;
+		
+		if(type==cCAVE2) walkup2(opening);
+		else if(type==cCAVE) walkdown(opening);
+	}
+	
+	if(type==cPIT)
+	{
+		didpit=true;
+		pitx=x;
+		pity=y;
 	warp_sound = warpsfx2;
-    }
-    
-    if(DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
-            && tmpscr[specialcave > 0 && DMaps[currdmap].flags&dmfGUYCAVES ? 1:0].room==rWARP && type==cSTAIR)
-    {
-        if(!skippedaframe)
-        {
+	}
+	
+	if(DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
+			&& tmpscr[specialcave > 0 && DMaps[currdmap].flags&dmfGUYCAVES ? 1:0].room==rWARP && type==cSTAIR)
+	{
+		if(!skippedaframe)
+		{
 			FFCore.warpScriptCheck();
-            draw_screen(tmpscr);
-            advanceframe(true);
-        }
-        
-        // "take any road you want"
-        int dw = x<112 ? 1 : (x>136 ? 3 : 2);
-        int code = WARPCODE(currdmap,homescr,dw);
-        
-        if(code>-1)
-        {
-            currdmap = code>>8;
-            dlevel  = DMaps[currdmap].level;
-            currmap = DMaps[currdmap].map;
-            homescr = (code&0xFF) + DMaps[currdmap].xoff;
-            init_dmap();
-            
-            if(canPermSecret())
-                setmapflag(mSECRET);
-        }
-        
-        if(specialcave==STAIRCAVE) exitcave();
-        
-        return;
-    }
-    
-    if(type==cRESET)
-    {
-        if(!skippedaframe)
-        {
+			draw_screen(tmpscr);
+			advanceframe(true);
+		}
+		
+		// "take any road you want"
+		int dw = x<112 ? 1 : (x>136 ? 3 : 2);
+		int code = WARPCODE(currdmap,homescr,dw);
+		
+		if(code>-1)
+		{
+			currdmap = code>>8;
+			dlevel  = DMaps[currdmap].level;
+			currmap = DMaps[currdmap].map;
+			homescr = (code&0xFF) + DMaps[currdmap].xoff;
+			init_dmap();
+			
+			if(canPermSecret())
+				setmapflag(mSECRET);
+		}
+		
+		if(specialcave==STAIRCAVE) exitcave();
+		
+		return;
+	}
+	
+	if(type==cRESET)
+	{
+		if(!skippedaframe)
+		{
 			FFCore.warpScriptCheck();
-            draw_screen(tmpscr);
-            advanceframe(true);
-        }
-        
-        if(!(tmpscr->noreset&mSECRET)) unsetmapflag(mSECRET);
-        
-        if(!(tmpscr->noreset&mITEM)) unsetmapflag(mITEM);
-        
-        if(!(tmpscr->noreset&mBELOW)) unsetmapflag(mBELOW);
-        
-        if(!(tmpscr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
-        
-        if(!(tmpscr->noreset&mCHEST)) unsetmapflag(mCHEST);
-        
-        if(!(tmpscr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
-        
-        if(!(tmpscr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
-        
-        if(!(tmpscr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
-        
-        if(!(tmpscr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
-        
-        if(isdungeon())
-        {
-            if(!(tmpscr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
-            
-            if(!(tmpscr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
-            
-            if(!(tmpscr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
-            
-            if(!(tmpscr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
-        }
-        
-        didpit=true;
-        pitx=x;
-        pity=y;
-        sdir=dir;
-        dowarp(4,0, warpsfx2);
-    }
-    else
-    {
-        if(!skippedaframe && (tmpscr[t].tilewarptype[index]!=wtNOWARP))
-        {
+			draw_screen(tmpscr);
+			advanceframe(true);
+		}
+		
+		if(!(tmpscr->noreset&mSECRET)) unsetmapflag(mSECRET);
+		
+		if(!(tmpscr->noreset&mITEM)) unsetmapflag(mITEM);
+		
+		if(!(tmpscr->noreset&mBELOW)) unsetmapflag(mBELOW);
+		
+		if(!(tmpscr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
+		
+		if(!(tmpscr->noreset&mCHEST)) unsetmapflag(mCHEST);
+		
+		if(!(tmpscr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
+		
+		if(!(tmpscr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
+		
+		if(!(tmpscr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
+		
+		if(!(tmpscr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
+		
+		if(isdungeon())
+		{
+			if(!(tmpscr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
+			
+			if(!(tmpscr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
+			
+			if(!(tmpscr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
+			
+			if(!(tmpscr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
+		}
+		
+		didpit=true;
+		pitx=x;
+		pity=y;
+		sdir=dir;
+		dowarp(4,0, warpsfx2);
+	}
+	else
+	{
+		if(!skippedaframe && (tmpscr[t].tilewarptype[index]!=wtNOWARP))
+		{
 			FFCore.warpScriptCheck();
-            draw_screen(tmpscr);
-            advanceframe(true);
-        }
-        
-        sdir = dir;
-        dowarp(0,index, warpsfx2);
-    }
+			draw_screen(tmpscr);
+			advanceframe(true);
+		}
+		
+		sdir = dir;
+		dowarp(0,index, warpsfx2);
+	}
 }
 
 int selectWlevel(int d)
@@ -18715,7 +18728,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         
         markBmap(dir^1);
         
-        if(iswater(MAPCOMBO(x,y+8)) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+        if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0) && current_item(itype_flippers))
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
@@ -18876,7 +18889,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		
 		markBmap(dir^1);
 		
-		if(iswater(MAPCOMBO(x,y+8)) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+		if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0) && current_item(itype_flippers))
 		{
 		    hopclk=0xFF;
 		    attackclk = charging = spins = 0;
@@ -19002,7 +19015,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     }
     
     // But keep him swimming if he ought to be!
-    if(action!=rafting && iswater(MAPCOMBO(x,y+8)) && (_walkflag(x,y+8,0) || get_bit(quest_rules,qr_DROWN))
+    if(action!=rafting && iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && (_walkflag(x,y+8,0) || get_bit(quest_rules,qr_DROWN))
             && (current_item(itype_flippers)) && (action!=inwind))
     {
         hopclk=0xFF;
@@ -20657,37 +20670,37 @@ int LinkClass::get_scroll_delay(int scrolldir)
 
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 {
-    if(action==freeze)
-    {
-        return;
-    }
-    
-    bool overlay = false;
-    
-    if(scrolldir >= 0 && scrolldir <= 3)
-    {
-        overlay = get_bit(&tmpscr[(currscr < 128) ? 0 : 1].sidewarpoverlayflags, scrolldir) ? true : false;
-    }
-    
-    if(destdmap == -1)
-    {
-        if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[currdmap].map].tileWidth
-                || ZCMaps[currmap].tileHeight != ZCMaps[DMaps[currdmap].map].tileHeight)
-            return;
-    }
-    else
-    {
-        if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[destdmap].map].tileWidth
-                || ZCMaps[currmap].tileHeight != ZCMaps[DMaps[destdmap].map].tileHeight)
-            return;
-    }
-    
-    if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
-        return;
-        
-    kill_enemy_sfx();
-    stop_sfx(WAV_ER);
-    screenscrolling = true;
+	if(action==freeze)
+	{
+		return;
+	}
+	
+	bool overlay = false;
+	
+	if(scrolldir >= 0 && scrolldir <= 3)
+	{
+		overlay = get_bit(&tmpscr[(currscr < 128) ? 0 : 1].sidewarpoverlayflags, scrolldir) ? true : false;
+	}
+	
+	if(destdmap == -1)
+	{
+		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[currdmap].map].tileWidth
+				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[currdmap].map].tileHeight)
+			return;
+	}
+	else
+	{
+		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[destdmap].map].tileWidth
+				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[destdmap].map].tileHeight)
+			return;
+	}
+	
+	if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
+		return;
+		
+	kill_enemy_sfx();
+	stop_sfx(WAV_ER);
+	screenscrolling = true;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)
 	{
@@ -20716,47 +20729,47 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 			break;
 	}
-    FFCore.init_combo_doscript();
-    tmpscr[1] = tmpscr[0];
-    
-    const int _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
-    tmpscr[1].data.resize(_mapsSize, 0);
-    tmpscr[1].sflag.resize(_mapsSize, 0);
-    tmpscr[1].cset.resize(_mapsSize, 0);
-    
-    for(int i = 0; i < 6; i++)
-    {
-        tmpscr3[i] = tmpscr2[i];
-        tmpscr3[1].data.resize(_mapsSize, 0);
-        tmpscr3[1].sflag.resize(_mapsSize, 0);
-        tmpscr3[1].cset.resize(_mapsSize, 0);
-    }
-    
-    conveyclk = 2;
-    
-    mapscr *newscr = &tmpscr[0];
-    mapscr *oldscr = &tmpscr[1];
-    
-    //scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
-    int sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
-    int cx = 0;
-    int step = get_scroll_step(scrolldir);
-    int delay = get_scroll_delay(scrolldir);
-    bool end_frames = false;
-    
-    int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
-    if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
+	FFCore.init_combo_doscript();
+	tmpscr[1] = tmpscr[0];
+	
+	const int _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
+	tmpscr[1].data.resize(_mapsSize, 0);
+	tmpscr[1].sflag.resize(_mapsSize, 0);
+	tmpscr[1].cset.resize(_mapsSize, 0);
+	
+	for(int i = 0; i < 6; i++)
+	{
+		tmpscr3[i] = tmpscr2[i];
+		tmpscr3[1].data.resize(_mapsSize, 0);
+		tmpscr3[1].sflag.resize(_mapsSize, 0);
+		tmpscr3[1].cset.resize(_mapsSize, 0);
+	}
+	
+	conveyclk = 2;
+	
+	mapscr *newscr = &tmpscr[0];
+	mapscr *oldscr = &tmpscr[1];
+	
+	//scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
+	int sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
+	int cx = 0;
+	int step = get_scroll_step(scrolldir);
+	int delay = get_scroll_delay(scrolldir);
+	bool end_frames = false;
+	
+	int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
 
 	  scx = 32; //for sideview very fast screolling. 
   
-    actiontype lastaction = action;
-    ALLOFF(false, false);
-    // for now, restore Link's previous action
-    action=lastaction; FFCore.setLinkAction(lastaction);
-    
-    lstep = (lstep + 6) % 12;
-    cx = scx;
-    
+	actiontype lastaction = action;
+	ALLOFF(false, false);
+	// for now, restore Link's previous action
+	action=lastaction; FFCore.setLinkAction(lastaction);
+	
+	lstep = (lstep + 6) % 12;
+	cx = scx;
+	
 	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
@@ -20782,9 +20795,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 		tmpscr->screen_waitdraw = 0;		
 	}
-    
-    for ( int q = 0; q < 32; ++q )
-    {
+	
+	for ( int q = 0; q < 32; ++q )
+	{
 	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 	if ( tmpscr->ffcswaitdraw&(1<<q) )
 	{
@@ -20795,14 +20808,14 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 			tmpscr->ffcswaitdraw &= ~(1<<q);
 		}
 	}
-    }
-    //Waitdraw for item scripts. 
-    FFCore.itemScriptEngineOnWaitdraw();
-    
-    //Sprite scripts on Waitdraw
-    FFCore.eweaponScriptEngineOnWaitdraw();
-    FFCore.itemSpriteScriptEngineOnWaitdraw();
-    
+	}
+	//Waitdraw for item scripts. 
+	FFCore.itemScriptEngineOnWaitdraw();
+	
+	//Sprite scripts on Waitdraw
+	FFCore.eweaponScriptEngineOnWaitdraw();
+	FFCore.itemSpriteScriptEngineOnWaitdraw();
+	
 	//This is no longer a do-while, as the first iteration is now slightly different. -V
 	draw_screen(tmpscr);
 	
@@ -20818,34 +20831,34 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	}
 	
 	++cx;
-    while(cx < 32)
-    {
+	while(cx < 32)
+	{
 		if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 		{
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		}
-        draw_screen(tmpscr);
-        
-        if(cx == scx)
-            rehydratelake(false);
-            
-        advanceframe(true);
-        
-        if(Quit)
-        {
-            screenscrolling = false;
-            return;
-        }
-        
-        ++cx;
-    }
+		draw_screen(tmpscr);
+		
+		if(cx == scx)
+			rehydratelake(false);
+			
+		advanceframe(true);
+		
+		if(Quit)
+		{
+			screenscrolling = false;
+			return;
+		}
+		
+		++cx;
+	}
 	script_drawing_commands.Clear();
-    
-    
-    //clear Link's last hits 
-    //for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
-    
+	
+	
+	//clear Link's last hits 
+	//for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
+	
 	switch(DMaps[currdmap].type&dmfTYPE)
 	{
 		case dmDNGN:
@@ -20863,432 +20876,455 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 			break;
 	}
 	
-    if(fixed_door)
-    {
-        unsetmapflag(mSECRET);
-        fixed_door = false;
-    }
-    //Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
+	if(fixed_door)
+	{
+		unsetmapflag(mSECRET);
+		fixed_door = false;
+	}
+	//Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
 	scrolling_scr = currscr;
 	
-    switch(scrolldir)
-    {
-    case up:
-    {
-        if(destscr != -1)
-            currscr = destscr;
-        else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
-            currscr -= 16;
-            
-        loadscr(0,destdmap,currscr,scrolldir,overlay);
-        blit(scrollbuf,scrollbuf,0,0,0,176,256,176);
-        putscr(scrollbuf,0,0,newscr);
-        putscrdoors(scrollbuf,0,0,newscr);
-        sy=176;
-        
-        if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
-            sy+=3;
-            
-        cx=176/step;
+	switch(scrolldir)
+	{
+	case up:
+	{
+		if(destscr != -1)
+			currscr = destscr;
+		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
+			currscr -= 16;
+			
+		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		blit(scrollbuf,scrollbuf,0,0,0,176,256,176);
+		putscr(scrollbuf,0,0,newscr);
+		putscrdoors(scrollbuf,0,0,newscr);
+		sy=176;
+		
+		if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
+			sy+=3;
+			
+		cx=176/step;
 	FFCore.init_combo_doscript();
-    }
-    break;
-    
-    case down:
-    {
-        if(destscr != -1)
-            currscr = destscr;
-        else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
-            currscr += 16;
-            
-        loadscr(0,destdmap,currscr,scrolldir,overlay);
-        putscr(scrollbuf,0,176,newscr);
-        putscrdoors(scrollbuf,0,176,newscr);
-        sy = 0;
-        
-        if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
-            sy+=3;
-            
-        cx = 176 / step;
+	}
+	break;
+	
+	case down:
+	{
+		if(destscr != -1)
+			currscr = destscr;
+		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
+			currscr += 16;
+			
+		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		putscr(scrollbuf,0,176,newscr);
+		putscrdoors(scrollbuf,0,176,newscr);
+		sy = 0;
+		
+		if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
+			sy+=3;
+			
+		cx = 176 / step;
 	FFCore.init_combo_doscript();
-    }
-    break;
-    
-    case left:
-    {
-        if(destscr!=-1)
-            currscr = destscr;
-        else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
-            --currscr;
-            
-        loadscr(0,destdmap,currscr,scrolldir,overlay);
-        blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
-        putscr(scrollbuf,0,0,newscr);
-        putscrdoors(scrollbuf,0,0,newscr);
-        sx = 256;
-        cx = 256 / step;
+	}
+	break;
+	
+	case left:
+	{
+		if(destscr!=-1)
+			currscr = destscr;
+		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
+			--currscr;
+			
+		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
+		putscr(scrollbuf,0,0,newscr);
+		putscrdoors(scrollbuf,0,0,newscr);
+		sx = 256;
+		cx = 256 / step;
 	FFCore.init_combo_doscript();
-    }
-    break;
-    
-    case right:
-    {
-        if(destscr != -1)
-            currscr = destscr;
-        else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
-            ++currscr;
-            
-        loadscr(0,destdmap,currscr,scrolldir,overlay);
-        putscr(scrollbuf,256,0,newscr);
-        putscrdoors(scrollbuf,256,0,tmpscr);
-        sx = 0;
-        cx = 256 / step;
+	}
+	break;
+	
+	case right:
+	{
+		if(destscr != -1)
+			currscr = destscr;
+		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
+			++currscr;
+			
+		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		putscr(scrollbuf,256,0,newscr);
+		putscrdoors(scrollbuf,256,0,tmpscr);
+		sx = 0;
+		cx = 256 / step;
 	FFCore.init_combo_doscript();
-    }
-    break;
-    }
+	}
+	break;
+	}
 
-    // change Link's state if entering water
-    int ahead = lookahead(scrolldir);
-    int aheadflag = lookaheadflag(scrolldir);
+	// change Link's state if entering water
+	int ahead = lookahead(scrolldir);
+	int aheadflag = lookaheadflag(scrolldir);
+	int lookaheadx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int lookaheady = vbound(y + 8,0,160);
+		//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+		//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+	switch(scrolldir)
+	{
+		case up:
+			lookaheady=160;
+			break;
+			
+		case down:
+			lookaheady=0;
+			break;
+			
+		case left:
+			lookaheadx=240;
+			break;
+			
+		case right:
+			lookaheadx=0;
+			break;
+	}
 
-    bool nowinwater = false;
+	bool nowinwater = false;
 
-    if(lastaction != inwind)
-    {
-        if(lastaction == rafting ) //&& isRaftFlag(aheadflag))
-        {
-		if ( lookaheadraftflag(scrolldir) )
+	if(lastaction != inwind)
+	{
+		if(lastaction == rafting ) //&& isRaftFlag(aheadflag))
 		{
-			action=rafting; FFCore.setLinkAction(rafting);
-			raftclk=0;
+			if (lookaheadraftflag(scrolldir))
+			{
+				action=rafting; FFCore.setLinkAction(rafting);
+				raftclk=0;
+			}
+		}
+		else if(iswaterex(ahead, currmap, currscr, -1, lookaheadx,lookaheady) && (current_item(itype_flippers)))
+		{
+			if(lastaction==swimming)
+			{
+				action=swimming; FFCore.setLinkAction(swimming);
+				hopclk = 0xFF;
+				nowinwater = true;
+			}
+			else
+			{
+				action=hopping; FFCore.setLinkAction(hopping);
+				hopclk = 2;
+				nowinwater = true;
+			}
+		}
+		else
+		{
+			action=none; FFCore.setLinkAction(none);
 		}
 	}
-        else if(iswater(ahead) && (current_item(itype_flippers)))
-        {
-            if(lastaction==swimming)
-            {
-                action=swimming; FFCore.setLinkAction(swimming);
-                hopclk = 0xFF;
-                nowinwater = true;
-            }
-            else
-            {
-                action=hopping; FFCore.setLinkAction(hopping);
-                hopclk = 2;
-                nowinwater = true;
-            }
-        }
-        else
-        {
-            action=none; FFCore.setLinkAction(none);
-        }
-    }
-    
-    // The naturaldark state can be read/set by an FFC script before
-    // fade() or lighting() is called.
-    naturaldark = ((TheMaps[currmap*MAPSCRS+currscr].flags & fDARK) != 0);
-    
-    if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
-    
-    if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
-    
-    //Preloaded ffc scripts
-    if(destdmap >= 0)
-    {
-        long dmap = currdmap; // Kludge
-        currdmap = destdmap;
-        ffscript_engine(true);
-        currdmap = dmap;
-    }
-    else
-        ffscript_engine(true);
-        
-    // There are two occasions when scrolling must be darkened:
-    // 1) When scrolling into a dark room.
-    // 2) When scrolling between DMaps of different colours.
-    if(destdmap != -1 && DMaps[destdmap].color != currcset)
-    {
-fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
-        darkroom = true;
-    }
-    else if(!darkroom)
-        lighting(false, false); // NES behaviour: fade to dark before scrolling
-        
-    if(action != rafting)  // Is this supposed to be here?!
-    
-        cx++; //This was the easiest way to re-arrange the loop so drawing is in the middle
-        
-    cx *= delay; //so we can have drawing re-done every frame,
-    //previously it was for(0 to delay) advanceframes at end of loop
-    int no_move = 0;
-    
-    for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
-    {
-        if(Quit)
-        {
-            screenscrolling = false;
-            return;
-        }
-        
-		script_drawing_commands.Clear();
-        
-        ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
-        
-        if(no_move > 0)
-            no_move--;
-            
-        //Don't want to move things on the first or last iteration, or between delays
-        if(i == 0 || cx == 0 || cx % delay != 0)
-            no_move++;
-            
-        if(scrolldir == up || scrolldir == down)
-        {
-            if(!get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING))
-            {
-                //Add a few extra frames if on the second loop and cool scrolling is not set
-                if(i == 1)
-                {
-                    cx += (scrolldir == down) ? 3 : 2;
-                    no_move += (scrolldir == down) ? 3 : 2;
-                }
-            }
-            else
-            {
-                //4 frames after we've finished scrolling of being still
-                if(cx == 0 && !end_frames)
-                {
-                    cx += 4;
-                    no_move += 4;
-                    end_frames = true;
-                }
-            }
-        }
-        
-        //Move Link and the scroll position
-        if(!no_move)
-        {
-            switch(scrolldir)
-            {
-            case up:
-                sy -= step;
-                y += step;
-                break;
-                
-            case down:
-                sy += step;
-                y -= step;
-                break;
-                
-            case left:
-                sx -= step;
-                x += step;
-                break;
-                
-            case right:
-                sx += step;
-                x -= step;
-                break;
-            }
-            
-            //bound Link when me move him off the screen in the last couple of frames of scrolling
-            if(y > 160) y = 160;
-            
-            if(y < 0)   y = 0;
-            
-            if(x > 240) x = 240;
-            
-            if(x < 0)   x = 0;
-            
-            if(ladderx > 0 || laddery > 0)
-            {
-                // If the ladder moves on both axes, the player can
-                // gradually shift it by going back and forth
-                if(scrolldir==up || scrolldir==down)
-                    laddery = y.getInt();
-                else
-                    ladderx = x.getInt();
-            }
-        }
+	
+	// The naturaldark state can be read/set by an FFC script before
+	// fade() or lighting() is called.
+	naturaldark = ((TheMaps[currmap*MAPSCRS+currscr].flags & fDARK) != 0);
+	
+	if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
+	
+	if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
+	
+	//Preloaded ffc scripts
+	if(destdmap >= 0)
+	{
+		long dmap = currdmap; // Kludge
+		currdmap = destdmap;
+		ffscript_engine(true);
+		currdmap = dmap;
+	}
+	else
+		ffscript_engine(true);
 		
-        //Drawing
-        tx = sx;
-        ty = sy;
-        tx2 = sx;
-        ty2 = sy;
-        
-        switch(scrolldir)
-        {
-        case right:
+	// There are two occasions when scrolling must be darkened:
+	// 1) When scrolling into a dark room.
+	// 2) When scrolling between DMaps of different colours.
+	if(destdmap != -1 && DMaps[destdmap].color != currcset)
+	{
+fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
+		darkroom = true;
+	}
+	else if(!darkroom)
+		lighting(false, false); // NES behaviour: fade to dark before scrolling
+		
+	if(action != rafting)  // Is this supposed to be here?!
+	
+		cx++; //This was the easiest way to re-arrange the loop so drawing is in the middle
+		
+	cx *= delay; //so we can have drawing re-done every frame,
+	//previously it was for(0 to delay) advanceframes at end of loop
+	int no_move = 0;
+	
+	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
+	{
+		if(Quit)
+		{
+			screenscrolling = false;
+			return;
+		}
+		
+		script_drawing_commands.Clear();
+		
+		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
+		
+		if(no_move > 0)
+			no_move--;
+			
+		//Don't want to move things on the first or last iteration, or between delays
+		if(i == 0 || cx == 0 || cx % delay != 0)
+			no_move++;
+			
+		if(scrolldir == up || scrolldir == down)
+		{
+			if(!get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING))
+			{
+				//Add a few extra frames if on the second loop and cool scrolling is not set
+				if(i == 1)
+				{
+					cx += (scrolldir == down) ? 3 : 2;
+					no_move += (scrolldir == down) ? 3 : 2;
+				}
+			}
+			else
+			{
+				//4 frames after we've finished scrolling of being still
+				if(cx == 0 && !end_frames)
+				{
+					cx += 4;
+					no_move += 4;
+					end_frames = true;
+				}
+			}
+		}
+		
+		//Move Link and the scroll position
+		if(!no_move)
+		{
+			switch(scrolldir)
+			{
+			case up:
+				sy -= step;
+				y += step;
+				break;
+				
+			case down:
+				sy += step;
+				y -= step;
+				break;
+				
+			case left:
+				sx -= step;
+				x += step;
+				break;
+				
+			case right:
+				sx += step;
+				x -= step;
+				break;
+			}
+			
+			//bound Link when me move him off the screen in the last couple of frames of scrolling
+			if(y > 160) y = 160;
+			
+			if(y < 0)   y = 0;
+			
+			if(x > 240) x = 240;
+			
+			if(x < 0)   x = 0;
+			
+			if(ladderx > 0 || laddery > 0)
+			{
+				// If the ladder moves on both axes, the player can
+				// gradually shift it by going back and forth
+				if(scrolldir==up || scrolldir==down)
+					laddery = y.getInt();
+				else
+					ladderx = x.getInt();
+			}
+		}
+		
+		//Drawing
+		tx = sx;
+		ty = sy;
+		tx2 = sx;
+		ty2 = sy;
+		
+		switch(scrolldir)
+		{
+		case right:
 			FFCore.ScrollingData[SCROLLDATA_NX] = 256-tx2;
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			FFCore.ScrollingData[SCROLLDATA_OX] = -tx2;
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-            tx -= 256;
-            break;
-            
-        case down:
+			tx -= 256;
+			break;
+			
+		case down:
 			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
 			FFCore.ScrollingData[SCROLLDATA_NY] = 176-ty2;
 			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
 			FFCore.ScrollingData[SCROLLDATA_OY] = -ty2;
-            ty -= 176;
-            break;
-            
-        case left:
+			ty -= 176;
+			break;
+			
+		case left:
 			FFCore.ScrollingData[SCROLLDATA_NX] = -tx2;
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			FFCore.ScrollingData[SCROLLDATA_OX] = 256-tx2;
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-            tx2 -= 256;
-            break;
-            
-        case up:
+			tx2 -= 256;
+			break;
+			
+		case up:
 			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
 			FFCore.ScrollingData[SCROLLDATA_NY] = -ty2;
 			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
 			FFCore.ScrollingData[SCROLLDATA_OY] = 176-ty2;
-            ty2 -= 176;
-            break;
-        }
+			ty2 -= 176;
+			break;
+		}
 		
-        //FFScript.OnWaitdraw()
+		//FFScript.OnWaitdraw()
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		
-        clear_bitmap(scrollbuf);
-        clear_bitmap(framebuf);
-        
-        switch(scrolldir)
-        {
-        case up:
-            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
-            
-            // Draw both screens' background layer primitives together, after both layers' combos.
-            // Not ideal, but probably good enough for all realistic purposes.
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-            
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-            
-            putscr(scrollbuf, 0, 0, newscr);
-            putscr(scrollbuf, 0, 176, oldscr);
-            break;
-            
-        case down:
-            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-            
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-            
-            putscr(scrollbuf, 0, 0, oldscr);
-            putscr(scrollbuf, 0, 176, newscr);
-            break;
-            
-        case left:
-            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-            
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-            
-            putscr(scrollbuf, 0, 0, newscr);
-            putscr(scrollbuf, 256, 0, oldscr);
-            break;
-            
-        case right:
-            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
-            
-            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
-            
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-            
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-            
-            putscr(scrollbuf, 0, 0, oldscr);
-            putscr(scrollbuf, 256, 0, newscr);
-            break;
-        }
-        
-        blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
-        do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
-        
-        do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
-        
-        if(!(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
-        
-        do_layer(framebuf, 0, newscr, tx, ty, 2, false, true);
-        
-        if(!(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
-        
-        do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
-        do_layer(framebuf, -2, newscr, tx, ty, 2);
-        
-        do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-        do_walkflags(framebuf, newscr, tx, ty,2);
-        
-        if(get_bit(quest_rules, qr_FFCSCROLL))
-        {
-            do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
-            do_layer(framebuf, -3, newscr, tx, ty, 2, true);
-        }
-        
-        putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
-        putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
-        linkstep();
-        
-        if(z > 0 && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
-        {
-            drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
-        }
-        
-        if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
-        {
-            draw_under(framebuf); //draw the ladder or raft
-            decorations.draw2(framebuf, true);
-            draw(framebuf); //Link
-            decorations.draw(framebuf,  true);
-        }
-        
-        if(!(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
-        
-        do_layer(framebuf, 3, oldscr, tx2, ty2, 3); //layer 3
-        do_layer(framebuf,-1, oldscr, tx2, ty2, 3); //overhead combos
-        do_layer(framebuf, 4, oldscr, tx2, ty2, 3); //layer 4
-        do_layer(framebuf,-4, oldscr, tx2, ty2, 3, true); //overhead FFCs
-        do_layer(framebuf, 5, oldscr, tx2, ty2, 3); //layer 5
-        
-        if(!(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ));
-        
-        do_layer(framebuf, 3, newscr, tx, ty, 2, false, true); //layer 3
-        do_layer(framebuf,-1, newscr, tx, ty, 2); //overhead combos
-        do_layer(framebuf, 4, newscr, tx, ty, 2, false, true); //layer 4
-        do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
-        do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
-        
+		clear_bitmap(scrollbuf);
+		clear_bitmap(framebuf);
 		
-        if(msg_bg_display_buf->clip == 0)
+		switch(scrolldir)
+		{
+		case up:
+			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
+			
+			// Draw both screens' background layer primitives together, after both layers' combos.
+			// Not ideal, but probably good enough for all realistic purposes.
+			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			
+			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			
+			putscr(scrollbuf, 0, 0, newscr);
+			putscr(scrollbuf, 0, 176, oldscr);
+			break;
+			
+		case down:
+			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			
+			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			
+			putscr(scrollbuf, 0, 0, oldscr);
+			putscr(scrollbuf, 0, 176, newscr);
+			break;
+			
+		case left:
+			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			
+			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			
+			putscr(scrollbuf, 0, 0, newscr);
+			putscr(scrollbuf, 256, 0, oldscr);
+			break;
+			
+		case right:
+			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
+			
+			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+			
+			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			
+			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			
+			putscr(scrollbuf, 0, 0, oldscr);
+			putscr(scrollbuf, 256, 0, newscr);
+			break;
+		}
+		
+		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
+		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
+		
+		do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
+		
+		if(!(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
+		
+		do_layer(framebuf, 0, newscr, tx, ty, 2, false, true);
+		
+		if(!(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
+		
+		do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
+		do_layer(framebuf, -2, newscr, tx, ty, 2);
+		
+		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		do_walkflags(framebuf, newscr, tx, ty,2);
+		
+		if(get_bit(quest_rules, qr_FFCSCROLL))
+		{
+			do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
+			do_layer(framebuf, -3, newscr, tx, ty, 2, true);
+		}
+		
+		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
+		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
+		linkstep();
+		
+		if(z > 0 && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
+		{
+			drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+		}
+		
+		if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
+		{
+			draw_under(framebuf); //draw the ladder or raft
+			decorations.draw2(framebuf, true);
+			draw(framebuf); //Link
+			decorations.draw(framebuf,  true);
+		}
+		
+		if(!(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
+		
+		do_layer(framebuf, 3, oldscr, tx2, ty2, 3); //layer 3
+		do_layer(framebuf,-1, oldscr, tx2, ty2, 3); //overhead combos
+		do_layer(framebuf, 4, oldscr, tx2, ty2, 3); //layer 4
+		do_layer(framebuf,-4, oldscr, tx2, ty2, 3, true); //overhead FFCs
+		do_layer(framebuf, 5, oldscr, tx2, ty2, 3); //layer 5
+		
+		if(!(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ));
+		
+		do_layer(framebuf, 3, newscr, tx, ty, 2, false, true); //layer 3
+		do_layer(framebuf,-1, newscr, tx, ty, 2); //overhead combos
+		do_layer(framebuf, 4, newscr, tx, ty, 2, false, true); //layer 4
+		do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
+		do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
+		
+		
+		if(msg_bg_display_buf->clip == 0)
 		{
 			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
@@ -21296,179 +21332,179 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 		{
 			blit_msgstr_prt(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
-        if(msg_txt_display_buf->clip == 0)
+		if(msg_txt_display_buf->clip == 0)
 		{
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
-            
-        put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-        
-        if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-            do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-            
-        //end drawing
-        advanceframe(true/*,true,false*/);
+			
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		
+		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
+			
+		//end drawing
+		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setLinkAction(scrolling);
 		FFCore.runF6Engine();
 		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setLinkAction(lastaction);
-    }//end main scrolling loop (2 spaces tab width makes me sad =( )
-    
-    
-    clear_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    clear_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_bg_display_buf, 1);
-    clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-    
-    //Move link to the other side of the screen if scrolling's not turned on
-    if(get_bit(quest_rules, qr_NOSCROLL))
-    {
-        switch(scrolldir)
-        {
-        case up:
-            y = 160;
-            break;
-            
-        case down:
-            y = 0;
-            break;
-            
-        case left:
-            x = 240;
-            break;
-            
-        case right:
-            x = 0;
-            break;
-        }
-    }
-    
-    if(z > 0 && isSideViewLink())
-    {
-        y -= z;
-        z = 0;
-    }
-    
-    entry_x = x;
-    entry_y = y;
-    warpx   = -1;
-    warpy   = -1;
-    
-    screenscrolling = false;
+	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	
+	
+	clear_bitmap(msg_txt_display_buf);
+	set_clip_state(msg_txt_display_buf, 1);
+	clear_bitmap(msg_bg_display_buf);
+	set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+	set_clip_state(msg_portrait_display_buf, 1);
+	
+	//Move link to the other side of the screen if scrolling's not turned on
+	if(get_bit(quest_rules, qr_NOSCROLL))
+	{
+		switch(scrolldir)
+		{
+		case up:
+			y = 160;
+			break;
+			
+		case down:
+			y = 0;
+			break;
+			
+		case left:
+			x = 240;
+			break;
+			
+		case right:
+			x = 0;
+			break;
+		}
+	}
+	
+	if(z > 0 && isSideViewLink())
+	{
+		y -= z;
+		z = 0;
+	}
+	
+	entry_x = x;
+	entry_y = y;
+	warpx   = -1;
+	warpy   = -1;
+	
+	screenscrolling = false;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
 	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-    
-    if(destdmap != -1)
-        currdmap = destdmap;
-        
-    //if Link is going from non-water to water, and we set his animation to "hopping" above, we must now
-    //change it to swimming - since we have manually moved Link onto the first tile, the hopping code
-    //will get confused and try to hop Link onto the next (possibly nonexistant) water tile in his current
-    //direction. -DD
-    
-    if(nowinwater)
-    {
-        action=swimming; FFCore.setLinkAction(swimming);
-        hopclk = 0xFF;
-    }
-    
-    // NES behaviour: Fade to light after scrolling
-    lighting(false, false); // No, we don't need to set naturaldark...
-    
-    homescr=currscr;
-    init_dmap();
-    putscr(scrollbuf,0,0,newscr);
-    putscrdoors(scrollbuf,0,0,newscr);
-    
-    // Check for raft flags
-    if(action!=rafting && hopclk==0 && !toogam)
-    {
-        if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
-        {
-            sfx(tmpscr->secretsfx);
-            action=rafting; FFCore.setLinkAction(rafting);
+	
+	if(destdmap != -1)
+		currdmap = destdmap;
+		
+	//if Link is going from non-water to water, and we set his animation to "hopping" above, we must now
+	//change it to swimming - since we have manually moved Link onto the first tile, the hopping code
+	//will get confused and try to hop Link onto the next (possibly nonexistant) water tile in his current
+	//direction. -DD
+	
+	if(nowinwater)
+	{
+		action=swimming; FFCore.setLinkAction(swimming);
+		hopclk = 0xFF;
+	}
+	
+	// NES behaviour: Fade to light after scrolling
+	lighting(false, false); // No, we don't need to set naturaldark...
+	
+	homescr=currscr;
+	init_dmap();
+	putscr(scrollbuf,0,0,newscr);
+	putscrdoors(scrollbuf,0,0,newscr);
+	
+	// Check for raft flags
+	if(action!=rafting && hopclk==0 && !toogam)
+	{
+		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
+		{
+			sfx(tmpscr->secretsfx);
+			action=rafting; FFCore.setLinkAction(rafting);
 			raftclk=0;
-        }
-        
-        // Half a tile off?
-        else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
-        {
-            sfx(tmpscr->secretsfx);
-            action=rafting; FFCore.setLinkAction(rafting);
+		}
+		
+		// Half a tile off?
+		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
+		{
+			sfx(tmpscr->secretsfx);
+			action=rafting; FFCore.setLinkAction(rafting);
 			raftclk=0;
-        }
-    }
-    
-    opendoors=0;
-    markBmap(-1);
-    
-    if(isdungeon())
-    {
-        switch(tmpscr->door[scrolldir^1])
-        {
-        case dOPEN:
-        case dUNLOCKED:
-        case dOPENBOSS:
-            dir = scrolldir;
-            
-            if(action!=rafting)
-                stepforward(diagonalMovement?11:12, false);
-                
-            break;
-            
-        case dSHUTTER:
-        case d1WAYSHUTTER:
-            dir = scrolldir;
-            
-            if(action!=rafting)
-                stepforward(diagonalMovement?21:24, false);
-                
-            putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
-            opendoors=-4;
-            sfx(WAV_DOOR);
-            break;
-            
-        default:
-            dir = scrolldir;
-            
-            if(action!=rafting)
-                stepforward(diagonalMovement?21:24, false);
-        }
-    }
-    
-    if(action == scrolling)
-    {
-        action=none; FFCore.setLinkAction(none);
-    }
-        
-    if(action != attacking)
-    {
-        charging = 0;
-        tapping = false;
-    }
-    
-    map_bkgsfx(true);
-    
-    if(newscr->flags2&fSECRET)
-    {
-        sfx(newscr->secretsfx);
-    }
-    
-    playLevelMusic();
-    
-    newscr_clk = frame;
-    activated_timed_warp=false;
-    loadside = scrolldir^1;
-    FFCore.init_combo_doscript();
-    eventlog_mapflags();
-    decorations.animate(); //continue to animate tall grass during scrolling
-    if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+		}
+	}
+	
+	opendoors=0;
+	markBmap(-1);
+	
+	if(isdungeon())
+	{
+		switch(tmpscr->door[scrolldir^1])
+		{
+		case dOPEN:
+		case dUNLOCKED:
+		case dOPENBOSS:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?11:12, false);
+				
+			break;
+			
+		case dSHUTTER:
+		case d1WAYSHUTTER:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?21:24, false);
+				
+			putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
+			opendoors=-4;
+			sfx(WAV_DOOR);
+			break;
+			
+		default:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?21:24, false);
+		}
+	}
+	
+	if(action == scrolling)
+	{
+		action=none; FFCore.setLinkAction(none);
+	}
+		
+	if(action != attacking)
+	{
+		charging = 0;
+		tapping = false;
+	}
+	
+	map_bkgsfx(true);
+	
+	if(newscr->flags2&fSECRET)
+	{
+		sfx(newscr->secretsfx);
+	}
+	
+	playLevelMusic();
+	
+	newscr_clk = frame;
+	activated_timed_warp=false;
+	loadside = scrolldir^1;
+	FFCore.init_combo_doscript();
+	eventlog_mapflags();
+	decorations.animate(); //continue to animate tall grass during scrolling
+	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
 		script_drawing_commands.Clear();
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
@@ -21627,7 +21663,7 @@ bool LinkClass::sideviewhammerpound()
     
     if(!isSideViewLink())
     {
-        return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswater(MAPCOMBO(x+wx,y+wy)));
+        return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswaterex(MAPCOMBO(x+wx,y+wy), currmap, currscr, -1, x+wx,y+wy));
     }
     
     if(_walkflag(x+wx,y+wy,0)) return true;

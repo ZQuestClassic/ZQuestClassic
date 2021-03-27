@@ -21870,7 +21870,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			
 			markBmap(Link.dir^1);
 			
-			if(iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
+			if(iswaterex(MAPCOMBO((int)Link.x,(int)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
 			{
 				Link.hopclk=0xFF;
 				Link.attackclk = Link.charging = Link.spins = 0;
@@ -22113,7 +22113,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	}
 		
 	// But keep him swimming if he ought to be!
-	if(Link.getAction()!=rafting && iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
+	if(Link.getAction()!=rafting && iswaterex(MAPCOMBO((int)Link.x,(int)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
 			&& (current_item(itype_flippers)) && (Link.getAction()!=inwind))
 	{
 		Link.hopclk=0xFF;
