@@ -22,6 +22,7 @@
 #include "ffasm.h"
 #include "zc_sys.h"
 extern byte use_dwm_flush;
+unsigned char using_SRAM = 0;
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
@@ -23793,10 +23794,14 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case SAVEGAMESTRUCTS:
+				using_SRAM = 1;
 				FFCore.do_savegamestructs(false,false);
+				using_SRAM = 0;
 				break;
 			case READGAMESTRUCTS:
+				using_SRAM = 1;
 				FFCore.do_loadgamestructs(false,false);
+				using_SRAM = 0;
 				break;
 			case ARRAYSIZE:
 				do_arraysize();
@@ -25166,17 +25171,32 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case GAMEEND:
+				if ( using_SRAM )
+				{
+					Z_scripterrlog("Cannot End Game while reading or writing to SRAM. Aborting End. /n");
+					break;
+				}
 				Quit = qQUIT;
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
 			case GAMERELOAD:
+				if ( using_SRAM )
+				{
+					Z_scripterrlog("Cannot Reload Game while reading or writing to SRAM. Aborting Reload. /n");
+					break;
+				}
 				Quit = qRELOAD;
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
 			
 			case GAMECONTINUE:
+				if ( using_SRAM )
+				{
+					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue. /n");
+					break;
+				}
 				reset_combo_animations();
 				reset_combo_animations2();
 			
@@ -25187,6 +25207,11 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case GAMESAVEQUIT:
+				if ( using_SRAM )
+				{
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					break;
+				}
 				Quit = qSAVE;
 				skipcont = 1;
 				scommand =0xFFFF;
@@ -25199,6 +25224,11 @@ int run_script(const byte type, const word script, const long i)
 				break;
 				
 			case SAVE:
+				if ( using_SRAM )
+				{
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					break;
+				}
 				if(scriptCanSave)
 				{
 					save_game(false);
