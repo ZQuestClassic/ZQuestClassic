@@ -7561,6 +7561,19 @@ bool LinkClass::animate(int)
         
         if(frame&1)
             linkstep();
+	    
+	if (get_bit(quest_rules, qr_NO_HOPPING)) //Since hopping won't be set with this on, something needs to kick Link out of water...
+	{
+		if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false)
+		|| !iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+8,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+15), currmap, currscr, -1, x.getInt()+8,y.getInt()+15, true, false) 
+		|| !iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+15,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+15), currmap, currscr, -1, x.getInt()+15,y.getInt()+15, true, false))
+                {
+			hopclk=0;
+			diveclk=0;
+			action=none; FFCore.setLinkAction(none);
+			hopdir=-1;
+                }
+	}
             
         // fall through
         
@@ -9665,7 +9678,7 @@ void LinkClass::do_hopping()
         }
         else
         {
-            if(dir<left ? !(x.getInt()&7) && !(y.getInt()&15) : !(x.getInt()&15) && !(y.getInt()&7))
+            if((dir<left ? !(x.getInt()&7) && !(y.getInt()&15) : !(x.getInt()&15) && !(y.getInt()&7)))
             {
                 action=none; FFCore.setLinkAction(none);
                 hopclk = 0;
@@ -14232,6 +14245,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     else if(wy>168)
                         changehop = false;
                 }
+		if (get_bit(quest_rules, qr_NO_HOPPING)) changehop = false;
                 //This may be where the hang-up for exiting water exists. -Z
                 // hop out of the water
                 if(changehop)
@@ -14239,7 +14253,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else
             {
-                if(dir==d2 || shiftdir==d2)
+                if(!get_bit(quest_rules, qr_NO_HOPPING) && (dir==d2 || shiftdir==d2))
                 {
                     //int vx=((int)x+4)&0xFFF8;
                     //int vy=((int)y+4)&0xFFF8;

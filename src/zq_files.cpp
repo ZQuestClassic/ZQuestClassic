@@ -819,6 +819,9 @@ int PickRuleset()
 				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
 				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
 				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_NO_HOPPING, 1);
+				set_bit(quest_rules, qr_NO_SOLID_SWIM, 1);
+				set_bit(quest_rules, qr_WATER_ON_LAYERS, 1);
 				break;
 			}
 		}

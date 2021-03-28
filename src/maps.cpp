@@ -724,6 +724,7 @@ int WARPCODE(int dmap,int scr,int dw)
 void update_combo_cycling()
 {
     int x,y;
+    y = 0;
     static int newdata[176];
     static int newcset[176];
     static int newdata2[176];
@@ -977,57 +978,86 @@ bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
-bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck)
+bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
 {
+	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
+	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
 	if (get_bit(quest_rules, qr_SMARTER_WATER))
 	{
-		for(int i=0; i<4 && (i == 0 || fullcheck); i++)
+		if (LayerCheck && get_bit(quest_rules, qr_WATER_ON_LAYERS)) //LayerCheck is a bit dumber, but it lets me add this QR without having to replace all calls, again.
 		{
-			int tx2=((i&2)<<2)+x;
-			int ty2=((i&1)<<3)+y;
-			int b = i;
-			if (!fullcheck)
-			{
-				tx2 = x;
-				ty2 = y;
-				if(tx2&8) b+=2;
-				if(ty2&8) b+=1;
-			}
-			bool bridgedetected = false;
 			for (int m = layer; m <= 1; m++)
 			{
-				newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
-				if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
-				{
-					bridgedetected = true;
-				}
-			}
-			for(int k=0; k<32; k++)
-			{
-				if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
-					bridgedetected = true;
-			}
-			if (bridgedetected)
-			{
-				if (fullcheck) continue;
-				else return false;
-			}
-			if (!DRIEDLAKE)
-			{
-				for(int k=0; k<32; k++)
-				{
-					if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
-						return true;
-				}
-				return iswater_type(combobuf[MAPCOMBO3(map, screen, layer, tx2, ty2, secrets)].type);
+				if (iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false)) return true;
 			}
 		}
-		return false;
+		else
+		{
+			for(int i=0; i<4 && (i == 0 || fullcheck); i++)
+			{
+				int tx2=((i&2)<<2)+x;
+				int ty2=((i&1)<<3)+y;
+				int b = i; //Originally b was not needed and I read off i, but then I added the boolean for fullcheck.
+				//In which case it's just easier to change b if fullcheck is false instead of changing i and potentially screwing up the for loop.
+				if (!fullcheck)
+				{
+					tx2 = x;
+					ty2 = y;
+					if(tx2&8) b+=2;
+					if(ty2&8) b+=1;
+				}
+				bool bridgedetected = false;
+				for (int m = layer; m <= 1; m++)
+				{
+					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
+					if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
+					{
+						bridgedetected = true;
+					}
+					if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+					{
+						if (cmb.type != cBRIDGE && (cmb.walk&(1<<b)))
+						{
+							bridgedetected = true;
+						}						
+					}
+				}
+				for(int k=0; k<32; k++)
+				{
+					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
+						bridgedetected = true;
+				}
+				if (bridgedetected)
+				{
+					if (fullcheck) continue;
+					else return false;
+				}
+				if (!DRIEDLAKE)
+				{
+					for(int k=0; k<32; k++)
+					{
+						if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
+							return true;
+					}
+					return iswater_type(combobuf[MAPCOMBO3(map, screen, layer, tx2, ty2, secrets)].type);
+				}
+			}
+			return false;
+		}
 	}
 	else
 	{
-		//return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
-		return false;
+		if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+		{
+			int b = 0;
+			if(x&8) b+=2;
+			if(y&8) b+=1;
+			if (combobuf[combo].walk&(1<<b))
+			{
+				return false;
+			}						
+		}
+		return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 	}
 }
 
