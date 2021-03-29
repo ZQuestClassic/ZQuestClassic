@@ -36272,7 +36272,7 @@ bool ZModule::init(bool d) //bool default
 		//combo editor
 		const char combo_name_fields[cMAX][255]=
 		{
-		    "cNONE", "cSTAIR", "cCAVE", "cWATER", "cSTATUE", "cGRAVE", "cDOCK",
+		    "cNONE", "cSTAIR", "cCAVE", "cLIQUID", "cSTATUE", "cGRAVE", "cDOCK",
 		    "cUNDEF", "cPUSH_WAIT", "cPUSH_HEAVY", "cPUSH_HW", "cL_STATUE", "cR_STATUE",
 		    "cWALKSLOW", "cCVUP", "cCVDOWN", "cCVLEFT", "cCVRIGHT", "cSWIMWARP", "cDIVEWARP",
 		    "cLADDERORGRAPPLE", "cTRIGNOFLAG", "cTRIGFLAG", "cWINGAME", "cSLASH", "cSLASHITEM",
@@ -36281,7 +36281,7 @@ bool ZModule::init(bool d) //bool default
 		    "cTRAP_LR", "cTRAP_UD", "cPIT", "cGRAPPLEONLY", "cOVERHEAD", "cNOFLYZONE", "cMIRROR",
 		    "cMIRRORSLASH", "cMIRRORBACKSLASH", "cMAGICPRISM", "cMAGICPRISM4",
 		    "cMAGICSPONGE", "cCAVE2", "cEYEBALL_A", "cEYEBALL_B", "cNOJUMPZONE", "cBUSH",
-		    "cFLOWERS", "cTALLGRASS", "cSHALLOWWATER", "cLOCKBLOCK", "cLOCKBLOCK2",
+		    "cFLOWERS", "cTALLGRASS", "cSHALLOWLIQUID", "cLOCKBLOCK", "cLOCKBLOCK2",
 		    "cBOSSLOCKBLOCK", "cBOSSLOCKBLOCK2", "cLADDERONLY", "cBSGRAVE",
 		    "cCHEST", "cCHEST2", "cLOCKEDCHEST", "cLOCKEDCHEST2", "cBOSSCHEST", "cBOSSCHEST2",
 		    "cRESET", "cSAVE", "cSAVE2", "cCAVEB", "cCAVEC", "cCAVED",

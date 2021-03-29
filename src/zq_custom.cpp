@@ -9854,7 +9854,7 @@ static TABPANEL linktile_tabs[] =
 {
     // (text)
     { (char *)"Land",       D_SELECTED,   linktile_land_list, 0, NULL },
-    { (char *)"Water",      0,            linktile_water_list, 0, NULL },
+    { (char *)"Liquid",      0,            linktile_water_list, 0, NULL },
     { NULL,                 0,            NULL,                0, NULL }
 };
 

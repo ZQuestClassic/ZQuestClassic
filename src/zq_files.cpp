@@ -821,7 +821,9 @@ int PickRuleset()
 				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
 				set_bit(quest_rules, qr_NO_HOPPING, 1);
 				set_bit(quest_rules, qr_NO_SOLID_SWIM, 1);
-				set_bit(quest_rules, qr_WATER_ON_LAYERS, 1);
+				set_bit(quest_rules, qr_WATER_ON_LAYER_1, 1);
+				set_bit(quest_rules, qr_WATER_ON_LAYER_2, 1);
+				set_bit(quest_rules, qr_SHALLOW_SENSITIVE, 1);
 				break;
 			}
 		}

@@ -16656,7 +16656,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cWATER,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
 	},
 	{ 
