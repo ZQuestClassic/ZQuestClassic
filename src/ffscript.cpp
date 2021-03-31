@@ -39983,6 +39983,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprswimspr: the_ret = swimspr[dir][0];
 			case LSprdivespr: the_ret = divespr[dir][0];
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
+			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

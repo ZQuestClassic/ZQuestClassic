@@ -3449,6 +3449,8 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             init_msgstrings(0,msg_strings_size);
         }
+	
+	//zprint2("String version: (%d)", s_version);
         
         int string_length=(s_version<2)?73:145;
         
@@ -3491,6 +3493,8 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(s_version<2)
             {
+		tempMsgString.w=(25*8);
+                tempMsgString.h=(4*8);
                 for(int j=72; j<MSGSIZE; j++)
                 {
                     tempMsgString.s[j]='\0';
@@ -6731,6 +6735,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     
                 case iWand:
                     tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
+		    tempitem.cost_counter = 4;
                     tempitem.power=2;
                     tempitem.wpn=wWAND;
                     tempitem.wpn3=wMAGIC;
@@ -16666,6 +16671,16 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
                 }
             }
         }
+	if (section_version < 16)
+	{
+		for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+		{
+			if (combobuf[tmpcounter].type == cWATER)
+			{
+				combobuf[tmpcounter].attributes[0] = 4;
+			}
+		}
+	}
         
     }
     

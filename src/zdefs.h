@@ -213,7 +213,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          7
 #define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           15
+#define V_COMBOS           16
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            15

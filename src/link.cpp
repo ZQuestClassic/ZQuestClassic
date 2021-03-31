@@ -370,9 +370,9 @@ bool  LinkClass::getBigHitbox()
 {
     return bigHitbox;
 }
-void LinkClass::setBigHitbox(bool newbighitbox)
+void LinkClass::setBigHitbox(bool newbigHitbox)
 {
-    bigHitbox=newbighitbox;
+    bigHitbox=newbigHitbox;
 }
 int LinkClass::getStepRate()
 {
@@ -423,7 +423,7 @@ void LinkClass::resetflags(bool all)
         hoverclk=jumping=0;
 		hoverflags = 0;
     }
-    
+    damageovertimeclk = -1;
     hopclk=0;
     hopdir=-1;
     attackclk=0;
@@ -451,19 +451,36 @@ void LinkClass::unfreeze()
     if(action==freeze && fairyclk<1) { action=none; FFCore.setLinkAction(none); }
 }
 
-void LinkClass::Drown()
+void LinkClass::Drown(int state)
 {
-    // Link should never drown if the ladder is out
-    if(ladderx+laddery)
-        return;
-        
-    action=drowning; FFCore.setLinkAction(drowning);
-    attackclk=0;
-    attack=wNone;
-    attackid=-1;
-    reset_swordcharge();
-    drownclk=64;
-    z=fall=0;
+	// Link should never drown if the ladder is out
+	if(ladderx+laddery)
+		return;
+	
+	switch(state)
+	{
+		case 1:
+			action=lavadrowning; FFCore.setLinkAction(lavadrowning);
+			attackclk=0;
+			attack=wNone;
+			attackid=-1;
+			reset_swordcharge();
+			drownclk=64;
+			z=fall=0;
+			break;
+
+		
+		default:
+			action=drowning; FFCore.setLinkAction(drowning);
+			attackclk=0;
+			attack=wNone;
+			attackid=-1;
+			reset_swordcharge();
+			drownclk=64;
+			z=fall=0;
+			break;
+	}
+	
 }
 
 void LinkClass::finishedmsg()
@@ -1012,6 +1029,13 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
             Drown();
             
         break;
+	
+    case lavadrowning:
+        //Lavadrowning is just drowning but with a different argument. Simplicity! -Dimi
+        if(!drownclk)
+            Drown(1);
+            
+        break;
 		
 	case falling:
 		if(!fallclk)
@@ -1109,7 +1133,9 @@ void LinkClass::init()
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
+    onpassivedmg=false;
     dir = up;
+    damageovertimeclk = -1;
     shiftdir = -1;
     holddir = -1;
     landswim = 0;
@@ -1973,6 +1999,11 @@ attack:
                     return;
                 }
             }
+	    else if(action==lavadrowning)
+            {
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
+                    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+            }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
                 if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
@@ -2073,6 +2104,11 @@ attack:
                     return;
                 }
             }
+	    else if(action==lavadrowning)
+            {
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+            }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
                 if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
@@ -2149,6 +2185,11 @@ attack:
                     yofs=oyofs;
                     return;
                 }
+            }
+	    else if(action == lavadrowning)
+            {
+                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
             }
             else if(action == swimming || action==swimhit || hopclk==0xFF)
             {
@@ -5973,7 +6014,7 @@ void LinkClass::checkhit()
         }
     }
     
-    if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || inwallm || isDiving() || (action==hopping && hopclk<255))
+    if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || action==lavadrowning || inwallm || isDiving() || (action==hopping && hopclk<255))
     {
         return;
     }
@@ -6193,7 +6234,7 @@ killweapon:
     }
     
     if(action==rafting || action==freeze ||
-            action==casting || action==drowning || superman || !(scriptcoldet&1) || fallclk)
+            action==casting || action==drowning || action==lavadrowning || superman || !(scriptcoldet&1) || fallclk)
         return;
         
     int hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
@@ -6728,6 +6769,15 @@ bool LinkClass::animate(int)
 {
 	int lsave=0;
 	
+	if (onpassivedmg)
+	{
+		onpassivedmg=false;
+	}
+	else if (damageovertimeclk != -1)
+	{
+		damageovertimeclk = -1;
+	}
+	
 	if(do_cheat_goto)
 	{
 		didpit=true;
@@ -6760,7 +6810,7 @@ bool LinkClass::animate(int)
 	}
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (z == 0 && action != swimming && action != isdiving && action != drowning)
+		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning)
 		{
 			if ((FFORCOMBOTYPE(x+11,y+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+11,y+15)))
 			&& (FFORCOMBOTYPE(x+4,y+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+4,y+15)))
@@ -6771,6 +6821,29 @@ bool LinkClass::animate(int)
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0));
 				}
+				int watercheck = FFORCOMBO(x.getInt()+7.5,y.getInt()+12);
+				if (combobuf[watercheck].usrflags&cflag2)
+				{
+					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+					{
+						onpassivedmg = true;
+						if (damageovertimeclk == 0)
+						{
+							int curhp = game->get_life();
+							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
+							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
+							if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						}
+						if (combobuf[watercheck].attribytes[1] > 0)
+						{
+							if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+							else --damageovertimeclk;
+						}
+						else damageovertimeclk = 0;
+					}
+					else damageovertimeclk = -1;
+				}
+				else damageovertimeclk = -1;
 			}
 		}
 	}
@@ -6782,6 +6855,29 @@ bool LinkClass::animate(int)
 			{
 				decorations.add(new dRipples(x, y, dRIPPLES, 0));
 			}
+			int watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
+			if (combobuf[watercheck].usrflags&cflag2)
+			{
+				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+				{
+					onpassivedmg = true;
+					if (damageovertimeclk == 0)
+					{
+						int curhp = game->get_life();
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
+						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+					}
+					if (combobuf[watercheck].attribytes[1] > 0)
+					{
+						if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+						else --damageovertimeclk;
+					}
+					else damageovertimeclk = 0;
+				}
+				else damageovertimeclk = -1;
+			}
+			else damageovertimeclk = -1;
 		}
 	}
 	
@@ -7441,18 +7537,26 @@ bool LinkClass::animate(int)
 		break;
 		
 	case drowning:
+	case lavadrowning:
 	{
 		linkstep(); // maybe this line should be elsewhere?
+		
+		//!DROWN
+		// Helpful comment to find drowning -Dimi
 		
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setLinkAction(none);
+			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int damage = combobuf[water].attributes[0];
+			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (HP_PER_HEART/4);
+			if (combobuf[water].type != cWATER) damage = 4;
+			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			x=entry_x;
 			y=entry_y;
 			warpx=x;
 			warpy=y;
 			hclk=48;
-			game->set_life(zc_max(game->get_life()-(HP_PER_HEART/4),0));
 		}
 		
 		break;
@@ -7580,18 +7684,45 @@ bool LinkClass::animate(int)
 		if(frame&1)
 			linkstep();
 		
-	if (get_bit(quest_rules, qr_NO_HOPPING)) //Since hopping won't be set with this on, something needs to kick Link out of water...
-	{
-		if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false)
-		|| !iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+8,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+15), currmap, currscr, -1, x.getInt()+8,y.getInt()+15, true, false) 
-		|| !iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+15,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+15), currmap, currscr, -1, x.getInt()+15,y.getInt()+15, true, false))
+		if (get_bit(quest_rules, qr_NO_HOPPING)) //Since hopping won't be set with this on, something needs to kick Link out of water...
+		{
+			if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false)
+			|| !iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+8,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+15), currmap, currscr, -1, x.getInt()+8,y.getInt()+15, true, false) 
+			|| !iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+15,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+15), currmap, currscr, -1, x.getInt()+15,y.getInt()+15, true, false))
+			{
+				hopclk=0;
+				diveclk=0;
+				action=none; FFCore.setLinkAction(none);
+				hopdir=-1;
+			}
+		}
+		if (action == swimming)
+		{
+			int watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			if (combobuf[watercheck].usrflags&cflag2)
+			{
+				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
 				{
-			hopclk=0;
-			diveclk=0;
-			action=none; FFCore.setLinkAction(none);
-			hopdir=-1;
+					onpassivedmg = true;
+					if (damageovertimeclk == 0)
+					{
+						int curhp = game->get_life();
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
+						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+					}
+					if (combobuf[watercheck].attribytes[1] > 0)
+					{
+						if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+						else --damageovertimeclk;
+					}
+					else damageovertimeclk = 0;
 				}
-	}
+				else damageovertimeclk = -1;
+			}
+			else damageovertimeclk = -1;
+			//combobuf[watercheck].attributes[0]
+		}
 			
 		// fall through
 		
@@ -7654,7 +7785,7 @@ bool LinkClass::animate(int)
 	// check lots of other things
 	checkscroll();
 	
-	if(action!=inwind && action!=drowning)
+	if(action!=inwind && action!=drowning && action!=lavadrowning)
 	{
 		checkspecial();
 		checkitems();
@@ -10540,7 +10671,7 @@ void LinkClass::movelink()
 			
 			if(paidmagic)
 			{
-				if(action==casting || action==drowning)
+				if(action==casting || action==drowning || action==lavadrowning)
 				{
 					;
 				}
@@ -10582,7 +10713,7 @@ void LinkClass::movelink()
 			did_scriptb=true;
 		}
 		
-		if(action==casting || action==drowning)
+		if(action==casting || action==drowning || action==lavadrowning)
 		{
 			return;
 		}
@@ -11036,7 +11167,7 @@ void LinkClass::movelink()
 	
 	} // endif (action==walking)
 	
-	if((action!=swimming)&&(action!=casting)&&(action!=drowning) && charging==0 && spins==0 && jumping<1)
+	if((action!=swimming)&&(action!=casting)&&(action!=drowning)&&(action!=lavadrowning) && charging==0 && spins==0 && jumping<1)
 	{
 		action=none; FFCore.setLinkAction(none);
 	}
@@ -12647,12 +12778,13 @@ void LinkClass::movelink()
 			}
 		}
 		
-		bool wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
-		bool wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
-		bool wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
-		bool wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+		int wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+		int wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+		int wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+		int wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+		int wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 		
-		if(can_use_item(itype_flippers,i_flippers)&&!(ladderx+laddery)&&z==0)
+		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0)
 		{
 			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 			{
@@ -14345,8 +14477,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         }
         else
         {
-            bool wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
+            int wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            int wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
             
             if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
@@ -14488,43 +14620,46 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         // check if he can swim
         if(current_item(itype_flippers) && z==0)
         {
-            bool wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
-            //ladder ignores water combos that are now walkable thanks to flippers -DD
-            unwalkablex = unwalkablex && !wtrx;
-            unwalkablex8 = unwalkablex8 && !wtrx8;
-            
-            if(landswim >= 22)
-            {
-                ret.setHopClk(2);
-                ret.setUnwalkable(false);
-                return ret;
-            }
-            else if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
-            {
-                if(!(diagonalMovement||NO_GRIDLOCK))
-                {
-                    ret.setHopClk(2);
-                    
-                    if(charging || spins>5)
-                    {
-                        //if Link is charging, he might be facing the wrong direction (we want him to
-                        //hop into the water, not in the facing direction)
-                        ret.setDir(d2);
-                        //moreover Link can't charge in the water -DD
-                        ret.setChargeAttack();
-                    }
-                    
-                    ret.setUnwalkable(false);
-                    return ret;
-                }
-                else if(dir==d2)
-                {
-                    ret.setIlswim(true);
-                    ladderx = 0;
-                    laddery = 0;
-                }
-            }
+		int wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+		int wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
+		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
+		{
+		//ladder ignores water combos that are now walkable thanks to flippers -DD
+		    unwalkablex = unwalkablex && (!wtrx);
+		    unwalkablex8 = unwalkablex8 && (!wtrx8);
+		    
+		    if(landswim >= 22)
+		    {
+			ret.setHopClk(2);
+			ret.setUnwalkable(false);
+			return ret;
+		    }
+		    else if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
+		    {
+			if(!(diagonalMovement||NO_GRIDLOCK))
+			{
+			    ret.setHopClk(2);
+			    
+			    if(charging || spins>5)
+			    {
+				//if Link is charging, he might be facing the wrong direction (we want him to
+				//hop into the water, not in the facing direction)
+				ret.setDir(d2);
+				//moreover Link can't charge in the water -DD
+				ret.setChargeAttack();
+			    }
+			    
+			    ret.setUnwalkable(false);
+			    return ret;
+			}
+			else if(dir==d2)
+			{
+			    ret.setIlswim(true);
+			    ladderx = 0;
+			    laddery = 0;
+			}
+		    }
+		}
         }
         
         // check if he can use the ladder
@@ -14533,8 +14668,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // laddersetup
         {
             // Check if there's water to use the ladder over
-            bool wtrx = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-            bool wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy);
+            bool wtrx = (iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy) != 0);
+            bool wtrx8 = (iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy) != 0);
 			int ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
@@ -14607,7 +14742,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                             // to make big changes to this stuff.
                             bool deployLadder=true;
                             int lx=wx&0xF0;
-                            if(current_item(itype_flippers) && z==0)
+                            if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0)
                             {
                                 if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
 				iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
@@ -16862,7 +16997,7 @@ void LinkClass::checkspecial2(int *ls)
 	int flag2=0;
 	int flag3=0;
 	int type=0;
-	bool water=false;
+	int water=0;
 	int index = 0;
 	
 	//bool gotpit=false;
@@ -17195,7 +17330,7 @@ void LinkClass::checkspecial2(int *ls)
 			if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
 			iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
 			iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = true;
+			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
 		}
 		else
 		{
@@ -17219,9 +17354,13 @@ void LinkClass::checkspecial2(int *ls)
 			if(MAPFFCOMBO(x2,y2))
 				types[3] = FFCOMBOTYPE(x2,y2);
 				
+			int typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+				
 			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water)
-				water = true;
+					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+				water = typec;
 		}
 	}
 	
@@ -17376,16 +17515,19 @@ void LinkClass::checkspecial2(int *ls)
 	// * Not jumping,
 	// * Not hovering,
 	// * Not rafting,
-	// * Not swimming,
 	// * Not swallowed,
 	// * Not a dried lake.
-	if(water && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !isSwimming() && !inlikelike && !DRIEDLAKE)
+	
+	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
+	
+	if(water > 0 && get_bit(quest_rules,qr_DROWN) && z==0  && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
 	{
-		if(!current_item(itype_flippers))
+		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
-			Drown();
+			if (combobuf[water].usrflags&cflag1) Drown(1);
+			else Drown();
 		}
-		else
+		else if (!isSwimming())
 		{
 			attackclk = charging = spins = 0;
 			action=swimming; FFCore.setLinkAction(swimming);
@@ -18759,8 +18901,10 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         if(y==160) dir=up;
         
         markBmap(dir^1);
+	
+	int checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
         
-        if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+        if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
@@ -19040,15 +19184,18 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     
     
     // Stop Link from drowning!
-    if(action==drowning)
+    if(action==drowning || action==lavadrowning)
     {
         drownclk=0;
         action=none; FFCore.setLinkAction(none);
     }
     
+    int checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
     // But keep him swimming if he ought to be!
-    if(action!=rafting && iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && (_walkflag(x,y+8,0) || get_bit(quest_rules,qr_DROWN))
-            && (current_item(itype_flippers)) && (action!=inwind))
+    // Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
+    if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0) || get_bit(quest_rules,qr_DROWN))
+            //&& (current_item(itype_flippers) >= combobuf[checkwater].attribytes[0]) 
+	    && (action!=inwind))
     {
         hopclk=0xFF;
         action=swimming; FFCore.setLinkAction(swimming);
@@ -21007,8 +21154,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	// change Link's state if entering water
 	int ahead = lookahead(scrolldir);
 	int aheadflag = lookaheadflag(scrolldir);
-	int lookaheadx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int lookaheady = vbound(y + 8,0,160);
+	int lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int lookaheady = vbound(y + (bigHitbox?8:12),0,160);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 		//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
@@ -24392,7 +24539,7 @@ void LinkClass::reset_ladder()
 
 void LinkClass::check_conveyor()
 {
-    if(action==casting||action==drowning||inlikelike||pull_link||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
+    if(action==casting||action==drowning||action==lavadrowning||inlikelike||pull_link||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
     {
         return;
     }

@@ -16656,8 +16656,8 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cWATER,
-		{ NULL,NULL,(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ (char*)"Is Lava",(char*)"Modify HP (Passive)",(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char*)"Drown Damage",NULL,NULL, NULL},{ (char*)"Flipper Level", NULL, NULL, NULL}
 	},
 	{ 
 		cARMOS,
@@ -16931,7 +16931,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cSHALLOWWATER,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,(char*)"Modify HP (Passive)",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
 	},
 	{
@@ -18093,6 +18093,16 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ (char *)"Damage",NULL,NULL,NULL},{ (char *)"Fall SFX",NULL,NULL,NULL}
 	},
 	{
+		263, //Water (Modify HP on)
+		{ (char*)"Is Lava",(char*)"Modify HP (Passive)",(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",(char*)"Rings affect HP Mod",(char*)"Mod SFX only plays if HP changes",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char*)"Drown Damage",(char*)"HP Modification",(char*)"HP Mod SFX", NULL},{ (char*)"Flipper Level", (char*)"HP Delay", (char*)"Req Itemclass", (char*)"Req Itemlevel"}
+	},
+	{
+		264, //Shallow Water (Modify HP on)
+		{ NULL,(char*)"Modify HP (Passive)",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,(char*)"HP Modification",(char*)"HP Mod SFX",NULL},{ (char*)"Sound",(char*)"HP Delay", (char*)"Req Itemclass", (char*)"Req Itemlevel"}
+	},
+	{
 		-1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
@@ -18202,7 +18212,7 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
     { jwin_check_proc,        46,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   (void*)get_tick_sel                  },
-    { jwin_check_proc,        46,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   (void*)get_tick_sel                  },
     { jwin_check_proc,        46,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
     { jwin_check_proc,        46,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
     { jwin_check_proc,        46,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   (void*)get_tick_sel                  },
@@ -18903,6 +18913,30 @@ bool edit_combo(int c,bool freshen,int cs)
 					if(combo_dlg[51].flags & D_SELECTED)
 						setComboLabels(262);
 					else setComboLabels(bict[combo_dlg[25].d1].i);
+				}
+				break;
+			}
+			case cWATER:
+			{
+				if(combo_dlg[48].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(263);
+				}
+				else
+				{
+					setComboLabels(bict[combo_dlg[25].d1].i);
+				}
+				break;
+			}
+			case cSHALLOWWATER:
+			{
+				if(combo_dlg[48].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(264);
+				}
+				else
+				{
+					setComboLabels(bict[combo_dlg[25].d1].i);
 				}
 				break;
 			}

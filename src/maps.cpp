@@ -1006,7 +1006,7 @@ bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
-bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
+int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
 {
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
 	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
@@ -1019,10 +1019,11 @@ bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool sec
 				if (m < 0 || m == 0 && get_bit(quest_rules,  qr_WATER_ON_LAYER_1)
 				|| m == 1 && get_bit(quest_rules,  qr_WATER_ON_LAYER_2))
 				{
-					if (iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false)) return true;
+					int checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false);
+					if (checkwater) return checkwater;
 				}
 			}
-			return false;
+			return 0;
 		}
 		else
 		{
@@ -1067,19 +1068,19 @@ bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool sec
 				if (bridgedetected)
 				{
 					if (fullcheck) continue;
-					else return false;
+					else return 0;
 				}
 				if (!DRIEDLAKE)
 				{
 					for(int k=0; k<32; k++)
 					{
 						if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
-							return true;
+							return MAPFFCOMBO(tx2,ty2);
 					}
-					return iswater_type(combobuf[MAPCOMBO3(map, screen, layer, tx2, ty2, secrets)].type);
+					return ((iswater_type(combobuf[MAPCOMBO3(map, screen, layer, tx2, ty2, secrets)].type))?MAPCOMBO3(map, screen, layer, tx2, ty2, secrets):0);
 				}
 			}
-			return false;
+			return 0;
 		}
 	}
 	else
@@ -1091,10 +1092,10 @@ bool iswaterex(int combo, int map, int screen, int layer, int x, int y, bool sec
 			if(y&8) b+=1;
 			if (combobuf[combo].walk&(1<<b))
 			{
-				return false;
+				return 0;
 			}						
 		}
-		return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
+		return ((iswater_type(combobuf[combo].type) && !DRIEDLAKE)?combo:0); //These used to return booleans; returning the combo id of the water combo it caught is essential for Rob's proposed water changes.
 	}
 }
 
