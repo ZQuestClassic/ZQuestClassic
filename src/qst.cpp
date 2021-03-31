@@ -11321,6 +11321,17 @@ int setupsubscreens()
                     
                 break;
             }
+	    case ssoTRIFRAME:
+	    {
+		memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
+		custom_subscreen[0].objects[i].d1 = 8594;
+		custom_subscreen[0].objects[i].d2 = 8;
+		custom_subscreen[0].objects[i].d3 = 8771;
+		custom_subscreen[0].objects[i].d4 = 8;
+		custom_subscreen[0].objects[i].d5 = 1;
+		custom_subscreen[0].objects[i].d6 = 1;
+		break;
+	    }
             
             default:
                 memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
@@ -11359,6 +11370,17 @@ int setupsubscreens()
                     
                 break;
             }
+	    /*
+	    case ssoTRIFRAME:
+	    {
+		custom_subscreen[1].objects[i].d1 = 8594;
+		custom_subscreen[1].objects[i].d2 = 8;
+		custom_subscreen[1].objects[i].d3 = 8771;
+		custom_subscreen[1].objects[i].d4 = 8;
+		custom_subscreen[1].objects[i].d5 = 1;
+		custom_subscreen[1].objects[i].d6 = 1;
+		break;
+	    }*/
             
             default:
                 memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
