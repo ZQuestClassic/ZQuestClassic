@@ -9378,7 +9378,7 @@ long get_register(const long arg)
 				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt read!
-				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x7F);
 				ret = 10000 * game->bmaps[di];
 			}
 			break;
@@ -17287,7 +17287,7 @@ void set_register(const long arg, const long value)
 				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt write!
-				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x7F);
 				game->bmaps[di] = (value/10000)&0x8F;
 			}
 			break;
@@ -28754,7 +28754,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	memset(emulation,0,sizeof(emulation));
+	//memset(emulation,0,sizeof(emulation));
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();

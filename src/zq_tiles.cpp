@@ -18094,7 +18094,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		263, //Water (Modify HP on)
-		{ (char*)"Is Lava",(char*)"Modify HP (Passive)",(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",(char*)"Rings affect HP Mod",(char*)"Mod SFX only plays if HP changes",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ (char*)"Is Lava",(char*)"Modify HP (Passive)",(char*)"Solid is Land",(char*)"Solid is Shallow Liquid",(char*)"Rings affect HP Mod",(char*)"Mod SFX only on HP change",(char*)"Damage causes hit anim",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ (char*)"Drown Damage",(char*)"HP Modification",(char*)"HP Mod SFX", NULL},{ (char*)"Flipper Level", (char*)"HP Delay", (char*)"Req Itemclass", (char*)"Req Itemlevel"}
 	},
 	{

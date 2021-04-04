@@ -1055,7 +1055,7 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 							bridgedetected = true;
 						}						
 					}
-					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)))
+					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4) || current_item(itype_flippers) < cmb.attribytes[0] || ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))))
 					{
 						bridgedetected = true;
 					}

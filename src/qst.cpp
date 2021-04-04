@@ -2813,6 +2813,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OLDLENSORDER, 1);
         set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
         set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
+	FFCore.emulation[emuITEMPERSEG] = 1;
+	FFCore.emulation[emu210WINDROBES] = 1;
     }
     
     if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
@@ -2834,6 +2836,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
         set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
+	FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
     }
     
     if(tempheader.zelda_version <= 0x210)
@@ -2920,7 +2923,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             set_bit(quest_rules, qr_BROKENSTATUES, 1);
     }
     
-    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
+    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
     {
 	FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
 	set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
@@ -3338,8 +3341,8 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             tempMsgString.sfx=WAV_MSG;
             tempMsgString.listpos=x;
             tempMsgString.x=24;
-            tempMsgString.w=24*8;
-            tempMsgString.h=3*8;
+            tempMsgString.w=25*8;
+            tempMsgString.h=4*8;
             tempMsgString.hspace=0;
             tempMsgString.vspace=0;
             tempMsgString.stringflags=0;
@@ -6455,40 +6458,6 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
-
-		if ( s_version < 34 )  //! set the default counter for older quests. 
-		{
-			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
-			{
-				tempitem.cost_counter = 1;
-			}
-			else 
-			{
-				tempitem.cost_counter = 4;
-			}
-		}
-		
-		if ( s_version < 35 ) //new Lens of Truth flags		
-		{
-			if ( tempitem.family == itype_lens )
-			{
-				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG4;
-				}
-				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG1;
-				}
-				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
-				{
-					tempitem.flags |= ITEM_FLAG5;
-				}
-				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
-				//What controlled this before? -Z
-				//lensflagNOXRAY New option, not an old rule. -Z
-			}
-		}
 		if ( s_version >= 44 )  //! cost counter
 		{
 			for ( int q = 0; q < 8; q++ )
@@ -6532,18 +6501,6 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-		}
-		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
-		{
-			for ( int q = 0; q < 8; q++ )
-			{
-				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
-				tempitem.sprite_initiald[q] = 0;
-			}
-			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
-			tempitem.sprite_script = 0;
 		}
 		
 		
@@ -6735,7 +6692,6 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     
                 case iWand:
                     tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
-		    tempitem.cost_counter = 4;
                     tempitem.power=2;
                     tempitem.wpn=wWAND;
                     tempitem.wpn3=wMAGIC;
@@ -8809,6 +8765,51 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
 			}
+		}
+		if ( s_version < 34 )  //! set the default counter for older quests. 
+		{
+			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+			{
+				tempitem.cost_counter = 1;
+			}
+			else 
+			{
+				tempitem.cost_counter = 4;
+			}
+		}
+		
+		if ( s_version < 35 ) //new Lens of Truth flags		
+		{
+			if ( tempitem.family == itype_lens )
+			{
+				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG4;
+				}
+				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG1;
+				}
+				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
+				{
+					tempitem.flags |= ITEM_FLAG5;
+				}
+				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
+				//What controlled this before? -Z
+				//lensflagNOXRAY New option, not an old rule. -Z
+			}
+		}
+		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				tempitem.sprite_initiald[q] = 0;
+			}
+			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			tempitem.sprite_script = 0;
 		}
 		
 		if(tempitem.fam_type==0)  // Always do this
@@ -11321,6 +11322,7 @@ int setupsubscreens()
                     
                 break;
             }
+	    /*
 	    case ssoTRIFRAME:
 	    {
 		memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
@@ -11331,7 +11333,7 @@ int setupsubscreens()
 		custom_subscreen[0].objects[i].d5 = 1;
 		custom_subscreen[0].objects[i].d6 = 1;
 		break;
-	    }
+	    }*/
             
             default:
                 memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));

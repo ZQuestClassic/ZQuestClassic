@@ -6833,6 +6833,12 @@ bool LinkClass::animate(int)
 							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
 							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
 							if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+							if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
+							{
+								hclk = 48;
+								hitdir = -1;
+								action = gothit; FFCore.setLinkAction(gothit);
+							}
 						}
 						if (combobuf[watercheck].attribytes[1] > 0)
 						{
@@ -7524,6 +7530,7 @@ bool LinkClass::animate(int)
 		holdclk=0;
 	}
 	
+	bool isthissolid = false;
 	switch(action)
 	{
 	case gothit:
@@ -7684,11 +7691,14 @@ bool LinkClass::animate(int)
 		if(frame&1)
 			linkstep();
 		
-		if (get_bit(quest_rules, qr_NO_HOPPING)) //Since hopping won't be set with this on, something needs to kick Link out of water...
+		if (_walkflag(x+7,y+(bigHitbox?6:11),1)
+                || _walkflag(x+7,y+(bigHitbox?9:12),1)
+		|| _walkflag(x+8,y+(bigHitbox?6:11),1)
+                || _walkflag(x+8,y+(bigHitbox?9:12),1)) isthissolid = true;
+		if (get_bit(quest_rules, qr_NO_HOPPING) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Link out of water...
 		{
-			if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false)
-			|| !iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+8,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+8,y.getInt()+15), currmap, currscr, -1, x.getInt()+8,y.getInt()+15, true, false) 
-			|| !iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt()+15,y.getInt()+(bigHitbox?0:8), true, false)||!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+15), currmap, currscr, -1, x.getInt()+15,y.getInt()+15, true, false))
+			if(!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
+			|| !iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+9), currmap, currscr, -1, x.getInt()+11,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+15), currmap, currscr, -1, x.getInt()+11,y.getInt()+15, true, false))
 			{
 				hopclk=0;
 				diveclk=0;
@@ -7710,6 +7720,12 @@ bool LinkClass::animate(int)
 						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
 						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
 						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
+						{
+							hclk = 48;
+							hitdir = -1;
+							action = swimhit; FFCore.setLinkAction(swimhit);
+						}
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
 					{
@@ -11264,7 +11280,7 @@ void LinkClass::movelink()
 							{
 								if(y != y.getInt())
 								{
-									y.doFloor();
+									y.doRound();
 								}
 								else if(link_newstep > 1)
 								{
@@ -11300,7 +11316,7 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x.doFloor();
+										x.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11321,7 +11337,7 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x.doFloor();
+												x.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11353,7 +11369,7 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x.doFloor();
+										x.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11374,7 +11390,7 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x.doFloor();
+												x.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11486,7 +11502,7 @@ void LinkClass::movelink()
 							{
 								if(y != y.getInt())
 								{
-									y.doFloor();
+									y.doRound();
 								}
 								else if(link_newstep > 1)
 								{
@@ -11522,7 +11538,7 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x.doFloor();
+										x.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11543,7 +11559,7 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x.doFloor();
+												x.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11575,7 +11591,7 @@ void LinkClass::movelink()
 								{
 									if(x != x.getInt())
 									{
-										x.doFloor();
+										x.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11596,7 +11612,7 @@ void LinkClass::movelink()
 										{
 											if(x != x.getInt())
 											{
-												x.doFloor();
+												x.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11696,7 +11712,7 @@ void LinkClass::movelink()
 						{
 							if(x != x.getInt())
 							{
-								x.doFloor();
+								x.doRound();
 							}
 							else if(link_newstep > 1)
 							{
@@ -11731,7 +11747,7 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y.doFloor();
+										y.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11752,7 +11768,7 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y.doFloor();
+												y.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11784,7 +11800,7 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y.doFloor();
+										y.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11805,7 +11821,7 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y.doFloor();
+												y.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -11912,7 +11928,7 @@ void LinkClass::movelink()
 						{
 							if(x != x.getInt())
 							{
-								x.doFloor();
+								x.doRound();
 							}
 							else if(link_newstep > 1)
 							{
@@ -11947,7 +11963,7 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y.doFloor();
+										y.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -11968,7 +11984,7 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y.doFloor();
+												y.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -12000,7 +12016,7 @@ void LinkClass::movelink()
 								{
 									if(y != y.getInt())
 									{
-										y.doFloor();
+										y.doRound();
 									}
 									else if(link_newstep_diag > 1)
 									{
@@ -12021,7 +12037,7 @@ void LinkClass::movelink()
 										{
 											if(y != y.getInt())
 											{
-												y.doFloor();
+												y.doRound();
 											}
 											else if(link_newstep_diag > 1)
 											{
@@ -12821,7 +12837,7 @@ void LinkClass::movelink()
 			do
 			{
 				info = walkflag(temp_x,temp_y+(bigHitbox?0:8),1,left) ||
-					   walkflag(temp_x-temp_step,temp_y+8,1,left);
+					   walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left);
 				
 				if(info.isUnwalkable())
 				{
@@ -13872,6 +13888,7 @@ void LinkClass::move(int d2, int forceRate)
 	
 	if(diagonalMovement)
 	{
+		//zprint2("Link's X is %d, Y is %d\n", x, y);
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
 			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
 		{
@@ -14378,8 +14395,16 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     {
         if(!wf)
         {
+	    bool isthissolid = false;
+		if (_walkflag(x+7,y+(bigHitbox?6:11),1)
+                || _walkflag(x+7,y+(bigHitbox?9:12),1)
+		|| _walkflag(x+8,y+(bigHitbox?6:11),1)
+                || _walkflag(x+8,y+(bigHitbox?9:12),1)) isthissolid = true;
+		//This checks if Link is currently swimming in solid water (cause even if the QR "No Hopping" is enabled, he should still hop out of solid water) - Dimi
+		
+		
             if(landswim>= (get_bit(quest_rules,qr_DROWN) && isSwimming() ? 1
-                           : (!diagonalMovement) ? 1 : 22))
+                           : (!diagonalMovement) ? 1 : (get_bit(quest_rules,qr_NO_HOPPING)?1:22)))
             {
                 //Check for out of bounds for swimming
                 bool changehop = true;
@@ -14395,7 +14420,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     else if(wy>168)
                         changehop = false;
                 }
-		if (get_bit(quest_rules, qr_NO_HOPPING)) changehop = false;
+		if (get_bit(quest_rules, qr_NO_HOPPING) && !isthissolid) changehop = false;
                 //This may be where the hang-up for exiting water exists. -Z
                 // hop out of the water
                 if(changehop)
@@ -14403,7 +14428,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else
             {
-                if(!get_bit(quest_rules, qr_NO_HOPPING) && (dir==d2 || shiftdir==d2))
+                if((!get_bit(quest_rules, qr_NO_HOPPING) || isthissolid) && (dir==d2 || shiftdir==d2))
                 {
                     //int vx=((int)x+4)&0xFFF8;
                     //int vy=((int)y+4)&0xFFF8;
@@ -17317,7 +17342,6 @@ void LinkClass::checkspecial2(int *ls)
 			type = types[0];
 		}
 		
-		
 	//
 	// Now, let's check for Drowning combos...
 	//
@@ -17363,6 +17387,7 @@ void LinkClass::checkspecial2(int *ls)
 				water = typec;
 		}
 	}
+	
 	
 	// Pits have a bigger 'hitbox' than stairs...
 	x1 = tx+7;
@@ -17532,9 +17557,8 @@ void LinkClass::checkspecial2(int *ls)
 			attackclk = charging = spins = 0;
 			action=swimming; FFCore.setLinkAction(swimming);
 			landswim=0;
+			return;
 		}
-		
-		return;
 	}
 	
 	
@@ -17833,6 +17857,7 @@ void LinkClass::checkspecial2(int *ls)
 	
 	detail_int[0]=tx;
 	detail_int[1]=ty;
+	
 	
 	if(!((type==cCAVE || type==cCAVE2) && z==0) && type!=cSTAIR &&
 			type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
