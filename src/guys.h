@@ -130,6 +130,8 @@ public:
 	
 	// Handle pitfalls
 	bool do_falling(int index);
+	// Handle drowning
+	bool do_drowning(int index);
 	// Supplemental animation code that all derived classes should call
 	// as a return value for animate().
 	// Handles the death animation and returns true when enemy is finished.

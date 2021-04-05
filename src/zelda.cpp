@@ -4042,6 +4042,11 @@ int get_currscr()
     return currscr;
 }
 
+int get_currmap()
+{
+    return currmap;
+}
+
 int get_homescr()
 {
     return homescr;

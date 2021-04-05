@@ -1142,7 +1142,7 @@ void LinkClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
-    moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+    moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL | FLAG_CAN_WATERDROWN;
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
@@ -2642,7 +2642,7 @@ bool LinkClass::checkstab()
 			item* ptr = (item*)items.spr(j); 
             if(ptr->pickup & ipTIMER)
             {
-                if(ptr->clk2 >= 32 && !ptr->fallclk)
+                if(ptr->clk2 >= 32 && !ptr->fallclk && !ptr->drownclk)
                 {
                     if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
                             || (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
@@ -5661,7 +5661,7 @@ int LinkClass::EwpnHit()
             weapon *ew = (weapon*)(Ewpns.spr(i));
             bool hitshield=false;
             
-            if((ew->ignoreLink)==true || ew->fallclk)
+            if((ew->ignoreLink)==true || ew->fallclk|| ew->drownclk)
                 break;
 	    
 	    int defresult = defend(ew);

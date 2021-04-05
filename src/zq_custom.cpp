@@ -4224,6 +4224,12 @@ static DIALOG miscspr_dlg[] =
 	//5
 	{ jwin_text_proc,           8,     45,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Falling Sprite:",                     NULL,   NULL                  },
 	{ jwin_droplist_proc,       8,     55,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
+	//7
+	{ jwin_text_proc,           8,     75,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Liquid) Sprite:",                     NULL,   NULL                  },
+	{ jwin_droplist_proc,       8,     85,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
+	//9
+	{ jwin_text_proc,           8,     105,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Lava) Sprite:",                     NULL,   NULL                  },
+	{ jwin_droplist_proc,       8,     115,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
 	
 	{ NULL,                     0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  }
 };
@@ -4243,6 +4249,10 @@ int onMiscSprites()
 		al_trace("%d ", j);
 	    if(biw[j].i == misc.sprites[sprFALL]){ al_trace("\nFound 'sprFALL' val %d\n",j);
 	        miscspr_dlg[6].d1 = j;}
+	    if(biw[j].i == misc.sprites[sprDROWN]){ al_trace("\nFound 'sprDROWN' val %d\n",j);
+	        miscspr_dlg[8].d1 = j;}
+	    if(biw[j].i == misc.sprites[sprLAVADROWN]){ al_trace("\nFound 'sprLAVADROWN' val %d\n",j);
+	        miscspr_dlg[10].d1 = j;}
 	}
 	al_trace("Done looping biw_cnt.\n");
     miscspr_dlg[0].dp2 = lfont;
@@ -4263,6 +4273,10 @@ int onMiscSprites()
 		{
 			if(miscspr_dlg[6].d1 == j)
 				misc.sprites[sprFALL] = biw[j].i;
+			if(miscspr_dlg[8].d1 == j)
+				misc.sprites[sprDROWN] = biw[j].i;
+			if(miscspr_dlg[10].d1 == j)
+				misc.sprites[sprLAVADROWN] = biw[j].i;
 		}
 	}
 	return D_O_K;
@@ -4379,7 +4393,7 @@ static int enemy_weapon_scripts_list[] =
 };
 static int enemy_moveflag_list[] =
 {
-	371, 372, 373,
+	371, 372, 373, 374, 375,
 	-1
 };
 static int enemy_movement_list[] =
@@ -6731,6 +6745,8 @@ static DIALOG enedata_dlg[] =
 	{  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Obeys Gravity",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Fall Into Pitfalls",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk Over Pitfalls",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Drown In Water",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk On Water",                          NULL,   NULL                 },
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -7439,6 +7455,8 @@ void edit_enemydata(int index)
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
 	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
+	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
+	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
 	
     int ret;
     guydata test;
@@ -7718,6 +7736,10 @@ void edit_enemydata(int index)
 			test.moveflags |= FLAG_CAN_PITFALL;
 		if(enedata_dlg[373].flags & D_SELECTED)
 			test.moveflags |= FLAG_CAN_PITWALK;
+		if(enedata_dlg[374].flags & D_SELECTED)
+			test.moveflags |= FLAG_CAN_WATERDROWN;
+		if(enedata_dlg[375].flags & D_SELECTED)
+			test.moveflags |= FLAG_CAN_WATERWALK;
 	
         //end npc scripts
 	

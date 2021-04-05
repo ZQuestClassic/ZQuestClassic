@@ -182,6 +182,11 @@ int MAPCOMBO(int x,int y)
     return tmpscr->data[combo];                               // entire combo code
 }
 
+int MAPCOMBOzq(int x,int y)
+{
+	return MAPCOMBO(x,y);
+}
+
 //specific layers 1 to 6
 int MAPCOMBOL(int layer,int x,int y)
 {
@@ -434,9 +439,14 @@ int MAPCOMBO3(int map, int screen, int layer, int x,int y, bool secrets)
 	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
 }
 
+int MAPCOMBOX(int pos) { return ((pos)%16*16); }
+int MAPCOMBOY(int pos) { return ((pos)&0xF0); }
+
 int MAPCOMBO3(int map, int screen, int layer, int pos, bool secrets)
 { 
 	if (map < 0 || screen < 0) return 0;
+	
+	if (map == currmap && screen == currscr) return MAPCOMBO2(layer,MAPCOMBOX(pos),MAPCOMBOY(pos));
 	
 	if(pos>175 || pos < 0)
 		return 0;
@@ -1005,6 +1015,10 @@ bool iswater_type(int type)
 bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
+}
+int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
+{
+	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
 int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
 {

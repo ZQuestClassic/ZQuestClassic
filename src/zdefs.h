@@ -808,6 +808,7 @@ enum
 };
 
 #define PITFALL_FALL_FRAMES 70
+#define WATER_DROWN_FRAMES 64
 
 //Combo editor and additional system combos for combo type 'expanded'.
 
@@ -2054,6 +2055,8 @@ struct guydata
 #define FLAG_OBEYS_GRAV 0x01
 #define FLAG_CAN_PITFALL 0x02
 #define FLAG_CAN_PITWALK 0x04
+#define FLAG_CAN_WATERDROWN 0x08
+#define FLAG_CAN_WATERWALK 0x10
 
 class refInfo
 {
@@ -3415,6 +3418,8 @@ struct palcycle
 enum miscsprite
 {
 	sprFALL,
+	sprDROWN,
+	sprLAVADROWN,
 	spr_NUMUSED,
 	sprMAX = 256
 };

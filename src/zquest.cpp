@@ -30492,6 +30492,11 @@ int get_currscr()
     return Map.getCurrScr();
 }
 
+int get_currmap()
+{
+    return Map.getCurrMap();
+}
+
 int get_homescr()
 {
     return DMaps[zinit.start_dmap].cont;
@@ -36762,6 +36767,10 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 }
 
 int getpitfall(int x, int y){return 0;}
+
+int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck){return 0;}
+
+int MAPCOMBOzq(int x, int y){return 0;}
 
 void zprint(const char * const format,...)
 {
