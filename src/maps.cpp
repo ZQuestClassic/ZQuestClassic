@@ -1020,10 +1020,12 @@ int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool se
 {
 	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
-int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
+int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck)
 {
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
 	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
+	
+	//Oh hey, Zoras might actually need it. Nevermind, this had a use!
 	if (get_bit(quest_rules, qr_SMARTER_WATER))
 	{
 		if (LayerCheck && (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) || get_bit(quest_rules,  qr_WATER_ON_LAYER_2))) //LayerCheck is a bit dumber, but it lets me add this QR without having to replace all calls, again.
@@ -1033,15 +1035,18 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 				if (m < 0 || m == 0 && get_bit(quest_rules,  qr_WATER_ON_LAYER_1)
 				|| m == 1 && get_bit(quest_rules,  qr_WATER_ON_LAYER_2))
 				{
-					int checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false);
-					if (checkwater) return checkwater;
+					int checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
+					if (checkwater > 0) 
+					{
+						return checkwater;
+					}
 				}
 			}
 			return 0;
 		}
 		else
 		{
-			for(int i=0; i<4 && (i == 0 || fullcheck); i++)
+			for(int i=(fullcheck?3:0); i>=0; i--)
 			{
 				int tx2=((i&2)<<2)+x;
 				int ty2=((i&1)<<3)+y;
@@ -1071,28 +1076,36 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4) || current_item(itype_flippers) < cmb.attribytes[0] || ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))))
 					{
-						bridgedetected = true;
+						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) bridgedetected = true;
 					}
 				}
 				for(int k=0; k<32; k++)
 				{
-					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
+					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water && !(ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
 						bridgedetected = true;
 				}
 				if (bridgedetected)
 				{
-					if (fullcheck) continue;
-					else return 0;
+					return 0;
 				}
 				if (!DRIEDLAKE)
 				{
 					for(int k=0; k<32; k++)
 					{
-						if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water)
-							return MAPFFCOMBO(tx2,ty2);
+						if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water || (ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
+						{
+							if (i == 0) return MAPFFCOMBO(tx2,ty2);
+							else continue;
+						}
 					}
-					return ((iswater_type(combobuf[MAPCOMBO3(map, screen, layer, tx2, ty2, secrets)].type))?MAPCOMBO3(map, screen, layer, tx2, ty2, secrets):0);
+					int checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
+					if (iswater_type(combobuf[checkcombo].type)||(ShallowCheck && (combobuf[checkcombo].type == cSHALLOWWATER || (iswater_type(combobuf[checkcombo].type) && (combobuf[checkcombo].walk&(1<<b)) && (combobuf[checkcombo].usrflags&cflag4))))) 
+					{
+						if (i == 0) return checkcombo;
+						else continue;
+					}
 				}
+				return 0;
 			}
 			return 0;
 		}
@@ -1109,7 +1122,7 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 				return 0;
 			}						
 		}
-		return ((iswater_type(combobuf[combo].type) && !DRIEDLAKE)?combo:0); //These used to return booleans; returning the combo id of the water combo it caught is essential for Rob's proposed water changes.
+		return (((iswater_type(combobuf[combo].type) || (ShallowCheck && combobuf[combo].type == cSHALLOWWATER)) && !DRIEDLAKE)?combo:0); //These used to return booleans; returning the combo id of the water combo it caught is essential for Rob's proposed water changes.
 	}
 }
 

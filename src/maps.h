@@ -63,7 +63,7 @@ bool isSVLadder(int x, int y);
 bool isSVPlatform(int x, int y);
 bool checkSVLadderPlatform(int x, int y);
 bool iswater(int combo);
-int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
+int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false);
 int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
 bool iswater_type(int type);
 bool ispitfall(int combo);

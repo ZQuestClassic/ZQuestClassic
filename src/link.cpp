@@ -6812,16 +6812,16 @@ bool LinkClass::animate(int)
 	{
 		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning)
 		{
-			if ((FFORCOMBOTYPE(x+11,y+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+11,y+15)))
-			&& (FFORCOMBOTYPE(x+4,y+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+4,y+15)))
-			&& (FFORCOMBOTYPE(x+11,y+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+11,y+9)))
-			&& (FFORCOMBOTYPE(x+4,y+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(x+4,y+9))))
+			if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(x+11,y+9), currmap, currscr, -1, x+11,y+9, false, false, true, true)
+			&& iswaterex(FFORCOMBO(x+4,y+9), currmap, currscr, -1, x+4,y+9, false, false, true, true))
 			{
 				if(decorations.idCount(dRIPPLES)==0)
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0));
 				}
-				int watercheck = FFORCOMBO(x.getInt()+7.5,y.getInt()+12);
+				int watercheck = iswaterex(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
 				if (combobuf[watercheck].usrflags&cflag2)
 				{
 					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
@@ -17564,7 +17564,7 @@ void LinkClass::checkspecial2(int *ls)
 	
 	if(type==cSTEP)
 	{ 
-	zprint2("Link.HasHeavyBoots(): is: %s\n", ( (Link.HasHeavyBoots()) ? "true" : "false" ));
+	//zprint2("Link.HasHeavyBoots(): is: %s\n", ( (Link.HasHeavyBoots()) ? "true" : "false" ));
 		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
 		{
 			stepnext=((ty+8)&0xF0)+((tx+8)>>4);

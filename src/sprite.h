@@ -134,6 +134,7 @@ public:
 	int old_cset; // Storage var for an old cset; used by pitfalls
 	int drownclk; // Pitfall fall clk
 	int drownCombo; // Pitfall fallen combo
+	bool isspawning;
     
     sprite();
     sprite(sprite const & other);

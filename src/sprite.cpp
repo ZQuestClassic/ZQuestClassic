@@ -269,6 +269,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
     uid = getNextUID();
+    isspawning = false;
     hxsz=hysz=16;
     hxofs=hyofs=xofs=0;
     txsz=1;
@@ -1062,6 +1063,7 @@ void sprite::draw(BITMAP* dest)
 	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
 	int e = extend>=3 ? 3 : extend;
 	int flip_type = ((scriptflip > -1) ? scriptflip : flip);
+	isspawning = false;
 	if(clk>=0)
 	{
 		switch(e)
@@ -1439,8 +1441,9 @@ void sprite::draw(BITMAP* dest)
 			}
 		}
 	} //end if(clk>=0)
-	else //I'm unsure when the clk is < 0 -Z
+	else if (!fallclk && !drownclk) //I'm unsure when the clk is < 0 -Z
 	{
+		isspawning = true;
 		if(e!=3) //if extend != 3 
 		{
 			int t  = wpnsbuf[iwSpawn].newtile;

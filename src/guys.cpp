@@ -2418,7 +2418,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	
 	//Moveflags; for gravity and pit interaction
 	moveflags = d->moveflags;
-	if(!can_pitfall())
+	if(!can_pitfall(false))
 	{
 		//Some enemies must not interact with pits. Force their flags, for sanity's sake.
 		moveflags &= ~FLAG_CAN_PITFALL;
@@ -5831,7 +5831,6 @@ void enemy::draw(BITMAP *dest)
 	//    old_draw(dest);
 	//    return;
 	//}
-	
 	//Let's clen up this logic; shall we?
 	byte canSee = DRAW_INVIS;
 	if ( editorflags & ENEMY_FLAG1 )
@@ -6353,9 +6352,9 @@ bool enemy::hit(weapon *w)
 	return (dying || hclk>0) ? false : sprite::hit(w);
 }
 
-bool enemy::can_pitfall()
+bool enemy::can_pitfall(bool checkspawning)
 {
-	if(fading) return false; //Don't fall during spawn.
+	if((fading||isspawning)&&checkspawning) return false; //Don't fall during spawn.
 	switch(guysbuf[id&0xFFF].family)
 	{
 		case eeAQUA:
@@ -9459,7 +9458,7 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9571,7 +9570,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9684,7 +9683,7 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9797,7 +9796,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9944,7 +9943,7 @@ void enemy::removearmos(int ax,int ay)
 eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flicker;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	dir=12;
 	movestatus=1;
 	step=0;
@@ -11007,7 +11006,7 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 	
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	//nets+420;
 	dummy_int[1]=0;
 	SIZEflags = d->SIZEflags;
@@ -11331,7 +11330,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	lasthit=-1;
 	lasthitclk=0;
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	step=2;
 	if(dmisc1==1 || (dmisc1==0 && rand()&2))
 	{
@@ -11791,7 +11790,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 	  hp=1;
 	  */
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	hclk=clk;                                                 // the "no fire" range
 	clk=0;
 	clk3=96;
@@ -11929,7 +11928,7 @@ void eTrigger::death_sfx()
 eNPC::eNPC(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	o_tile+=wpnsbuf[iwNPCs].newtile;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -12155,7 +12154,7 @@ eZora::eZora(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int)y&0xF0)+((int)x>>4))]))
 	{
 	  clk=1;
@@ -12258,12 +12257,15 @@ bool eZora::animate(int index)
 		
 		while(!placed && t<160)
 		{
-			if(iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), true) && (pos2&15)>0 && (pos2&15)<15)
+			int watertype = iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			if(watertype && ((editorflags & ENEMY_FLAG6) || 
+			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
+			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
 			{
 				x=(pos2&15)<<4;
 				y=pos2&0xF0;
-				hp=guysbuf[id&0xFFF].hp;                             // refill life each time
-				hxofs=1000;                                       // avoid hit detection
+				if (!(editorflags & ENEMY_FLAG8)) hp=guysbuf[id&0xFFF].hp;       // refill life each time, unless the flag is checked.
+				hxofs=1000;                                                      // avoid hit detection
 				stunclk=0;
 				placed=true;
 			}
@@ -12341,7 +12343,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))

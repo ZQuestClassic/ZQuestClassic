@@ -665,10 +665,17 @@ bool dRipples::animate(int index)
 	{
 		if (LinkZ() == 0 && LinkAction() != swimming && LinkAction() != isdiving && LinkAction() != drowning)
 		{
+			/*
 			return !((FFORCOMBOTYPE(LinkX()+11,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+15)))
 			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+15)))
 			&& (FFORCOMBOTYPE(LinkX()+11,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+9)))
 			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+9))));
+			*/
+			
+			return !(iswaterex(FFORCOMBO(LinkX()+11,LinkY()+15), currmap, currscr, -1, LinkX()+11,LinkY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+15), currmap, currscr, -1, LinkX()+4,LinkY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+11,LinkY()+9), currmap, currscr, -1, LinkX()+11,LinkY()+9, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+9), currmap, currscr, -1, LinkX()+4,LinkY()+9, false, false, true, true));
 		}
 		return true;
 	}
