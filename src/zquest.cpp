@@ -1653,7 +1653,7 @@ static MENU misc_menu[] =
 static MENU spr_menu[] =
 {
     { (char *)"&Sprite Data",               onCustomWpns,              NULL,                     0,            NULL   },
-    { (char *)"&Link",                      onCustomLink,              NULL,                     0,            NULL   },
+    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
     { (char *)"&Misc Sprites",              onMiscSprites,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1727,12 +1727,13 @@ static MENU rules_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU quest_menu[] =
+static MENU quest_menu[] = 
 {
     { (char *)"&Options\t ",                  NULL,                      rules_menu,               0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
     { (char *)"Ene&mies",                   onCustomEnemies,           NULL,                     0,            NULL   },
+    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
     { (char *)"&Strings",                   onStrings,                 NULL,                     0,            NULL   },
     { (char *)"&DMaps",                     onDmaps,                   NULL,                     0,            NULL   },
     { (char *)"I&nit Data",                 onInit,                    NULL,                     0,            NULL   },
