@@ -11,7 +11,7 @@
 #ifndef _ZC_CUSTOM_H_
 #define _ZC_CUSTOM_H_
 
-#include "zdefs.h";
+#include "zdefs.h"
 
 enum
 {
