@@ -4604,7 +4604,7 @@ static TABPANEL enedata_tabs[] =
     { (char *)"Basic",       D_SELECTED,               enemy_basic_tabs_list,    0, NULL },
    // { (char *)"Misc. Flags",	 0,               enedata_flags_list,    0, NULL },
    // { (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
-    { (char *)"Defenses",	 0,               enemy_defence_tabs_list,   0, NULL },
+    { (char *)"Defences",	 0,               enemy_defence_tabs_list,   0, NULL },
    // { (char *)"Defs 1",	 0,               enedata_defense_list,   0, NULL },
    // { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
    // { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
@@ -5932,11 +5932,13 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeGANON,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        eeGANON,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL
+		, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
-		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor Defenses",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
+		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor 
+",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
@@ -9985,7 +9987,7 @@ static TABPANEL linktile_tabs[] =
     // (text)
 { (char *)"Sprites (Land)",       D_SELECTED,   linktile_land_list, 0, NULL },
     { (char *)"Sprites (Liquid)",      0,            linktile_water_list, 0, NULL },
-    { (char *)"Defenses",             0,            linktile_defense_list, 0, NULL},
+    { (char *)"Defences",             0,            linktile_defense_list, 0, NULL},
     { (char *)"Options",              0,            linktile_option_list, 0, NULL  }, 
     { NULL,                 0,            NULL,                0, NULL }
 };
