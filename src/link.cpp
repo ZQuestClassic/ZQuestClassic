@@ -20109,7 +20109,7 @@ bool LinkClass::nextcombo_solid(int d2)
 	
 	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)); cy+=8,i++)
 	{
-		for(int k=0; k<=((cx&7)?2:1); cx+=8,k++)
+		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((cx&7)?2:1):0); cx+=8,k++)
 		{
 			int cmb = (cy&0xF0)+(cx>>4);
 			
@@ -20118,7 +20118,7 @@ bool LinkClass::nextcombo_solid(int d2)
 				return true;
 			}
 			
-			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, true)];
+			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))];
 		
 			int b=1;
 			
@@ -20129,15 +20129,17 @@ bool LinkClass::nextcombo_solid(int d2)
 			//bool bridgedetected = false;
 		
 			int walk = c.walk;
-		
-			for (int m = 0; m <= 1; m++)
+			if (get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))
 			{
-				newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
-				if (cmb.type == cBRIDGE && !(cmb.walk&b)) 
+				for (int m = 0; m <= 1; m++)
 				{
-					walk &= cmb.walk;
+					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
+					if (cmb.type == cBRIDGE) 
+					{
+						walk &= cmb.walk;
+					}
+					else walk |= cmb.walk;
 				}
-				else walk |= cmb.walk;
 			}
 			/*
 			if (bridgedetected)
@@ -20146,7 +20148,7 @@ bool LinkClass::nextcombo_solid(int d2)
 			}*/
 			
 			//bool swim = iswater_type(c.type) && (current_item(itype_flippers) || action==rafting);
-			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, true), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
+			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
 			
 			if((walk&b) && !swim)
 			{
