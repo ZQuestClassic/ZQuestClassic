@@ -10350,7 +10350,7 @@ int onCustomLink()
     //Populate Link defenses
     for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
     {
-        linktile_dlg[144 + i].d1 = link_defence[wEnemyWeapons+i+1];
+        linktile_dlg[144 + i].d1 = link_defence[wEnemyWeapons+i];
     }
     linktile_dlg[154+8].d1 = link_defence[wFire];
     linktile_dlg[155+8].d1 = link_defence[wBomb];
@@ -10385,7 +10385,7 @@ int onCustomLink()
             //Save Link defenses
             for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
             {
-                link_defence[wEnemyWeapons + i + 1] = linktile_dlg[137 + 7 + i].d1;
+                link_defence[wEnemyWeapons + i] = linktile_dlg[137 + 7 + i].d1;
             }
             link_defence[wFire] = linktile_dlg[154+8].d1;
             link_defence[wBomb] = linktile_dlg[155+8].d1;

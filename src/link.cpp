@@ -1221,8 +1221,11 @@ void LinkClass::init()
 	walkspeed = 0; //not used, yet. -Z
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
-	for ( int q = 0; q < wMax; q++ ) defence[q] = link_defence[q]; //we will need to have a Link section in the quest load/save code! -Z Added 3/26/21 - Jman
-	
+	for ( int q = 0; q < wMax; q++ ) 
+	{
+		defence[q] = link_defence[q]; //we will need to have a Link section in the quest load/save code! -Z Added 3/26/21 - Jman
+		//zprint2("defence[%d] is: %d\n", q, defence[q]);
+	}
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
@@ -5440,9 +5443,9 @@ void LinkClass::check_pound_block(weapon *w)
 // 1 Effects, weapon is not ignored or removed
 int LinkClass::defend(weapon *w)
 {
+	//zprint2("Running Link::defend with weapon ID: %d\n", w->id);
 	switch(defence[w->id])
 	{
-		
 		case edNORMAL: return 1;
 		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
 		{
@@ -5456,6 +5459,7 @@ int LinkClass::defend(weapon *w)
 		}
 		case edSTUNONLY:
 		{
+			zprint2("Stunning ink\n");
 			setStunClock(120);
 			return 1;
 		}
