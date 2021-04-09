@@ -25,6 +25,8 @@ int script_link_sprite = 0;
 int script_link_flip = -1;
 int script_link_cset = -1;
 
+byte link_defence[wMax];
+
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                           tile/flip/extend
 int stabspr[4][3];                                   //dir,                           tile/flip/extend
@@ -703,5 +705,15 @@ void setuplinktiles(int style)
     default:
         break;
     }
+}
+
+void setuplinkdefenses()
+{
+    //For now this just zeroes out Link's defenses by default, set these to appropriate defaults if necessary if defense implementation is extended. -Jman
+    for (int i = 0; i < wMax; i++)
+    {
+        link_defence[i] = 0;
+    }
+    
 }
 

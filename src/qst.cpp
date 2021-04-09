@@ -9341,6 +9341,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     {
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
+        setuplinkdefenses();
     }
     
     if(v_linksprites>=0)
@@ -9734,6 +9735,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     {
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
+        setuplinkdefenses();
     }
     
     int tile, tile2;
@@ -10567,6 +10569,29 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				}
 			}
 		}
+        if (v_linksprites > 7)
+        {
+            int num_defense = wMax;
+            byte def = 0;
+
+            //Set num_defense accordingly if changes to enum require version upgrade - Jman
+            /*if(v_linksprites > [x])
+            * {
+            *     num_defense = 146 //value of wMax on version 8
+            * }
+            */
+
+            for (int q = 0; q < num_defense; q++)
+            {
+                if (!p_getc(&def, f, keepdata))
+                    return qe_invalid;
+
+                if (keepdata)
+                {
+                    link_defence[q] = def;
+                }
+            }
+        }
     }
     
     return 0;
