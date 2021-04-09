@@ -9924,25 +9924,25 @@ static TABPANEL linktile_water_tabs[] =
 static int linktile_defense_enemy1_list[] =
 {
     //dialog control number
-    114, 115, 116, 117, 118, 119, 120, 121, 122, 137, 138, 139, 140, 141, 142, 143, 144, 145, 160, -1
+    122, 123, 124, 125, 126, 127, 128, 129, 130, 145, 146, 147, 148, 149, 150, 151, 152, 153, 168, -1
 };
 
 static int linktile_defense_enemy2_list[] =
 {
     //dialog control number
-    123, 124, 125, 126, 127, 128, 129, 130, 146, 147, 148, 149, 150, 151, 152, 153, -1
+    131, 132, 133, 134, 135, 136, 137, 138, 154, 155, 156, 157, 158, 159, 160, 161, -1
 };
 
 static int linktile_defense_other1_list[] =
 {
     //dialog control number
-    131, 132, 133, 134, 135, 136, 154, 155, 156, 157, 158, 159, -1
+    139, 140, 141, 142, 143, 144, 162, 163, 164, 165, 166, 167, -1
 };
 
 static int linktile_defense_script_list[] =
 {
     //dialog control number
-    161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, -1
+    169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, -1
 };
 
 static TABPANEL linktile_defense_tabs[] =
@@ -9971,13 +9971,13 @@ static int linktile_water_list[] =
 static int linktile_defense_list[] =
 {
     // dialog control number
-    113, -1
+    121, -1
 };
 
 static int linktile_option_list[] =
 {
     // dialog control number
-    181, 182, 183, 184, 185, 186, -1
+    189, 190, 191, 192, 193, 194, -1
 };
 
 static TABPANEL linktile_tabs[] =
@@ -10202,9 +10202,9 @@ static DIALOG linktile_dlg[] =
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_lavadrown,         NULL,                            NULL,   NULL                   },
     
     // DEFENSE TAB BEGINS
-    // 120 (Link defenses)
+    // 121 (Link defenses)
     { jwin_tab_proc,                        7,      33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void*)linktile_defense_tabs,    NULL, (void*)linktile_dlg },
-    // 121 - Enemy weapons (currently 17)
+    // 122 - Enemy weapons (currently 17)
     { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball Defense:",                                  NULL,   NULL },
     { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Arrow Defense:",                                     NULL,   NULL },
     { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Boomerang Defense:",                                 NULL,   NULL },
@@ -10214,7 +10214,7 @@ static DIALOG linktile_dlg[] =
     { jwin_text_proc,           9,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Bomb (object) Defense:",                             NULL,   NULL },
     { jwin_text_proc,           9,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"S. Bomb (object) Defense:",                          NULL,   NULL },
     { jwin_text_proc,           9,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Bomb (explode) Defense:",                            NULL,   NULL },
-    // 130 - Enemy weapons page 2
+    // 131 - Enemy weapons page 2
     { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"S. Bomb (explode) Defense:",                          NULL,   NULL },
     { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame Trail Defense:",                                 NULL,   NULL },
     { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame Defense:",                                 NULL,   NULL },
@@ -10223,14 +10223,14 @@ static DIALOG linktile_dlg[] =
     { jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame 2 Trail Defense:",                                 NULL,   NULL },
     { jwin_text_proc,           9,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Ice Defense:",                                NULL,   NULL },
     { jwin_text_proc,           9,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball 2 Defense:",                              NULL,   NULL },
-    // 138 - Other weapons (Currently 6)
+    // 139 - Other weapons (Currently 6)
     { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Candle Fire Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Player Bomb Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Magic Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Fireball Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Rock Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Sword Beam Defense:",                              NULL,   NULL },
-    // 144 - Enemy weapons pulldown 
+    // 145 - Enemy weapons pulldown 
     { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
@@ -10240,7 +10240,7 @@ static DIALOG linktile_dlg[] =
     { jwin_droplist_proc,         126,  162 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  180 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  198 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
-    // 153 - Enemy weapons pulldown page 2
+    // 154 - Enemy weapons pulldown page 2
     { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
@@ -10249,18 +10249,18 @@ static DIALOG linktile_dlg[] =
     { jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  162 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  180 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
-    // 161 - Other weapon pulldown
+    // 162 - Other weapon pulldown
     { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  108 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  126 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
-    // 167 - Set all button
+    // 168 - Set all button
     { jwin_button_proc,           255,    54 - 4,     48,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"Set All",                                            NULL,   NULL },
     
     
-    // 168 - Script 1
+    // 169 - Script 1
     { jwin_text_proc,           9,    51,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 1 Weapon Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    67,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 2 Weapon Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    83,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 3 Weapon Defense:",                              NULL,   NULL },
@@ -10271,7 +10271,7 @@ static DIALOG linktile_dlg[] =
     { jwin_text_proc,           9,    163,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 8 Weapon Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    179,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 9 Weapon Defense:",                              NULL,   NULL },
     { jwin_text_proc,           9,    196,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 10 Weapon Defense:",                              NULL,   NULL },
-    //178 script 1 pulldown
+    //179 script 1 pulldown
 
          /* (dialog proc)           (x)   (y)     (w)     (h)      (fg)                   (bg)                    (key) (flags)      (d1)  (d2)  (dp)                                                         (dp2)  (dp3) */
     { jwin_droplist_proc,      126, 51 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
@@ -10284,7 +10284,7 @@ static DIALOG linktile_dlg[] =
     { jwin_droplist_proc,      126, 163 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,      126, 179 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
     { jwin_droplist_proc,      126, 196 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
-    // 188 - Options relocated to handle new tab
+    // 189 - Options relocated to handle new tab
     { jwin_check_proc,                      9,    78,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Large Link Hit Box",   NULL,   NULL },
     { jwin_text_proc,                       9,    38,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Animation Style:",     NULL,   NULL },
     { jwin_as_droplist_proc,               89,    34,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void*)&animationstyle_list,   NULL,   NULL },
@@ -10352,23 +10352,23 @@ int onCustomLink()
     {
         linktile_dlg[144 + i].d1 = link_defence[wEnemyWeapons+i+1];
     }
-    linktile_dlg[154+7].d1 = link_defence[wFire];
-    linktile_dlg[155+7].d1 = link_defence[wBomb];
-    linktile_dlg[156+7].d1 = link_defence[wRefMagic];
-    linktile_dlg[157+7].d1 = link_defence[wRefFireball];
-    linktile_dlg[158+7].d1 = link_defence[wRefRock];
-    linktile_dlg[159+7].d1 = link_defence[wRefBeam];
+    linktile_dlg[154+8].d1 = link_defence[wFire];
+    linktile_dlg[155+8].d1 = link_defence[wBomb];
+    linktile_dlg[156+8].d1 = link_defence[wRefMagic];
+    linktile_dlg[157+8].d1 = link_defence[wRefFireball];
+    linktile_dlg[158+8].d1 = link_defence[wRefRock];
+    linktile_dlg[159+8].d1 = link_defence[wRefBeam];
 
-    linktile_dlg[171+7].d1 = link_defence[wScript1];
-    linktile_dlg[172+7].d1 = link_defence[wScript2];
-    linktile_dlg[173+7].d1 = link_defence[wScript3];
-    linktile_dlg[174+7].d1 = link_defence[wScript4];
-    linktile_dlg[175+7].d1 = link_defence[wScript5];
-    linktile_dlg[176+7].d1 = link_defence[wScript6];
-    linktile_dlg[177+7].d1 = link_defence[wScript7];
-    linktile_dlg[178+7].d1 = link_defence[wScript8];
-    linktile_dlg[179+7].d1 = link_defence[wScript9];
-    linktile_dlg[180+7].d1 = link_defence[wScript10];
+    linktile_dlg[171+8].d1 = link_defence[wScript1];
+    linktile_dlg[172+8].d1 = link_defence[wScript2];
+    linktile_dlg[173+8].d1 = link_defence[wScript3];
+    linktile_dlg[174+8].d1 = link_defence[wScript4];
+    linktile_dlg[175+8].d1 = link_defence[wScript5];
+    linktile_dlg[176+8].d1 = link_defence[wScript6];
+    linktile_dlg[177+8].d1 = link_defence[wScript7];
+    linktile_dlg[178+8].d1 = link_defence[wScript8];
+    linktile_dlg[179+8].d1 = link_defence[wScript9];
+    linktile_dlg[180+8].d1 = link_defence[wScript10];
 
     int ret = 0;
     do
@@ -10378,42 +10378,42 @@ int onCustomLink()
         if (ret == 3)
         {
             saved = false;
-            set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_dlg[181+7].flags & D_SELECTED) ? 1 : 0);
-            set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[184+7].flags & D_SELECTED) ? 1 : 0);
-            zinit.link_swim_speed = (linktile_dlg[186+7].d1 == 0) ? 50 : 67;
+            set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_dlg[181+8].flags & D_SELECTED) ? 1 : 0);
+            set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[184+8].flags & D_SELECTED) ? 1 : 0);
+            zinit.link_swim_speed = (linktile_dlg[186+8].d1 == 0) ? 50 : 67;
 
             //Save Link defenses
             for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
             {
                 link_defence[wEnemyWeapons + i + 1] = linktile_dlg[137 + 7 + i].d1;
             }
-            link_defence[wFire] = linktile_dlg[154+7].d1;
-            link_defence[wBomb] = linktile_dlg[155+7].d1;
-            link_defence[wRefMagic] = linktile_dlg[156+7].d1;
-            link_defence[wRefFireball] = linktile_dlg[157+7].d1;
-            link_defence[wRefRock] = linktile_dlg[158+7].d1;
-            link_defence[wRefBeam] = linktile_dlg[159+7].d1;
+            link_defence[wFire] = linktile_dlg[154+8].d1;
+            link_defence[wBomb] = linktile_dlg[155+8].d1;
+            link_defence[wRefMagic] = linktile_dlg[156+8].d1;
+            link_defence[wRefFireball] = linktile_dlg[157+8].d1;
+            link_defence[wRefRock] = linktile_dlg[158+8].d1;
+            link_defence[wRefBeam] = linktile_dlg[159+8].d1;
 
-            link_defence[wScript1] = linktile_dlg[171+7].d1;
-            link_defence[wScript2] = linktile_dlg[172+7].d1;
-            link_defence[wScript3] = linktile_dlg[173+7].d1;
-            link_defence[wScript4] = linktile_dlg[174+7].d1;
-            link_defence[wScript5] = linktile_dlg[175+7].d1;
-            link_defence[wScript6] = linktile_dlg[176+7].d1;
-            link_defence[wScript7] = linktile_dlg[177+7].d1;
-            link_defence[wScript8] = linktile_dlg[178+7].d1;
-            link_defence[wScript9] = linktile_dlg[179+7].d1;
-            link_defence[wScript10] = linktile_dlg[180+7].d1;
+            link_defence[wScript1] = linktile_dlg[171+8].d1;
+            link_defence[wScript2] = linktile_dlg[172+8].d1;
+            link_defence[wScript3] = linktile_dlg[173+8].d1;
+            link_defence[wScript4] = linktile_dlg[174+8].d1;
+            link_defence[wScript5] = linktile_dlg[175+8].d1;
+            link_defence[wScript6] = linktile_dlg[176+8].d1;
+            link_defence[wScript7] = linktile_dlg[177+8].d1;
+            link_defence[wScript8] = linktile_dlg[178+8].d1;
+            link_defence[wScript9] = linktile_dlg[179+8].d1;
+            link_defence[wScript10] = linktile_dlg[180+8].d1;
         }
-        else if (ret == 167)
+        else if (ret == 168)
         {
-            for (int i = 145; i < 167; i++)
+            for (int i = 146; i < 168; i++)
             {
-                linktile_dlg[i].d1 = linktile_dlg[144].d1;
+                linktile_dlg[i].d1 = linktile_dlg[145].d1;
             }
-            for (int i = 178; i < 188; i++)
+            for (int i = 179; i < 189; i++)
             {
-                linktile_dlg[i].d1 = linktile_dlg[144].d1;
+                linktile_dlg[i].d1 = linktile_dlg[145].d1;
             }
         }
         else
@@ -10431,8 +10431,9 @@ int onCustomLink()
             memcpy(holdspr, oldHoldSpr, 2 * 2 * 3 * sizeof(int));
             memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int));
             memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int));
+	    memcpy(drowning_lavaspr, oldLavaDrownSpr, 4 * 3 * sizeof(int));
         }
-    } while (ret == 167);
+    } while (ret == 168);
     
     
     if(ret==3)
@@ -10442,7 +10443,7 @@ int onCustomLink()
         set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[76].flags&D_SELECTED)?1:0);
         zinit.link_swim_speed=(linktile_dlg[95].d1==0)?50:67;
     }
-    else
+    else if (ret != 168)
     {
         memcpy(walkspr, oldWalkSpr, 4*3*sizeof(int));
         memcpy(stabspr, oldStabSpr, 4*3*sizeof(int));
