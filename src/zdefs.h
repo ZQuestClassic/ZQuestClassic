@@ -213,7 +213,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          7
 #define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           15
+#define V_COMBOS           16
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            15
@@ -808,6 +808,7 @@ enum
 };
 
 #define PITFALL_FALL_FRAMES 70
+#define WATER_DROWN_FRAMES 64
 
 //Combo editor and additional system combos for combo type 'expanded'.
 
@@ -963,8 +964,10 @@ enum
 	qr_DUNGEON_DMAPS_PERM_SECRETS, qr_STRING_FRAME_OLD_WIDTH_HEIGHT, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
 	//27
 	qr_BROKEN_OVERWORLD_MINIMAP, qr_NO_STUNLOCK, qr_GREATER_MAX_TIME, qr_BROKEN_RING_POWER,
-	qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
-	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_SETXYBUTTONITEMS,
+	qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING, qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, 
+	//28
+	qr_SETXYBUTTONITEMS, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
+	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -2052,6 +2055,8 @@ struct guydata
 #define FLAG_OBEYS_GRAV 0x01
 #define FLAG_CAN_PITFALL 0x02
 #define FLAG_CAN_PITWALK 0x04
+#define FLAG_CAN_WATERDROWN 0x08
+#define FLAG_CAN_WATERWALK 0x10
 
 class refInfo
 {
@@ -3413,6 +3418,8 @@ struct palcycle
 enum miscsprite
 {
 	sprFALL,
+	sprDROWN,
+	sprLAVADROWN,
 	spr_NUMUSED,
 	sprMAX = 256
 };

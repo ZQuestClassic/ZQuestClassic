@@ -4185,6 +4185,52 @@ bool weapon::animate(int index)
 		
 		return false;
 	}
+	if(drownclk > 0)
+	{
+		if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//!TODO: Drown SFX
+		if(!--drownclk)
+		{
+			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+			{
+				if(id==wSword || id==wBrang)
+				{
+					return true;
+				}
+				dead = 0;
+				weapon_dying_frame = true;
+				++drownclk;
+				
+				run_script(MODE_NORMAL);
+				
+				return false;
+			}
+			return true;
+		}
+		
+		if (combobuf[drownCombo].usrflags&cflag1) 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		}
+		else 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		}
+		
+		run_script(MODE_NORMAL);
+		
+		return false;
+	}
     // do special timing stuff
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
@@ -4351,6 +4397,30 @@ bool weapon::animate(int index)
 				if(z <= 0)
 				{
 					fallCombo = check_pits();
+				}
+		}
+	}
+	if(moveflags & FLAG_CAN_WATERDROWN)
+	{
+		switch(id)
+		{
+			case wSword:
+			case wWand:
+			case wCByrna:
+			case wHammer:
+			case wHookshot:
+			case wWhistle:
+			case wFSparkle:
+			case wHSChain:
+			case wHSHandle:
+			case wSSparkle:
+			case wStomp:
+			case wSmack:
+				break;
+			default:
+				if(z <= 0)
+				{
+					drownCombo = check_water();
 				}
 		}
 	}
@@ -9639,7 +9709,7 @@ void weapon::onhit(bool clipped)
 
 void weapon::onhit(bool clipped, int special, int linkdir)
 {
-    if((scriptcoldet&1) == 0 || fallclk)
+    if((scriptcoldet&1) == 0 || fallclk || drownclk)
     {
         // These won't hit anything, but they can still go too far offscreen...
         // Unless the compatibility rule is set.
@@ -9959,7 +10029,7 @@ offscreenCheck:
 // override hit detection to check for invicibility, etc
 bool weapon::hit(sprite *s)
 {
-    if(!(scriptcoldet&1) || fallclk) return false;
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
     if(id==ewBrang && misc)
         return false;
@@ -9969,7 +10039,7 @@ bool weapon::hit(sprite *s)
 
 bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
-    if(!(scriptcoldet&1) || fallclk) return false;
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
     if(id==ewBrang && misc)
         return false;
@@ -9991,7 +10061,7 @@ void weapon::update_weapon_frame(int change, int orig)
 void weapon::draw(BITMAP *dest)
 {
     if(weapon_dying_frame) return;
-	if(fallclk)
+	if(fallclk || drownclk)
 	{
 		sprite::draw(dest);
 		return;

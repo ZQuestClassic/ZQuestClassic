@@ -9789,7 +9789,7 @@ void System()
 	//segmented enemy drops
 	compat_patch_menu[1].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 || FFCore.getQuestHeaderInfo(vZelda) < 0x192 ) ? D_DISABLED : ((FFCore.emulation[emuITEMPERSEG])?D_SELECTED:0);
 	//Link off-grid collision --what was the default in 2.50.0?
-	compat_patch_menu[2].flags = ( (FFCore.getQuestHeaderInfo(vZelda) > 0x210 && FFCore.getQuestHeaderInfo(vBuild) > 28) || (FFCore.getQuestHeaderInfo(vZelda) < 0x210) ) ? D_DISABLED : ((FFCore.emulation[emuGRIDCOLLISION])?D_SELECTED:0);
+	compat_patch_menu[2].flags = ( (FFCore.getQuestHeaderInfo(vZelda) > 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 28)) ? D_DISABLED : ((FFCore.emulation[emuGRIDCOLLISION])?D_SELECTED:0);
 	//Old Tribbles (1.90-only)
 	//compat_patch_menu[3].flags = ( FFCore.getQuestHeaderInfo(vZelda) != 0x190 ) ? D_DISABLED : ((FFCore.emulation[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only

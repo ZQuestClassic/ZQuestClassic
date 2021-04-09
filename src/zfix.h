@@ -67,6 +67,19 @@ public:
 	{
 		return val / 10000L;
 	}
+	
+	zfix& doRound()
+	{
+		if ((val % 10000) >= 5000) val = ((val / 10000)+1) * 10000;
+		else val = (val / 10000) * 10000;
+		return *this;
+	}
+	long getRound() const
+	{
+		if ((val % 10000) >= 5000) return ((val / 10000)+1);
+		else return (val / 10000);
+	}
+	
 	zfix& doAbs()
 	{
 		val = abs(val);

@@ -9378,7 +9378,7 @@ long get_register(const long arg)
 				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt read!
-				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x7F);
 				ret = 10000 * game->bmaps[di];
 			}
 			break;
@@ -9997,7 +9997,7 @@ long get_register(const long arg)
 		case COMBODWARPSENS:		GET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
 		case COMBODWARPDIRECT:		GET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
 		case COMBODWARPLOCATION:	GET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
-		case COMBODWATER:		GET_COMBOCLASS_VAR_BYTE(water, "Water"); break;					//C
+		case COMBODWATER:		GET_COMBOCLASS_VAR_BYTE(water, "Liquid"); break;					//C
 		case COMBODWHISTLE:		GET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
 		case COMBODWINGAME:		GET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
 		case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
@@ -17287,7 +17287,7 @@ void set_register(const long arg, const long value)
 				int col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt write!
-				int di = (ri->dmapsref << 7) + (scr & 0x70) + col;
+				int di = (ri->dmapsref << 7) + (scr & 0x7F);
 				game->bmaps[di] = (value/10000)&0x8F;
 			}
 			break;
@@ -17849,7 +17849,7 @@ void set_register(const long arg, const long value)
 		case COMBODWARPSENS:		SET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
 		case COMBODWARPDIRECT:		SET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
 		case COMBODWARPLOCATION:	SET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
-		case COMBODWATER:		SET_COMBOCLASS_VAR_BYTE(water, "Water"); break;					//C
+		case COMBODWATER:		SET_COMBOCLASS_VAR_BYTE(water, "Liquid"); break;					//C
 		case COMBODWHISTLE:		SET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
 		case COMBODWINGAME:		SET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
 		case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
@@ -21870,7 +21870,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			
 			markBmap(Link.dir^1);
 			
-			if(iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
+			if(iswaterex(MAPCOMBO((int)Link.x,(int)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
 			{
 				Link.hopclk=0xFF;
 				Link.attackclk = Link.charging = Link.spins = 0;
@@ -22113,7 +22113,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	}
 		
 	// But keep him swimming if he ought to be!
-	if(Link.getAction()!=rafting && iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
+	if(Link.getAction()!=rafting && iswaterex(MAPCOMBO((int)Link.x,(int)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
 			&& (current_item(itype_flippers)) && (Link.getAction()!=inwind))
 	{
 		Link.hopclk=0xFF;
@@ -28754,7 +28754,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	memset(emulation,0,sizeof(emulation));
+	//memset(emulation,0,sizeof(emulation));
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();
@@ -39983,6 +39983,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprswimspr: the_ret = swimspr[dir][0];
 			case LSprdivespr: the_ret = divespr[dir][0];
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
+			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

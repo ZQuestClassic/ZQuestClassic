@@ -265,6 +265,7 @@ bool enemy::groundblocked(int dx, int dy, bool isKB)
 {
 	int c = COMBOTYPE(dx,dy);
 	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
+	bool water_blocks = (!(moveflags & FLAG_CAN_WATERWALK) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB) && get_bit(quest_rules,qr_DROWN));
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
@@ -274,18 +275,20 @@ bool enemy::groundblocked(int dx, int dy, bool isKB)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (get_bit(quest_rules,qr_DROWN) && !(isSideViewGravity()) && (iswater(MAPCOMBO(dx,dy))));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool enemy::flyerblocked(int dx, int dy, int special, bool isKB)
 {
 	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
+	bool water_blocks = (!(moveflags & FLAG_CAN_WATERWALK) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB));
 	return ((special==spw_floater)&&
 			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
+			 (water_blocks && iswaterex(MAPCOMBO(dx, dy), currmap, currscr, -1, dx,dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 // Returns true iff a combo type or flag precludes enemy movement.
@@ -293,6 +296,7 @@ bool groundblocked(int dx, int dy, guydata const& gd)
 {
 	int c = COMBOTYPE(dx,dy);
 	bool pit_blocks = !(gd.moveflags & FLAG_CAN_PITWALK);
+	bool water_blocks = !(gd.moveflags & FLAG_CAN_WATERWALK) && get_bit(quest_rules,qr_DROWN);
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
@@ -302,18 +306,20 @@ bool groundblocked(int dx, int dy, guydata const& gd)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (get_bit(quest_rules,qr_DROWN) && !(isSideViewGravity()) && (iswater(MAPCOMBO(dx,dy))));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool flyerblocked(int dx, int dy, int special, guydata const& gd)
 {
 	bool pit_blocks = (!(gd.moveflags & FLAG_CAN_PITWALK) && !(gd.moveflags & FLAG_CAN_PITFALL));
+	bool water_blocks = !(gd.moveflags & FLAG_CAN_WATERWALK);
 	return ((special==spw_floater)&&
 			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
+			 (water_blocks && iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 
@@ -2412,10 +2418,11 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	
 	//Moveflags; for gravity and pit interaction
 	moveflags = d->moveflags;
-	if(!can_pitfall())
+	if(!can_pitfall(false))
 	{
 		//Some enemies must not interact with pits. Force their flags, for sanity's sake.
 		moveflags &= ~FLAG_CAN_PITFALL;
+		moveflags &= ~FLAG_CAN_WATERDROWN;
 	}
 }
 
@@ -2728,6 +2735,58 @@ bool enemy::do_falling(int index)
 	return false;
 }
 
+// Handle drowning in water
+bool enemy::do_drowning(int index)
+{
+	if(drownclk > 0)
+	{
+		if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//!TODO: Drown SFX
+		if(!--drownclk)
+		{
+			if(immortal) //Keep alive forever
+				++drownclk; //force another frame of falling.... forever.
+			else if(dying) //Give 1 frame for script revival
+			{
+				if(flags&guy_neverret)
+					never_return(index);
+				
+				if(leader)
+					kill_em_all();
+				
+				//leave_item(); //Don't drop items in pits!
+				stop_bgsfx(index);
+				return true;
+			}
+			else
+			{
+				try_death(true); //Force death
+				++drownclk; //force another frame of falling
+			}
+		}
+		
+		if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min((animclk % (spd*fr))/spd, fr-1);
+		}
+		else 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min((animclk % (spd*fr))/spd, fr-1);
+		}
+	}
+	return false;
+}
+
 // Supplemental animation code that all derived classes should call
 // as a return value for animate().
 // Handles the death animation and returns true when enemy is finished.
@@ -2786,6 +2845,26 @@ bool enemy::animate(int index)
 			Link.setY(y);
 			Link.fallCombo = fallCombo;
 			Link.fallclk = fallclk;
+			haslink = false; //Let Link go if falling
+		}
+		return false;
+	}
+	if(do_drowning(index)) return true;
+	else if(drownclk)
+	{
+		//clks
+		if(hclk>0)
+			--hclk;
+		if(stunclk>0)
+			--stunclk;
+		if ( frozenclock > 0 ) 
+			--frozenclock;
+		run_script(MODE_NORMAL);
+		if(drownclk && haslink)
+		{
+			Link.setX(x);
+			Link.setY(y);
+			Link.drownclk = drownclk;
 			haslink = false; //Let Link go if falling
 		}
 		return false;
@@ -2876,6 +2955,13 @@ bool enemy::animate(int index)
 		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
 		{
 			fallCombo = check_pits();
+		}
+	}
+	if(!isSideViewGravity() && (moveflags & FLAG_CAN_WATERDROWN))
+	{
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
+		{
+			drownCombo = check_water();
 		}
 	}
 	
@@ -5194,7 +5280,7 @@ int enemy::defenditemclass(int wpnId, int *power)
 // 0: weapon passes through unhindered
 int enemy::takehit(weapon *w)
 {
-	if(fallclk) return 0;
+	if(fallclk||drownclk) return 0;
 	int wpnId = w->id;
 	//al_trace("takehit() wpnId is %d\n",wpnId);
 	//if ( wpnId == wWhistle ) al_trace("Whistle weapon in %s\n", "takehit");
@@ -5745,7 +5831,6 @@ void enemy::draw(BITMAP *dest)
 	//    old_draw(dest);
 	//    return;
 	//}
-	
 	//Let's clen up this logic; shall we?
 	byte canSee = DRAW_INVIS;
 	if ( editorflags & ENEMY_FLAG1 )
@@ -5840,7 +5925,7 @@ void enemy::draw(BITMAP *dest)
 	return;
 	}
 	
-	if(fallclk)
+	if(fallclk||drownclk)
 	{
 		if((tmpscr->flags3&fINVISROOM) &&
 				!(current_item(itype_amulet)) &&
@@ -6250,7 +6335,7 @@ void enemy::masked_draw(BITMAP *dest,int mx,int my,int mw,int mh)
 // override hit detection to check for invicibility, stunned, etc
 bool enemy::hit(sprite *s)
 {
-	if(!(s->scriptcoldet&1) || s->fallclk) return false;
+	if(!(s->scriptcoldet&1) || s->fallclk || s->drownclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(s);
 }
@@ -6262,14 +6347,14 @@ bool enemy::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 
 bool enemy::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1) || w->fallclk) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk) return false;
 	
 	return (dying || hclk>0) ? false : sprite::hit(w);
 }
 
-bool enemy::can_pitfall()
+bool enemy::can_pitfall(bool checkspawning)
 {
-	if(fading) return false; //Don't fall during spawn.
+	if((fading||isspawning)&&checkspawning) return false; //Don't fall during spawn.
 	switch(guysbuf[id&0xFFF].family)
 	{
 		case eeAQUA:
@@ -8247,7 +8332,7 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
-	if(fallclk) return;
+	if(fallclk||drownclk) return;
 	if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
 	{  
 	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
@@ -9373,7 +9458,7 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9406,7 +9491,7 @@ eFire::eFire(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eFire::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9485,7 +9570,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9518,7 +9603,7 @@ eOther::eOther(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eOther::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	//zprint2("npct other::animate\n");
 	if(fading)
 	{
@@ -9598,7 +9683,7 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9631,7 +9716,7 @@ eScript::eScript(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eScript::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9711,7 +9796,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -9744,7 +9829,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eFriendly::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9858,7 +9943,7 @@ void enemy::removearmos(int ax,int ay)
 eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flicker;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	dir=12;
 	movestatus=1;
 	step=0;
@@ -9887,7 +9972,7 @@ eGhini::eGhini(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eGhini::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -9968,7 +10053,7 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTektite::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -10299,7 +10384,7 @@ ePeahat::ePeahat(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool ePeahat::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(slide())
 	{
 		return false;
@@ -10443,7 +10528,7 @@ bool eLeever::isSubmerged()
 
 bool eLeever::animate(int index)
 {
-	if(fallclk)
+	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
 	}
@@ -10658,7 +10743,7 @@ void eLeever::draw(BITMAP *dest)
 //  cs=d->cset;
 	cs=dcset;
 	update_enemy_frame();
-	if(!fallclk)
+	if(!fallclk&&!drownclk)
 	{
 		switch(misc)
 		{
@@ -10699,7 +10784,7 @@ eWallM::eWallM(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eWallM::animate(int index)
 {
-	if(fallclk)
+	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
 	}
@@ -10897,7 +10982,7 @@ void eWallM::draw(BITMAP *dest)
 	dummy_bool[1]=haslink;
 	update_enemy_frame();
 	
-	if(misc>0 || fallclk)
+	if(misc>0 || fallclk||drownclk)
 	{
 		masked_draw(dest,16,playing_field_offset+16,224,144);
 	}
@@ -10921,7 +11006,7 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	}
 	
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	//nets+420;
 	dummy_int[1]=0;
 	SIZEflags = d->SIZEflags;
@@ -10947,7 +11032,7 @@ eTrap::eTrap(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
 		
@@ -11245,7 +11330,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	lasthit=-1;
 	lasthitclk=0;
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	step=2;
 	if(dmisc1==1 || (dmisc1==0 && rand()&2))
 	{
@@ -11286,7 +11371,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap2::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
 		
@@ -11435,7 +11520,7 @@ eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eRock::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -11526,7 +11611,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 
 void eRock::draw(BITMAP *dest)
 {
-	if(clk2>=0 || fallclk)
+	if(clk2>=0 || fallclk||drownclk)
 	{
 		int tempdir=dir;
 		dir=dummy_int[2];
@@ -11573,7 +11658,7 @@ eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eBoulder::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -11678,7 +11763,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 
 void eBoulder::draw(BITMAP *dest)
 {
-	if(clk2>=0 || fallclk)
+	if(clk2>=0 || fallclk||drownclk)
 	{
 		int tempdir=dir;
 		dir=dummy_int[2];
@@ -11705,7 +11790,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 	  hp=1;
 	  */
 	mainguy=false;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	hclk=clk;                                                 // the "no fire" range
 	clk=0;
 	clk3=96;
@@ -11738,7 +11823,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 
 bool eProjectile::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk==0)
 	{
 		removearmos(x,y);
@@ -11843,7 +11928,7 @@ void eTrigger::death_sfx()
 eNPC::eNPC(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
 	o_tile+=wpnsbuf[iwNPCs].newtile;
-	count_enemy=false;
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -12015,7 +12100,7 @@ void eSpinTile::facelink()
 
 bool eSpinTile::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -12069,8 +12154,8 @@ eZora::eZora(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
 	mainguy=false;
-	count_enemy=false;
-	/*if((x>-17 && x<0) && iswater(tmpscr->data[(((int)y&0xF0)+((int)x>>4))]))
+	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
+	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int)y&0xF0)+((int)x>>4))]))
 	{
 	  clk=1;
 	}*/
@@ -12172,12 +12257,15 @@ bool eZora::animate(int index)
 		
 		while(!placed && t<160)
 		{
-			if(iswater(tmpscr->data[pos2]) && (pos2&15)>0 && (pos2&15)<15)
+			int watertype = iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			if(watertype && ((editorflags & ENEMY_FLAG6) || 
+			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
+			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
 			{
 				x=(pos2&15)<<4;
 				y=pos2&0xF0;
-				hp=guysbuf[id&0xFFF].hp;                             // refill life each time
-				hxofs=1000;                                       // avoid hit detection
+				if (!(editorflags & ENEMY_FLAG8)) hp=guysbuf[id&0xFFF].hp;       // refill life each time, unless the flag is checked.
+				hxofs=1000;                                                      // avoid hit detection
 				stunclk=0;
 				placed=true;
 			}
@@ -12255,7 +12343,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
-		count_enemy=false;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 		dir=down;
 		
 		if(!canmove(down,(zfix)8,spw_none,false))
@@ -12292,7 +12380,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eStalfos::animate(int index)
 {
-	if(fallclk)
+	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
 	}
@@ -12954,7 +13042,7 @@ void eStalfos::draw(BITMAP *dest)
 	}*/
 	update_enemy_frame();
 	
-	if(!fallclk&&(dmisc2==e2tBOMBCHU)&&dashing)
+	if(!fallclk&&!drownclk&&(dmisc2==e2tBOMBCHU)&&dashing)
 	{
 		if ( do_animation )tile+=20;
 	}
@@ -13286,7 +13374,7 @@ eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eKeese::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -13414,7 +13502,7 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eWizzrobe::animate(int index)
 {
-	if(fallclk) return enemy::animate(index);
+	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -14458,7 +14546,7 @@ void eAquamentus::draw(BITMAP *dest)
 
 bool eAquamentus::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1) || w->fallclk) return false;
+	if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk) return false;
 	
 	switch(w->id)
 	{
@@ -19911,7 +19999,7 @@ int next_side_pos(bool random)
 				  (combo_class_buf[COMBOTYPE(sle_x,sle_y)].block_enemies ||
 				   MAPFLAG(sle_x,sle_y) == mfNOENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOENEMY ||
 				   MAPFLAG(sle_x,sle_y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOGROUNDENEMY ||
-				   iswater(MAPCOMBO(sle_x,sle_y)));
+				   iswaterex(MAPCOMBO(sle_x,sle_y), currmap, currscr, -1, sle_x, sle_y, true));
 				   
 		if(++c>50)
 			return -1;
@@ -21533,7 +21621,7 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 						{
 							if(itemsbuf[theItem->id].collect_script)
@@ -21553,7 +21641,7 @@ void check_collisions()
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if(!theItem->fallclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(w->id == wBrang)

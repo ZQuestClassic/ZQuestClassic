@@ -51,7 +51,7 @@ enum actiontype
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
 	// New 2.55 ActionTypes
-	falling
+	falling, lavadrowning
 };
 
 typedef struct tilesequence
@@ -188,7 +188,7 @@ class LinkClass : public sprite
     
     
 public:
-	bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
     int refilling,
         ladderx,
         laddery,
@@ -229,7 +229,8 @@ public:
 	ladderdir, // direction of ladder
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
-	inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
+	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
+	damageovertimeclk; // clock for determining when Link takes passive damage from combos beneath him.
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir; // scrolling direction
@@ -386,7 +387,7 @@ public:
     void Freeze();
     void unfreeze();
     void finishedmsg();
-    void Drown();
+    void Drown(int state = 0);
     int getEaten();
     void setEaten(int i);
     zfix  getX();

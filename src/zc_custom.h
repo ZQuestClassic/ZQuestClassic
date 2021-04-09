@@ -17,7 +17,7 @@ enum
 {
     ls_walk, ls_slash, ls_stab, ls_pound, ls_float, ls_dive,
     ls_landhold1, ls_landhold2, ls_waterhold1, ls_waterhold2, ls_cast,
-    ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_max
+    ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_lavadrown, ls_max
 };
 enum {spr_tile, spr_flip, spr_extend};
 //enum {cst_tile, cst_extend};

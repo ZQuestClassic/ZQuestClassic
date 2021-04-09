@@ -130,6 +130,8 @@ public:
 	
 	// Handle pitfalls
 	bool do_falling(int index);
+	// Handle drowning
+	bool do_drowning(int index);
 	// Supplemental animation code that all derived classes should call
 	// as a return value for animate().
 	// Handles the death animation and returns true when enemy is finished.
@@ -155,7 +157,7 @@ public:
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
 	
-	bool can_pitfall();
+	bool can_pitfall(bool checkspawning = true);
 	void try_death(bool force_kill = false);
 	 // returns true if next step is ok, false if there is something there
 	bool canmove(int ndir,zfix s,int special,int dx1,int dy1,int dx2,int dy2, bool kb);

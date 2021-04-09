@@ -94,7 +94,7 @@ const char *combotype_help_string[cMAX*3] =
     "","","",
     "Link is warped via Tile Warp A if he steps on","the bottom half of this combo.","",
     "Link marches down into this combo and is warped","via Tile Warp A if he steps on this. The combo's tile","will be drawn above Link during this animation.",
-    "Water can contain Zora enemies and can be","crossed with various weapons and items.","If the matching quest rule is set, Link can drown in it.",
+    "Liquid can contain Zora enemies and can be","crossed with various weapons and items.","If the matching quest rule is set, Link can drown in it.",
     "When touched, this combo produces an Armos","and changes to the screen's Under Combo.","",
     "When touched, this combo produces one Ghini.","","",
     "Raft paths must begin on a Dock-type combo.","(Use the Raft combo flag to create raft paths.)","",

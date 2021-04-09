@@ -132,6 +132,9 @@ public:
 	int fallclk; // Pitfall fall clk
 	int fallCombo; // Pitfall fallen combo
 	int old_cset; // Storage var for an old cset; used by pitfalls
+	int drownclk; // Pitfall fall clk
+	int drownCombo; // Pitfall fallen combo
+	bool isspawning;
     
     sprite();
     sprite(sprite const & other);
@@ -149,6 +152,8 @@ public:
     virtual void check_conveyor();
 	virtual int get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
+	virtual int get_water(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
+	virtual int check_water(); //Returns combo ID of pit fallen into; 0 for not fallen.
     int real_x(zfix fx);
     int real_y(zfix fy);
     int real_ground_y(zfix fy);

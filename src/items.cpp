@@ -106,6 +106,36 @@ bool item::animate(int)
 			
 			return false;
 		}
+		if(drownclk > 0)
+		{
+			if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			//!TODO: Drown SFX
+			if(!--drownclk) return true;
+			
+			wpndata spr;
+			if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+			{
+				wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
+				cs = spr.csets & 0xF;
+				int fr = spr.frames ? spr.frames : 1;
+				int spd = spr.speed ? spr.speed : 1;
+				int animclk = (WATER_DROWN_FRAMES-drownclk);
+				tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			}
+			else 
+			{
+				wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
+				cs = spr.csets & 0xF;
+				int fr = spr.frames ? spr.frames : 1;
+				int spd = spr.speed ? spr.speed : 1;
+				int animclk = (WATER_DROWN_FRAMES-drownclk);
+				tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			}
+			
+			run_script(MODE_NORMAL);
+			
+			return false;
+		}
 		if(isSideViewGravity())
 		{
 			if((
@@ -155,6 +185,13 @@ bool item::animate(int)
 				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					fallCombo = check_pits();
+				}
+			}
+			if ( moveflags & FLAG_CAN_WATERDROWN )
+			{
+				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				{
+					fallCombo = check_water();
 				}
 			}
 		}
@@ -247,9 +284,9 @@ void item::draw(BITMAP *dest)
 		shadowtile = wpnsbuf[iwShadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
-	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk)
+	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk || drownclk)
 	{
-		if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy || fallclk)
+		if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy || fallclk || drownclk)
 		{
 			sprite::draw(dest);
 		}
