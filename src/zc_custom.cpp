@@ -25,6 +25,8 @@ int script_link_sprite = 0;
 int script_link_flip = -1;
 int script_link_cset = -1;
 
+byte link_defence[wMax];
+
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                           tile/flip/extend
 int stabspr[4][3];                                   //dir,                           tile/flip/extend
@@ -80,6 +82,10 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 	
 	case ls_drown:
 		*extend=drowningspr[dir][spr_extend];
+		break;
+	
+	case ls_lavadrown:
+		*extend=drowning_lavaspr[dir][spr_extend];
 		break;
 	
 	case ls_falling:
@@ -165,6 +171,12 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
         drowningspr[dir][spr_tile] = tile;
         drowningspr[dir][spr_flip] = flip;
         drowningspr[dir][spr_extend] = extend;
+        break;
+	
+    case ls_lavadrown:
+        drowning_lavaspr[dir][spr_tile] = tile;
+        drowning_lavaspr[dir][spr_flip] = flip;
+        drowning_lavaspr[dir][spr_extend] = extend;
         break;
         
     case ls_falling:
@@ -267,6 +279,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		*tile=drowningspr[dir][spr_tile];
 		break;
 		
+	    case ls_lavadrown:
+		*tile=drowning_lavaspr[dir][spr_tile];
+		break;
+		
 	    case ls_falling:
 		*tile=fallingspr[dir][spr_tile];
 		break;
@@ -339,6 +355,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 	    case ls_drown:
 		*flip=drowningspr[dir][spr_flip];
+		break;
+		
+	    case ls_lavadrown:
+		*flip=drowning_lavaspr[dir][spr_flip];
 		break;
 		
 	    case ls_falling:
@@ -685,5 +705,15 @@ void setuplinktiles(int style)
     default:
         break;
     }
+}
+
+void setuplinkdefenses()
+{
+    //For now this just zeroes out Link's defenses by default, set these to appropriate defaults if necessary if defense implementation is extended. -Jman
+    for (int i = 0; i < wMax; i++)
+    {
+        link_defence[i] = 0;
+    }
+    
 }
 

@@ -73,7 +73,7 @@ enum linkspritetype
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
 	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
-	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, LSprlast
 };
 
 enum zasmBreak

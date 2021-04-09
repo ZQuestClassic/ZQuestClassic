@@ -182,6 +182,11 @@ int MAPCOMBO(int x,int y)
     return tmpscr->data[combo];                               // entire combo code
 }
 
+int MAPCOMBOzq(int x,int y)
+{
+	return MAPCOMBO(x,y);
+}
+
 //specific layers 1 to 6
 int MAPCOMBOL(int layer,int x,int y)
 {
@@ -270,6 +275,9 @@ inline bool ffcIsAt(int index, int x, int y)
     
     if((tmpscr->ffflags[index]&(ffCHANGER|ffETHEREAL))!=0)
         return false;
+	
+    if(tmpscr->ffdata[index]<=0)
+        return false;
     
     return true;
 }
@@ -312,7 +320,15 @@ int COMBOTYPE(int x,int y)
 			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
 		}
 	}
-	return combobuf[MAPCOMBO(x,y)].type;
+	int b=1;
+    
+	if(x&8) b<<=2;
+    
+	if(y&8) b<<=1;
+	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
+	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b)) return cSHALLOWWATER;
+	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b)) return cNONE;
+	return cmb.type;
 }
 
 int FFCOMBOTYPE(int x,int y)
@@ -333,7 +349,22 @@ int FFORCOMBO(int x, int y)
 
 int FFORCOMBOTYPE(int x, int y)
 {
-	return combobuf[FFORCOMBO(x,y)].type;
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+		}
+	}
+	int b=1;
+    
+	if(x&8) b<<=2;
+    
+	if(y&8) b<<=1;
+	newcombo const& cmb = combobuf[FFORCOMBO(x,y)];
+	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b)) return cSHALLOWWATER;
+	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b)) return cNONE;
+	return cmb.type;
 }
 
 int FFORCOMBO_L(int layer, int x, int y)
@@ -408,9 +439,14 @@ int MAPCOMBO3(int map, int screen, int layer, int x,int y, bool secrets)
 	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
 }
 
+int MAPCOMBOX(int pos) { return ((pos)%16*16); }
+int MAPCOMBOY(int pos) { return ((pos)&0xF0); }
+
 int MAPCOMBO3(int map, int screen, int layer, int pos, bool secrets)
 { 
 	if (map < 0 || screen < 0) return 0;
+	
+	if (map == currmap && screen == currscr) return MAPCOMBO2(layer,MAPCOMBOX(pos),MAPCOMBOY(pos));
 	
 	if(pos>175 || pos < 0)
 		return 0;
@@ -430,6 +466,8 @@ int MAPCOMBO3(int map, int screen, int layer, int pos, bool secrets)
 	}
 	
 	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
 	
@@ -724,6 +762,7 @@ int WARPCODE(int dmap,int scr,int dw)
 void update_combo_cycling()
 {
     int x,y;
+    y = 0;
     static int newdata[176];
     static int newcset[176];
     static int newdata2[176];
@@ -976,6 +1015,115 @@ bool iswater_type(int type)
 bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
+}
+int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck)
+{
+	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
+}
+int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck)
+{
+	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
+	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
+	
+	//Oh hey, Zoras might actually need it. Nevermind, this had a use!
+	if (get_bit(quest_rules, qr_SMARTER_WATER))
+	{
+		if (LayerCheck && (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) || get_bit(quest_rules,  qr_WATER_ON_LAYER_2))) //LayerCheck is a bit dumber, but it lets me add this QR without having to replace all calls, again.
+		{
+			for (int m = layer; m <= 1; m++)
+			{
+				if (m < 0 || m == 0 && get_bit(quest_rules,  qr_WATER_ON_LAYER_1)
+				|| m == 1 && get_bit(quest_rules,  qr_WATER_ON_LAYER_2))
+				{
+					int checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
+					if (checkwater > 0) 
+					{
+						return checkwater;
+					}
+				}
+			}
+			return 0;
+		}
+		else
+		{
+			for(int i=(fullcheck?3:0); i>=0; i--)
+			{
+				int tx2=((i&2)<<2)+x;
+				int ty2=((i&1)<<3)+y;
+				int b = i; //Originally b was not needed and I read off i, but then I added the boolean for fullcheck.
+				//In which case it's just easier to change b if fullcheck is false instead of changing i and potentially screwing up the for loop.
+				if (!fullcheck)
+				{
+					tx2 = x;
+					ty2 = y;
+					if(tx2&8) b+=2;
+					if(ty2&8) b+=1;
+				}
+				bool bridgedetected = false;
+				for (int m = layer; m <= 1; m++)
+				{
+					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
+					if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
+					{
+						bridgedetected = true;
+					}
+					if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+					{
+						if (cmb.type != cBRIDGE && (cmb.walk&(1<<b)))
+						{
+							bridgedetected = true;
+						}						
+					}
+					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4) || current_item(itype_flippers) < cmb.attribytes[0] || ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))))
+					{
+						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) bridgedetected = true;
+					}
+				}
+				for(int k=0; k<32; k++)
+				{
+					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water && !(ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
+						bridgedetected = true;
+				}
+				if (bridgedetected)
+				{
+					return 0;
+				}
+				if (!DRIEDLAKE)
+				{
+					for(int k=0; k<32; k++)
+					{
+						if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water || (ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
+						{
+							if (i == 0) return MAPFFCOMBO(tx2,ty2);
+							else continue;
+						}
+					}
+					int checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
+					if (iswater_type(combobuf[checkcombo].type)||(ShallowCheck && (combobuf[checkcombo].type == cSHALLOWWATER || (iswater_type(combobuf[checkcombo].type) && (combobuf[checkcombo].walk&(1<<b)) && (combobuf[checkcombo].usrflags&cflag4))))) 
+					{
+						if (i == 0) return checkcombo;
+						else continue;
+					}
+				}
+				return 0;
+			}
+			return 0;
+		}
+	}
+	else
+	{
+		if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+		{
+			int b = 0;
+			if(x&8) b+=2;
+			if(y&8) b+=1;
+			if (combobuf[combo].walk&(1<<b))
+			{
+				return 0;
+			}						
+		}
+		return (((iswater_type(combobuf[combo].type) || (ShallowCheck && combobuf[combo].type == cSHALLOWWATER)) && !DRIEDLAKE)?combo:0); //These used to return booleans; returning the combo id of the water combo it caught is essential for Rob's proposed water changes.
+	}
 }
 
 bool ispitfall_type(int type)
@@ -3125,9 +3273,12 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
 		if (i >= 3) break;
 		else continue;
 	}
-        if ( iswater(cmbdat)!=0 )
+	bool doladdercheck = true;
+        //if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+	if (iswater_type(c.type) && !DRIEDLAKE) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 	{
-		if(lyr==0 && get_bit(quest_rules, qr_DROWN))
+		if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
+		if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
 			rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
 		else rectfill(dest,tx,ty,tx+7,ty+7,makecol(0,0,255));
 	}
@@ -3144,7 +3295,7 @@ void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int l
             {
                 int color = makecol(255,85,85);
                 
-                if(isstepable(cmbdat))
+                if(isstepable(cmbdat)&& (!doladdercheck))
                     color=makecol(165,105,8);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(xx,yy))
                     color=makecol(170,170,170);
@@ -4839,10 +4990,19 @@ bool _walkflag(int x,int y,int cnt)
     if(y&8) b<<=1;
     
     int cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+    if (((*tmpscr).layermap[0]-1)>=0)
+    {
+	    if (c1.type == cBRIDGE || (iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+	    else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag = 0;
+	    else cwalkflag |= c1.walk;
+    }
+    if (((*tmpscr).layermap[1]-1)>=0)
+    {
+	    if (c2.type == cBRIDGE || (iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+	    else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag = 0;
+	    else cwalkflag |= c2.walk;
+    }
     
     if((cwalkflag&b) && !dried)
         return true;
@@ -4865,10 +5025,19 @@ bool _walkflag(int x,int y,int cnt)
         if(y&8) b<<=1;
     }
     cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+    if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+    if (((*tmpscr).layermap[0]-1)>=0)
+    {
+	    if (c1.type == cBRIDGE || (iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+	    else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag = 0;
+	    else cwalkflag |= c1.walk;
+    }
+    if (((*tmpscr).layermap[1]-1)>=0)
+    {
+	    if (c2.type == cBRIDGE || (iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+	    else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag = 0;
+	    else cwalkflag |= c2.walk;
+    }
     return (cwalkflag&b) ? !dried : false;
 }
 

@@ -20,6 +20,7 @@
 #include "zelda.h"
 #include "maps.h"
 #include "zsys.h"
+#include "link.h"
 
 /***************************************/
 /*******  Decoration Base Class  *******/
@@ -660,8 +661,29 @@ bool dRipples::animate(int index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
-	return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-	        (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
+	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
+	{
+		if (LinkZ() == 0 && LinkAction() != swimming && LinkAction() != isdiving && LinkAction() != drowning)
+		{
+			/*
+			return !((FFORCOMBOTYPE(LinkX()+11,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+15)))
+			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+15)))
+			&& (FFORCOMBOTYPE(LinkX()+11,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+9)))
+			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+9))));
+			*/
+			
+			return !(iswaterex(FFORCOMBO(LinkX()+11,LinkY()+15), currmap, currscr, -1, LinkX()+11,LinkY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+15), currmap, currscr, -1, LinkX()+4,LinkY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+11,LinkY()+9), currmap, currscr, -1, LinkX()+11,LinkY()+9, false, false, true, true)
+			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+9), currmap, currscr, -1, LinkX()+4,LinkY()+9, false, false, true, true));
+		}
+		return true;
+	}
+	else
+	{
+		return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
+			(COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
+	}
 }
 
 void dRipples::draw(BITMAP *dest)

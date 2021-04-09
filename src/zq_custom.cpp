@@ -374,7 +374,7 @@ static ItemNameInfo inameinf[]=
     { itype_custom9,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
     { itype_custom10,                NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
     { itype_icerod,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
-    { itype_flippers,                 NULL,                                     (char *)"Dive Length:",                     (char *)"Dive Cooldown:",                       NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Diving",                    (char *)"Cancellable Diving",           NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_flippers,                 NULL,                                     (char *)"Dive Length:",                     (char *)"Dive Cooldown:",                       NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Diving",                    (char *)"Cancellable Diving",           (char *)"Can Swim in Lava",                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
     { itype_raft,                    NULL,                      (char *)"Speed Modifier:", NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,           NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
       
     { -1,                             NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 }
@@ -4224,6 +4224,12 @@ static DIALOG miscspr_dlg[] =
 	//5
 	{ jwin_text_proc,           8,     45,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Falling Sprite:",                     NULL,   NULL                  },
 	{ jwin_droplist_proc,       8,     55,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
+	//7
+	{ jwin_text_proc,           8,     75,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Liquid) Sprite:",                     NULL,   NULL                  },
+	{ jwin_droplist_proc,       8,     85,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
+	//9
+	{ jwin_text_proc,           8,     105,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Lava) Sprite:",                     NULL,   NULL                  },
+	{ jwin_droplist_proc,       8,     115,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
 	
 	{ NULL,                     0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  }
 };
@@ -4243,6 +4249,10 @@ int onMiscSprites()
 		al_trace("%d ", j);
 	    if(biw[j].i == misc.sprites[sprFALL]){ al_trace("\nFound 'sprFALL' val %d\n",j);
 	        miscspr_dlg[6].d1 = j;}
+	    if(biw[j].i == misc.sprites[sprDROWN]){ al_trace("\nFound 'sprDROWN' val %d\n",j);
+	        miscspr_dlg[8].d1 = j;}
+	    if(biw[j].i == misc.sprites[sprLAVADROWN]){ al_trace("\nFound 'sprLAVADROWN' val %d\n",j);
+	        miscspr_dlg[10].d1 = j;}
 	}
 	al_trace("Done looping biw_cnt.\n");
     miscspr_dlg[0].dp2 = lfont;
@@ -4263,6 +4273,10 @@ int onMiscSprites()
 		{
 			if(miscspr_dlg[6].d1 == j)
 				misc.sprites[sprFALL] = biw[j].i;
+			if(miscspr_dlg[8].d1 == j)
+				misc.sprites[sprDROWN] = biw[j].i;
+			if(miscspr_dlg[10].d1 == j)
+				misc.sprites[sprLAVADROWN] = biw[j].i;
 		}
 	}
 	return D_O_K;
@@ -4379,7 +4393,7 @@ static int enemy_weapon_scripts_list[] =
 };
 static int enemy_moveflag_list[] =
 {
-	371, 372, 373,
+	371, 372, 373, 374, 375,
 	-1
 };
 static int enemy_movement_list[] =
@@ -5135,7 +5149,7 @@ static EnemyNameInfo enameinf[]=
 	    //"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility"
         eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
         { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",
 		(char *)"Draw Invisible as Cloaked",(char *)"Split in Place",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
 		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",
 		(char *)"Fast Drawing",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -5192,7 +5206,7 @@ static EnemyNameInfo enameinf[]=
     {
         eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5276,7 +5290,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
         { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5304,7 +5318,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5318,7 +5332,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5332,7 +5346,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5346,7 +5360,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5360,7 +5374,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5374,7 +5388,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5388,7 +5402,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5402,7 +5416,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5416,7 +5430,7 @@ static EnemyNameInfo enameinf[]=
     {
         eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5430,8 +5444,8 @@ static EnemyNameInfo enameinf[]=
     {
         eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
-		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"Lava Only",(char *)"Lava and Water",(char *)"Shallow Water",
+		(char *)"Doesn't regenerate health",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
@@ -5444,7 +5458,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5458,7 +5472,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5472,7 +5486,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5486,7 +5500,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5500,7 +5514,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5514,7 +5528,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5528,7 +5542,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5542,7 +5556,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5556,7 +5570,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5570,7 +5584,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5584,7 +5598,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5598,7 +5612,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5612,7 +5626,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5626,7 +5640,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT11, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5640,7 +5654,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT12, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5654,7 +5668,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT13, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5668,7 +5682,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT14, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5682,7 +5696,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT15, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5696,7 +5710,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT16, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5710,7 +5724,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT17, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5724,7 +5738,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT18, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5738,7 +5752,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT19, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5752,7 +5766,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeSCRIPT20, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5766,7 +5780,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5780,7 +5794,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5794,7 +5808,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5808,7 +5822,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5822,7 +5836,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5836,7 +5850,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5850,7 +5864,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5864,7 +5878,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5878,7 +5892,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5892,7 +5906,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeFFRIENDLY10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -5906,7 +5920,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -6731,6 +6745,8 @@ static DIALOG enedata_dlg[] =
 	{  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Obeys Gravity",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Fall Into Pitfalls",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk Over Pitfalls",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Drown In Liquid",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk On Liquid",                          NULL,   NULL                 },
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -7439,6 +7455,8 @@ void edit_enemydata(int index)
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
 	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
+	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
+	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
 	
     int ret;
     guydata test;
@@ -7718,6 +7736,10 @@ void edit_enemydata(int index)
 			test.moveflags |= FLAG_CAN_PITFALL;
 		if(enedata_dlg[373].flags & D_SELECTED)
 			test.moveflags |= FLAG_CAN_PITWALK;
+		if(enedata_dlg[374].flags & D_SELECTED)
+			test.moveflags |= FLAG_CAN_WATERDROWN;
+		if(enedata_dlg[375].flags & D_SELECTED)
+			test.moveflags |= FLAG_CAN_WATERWALK;
 	
         //end npc scripts
 	
@@ -9186,6 +9208,26 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 }
                 
                 break;
+		
+	    case ls_lavadrown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                if((p[lt_clock]/12)&1)
+                {
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                };
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
                 
             case ls_falling:
                 linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.linkanimationstyle);
@@ -9372,6 +9414,23 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
             case ls_drown:
                 linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
+		
+	    case ls_lavadrown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.linkanimationstyle);
                 
                 if(p[lt_clock]<=4)
                 {
@@ -9581,6 +9640,23 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 }
                 
                 break;
+		
+	    case ls_lavadrown:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.linkanimationstyle);
+                
+                if(p[lt_clock]<=4)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.linkanimationstyle);
+                };
+                
+                p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+                
+                if(p[lt_clock]>=81)
+                {
+                    p[lt_clock]=-1;
+                }
+                
+                break;
                 
             case ls_falling:
                 linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.linkanimationstyle);
@@ -9743,7 +9819,7 @@ static int linktile_land_slash_list[] =
 static int linktile_land_stab_list[] =
 {
     // dialog control number
-    27, 28, 29, 30, 31, 32, 33, 34, -1
+    27, 28, 29, 30, 31, 32, 33, 34,  -1
 };
 
 static int linktile_land_pound_list[] =
@@ -9827,6 +9903,12 @@ static int linktile_water_drown_list[] =
     97, 98, 99, 100, 101, 102, 103, 104, -1
 };
 
+static int linktile_lava_drown_list[] =
+{
+    // dialog control number
+    113, 114, 115, 116, 117, 118, 119, 120, -1
+};
+
 static TABPANEL linktile_water_tabs[] =
 {
     // (text)
@@ -9835,8 +9917,44 @@ static TABPANEL linktile_water_tabs[] =
     { (char *)"Dive",       0,           linktile_water_dive_list, 0, NULL },
     { (char *)"Drown",      0,           linktile_water_drown_list, 0, NULL },
     { (char *)"Hold",       0,           linktile_water_hold_list, 0, NULL },
+    { (char *)"Lava Drown", 0,           linktile_lava_drown_list, 0, NULL },
     { NULL,                 0,           NULL,                     0, NULL }
 };
+
+static int linktile_defense_enemy1_list[] =
+{
+    //dialog control number
+    114, 115, 116, 117, 118, 119, 120, 121, 122, 137, 138, 139, 140, 141, 142, 143, 144, 145, 160, -1
+};
+
+static int linktile_defense_enemy2_list[] =
+{
+    //dialog control number
+    123, 124, 125, 126, 127, 128, 129, 130, 146, 147, 148, 149, 150, 151, 152, 153, -1
+};
+
+static int linktile_defense_other1_list[] =
+{
+    //dialog control number
+    131, 132, 133, 134, 135, 136, 154, 155, 156, 157, 158, 159, -1
+};
+
+static int linktile_defense_script_list[] =
+{
+    //dialog control number
+    161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, -1
+};
+
+static TABPANEL linktile_defense_tabs[] =
+{
+    // (text)
+    { (char*)"Enemy 1",     D_SELECTED,  linktile_defense_enemy1_list, 0, NULL },
+    { (char*)"Enemy 2",     0,           linktile_defense_enemy2_list, 0, NULL },
+    { (char*)"Other",       0,           linktile_defense_other1_list, 0, NULL },
+    { (char*)"Script",      0,           linktile_defense_script_list, 0, NULL },
+    { NULL,                 0,           NULL,                     0, NULL }
+};
+
 
 static int linktile_land_list[] =
 {
@@ -9850,11 +9968,25 @@ static int linktile_water_list[] =
     10, -1
 };
 
+static int linktile_defense_list[] =
+{
+    // dialog control number
+    113, -1
+};
+
+static int linktile_option_list[] =
+{
+    // dialog control number
+    181, 182, 183, 184, 185, 186, -1
+};
+
 static TABPANEL linktile_tabs[] =
 {
     // (text)
-    { (char *)"Land",       D_SELECTED,   linktile_land_list, 0, NULL },
-    { (char *)"Water",      0,            linktile_water_list, 0, NULL },
+{ (char *)"Sprites (Land)",       D_SELECTED,   linktile_land_list, 0, NULL },
+    { (char *)"Sprites (Liquid)",      0,            linktile_water_list, 0, NULL },
+    { (char *)"Defenses",             0,            linktile_defense_list, 0, NULL},
+    { (char *)"Options",              0,            linktile_option_list, 0, NULL  }, 
     { NULL,                 0,            NULL,                0, NULL }
 };
 
@@ -9916,16 +10048,16 @@ static DIALOG linktile_dlg[] =
     {  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, (void *) "Link Sprites",         NULL,   NULL                   },
     {  d_vsync_proc,                         0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   },
     {  d_keyboard_proc,                      0,      0,      0,      0,    0,                      0,                       0,    0,          KEY_F1,     0, (void *) onHelp,                 NULL,   NULL                   },
-    {  jwin_button_proc,                    90,    215,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,     0,          0, (void *) "OK",                   NULL,   NULL                   },
-    {  jwin_button_proc,                   170,    215,     61,     21,    vc(14),                 vc(1),                  27,    D_EXIT,     0,          0, (void *) "Cancel",               NULL,   NULL                   },
+    {  jwin_button_proc,                    90,    217,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,     0,          0, (void *) "OK",                   NULL,   NULL                   },
+    {  jwin_button_proc,                   170,    217,     61,     21,    vc(14),                 vc(1),                  27,    D_EXIT,     0,          0, (void *) "Cancel",               NULL,   NULL                   },
     // 5
-    {  jwin_check_proc,                    217,    200,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Large Link Hit Box",   NULL,   NULL                   },
-    {  jwin_text_proc,                       4,    201,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Animation Style:",     NULL,   NULL                   },
-    {  jwin_as_droplist_proc,               77,    197,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &animationstyle_list,   NULL,   NULL                   },
-    {  jwin_tab_proc,                        4,     25,    312,    150,    0,                      0,                       0,    0,          0,          0, (void *) linktile_tabs,          NULL, (void *)linktile_dlg   },
+    {  d_dummy_proc,                       217,    200,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Large Link Hit Box",   NULL,   NULL                   },
+    {  d_dummy_proc,                         4,    201,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Animation Style:",     NULL,   NULL                   },
+    {  d_dummy_proc,                        77,    197,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &animationstyle_list,   NULL,   NULL                   },
+    {  jwin_tab_proc,                        4,     17,    312,    200,    0,                      0,                       0,    0,          0,          0, (void *) linktile_tabs,          NULL, (void *)linktile_dlg   },
     // 9
-    {  jwin_tab_proc,                        7,     46,    305,    125,    0,                      0,                       0,    0,          0,          0, (void *) linktile_land_tabs,     NULL, (void *)linktile_dlg   },
-    {  jwin_tab_proc,                        7,     46,    305,    125,    0,                      0,                       0,    0,          0,          0, (void *) linktile_water_tabs,    NULL, (void *)linktile_dlg   },
+    {  jwin_tab_proc,                        7,     33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void *) linktile_land_tabs,     NULL, (void *)linktile_dlg   },
+    {  jwin_tab_proc,                        7,     33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void *) linktile_water_tabs,    NULL, (void *)linktile_dlg   },
     // 11 (walk sprite titles)
     {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
     {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
@@ -10011,7 +10143,7 @@ static DIALOG linktile_dlg[] =
     // 74 (hold sprites)
     {  d_ltile_proc,                        70,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_waterhold1,   NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                        70,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_waterhold2,   NULL,                            NULL,   NULL                   },
-    {  jwin_check_proc,                    217,    186,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Diagonal Movement",    NULL,   NULL                   },
+    {  d_dummy_proc,                       217,    186,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Diagonal Movement",    NULL,   NULL                   },
     // 77 (jump sprite titles)
     {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
     {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
@@ -10034,8 +10166,8 @@ static DIALOG linktile_dlg[] =
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_charge,       NULL,                            NULL,   NULL                   },
     // 93
     {  d_timer_proc,                         0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   },
-    {  jwin_text_proc,                       4,    183,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Swim Speed:",          NULL,   NULL                   },
-    {  jwin_droplist_proc,                  77,    179,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &swimspeed_list,        NULL,   NULL                   },
+    {  d_dummy_proc,                         4,    183,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Swim Speed:",          NULL,   NULL                   },
+    {  d_dummy_proc,                        77,    179,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &swimspeed_list,        NULL,   NULL                   },
     {  d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
     // 97 (drown sprite titles)
     {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
@@ -10057,7 +10189,110 @@ static DIALOG linktile_dlg[] =
     {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_falling,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_falling,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_falling,         NULL,                            NULL,   NULL                   },
-    {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }
+
+    // 113 (lavadrown sprite titles)
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 117 (lavadrown sprites)
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_lavadrown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_lavadrown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_lavadrown,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_lavadrown,         NULL,                            NULL,   NULL                   },
+    
+    // DEFENSE TAB BEGINS
+    // 120 (Link defenses)
+    { jwin_tab_proc,                        7,      33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void*)linktile_defense_tabs,    NULL, (void*)linktile_dlg },
+    // 121 - Enemy weapons (currently 17)
+    { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball Defense:",                                  NULL,   NULL },
+    { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Arrow Defense:",                                     NULL,   NULL },
+    { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Boomerang Defense:",                                 NULL,   NULL },
+    { jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Sword Beam Defense:",                                NULL,   NULL },
+    { jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Rock Defense:",                                      NULL,   NULL },
+    { jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Magic Defense:",                                     NULL,   NULL },
+    { jwin_text_proc,           9,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Bomb (object) Defense:",                             NULL,   NULL },
+    { jwin_text_proc,           9,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"S. Bomb (object) Defense:",                          NULL,   NULL },
+    { jwin_text_proc,           9,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Bomb (explode) Defense:",                            NULL,   NULL },
+    // 130 - Enemy weapons page 2
+    { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"S. Bomb (explode) Defense:",                          NULL,   NULL },
+    { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame Trail Defense:",                                 NULL,   NULL },
+    { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame Defense:",                                 NULL,   NULL },
+    { jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Wind Defense:",                                NULL,   NULL },
+    { jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame 2 Defense:",                             NULL,   NULL },
+    { jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Flame 2 Trail Defense:",                                 NULL,   NULL },
+    { jwin_text_proc,           9,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Ice Defense:",                                NULL,   NULL },
+    { jwin_text_proc,           9,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball 2 Defense:",                              NULL,   NULL },
+    // 138 - Other weapons (Currently 6)
+    { jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Candle Fire Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Player Bomb Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Magic Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Fireball Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Rock Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Sword Beam Defense:",                              NULL,   NULL },
+    // 144 - Enemy weapons pulldown 
+    { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  108 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  126 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  162 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  180 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  198 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    // 153 - Enemy weapons pulldown page 2
+    { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  108 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  126 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  162 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  180 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    // 161 - Other weapon pulldown
+    { jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  108 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  126 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    // 167 - Set all button
+    { jwin_button_proc,           255,    54 - 4,     48,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"Set All",                                            NULL,   NULL },
+    
+    
+    // 168 - Script 1
+    { jwin_text_proc,           9,    51,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 1 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    67,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 2 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    83,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 3 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    99,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 4 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    115,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 5 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    131,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 6 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    147,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 7 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    163,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 8 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    179,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 9 Weapon Defense:",                              NULL,   NULL },
+    { jwin_text_proc,           9,    196,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Script 10 Weapon Defense:",                              NULL,   NULL },
+    //178 script 1 pulldown
+
+         /* (dialog proc)           (x)   (y)     (w)     (h)      (fg)                   (bg)                    (key) (flags)      (d1)  (d2)  (dp)                                                         (dp2)  (dp3) */
+    { jwin_droplist_proc,      126, 51 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 67 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 83 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 99 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 115 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 131 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 147 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 163 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 179 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    { jwin_droplist_proc,      126, 196 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
+    // 188 - Options relocated to handle new tab
+    { jwin_check_proc,                      9,    78,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Large Link Hit Box",   NULL,   NULL },
+    { jwin_text_proc,                       9,    38,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Animation Style:",     NULL,   NULL },
+    { jwin_as_droplist_proc,               89,    34,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void*)&animationstyle_list,   NULL,   NULL },
+    { jwin_check_proc,                      9,    90,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Diagonal Movement",    NULL,   NULL },
+    { jwin_text_proc,                       9,    54,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Swim Speed:",          NULL,   NULL },
+    { jwin_droplist_proc,                  89,    50,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void*)&swimspeed_list,        NULL,   NULL },
+    {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
+
 };
 
 
@@ -10075,10 +10310,10 @@ int onCustomLink()
     }
     
     linktile_dlg[0].dp2=lfont;
-    linktile_dlg[5].flags = get_bit(quest_rules, qr_LTTPCOLLISION)? D_SELECTED : 0;
-    linktile_dlg[76].flags = get_bit(quest_rules, qr_LTTPWALK)? D_SELECTED : 0;
-    linktile_dlg[95].d1=(zinit.link_swim_speed<60)?0:1;
-    linktile_dlg[7].d1=zinit.linkanimationstyle;
+    linktile_dlg[188].flags = get_bit(quest_rules, qr_LTTPCOLLISION)? D_SELECTED : 0;
+    linktile_dlg[191].flags = get_bit(quest_rules, qr_LTTPWALK)? D_SELECTED : 0;
+    linktile_dlg[193].d1=(zinit.link_swim_speed<60)?0:1;
+    linktile_dlg[190].d1=zinit.linkanimationstyle;
     
     if(is_large)
         large_dialog(linktile_dlg, 2.0);
@@ -10096,6 +10331,7 @@ int onCustomLink()
     int oldHoldSpr[2][2][3];
 	int oldDrownSpr[4][3];
 	int oldFallSpr[4][3];
+	int oldLavaDrownSpr[4][3];
     memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
     memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
     memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
@@ -10109,9 +10345,95 @@ int onCustomLink()
     memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
     memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int));
     memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int));
+    memcpy(oldLavaDrownSpr, drowning_lavaspr, 4*3*sizeof(int));
     
+    //Populate Link defenses
+    for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
+    {
+        linktile_dlg[144 + i].d1 = link_defence[wEnemyWeapons+i+1];
+    }
+    linktile_dlg[154+7].d1 = link_defence[wFire];
+    linktile_dlg[155+7].d1 = link_defence[wBomb];
+    linktile_dlg[156+7].d1 = link_defence[wRefMagic];
+    linktile_dlg[157+7].d1 = link_defence[wRefFireball];
+    linktile_dlg[158+7].d1 = link_defence[wRefRock];
+    linktile_dlg[159+7].d1 = link_defence[wRefBeam];
+
+    linktile_dlg[171+7].d1 = link_defence[wScript1];
+    linktile_dlg[172+7].d1 = link_defence[wScript2];
+    linktile_dlg[173+7].d1 = link_defence[wScript3];
+    linktile_dlg[174+7].d1 = link_defence[wScript4];
+    linktile_dlg[175+7].d1 = link_defence[wScript5];
+    linktile_dlg[176+7].d1 = link_defence[wScript6];
+    linktile_dlg[177+7].d1 = link_defence[wScript7];
+    linktile_dlg[178+7].d1 = link_defence[wScript8];
+    linktile_dlg[179+7].d1 = link_defence[wScript9];
+    linktile_dlg[180+7].d1 = link_defence[wScript10];
+
+    int ret = 0;
+    do
+    {
+        ret = popup_dialog_through_bitmap(screen2, linktile_dlg, 3);
+
+        if (ret == 3)
+        {
+            saved = false;
+            set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_dlg[181+7].flags & D_SELECTED) ? 1 : 0);
+            set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[184+7].flags & D_SELECTED) ? 1 : 0);
+            zinit.link_swim_speed = (linktile_dlg[186+7].d1 == 0) ? 50 : 67;
+
+            //Save Link defenses
+            for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
+            {
+                link_defence[wEnemyWeapons + i + 1] = linktile_dlg[137 + 7 + i].d1;
+            }
+            link_defence[wFire] = linktile_dlg[154+7].d1;
+            link_defence[wBomb] = linktile_dlg[155+7].d1;
+            link_defence[wRefMagic] = linktile_dlg[156+7].d1;
+            link_defence[wRefFireball] = linktile_dlg[157+7].d1;
+            link_defence[wRefRock] = linktile_dlg[158+7].d1;
+            link_defence[wRefBeam] = linktile_dlg[159+7].d1;
+
+            link_defence[wScript1] = linktile_dlg[171+7].d1;
+            link_defence[wScript2] = linktile_dlg[172+7].d1;
+            link_defence[wScript3] = linktile_dlg[173+7].d1;
+            link_defence[wScript4] = linktile_dlg[174+7].d1;
+            link_defence[wScript5] = linktile_dlg[175+7].d1;
+            link_defence[wScript6] = linktile_dlg[176+7].d1;
+            link_defence[wScript7] = linktile_dlg[177+7].d1;
+            link_defence[wScript8] = linktile_dlg[178+7].d1;
+            link_defence[wScript9] = linktile_dlg[179+7].d1;
+            link_defence[wScript10] = linktile_dlg[180+7].d1;
+        }
+        else if (ret == 167)
+        {
+            for (int i = 145; i < 167; i++)
+            {
+                linktile_dlg[i].d1 = linktile_dlg[144].d1;
+            }
+            for (int i = 178; i < 188; i++)
+            {
+                linktile_dlg[i].d1 = linktile_dlg[144].d1;
+            }
+        }
+        else
+        {
+            memcpy(walkspr, oldWalkSpr, 4 * 3 * sizeof(int));
+            memcpy(stabspr, oldStabSpr, 4 * 3 * sizeof(int));
+            memcpy(slashspr, oldSlashSpr, 4 * 3 * sizeof(int));
+            memcpy(floatspr, oldFloatSpr, 4 * 3 * sizeof(int));
+            memcpy(swimspr, oldSwimSpr, 4 * 3 * sizeof(int));
+            memcpy(divespr, oldDiveSpr, 4 * 3 * sizeof(int));
+            memcpy(poundspr, oldPoundSpr, 4 * 3 * sizeof(int));
+            memcpy(jumpspr, oldJumpSpr, 4 * 3 * sizeof(int));
+            memcpy(chargespr, oldChargeSpr, 4 * 3 * sizeof(int));
+            memcpy(castingspr, oldCastSpr, 3 * sizeof(int));
+            memcpy(holdspr, oldHoldSpr, 2 * 2 * 3 * sizeof(int));
+            memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int));
+            memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int));
+        }
+    } while (ret == 167);
     
-    int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
     
     if(ret==3)
     {
@@ -10135,6 +10457,7 @@ int onCustomLink()
         memcpy(holdspr, oldHoldSpr, 2*2*3*sizeof(int));
 		memcpy(drowningspr, oldDrownSpr, 4*3*sizeof(int));
 		memcpy(fallingspr, oldFallSpr, 4*3*sizeof(int));
+		memcpy(drowning_lavaspr, oldLavaDrownSpr, 4*3*sizeof(int));
     }
     
     ret=ret;

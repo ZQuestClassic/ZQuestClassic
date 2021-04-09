@@ -599,6 +599,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 1);
 	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
 	set_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, 1);
+	set_bit(quest_rules, qr_SMARTER_WATER, 1);
 	// Script Logging
 	set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
 	set_bit(quest_rules, qr_LOG, 1);
@@ -818,6 +819,11 @@ int PickRuleset()
 				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
 				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
 				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_NO_HOPPING, 1);
+				set_bit(quest_rules, qr_NO_SOLID_SWIM, 1);
+				set_bit(quest_rules, qr_WATER_ON_LAYER_1, 1);
+				set_bit(quest_rules, qr_WATER_ON_LAYER_2, 1);
+				set_bit(quest_rules, qr_SHALLOW_SENSITIVE, 1);
 				break;
 			}
 		}

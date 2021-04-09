@@ -183,6 +183,7 @@ void show_ffscript_names();
 int get_currdmap();
 int get_dlevel();
 int get_currscr();
+int get_currmap();
 int get_homescr();
 int get_bmaps(int si);
 bool no_subscreen();

@@ -131,6 +131,18 @@ bool movingblock::animate(int index)
 		clk = 0;
 		return false;
 	}
+	if(drownclk)
+	{
+		if(drownclk == WATER_DROWN_FRAMES);
+			//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+			//!TODO: Drown SFX
+		if(!--drownclk)
+		{
+			blockmoving=false;
+		}
+		clk = 0;
+		return false;
+	}
     if(clk<=0)
         return false;
         
@@ -145,15 +157,22 @@ bool movingblock::animate(int index)
 		{
 			fallclk = PITFALL_FALL_FRAMES;
 		}
+		/*
+		//!TODO: Moving Block Drowning
+		if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
+		{
+			drownclk = WATER_DROWN_FRAMES;
+		}
+		*/
 		
         int f1 = tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)];
         int f2 = MAPCOMBOFLAG(x,y);
-        if(!fallclk)
-		{
-			tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
-			tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
+        if(!fallclk && !drownclk)
+	{
+		tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
+		tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
         }
-        if(!fallclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
+        if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
         {
             trigger=true;
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
@@ -179,13 +198,14 @@ bool movingblock::animate(int index)
         if(bhole)
         {
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfNONE;
-			if(fallclk)
+			if(fallclk||drownclk)
 			{
 				fallclk = 0;
+				drownclk = 0;
 				return false;
 			}
         }
-        else if(!fallclk)
+        else if(!fallclk&&!drownclk)
         {
             f2 = MAPCOMBOFLAG(x,y);
             
@@ -200,7 +220,7 @@ bool movingblock::animate(int index)
                 tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
             }
         }
-		if(fallclk) return false;
+		if(fallclk||drownclk) return false;
         
         if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
         {

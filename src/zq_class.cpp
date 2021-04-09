@@ -1115,10 +1115,10 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 		if (i >= 3) break;
 		else continue;
 	}
-        if(layer==-1 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+        if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
             
-        if(c.walk&(1<<i))
+        if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
             {
@@ -1130,7 +1130,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
             {
                 int color = vc(12);
                 
-                if(isstepable(MAPCOMBO(cx,cy)))
+                if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
                     color=vc(6);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
                     color=vc(7);
@@ -1219,7 +1219,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
 	{
 		continue;
 	}
-        if(layer==-1 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+        if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
             
         if(c.walk&(1<<i))
@@ -1234,7 +1234,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
             {
                 int color = vc(12);
                 
-                if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)))
+                if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
                     color=vc(6);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
                     color=vc(7);
@@ -1321,7 +1321,7 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         if(combo_class_buf[c.type].water!=0)
 	{
 		
-		if (layer==0 && get_bit(quest_rules, qr_DROWN))
+		if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
 		{
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
 			//al_trace("water, drown\n");
@@ -11094,6 +11094,11 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)medallionsprs[q][spr_extend],f))
 				new_return(15);
 		}
+        for (int q = 0; q < wMax; q++) // Link defense values
+        {
+            if (!p_putc(link_defence[q], f))
+                new_return(15);
+        }
 		//}
 		
         if(writecycle==0)
