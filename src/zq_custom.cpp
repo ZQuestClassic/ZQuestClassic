@@ -5937,8 +5937,7 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
-		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor 
-",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
+		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor ",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",

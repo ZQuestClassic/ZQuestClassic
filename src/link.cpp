@@ -15341,24 +15341,26 @@ void LinkClass::checklockblock()
 	    }
 	    goto unlock;
     }
-    else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
     else if ( (combobuf[cid].usrflags&cflag4) )
     {
 	if ( game->get_counter(thecounter) >= ctr_amount )
 	{
 		//flag 6 only checks the required count; it doesn't drain it
-		if (!(combobuf[cid].usrflags&cflag6)) game->change_counter(-(ctr_amount), thecounter);
+		if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
 		goto unlock; 
 	}
-	else if ( game->get_counter(thecounter) < ctr_amount && (combobuf[cid].usrflags&cflag5) ) //eat counter even if insufficient, but don't unlock
+	else if ( game->get_counter(thecounter) < ctr_amount && (combobuf[cid].usrflags&cflag6) ) //eat counter even if insufficient, but don't unlock
 	{
 		//shadowtiger requested this on 29th Dec, 2019 -Z
-		if (!(combobuf[cid].usrflags&cflag6)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
+		if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
 		return;
 	}
     }
+    else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
     else if(!ctr_amount && !requireditem && usekey() && !itemonly ) goto unlock;
-    else return;
+    
+    
+    return;
      
     
     unlock:
