@@ -3037,8 +3037,8 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
         
-        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        {
+        //if(isCuttableType(type) || isGenericType(type))
+        //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
 		if ( isGenericType(type) )
@@ -3109,7 +3109,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 		}
                 else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
-	    else if (isGenericType(type))
+	    else
 	    {
 		if ( combobuf[cid].usrflags&cflag1 )
 		{
@@ -3127,7 +3127,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
-        }
+        //}
             
     }
     
@@ -3355,8 +3355,8 @@ void LinkClass::check_slash_block(int bx, int by)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
-        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        {
+        //if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
+        //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
 		if ( isGenericType(type) )
@@ -3427,7 +3427,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		}
                 else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
-	    else if (isGenericType(type))
+	    else
 	    {
 		if ( combobuf[cid].usrflags&cflag1 )
 		{
@@ -3445,7 +3445,7 @@ void LinkClass::check_slash_block(int bx, int by)
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
-        }
+        //}
     }
     
     if(!ignoreffc)
