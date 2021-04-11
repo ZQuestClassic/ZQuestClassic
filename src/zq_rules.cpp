@@ -750,6 +750,7 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Reload On Death", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Higher Maximum Playtime", NULL, NULL },
     { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Experimental X and Y Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -761,7 +762,7 @@ static int miscrules[] =
 	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
-	qr_GREATER_MAX_TIME,qr_SETXYBUTTONITEMS,
+	qr_GREATER_MAX_TIME,qr_SETXYBUTTONITEMS,qr_INSTANT_CONTINUE,
 	-1
 };
 

@@ -24340,9 +24340,16 @@ void LinkClass::heroDeathAnimation()
 		
 		else if(f<350)//draw 'GAME OVER' text
 		{
-			if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
+			if(get_bit(quest_rules, qr_INSTANT_RESPAWN) && !get_bit(quest_rules, qr_INSTANT_CONTINUE))
 			{
 				Quit = qRELOAD;
+				skipcont = 1;
+				clear_bitmap(framebuf);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			}
+			else if(!get_bit(quest_rules, qr_INSTANT_RESPAWN) && get_bit(quest_rules, qr_INSTANT_CONTINUE))
+			{
+				Quit = qCONT;
 				skipcont = 1;
 				clear_bitmap(framebuf);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
