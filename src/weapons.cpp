@@ -222,6 +222,7 @@ static void weapon_triggersecret(int pos, int flag)
 
 static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
 {
+	if(screenIsScrolling()) return;
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int cid = MAPCOMBO(bx,by);
 	int flag = MAPFLAG(bx,by);
@@ -946,6 +947,7 @@ static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comb
 
 static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 {
+	if(screenIsScrolling()) return 0;
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
 		if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
@@ -1194,6 +1196,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer = 0/*, int comboid, int flag*/)
 {
+	if(screenIsScrolling()) return;
 	//zprint("Layer: %d\n", layer);
 	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
