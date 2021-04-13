@@ -3041,7 +3041,8 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
         //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-		if ( isGenericType(type) )
+		//if ( isGenericType(type) )
+		if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
@@ -3049,7 +3050,13 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 			}
 		}
 		else
-			sfx(WAV_ZN1GRASSCUT,int(bx));
+		{
+			if (combobuf[cid].usrflags&cflag3)
+			{
+				sfx(combobuf[cid].attribytes[2],int(bx));
+			}
+			else sfx(WAV_ZN1GRASSCUT,int(bx));
+		}
             }
             
             if(isBushType(type))
@@ -3201,7 +3208,7 @@ void LinkClass::check_slash_block(int bx, int by)
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
 		//if an emulation bit says to use buggy code
-		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
+		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT)) //Haha wow Zoria you really named it that huh -Dimi
 		{
 			skipsecrets = 0;
 		}
@@ -3359,7 +3366,7 @@ void LinkClass::check_slash_block(int bx, int by)
         //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-		if ( isGenericType(type) )
+		if(!(isBushType(type) || isFlowersType(type) || isGrassType(type)))
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
@@ -3367,7 +3374,13 @@ void LinkClass::check_slash_block(int bx, int by)
 			}
 		}
 		else
-			sfx(WAV_ZN1GRASSCUT,int(bx));
+		{
+			if (combobuf[cid].usrflags&cflag3)
+			{
+				sfx(combobuf[cid].attribytes[2],int(bx));
+			}
+			else sfx(WAV_ZN1GRASSCUT,int(bx));
+		}
             }
             
             if(isBushType(type))
@@ -4247,18 +4260,25 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
             }
         }
         
-        if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
-        {
+        //if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
+        //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-		if ( isGenericType(type) )
+		if(!(isBushType(type2) || isFlowersType(type2) || isGrassType(type2)))
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
 				sfx(combobuf[cid].attribytes[2],int(bx));
 			}
 		}
-                else sfx(WAV_ZN1GRASSCUT,int(bx));
+                else 
+		{
+			if (combobuf[cid].usrflags&cflag3)
+			{
+				sfx(combobuf[cid].attribytes[2],int(bx));
+			}
+			else sfx(WAV_ZN1GRASSCUT,int(bx));
+		}
             }
             
             if(isBushType(type2))
@@ -4336,7 +4356,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
             }
-        }
+        //}
     }
 }
 
@@ -4795,18 +4815,25 @@ void LinkClass::check_slash_block(weapon *w)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
-        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        {
+        //if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
+        //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-		if ( isGenericType(type) )
+		if(!(isBushType(type) || isFlowersType(type) || isGrassType(type)))
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
 				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
 			}
 		}
-                else sfx(WAV_ZN1GRASSCUT,int(bx));
+                else 
+		{
+			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			{
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+			}
+			else sfx(WAV_ZN1GRASSCUT,int(bx));
+		}
             }
             
             if(isBushType(type))
@@ -4866,7 +4893,7 @@ void LinkClass::check_slash_block(weapon *w)
 		}
                 else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
             }
-	    else if (isGenericType(type))
+	    else
 	    {
 		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
 		{
@@ -4884,7 +4911,7 @@ void LinkClass::check_slash_block(weapon *w)
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
-        }
+        //}
     }
     
     if(!ignoreffc)
@@ -4925,18 +4952,25 @@ void LinkClass::check_slash_block(weapon *w)
             }
         }
         
-        if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
-        {
+        //if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
+        //{
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-		if ( isGenericType(type) )
+		if(!(isBushType(type2) || isFlowersType(type2) || isGrassType(type2)))
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
 				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
 			}
 		}
-                else sfx(WAV_ZN1GRASSCUT,int(bx));
+                else 
+		{
+			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			{
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+			}
+			else sfx(WAV_ZN1GRASSCUT,int(bx));
+		}
             }
             
             if(isBushType(type2))
@@ -5014,7 +5048,7 @@ void LinkClass::check_slash_block(weapon *w)
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
             }
-        }
+        //}
     }
 }
 

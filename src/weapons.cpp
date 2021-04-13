@@ -4896,6 +4896,7 @@ bool weapon::animate(int index)
         
         if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
         {
+	    stop_sfx(WAV_ZN1WHIRLWIND);
             dead=2;
         }
         else if(LinkAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
@@ -4903,7 +4904,7 @@ bool weapon::animate(int index)
             stop_sfx(WAV_ZN1WHIRLWIND);
             dead=1;
         }
-        else if(get_bit(quest_rules,qr_MORESOUNDS))
+        else if(get_bit(quest_rules,qr_MORESOUNDS) && dead < 1)
             sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
             
         if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
@@ -7940,6 +7941,7 @@ bool weapon::animateandrunscript(int ii)
         
         if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
         {
+	    stop_sfx(WAV_ZN1WHIRLWIND);
             dead=2;
         }
         else if(LinkAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
@@ -7947,7 +7949,7 @@ bool weapon::animateandrunscript(int ii)
             stop_sfx(WAV_ZN1WHIRLWIND);
             dead=1;
         }
-        else if(get_bit(quest_rules,qr_MORESOUNDS))
+        else if(get_bit(quest_rules,qr_MORESOUNDS) && dead < 1)
             sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
             
         if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))

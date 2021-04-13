@@ -178,8 +178,8 @@ struct subscreen_object
 {
     byte  type;
     byte  pos;
-    word  x;
-    word  y;
+    short  x;
+    short  y;
     word  w;
     word  h;
     byte  colortype1;

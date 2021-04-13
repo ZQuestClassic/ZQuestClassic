@@ -631,8 +631,9 @@ void ResetSaveScreenSettings()
 	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
 	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption;
 	SaveScreenSettings[SAVESC_MIDI] = -4;
-	SaveScreenSettings[SAVESC_BACKGROUND] = BLACK;
-	SaveScreenSettings[SAVESC_TEXT] = WHITE;
+	//SaveScreenSettings[SAVESC_BACKGROUND] = BLACK;
+	SaveScreenSettings[SAVESC_BACKGROUND] = 0; //Isle of Rebirth changed the game over background by changing color 0 of the palette; this needs to be respected!
+	SaveScreenSettings[SAVESC_TEXT] = QMisc.colors.msgtext;
 	SaveScreenSettings[SAVESC_USETILE] = SAVESC_DEF_TILE;
 	SaveScreenSettings[SAVESC_CURSOR_CSET] = 1;
 	SaveScreenSettings[SAVESC_CUR_SOUND] =  WAV_CHINK;
@@ -2000,8 +2001,9 @@ int init_game()
 //Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
+    ResetSaveScreenSettings();
     
-	ResetSaveScreenSettings();
+	//ResetSaveScreenSettings();
     
 //Load the quest
     //setPackfilePassword(datapwd);
@@ -2013,6 +2015,8 @@ int init_game()
         //setPackfilePassword(NULL);
         return 1;
     }
+    
+    ResetSaveScreenSettings();
     
     //setPackfilePassword(NULL);
     
@@ -3564,7 +3568,8 @@ void game_loop()
 	default: break;
     }
     bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-                      && (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
+			&& (get_bit(quest_rules,qr_MSGFREEZE)));
+                      //&& (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
