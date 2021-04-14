@@ -3568,8 +3568,8 @@ void game_loop()
 	default: break;
     }
     bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-			&& (get_bit(quest_rules,qr_MSGFREEZE)));
-                      //&& (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
+			&& (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
+			//&& (get_bit(quest_rules,qr_MSGFREEZE)));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
