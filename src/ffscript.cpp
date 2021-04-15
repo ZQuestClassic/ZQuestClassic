@@ -11573,14 +11573,14 @@ void set_register(const long arg, const long value)
 	//Input States
 		case INPUTSTART:
 		{
-			control_state[6]=((value/10000)!=0)?true:false;
+			control_state[6]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[6]=false;
 			break;
 		}
 			
 		case INPUTMAP:
 		{
-			control_state[9]=((value/10000)!=0)?true:false;
+			control_state[9]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
 				drunk_toggle_state[9]=false;
 			break;
@@ -11588,14 +11588,14 @@ void set_register(const long arg, const long value)
 			
 		case INPUTUP:
 		{
-			control_state[0]=((value/10000)!=0)?true:false;
+			control_state[0]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[0]=false;
 			break;
 		}
 			
 		case INPUTDOWN:
 		{
-			control_state[1]=((value/10000)!=0)?true:false;
+			control_state[1]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
 				drunk_toggle_state[1]=false;
 			break;
@@ -11603,150 +11603,150 @@ void set_register(const long arg, const long value)
 			
 		case INPUTLEFT:
 		{
-			control_state[2]=((value/10000)!=0)?true:false;
+			control_state[2]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[2]=false;
 			break;
 		}
 			
 		case INPUTRIGHT:
 		{
-			control_state[3]=((value/10000)!=0)?true:false;
+			control_state[3]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[3]=false;
 			break;
 		}
 			
 		case INPUTA:
 		{
-			control_state[4]=((value/10000)!=0)?true:false;
+			control_state[4]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[4]=false;
 			break;
 		}
 			
 		case INPUTB:
 		{
-			control_state[5]=((value/10000)!=0)?true:false;
+			control_state[5]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[5]=false;
 			break;
 		}
 			
 		case INPUTL:
 		{
-			control_state[7]=((value/10000)!=0)?true:false;
+			control_state[7]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[7]=false;
 			break;
 		}
 			
 		case INPUTR:
 		{
-			control_state[8]=((value/10000)!=0)?true:false;
+			control_state[8]=(value?true:false);
 			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[8]=false;
 			break;
 		}
 			
 		case INPUTEX1:
 		{
-			control_state[10]=((value/10000)!=0)?true:false;
+			control_state[10]=(value?true:false);
 			break;
 		}
 			
 		case INPUTEX2:
-			control_state[11]=((value/10000)!=0)?true:false;
+			control_state[11]=(value?true:false);
 			break;
 			
 		case INPUTEX3:
-			control_state[12]=((value/10000)!=0)?true:false;
+			control_state[12]=(value?true:false);
 			break;
 			
 		case INPUTEX4:
-			control_state[13]=((value/10000)!=0)?true:false;
+			control_state[13]=(value?true:false);
 			break;
 			
 		case INPUTAXISUP:
-			control_state[14]=((value/10000)!=0)?true:false;
+			control_state[14]=(value?true:false);
 			break;
 			
 		case INPUTAXISDOWN:
-			control_state[15]=((value/10000)!=0)?true:false;
+			control_state[15]=(value?true:false);
 			break;
 			
 		case INPUTAXISLEFT:
-			control_state[16]=((value/10000)!=0)?true:false;
+			control_state[16]=(value?true:false);
 			break;
 			
 		case INPUTAXISRIGHT:
-			control_state[17]=((value/10000)!=0)?true:false;
+			control_state[17]=(value?true:false);
 			break;
 			
 		case INPUTPRESSSTART:
-			button_press[6]=((value/10000)!=0)?true:false;
+			button_press[6]=(value?true:false);
 			break;
 			
 		case INPUTPRESSMAP:
-			button_press[9]=((value/10000)!=0)?true:false;
+			button_press[9]=(value?true:false);
 			break;
 			
 		case INPUTPRESSUP:
-			button_press[0]=((value/10000)!=0)?true:false;
+			button_press[0]=(value?true:false);
 			break;
 			
 		case INPUTPRESSDOWN:
-			button_press[1]=((value/10000)!=0)?true:false;
+			button_press[1]=(value?true:false);
 			break;
 			
 		case INPUTPRESSLEFT:
-			button_press[2]=((value/10000)!=0)?true:false;
+			button_press[2]=(value?true:false);
 			break;
 			
 		case INPUTPRESSRIGHT:
-			button_press[3]=((value/10000)!=0)?true:false;
+			button_press[3]=(value?true:false);
 			break;
 			
 		case INPUTPRESSA:
-			button_press[4]=((value/10000)!=0)?true:false;
+			button_press[4]=(value?true:false);
 			break;
 			
 		case INPUTPRESSB:
-			button_press[5]=((value/10000)!=0)?true:false;
+			button_press[5]=(value?true:false);
 			break;
 			
 		case INPUTPRESSL:
-			button_press[7]=((value/10000)!=0)?true:false;
+			button_press[7]=(value?true:false);
 			break;
 			
 		case INPUTPRESSR:
-			button_press[8]=((value/10000)!=0)?true:false;
+			button_press[8]=(value?true:false);
 			break;
 			
 		case INPUTPRESSEX1:
-			button_press[10]=((value/10000)!=0)?true:false;
+			button_press[10]=(value?true:false);
 			break;
 			
 		case INPUTPRESSEX2:
-			button_press[11]=((value/10000)!=0)?true:false;
+			button_press[11]=(value?true:false);
 			break;
 			
 		case INPUTPRESSEX3:
-			button_press[12]=((value/10000)!=0)?true:false;
+			button_press[12]=(value?true:false);
 			break;
 			
 		case INPUTPRESSEX4:
-			button_press[13]=((value/10000)!=0)?true:false;
+			button_press[13]=(value?true:false);
 			break;
 			
 		case INPUTPRESSAXISUP:
-			button_press[14]=((value/10000)!=0)?true:false;
+			button_press[14]=(value?true:false);
 			break;
 			
 		case INPUTPRESSAXISDOWN:
-			button_press[15]=((value/10000)!=0)?true:false;
+			button_press[15]=(value?true:false);
 			break;
 			
 		case INPUTPRESSAXISLEFT:
-			button_press[16]=((value/10000)!=0)?true:false;
+			button_press[16]=(value?true:false);
 			break;
 			
 		case INPUTPRESSAXISRIGHT:
-			button_press[17]=((value/10000)!=0)?true:false;
+			button_press[17]=(value?true:false);
 			break;
 			
 		case INPUTMOUSEX:
@@ -11790,7 +11790,7 @@ void set_register(const long arg, const long value)
 		{
 			//Read-only
 			int button = vbound((ri->d[rINDEX]/10000),0,17);
-			button_press[button]=((value/10000)!=0)?true:false;
+			button_press[button]=(value?true:false);
 			if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 			
 		}
@@ -11800,7 +11800,7 @@ void set_register(const long arg, const long value)
 		{
 			//Read-only
 			int button = vbound((ri->d[rINDEX]/10000),0,17);
-			control_state[button]=((value/10000)!=0)?true:false;
+			control_state[button]=(value?true:false);
 			if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 		}
 		break;
@@ -11809,7 +11809,7 @@ void set_register(const long arg, const long value)
 		{
 			//Read-only
 			int button = vbound((ri->d[rINDEX]/10000),0,17);
-			button_hold[button]=((value/10000)!=0)?true:false;
+			button_hold[button]=(value?true:false);
 		}
 		break;
 
@@ -11819,7 +11819,7 @@ void set_register(const long arg, const long value)
 			//hmm...no, this won;t return properly for modifier keys. 
 			int keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
-			key[keyid]=((value/10000)!=0)?true:false; //It isn't possible to set keys true, because polling occurs before they are set?
+			key[keyid]=(value?true:false); //It isn't possible to set keys true, because polling occurs before they are set?
 			//but they *can* be set false; ??? -Z
 		}
 		break;
