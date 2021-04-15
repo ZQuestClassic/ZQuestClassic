@@ -612,7 +612,7 @@ enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE,
 	SAVESC_LAST	}; */
 #define SAVESC_DEF_TILE 2
 long SaveScreenSettings[24] = {
-	0, 			1, 			SAVESC_DEF_TILE, 
+	BLACK, 			WHITE, 			SAVESC_DEF_TILE, 
 	1, 			WAV_CHINK,	 	QMisc.colors.msgtext,
 	QMisc.colors.msgtext,	QMisc.colors.msgtext,	QMisc.colors.caption,
 	QMisc.colors.caption,	QMisc.colors.caption,	-4,
