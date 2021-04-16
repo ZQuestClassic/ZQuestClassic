@@ -14360,7 +14360,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
 					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
 					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
-						tempguy.moveflags = FLAG_CAN_PITWALK;
+						tempguy.moveflags = FLAG_CAN_PITWALK|FLAG_CAN_WATERWALK;
 						break;
 					//No gravity, but falls in pits
 					case eeLEV:
@@ -14375,7 +14375,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						break;
 					//Gravity, floats over pits
 					case eeWIZZ: case eeWALLM: case eeGHINI:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK | FLAG_CAN_WATERWALK;
 						break;
 					//Gravity and falls in pits
 					case eeWALK: case eeOTHER:
