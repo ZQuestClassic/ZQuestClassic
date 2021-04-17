@@ -11107,7 +11107,7 @@ void eat_buttons()
 	getInput(btnA, true, false, true);
 	getInput(btnB, true, false, true);
 	getInput(btnS, true, false, true);
-	//getInput(btnM, true, false, true);
+	getInput(btnM, true, false, true);
 	getInput(btnL, true, false, true);
 	getInput(btnR, true, false, true);
 	getInput(btnP, true, false, true);
