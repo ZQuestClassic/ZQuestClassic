@@ -5824,7 +5824,7 @@ long get_register(const long arg)
 		}
 		case NPCGHDATA:
 		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Data") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostData") == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->ghostdata * 10000;
 			}
@@ -14391,7 +14391,7 @@ void set_register(const long arg, const long value)
 			break;
 		}
 		case NPCGHDATA:
-			if(GuyH::loadNPC(ri->guyref, "npc->Data") == SH::_NoError)
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostData") == SH::_NoError)
 			{
 				GuyH::getNPC()->ghostdata = vbound(value/10000,0,MAXCOMBOS-1);
 			}
