@@ -4432,6 +4432,11 @@ static int enemy_gfx_tiles_list[] =
     -1
 };
 
+static int enemy_gfx_misc_list[] =
+{
+    376, 377, -1
+};
+
 
 static TABPANEL enemy_attribs_tabs[] =
 {
@@ -4446,6 +4451,7 @@ static TABPANEL enemy_attribs_tabs[] =
 static TABPANEL enemy_graphics_tabs[] =
 {
     { (char *)"Tiles",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
+    { (char *)"Misc",	      0,               enemy_gfx_misc_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -6748,6 +6754,10 @@ static DIALOG enedata_dlg[] =
 	{  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk Over Pitfalls",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Drown In Liquid",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Walk On Liquid",                          NULL,   NULL                 },
+    //376
+    {  jwin_text_proc,           6,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Ghost Data:",                                   NULL,   NULL                 },
+    {  jwin_edit_proc,         70,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -7010,6 +7020,7 @@ void edit_enemydata(int index)
 	char weap_initdvals[8][13];
     
 	char initdvals[8][13];
+	char ghdataval[8];
     //begin npc script
     int j = 0; build_binpcs_list(); //npc scripts lister
     for(j = 0; j < binpcs_cnt; j++)
@@ -7222,6 +7233,8 @@ void edit_enemydata(int index)
     sprintf(attribs[30],"%ld",guysbuf[index].misc31);
     sprintf(attribs[31],"%ld",guysbuf[index].misc32);
     
+    sprintf(ghdataval,"%ld",guysbuf[index].ghostdata);
+    
     for(int j=0; j <= edefBYRNA; j++)
     {
         enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
@@ -7315,6 +7328,8 @@ void edit_enemydata(int index)
 	    
     }
     enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
+    
+    //Ghost Data
     
     //2.6 Enemy Weapon Sprite -Z
     
@@ -7525,6 +7540,8 @@ void edit_enemydata(int index)
         enedata_dlg[331].dp = attribs[29];
         enedata_dlg[332].dp = attribs[30];
         enedata_dlg[333].dp = attribs[31];
+	
+	 enedata_dlg[377].dp = ghdataval;
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
@@ -7715,6 +7732,8 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG15;
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
+	    
+	test.ghostdata = atol(ghdataval);
         
         //begin npc scripts
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 
@@ -7747,6 +7766,7 @@ void edit_enemydata(int index)
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
+	    test.ghostdata = vbound(test.ghostdata,0, MAXCOMBOS-1);
 	    for ( int q = 0; q < 8; q++ )
 	    {
 		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);

@@ -1271,7 +1271,9 @@
 #define LINKITEMY 			1193
 #define ACTIVESSSPEED 			1194
 
-#define LAST_BYTECODE 		1195
+#define NPCGHDATA 			1195
+
+#define LAST_BYTECODE 		1196
 
 //} END OF BYTECODE
 

@@ -224,7 +224,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        21
-#define V_GUYS            42
+#define V_GUYS            43
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        18 //skipped 13->15 for 2.53.1
@@ -2008,6 +2008,7 @@ struct guydata
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
+    int ghostdata;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 

@@ -4237,8 +4237,9 @@ enum ASM_DEFINE
 #define LINKITEMY			0x13E0
 #define ACTIVESSSPEED			0x13E1
 
+#define NPCGHDATA			0x13E2
 
-#define NUMVARIABLES         	0x13E2
+#define NUMVARIABLES         	0x13E3
 
 //} End variables
 

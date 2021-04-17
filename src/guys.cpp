@@ -2408,6 +2408,8 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	
+	if (d->ghostdata > 0) ghostdata = d->ghostdata;
+	
 	SIZEflags = d->SIZEflags;
 	
 	if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))

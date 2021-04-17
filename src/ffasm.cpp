@@ -2187,6 +2187,7 @@ script_variable variable_list[]=
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
+	{ "NPCGHDATA",           NPCGHDATA,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

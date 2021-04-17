@@ -1883,6 +1883,8 @@ string ZScript::VarToString(long ID)
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	
+	case NPCGHDATA: return "NPCGHDATA";
+	
 	
 	default:
 	{

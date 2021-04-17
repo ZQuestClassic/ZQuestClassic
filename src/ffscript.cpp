@@ -5822,6 +5822,14 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case NPCGHDATA:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->Data") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostdata * 10000;
+			}
+			break;
+		}
 		
 		
 		
@@ -14382,6 +14390,12 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case NPCGHDATA:
+			if(GuyH::loadNPC(ri->guyref, "npc->Data") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostdata = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -35379,6 +35393,7 @@ script_variable ZASMVars[]=
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
+	{ "NPCGHDATA",           NPCGHDATA,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

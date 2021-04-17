@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 94
-Document Revision: 26st March, 2021
+Document for: 2.55, Alpha 96
+Document Revision: 17st April, 2021
 
 
  __           _   _                 
@@ -4557,6 +4557,9 @@ int WeaponPattern[32];
 
 int FireSound;
  * The sound that plays when the npc fires a weapon.
+ 
+int Data;
+ * Exclusive variable intended for Ghost3 usage only. See ghost3 docs for info on how this is used.
 
 
 /************************************************************************************************************/
