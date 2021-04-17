@@ -14390,7 +14390,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			 if ( guyversion >= 43) //NPC Ghostdata
 			    {
-				    if(!p_igetl(&(tempguy.ghostdata),f,keepdata)) return qe_invalid;
+				    if(!p_igetl(&(tempguy.ghostmisc[0]),f,keepdata)) return qe_invalid;
 				    
 			    }
 			

@@ -7233,7 +7233,7 @@ void edit_enemydata(int index)
     sprintf(attribs[30],"%ld",guysbuf[index].misc31);
     sprintf(attribs[31],"%ld",guysbuf[index].misc32);
     
-    sprintf(ghdataval,"%ld",guysbuf[index].ghostdata);
+    sprintf(ghdataval,"%ld",guysbuf[index].ghostmisc[0]);
     
     for(int j=0; j <= edefBYRNA; j++)
     {
@@ -7733,7 +7733,7 @@ void edit_enemydata(int index)
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
 	    
-	test.ghostdata = atol(ghdataval);
+	test.ghostmisc[0] = atol(ghdataval);
         
         //begin npc scripts
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 
@@ -7766,7 +7766,7 @@ void edit_enemydata(int index)
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
-	    test.ghostdata = vbound(test.ghostdata,0, MAXCOMBOS-1);
+	    test.ghostmisc[0] = vbound(test.ghostmisc[0],0, MAXCOMBOS-1);
 	    for ( int q = 0; q < 8; q++ )
 	    {
 		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);

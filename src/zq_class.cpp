@@ -10617,7 +10617,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			if(!p_putc(guysbuf[i].moveflags,f))
 				new_return(99);
 				
-			if(!p_iputl(guysbuf[i].ghostdata,f))
+			if(!p_iputl(guysbuf[i].ghostmisc[0],f))
 				new_return(100);
         }
         

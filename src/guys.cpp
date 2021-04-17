@@ -2408,7 +2408,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	
-	if (d->ghostdata > 0) ghostdata = d->ghostdata;
+	if (d->ghostmisc[0] > 0) ghostmisc[0] = d->ghostmisc[0];
 	
 	SIZEflags = d->SIZEflags;
 	
