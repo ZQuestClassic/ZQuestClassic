@@ -4378,11 +4378,12 @@ void f_Quit(int type)
         resume_all_sfx();
     }
     
+    show_mouse(NULL);
     eat_buttons();
     
     zc_readrawkey(KEY_ESC);
         
-    zc_readkey(KEY_ENTER);
+    zc_readrawkey(KEY_ENTER);
 }
 
 //----------------------------------------------------------------
@@ -11106,7 +11107,7 @@ void eat_buttons()
 	getInput(btnA, true, false, true);
 	getInput(btnB, true, false, true);
 	getInput(btnS, true, false, true);
-	getInput(btnM, true, false, true);
+	//getInput(btnM, true, false, true);
 	getInput(btnL, true, false, true);
 	getInput(btnR, true, false, true);
 	getInput(btnP, true, false, true);
