@@ -1272,8 +1272,14 @@
 #define ACTIVESSSPEED 			1194
 
 #define NPCGHDATA 			1195
+#define NPCGHVX 			1196
+#define NPCGHVY 			1197
+#define NPCGHAX 			1198
+#define NPCGHAY 			1199
+#define NPCGHFLAGS 			1200
+#define NPCGHMISC 			1201
 
-#define LAST_BYTECODE 		1196
+#define LAST_BYTECODE 		1202
 
 //} END OF BYTECODE
 

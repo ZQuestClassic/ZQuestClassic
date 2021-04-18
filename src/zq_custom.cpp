@@ -4320,6 +4320,12 @@ static int enedata_flags3_list[] =
     107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,-1
 };
 
+static int enedata_flags4_list[] =
+{
+    378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393,
+    394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, -1
+};
+
 static int enedata_defense_list[] =
 {
 	144,145,146,147,148,149,150,151,152,161,162,163,164,165,166,167,168,169,178,-1
@@ -4590,6 +4596,7 @@ static TABPANEL enemy_flags_tabs[] =
     { (char *)"Basic Flags",	 D_SELECTED,               enedata_flags_list,   0, NULL },
     { (char *)"Behaviour",	 0,               enedata_editorflags_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
+    { (char *)"Ghost Flags",	 0,               enedata_flags4_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -6757,7 +6764,42 @@ static DIALOG enedata_dlg[] =
     //376
     {  jwin_text_proc,           6,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Ghost Data:",                                   NULL,   NULL                 },
     {  jwin_edit_proc,         70,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    
+    //378
+    {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag1",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag2",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag3",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag4",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag5",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     100,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag6",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     110,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag7",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     120,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag8",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     130,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag9",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     140,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag10",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     150,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag11",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     160,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag12",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     170,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag13",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     180,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag14",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     190,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag15",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     200,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag16",                          NULL,   NULL                 },
+    //394
+    {  jwin_check_proc,          160,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag17",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag18",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag19",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag20",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag21",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     100,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag22",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     110,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag23",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     120,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag24",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     130,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag25",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     140,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag26",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     150,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag27",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     160,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag28",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     170,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag29",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     180,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag30",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     190,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag31",                          NULL,   NULL                 },
+    {  jwin_check_proc,          160,     200,    280,     9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "GhostFlag32",                          NULL,   NULL                 },
+    //410
+	
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -7310,6 +7352,11 @@ void edit_enemydata(int index)
     enedata_dlg[267].flags = (guysbuf[index].editorflags&ENEMY_FLAG14) ? D_SELECTED : 0;
     enedata_dlg[268].flags = (guysbuf[index].editorflags&ENEMY_FLAG15) ? D_SELECTED : 0;
     enedata_dlg[269].flags = (guysbuf[index].editorflags&ENEMY_FLAG16) ? D_SELECTED : 0;
+    
+    for (int i = 0; i < 32; i++)
+    {
+	     enedata_dlg[378+i].flags = (guysbuf[index].ghostmisc[5]&(1<<i)) ? D_SELECTED : 0;
+    }
   
     
     sprintf(frt,"%d",guysbuf[index].frate);
@@ -7734,6 +7781,11 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG16;
 	    
 	test.ghostmisc[0] = atol(ghdataval);
+	
+	for (int i = 0; i < 32; i++)
+	{
+		if (enedata_dlg[378+i].flags & D_SELECTED) test.ghostmisc[5] |= (1<<i);
+	}
         
         //begin npc scripts
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 

@@ -4238,8 +4238,14 @@ enum ASM_DEFINE
 #define ACTIVESSSPEED			0x13E1
 
 #define NPCGHDATA			0x13E2
+#define NPCGHVX				0x13E3
+#define NPCGHVY				0x13E4
+#define NPCGHAX				0x13E5
+#define NPCGHAY				0x13E6
+#define NPCGHFLAGS			0x13E7
+#define NPCGHMISC			0x13E8
 
-#define NUMVARIABLES         	0x13E3
+#define NUMVARIABLES         	0x13E9
 
 //} End variables
 

@@ -5830,6 +5830,61 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case NPCGHVX:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostVX") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostmisc[1] * 10000;
+			}
+			break;
+		}
+		case NPCGHVY:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostVY") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostmisc[2] * 10000;
+			}
+			break;
+		}
+		case NPCGHAX:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostAX") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostmisc[3] * 10000;
+			}
+			break;
+		}
+		case NPCGHAY:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostAY") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostmisc[4] * 10000;
+			}
+			break;
+		}
+		case NPCGHFLAGS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostFlags") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->ghostmisc[5]; //Ghost Flags are a long.
+			}
+			break;
+		}
+		case NPCGHMISC: 
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostMisc[]") == SH::_NoError)
+			{
+				int a = ri->d[rINDEX] / 10000;
+				
+				if(GuyH::loadNPC(ri->guyref, "npc->GhostMisc[]") != SH::_NoError ||
+						BC::checkBounds(a, 0, 7, "npc->GhostMisc[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = GuyH::getNPC()->ghostmisc[a+8] * 10000;
+			}
+			break;
+		}
+		
 		
 		
 		
@@ -14396,8 +14451,53 @@ void set_register(const long arg, const long value)
 				GuyH::getNPC()->ghostmisc[0] = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
+			
+		case NPCGHVX:
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostVX") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostmisc[1] = value/10000;
+			}
+			break;
 		
+		case NPCGHVY:
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostVY") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostmisc[2] = value/10000;
+			}
+			break;
 		
+		case NPCGHAX:
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostAX") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostmisc[3] = value/10000;
+			}
+			break;
+		
+		case NPCGHAY:
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostAY") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostmisc[4] = value/10000;
+			}
+			break;
+		
+		case NPCGHFLAGS:
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostFlags") == SH::_NoError)
+			{
+				GuyH::getNPC()->ghostmisc[5] = value; //Ghost Flags are a long.
+			}
+			break;
+		
+		case NPCGHMISC: 
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->GhostMisc[]") == SH::_NoError)
+			{
+				int a = ri->d[rINDEX] / 10000;
+				if (BC::checkBounds(a, 0, 7, "npc->GhostMisc[]") == SH::_NoError)
+					GuyH::getNPC()->ghostmisc[8+a] = value/10000;
+				
+			}
+			break;
+		}
 	///----------------------------------------------------------------------------------------------------//
 	//Game Information
 		
@@ -35394,6 +35494,12 @@ script_variable ZASMVars[]=
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "NPCGHDATA",           NPCGHDATA,            0,             0 },
+	{ "NPCGHVX",           NPCGHVX,            0,             0 },
+	{ "NPCGHVY",           NPCGHVY,            0,             0 },
+	{ "NPCGHAX",           NPCGHAX,            0,             0 },
+	{ "NPCGHAY",           NPCGHAY,            0,             0 },
+	{ "NPCGHFLAGS",           NPCGHFLAGS,            0,             0 },
+	{ "NPCGHMISC",           NPCGHMISC,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -2281,6 +2281,9 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	dmisc31=d->misc31;
 	dmisc31=d->misc32;
 	
+	for (int i=0; i < 16; i++)
+		ghostmisc[i] = 0;
+	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=d->defense[i];
 		
@@ -2409,6 +2412,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
 	
 	if (d->ghostmisc[0] > 0) ghostmisc[0] = d->ghostmisc[0];
+	if (d->ghostmisc[5] > 0) ghostmisc[5] = d->ghostmisc[5];
 	
 	SIZEflags = d->SIZEflags;
 	

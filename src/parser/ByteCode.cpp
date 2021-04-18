@@ -1884,6 +1884,12 @@ string ZScript::VarToString(long ID)
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	
 	case NPCGHDATA: return "NPCGHDATA";
+	case NPCGHVX: return "NPCGHVX";
+	case NPCGHVY: return "NPCGHVY";
+	case NPCGHAX: return "NPCGHAX";
+	case NPCGHAY: return "NPCGHAY";
+	case NPCGHFLAGS: return "NPCGHFLAGS";
+	case NPCGHMISC: return "NPCGHMISC";
 	
 	
 	default:
