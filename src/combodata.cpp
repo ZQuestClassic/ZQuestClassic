@@ -38,16 +38,16 @@
 #define ctrigUNUSED_2_17	0x10000
 #define ctrigUNUSED_2_18	0x20000
 //triggerflags[2], only 18 bits are available to ZScript
-#define ctrigLI_TRIFORCE	0x01
-#define ctrigLI_MAP		0x02
-#define ctrigLI_COMPASS		0x04
-#define ctrigLI_BOSS		0x08
-#define ctrigLI_BOSSKEY		0x10
-#define ctrigLI_STATE1		0x20
-#define ctrigLI_STATE2		0x40
-#define ctrigLI_STATE3		0x80
-#define ctrigLI_ALL		0x100
-#define ctrigLI_INVERT		0x200
+#define ctrigUNUSED_3_01	0x01
+#define ctrigUNUSED_3_02	0x02
+#define ctrigUNUSED_3_03	0x04
+#define ctrigUNUSED_3_04	0x08
+#define ctrigUNUSED_3_05	0x10
+#define ctrigUNUSED_3_06	0x20
+#define ctrigUNUSED_3_07	0x40
+#define ctrigUNUSED_3_08	0x80
+#define ctrigUNUSED_3_09	0x100
+#define ctrigUNUSED_3_10	0x200
 #define ctrigUNUSED_3_11	0x400
 #define ctrigUNUSED_3_12	0x800
 #define ctrigUNUSED_3_13	0x1000
