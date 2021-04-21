@@ -14385,7 +14385,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
 					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
 					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+						if (tempguy.misc9!=e9tPOLSVOICE&&tempguy.misc9!=e9tVIRE) tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 				}
 			}
 			

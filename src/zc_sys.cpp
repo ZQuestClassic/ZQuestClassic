@@ -4378,11 +4378,12 @@ void f_Quit(int type)
         resume_all_sfx();
     }
     
+    show_mouse(NULL);
     eat_buttons();
     
     zc_readrawkey(KEY_ESC);
         
-    zc_readkey(KEY_ENTER);
+    zc_readrawkey(KEY_ENTER);
 }
 
 //----------------------------------------------------------------

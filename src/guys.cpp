@@ -3257,7 +3257,7 @@ void enemy::move(zfix dx,zfix dy)
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}
 	*/
-	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)))
+	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !(moveflags & FLAG_OBEYS_GRAV) || !enemycanfall(id)))
 	{
 		x+=dx;
 		y+=dy;
@@ -3277,7 +3277,7 @@ void enemy::move(zfix s)
 	}
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}*/
-	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)))
+	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)) || !(moveflags & FLAG_OBEYS_GRAV))
 		sprite::move(s);
 }
 
@@ -13195,7 +13195,8 @@ void eStalfos::vire_hop()
 		
 		//z=0;
 		//if we're not in the middle of a jump or if we can't complete the current jump in the current direction
-		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && isOnSideviewPlatform()))
+		//if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && isOnSideviewPlatform()))
+		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && (isOnSideviewPlatform() || !(moveflags & FLAG_OBEYS_GRAV)))) //Vires in old quests 
 			newdir(rate,homing,dmisc9==e9tPOLSVOICE ? spw_floater : spw_none);
 			
 		if(clk2<=0)
