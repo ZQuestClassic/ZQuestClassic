@@ -669,6 +669,7 @@ static AccessorTable GlobalTable[] =
 //
 	{ "GetSystemTime",          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "ZDistance",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strcmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strncmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "stricmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -791,6 +792,21 @@ void GlobalSymbols::generateCode()
         RETURN(); //Just return it?
         function->giveCode(code);
     }
+    //bool Distance(game, int, int, int, int)
+	{
+		Function* function = getFunction("ZDistance", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCE)));
+		RETURN();
+		function->giveCode(code);
+	}
 	
     //int Rand(int maxval)
     {

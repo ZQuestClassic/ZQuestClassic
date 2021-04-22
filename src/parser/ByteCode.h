@@ -1247,7 +1247,7 @@
 #define LINKCSET			1171
 #define NPCSLIDECLK			1172
 #define NPCFADING			1173
-#define PADDINGZ3			1174
+#define DISTANCE			1174
 #define STDARR				1175
 #define GHOSTARR			1176
 #define TANGOARR			1177

@@ -647,6 +647,8 @@ void write_mapscreens(PACKFILE *f,int vers_id);
 void read_mapscreens(PACKFILE *f, int vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
+long Distance(double x1, double y1, double x2, double y2);
+void do_distance();
 
 int combo_script_engine(const bool preload);
 int FFScript::combo_script_engine_waitdraw(const bool preload);
@@ -4213,7 +4215,7 @@ enum ASM_DEFINE
 #define LINKCSET			0x13CA
 #define NPCSLIDECLK			0x13CB
 #define NPCFADING			0x13CC
-#define PADDINGZ3			0x13CD
+#define DISTANCE			0x13CD
 #define STDARR				0x13CE
 #define GHOSTARR			0x13CF
 #define TANGOARR			0x13D0

@@ -2165,7 +2165,7 @@ script_variable variable_list[]=
 	{ "LINKCSET", LINKCSET, 0, 0 },
 	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
 	{ "NPCFADING", NPCFADING, 0, 0 },
-	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
+	{ "DISTANCE", DISTANCE, 0, 0 },
 	{ "STDARR", STDARR, 0, 0 },
 	{ "GHOSTARR", GHOSTARR, 0, 0 },
 	{ "TANGOARR", TANGOARR, 0, 0 },
