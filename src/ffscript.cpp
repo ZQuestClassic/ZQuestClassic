@@ -6897,6 +6897,42 @@ long get_register(const long arg)
 		}
 		break;
 		
+		case DISTANCE: 
+		{
+			double x1 = double(ri->d[rSFTEMP] / 10000.0);
+			double x2 = double(ri->d[rINDEX] / 10000.0);
+			double y1 = double(ri->d[rINDEX2] / 10000.0);
+			double y2 = double(ri->d[rEXP1] / 10000.0);
+			
+			
+			
+			long result = FFCore.Distance(x1, x2, y1, y2);
+			ret = (result);
+		
+			break;
+		}
+		
+		case DISTANCESCALE: 
+		{
+			double x1 = (double)(ri->d[rSFTEMP] / 10000.0);
+			zprint2("x1 is: %f\n", x1);
+			double x2 = (double)(ri->d[rINDEX] / 10000.0);
+			zprint2("x2 is: %f\n", x2);
+			double y1 = (double)(ri->d[rINDEX2] / 10000.0);
+			zprint2("y1 is: %f\n", y1);
+			double y2 = (double)(ri->d[rEXP1] / 10000.0);
+			zprint2("y2 is: %f\n", y2);
+			
+			long scale = (ri->d[rWHAT_NO_7]/10000);
+			zprint2("Scale is: %f\n", scale);
+			
+			if ( !scale ) scale = 10000;
+			long result = FFCore.Distance(x1, x2, y1, y2, scale);
+			ret = (result);
+			
+			break;
+		}
+		
 		case SCREENSTATEDD:
 		{
 			// Gah! >:(  Screen state is stored in game->maps, which uses 128 screens per map,
@@ -35358,13 +35394,13 @@ script_variable ZASMVars[]=
 	{ "LINKCSET", LINKCSET, 0, 0 },
 	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
 	{ "NPCFADING", NPCFADING, 0, 0 },
-	{ "PADDINGZ3", PADDINGZ3, 0, 0 },
+	{ "DISTANCE", DISTANCE, 0, 0 },
 	{ "STDARR", STDARR, 0, 0 },
 	{ "GHOSTARR", GHOSTARR, 0, 0 },
 	{ "TANGOARR", TANGOARR, 0, 0 },
 	{ "NPCHALTCLK", NPCHALTCLK, 0, 0 },
 	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
-	{ "PADDINGZ9", PADDINGZ9, 0, 0 },
+	{ "DISTANCESCALE", DISTANCESCALE, 0, 0 },
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
@@ -41994,3 +42030,51 @@ void zscript_free_config_entries(const char ***names)
 	_AL_FREE(*names);
 	*names = NULL;
 }
+
+long FFScript::Distance(double x1, double y1, double x2, double y2) 
+{
+	double x = (x1-x2);
+	double y = (y1-y2);
+	double sum = (x*x)+(y*y);
+	if(((long)sum) <= 0)
+	{
+		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+		return LONG_MAX;
+	}
+	sum *= 1000000.0;
+	double total = sqrt(sum)*10;
+	return long(total);
+}
+
+long FFScript::Distance(double x1, double y1, double x2, double y2, int scale) 
+{
+	double x = (x1-x2)/scale;
+	double y = (y1-y2)/scale;
+	double sum = (x*x)+(y*y);
+	if(((long)sum) <= 0)
+	{
+		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+		return LONG_MAX;
+	}
+	sum *= 1000000.0;
+	double total = sqrt(sum)*10;
+	return long(total*scale);
+}
+
+void FFScript::do_distance()
+{
+	double x1 = double(ri->d[rSFTEMP] / 10000.0);
+	double x2 = double(ri->d[rINDEX] / 10000.0);
+	double y1 = double(ri->d[rINDEX2] / 10000.0);
+	double y2 = double(ri->d[rEXP1] / 10000.0);
+	
+	long result = FFCore.Distance(x1, x2, y1, y2);
+	//ret = result*10000;
+
+}
+		
+		
+
+
+
+

@@ -669,6 +669,8 @@ static AccessorTable GlobalTable[] =
 //
 	{ "GetSystemTime",          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "Distance",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Distance",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    5,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strcmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strncmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "stricmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -791,6 +793,38 @@ void GlobalSymbols::generateCode()
         RETURN(); //Just return it?
         function->giveCode(code);
     }
+    //bool Distance(game, int, int, int, int)
+	{
+		Function* function = getFunction("Distance", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCE)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Distance(game, int, int, int, int, int)
+	{
+		Function* function = getFunction("Distance", 5);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		code.push_back(new OPopRegister(new VarArgument(WHAT_NO_7)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
+		
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCESCALE)));
+		RETURN();
+		function->giveCode(code);
+	}
 	
     //int Rand(int maxval)
     {

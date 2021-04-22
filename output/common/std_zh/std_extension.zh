@@ -750,22 +750,24 @@ int DirY(int dir)
 	return 0;
 }
 
-//Returns the distance between two sets of coordinates using Pythagoras' Theorem
-//Allows scaling for large distance determinations.
-//Argument 'scale' represents a ratio of 1:scale.
-//Argument 'scale' is most precise when using powers of 10 (e.g.. 0.1, 1, 10, 100, 1000, 10000).
-//If arg 'scale' is set to 0, it defaults to '1'. 
-//Returns -1 on error. 
-float Distance(int x1, int y1, int x2, int y2, int scale) 
+namespace std
 {
-	unless ( scale ) scale = 1; //sanity check
-	float x = (x1-x2) / scale;
-	float y = (y1-y2) / scale;
-	float factor = (x*x)+(y*y);
-	if ( factor <= 0 ) return -1;
-	else return Sqrt(factor) * scale;
+	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
+	//Allows scaling for large distance determinations.
+	//Argument 'scale' represents a ratio of 1:scale.
+	//Argument 'scale' is most precise when using powers of 10 (e.g.. 0.1, 1, 10, 100, 1000, 10000).
+	//If arg 'scale' is set to 0, it defaults to '1'. 
+	//Returns -1 on error. 
+	float Distance(int x1, int y1, int x2, int y2, int scale) 
+	{
+		unless ( scale ) scale = 1; //sanity check
+		float x = (x1-x2) / scale;
+		float y = (y1-y2) / scale;
+		float factor = (x*x)+(y*y);
+		if ( factor <= 0 ) return -1;
+		else return Sqrt(factor) * scale;
+	}
 }
-
 //Returns the distance between two sets of coordinates using Pythagoras' Theorem
 float Distance2(int x1, int y1, int x2, int y2) 
 {
