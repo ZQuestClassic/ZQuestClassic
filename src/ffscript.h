@@ -648,6 +648,7 @@ void read_mapscreens(PACKFILE *f, int vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
 long Distance(double x1, double y1, double x2, double y2);
+long Distance(double x1, double y1, double x2, double y2, int scale);
 void do_distance();
 
 int combo_script_engine(const bool preload);
