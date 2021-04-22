@@ -6916,7 +6916,7 @@ long get_register(const long arg)
 			double x2 = double(ri->d[rINDEX] / 10000.0);
 			double y1 = double(ri->d[rINDEX2] / 10000.0);
 			double y2 = double(ri->d[rEXP1] / 10000.0);
-			double scale = ri->d[rWHAT_NO_7] / 10000.0);
+			double scale = double(ri->d[rWHAT_NO_7] / 10000.0);
 			if ( !scale) scale = 1;
 			double x = (x1-x2) / scale;
 			double y = (y1-y2) / scale;
