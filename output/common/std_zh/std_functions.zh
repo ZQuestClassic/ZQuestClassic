@@ -855,14 +855,16 @@ int DirRad(int dir)
 	}
 } 
 
-//Returns the distance between two sets of coordinates using Pythagoras' Theorem
-float Distance(int x1, int y1, int x2, int y2) 
+namestapce std
 {
-	int x = (x1-x2);
-	int y = (y1-y2);
-	return Sqrt(x*x+y*y);
+	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
+	float Distance(int x1, int y1, int x2, int y2) 
+	{
+		int x = (x1-x2);
+		int y = (y1-y2);
+		return Sqrt(x*x+y*y);
+	}
 }
-
 // Returns the squared distance of a vector.
 float DistanceSquared( float x, float y ) 
 {
