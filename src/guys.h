@@ -56,7 +56,7 @@ public:
 	guydata *d;
 	// Approximately all of these variables are accessed by either ffscript.cpp or inherited classes
 	int o_tile, frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
-	int ghostmisc[16];
+	int ghostmisc[9];
 	byte movestatus, item_set, grumble, posframe;
 	bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
 	zfix  step, floor_y;

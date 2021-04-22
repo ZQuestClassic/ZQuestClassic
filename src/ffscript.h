@@ -4237,7 +4237,7 @@ enum ASM_DEFINE
 #define LINKITEMY			0x13E0
 #define ACTIVESSSPEED			0x13E1
 
-#define NPCGHDATA			0x13E2
+#define NPCGHCOMBO			0x13E2
 #define NPCGHVX				0x13E3
 #define NPCGHVY				0x13E4
 #define NPCGHAX				0x13E5

@@ -7355,7 +7355,7 @@ void edit_enemydata(int index)
     
     for (int i = 0; i < 32; i++)
     {
-	     enedata_dlg[378+i].flags = (guysbuf[index].ghostmisc[5]&(1<<i)) ? D_SELECTED : 0;
+	     enedata_dlg[378+i].flags = (guysbuf[index].ghostmisc[8]&(1<<i)) ? D_SELECTED : 0;
     }
   
     
@@ -7665,6 +7665,11 @@ void edit_enemydata(int index)
         test.misc30 = atol(attribs[29]); 
         test.misc31 = atol(attribs[30]); 
         test.misc32 = atol(attribs[31]); 
+	
+	for (int i = 0; i < 9; i++)
+	{
+		test.ghostmisc[i] = 0;
+	}
         
 	
 	
@@ -7784,7 +7789,7 @@ void edit_enemydata(int index)
 	
 	for (int i = 0; i < 32; i++)
 	{
-		if (enedata_dlg[378+i].flags & D_SELECTED) test.ghostmisc[5] |= (1<<i);
+		if (enedata_dlg[378+i].flags & D_SELECTED) test.ghostmisc[8] |= (1<<i);
 	}
         
         //begin npc scripts

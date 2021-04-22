@@ -1883,7 +1883,7 @@ string ZScript::VarToString(long ID)
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	
-	case NPCGHDATA: return "NPCGHDATA";
+	case NPCGHCOMBO: return "NPCGHCOMBO";
 	case NPCGHVX: return "NPCGHVX";
 	case NPCGHVY: return "NPCGHVY";
 	case NPCGHAX: return "NPCGHAX";

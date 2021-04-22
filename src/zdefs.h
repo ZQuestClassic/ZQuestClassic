@@ -2008,7 +2008,7 @@ struct guydata
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
-    int ghostmisc[16];
+    int ghostmisc[9];
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 

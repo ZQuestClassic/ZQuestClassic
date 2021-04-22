@@ -14395,7 +14395,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			    }
 			    if ( guyversion >= 44) //NPC GhostFlags
 			    {
-				    if(!p_igetl(&(tempguy.ghostmisc[5]),f,keepdata)) return qe_invalid;
+				    if(!p_igetl(&(tempguy.ghostmisc[8]),f,keepdata)) return qe_invalid;
 				    
 			    }
 			

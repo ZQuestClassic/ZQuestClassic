@@ -10620,7 +10620,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(guysbuf[i].ghostmisc[0],f))
 				new_return(100);
 				
-			if(!p_iputl(guysbuf[i].ghostmisc[5],f))
+			if(!p_iputl(guysbuf[i].ghostmisc[8],f))
 				new_return(101);
         }
         

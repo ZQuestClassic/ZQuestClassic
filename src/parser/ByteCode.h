@@ -1271,7 +1271,7 @@
 #define LINKITEMY 			1193
 #define ACTIVESSSPEED 			1194
 
-#define NPCGHDATA 			1195
+#define NPCGHCOMBO 			1195
 #define NPCGHVX 			1196
 #define NPCGHVY 			1197
 #define NPCGHAX 			1198

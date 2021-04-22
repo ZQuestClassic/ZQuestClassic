@@ -353,6 +353,9 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+		
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -401,6 +404,9 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+		
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -452,6 +458,8 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -500,6 +508,8 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -550,6 +560,8 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -600,6 +612,8 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -645,6 +659,8 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -693,6 +709,8 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -739,6 +757,8 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -784,6 +804,8 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -837,6 +859,8 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -882,6 +906,8 @@ eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -927,6 +953,8 @@ eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -972,6 +1000,8 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1017,6 +1047,8 @@ eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1063,6 +1095,8 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1108,6 +1142,8 @@ eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1153,6 +1189,8 @@ eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1198,6 +1236,8 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1245,6 +1285,8 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1297,6 +1339,8 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1345,6 +1389,8 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1390,6 +1436,8 @@ eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1436,6 +1484,8 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1483,6 +1533,8 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1529,6 +1581,8 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1574,6 +1628,8 @@ eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1619,6 +1675,8 @@ eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1666,6 +1724,8 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1714,6 +1774,8 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -1760,6 +1822,8 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
@@ -2281,8 +2345,8 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	dmisc31=d->misc31;
 	dmisc31=d->misc32;
 	
-	for (int i=0; i < 16; i++)
-		ghostmisc[i] = 0;
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = d->ghostmisc[i];
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=d->defense[i];
@@ -2410,9 +2474,6 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	}
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
-	
-	if (d->ghostmisc[0] > 0) ghostmisc[0] = d->ghostmisc[0];
-	if (d->ghostmisc[5] > 0) ghostmisc[5] = d->ghostmisc[5];
 	
 	SIZEflags = d->SIZEflags;
 	
@@ -2587,6 +2648,8 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
+	for (int i=0; i < 9; i++)
+		ghostmisc[i] = other.ghostmisc[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
 	
