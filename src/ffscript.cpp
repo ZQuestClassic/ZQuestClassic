@@ -6904,8 +6904,10 @@ long get_register(const long arg)
 			double y1 = double(ri->d[rINDEX2] / 10000.0);
 			double y2 = double(ri->d[rEXP1] / 10000.0);
 			
+			
+			
 			long result = FFCore.Distance(x1, x2, y1, y2);
-			ret = (result*10000);
+			ret = (result);
 		
 			break;
 		}
@@ -42040,7 +42042,9 @@ long FFScript::Distance(double x1, double y1, double x2, double y2)
 		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
 		return LONG_MAX;
 	}
-	return long(sqrt(sum));
+	sum *= 1000000.0;
+	double total = sqrt(sum)*10;
+	return long(total);
 }
 
 void FFScript::do_distance()
