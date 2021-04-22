@@ -42048,7 +42048,7 @@ void FFScript::do_distance()
 	double x1 = double(ri->d[rSFTEMP] / 10000.0);
 	double x2 = double(ri->d[rINDEX] / 10000.0);
 	double y1 = double(ri->d[rINDEX2] / 10000.0);
-	double y = double(ri->d[rEXP1] / 10000.0);
+	double y2 = double(ri->d[rEXP1] / 10000.0);
 	
 	long result = FFCore.Distance(x1, x2, y1, y2);
 	//ret = result*10000;
