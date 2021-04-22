@@ -6914,23 +6914,34 @@ long get_register(const long arg)
 		
 		case DISTANCESCALE: 
 		{
-			double x1 = double(ri->d[rSFTEMP] / 10000.0);
-			double x2 = double(ri->d[rINDEX] / 10000.0);
-			double y1 = double(ri->d[rINDEX2] / 10000.0);
-			double y2 = double(ri->d[rEXP1] / 10000.0);
-			double scale = double(ri->d[rWHAT_NO_7] / 10000.0);
+			long x1 = (ri->d[rSFTEMP] / 10000);
+			zprint2("x1 is: %d\n", x1);
+			long x2 = (ri->d[rINDEX] / 10000);
+			zprint2("x2 is: %d\n", x2);
+			long y1 = (ri->d[rINDEX2] / 10000);
+			zprint2("y1 is: %d\n", y1);
+			long y2 = double(ri->d[rEXP1] / 10000);
+			zprint2("y2 is: %d\n", y2);
+			
+			long scale = (ri->d[rWHAT_NO_7] / 10000);
+			zprint2("Scale is: %d\n", scale);
+			
 			if ( !scale) scale = 1;
-			double x = (x1-x2) / scale;
-			double y = (y1-y2) / scale;
+			long x = ((x1-x2) / scale);
+			long y = ((y1-y2) / scale);
 			
 			
 			double sum = (x*x)+(y*y);
-			if(((long)sum) <= 0)
+			
+			if(((long)sum) < 0)
 			{
 				Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
 				return LONG_MAX;
 			}
-			ret = long(sqrt(sum*scale)*10000);
+			sum *= 1000000.0;
+			double total = sqrt(sum)*10;
+			ret = (long(total)*scale);
+			
 			break;
 		}
 		
