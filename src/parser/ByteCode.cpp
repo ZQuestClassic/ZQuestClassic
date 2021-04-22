@@ -1874,6 +1874,7 @@ string ZScript::VarToString(long ID)
 	case NPCSLIDECLK: return "NPCSLIDECLK";
 	case NPCFADING: return "NPCFADING";
 	case DISTANCE: return "DISTANCE";
+	case DISTANCESCALE: return "DISTANCEDISTANCESCALE";
 	case STDARR: return "STDARR";
 	case GHOSTARR: return "GHOSTARR";
 	case TANGOARR: return "TANGOARR";
