@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 94
-Document Revision: 26st March, 2021
+Document for: 2.55, Alpha 96
+Document Revision: 21nd April, 2021
 
 
  __           _   _                 
@@ -2481,6 +2481,15 @@ Available annotations:
 //  Global  //
 //////////////								// Global
 
+float Distance(float x1, float x2, float y1, float y2)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * The old version is now std::Distance(...)
+ 
+float Distance(float x1, float x2, float y1, float y2, int scale)
+ * Calculates the distance over a scale 'divisor' that would otherwise 
+   overflow Distance(). 
+ * The old version is now std::Distance(...) or LargeDistance(...).
+   
 void ArrayCopy(untyped *dest, untyped *src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
