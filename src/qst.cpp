@@ -14388,6 +14388,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 				}
 			}
+			for (int i = 0; i < 9; i++) tempguy.ghostmisc[i] = 0;
 			 if ( guyversion >= 43) //NPC Ghostdata
 			    {
 				    if(!p_igetl(&(tempguy.ghostmisc[0]),f,keepdata)) return qe_invalid;
