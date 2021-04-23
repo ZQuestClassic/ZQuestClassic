@@ -6924,7 +6924,7 @@ long get_register(const long arg)
 			zprint2("y2 is: %f\n", y2);
 			
 			long scale = (ri->d[rWHAT_NO_7]/10000);
-			zprint2("Scale is: %f\n", scale);
+			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
 			long result = FFCore.Distance(x1, x2, y1, y2, scale);
