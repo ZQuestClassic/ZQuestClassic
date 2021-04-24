@@ -42036,10 +42036,10 @@ long FFScript::Distance(double x1, double y1, double x2, double y2)
 	double x = (x1-x2);
 	double y = (y1-y2);
 	double sum = (x*x)+(y*y);
-	if(((long)sum) <= 0)
+	if(((long)sum) < 0)
 	{
 		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
-		return LONG_MAX;
+		return -10000;;
 	}
 	sum *= 1000000.0;
 	double total = sqrt(sum)*10;
@@ -42051,10 +42051,10 @@ long FFScript::Distance(double x1, double y1, double x2, double y2, int scale)
 	double x = (x1-x2)/scale;
 	double y = (y1-y2)/scale;
 	double sum = (x*x)+(y*y);
-	if(((long)sum) <= 0)
+	if(((long)sum) < 0)
 	{
 		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
-		return LONG_MAX;
+		return -10000;
 	}
 	sum *= 1000000.0;
 	double total = sqrt(sum)*10;
