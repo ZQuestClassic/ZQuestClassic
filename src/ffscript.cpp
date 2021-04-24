@@ -6900,13 +6900,13 @@ long get_register(const long arg)
 		case DISTANCE: 
 		{
 			double x1 = double(ri->d[rSFTEMP] / 10000.0);
-			double x2 = double(ri->d[rINDEX] / 10000.0);
-			double y1 = double(ri->d[rINDEX2] / 10000.0);
+			double y1 = double(ri->d[rINDEX] / 10000.0);
+			double x2 = double(ri->d[rINDEX2] / 10000.0);
 			double y2 = double(ri->d[rEXP1] / 10000.0);
 			
 			
 			
-			long result = FFCore.Distance(x1, x2, y1, y2);
+			long result = FFCore.Distance(x1, y1, x2, y2);
 			ret = (result);
 		
 			break;
@@ -6916,10 +6916,10 @@ long get_register(const long arg)
 		{
 			double x1 = (double)(ri->d[rSFTEMP] / 10000.0);
 			zprint2("x1 is: %f\n", x1);
-			double x2 = (double)(ri->d[rINDEX] / 10000.0);
-			zprint2("x2 is: %f\n", x2);
-			double y1 = (double)(ri->d[rINDEX2] / 10000.0);
+			double y1 = (double)(ri->d[rINDEX] / 10000.0);
 			zprint2("y1 is: %f\n", y1);
+			double x2 = (double)(ri->d[rINDEX2] / 10000.0);
+			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1] / 10000.0);
 			zprint2("y2 is: %f\n", y2);
 			
@@ -6927,7 +6927,7 @@ long get_register(const long arg)
 			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
-			long result = FFCore.Distance(x1, x2, y1, y2, scale);
+			long result = FFCore.Distance(x1, y1, x2, y2, scale);
 			ret = (result);
 			
 			break;
@@ -42036,11 +42036,11 @@ long FFScript::Distance(double x1, double y1, double x2, double y2)
 	double x = (x1-x2);
 	double y = (y1-y2);
 	double sum = (x*x)+(y*y);
-	if(((long)sum) < 0)
-	{
-		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
-		return -10000;;
-	}
+	//if(((long)sum) < 0)
+	//{
+	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+	//	return -10000;;
+	//}
 	sum *= 1000000.0;
 	double total = sqrt(sum)*10;
 	return long(total);
@@ -42048,17 +42048,18 @@ long FFScript::Distance(double x1, double y1, double x2, double y2)
 
 long FFScript::Distance(double x1, double y1, double x2, double y2, int scale) 
 {
-	double x = (x1-x2)/scale;
-	double y = (y1-y2)/scale;
-	double sum = (x*x)+(y*y);
-	if(((long)sum) < 0)
-	{
-		Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
-		return -10000;
-	}
-	sum *= 1000000.0;
-	double total = sqrt(sum)*10;
-	return long(total*scale);
+	double x3 = x1+(x2-x1)/scale;
+	double y3 = y1+(y2-y1)/scale;
+	//double sum = (x*x)+(y*y);
+	//if(((long)sum) < 0)
+	//{
+	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+	//	return -10000;
+	//}
+	//sum *= 1000000.0;
+	//double total = sqrt(sum)*10;
+	//return long(total*scale);
+	return (FFCore.Distance(x1, y1, x3, y3)*scale);
 }
 
 void FFScript::do_distance()
