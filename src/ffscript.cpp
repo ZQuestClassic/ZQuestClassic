@@ -6906,7 +6906,7 @@ long get_register(const long arg)
 			
 			
 			
-			long result = FFCore.Distance(x1, x2, y1, y2);
+			long result = FFCore.Distance(x1, y1, x2, y2);
 			ret = (result);
 		
 			break;
@@ -6927,7 +6927,7 @@ long get_register(const long arg)
 			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
-			long result = FFCore.Distance(x1, x2, y1, y2, scale);
+			long result = FFCore.Distance(x1, y1, x2, y2, scale);
 			ret = (result);
 			
 			break;
