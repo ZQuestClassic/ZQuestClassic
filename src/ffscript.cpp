@@ -20845,7 +20845,8 @@ void do_createlweapon(const bool v)
 	}
 	else
 	{
-		ri->lwpn = LONG_MAX;
+		//ri->lwpn = LONG_MAX;
+		ri->lwpn = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
 	return; //do not use the old code, below here. 
