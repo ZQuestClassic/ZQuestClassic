@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 96
-Document Revision: 21nd April, 2021
+Document Revision: 24th April, 2021
 
 
  __           _   _                 
@@ -2481,13 +2481,13 @@ Available annotations:
 //  Global  //
 //////////////								// Global
 
-float Distance(float x1, float x2, float y1, float y2)
+float Distance(float x1, float y1, float x1, float y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
  * The old version is now std::Distance(...)
  
-float Distance(float x1, float x2, float y1, float y2, int scale)
+float Distance(float x1, float y1, float x2, float y2, int scale)
  * Calculates the distance over a scale 'divisor' that would otherwise 
-   overflow Distance(). 
+   overflow Distance(), allowing negative coordinates.
  * The old version is now std::Distance(...) or LargeDistance(...).
    
 void ArrayCopy(untyped *dest, untyped *src);
