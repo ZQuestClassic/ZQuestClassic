@@ -7964,7 +7964,7 @@ long get_register(const long arg)
 			else
 			{
 				Z_scripterrlog("Tried to create too many LWeapons on the screen. The current LWeapon count is: %d\n", Lwpns.Count());
-				ri->lwpn = LONG_MAX;
+				ri->lwpn = 0;
 			}
 			
 			/* Z_scripterrlog("CreateLWeaponDx ri->d[rINDEX] is (%i), trying to use for '%s'\n", ID, "ID");
