@@ -35851,7 +35851,6 @@ string zs_sprintf(char const* format, int num_args)
 					}
 					case 'l'
 					{
-						zsprintf_int:
 						{
 							char argbuf[32] = {0};
 							if(min_digits)
