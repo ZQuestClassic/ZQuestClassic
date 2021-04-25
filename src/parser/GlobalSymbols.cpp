@@ -838,7 +838,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCE)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(LONGDISTANCE)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -855,7 +855,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
 		
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCESCALE)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(LONGDISTANCESCALE)));
 		RETURN();
 		function->giveCode(code);
 	}

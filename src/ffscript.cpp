@@ -6911,7 +6911,7 @@ long get_register(const long arg)
 		
 			break;
 		}
-		case LONDISTSTANCE: 
+		case LONGDISTANCELONGDISTANCE: 
 		{
 			double x1 = double(ri->d[rSFTEMP]);
 			double y1 = double(ri->d[rINDEX]);
@@ -35439,8 +35439,8 @@ script_variable ZASMVars[]=
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
-	{ "LONDISTSTANCE", LONDISTSTANCE, 0, 0 },
-	{ "LONDISTSTANCESCALE", LONDISTSTANCESCALE, 0, 0 },
+	{ "LONGDISTANCE", LONGDISTANCE, 0, 0 },
+	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
 	{ "PADDINGR5", PADDINGR5, 0, 0 },
 	{ "PADDINGR6", PADDINGR6, 0, 0 },
 	{ "PADDINGR7", PADDINGR7, 0, 0 },
