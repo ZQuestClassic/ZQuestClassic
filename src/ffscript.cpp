@@ -6911,7 +6911,7 @@ long get_register(const long arg)
 		
 			break;
 		}
-		case LONGDISTANCELONGDISTANCE: 
+		case LONGDISTANCE: 
 		{
 			double x1 = double(ri->d[rSFTEMP]);
 			double y1 = double(ri->d[rINDEX]);
