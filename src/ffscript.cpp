@@ -35849,6 +35849,20 @@ string zs_sprintf(char const* format, int num_args)
 							break;
 						}
 					}
+					case 'l'
+					{
+						zsprintf_int:
+						{
+							char argbuf[32] = {0};
+							if(min_digits)
+								sprintf(argbuf,mindigbuf,arg_val);
+							else zc_itoa(arg_val, argbuf);
+							++next_arg;
+							oss << buf << argbuf;
+							q = 300; //break main loop
+							break;
+						}
+					}
 					case 'f':
 					{
 						zsprintf_float:

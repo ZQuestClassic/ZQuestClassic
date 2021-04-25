@@ -2656,6 +2656,7 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  * Points are specified using '%'. The letter after is used to determine the type of the arg.
  *     "%i" - Integer. Inserts the number as a string, without decimal places.
  *     "%f" - Float. Inserts the number as a string, with decimal places.
+ *     "%l" - Long. Inserts the number as a string, in 'long' integer format.
  *            If the number does not contain decimal places, ".0" will still appear.
  *     "%d" - Number value. Automatically chooses between "%i" and "%f".
  *     "%s" - String value. Parameter must be a valid ZScript string.
