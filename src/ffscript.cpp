@@ -6911,6 +6911,20 @@ long get_register(const long arg)
 		
 			break;
 		}
+		case LONDISTSTANCE: 
+		{
+			double x1 = double(ri->d[rSFTEMP]);
+			double y1 = double(ri->d[rINDEX]);
+			double x2 = double(ri->d[rINDEX2]);
+			double y2 = double(ri->d[rEXP1]);
+			
+			
+			
+			long result = FFCore.LongDistance(x1, y1, x2, y2);
+			ret = (result);
+		
+			break;
+		}
 		
 		case DISTANCESCALE: 
 		{
@@ -6928,6 +6942,26 @@ long get_register(const long arg)
 			
 			if ( !scale ) scale = 10000;
 			long result = FFCore.Distance(x1, y1, x2, y2, scale);
+			ret = (result);
+			
+			break;
+		}
+		case LONGDISTANCESCALE: 
+		{
+			double x1 = (double)(ri->d[rSFTEMP]);
+			zprint2("x1 is: %f\n", x1);
+			double y1 = (double)(ri->d[rINDEX]);
+			zprint2("y1 is: %f\n", y1);
+			double x2 = (double)(ri->d[rINDEX2]);
+			zprint2("x2 is: %f\n", x2);
+			double y2 = (double)(ri->d[rEXP1]);
+			zprint2("y2 is: %f\n", y2);
+			
+			long scale = (ri->d[rWHAT_NO_7]);
+			zprint2("Scale is: %d\n", scale);
+			
+			if ( !scale ) scale = 1;
+			long result = FFCore.LongDistance(x1, y1, x2, y2, scale);
 			ret = (result);
 			
 			break;
@@ -35405,8 +35439,8 @@ script_variable ZASMVars[]=
 	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
 	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
-	{ "PADDINGR3", PADDINGR3, 0, 0 },
-	{ "PADDINGR4", PADDINGR4, 0, 0 },
+	{ "LONDISTSTANCE", LONDISTSTANCE, 0, 0 },
+	{ "LONDISTSTANCESCALE", LONDISTSTANCESCALE, 0, 0 },
 	{ "PADDINGR5", PADDINGR5, 0, 0 },
 	{ "PADDINGR6", PADDINGR6, 0, 0 },
 	{ "PADDINGR7", PADDINGR7, 0, 0 },
@@ -42061,6 +42095,36 @@ long FFScript::Distance(double x1, double y1, double x2, double y2, int scale)
 	//double total = sqrt(sum)*10;
 	//return long(total*scale);
 	return (FFCore.Distance(x1, y1, x3, y3)*scale);
+}
+
+long FFScript::LongDistance(double x1, double y1, double x2, double y2) 
+{
+	double x = (x1-x2);
+	double y = (y1-y2);
+	double sum = (x*x)+(y*y);
+	//if(((long)sum) < 0)
+	//{
+	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+	//	return -10000;;
+	//}
+	double total = sqrt(sum);
+	return long(total);
+}
+
+long FFScript::LongDistance(double x1, double y1, double x2, double y2, int scale) 
+{
+	double x3 = x1+(x2-x1)/scale;
+	double y3 = y1+(y2-y1)/scale;
+	//double sum = (x*x)+(y*y);
+	//if(((long)sum) < 0)
+	//{
+	//	Z_scripterrlog("Distance() attempted to calculate square root of %ld!\n", ((long)sum));
+	//	return -10000;
+	//}
+	//sum *= 1000000.0;
+	//double total = sqrt(sum)*10;
+	//return long(total*scale);
+	return (FFCore.LongDistance(x1, y1, x3, y3)*scale);
 }
 
 void FFScript::do_distance()

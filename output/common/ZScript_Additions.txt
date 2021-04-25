@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 96
-Document Revision: 24th April, 2021
+Document Revision: 25th April, 2021
 
 
  __           _   _                 
@@ -2490,6 +2490,17 @@ float Distance(float x1, float y1, float x2, float y2, int scale)
    overflow Distance(), allowing negative coordinates.
  * The old version is now std::Distance(...) or LargeDistance(...).
    
+long LongDistance(long x1, long y1, long x1, long y2)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * Takes args only as long (e.g. 100L).
+ * Retrns a vale as a long.
+ 
+long LongDistance(long x1, long y1, long x1, long y2, long scale)
+ * Calculates the distance over a scale 'divisor' that would otherwise 
+   overflow Distance(), allowing negative coordinates.
+ * Takes args only as long (e.g. 100L).
+ * Retrns a vale as a long.
+ 
 void ArrayCopy(untyped *dest, untyped *src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
