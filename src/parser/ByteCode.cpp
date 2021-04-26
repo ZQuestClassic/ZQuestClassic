@@ -1883,6 +1883,8 @@ string ZScript::VarToString(long ID)
 	case NPCFRAME: return "NPCFRAME";
 	
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
+	case LONGDISTANCE: return "LONGDISTANCE ";
+	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	
 	

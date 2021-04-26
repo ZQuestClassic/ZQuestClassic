@@ -649,6 +649,8 @@ void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
 long Distance(double x1, double y1, double x2, double y2);
 long Distance(double x1, double y1, double x2, double y2, int scale);
+long LongDistance(double x1, double y1, double x2, double y2);
+long LongDistance(double x1, double y1, double x2, double y2, int scale);
 void do_distance();
 
 int combo_script_engine(const bool preload);
@@ -4227,8 +4229,8 @@ enum ASM_DEFINE
 #define DMAPDATACHARTED			0x13D4
 #define REFDIRECTORY			0x13D5
 #define DIRECTORYSIZE			0x13D6
-#define PADDINGR3			0x13D7
-#define PADDINGR4			0x13D8
+#define LONGDISTANCE			0x13D7
+#define LONGDISTANCESCALE		0x13D8
 #define PADDINGR5			0x13D9
 #define PADDINGR6			0x13DA
 #define PADDINGR7			0x13DB
