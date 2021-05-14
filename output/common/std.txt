@@ -1,5 +1,5 @@
 std.txt for ZC Versions 2.55.0 Alpha 32 and higher.
-23rd September, 2019
+27th April, 2021
 
 =================
 --- Constants ---
@@ -340,12 +340,18 @@ float RadtoDeg(float r)
 int Sign(int n)
  * Returns the sign of n
 
-float Distance(int x1, int y1, int x2, int y2)
+float std::Distance(int x1, int y1, int x2, int y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * Distance() is now internal.Calling std::DS istance forces using the old, <std> version.
+ 
+float std::Distance(int x1, int y1, int x2, int y2, intg scale)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * Fixes overflow/underflow with arg int scale. 
+ * Distance() is now internal.Calling std::DS istance forces using the old, <std> version.
  
 float LargeDistance(int x1, int y1, int x2, int y2, int divisor);
  * Calculates the distance over a scale 'divisor' that would otherwise 
-   overflow Distance(). 
+   overflow Distance(). rob
    
 float Angle(int x1, int y1, int x2, int y2)
  * Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
