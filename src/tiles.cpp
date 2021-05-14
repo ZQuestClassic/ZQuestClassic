@@ -1685,6 +1685,7 @@ void overcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opaci
 
 void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
 {
+    if ((unsigned)cmbdat >= MAXCOMBOS) return;
     newcombo c = combobuf[cmbdat];
     int drawtile=combo_tile(c, x, y);
     
@@ -2564,6 +2565,7 @@ void overcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 
 void overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
 {
+    if ((unsigned)cmbdat >= MAXCOMBOS) return;
     newcombo c = combobuf[cmbdat];
     int drawtile=combo_tile(c, x, y);
     
