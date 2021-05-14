@@ -29083,24 +29083,24 @@ bool saveWAV(int slot, const char *filename)
     if (!ofs)
         return false;
     ofs.write("RIFF",4);
-    int32_t samplerate = customsfxdata[slot].freq;
-    int16_t channels = customsfxdata[slot].stereo ? 2 : 1;
-    int32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
-    int32_t size = 36 + datalen;
+    unsigned int samplerate = customsfxdata[slot].freq;
+    unsigned short channels = customsfxdata[slot].stereo ? 2 : 1;
+    unsigned int datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
+    unsigned int size = 36 + datalen;
     ofs.write((char *)&size, 4);
     ofs.write("WAVE", 4);
     ofs.write("fmt ", 4);
-    int32_t fmtlen = 16;
+    unsigned int fmtlen = 16;
     ofs.write((char *)&fmtlen, 4);
-    int16_t type = 1;
+    unsigned short type = 1;
     ofs.write((char *)&type, 2);
     ofs.write((char *)&channels, 2);
     ofs.write((char *)&samplerate, 4);
-    int32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
+    unsigned int bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
     ofs.write((char *)&bytespersec, 4);
-    int16_t blockalign = channels*customsfxdata[slot].bits / 8;
+    unsigned short blockalign = channels*customsfxdata[slot].bits / 8;
     ofs.write((char *)&blockalign, 2);
-    int16_t bitspersample = customsfxdata[slot].bits;
+    unsigned short bitspersample = customsfxdata[slot].bits;
     ofs.write((char *)&bitspersample, 2);
     ofs.write("data", 4);
     ofs.write((char *)&datalen, 4);
@@ -29117,7 +29117,7 @@ bool saveWAV(int slot, const char *filename)
     {
         for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
         {
-            int16_t data = ((int16_t *)customsfxdata[slot].data)[i];
+            unsigned short data = ((unsigned short *)customsfxdata[slot].data)[i];
             data ^= 0x8000;
             ofs.write((char *)&data, 2);
         }
