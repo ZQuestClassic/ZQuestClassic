@@ -36060,6 +36060,33 @@ void FFScript::do_tracenl()
 
 void FFScript::TraceScriptIDs(bool zasm_console)
 {
+	if(DEVTIMESTAMP)
+	{
+		if(!zasm_debugger && zasm_console) return;
+		#ifdef _WIN32
+		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
+		#endif
+		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
+		
+		char buf[256] = {0};
+		//Calculate timestamp
+		struct tm * tm_struct;
+		time_t sysRTC;
+		time (&sysRTC);
+		tm_struct = localtime (&sysRTC);
+		
+		sprintf(buf, "[%d:%d:%d] ", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
+		//
+		
+		al_trace(buf);
+		#ifdef _WIN32
+		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf(buf);
+		#endif
+	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;

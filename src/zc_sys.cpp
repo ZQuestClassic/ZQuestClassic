@@ -8611,6 +8611,7 @@ static MENU dev_menu[] =
 {
 	{ (char *)"&Force Error Log",           devLogging,              NULL,             D_SELECTED, NULL },
 	{ (char *)"&Extra Debug Log",           devDebug,                NULL,             D_SELECTED, NULL },
+	{ (char *)"&Timestamp Log",             devTimestmp,             NULL,             D_SELECTED, NULL },
 	#if DEVLEVEL > 1
 	{ (char *)"",                           NULL,                    NULL,             0,          NULL },
 	{ (char *)"Set &Cheat",                 setCheat,                NULL,             0,          NULL },
@@ -8627,6 +8628,12 @@ int devDebug()
 {
 	dev_debug = !dev_debug;
 	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
+	return D_O_K;
+}
+int devTimestmp()
+{
+	dev_timestmp = !dev_timestmp;
+	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -9735,7 +9742,7 @@ void System()
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[3].flags = Playing ? 0 : D_DISABLED;
+	dev_menu[4].flags = Playing ? 0 : D_DISABLED;
 	#endif
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;

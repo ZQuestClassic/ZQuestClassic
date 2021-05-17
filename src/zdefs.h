@@ -15,14 +15,19 @@
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
 
-//DEVLEVEL 1: Ignore passwd
-//DEVLEVEL 2: +More verbose logging. 
+//DEVLEVEL 1 = extra debug tools
+//DEVLEVEL 2 = force enable cheats
+//DEVLEVEL 3 ?? (Seems to do nothing special)
+//DEVLEVEL 4 = ignore quest passwords
 
 #if DEVLEVEL > 0
 #define DEVLOGGING	dev_logging
 #define DEVDEBUG	dev_debug
+#define DEVTIMESTAMP dev_timestmp
 #else
-#define DEVLOGGING	false
+#define DEVLOGGING	 false
+#define DEVDEBUG	 false
+#define DEVTIMESTAMP false
 #endif
 
 //Conditional Debugging Compilation
