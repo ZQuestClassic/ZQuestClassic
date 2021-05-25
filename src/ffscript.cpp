@@ -22982,6 +22982,8 @@ int run_script(const byte type, const word script, const long i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
 		return RUNSCRIPT_ERROR;
+		
+	if(type != SCRIPT_GLOBAL && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
 	
 	curScriptType=type;
 	curScriptNum=script;
