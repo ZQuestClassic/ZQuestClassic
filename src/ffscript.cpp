@@ -33005,47 +33005,17 @@ void FFScript::do_itoa()
 	long arrayptr_a = get_register(sarg1) / 10000;
 	long number = get_register(sarg2) / 10000;
 	
-	zprint2("itoa_c arrayptr_a is: %d\n",arrayptr_a);
-	zprint2("itoa_c number is: %d\n",number);
-		
-	double num = number;
-	zprint2("itoa_c(), num is: %f\n", num);
-	int digits = FFCore.numDigits(number); //long(log10(temp) * 10000.0)
-	zprint2("itoa_c, digits is: %d\n",digits);
-	int pos = 0;
-	int ret = 0;
-	string strA;
-	strA.resize(digits);
-	if(num < 0)
-	{
-		strA.resize(digits+1);
-		strA[pos] = '-';
-		++ret;
-		num = -num;
-	}
-	else if(num == 0)
-	{
-		strA[pos] = '0';
-		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-		{
-			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
-			set_register(sarg1, 0);
-		}
-		else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
-		return;
-	}
-
-	
-	for(int i = 0; i < digits; ++i)
-		strA[pos + ret + i] = ((long)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
+	char buf[16];
+	zc_itoa(number, buf, 10);
+	long ret = ::strlen(buf) * 10000L;
+	string strA(buf);
 	
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
-		set_register(sarg1, 0);
+		set_register(sarg1, -1);
 	}
-	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
-	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+	else set_register(sarg1, ret); //returns the number of digits used
 }
 
 void FFScript::do_itoacat()
