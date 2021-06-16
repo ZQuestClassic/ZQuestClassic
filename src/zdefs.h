@@ -159,6 +159,14 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define strnicmp _strnicmp
 #endif
 
+#ifdef _WIN32
+#define PATH_SLASH '\\'
+#define WRONG_PATH_SLASH '/'
+#else
+#define PATH_SLASH '/'
+#define WRONG_PATH_SLASH '\\'
+#endif
+
 #ifdef ALLEGRO_DOS
 //already defined in DOS
 /*

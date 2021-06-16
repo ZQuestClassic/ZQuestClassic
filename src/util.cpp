@@ -72,7 +72,7 @@ namespace util
 	bool valid_dir(string const& path)
 	{
 		size_t pos = path.find_first_not_of("/\\");
-		if(pos == string::npos) return false;
+		if(pos == string::npos) return true;
 		while(pos < path.length())
 		{
 			size_t next_slash = path.find_first_of("/\\",pos);
@@ -106,11 +106,7 @@ namespace util
 	{
 		for(int q = 0; buf[q]; ++q)
 		{
-#ifdef _WIN32
-			if (buf[q] == '/') buf[q] = '\\';
-#else
-			if (buf[q] == '\\') buf[q] = '/';
-#endif
+			if (buf[q] == WRONG_PATH_SLASH) buf[q] = PATH_SLASH;
 		}
 	}
 	

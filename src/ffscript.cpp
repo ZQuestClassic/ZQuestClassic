@@ -20442,10 +20442,9 @@ void FFScript::do_loaddirectory()
 	size_t pos = path.find_last_not_of("/\\");
 	if(pos != string::npos && !(path.find_last_of("/\\") < pos))
 		path = path.substr(0, pos+1);
-	char buf[2048];
+	char buf[2048] = {0};
 	get_scriptfile_path(buf, path.c_str());
 	regulate_path(buf);
-	
 	if(valid_dir(buf) && checkPath(buf, true))
 	{
 		ri->directoryref = get_free_directory(false);
@@ -26637,8 +26636,9 @@ bool validate_userfile_extension(string const& path)
 bool FFScript::get_scriptfile_path(char* buf, const char* path)
 {
 	while((path[0] == '/' || path[0] == '\\') && path[0]) ++path;
-	if(!path[0]) return false;
-	sprintf(buf, "%s%s", qst_files_path, path);
+	if(path[0])
+		sprintf(buf, "%s%c%s", qst_files_path, PATH_SLASH, path);
+	else sprintf(buf, "%s", qst_files_path);
 	return true;
 }
 
