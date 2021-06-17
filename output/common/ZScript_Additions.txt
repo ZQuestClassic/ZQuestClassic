@@ -6539,7 +6539,7 @@ int IsBlankTile[214500];
 ///  Audio->  ///
 /////////////////								// Audio
 
-void PlayOgg(int filename[]);
+bool PlayOgg(int filename[], int track);
  * Similar to PlayEnhancedMusic(), but only for OGG files.
  * Supports seeking, and other special instructions.
 
