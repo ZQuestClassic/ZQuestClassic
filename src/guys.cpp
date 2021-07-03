@@ -3748,7 +3748,8 @@ int enemy::resolveEnemyDefence(weapon *w)
 	if ( w->parentitem > -1 )
 	{
 		//al_trace("resolveEnemyDefence() w->parentitem is %d\n",w->parentitem);
-		int usedef = itemsbuf[w->parentitem].usedefence;
+		//int usedef = itemsbuf[w->parentitem].usedefence;
+		int usedef = w->usedefence;
 		al_trace("UseDefence is %d\n", usedef);
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
@@ -3756,7 +3757,8 @@ int enemy::resolveEnemyDefence(weapon *w)
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
 		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		if ( usedef > 0 && defense[ ( itemsbuf[w->parentitem].useweapon > 0 ? weaponToDefence(itemsbuf[w->parentitem].useweapon) : usedef ) ] == 0 ) //only if that defence is set to none 
+		//if ( usedef > 0 && defense[ ( itemsbuf[w->parentitem].useweapon > 0 ? weaponToDefence(itemsbuf[w->parentitem].useweapon) : usedef ) ] == 0 ) //only if that defence is set to none 
+		if ( usedef > 0 && defense[ ( w->useweapon > 0 ? weaponToDefence(w->useweapon) : usedef ) ] == 0 ) //only if that defence is set to none 
 		{
 			al_trace("Using a default defence of: %d\n", usedef);
 			weapondef = usedef*-1;
@@ -5291,23 +5293,29 @@ int enemy::takehit(weapon *w)
 	int wpnDir;
 	int parent_item = w->parentitem;
 	
-	if ( parent_item > -1 )
-	{
-		if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = itemsbuf[parent_item].useweapon;
-		}
+	//if ( parent_item > -1 )
+	//{
+	//	if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = itemsbuf[parent_item].useweapon;
+	//	}
 		
-	}
-	if ( parent_item == -1 && w->ScriptGenerated )
-	{
-		if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = w->useweapon;
-		}
+	//}
+	//if ( parent_item == -1 && w->ScriptGenerated )
+	//{
+	//	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = w->useweapon;
+	//	}
 		
+	//}
+	//al_trace("takehit wpnId is: %d\n",wpnId);
+   
+	//Shoud be set from idata from the weapon::weaon constructor. -Z
+	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	{
+		wpnId = w->useweapon;
 	}
-	al_trace("takehit wpnId is: %d\n",wpnId);
 	
 	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
 	
