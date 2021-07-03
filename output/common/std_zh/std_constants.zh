@@ -1,5 +1,5 @@
 // std_constants.zh
-// 18th March, 2021 for ZC 2.55.0 Alpha 91
+// 3rd July, 2021 for ZC 2.55.0 Alpha 93
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -109,6 +109,8 @@ const int MISC_SIZE			= 32;
 const int NPC_ATTRIBUTES_SIZE		= 32;
 const int ITEM_ATTRIBUTES_SIZE		= 10;
 const int GAMEMISC_SIZE 		= 32;
+const int MAX_DEFENSE 			= 42;
+const int MAX_DEFENCE 			= 42;
 
 /////////////////////
 /// Screen Dimensions
