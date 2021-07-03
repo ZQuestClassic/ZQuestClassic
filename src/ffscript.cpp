@@ -4983,6 +4983,9 @@ long get_register(const long arg)
 		case IDATAPSTRING:
 			ret=(itemsbuf[ri->idata].pstring)*10000;
 			break;
+		case IDATAPFLAGS:
+			ret=(itemsbuf[ri->idata].pickup_string_flags)*10000;
+			break;
 		//Magic cost
 		case IDATAMAGCOST:
 			ret=(itemsbuf[ri->idata].magic)*10000;
@@ -12185,7 +12188,7 @@ void set_register(const long arg, const long value)
 		case ITEMPSTRINGFLAGS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(((item *)s)->pickup_string_flags)=(value/10000);
+				(((item *)s)->pickup_string_flags)=vbound(value/10000, 0, 214748);
 			}
 			
 			break;
@@ -12853,6 +12856,9 @@ void set_register(const long arg, const long value)
 		//pickup string
 		case IDATAPSTRING:
 			itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
+			break;
+		case IDATAPFLAGS:
+			itemsbuf[ri->idata].pickup_string_flags=vbound(value/10000, 0, 214748);
 			break;
 		//magic cost
 		case IDATAMAGCOST:
@@ -34608,7 +34614,7 @@ script_variable ZASMVars[]=
 	{ "IDATACOMBINE",         IDATACOMBINE,            0,             0 },
 	{ "IDATADOWNGRADE",         IDATADOWNGRADE,            0,             0 },
 	{ "IDATAPSTRING",         IDATAPSTRING,            0,             0 },
-	{ "RESVD0023",         RESVD023,            0,             0 },
+	{ "IDATAPFLAGS",         IDATAPFLAGS,            0,             0 },
 	{ "IDATAKEEPOLD",         IDATAKEEPOLD,            0,             0 },
 	{ "IDATARUPEECOST",         IDATARUPEECOST,            0,             0 },
 	{ "IDATAEDIBLE",         IDATAEDIBLE,            0,             0 },
