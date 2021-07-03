@@ -5291,23 +5291,29 @@ int enemy::takehit(weapon *w)
 	int wpnDir;
 	int parent_item = w->parentitem;
 	
-	if ( parent_item > -1 )
-	{
-		if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = itemsbuf[parent_item].useweapon;
-		}
+	//if ( parent_item > -1 )
+	//{
+	//	if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = itemsbuf[parent_item].useweapon;
+	//	}
 		
-	}
-	if ( parent_item == -1 && w->ScriptGenerated )
-	{
-		if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = w->useweapon;
-		}
+	//}
+	//if ( parent_item == -1 && w->ScriptGenerated )
+	//{
+	//	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = w->useweapon;
+	//	}
 		
+	//}
+	//al_trace("takehit wpnId is: %d\n",wpnId);
+   
+	//Shoud be set from idata from the weapon::weaon constructor. -Z
+	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	{
+		wpnId = w->useweapon;
 	}
-	al_trace("takehit wpnId is: %d\n",wpnId);
 	
 	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
 	
