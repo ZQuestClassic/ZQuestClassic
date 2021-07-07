@@ -71,8 +71,9 @@ int main(int argc, char **argv)
     std::string script_path = argv[script_path_index + 1];
 
     allegro_init();
+    set_config_file("zquest.cfg");
     memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	strcpy(FFCore.scriptRunString,"run");
+	strcpy(FFCore.scriptRunString, get_config_string("Compiler","run_string","run"));
 
     // Any errors will be printed to stdout.
     int res = compile(script_path);
