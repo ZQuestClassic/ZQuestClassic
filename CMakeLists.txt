@@ -229,6 +229,15 @@ if(MSVC AND USE_PCH)
 endif()
 
 #############################################################
+# ZScript parser
+#############################################################
+
+if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	target_link_libraries(zscript ${ALLEGROLIB})
+endif()
+
+#############################################################
 # ZQuest
 #############################################################
 
@@ -269,4 +278,3 @@ if(Boost_FOUND)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
 endif()
-
