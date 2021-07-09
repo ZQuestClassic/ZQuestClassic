@@ -1886,6 +1886,7 @@ string ZScript::VarToString(long ID)
 	case LONGDISTANCE: return "LONGDISTANCE ";
 	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
+	case HEROISWARPING: return "HEROISWARPING";
 	
 	
 	default:

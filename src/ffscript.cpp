@@ -4018,6 +4018,10 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case HEROISWARPING:
+			ret = Link.is_warping ? 10000L : 0L;
+			break;
+		
 		case CLOCKACTIVE:
 			ret=watch?10000:0;
 			break;
@@ -21833,7 +21837,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	//int last_entr_dmap = -1;
 	
 	if ( warpType < wtEXIT ) warpType = wtIWARP; //Sanity check. We can't use wtCave, or wtPassage, with scritped warps at present.
-	
+	Link.is_warping = true;
 	switch(warpType)
 	{
 		
@@ -22173,6 +22177,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		default: 
 		{
 			Z_scripterrlog("Invalid warp type (%d) supplied to Hero->WarpEx()!. Cannot warp!!\n", warpType);
+			Link.is_warping = false;
 			return false;
 		}
 	}
@@ -22286,6 +22291,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		initZScriptDMapScripts();
 	}
+	Link.is_warping = false;
 	return true;
 	
 	
@@ -35422,6 +35428,7 @@ script_variable ZASMVars[]=
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
+	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 96
-Document Revision: 25th April, 2021
+Document Revision: 8th July, 2021
 
 
  __           _   _                 
@@ -4643,6 +4643,11 @@ int JumpCount;
  * Returns the number of times the hero has jumped in mid-air since last landing.
  * If this is positive, it will be reset to 0 the next frame the hero is on the ground.
  * Used by Roc's Feather items to determine how many extra jumps the hero has left
+
+bool IsWarping;
+ * Returns true if the player is currently being warped
+ * Note that as scripts generally do not run in warps, this may not ever return true
+ *     during a given warp, depending on the warp type, QRs, script type, etc.
 
 float Scale;
  * The scale factor for this sprited object. 
