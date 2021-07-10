@@ -16579,7 +16579,7 @@ static int combo_attributes_list[] =
     47,48,
 	57,58,59,60,61,62,63,64,104,105,
 	114,115,116,117,118,119,120,121,
-	132, 133,
+	132, 133, 134, 135,
 	-1
 };
 
@@ -18372,8 +18372,11 @@ static DIALOG combo_dlg[] =
     // 132
 	{ jwin_text_proc,           76,    62,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes:",                  NULL,   NULL                  },
 	{ jwin_text_proc,          202,    62,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes:",                  NULL,   NULL                  },
-    //134
-   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+    //134 cancel, 135 ok
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	//136
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -19398,8 +19401,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
 	
 		
-	} while ( ret != 0 && ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 ); //127 cancel, 128 OK
-	if ( ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 ) //save it
+	} while ( ret != 0 && ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 ); //127 cancel, 128 OK
+	if ( ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || 134 ) //save it
 	{
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		combobuf[c] = curr_combo;
