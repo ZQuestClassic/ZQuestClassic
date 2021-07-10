@@ -21741,15 +21741,18 @@ void FFScript::AlloffLimited(int flagset)
 //valid warpTypes: tile, side, exit, cancel, instant
 bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
 {
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	if(DEVLOGGING)
+	{
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	}
 	if ( ((unsigned)dmapID) >= MAXDMAPS ) 
 	{
 		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", dmapID);
@@ -29615,7 +29618,7 @@ void FFScript::do_warp_ex(bool v)
 		case 8:
 			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
-			zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
+			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
 			int tmpwarp[8]={0};
 			for ( int q = 0; q < wexDir; q++ )
 			{
@@ -29652,7 +29655,7 @@ void FFScript::do_warp_ex(bool v)
 		case 9:
 			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			int tmpwarp[9]={0};
 			
 			for ( int q = 0; q < wexActive; q++ )
@@ -35799,7 +35802,7 @@ string zs_sprintf(char const* format, int num_args)
 					}
 				}
 				char mindigbuf[8] = {0};
-				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? 'x' : 'd');
+				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? format[0] : 'd');
 				switch( format[0] )
 				{
 					case 'd':
