@@ -1146,6 +1146,7 @@ void LinkClass::init()
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
+	is_warping = false;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -8011,7 +8012,7 @@ bool LinkClass::animate(int)
 	//Link->WarpEx
 	if ( FFCore.warpex[wexActive] )
 	{
-	Z_scripterrlog("Running warpex from Link.cpp\n");
+	if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
 	FFCore.warpex[wexActive] = 0;
 	int temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
 	for ( int q = 0; q < wexActive; q++ ) 
@@ -18242,6 +18243,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	{
 		return false;
 	}
+	is_warping = true;
 	for ( int q = 0; q < Lwpns.Count(); ++q )
 	{
 		weapon *swd=NULL;
@@ -18897,6 +18899,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			didpit=false;
 			update_subscreens();
 			warp_sound = 0;
+			is_warping = false;
 			return false;
 		}
 	}
@@ -19234,6 +19237,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		didpit=false;
 		update_subscreens();
 		warp_sound = 0;
+		is_warping = false;
 		return false;
 	}
 	
@@ -19242,6 +19246,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         didpit=false;
         update_subscreens();
         warp_sound = 0;
+		is_warping = false;
 	if(reposition_sword_postwarp)
 	{
 		weapon *swd=NULL;
@@ -19430,6 +19435,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     FFCore.init_combo_doscript();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
+	is_warping = false;
     return true;
 }
 

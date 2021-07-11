@@ -253,6 +253,8 @@ public:
 	int steprate;
     byte defence[wMax];
 	int subscr_speed;
+	bool is_warping;
+	
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);

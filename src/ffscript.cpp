@@ -4018,6 +4018,10 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case HEROISWARPING:
+			ret = Link.is_warping ? 10000L : 0L;
+			break;
+		
 		case CLOCKACTIVE:
 			ret=watch?10000:0;
 			break;
@@ -21743,15 +21747,18 @@ void FFScript::AlloffLimited(int flagset)
 //valid warpTypes: tile, side, exit, cancel, instant
 bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
 {
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
-	zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	if(DEVLOGGING)
+	{
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
+		zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	}
 	if ( ((unsigned)dmapID) >= MAXDMAPS ) 
 	{
 		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", dmapID);
@@ -21839,7 +21846,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	//int last_entr_dmap = -1;
 	
 	if ( warpType < wtEXIT ) warpType = wtIWARP; //Sanity check. We can't use wtCave, or wtPassage, with scritped warps at present.
-	
+	Link.is_warping = true;
 	switch(warpType)
 	{
 		
@@ -22179,6 +22186,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		default: 
 		{
 			Z_scripterrlog("Invalid warp type (%d) supplied to Hero->WarpEx()!. Cannot warp!!\n", warpType);
+			Link.is_warping = false;
 			return false;
 		}
 	}
@@ -22292,6 +22300,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		initZScriptDMapScripts();
 	}
+	Link.is_warping = false;
 	return true;
 	
 	
@@ -29615,7 +29624,7 @@ void FFScript::do_warp_ex(bool v)
 		case 8:
 			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
-			zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
+			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
 			int tmpwarp[8]={0};
 			for ( int q = 0; q < wexDir; q++ )
 			{
@@ -29652,7 +29661,7 @@ void FFScript::do_warp_ex(bool v)
 		case 9:
 			// {int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			int tmpwarp[9]={0};
 			
 			for ( int q = 0; q < wexActive; q++ )
@@ -35428,6 +35437,7 @@ script_variable ZASMVars[]=
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
+	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -35798,7 +35808,7 @@ string zs_sprintf(char const* format, int num_args)
 					}
 				}
 				char mindigbuf[8] = {0};
-				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? 'x' : 'd');
+				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? format[0] : 'd');
 				switch( format[0] )
 				{
 					case 'd':

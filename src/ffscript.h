@@ -4241,9 +4241,9 @@ enum ASM_DEFINE
 #define LINKITEMX			0x13DF
 #define LINKITEMY			0x13E0
 #define ACTIVESSSPEED			0x13E1
+#define HEROISWARPING			0x13E2
 
-
-#define NUMVARIABLES         	0x13E2
+#define NUMVARIABLES         	0x13E3
 
 //} End variables
 

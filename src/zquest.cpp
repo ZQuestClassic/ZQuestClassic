@@ -36498,7 +36498,7 @@ bool ZModule::init(bool d) //bool default
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
 			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
 			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
-			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3", 
 			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
 		};
 		const char lweapon_default_names[wIce+1][255]=
@@ -36507,14 +36507,13 @@ bool ZModule::init(bool d) //bool default
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
 			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle", 
 			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
-			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
 			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
 		};
 		for ( int q = 0; q < wIce+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
-			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
 		{
