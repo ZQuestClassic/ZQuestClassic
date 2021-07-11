@@ -8200,13 +8200,28 @@ bool LinkClass::animate(int)
 // to switch Link's weapon if his current weapon (bombs) was depleted.
 void LinkClass::deselectbombs(int super)
 {
-    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb) return;
+    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
         int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
         Bwpn = Bweapon(temp);
         directItemB = directItem;
         game->bwpn = temp;
+    }
+    
+    else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    {
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn);
+        Xwpn = Bweapon(temp);
+        directItemX = directItem;
+        game->xwpn = temp;
+    }
+    else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    {
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn);
+        Xwpn = Bweapon(temp);
+        directItemY = directItem;
+        game->ywpn = temp;
     }
     else
     {

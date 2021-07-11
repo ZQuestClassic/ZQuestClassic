@@ -1363,7 +1363,7 @@ script_variable variable_list[]=
 	{ "IDATACOMBINE",         IDATACOMBINE,            0,             0 },
 	{ "IDATADOWNGRADE",         IDATADOWNGRADE,            0,             0 },
 	{ "IDATAPSTRING",         IDATAPSTRING,            0,             0 },
-	{ "RESVD0023",         RESVD023,            0,             0 },
+	{ "IDATAPFLAGS",         IDATAPFLAGS,            0,             0 },
 	{ "IDATAKEEPOLD",         IDATAKEEPOLD,            0,             0 },
 	{ "IDATARUPEECOST",         IDATARUPEECOST,            0,             0 },
 	{ "IDATAEDIBLE",         IDATAEDIBLE,            0,             0 },
