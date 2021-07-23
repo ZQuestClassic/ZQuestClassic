@@ -128,7 +128,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,-1 
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -190,6 +190,7 @@ static DIALOG comborules_dlg[] =
     // 35
     { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Shallow Water Detection", NULL, NULL },
     { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fixed Smart Scrolling", NULL, NULL },
+    { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -204,6 +205,7 @@ static int comborules[] =
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
 	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
+	qr_NONHEAVY_BLOCKTRIGGER_PERM,
 	
 	-1
 };

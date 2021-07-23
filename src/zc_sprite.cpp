@@ -278,8 +278,9 @@ bool movingblock::animate(int index)
             
             if(canPermSecret())
             {
-                if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-                        || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
+                if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
+					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
+                        || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
                 {
                     if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
                 }
