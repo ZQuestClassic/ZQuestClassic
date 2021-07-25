@@ -1891,10 +1891,20 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 
 int d_msg_edit_proc(int msg,DIALOG *d,int c)
 {
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
 	int ret = jwin_edit_proc(msg,d,c);
 	
 	if(msg==MSG_CHAR)
+	{
 		(void)d_msg_preview_proc(MSG_DRAW,&editmsg_dlg[8],c);
+	}
 	else if(msg==MSG_START)
 	{
 		//hack to counteract jwin_edit_proc's automatic setting of the cursor to the far right

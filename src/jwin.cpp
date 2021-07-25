@@ -1188,6 +1188,14 @@ elseif (x < 0 ) d->dp = (char*)"0";
   */
 int jwin_edit_proc(int msg, DIALOG *d, int c)
 {
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
     int f, l, p, w, x, y, fg, bg;
     int b;
     int scroll;
