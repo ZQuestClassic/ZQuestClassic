@@ -1821,7 +1821,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special, int Linked_Parent) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1846,7 +1846,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
-    linked_parent = 0;
+    linked_parent = Linked_Parent;
     quantity_iterator = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
