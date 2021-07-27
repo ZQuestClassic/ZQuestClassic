@@ -312,7 +312,7 @@ bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of bla
 */
 bool ewind_restart=false;
 
-word     msgclk = 0, msgstr = 0,
+word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msgpos = 0,	// screen position of the next character.
          msgptr = 0,	// position within the string of the next character. <MSGSIZE.
          msgcolour = 0,	// colour to use for the displayed text.
@@ -908,79 +908,6 @@ FONT *setmsgfont()
     }
 }
 
-//This is not working, as expected. Is there a system method for enqueuing strings? -Z
-int donew_shop_msg(int itmstr, int shopstr)
-{
-	if(msg_onscreen || msg_active)
-			dismissmsg();
-	
-	int tempmsg = 0;
-	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
-	
-	//Disabling this for now.
-	/*
-	while ( tempmsgnext != 0 )
-	{
-		tempmsg = tempmsgnext; //change to the next message
-		tempmsgnext = MsgStrings[tempmsg].nextstring; //store the next message, for that
-		//find the end of the chain
-	}
-	//change the next string until we finish.
-	MsgStrings[tempmsgnext].nextstring = itmstr;
-	*/
-	
-    //al_trace("donewmsg %d\n",str);
-    
-        
-    linkedmsgclk=0;
-    msg_active = true;
-    // Don't set msg_onscreen - not onscreen just yet
-    msgstr = shopstr;
-    msgorig = msgstr;
-    msgfont = setmsgfont();
-    msgcolour=QMisc.colors.msgtext;
-    msgspeed=zinit.msg_speed;
-    
-    if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-	{
-        clear_bitmap(msg_bg_display_buf);
-        clear_bitmap(msg_txt_display_buf);
-	}
-        
-    clear_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-    clear_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    clear_bitmap(msg_txt_bmp_buf);
-    clear_bitmap(msg_bg_bmp_buf);
-    clear_bitmap(msg_portrait_bmp_buf);
-    msgclk=msgpos=msgptr=0;
-    msgspace=true;
-    msg_w=MsgStrings[msgstr].w;
-    msg_h=MsgStrings[msgstr].h;
-    msg_xpos=MsgStrings[msgstr].x;
-    msg_ypos=MsgStrings[msgstr].y;
-	prt_tile=MsgStrings[msgstr].portrait_tile;
-	prt_cset=MsgStrings[msgstr].portrait_cset;
-	prt_x=MsgStrings[msgstr].portrait_x;
-	prt_y=MsgStrings[msgstr].portrait_y;
-	prt_tw=MsgStrings[msgstr].portrait_tw;
-	prt_th=MsgStrings[msgstr].portrait_th;
-    
-    //transparency needs to occur here. -Z
-    msg_bg(MsgStrings[msgstr]);
-    msg_prt();
-    
-	for(int q = 0; q < 4; ++q)
-	{
-		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
-	}
-    cursor_x=msg_margins[left];
-    cursor_y=msg_margins[up];
-	return tempmsgnext;
-}
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
 {
 	for(int tx = 0; tx < w; ++tx)
@@ -3558,33 +3485,21 @@ void game_loop()
 	
 	//  walkflagx=0; walkflagy=0;
 	runDrunkRNG();
-    if(fadeclk>=0)
+    
+    // Three kinds of freezes: freeze, freezemsg, freezeff
+    
+    // freezemsg if message is being printed && qr_MSGFREEZE is on,
+    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
+    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
+			&& (get_bit(quest_rules,qr_MSGFREEZE)));
+	
+    if(fadeclk>=0 && !freezemsg)
     {
         if(fadeclk==0 && currscr<128)
             blockpath=false;
             
         --fadeclk;
     }
-    
-    // Three kinds of freezes: freeze, freezemsg, freezeff
-    
-    // freezemsg if message is being printed && qr_MSGFREEZE is on,
-    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
-    int tscr=currscr<128?0:1;
-    bool isshop = false;
-    switch(tmpscr[tscr].room)
-    {
-	//case rSP_ITEM:                                          // special item
-	case rRP_HC:      					// heart container or red potion
-	case rTAKEONE:                                          // take one
-	case rSHOP:                                             // shop
-		isshop = true;
-		break;
-	default: break;
-    }
-    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-			&& (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
-			//&& (get_bit(quest_rules,qr_MSGFREEZE)));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;

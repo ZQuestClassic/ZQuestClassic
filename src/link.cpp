@@ -23126,10 +23126,10 @@ void LinkClass::checkitems(int index)
 	    
 	    
 	    //Show a message string, if set.
-	    if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
+	    /*if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
 	    {
 		    donewmsg(QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
-	    }
+	    }*/
 	    
             
             for(int i=0; i<3; i++)
@@ -23268,46 +23268,31 @@ void LinkClass::checkitems(int index)
                 
             holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
             freeze_guys=true;
-	    //show the info string
-	     
-	    
-	    //if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
-	     if ( pstr > 0 && pstr < msg_count )
-	    {
-		switch(tmpscr[tmp].room)
-		{
-			case rSHOP: 
+			//show the info string
+			 
+			
+			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
+			
+			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
+			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
-				if ( PriceIndex >= 0 )
+				if ( ((pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
 				{
-					//if it is a shop item, and not another item type.
-					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
-					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
-				}
-				else 
-				{
-					if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
-					{	
-						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-						if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-					}
-				}
-				break;
-			}
-			default: 
-			{
-				if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
-				{	
-					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
 					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 				}
-				break;
+				else pstr = 0;
+				if(shop_pstr)
+				{
+					donewmsg(shop_pstr);
+					enqueued_str = pstr;
+				}
+				else if(pstr)
+				{
+					donewmsg(pstr);
+				}
 			}
-		}																		
-		//donewmsg(pstr);
-	    }
-	    
-        }
+			
+		}
         
         if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
         {
@@ -23389,49 +23374,30 @@ void LinkClass::checkitems(int index)
             dismissmsg();
         }
 	
-	//general item pickup message
-        //show the info string
-	//non-held
-	//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-	if ( pstr > 0 && pstr < msg_count )
-	{
-		switch(tmpscr[tmp].room)
+		//general item pickup message
+		//show the info string
+		//non-held
+		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
+			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
+		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
-			case rSHOP: 
-			case rP_SHOP: 
-			case rTAKEONE: 
+			if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
 			{
-				if ( PriceIndex >= 0 )
-				{
-					//if it is a shop item, and not another item type.
-					//if there is no shop string, use the item string
-					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
-					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
-				}
-				else 
-				{
-					if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
-					{
-						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-						if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-					}
-				}
-				break;
+				if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 			}
-			default: 
+			else pstr = 0;
+			if(shop_pstr)
 			{
-				if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
-				{
-					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-				}
-				break;
+				donewmsg(shop_pstr);
+				enqueued_str = pstr;
 			}
-		}		
-		//donewmsg(pstr);
-	}
-	
-	
+			else if(pstr)
+			{
+				donewmsg(pstr);
+			}
+		}
+		
+		
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
     }
@@ -23983,9 +23949,9 @@ void setup_red_screen_old()
 			if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip) || !(msg_portrait_display_buf->clip))
 			{
 				masked_blit(framebuf, subbmp, 0, playing_field_offset, 0, 0, 256, 168);
-				blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
-				blit_msgstr_prt(subbmp, 0, 0, 0, 0, 256, 168);
-				blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_bg_display_buf->clip)) blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_portrait_display_buf->clip)) blit_msgstr_prt(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_txt_display_buf->clip)) blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
 			}
             for(int y=0; y<168; y++)
             {
@@ -23993,7 +23959,7 @@ void setup_red_screen_old()
                 {
                     int c1 = framebuf->line[y+playing_field_offset][x];
                     int c2 = subbmp->line[y][x];
-                    int c3 = pricesdisplaybuf->line[y][x];
+                    int c3 = pricesdisplaybuf->clip ? 0 : pricesdisplaybuf->line[y][x];
                     
                     if(c1 && c3)
                     {

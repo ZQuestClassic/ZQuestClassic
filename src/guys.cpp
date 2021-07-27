@@ -20500,6 +20500,7 @@ void moneysign()
 
 void putprices(bool sign)
 {
+	if(fadeclk > 0) return;
 	// refresh what's under the prices
 	// for(int i=5; i<12; i++)
 	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
@@ -21180,7 +21181,11 @@ void putmsg()
 			if(cAbtn()||cBbtn())
 			{
 				msgstr=MsgStrings[msgstr].nextstring;
-				
+				if(!msgstr && enqueued_str)
+				{
+					msgstr = enqueued_str;
+					enqueued_str = 0;
+				}
 				if(!msgstr)
 				{
 					msgfont=zfont;
@@ -21411,7 +21416,7 @@ breakout:
 			;
 			
 		// Go to next string, or make it disappear by going to string 0.
-		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR))
+		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR) || enqueued_str)
 		{
 			linkedmsgclk=51;
 		}
