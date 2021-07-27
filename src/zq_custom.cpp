@@ -4604,7 +4604,7 @@ static TABPANEL enedata_tabs[] =
     { (char *)"Basic",       D_SELECTED,               enemy_basic_tabs_list,    0, NULL },
    // { (char *)"Misc. Flags",	 0,               enedata_flags_list,    0, NULL },
    // { (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
-    { (char *)"Defences",	 0,               enemy_defence_tabs_list,   0, NULL },
+    { (char *)"Defenses",	 0,               enemy_defence_tabs_list,   0, NULL },
    // { (char *)"Defs 1",	 0,               enedata_defense_list,   0, NULL },
    // { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
    // { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
@@ -6886,7 +6886,7 @@ void setEnemyLabels(int family)
     {
         for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
         
-        enedata_dlg[192].flags |= D_DISABLED; //Defences disabled for Traps. rocks,. Dodongos and Ganon. 
+        enedata_dlg[192].flags |= D_DISABLED; //Defenses disabled for Traps. rocks,. Dodongos and Ganon. 
 	    //We will need to remove Ganon from this list once we give him defence properties in the EE. -Z
 	    
 	enedata_dlg[203].d1 |= D_DISABLED;
@@ -7230,7 +7230,7 @@ void edit_enemydata(int index)
     enedata_dlg[192].d1 = guysbuf[index].defense[edefWhistle];
     
     
-    //Script Defences
+    //Script Defenses
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
      enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
      enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
@@ -9986,7 +9986,7 @@ static TABPANEL linktile_tabs[] =
     // (text)
 { (char *)"Sprites (Land)",       D_SELECTED,   linktile_land_list, 0, NULL },
     { (char *)"Sprites (Liquid)",      0,            linktile_water_list, 0, NULL },
-    { (char *)"Defences",             0,            linktile_defense_list, 0, NULL},
+    { (char *)"Defenses",             0,            linktile_defense_list, 0, NULL},
     { (char *)"Options",              0,            linktile_option_list, 0, NULL  }, 
     { NULL,                 0,            NULL,                0, NULL }
 };
