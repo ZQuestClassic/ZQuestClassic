@@ -8202,7 +8202,7 @@ void LinkClass::deselectbombs(int super)
     if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Bwpn = Bweapon(temp);
         directItemB = directItem;
         game->bwpn = temp;
@@ -8210,21 +8210,21 @@ void LinkClass::deselectbombs(int super)
     
     else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Xwpn = Bweapon(temp);
         directItemX = directItem;
         game->xwpn = temp;
     }
     else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
         Xwpn = Bweapon(temp);
         directItemY = directItem;
         game->ywpn = temp;
     }
     else
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Awpn = Bweapon(temp);
         directItemA = directItem;
         game->awpn = temp;
@@ -22358,7 +22358,7 @@ void selectNextAWpn(int type)
     if(!get_bit(quest_rules,qr_SELECTAWPN))
         return;
         
-    int ret = selectWpn_new(type, game->awpn, game->bwpn, game->xwpn, game->ywpn);
+    int ret = selectWpn_new(type, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Awpn = Bweapon(ret);
     directItemA = directItem;
     game->awpn = ret;
@@ -22366,7 +22366,7 @@ void selectNextAWpn(int type)
 
 void selectNextBWpn(int type)
 {
-    int ret = selectWpn_new(type, game->bwpn, game->awpn, game->xwpn, game->ywpn);
+    int ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Bwpn = Bweapon(ret);
     directItemB = directItem;
     game->bwpn = ret;
@@ -22386,7 +22386,7 @@ void verifyAWpn()
     }
     else
     {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn);
+        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
         Awpn = Bweapon(game->awpn);
         directItemA = directItem;
     }
@@ -22399,15 +22399,41 @@ void verifyBWpn()
 		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
 		return;
 	}
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
+    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;
+}
+
+void verifyXWpn()
+{
+	if ( (game->forced_xwpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
+    game->xwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
+    Xwpn = Bweapon(game->xwpn);
+    directItemX = directItem;
+}
+
+void verifyYWpn()
+{
+	if ( (game->forced_ywpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
+    game->ywpn = selectWpn_new(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
+    Ywpn = Bweapon(game->ywpn);
+    directItemY = directItem;
 }
 
 void verifyBothWeapons()
 {
     verifyAWpn();
     verifyBWpn();
+    verifyXWpn();
+    verifyYWpn();
 }
 
 int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)

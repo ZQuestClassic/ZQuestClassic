@@ -536,6 +536,8 @@ void selectNextBWpn(int type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
+void verifyXWpn();
+void verifyYWpn();
 bool canget(int id);
 void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);

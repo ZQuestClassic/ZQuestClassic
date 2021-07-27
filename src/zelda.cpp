@@ -2411,14 +2411,14 @@ int init_game()
     
     if(firstplay)
     {
-	game->awpn=0;
-	game->bwpn=0;
-	game->ywpn=0;
-	game->xwpn=0;
-	game->forced_awpn = -1; 
-	game->forced_bwpn = -1;  
-	game->forced_xwpn = -1; 
-	game->forced_ywpn = -1;    
+		game->awpn=-1;
+		game->bwpn=-1;
+		game->ywpn=-1;
+		game->xwpn=-1;
+		game->forced_awpn = -1; 
+		game->forced_bwpn = -1;  
+		game->forced_xwpn = -1; 
+		game->forced_ywpn = -1;    
     }
         
     update_subscreens();
