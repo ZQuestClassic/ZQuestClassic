@@ -2432,15 +2432,20 @@ int init_game()
     
 	//Setup button items
 	{
-		if(get_bit(quest_rules, qr_SETXYBUTTONITEMS))
+		bool use_x = get_bit(quest_rules, qr_SET_XBUTTON_ITEMS), use_y = get_bit(quest_rules, qr_SET_YBUTTON_ITEMS);
+		if(use_x || use_y)
 		{
 			if(!get_bit(quest_rules, qr_SELECTAWPN))
 			{
 				Awpn = selectSword();
 				apos = -1;
 				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-				xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos);
-				ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos, xpos);
+				if(use_x)
+					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos);
+				else xpos = -1;
+				if(use_y)
+					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos, xpos);
+				else ypos = -1;
 				directItem = -1;
 				directItemA = directItem; 
 			}
@@ -2448,8 +2453,12 @@ int init_game()
 			{
 				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
 				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-				xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos);
-				ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos, xpos);
+				if(use_x)
+					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos);
+				else xpos = -1;
+				if(use_y)
+					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos, xpos);
+				else ypos = -1;
 				
 				if(bpos==0xFF)
 				{

@@ -3151,6 +3151,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 58) )
+	{
+		//Rule used to be 'qr_SETXYBUTTONITEMS', now split.
+		if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+			set_bit(quest_rules,qr_SET_YBUTTON_ITEMS,1);
+	}
 	
     if ( tempheader.zelda_version < 0x254 )
     {
