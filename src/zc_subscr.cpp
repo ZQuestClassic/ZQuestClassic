@@ -83,6 +83,7 @@ void dosubscr(miscQdata *misc)
     
 	bool use_a = get_bit(quest_rules,qr_SELECTAWPN), use_x = get_bit(quest_rules,qr_SET_XBUTTON_ITEMS),
 	     use_y = get_bit(quest_rules,qr_SET_YBUTTON_ITEMS);
+	bool b_only = !(use_a||use_x||use_y);
 	
     //Set the selector to the correct position before bringing up the subscreen -DD
 	{
@@ -166,7 +167,7 @@ void dosubscr(miscQdata *misc)
 			}
 		}
 		//Assign items to buttons
-		if(rBbtn())
+		if(rBbtn() || b_only)
 		{
 			int t = Bweapon(Bpos);
 			if(use_a && t == Awpn)
@@ -190,7 +191,7 @@ void dosubscr(miscQdata *misc)
 			
 			Bwpn = t;
 			game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-			sfx(WAV_PLACE);
+			if(!b_only) sfx(WAV_PLACE);
 			
 			game->bwpn = Bpos;
 			directItemB = directItem;
