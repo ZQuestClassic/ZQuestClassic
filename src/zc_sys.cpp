@@ -11020,6 +11020,14 @@ bool DrunkcBbtn()
 {
     return getInput(btnB, false, true);
 }
+bool DrunkcEx1btn()
+{
+    return getInput(btnEx1, false, true);
+}
+bool DrunkcEx2btn()
+{
+    return getInput(btnEx2, false, true);
+}
 bool DrunkcSbtn()
 {
     return getInput(btnS, false, true);

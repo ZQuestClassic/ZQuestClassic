@@ -163,8 +163,6 @@ int favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
 
 void playLevelMusic();
 
-int last_quest_was_BA_subscreen = 0; //Used during init when loading a quest. 
-
 //Prevent restarting during ending sequence from creating a rect clip
 int draw_screen_clip_rect_x1=0;
 int draw_screen_clip_rect_x2=255;
@@ -2500,87 +2498,105 @@ int init_game()
     
     load_Sitems(&QMisc);
     
-//load the previous weapons -DD
-    zprint2("last_quest_was_BA_subscreen prior to init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
+	//load the previous weapons -DD	
     
     bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
-    int apos = 0;
-    int bpos = 0;
+    int apos = 0, bpos = 0, xpos = 0, ypos = 0;
     
-    if(last_quest_was_BA_subscreen) //Will always be false on initialising ZC Player, but will be changed when you load a quest.
-    {
-	if(!get_bit(quest_rules,qr_SELECTAWPN))
+	//Setup button items
 	{
-		Awpn = selectSword();
-		apos = -1;
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
-		directItem = -1;
-		directItemA = directItem; 
-	}
-	else
-	{
-		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-        
-		if(bpos==0xFF)
+		if(get_bit(quest_rules, qr_SETXYBUTTONITEMS))
 		{
-			bpos=apos;
-			apos=-1;
+			if(!get_bit(quest_rules, qr_SELECTAWPN))
+			{
+				Awpn = selectSword();
+				apos = -1;
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+				xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos);
+				ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos, xpos);
+				directItem = -1;
+				directItemA = directItem; 
+			}
+			else
+			{
+				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+				xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos);
+				ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos, xpos);
+				
+				if(bpos==0xFF)
+				{
+					bpos=-1;
+				}
+				if(apos==0xFF)
+				{
+					apos=-1;
+				}
+				if(xpos==0xFF)
+				{
+					xpos=-1;
+				}
+				if(bpos==0xFF)
+				{
+					ypos=-1;
+				}
+				
+				Awpn = Bweapon(apos); //Bweapon() sets directItem
+				directItemA = directItem;
+			}
+
+			game->awpn = apos;
+			
+			game->bwpn = bpos;
+			Bwpn = Bweapon(bpos);
+			directItemB = directItem;
+			
+			game->xwpn = xpos;
+			Xwpn = Bweapon(xpos);
+			directItemX = directItem;
+			
+			game->ywpn = ypos;
+			Ywpn = Bweapon(ypos);
+			directItemY = directItem;
+			
+			update_subscr_items();
+
+			reset_subscr_items();
 		}
-        
-		Awpn = Bweapon(apos); //Bweapon() sets directItem
-		directItemA = directItem;
-	}
-    
-	game->awpn = apos;
-	game->bwpn = bpos;
-	Bwpn = Bweapon(bpos);
-	directItemB = directItem;
-	//directItemA = directItem; 
-	//Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
-	//if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
-	update_subscr_items();
-    
-	reset_subscr_items();
-    }
-    else //old stuff from DD, use it if playing a B-Only quest after another B-Only quest
-    {
-	if(!get_bit(quest_rules,qr_SELECTAWPN))
-	{
-		Awpn = selectSword();
-		apos = -1;
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
-		directItem = -1;
-		directItemA = directItem; 
-	}
-	else
-	{
-		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-        
-		if(bpos==0xFF)
+		else
 		{
-			bpos=apos;
-			apos=-1;
+			if(!get_bit(quest_rules,qr_SELECTAWPN))
+			{
+				Awpn = selectSword();
+				apos = -1;
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+				directItem = -1;
+				directItemA = directItem; 
+			}
+			else
+			{
+				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+				
+				if(bpos==0xFF)
+				{
+					bpos=apos;
+					apos=-1;
+				}
+				
+				Awpn = Bweapon(apos); //Bweapon() sets directItem
+				directItemA = directItem;
+			}
+
+			game->awpn = apos;
+			game->bwpn = bpos;
+			Bwpn = Bweapon(bpos);
+			directItemB = directItem;
+			update_subscr_items();
+
+			reset_subscr_items();
 		}
-        
-		Awpn = Bweapon(apos); //Bweapon() sets directItem
-		directItemA = directItem;
-	}
-    
-	game->awpn = apos;
-	game->bwpn = bpos;
-	Bwpn = Bweapon(bpos);
-	directItemB = directItem;
-	update_subscr_items();
-    
-	reset_subscr_items();    
-	    
     }
-    
-    last_quest_was_BA_subscreen = get_bit(quest_rules,qr_SELECTAWPN) ? 1 : 0;
-    zprint2("last_quest_was_BA_subscreen after init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
-    
     
     
     show_subscreen_dmap_dots=true;

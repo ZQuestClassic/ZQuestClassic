@@ -527,7 +527,7 @@ const int SEL_DOWN = 2;
 const int SEL_RIGHT = 3;
 const int SEL_VERIFY_LEFT = 4;
 const int SEL_VERIFY_RIGHT = 5;
-int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
+int selectWpn_new(int type, int startpos, int forbiddenpos = -1, int fp2 = -1, int fp3 = -1);
 bool isWpnPressed(int wpn);
 int getWpnPressed(int wpn);
 int selectSword();

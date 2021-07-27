@@ -22336,6 +22336,9 @@ bool isWpnPressed(int itype)
 	//Will crash on win10 without it! -Z
     
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
+	
+    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
     
     return false;
 }
@@ -22355,7 +22358,7 @@ void selectNextAWpn(int type)
     if(!get_bit(quest_rules,qr_SELECTAWPN))
         return;
         
-    int ret = selectWpn_new(type, game->awpn, game->bwpn);
+    int ret = selectWpn_new(type, game->awpn, game->bwpn, game->xwpn, game->ywpn);
     Awpn = Bweapon(ret);
     directItemA = directItem;
     game->awpn = ret;
@@ -22363,7 +22366,7 @@ void selectNextAWpn(int type)
 
 void selectNextBWpn(int type)
 {
-    int ret = selectWpn_new(type, game->bwpn, game->awpn);
+    int ret = selectWpn_new(type, game->bwpn, game->awpn, game->xwpn, game->ywpn);
     Bwpn = Bweapon(ret);
     directItemB = directItem;
     game->bwpn = ret;
@@ -22407,14 +22410,14 @@ void verifyBothWeapons()
     verifyBWpn();
 }
 
-int selectWpn_new(int type, int startpos, int forbiddenpos)
+int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
 {
     //what will be returned when all else fails.
     //don't return the forbiddenpos... no matter what -DD
     
     int failpos(0);
     
-    if(startpos == forbiddenpos)
+    if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
         failpos = 0xFF;
     else failpos = startpos;
     
@@ -22429,7 +22432,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
     {
         int wpn = Bweapon(startpos);
         
-        if(wpn != 0 && startpos != forbiddenpos)
+        if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
         {
             return startpos;
         }
@@ -22538,7 +22541,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
         oldPositions.insert(curpos);
         
         //see if this weapon is acceptable
-        if(Bweapon(curpos) != 0 && curpos != forbiddenpos)
+        if(Bweapon(curpos) != 0 && curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
             return curpos;
             
         //keep going otherwise
