@@ -10294,36 +10294,37 @@ void weapon::draw(BITMAP *dest)
         
     case ewBrang:
     case wBrang:
-        cs = o_cset&15;
-        
-        if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1))
-        {
-	    if ( do_animation ) 
-	    {
-		    tile = o_tile;
-		    
-		    if(BSZ)
-			flip = bszboomflip[(clk>>2)&3];
-		    else
-		    {
-			//tile = boomframe[clk&0xE] + o_tile;
-			update_weapon_frame(boomframe[clk&0xE],o_tile);
-			flip = boomframe[(clk&0xE)+1];
-		    }
-		    
-		    if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-		    {
-			update_weapon_frame((BSZ?1:4)*dir,tile);
-		    }
-	    }
-        }
-        else
-        {
-            if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-            {
-                if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
-            }
-        }
+		cs = o_cset&15;
+		
+		if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
+			|| (id == ewBrang && !get_bit(quest_rules,qr_CORRECTED_EW_BRANG_ANIM)))
+		{
+			if ( do_animation ) 
+			{
+				tile = o_tile;
+				
+				if(BSZ)
+				flip = bszboomflip[(clk>>2)&3];
+				else
+				{
+				//tile = boomframe[clk&0xE] + o_tile;
+				update_weapon_frame(boomframe[clk&0xE],o_tile);
+				flip = boomframe[(clk&0xE)+1];
+				}
+				
+				if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+				{
+				update_weapon_frame((BSZ?1:4)*dir,tile);
+				}
+			}
+		}
+		else
+		{
+			if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+			{
+				if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
+			}
+		}
         
         if(dead>0)
         {
