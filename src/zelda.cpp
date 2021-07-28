@@ -2699,6 +2699,12 @@ int cont_game()
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
 	
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+    FFCore.initZScriptLinkScripts();
+    FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptActiveSubscreenScript();
+    FFCore.initZScriptItemScripts();
+	
     update_subscreens();
     Playing=true;
     map_bkgsfx(true);
@@ -2720,11 +2726,6 @@ int cont_game()
         activated_timed_warp=false;
     }
     
-    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    FFCore.initZScriptLinkScripts();
-    FFCore.initZScriptDMapScripts();
-    FFCore.initZScriptActiveSubscreenScript();
-    FFCore.initZScriptItemScripts();
     return 0;
 }
 

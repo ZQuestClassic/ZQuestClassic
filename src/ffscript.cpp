@@ -7779,7 +7779,7 @@ long get_register(const long arg)
 			{
 				if ( ri->mapsref == LONG_MAX )
 				{
-						Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
+						Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 						ret = -10000;
 				}
 				else
@@ -8106,43 +8106,40 @@ long get_register(const long arg)
 		//mapdata m-> variables
 		#define	GET_MAPDATA_VAR_INT32(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
+				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member *10000); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				ret = -10000; \
 			} \
 		} \
 
 		#define	GET_MAPDATA_VAR_INT16(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
+				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member *10000); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				ret = -10000; \
 			} \
 		} \
 
 		#define	GET_MAPDATA_VAR_BYTE(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if ( mapscr *m = GetMapscr(ri->mapsref) ) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
+				ret = (m->member *10000); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member *10000); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				ret = -10000; \
 			} \
 		} \
 		
@@ -8156,15 +8153,14 @@ long get_register(const long arg)
 			} \
 			else \
 			{ \
-				if ( ri->mapsref == LONG_MAX ) \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-					ret = -10000; \
+					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					mapscr *m = GetMapscr(ri->mapsref); \
-					ret = (m->member[indx] *10000); \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
 				} \
 			} \
 		} \
@@ -8179,15 +8175,14 @@ long get_register(const long arg)
 			} \
 			else \
 			{ \
-				if ( ri->mapsref == LONG_MAX ) \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-					ret = -10000; \
+					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					mapscr *m = GetMapscr(ri->mapsref); \
-					ret = (m->member[indx] *10000); \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
 				} \
 			} \
 		} \
@@ -8202,15 +8197,14 @@ long get_register(const long arg)
 			} \
 			else \
 			{ \
-				if ( ri->mapsref == LONG_MAX ) \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-					ret = -10000; \
+					ret = (m->member[indx] *10000); \
 				} \
 				else \
 				{ \
-					mapscr *m = GetMapscr(ri->mapsref); \
-					ret = (m->member[indx] *10000); \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
 				} \
 			} \
 		} \
@@ -8242,15 +8236,14 @@ long get_register(const long arg)
 			} \
 			else \
 			{ \
-				if ( ri->mapsref == LONG_MAX ) \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-					ret = -10000; \
+					ret = (m->member[indx-1] *10000); \
 				} \
 				else \
 				{ \
-					mapscr *m = GetMapscr(ri->mapsref); \
-					ret = (m->member[indx-1] *10000); \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
 				} \
 			} \
 		} \
@@ -8265,15 +8258,14 @@ long get_register(const long arg)
 			} \
 			else \
 			{ \
-				if ( ri->mapsref == LONG_MAX ) \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-					ret = -10000; \
+					ret = (m->member[indx]?10000:0); \
 				} \
 				else \
 				{ \
-					mapscr *m = GetMapscr(ri->mapsref); \
-					ret = (m->member[indx]?10000:0); \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
 				} \
 			} \
 		} \
@@ -8281,51 +8273,48 @@ long get_register(const long arg)
 		#define GET_MAPDATA_FLAG(member, str) \
 		{ \
 			long flag =  (value/10000);  \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
+				ret = (m->member&flag) ? 10000 : 0); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member&flag) ? 10000 : 0); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				ret = -10000; \
 			} \
 		} \
 		
 		#define GET_SCREENDATA_COMBO_VAR(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
+				int pos = ri->d[rINDEX] / 10000; \
+				if(BC::checkComboPos(pos, str) != SH::_NoError) \
+					ret = -10000; \
+				else \
+					ret = m->member[pos]*10000; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				int pos = ri->d[rINDEX] / 10000; \
-				if(BC::checkComboPos(pos, str) != SH::_NoError) \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 				ret = -10000; \
-				else \
-					ret = m->member[pos]*10000; \
 			} \
 		} \
 
 		#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else \
-			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
 				int pos = ri->d[rINDEX] / 10000; \
 				if(BC::checkComboPos(pos, str) != SH::_NoError) \
 					ret = -10000; \
 				else \
 					ret = combobuf[m->data[pos]].member * 10000; \
+			} \
+			else \
+			{ \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				ret = -10000; \
 			} \
 		} \
 		
@@ -8337,15 +8326,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
 				ret = -10000; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				ret = -10000; \
+				ret = (m->member[indx]); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member[indx]); \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				ret = -10000; \
 			} \
 		} \
 		
@@ -8357,15 +8345,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
 				ret = -10000; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				ret = -10000; \
+				ret = (m->member[indx])*10000; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member[indx])*10000; \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				ret = -10000; \
 			} \
 		} \
 
@@ -8377,15 +8364,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
 				ret = -10000; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				ret = -10000; \
+				ret = (m->member[indx])*10000; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				ret = (m->member[indx])*10000; \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				ret = -10000; \
 			} \
 		} \
 			
@@ -8479,18 +8465,17 @@ long get_register(const long arg)
 		case MAPDATASIDEWARPID: 
 		{
 			int indx = ri->d[rINDEX] / 10000;
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID");
-				ret = -10000;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				ret = (((m->flags2 >> indx) & 1)
 					? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
 					: -1 //Returns -1 if no warp is set
 					)*10000;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","SideWarpID");
+				ret = -10000;
 			} 
 			break;
 		}
@@ -8508,17 +8493,16 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
 				ret = 0;
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
-				ret = 0;
+				--indx;
+				ret = (((m->numff) & (1<<indx))) ? 10000 : 0;
+				//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 			}
 			else
 			{
-				--indx;
-				mapscr *m = GetMapscr(ri->mapsref);
-				ret = (((m->numff) & (1<<indx))) ? 10000 : 0;
-				//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
+				ret = 0;
 			}
 			break;
 		}
@@ -8531,15 +8515,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 				ret = 0;
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
-				ret = 0;
+				ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
+				ret = 0;
 			}
 			break;
 		}
@@ -8552,15 +8535,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 				ret = 0;
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
-				ret = 0;
+				ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
+				ret = 0;
 			}
 			break;
 		}
@@ -8574,15 +8556,14 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 				
 			}
-			else if ( ri->mapsref == LONG_MAX )
-				{
-					Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
-					ret = -10000; 
-				}
-				else 
-				{ 
-				mapscr *m = GetMapscr(ri->mapsref);
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
 				ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
+			}
+			else 
+			{ 
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				ret = -10000;
 			}
 			break;
 		}
@@ -8596,30 +8577,22 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 				
 			}
-			else if ( ri->mapsref == LONG_MAX )
-				{
-					Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
-					ret = -10000; 
-				}
-				else 
-				{ 
-				mapscr *m = GetMapscr(ri->mapsref);
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
 				ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
+			}
+			else 
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				ret = -10000; 
 			}
 			break;
 		}
 		
 		case MAPDATAFFWIDTH:       
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > 32 )
 				{
@@ -8628,22 +8601,20 @@ long get_register(const long arg)
 					break;
 				}
 				ret=((m->ffwidth[indx]>>6)+1)*10000;
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
+				ret = -10000;
+			}
+			break;
 		}
 		
 		//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 		case MAPDATAFFHEIGHT:      
 		{
-			if ( ri->mapsref == LONG_MAX  )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > 32 )
 				{
@@ -8652,8 +8623,13 @@ long get_register(const long arg)
 					break;
 				}
 				ret=((m->ffheight[indx]>>6)+1)*10000;
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
+				ret = -10000;
+			}
+			break;
 			
 		}
 		 
@@ -8662,15 +8638,8 @@ long get_register(const long arg)
 		//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 		case MAPDATAFFEFFECTWIDTH:     
 		{
-			if ( ri->mapsref == LONG_MAX  )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > 32 )
 				{
@@ -8679,22 +8648,20 @@ long get_register(const long arg)
 					break;
 				}
 				ret=((m->ffwidth[indx]&0x3F)+1)*10000;
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
+				ret = -10000;
+			}
+			break;
 		}
 		
 		//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 		case MAPDATAFFEFFECTHEIGHT:
 		{
-			if ( ri->mapsref == LONG_MAX  )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int indx = (ri->d[rINDEX] / 10000)-1;
 				if ( indx < 0 || indx > 32 )
 				{
@@ -8703,9 +8670,13 @@ long get_register(const long arg)
 					break;
 				}
 				ret=((m->ffheight[indx]&0x3F)+1)*10000;
-				
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
+				ret = -10000;
+			}
+			break;
 		}
 			
 		//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
@@ -8716,15 +8687,8 @@ long get_register(const long arg)
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
 		{
-			if ( ri->mapsref == LONG_MAX  )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				int ffid = (ri->d[rINDEX]/10000) -1;
 				int indx = ri->d[rINDEX2]/10000;
 					
@@ -8746,6 +8710,11 @@ long get_register(const long arg)
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+				ret = -10000; 
 			}	
 			break;
 		}	
@@ -8757,15 +8726,8 @@ long get_register(const long arg)
 		case MAPDATAINITA: 		
 			//same form as SetScreenD
 		{
-			if ( ri->mapsref == LONG_MAX  )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
@@ -8787,8 +8749,13 @@ long get_register(const long arg)
 				{ 
 					ret = (m->inita[ffid][indx]);
 				}
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+				ret = -10000;
+			}
+			break;
 		}	
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
@@ -8802,72 +8769,83 @@ long get_register(const long arg)
 		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 		case MAPDATASCREENMIDI:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","MIDI");
-				ret = -10000;
+				ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","MIDI");
+				ret = -10000;
 			}
 			break;
 		}
 		case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
 		case MAPDATAMAP:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Map");
+				ret = getMap(ri->mapsref) * 10000;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Map");
 				ret = -10000;
 			}
-			ret = getMap(ri->mapsref) * 10000;
 			break;
 		}
 		case MAPDATASCREEN:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Screen");
+				ret = getScreen(ri->mapsref) * 10000;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Screen");
 				ret = -10000;
 			}
-			ret = getScreen(ri->mapsref) * 10000;
 			break;
 		}
 
 		case MAPDATAFLAGS: 
 		{
-			if ( get_bit(quest_rules, qr_OLDMAPDATAFLAGS) )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
+				if ( get_bit(quest_rules, qr_OLDMAPDATAFLAGS) )
+				{
+					ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
+				}
+				else
+				{
+					int flagid = (ri->d[rINDEX])/10000;
+					//bool valtrue = ( value ? 10000 : 0);
+					switch(flagid)
+					{
+						case 0: ret = (m->flags * 10000); break;
+						case 1: ret = (m->flags2 * 10000); break;
+						case 2: ret = (m->flags3 * 10000); break;
+						case 3: ret = (m->flags4 * 10000); break;
+						case 4: ret = (m->flags5 * 10000); break;
+						case 5: ret = (m->flags6 * 10000); break;
+						case 6: ret = (m->flags7 * 10000); break;
+						case 7: ret = (m->flags8 * 10000); break;
+						case 8: ret = (m->flags9 * 10000); break;
+						case 9: ret = (m->flags10 * 10000); break;
+						default:
+						{
+							Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+							ret = -10000;
+							break;
+							
+						}
+					}
+				}
 			}
 			else
 			{
-				int flagid = (ri->d[rINDEX])/10000;
-				mapscr *m = GetMapscr(ri->mapsref); 
-				//bool valtrue = ( value ? 10000 : 0);
-				switch(flagid)
-				{
-					case 0: ret = (m->flags * 10000); break;
-					case 1: ret = (m->flags2 * 10000); break;
-					case 2: ret = (m->flags3 * 10000); break;
-					case 3: ret = (m->flags4 * 10000); break;
-					case 4: ret = (m->flags5 * 10000); break;
-					case 5: ret = (m->flags6 * 10000); break;
-					case 6: ret = (m->flags7 * 10000); break;
-					case 7: ret = (m->flags8 * 10000); break;
-					case 8: ret = (m->flags9 * 10000); break;
-					case 9: ret = (m->flags10 * 10000); break;
-					default:
-					{
-						Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
-						ret = -10000;
-						break;
-						
-					}
-				}
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Flags[]");
+				ret = -10000;
 			}
 			
 			break;
@@ -8883,94 +8861,91 @@ long get_register(const long arg)
 			{
 				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 				ret = -10000;
-				break;
 			}
-			else 
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				ret = (game->screen_d[mi][indx]) * 10000;
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","D[]");
+				ret = -10000;
+			}
+			break;
 		}
 
 		case MAPDATACOMBODD:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboD[]()",ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
-				//int ffindex = ri->d[rINDEX]/10000;
-				//int d = ri->d[rINDEX2]/10000;
-				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
 				{
-					ret = -10000; break;
+					ret = -10000;
 				}
 				else
 				{
 					ret = m->data[pos] * 10000;
-					break;
 				}
-				
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboD[]",ri->mapsref);
+				ret = -10000;
+			}
+			break;
 			//GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
 		}
 			
 		case MAPDATACOMBOCD:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboC[]()",ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
 				{
-					ret = -10000; break;
+					ret = -10000;
 				}
 				else
 				{
 					ret = m->cset[pos] * 10000;
-					break;
 				}
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboC[]",ri->mapsref);
+				ret = -10000;
+			}
+			break;
 		}
 			//GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
 			
 		case MAPDATACOMBOFD:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboF[]()",ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
 				{
-					ret = -10000; break;
+					ret = -10000;
 				}
 				else
 				{
 					ret = m->sflag[pos] * 10000;
-					break;
 				}
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboF[]",ri->mapsref);
+				ret = -10000;
+			}
+			break;
 		}
 			//GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
 			
@@ -8978,109 +8953,123 @@ long get_register(const long arg)
 			
 		case MAPDATACOMBOTD:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboT[]()",ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
 				{
-					ret = -10000; break;
+					ret = -10000;
 					
 				}
 				else
 				{
 					ret = combobuf[m->data[pos]].type * 10000;
-					break;
 				}
-				
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboT[]",ri->mapsref);
+				ret = -10000;
+			}
+			break;
 		}
 			//GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
 			
 		case MAPDATACOMBOID:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboI[]()",ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
 				{
-					ret = -10000; break;
-					
+					ret = -10000;
 				}
 				else
 				{
 					ret = combobuf[m->data[pos]].flag * 10000;
-					break;
 				}
-				
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboI[]",ri->mapsref);
+				ret = -10000;
+			}
+			break;
 			//GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
 		}
 			//GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
 			
 		case MAPDATACOMBOSD:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboS[]()", ri->mapsref);
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
 				{
-					
-					ret = -10000; break;
-					
+					ret = -10000;
 				}
 				else
 				{
 					ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
-					break;
 				}	
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboS[]", ri->mapsref);
+				ret = -10000;
+			}
+			break;
 		}
 		
 		case MAPDATASCREENSTATED:
 		{
-			int mi = ri->mapsref;
-			mi -= 8*((ri->mapsref) / MAPSCRS);
-			ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = ri->mapsref;
+				mi -= 8*((ri->mapsref) / MAPSCRS);
+				ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
+				ret = 0;
+			}
+			break;
 		}
-		break;
 		case MAPDATASCREENFLAGSD:
 		{
-			mapscr *m = GetMapscr(ri->mapsref);
-			ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","SFlags[]", ri->mapsref);
+				ret = -10000;
+			}
 			break;
 		}
 			
 		case MAPDATASCREENEFLAGSD:
 		{
-			mapscr *m = GetMapscr(ri->mapsref);
-			ret = get_screeneflags(m,vbound(ri->d[rINDEX] / 10000,0,2));
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				ret = get_screeneflags(m,vbound(ri->d[rINDEX] / 10000,0,2));
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
+				ret = -10000;
+			}
 			break;
 		}
 
@@ -15941,44 +15930,41 @@ void set_register(const long arg, const long value)
 		
 		#define	SET_MAPDATA_VAR_INT32(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member = vbound((value / 10000),-214747,214747); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member = vbound((value / 10000),-214747,214747); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 		
 		#define	SET_MAPDATA_VAR_INT16(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member = vbound((value / 10000),0,32767); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member = vbound((value / 10000),0,32767); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 
 		#define	SET_MAPDATA_VAR_BYTE(member, str) \
 		{ \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member = vbound((value / 10000),0,255); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member = vbound((value / 10000),0,255); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
@@ -15987,18 +15973,16 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
 			} \
-			if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member[indx] = vbound((value / 10000),-214747,214747); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = vbound((value / 10000),-214747,214747); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
@@ -16007,18 +15991,16 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
 			} \
-			if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member[indx] = vbound((value / 10000),-32767,32767); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = vbound((value / 10000),-32767,32767); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 
 		#define SET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
@@ -16027,18 +16009,16 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
 			} \
-			if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member[indx] = vbound((value / 10000),0,255); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = vbound((value / 10000),0,255); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		}\
 		
 		#define SET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
@@ -16048,18 +16028,16 @@ void set_register(const long arg, const long value)
 			if(indx < 1 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
 			} \
-			if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member[indx-1] = vbound((value / 10000),0,255); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx-1] = vbound((value / 10000),0,255); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
@@ -16070,24 +16048,21 @@ void set_register(const long arg, const long value)
 			if(indx < 1 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
-			} \
-			if ( ri->mapsref == LONG_MAX ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
 			} \
 			else if ( scrn_id > MAPSCRS ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
 				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
-				break; \
+			} \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			{ \
+				m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		}\
 		
 		#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
@@ -16096,37 +16071,34 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				break; \
 			} \
-			if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
+				m->member[indx] =( (value/10000) ? 1 : 0 ); \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] =( (value/10000) ? 1 : 0 ); \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_FLAG(member, str) \
 		{ \
 			long flag =  (value/10000);  \
-			if ( ri->mapsref == LONG_MAX ) \
+			if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
-				break; \
-			} \
-			else \
-			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
 				if ( flag != 0 ) \
 				{ \
 					m->member|=flag; \
 				} \
 				else m->.member|= ~flag; \
 			} \
+			else \
+			{ \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
@@ -16135,18 +16107,16 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				break; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				break; \
+				m->member[indx] = value; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = value; \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
@@ -16155,18 +16125,16 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				break; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				break; \
+				m->member[indx] = value/10000; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = value/10000; \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 			} \
+			break; \
 		} \
 		
 		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, indexbound, min, max) \
@@ -16176,23 +16144,20 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				break; \
 			} \
-			if(v < min || v > max ) \
+			else if(v < min || v > max ) \
 			{ \
 				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
-				break; \
 			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
-				break; \
+				m->member[indx] = v; \
 			} \
 			else \
 			{ \
-				mapscr *m = GetMapscr(ri->mapsref); \
-				m->member[indx] = v; \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 			} \
+			break; \
 		} \
 		
 		case MAPDATAVALID:		SET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
@@ -16223,23 +16188,19 @@ void set_register(const long arg, const long value)
 			int enemyid = value/10000;
 			if( ((unsigned)indx) > 9 ) 
 			{ 
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "Enemy[]"); \
-				break; 
-			} 
-			else if ( ri->mapsref == LONG_MAX ) 
-			{ 
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","Enemy[]"); \
-				break; 
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "Enemy[]");
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
-				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.", enemyid,"Enemy[]"); \
-				break; 
+				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.", enemyid,"Enemy[]");
+			} 
+			else if (mapscr *m = GetMapscr(ri->mapsref)) 
+			{ 
+				m->enemy[indx] = enemyid; 
 			} 
 			else 
 			{ 
-				mapscr *m = GetMapscr(ri->mapsref); 
-				m->enemy[indx] = enemyid; 
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","Enemy[]");
 			} 
 			break;
 		} 
@@ -16254,15 +16215,13 @@ void set_register(const long arg, const long value)
 		case MAPDATAINITDARRAY:	 	
 		{
 			
-			if ( ri->mapsref == LONG_MAX ) 
+			if (mapscr *m = GetMapscr(ri->mapsref)) 
 			{ 
-				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
-				break; 
+				m->screeninitd[ri->d[rINDEX]/10000] = value;
 			} 
 			else 
 			{ 
-				mapscr *m = GetMapscr(ri->mapsref); 
-				m->screeninitd[ri->d[rINDEX]/10000] = value;
+				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
 			} 
 			break;
 		}
@@ -16274,19 +16233,12 @@ void set_register(const long arg, const long value)
 			if(indx < 0 || indx > 6 )
 			{
 				Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
-				break;
 			}
 			else
 			{
 				
-				if ( ri->mapsref == LONG_MAX )
+				if (mapscr *m = GetMapscr(ri->mapsref))
 				{
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
-					break;
-				}
-				else
-				{
-					mapscr *m = GetMapscr(ri->mapsref);
 					if(value)
 					{
 						tmpscr->hidelayers |= (1<<indx);
@@ -16295,6 +16247,10 @@ void set_register(const long arg, const long value)
 					{
 						tmpscr->hidelayers &= ~(1<<indx);
 					}
+				}
+				else
+				{
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 				}
 			}
 			break;
@@ -16308,13 +16264,8 @@ void set_register(const long arg, const long value)
 			}
 			else
 			{
-				if ( ri->mapsref == LONG_MAX )
+				if (mapscr *m = GetMapscr(ri->mapsref))
 				{
-					Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","DisableScriptDraw");
-					break;
-				}
-				else
-				{	mapscr *m = GetMapscr(ri->mapsref);
 					if(value)
 					{
 						tmpscr->hidescriptlayers &= ~(1<<indx);
@@ -16323,6 +16274,10 @@ void set_register(const long arg, const long value)
 					{
 						tmpscr->hidescriptlayers |= (1<<indx);
 					}
+				}
+				else
+				{	
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","DisableScriptDraw");
 				}
 			}
 			break;
@@ -16335,15 +16290,14 @@ void set_register(const long arg, const long value)
 			{
 				Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+				if ( value ) m->tilewarpoverlayflags |= (1<<indx);
+				else m->tilewarpoverlayflags &= ~(1<<indx);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				if ( value ) m->tilewarpoverlayflags |= (1<<indx);
-				else m->tilewarpoverlayflags &= ~(1<<indx);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 			}
 			break;
 		}
@@ -16355,15 +16309,14 @@ void set_register(const long arg, const long value)
 			{
 				Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+				if ( value ) m->sidewarpoverlayflags |= (1<<indx);
+				else m->sidewarpoverlayflags &= ~(1<<indx);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				if ( value ) m->sidewarpoverlayflags |= (1<<indx);
-				else m->sidewarpoverlayflags &= ~(1<<indx);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 			}
 			break;
 		}
@@ -16392,25 +16345,25 @@ void set_register(const long arg, const long value)
 		case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT:
 		{
-			if ( ri->mapsref == LONG_MAX ) 
-			{ 
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Script"); 
-				break; 
+			if (mapscr *m = GetMapscr(ri->mapsref)) 
+			{
+				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
+				{
+					FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+					
+					if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+					{
+						for(int q=0; q<8; q++)
+							tmpscr->screeninitd[q] = 0;
+					}
+					
+					screenScriptData.Clear();
+				}
+				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
 			else 
 			{ 
-				//FFScript::deallocateAllArrays(SCRIPT_SCREEN, ri->mapsref);//Mapdata never updates a running script, so does not need this deallocation block.
-				
-				mapscr *m = GetMapscr(ri->mapsref);
-				
-				/*if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE)) //Mapdata never updates a running script. Why would it clear `tmpscr`, in any case?
-				{
-					for(int q=0; q<8; q++)
-						tmpscr->screeninitd[q] = 0;
-				}*/
-				
-				/*screenScriptData.Clear();*/ //Mapdata never updates a running script. Why would it clear the current screen script's data, in any case?
-				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Script");
 			} 
 			break;
 			
@@ -16444,16 +16397,15 @@ void set_register(const long arg, const long value)
 			{
 				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
 			}
-			else if ( ri->mapsref == LONG_MAX )
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+				--indx;
+				if ( value ) { (((m->numff) |= (1<<indx))); }
+				else { (((m->numff) &= ~(1<<indx))); }
 			}
 			else
 			{
-				--indx;
-				mapscr *m = GetMapscr(ri->mapsref);
-				if ( value ) { (((m->numff) |= (1<<indx))); }
-				else { (((m->numff) &= ~(1<<indx))); }
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 			}
 			break;
 		}
@@ -16462,14 +16414,8 @@ void set_register(const long arg, const long value)
 		{
 			
 			int indx = ri->d[rINDEX] / 10000; //dir
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID"); 
-				break; 
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 				if(new_warp_return == -1)
 				{
@@ -16482,6 +16428,10 @@ void set_register(const long arg, const long value)
 					m->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
 					m->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
 				}
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","SideWarpID"); 
 			} 
 			break;
 		} 
@@ -16493,15 +16443,14 @@ void set_register(const long arg, const long value)
 			{
 				 Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 			}
-			else if ( ri->mapsref == LONG_MAX )
-				{
-					Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
-				} 
-			else
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				int wrindex = vbound(value/10000, 0, 3);
 				m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+			} 
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -16515,15 +16464,14 @@ void set_register(const long arg, const long value)
 			{
 				 Z_scripterrlog("Invalid Array Index passed to MAPDATA->SideWarpReturnSquare[]: %d\n", indx);
 			}
-			else if ( ri->mapsref == LONG_MAX )
-				{
-					Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
-				} 
-			else
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				int wrindex = vbound(value/10000, 0, 3);
 				m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+			} 
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -16534,57 +16482,48 @@ void set_register(const long arg, const long value)
 		*/
 		case MAPDATAFFWIDTH:       
 		{
-			if ( ri->mapsref == LONG_MAX )
+			int indx = (ri->d[rINDEX] / 10000)-1;
+			if ( indx < 0 || indx > 32 )
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
-				break;
+				Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx+1);
+			}
+			else if ( (value/10000) < 0 || (value/10000) > 4 )
+			{
+				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value/10000);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				m->ffwidth[indx]= (m->ffwidth[indx]&63) | ((((value/10000)-1)&3)<<6);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				int indx = (ri->d[rINDEX] / 10000)-1;
-				if ( indx < 0 || indx > 32 )
-				{
-					Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx+1);
-					break;
-				}
-				if ( (value/10000) < 0 || (value/10000) > 4 )
-				{
-					Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value/10000);
-					break;
-				}
-				m->ffwidth[indx]= (m->ffwidth[indx]&63) | ((((value/10000)-1)&3)<<6);
-			
-				break;
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
 			}
+			break;
 		}  
 		 
 		 
 		//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 		case MAPDATAFFHEIGHT:      
 		{
-			if ( ri->mapsref == LONG_MAX )
+			int indx = (ri->d[rINDEX] / 10000)-1;
+			if ( indx < 0 || indx > 31 )
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
-				break;
+				Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
+			}
+			else if ( (value/10000) < 0 || (value/10000) > 4 )
+			{
+				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value/10000);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				m->ffheight[indx]=(m->ffheight[indx]&63) | ((((value/10000)-1)&3)<<6);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				int indx = (ri->d[rINDEX] / 10000)-1;
-				if ( indx < 0 || indx > 31 )
-				{
-					Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
-					break;
-				}
-				if ( (value/10000) < 0 || (value/10000) > 4 )
-				{
-					Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value/10000);
-					break;
-				}
-				m->ffheight[indx]=(m->ffheight[indx]&63) | ((((value/10000)-1)&3)<<6);
-				break;
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
 			}
+			break;
 			
 		}
 		 
@@ -16593,56 +16532,48 @@ void set_register(const long arg, const long value)
 		//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 		case MAPDATAFFEFFECTWIDTH:     
 		{
-			if ( ri->mapsref == LONG_MAX )
+			int indx = (ri->d[rINDEX] / 10000)-1;
+			if ( indx < 0 || indx > 31 )
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
-				break;
+				Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
+			}
+			else if ( (value/10000) < 0 )
+			{
+				Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value/10000);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				m->ffwidth[indx]= (m->ffwidth[indx] & ~63) | (((value/10000)-1)&63);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				int indx = (ri->d[rINDEX] / 10000)-1;
-				if ( indx < 0 || indx > 31 )
-				{
-					Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
-					break;
-				}
-				if ( (value/10000) < 0 )
-				{
-					Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value/10000);
-					break;
-				}
-				m->ffwidth[indx]= (m->ffwidth[indx] & ~63) | (((value/10000)-1)&63);
-				break;
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
 			}
+			break;
 		}
 		 
 		 
 		//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 		case MAPDATAFFEFFECTHEIGHT:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			int indx = (ri->d[rINDEX] / 10000)-1;
+			if ( indx < 0 || indx > 31 )
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
-				break;
+				Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx+1);
+			}
+			else if ( (value/10000) < 0 )
+			{
+				Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value/10000);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				m->ffheight[indx]= (m->ffheight[indx] & ~63) | (((value/10000)-1)&63);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				int indx = (ri->d[rINDEX] / 10000)-1;
-				if ( indx < 0 || indx > 31 )
-				{
-					Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx+1);
-					break;
-				}
-				if ( (value/10000) < 0 )
-				{
-					Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value/10000);
-					break;
-				}
-				m->ffheight[indx]= (m->ffheight[indx] & ~63) | (((value/10000)-1)&63);
-				break;
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
 			}
+			break;
 		}
 			
 		//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
@@ -16653,14 +16584,8 @@ void set_register(const long arg, const long value)
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
 				//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
@@ -16679,8 +16604,12 @@ void set_register(const long arg, const long value)
 				{ 
 					 m->initd[ffid][indx] = value;
 				}
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
+			}
+			break;
 		}	
 			
 
@@ -16690,15 +16619,8 @@ void set_register(const long arg, const long value)
 		case MAPDATAINITA: 		
 			//same form as SetScreenD
 		{
-			if ( ri->mapsref == LONG_MAX )
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref); 
-				//int ffindex = ri->d[rINDEX]/10000;
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{//int ffindex = ri->d[rINDEX]/10000;
 				//int d = ri->d[rINDEX2]/10000;
 				//int v = (value/10000);
 				int ffid = (ri->d[rINDEX]/10000) -1;
@@ -16716,9 +16638,12 @@ void set_register(const long arg, const long value)
 				{ 
 					 m->inita[ffid][indx] = value;
 				}
-				
-				break;
 			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
+			}
+			break;
 		}	
 			
 		case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
@@ -16727,14 +16652,8 @@ void set_register(const long arg, const long value)
 		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
 		case MAPDATAOCEANSFX:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","OceanSFX");
-				break;
-			}
-			else
-			{
-				mapscr *m = GetMapscr(ri->mapsref);
 				int v = vbound(value/10000, 0, 255);
 				if(m == tmpscr && m->oceansfx != v)
 				{
@@ -16744,6 +16663,10 @@ void set_register(const long arg, const long value)
 				}
 				else m->oceansfx = v;
 			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","OceanSFX");
+			}
 			break;
 		}
 		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
@@ -16751,15 +16674,13 @@ void set_register(const long arg, const long value)
 		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 		case MAPDATASCREENMIDI:
 		{
-			if ( ri->mapsref == LONG_MAX )
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","MIDI");
-				break;
+				m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 			}
 			else
 			{
-				mapscr *m = GetMapscr(ri->mapsref);
-				m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","MIDI");
 			}
 			break;
 		}
@@ -16769,26 +16690,31 @@ void set_register(const long arg, const long value)
 		case MAPDATAFLAGS: 
 		{
 			int flagid = (ri->d[rINDEX])/10000;
-			mapscr *m = GetMapscr(ri->mapsref); 
 			//bool valtrue = ( value ? 10000 : 0);
-			switch(flagid)
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				case 0: m->flags = (value / 10000); break;
-				case 1: m->flags2 = (value / 10000); break;
-				case 2: m->flags3 = (value / 10000); break;
-				case 3: m->flags4 = (value / 10000); break;
-				case 4: m->flags5 = (value / 10000); break;
-				case 5: m->flags6 = (value / 10000); break;
-				case 6: m->flags7 = (value / 10000); break;
-				case 7: m->flags8 = (value / 10000); break;
-				case 8: m->flags9 = (value / 10000); break;
-				case 9: m->flags10 = (value / 10000); break;
-				default:
+				switch(flagid)
 				{
-					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
-					break;
-					
+					case 0: m->flags = (value / 10000); break;
+					case 1: m->flags2 = (value / 10000); break;
+					case 2: m->flags3 = (value / 10000); break;
+					case 3: m->flags4 = (value / 10000); break;
+					case 4: m->flags5 = (value / 10000); break;
+					case 5: m->flags6 = (value / 10000); break;
+					case 6: m->flags7 = (value / 10000); break;
+					case 7: m->flags8 = (value / 10000); break;
+					case 8: m->flags9 = (value / 10000); break;
+					case 9: m->flags10 = (value / 10000); break;
+					default:
+					{
+						Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+						break;
+					}
 				}
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Flags[]");
 			}
 			break;
 			//SET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
@@ -16796,18 +16722,25 @@ void set_register(const long arg, const long value)
 
 		case MAPDATAMISCD:
 		{
-			int indx = (ri->d[rINDEX])/10000;
-			int mi = ri->mapsref;
-			mi -= 8*((ri->mapsref) / MAPSCRS);
-			if( ((unsigned)indx) > 7 )
+			if(mapscr* m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
-				break;
+				int indx = (ri->d[rINDEX])/10000;
+				int mi = ri->mapsref;
+				mi -= 8*((ri->mapsref) / MAPSCRS);
+				if( ((unsigned)indx) > 7 )
+				{
+					Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
+					break;
+				}
+				else 
+				{
+					game->screen_d[mi][indx] = value/10000;
+					break;
+				}
 			}
-			else 
+			else
 			{
-				game->screen_d[mi][indx] = value/10000;
-				break;
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","D[]");
 			}
 		}
 
@@ -16817,74 +16750,80 @@ void set_register(const long arg, const long value)
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000);
       
-			mapscr *m = GetMapscr(ri->mapsref);
-			if ( ((unsigned) pos) > 175 )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
-			}
-			else if ( ((unsigned) val) >= MAXCOMBOS )
-			{
-				Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= MAXCOMBOS )
+				{
+					Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
+				}
+				else
+				{
+					screen_combo_modify_preroutine(m,pos);
+					m->data[pos]=val;
+					screen_combo_modify_postroutine(m,pos);
+					
+					switch(ri->mapsref)
+					{
+						case MAPSCR_TEMP0: 
+						case MAPSCR_SCROLL0:
+							FFCore.clear_combo_stack(pos);
+							comboScriptData[pos].Clear();
+							combo_doscript[pos] = 1;
+							combo_initialised[pos] &= ~(1<<0);
+							break;
+						case MAPSCR_TEMP1: 
+						case MAPSCR_SCROLL1:
+							FFCore.clear_combo_stack(pos+(176*1));
+							comboScriptData[pos+(176*1)].Clear();
+							combo_doscript[pos+(176*1)] = 1;
+							combo_initialised[pos] &= ~(1<<1);
+							break;
+						case MAPSCR_TEMP2: 
+						case MAPSCR_SCROLL2:
+							FFCore.clear_combo_stack(pos+(176*2));
+							comboScriptData[pos+(176*2)].Clear();
+							combo_doscript[pos+(176*2)] = 1;
+							combo_initialised[pos] &= ~(1<<2);
+							break;
+						case MAPSCR_TEMP3:
+						case MAPSCR_SCROLL3:
+							FFCore.clear_combo_stack(pos+(176*3));
+							comboScriptData[pos+(176*3)].Clear();
+							combo_doscript[pos+(176*3)] = 1;
+							combo_initialised[pos] &= ~(1<<3);
+							break;
+						case MAPSCR_TEMP4: 
+						case MAPSCR_SCROLL4:
+							FFCore.clear_combo_stack(pos+(176*4));
+							comboScriptData[pos+(176*4)].Clear();
+							combo_doscript[pos+(176*4)] = 1;
+							combo_initialised[pos] &= ~(1<<4);
+							break;
+						case MAPSCR_TEMP5:
+						case MAPSCR_SCROLL5:
+							FFCore.clear_combo_stack(pos+(176*5));
+							comboScriptData[pos+(176*5)].Clear();
+							combo_doscript[pos+(176*5)] = 1;
+							combo_initialised[pos] &= ~(1<<5);
+							break;
+						case MAPSCR_TEMP6:
+						case MAPSCR_SCROLL6:
+							FFCore.clear_combo_stack(pos+(176*6));
+							comboScriptData[pos+(176*6)].Clear();
+							combo_doscript[pos+(176*6)] = 1;
+							combo_initialised[pos] &= ~(1<<6);
+							break;
+						default: break;
+					}
+				}
 			}
 			else
 			{
-				screen_combo_modify_preroutine(m,pos);
-				m->data[pos]=val;
-				screen_combo_modify_postroutine(m,pos);
-				
-				switch(ri->mapsref)
-				{
-					case MAPSCR_TEMP0: 
-					case MAPSCR_SCROLL0:
-						FFCore.clear_combo_stack(pos);
-						comboScriptData[pos].Clear();
-						combo_doscript[pos] = 1;
-						combo_initialised[pos] &= ~(1<<0);
-						break;
-					case MAPSCR_TEMP1: 
-					case MAPSCR_SCROLL1:
-						FFCore.clear_combo_stack(pos+(176*1));
-						comboScriptData[pos+(176*1)].Clear();
-						combo_doscript[pos+(176*1)] = 1;
-						combo_initialised[pos] &= ~(1<<1);
-						break;
-					case MAPSCR_TEMP2: 
-					case MAPSCR_SCROLL2:
-						FFCore.clear_combo_stack(pos+(176*2));
-						comboScriptData[pos+(176*2)].Clear();
-						combo_doscript[pos+(176*2)] = 1;
-						combo_initialised[pos] &= ~(1<<2);
-						break;
-					case MAPSCR_TEMP3:
-					case MAPSCR_SCROLL3:
-						FFCore.clear_combo_stack(pos+(176*3));
-						comboScriptData[pos+(176*3)].Clear();
-						combo_doscript[pos+(176*3)] = 1;
-						combo_initialised[pos] &= ~(1<<3);
-						break;
-					case MAPSCR_TEMP4: 
-					case MAPSCR_SCROLL4:
-						FFCore.clear_combo_stack(pos+(176*4));
-						comboScriptData[pos+(176*4)].Clear();
-						combo_doscript[pos+(176*4)] = 1;
-						combo_initialised[pos] &= ~(1<<4);
-						break;
-					case MAPSCR_TEMP5:
-					case MAPSCR_SCROLL5:
-						FFCore.clear_combo_stack(pos+(176*5));
-						comboScriptData[pos+(176*5)].Clear();
-						combo_doscript[pos+(176*5)] = 1;
-						combo_initialised[pos] &= ~(1<<5);
-						break;
-					case MAPSCR_TEMP6:
-					case MAPSCR_SCROLL6:
-						FFCore.clear_combo_stack(pos+(176*6));
-						comboScriptData[pos+(176*6)].Clear();
-						combo_doscript[pos+(176*6)] = 1;
-						combo_initialised[pos] &= ~(1<<6);
-						break;
-					default: break;
-				}
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboD[]");
 			}
 		}
 		break;
@@ -16893,20 +16832,26 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000); //cset
-			mapscr *m = GetMapscr(ri->mapsref);
-			if ( ((unsigned) pos) > 175 )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
-			}
-			else if ( ((unsigned) val) >= 15 )
-			{
-				Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 15 )
+				{
+					Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
+				}
+				else
+				{
+					screen_combo_modify_preroutine(m,pos);
+					m->cset[pos]=(val)&15;
+					screen_combo_modify_postroutine(m,pos);
+				}
 			}
 			else
 			{
-				screen_combo_modify_preroutine(m,pos);
-				m->cset[pos]=(val)&15;
-				screen_combo_modify_postroutine(m,pos);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboC[]");
 			}
 		}
 		break;
@@ -16915,18 +16860,24 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000); //flag
-			mapscr *m = GetMapscr(ri->mapsref);
-			if ( ((unsigned) pos) > 175 )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 256 )
+				{
+					Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
+				}
+				
+				else
+					m->sflag[pos]=(val);
 			}
-			else if ( ((unsigned) val) >= 256 )
-			{
-				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
-			}
-			
 			else
-				m->sflag[pos]=(val);
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboF[]");
+			}
 		}
 		break;
 		
@@ -16934,35 +16885,41 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000); //type
-			mapscr *m = GetMapscr(ri->mapsref);
-			if ( ((unsigned) pos) > 175 )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
-			}
-			else if ( ((unsigned) val) >= 256 )
-			{
-				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboT[]\n", val);
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= cMAX )
+				{
+					Z_scripterrlog("Invalid Type ID %d used to write to mapdata->ComboT[]\n", val);
+				}
+				else
+				{
+					// Preprocess each instance of the combo on the screen
+					for(int i = 0; i < 176; i++)
+					{
+						if(m->data[i] == m->data[pos])
+						{
+							screen_combo_modify_preroutine(m,i);
+						}
+					}
+					
+					combobuf[m->data[pos]].type=val;
+					
+					for(int i = 0; i < 176; i++)
+					{
+						if(m->data[i] == m->data[pos])
+						{
+							screen_combo_modify_postroutine(m,i);
+						}
+					}
+				}
 			}
 			else
 			{
-				// Preprocess each instance of the combo on the screen
-				for(int i = 0; i < 176; i++)
-				{
-					if(m->data[i] == m->data[pos])
-					{
-						screen_combo_modify_preroutine(m,i);
-					}
-				}
-				
-				combobuf[m->data[pos]].type=val;
-				
-				for(int i = 0; i < 176; i++)
-				{
-					if(m->data[i] == m->data[pos])
-					{
-						screen_combo_modify_postroutine(m,i);
-					}
-				}
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboT[]");
 			}
 		}
 		break;
@@ -16971,9 +16928,24 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000); //iflag
-			mapscr *m = GetMapscr(ri->mapsref);
-			if(pos >= 0 && pos < 176)
-				combobuf[m->data[pos]].flag=value/10000;
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 256 )
+				{
+					Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
+				}
+				
+				else
+					combobuf[m->data[pos]].flag=value/10000;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboI[]");
+			}
 		}
 		break;
 		
@@ -16981,26 +16953,39 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int val = (value/10000); //solidity
-			mapscr *m = GetMapscr(ri->mapsref);
-			if ( ((unsigned) pos) > 175 )
+			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboS[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 16 )
+				{
+					Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboS[]\n", val);
+				}
+				
+				else
+					combobuf[m->data[pos]].walk=(val)&15;
 			}
-			else if ( ((unsigned) val) >= 256 )
-			{
-				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
-			}
-			
 			else
-				combobuf[m->data[pos]].walk=(val)&15;
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboI[]");
+			}
 		}
 		break;
 
 		case MAPDATASCREENSTATED:
 		{
-			int mi = ri->mapsref;
-			mi -= 8*((ri->mapsref) / MAPSCRS);
-			(value)?setmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+			if(mapscr* m = GetMapscr(ri->mapsref))
+			{
+				int mi = ri->mapsref;
+				mi -= 8*((ri->mapsref) / MAPSCRS);
+				(value)?setmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
+			}
 		}
 		break;
 		
