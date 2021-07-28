@@ -2523,9 +2523,9 @@ struct mapscr
 #define SCRIPT_FORMAT_ZASM			3
 
 #define METADATA_V			2
-#define V_COMPILER_FIRST	2020
-#define V_COMPILER_SECOND	4
-#define V_COMPILER_THIRD	18
+#define V_COMPILER_FIRST	2021
+#define V_COMPILER_SECOND	7
+#define V_COMPILER_THIRD	28
 #define V_COMPILER_FOURTH	0
 #define ZMETA_NULL_TYPE		1
 struct zasm_meta
