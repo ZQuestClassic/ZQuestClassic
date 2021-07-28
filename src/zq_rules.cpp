@@ -340,7 +340,7 @@ static TABPANEL herorules_tabs[] =
 static DIALOG herorules_dlg[] =
 {
 	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Hero", NULL, NULL },
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Player", NULL, NULL },
 	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) herorules_tabs, NULL, (void *)herorules_dlg },
 	// 3
@@ -696,7 +696,7 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,
 	-1
 };
 
@@ -751,8 +751,9 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Scrolling Screen While In Air", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Reload On Death", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Higher Maximum Playtime", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Experimental X and Y Button Items", NULL, NULL },
-    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting X Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting Y Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -764,7 +765,7 @@ static int miscrules[] =
 	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
-	qr_GREATER_MAX_TIME,qr_SETXYBUTTONITEMS,qr_INSTANT_CONTINUE,
+	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
 	-1
 };
 

@@ -163,8 +163,6 @@ int favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
 
 void playLevelMusic();
 
-int last_quest_was_BA_subscreen = 0; //Used during init when loading a quest. 
-
 //Prevent restarting during ending sequence from creating a rect clip
 int draw_screen_clip_rect_x1=0;
 int draw_screen_clip_rect_x2=255;
@@ -314,7 +312,7 @@ bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of bla
 */
 bool ewind_restart=false;
 
-word     msgclk = 0, msgstr = 0,
+word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msgpos = 0,	// screen position of the next character.
          msgptr = 0,	// position within the string of the next character. <MSGSIZE.
          msgcolour = 0,	// colour to use for the displayed text.
@@ -910,79 +908,6 @@ FONT *setmsgfont()
     }
 }
 
-//This is not working, as expected. Is there a system method for enqueuing strings? -Z
-int donew_shop_msg(int itmstr, int shopstr)
-{
-	if(msg_onscreen || msg_active)
-			dismissmsg();
-	
-	int tempmsg = 0;
-	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
-	
-	//Disabling this for now.
-	/*
-	while ( tempmsgnext != 0 )
-	{
-		tempmsg = tempmsgnext; //change to the next message
-		tempmsgnext = MsgStrings[tempmsg].nextstring; //store the next message, for that
-		//find the end of the chain
-	}
-	//change the next string until we finish.
-	MsgStrings[tempmsgnext].nextstring = itmstr;
-	*/
-	
-    //al_trace("donewmsg %d\n",str);
-    
-        
-    linkedmsgclk=0;
-    msg_active = true;
-    // Don't set msg_onscreen - not onscreen just yet
-    msgstr = shopstr;
-    msgorig = msgstr;
-    msgfont = setmsgfont();
-    msgcolour=QMisc.colors.msgtext;
-    msgspeed=zinit.msg_speed;
-    
-    if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-	{
-        clear_bitmap(msg_bg_display_buf);
-        clear_bitmap(msg_txt_display_buf);
-	}
-        
-    clear_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-    clear_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    clear_bitmap(msg_txt_bmp_buf);
-    clear_bitmap(msg_bg_bmp_buf);
-    clear_bitmap(msg_portrait_bmp_buf);
-    msgclk=msgpos=msgptr=0;
-    msgspace=true;
-    msg_w=MsgStrings[msgstr].w;
-    msg_h=MsgStrings[msgstr].h;
-    msg_xpos=MsgStrings[msgstr].x;
-    msg_ypos=MsgStrings[msgstr].y;
-	prt_tile=MsgStrings[msgstr].portrait_tile;
-	prt_cset=MsgStrings[msgstr].portrait_cset;
-	prt_x=MsgStrings[msgstr].portrait_x;
-	prt_y=MsgStrings[msgstr].portrait_y;
-	prt_tw=MsgStrings[msgstr].portrait_tw;
-	prt_th=MsgStrings[msgstr].portrait_th;
-    
-    //transparency needs to occur here. -Z
-    msg_bg(MsgStrings[msgstr]);
-    msg_prt();
-    
-	for(int q = 0; q < 4; ++q)
-	{
-		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
-	}
-    cursor_x=msg_margins[left];
-    cursor_y=msg_margins[up];
-	return tempmsgnext;
-}
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int sx, int sy, int dx, int dy, int w, int h)
 {
 	for(int tx = 0; tx < w; ++tx)
@@ -2486,101 +2411,128 @@ int init_game()
     
     if(firstplay)
     {
-	game->awpn=0;
-	game->bwpn=0;
-	game->ywpn=0;
-	game->xwpn=0;
-	game->forced_awpn = -1; 
-	game->forced_bwpn = -1;  
-	game->forced_xwpn = -1; 
-	game->forced_ywpn = -1;    
+		game->awpn=-1;
+		game->bwpn=-1;
+		game->ywpn=-1;
+		game->xwpn=-1;
+		game->forced_awpn = -1; 
+		game->forced_bwpn = -1;  
+		game->forced_xwpn = -1; 
+		game->forced_ywpn = -1;    
     }
         
     update_subscreens();
     
     load_Sitems(&QMisc);
     
-//load the previous weapons -DD
-    zprint2("last_quest_was_BA_subscreen prior to init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
+	//load the previous weapons -DD	
     
     bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
-    int apos = 0;
-    int bpos = 0;
+    int apos = 0, bpos = 0, xpos = 0, ypos = 0;
     
-    if(last_quest_was_BA_subscreen) //Will always be false on initialising ZC Player, but will be changed when you load a quest.
-    {
-	if(!get_bit(quest_rules,qr_SELECTAWPN))
+	//Setup button items
 	{
-		Awpn = selectSword();
-		apos = -1;
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
-		directItem = -1;
-		directItemA = directItem; 
-	}
-	else
-	{
-		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-        
-		if(bpos==0xFF)
+		bool use_x = get_bit(quest_rules, qr_SET_XBUTTON_ITEMS), use_y = get_bit(quest_rules, qr_SET_YBUTTON_ITEMS);
+		if(use_x || use_y)
 		{
-			bpos=apos;
-			apos=-1;
+			if(!get_bit(quest_rules, qr_SELECTAWPN))
+			{
+				Awpn = selectSword();
+				apos = -1;
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+				if(use_x)
+					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos);
+				else xpos = -1;
+				if(use_y)
+					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos, xpos);
+				else ypos = -1;
+				directItem = -1;
+				directItemA = directItem; 
+			}
+			else
+			{
+				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+				if(use_x)
+					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos);
+				else xpos = -1;
+				if(use_y)
+					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos, xpos);
+				else ypos = -1;
+				
+				if(bpos==0xFF)
+				{
+					bpos=-1;
+				}
+				if(apos==0xFF)
+				{
+					apos=-1;
+				}
+				if(xpos==0xFF)
+				{
+					xpos=-1;
+				}
+				if(bpos==0xFF)
+				{
+					ypos=-1;
+				}
+				
+				Awpn = Bweapon(apos); //Bweapon() sets directItem
+				directItemA = directItem;
+			}
+
+			game->awpn = apos;
+			
+			game->bwpn = bpos;
+			Bwpn = Bweapon(bpos);
+			directItemB = directItem;
+			
+			game->xwpn = xpos;
+			Xwpn = Bweapon(xpos);
+			directItemX = directItem;
+			
+			game->ywpn = ypos;
+			Ywpn = Bweapon(ypos);
+			directItemY = directItem;
+			
+			update_subscr_items();
+
+			reset_subscr_items();
 		}
-        
-		Awpn = Bweapon(apos); //Bweapon() sets directItem
-		directItemA = directItem;
-	}
-    
-	game->awpn = apos;
-	game->bwpn = bpos;
-	Bwpn = Bweapon(bpos);
-	directItemB = directItem;
-	//directItemA = directItem; 
-	//Doing this in an A+B quest will stop A-items from working on first screen of the game init/firstplay. -Z
-	//if(!get_bit(quest_rules,qr_SELECTAWPN)) directItemA = directItem; 
-	update_subscr_items();
-    
-	reset_subscr_items();
-    }
-    else //old stuff from DD, use it if playing a B-Only quest after another B-Only quest
-    {
-	if(!get_bit(quest_rules,qr_SELECTAWPN))
-	{
-		Awpn = selectSword();
-		apos = -1;
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
-		directItem = -1;
-		directItemA = directItem; 
-	}
-	else
-	{
-		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-        
-		if(bpos==0xFF)
+		else
 		{
-			bpos=apos;
-			apos=-1;
+			if(!get_bit(quest_rules,qr_SELECTAWPN))
+			{
+				Awpn = selectSword();
+				apos = -1;
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+				directItem = -1;
+				directItemA = directItem; 
+			}
+			else
+			{
+				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+				
+				if(bpos==0xFF)
+				{
+					bpos=apos;
+					apos=-1;
+				}
+				
+				Awpn = Bweapon(apos); //Bweapon() sets directItem
+				directItemA = directItem;
+			}
+
+			game->awpn = apos;
+			game->bwpn = bpos;
+			Bwpn = Bweapon(bpos);
+			directItemB = directItem;
+			update_subscr_items();
+
+			reset_subscr_items();
 		}
-        
-		Awpn = Bweapon(apos); //Bweapon() sets directItem
-		directItemA = directItem;
-	}
-    
-	game->awpn = apos;
-	game->bwpn = bpos;
-	Bwpn = Bweapon(bpos);
-	directItemB = directItem;
-	update_subscr_items();
-    
-	reset_subscr_items();    
-	    
     }
-    
-    last_quest_was_BA_subscreen = get_bit(quest_rules,qr_SELECTAWPN) ? 1 : 0;
-    zprint2("last_quest_was_BA_subscreen after init is: %s\n", ((last_quest_was_BA_subscreen) ? "true" : "false") );
-    
     
     
     show_subscreen_dmap_dots=true;
@@ -3018,9 +2970,8 @@ void do_magic_casting()
 		    //din't fire level fix to go here
                 //Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
                 Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
+                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
-		    w->linked_parent = itemsbuf[magicitem].family;
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
@@ -3543,33 +3494,21 @@ void game_loop()
 	
 	//  walkflagx=0; walkflagy=0;
 	runDrunkRNG();
-    if(fadeclk>=0)
+    
+    // Three kinds of freezes: freeze, freezemsg, freezeff
+    
+    // freezemsg if message is being printed && qr_MSGFREEZE is on,
+    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
+    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
+			&& (get_bit(quest_rules,qr_MSGFREEZE)));
+	
+    if(fadeclk>=0 && !freezemsg)
     {
         if(fadeclk==0 && currscr<128)
             blockpath=false;
             
         --fadeclk;
     }
-    
-    // Three kinds of freezes: freeze, freezemsg, freezeff
-    
-    // freezemsg if message is being printed && qr_MSGFREEZE is on,
-    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
-    int tscr=currscr<128?0:1;
-    bool isshop = false;
-    switch(tmpscr[tscr].room)
-    {
-	//case rSP_ITEM:                                          // special item
-	case rRP_HC:      					// heart container or red potion
-	case rTAKEONE:                                          // take one
-	case rSHOP:                                             // shop
-		isshop = true;
-		break;
-	default: break;
-    }
-    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-			&& (get_bit(quest_rules,qr_MSGFREEZE)&&!isshop));
-			//&& (get_bit(quest_rules,qr_MSGFREEZE)));
                       
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
