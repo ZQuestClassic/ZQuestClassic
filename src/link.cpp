@@ -8335,7 +8335,7 @@ bool LinkClass::startwpn(int itemid)
 					setFall(fall - itemsbuf[itemid].power);
 				else
 				{
-					fall -= (FEATHERJUMP*(itemsbuf[itemid].power+2));
+					setFall(fall - (FEATHERJUMP*(itemsbuf[itemid].power+2)));
 				}
 				
 				setOnSideviewLadder(false);
