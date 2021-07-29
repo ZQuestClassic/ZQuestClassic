@@ -11026,7 +11026,8 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
 			}
 			Link.setStepRate(zc_max(value/10000,0));
-			zinit.heroStep = Link.getStepRate();
+			if(!get_bit(quest_rules, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
+				zinit.heroStep = Link.getStepRate();
 			break;
 		
 		case LINKITEMD:
