@@ -10519,7 +10519,8 @@ long get_register(const long arg)
 		//Graphics->
 
 		case NUMDRAWS:
-			ret = FFCore.numscriptdraws * 10000;
+			ret = script_drawing_commands.Count() * 10000;
+			//ret = FFCore.numscriptdraws * 10000; // This isn't updated until end of frame, making it useless!
 			break;
 
 		case MAXDRAWS:
