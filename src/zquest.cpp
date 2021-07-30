@@ -9648,6 +9648,7 @@ const char *commandlist(int index, int *list_size)
 
 int select_command(const char *prompt,int cmd)
 {
+	FONT* tfont = font;
     if(bic_cnt==-1)
         build_bic_list();
         
@@ -9671,6 +9672,7 @@ int select_command(const char *prompt,int cmd)
         large_dialog(clist_dlg);
         
     int ret=zc_popup_dialog(clist_dlg,2);
+	font = tfont;
     
     if(ret==0||ret==4)
     {
@@ -10520,6 +10522,7 @@ void domouse()
                     
                     if(do_text_button_reset(check_x,check_y,command_buttonwidth, command_buttonheight, favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,vc(1),vc(14),true))
                     {
+                        font=tfont;
                         if(ctrl)
                         {
                             favorite_commands[cmd]=0;
@@ -10530,7 +10533,6 @@ void domouse()
                         }
                         else
                         {
-                            font=tfont;
                             int (*pfun)();
                             pfun=commands[favorite_commands[cmd]].command;
                             pfun();
