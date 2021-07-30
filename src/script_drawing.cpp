@@ -10265,9 +10265,9 @@ void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isO
     
     if(rotation != 0) // rotate
     {
-        draw_mapscr(b, l, x1, y1, transparent);
+        draw_mapscr(b, l, x, y, transparent);
         
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        rotate_sprite(refbmp, b, x, y, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
     else
