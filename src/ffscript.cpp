@@ -9377,6 +9377,7 @@ long get_register(const long arg)
 				break;
 			}
 			ret = ((DMaps[ri->dmapsref].flags&(1<<indx)) ? 10000:0);
+			break;
 		}
 		case DMAPDATAFLAGS:	 //long
 		{
@@ -21572,6 +21573,9 @@ void do_drawing_command(const int script_command)
 	}
 	
 	case BMPDRAWLAYERR:
+		set_user_bitmap_command_args(j, 8);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
+		break;
 	case BMPDRAWLAYERSOLIDR: 
 	case BMPDRAWLAYERCFLAGR: 
 	case BMPDRAWLAYERCTYPER: 
