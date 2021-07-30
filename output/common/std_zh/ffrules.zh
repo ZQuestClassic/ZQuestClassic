@@ -339,66 +339,67 @@ qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,	/*<<	ZScript (>>>) Script writes t
 qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
 qr_PARSER_NO_LOGGING, 			/*<<	ZScript (>>>) Disable Tracing */
 qr_PARSER_SHORT_CIRCUIT, 		/*<<	ZScript (>>>) Short-Circuit Boolean Operations */
+qr_SPRITEXY_IS_FLOAT, 		/*<<	ZScript (>>>) Short-Circuit Boolean Operations */
 qr_PARSER_BOOL_TRUE_DECIMAL, 		/*<<	ZScript (>>>) Sprite Coordinates are Float */
-qr_PARSER_TRUE_INT_SIZE, 		/*<<	Compilation (>>>) True MAX_INT sizing */
 
 //645
+qr_PARSER_TRUE_INT_SIZE, 		/*<<	Compilation (>>>) True MAX_INT sizing */
 qr_WPNANIMFIX, 				/*<< 	Not Implemented : This was in 2.50.2, but never used. */ 
 qr_NOSCRIPTSDURINGSCROLL, 		/*<< 	Not Implemented : This was in 2.50.2, but never used. */
 qr_OLDSPRITEDRAWS, 			/*<<	Compatibility (>>>) Old (Faster) Sprite Drawing */
 qr_WEAPONSHADOWS,  			/*<<	ZScript (>>>) Draw Shadows on Weapons */
-qr_ITEMSHADOWS, 			/*<<	ZScript (>>>) Draw Shadows on Items */
 
 //650
+qr_ITEMSHADOWS, 			/*<<	ZScript (>>>) Draw Shadows on Items */
 qr_OLDEWPNPARENT, 			/*<<	ZScript (>>>) Old eweapon->Parent */
 qr_OLDCREATEBITMAP_ARGS,		/*<<	ZScript (>>>) Old Args for CreateBitmap() and bitmap->Create() */
 qr_OLDQUESTMISC, 			/*<<	ZScript (>>>) Game->Misc[] is not *10000" */
 qr_PARSER_FORCE_INLINE,			/*<<	Compilation (>>>) Inline all possible functions */
-qr_CLEARINITDONSCRIPTCHANGE,		/*<<	ZScript (>>>) Clear InitD[] on Script Change */
 
 //655
+qr_CLEARINITDONSCRIPTCHANGE,		/*<<	ZScript (>>>) Clear InitD[] on Script Change */
 qr_NOFFCWAITDRAW,			/*<<	ZScript (>>>) No FFC Waitdraw() */
 qr_NOITEMWAITDRAW,			/*<<	ZScript (>>>) No Item Script Waitdraw() */
 qr_TRACESCRIPTIDS,			/*<<	ZScript (>>>) Print Script Metadata on Traces */
 qr_FIXDRUNKINPUTS,			/*<<	ZScript (>>>) Writing to INPUT Overrides Drunk State */
-qr_32BIT_BINARY,			/*<<	Compilation (>>>) Binary Operations use true 32-bit Int */
 
 //660
+qr_32BIT_BINARY,			/*<<	Compilation (>>>) Binary Operations use true 32-bit Int */
 qr_ALWAYS_DEALLOCATE_ARRAYS,		/*<<	ZScript (>>>) Always Deallocate Arrays */
 qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	/*<<	ZScript (>>>) Hero OnDeath script runs AFTER engine death animation */
 qr_DISALLOW_SETTING_RAFTING,		/*<<	ZScript (>>>) Don't Allow Setting Action to Rafting */
 qr_WEAPONS_EXTRA_FRAME,			/*<<	ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD */
-qr_250WRITEEDEFSCRIPT,			/*<<	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences */
 
 //665
+qr_250WRITEEDEFSCRIPT,			/*<<	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences */
 qr_SETENEMYWEAPONSPRITESONWPNCHANGE,	/*<<	ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite */
 qr_BROKENCHARINTDRAWING,		/*<<	ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling */
 qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,	/*<<	ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM* */
 qr_COMBOSCRIPTS_LAYER_0,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 0 */
-qr_COMBOSCRIPTS_LAYER_1,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 1 */
 
 //670
+qr_COMBOSCRIPTS_LAYER_1,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 1 */
 qr_COMBOSCRIPTS_LAYER_2,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 2 */
 qr_COMBOSCRIPTS_LAYER_3,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 3 */
 qr_COMBOSCRIPTS_LAYER_4,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 4 */
 qr_COMBOSCRIPTS_LAYER_5,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 5 */
-qr_COMBOSCRIPTS_LAYER_6,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 6 */
 
 //675
+qr_COMBOSCRIPTS_LAYER_6,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 6 */
 qr_OLD_INIT_SCRIPT_TIMING,	/*<<	ZScript (>>>) Use Old Global Init and SaveLoad Timing */
 qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,	/*<<	ZScript (>>>) Don't Deallocate Init/SaveLoad Local Arrays */
 qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, 	/*<<	ZScript (>>>) All bitmap-> and FileSystem-> paths relative to quest 'files' folder */
 qr_PARSER_STRINGSWITCH_INSENSITIVE,	/*<<	Compilation (>>>) Switch/case of strings is case-insensitive */
-qr_SLASH_NEXT_SECRET_BUG,	/*<<	Compatibility (>>>) Bugged ->Next Combos */
 
 //680
+qr_SLASH_NEXT_SECRET_BUG,	/*<<	Compatibility (>>>) Bugged ->Next Combos */
 qr_STEP_IS_FLOAT,	/*<<	ZScript (>>>) Sprite->Step uses new, precise values */
 qr_OLDMAPDATAFLAGS,	/*<<	??? (>>>) ??? */
 qr_OLD_PRINTF_ARGS,	/*<<	ZScript (>>>) Old printf() args */
 qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,	/*<<	ZScript (>>>) Passive Subscreen Script runs during wipes/refills */
-qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	/*<<	ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points */
 
 //685
+qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	/*<<	ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points */
 qr_LOG_INVALID_UID_LOAD,	/*<<	ZScript (>>>) Log on Loading Invalid UID */
 qr_COMBODATA_INITD_MULT_TENK,	/*<<	ZScript (>>>) Broken Combodata->InitD[] */
 
