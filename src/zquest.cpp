@@ -11162,7 +11162,7 @@ int onShowPal()
     
     if(!palbmp)
         return D_O_K;
-        
+	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
     showpal_dlg[0].dp2=lfont;
     
     for(int i=0; i<256; i++)
