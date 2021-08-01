@@ -52,6 +52,7 @@ static void massRecolorReset8Bit();
 static bool massRecolorSetup(int cset);
 static void massRecolorApply(int tile);
 extern int last_droplist_sel;
+extern int zqwin_scale;
 
 int ex=0;
 int nextcombo_fake_click=0;
@@ -711,6 +712,100 @@ void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int
 		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
 }
 
+bool draw_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        //vsync();
+        if(mouse_in_rect(x,y,w,h))
+        {
+            if(!over)
+            {
+                vsync();
+                scare_mouse();
+                draw_layer_button(screen, x, y, w, h, text, flags^D_SELECTED);
+                unscare_mouse();
+                over=true;
+                
+                if(is_zquest())
+                {
+                    if(myvsync)
+                    {
+                        if(zqwin_scale > 1)
+                        {
+                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                        }
+                        else
+                        {
+                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                        }
+                        
+                        myvsync=0;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                vsync();
+                scare_mouse();
+                draw_layer_button(screen, x, y, w, h, text, flags);
+                unscare_mouse();
+                over=false;
+                
+                if(is_zquest())
+                {
+                    if(myvsync)
+                    {
+                        if(zqwin_scale > 1)
+                        {
+                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                        }
+                        else
+                        {
+                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                        }
+                        
+                        myvsync=0;
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    if(over)
+    {
+        vsync();
+        scare_mouse();
+        draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
+        unscare_mouse();
+        
+        if(is_zquest())
+        {
+            if(myvsync)
+            {
+                if(zqwin_scale > 1)
+                {
+                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                }
+                else
+                {
+                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                }
+                
+                myvsync=0;
+            }
+        }
+    }
+    
+    return over;
+}
+
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
 {
     bool over=false;
@@ -744,7 +839,7 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
     return over;
 }
 
-bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
+bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin, bool sel)
 {
     bool over=false;
     
@@ -757,7 +852,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
             if(!over)
             {
                 scare_mouse();
-                draw_text_button(screen,x,y,w,h,text,fg,bg,D_SELECTED,jwin);
+                draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
                 unscare_mouse();
                 over=true;
             }
@@ -767,7 +862,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
             if(over)
             {
                 scare_mouse();
-                draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
+                draw_text_button(screen,x,y,w,h,text,fg,bg,sel?D_SELECTED:0,jwin);
                 unscare_mouse();
                 over=false;
             }
@@ -778,7 +873,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
     {
         custom_vsync();
         scare_mouse();
-        draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
+        draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
         unscare_mouse();
     }
     

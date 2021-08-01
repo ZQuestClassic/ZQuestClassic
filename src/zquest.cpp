@@ -1857,8 +1857,8 @@ static MENU view_menu[] =
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
-    { (char *)"Layer 3 is Background",              onLayer3BG,              NULL,                     0,            NULL   },
-    { (char *)"Layer 2 is Background",              onLayer2BG,              NULL,                     0,            NULL   },
+    { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
+    { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -6307,6 +6307,18 @@ void side_warp_notification(int which, int dir, char *buf)
 
 static bool arrowcursor = true; // Used by combo aliases and Combo Brush cursors. -L
 
+bool isFavCmdSelected(int cmd)
+{
+	switch(cmd)
+	{
+		case cmdViewL2BG:
+			return ViewLayer2BG;
+		case cmdViewL3BG:
+			return ViewLayer3BG;
+	}
+	return false;
+}
+
 void refresh(int flags)
 {
     // CPage = Map.CurrScr()->cpage;
@@ -7202,7 +7214,14 @@ void refresh(int flags)
             
             for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
             {
-                draw_text_button(menu1,
+				draw_layer_button(menu1,
+                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
+                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
+                                 command_buttonwidth,
+                                 command_buttonheight,
+                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
+                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
+                /*draw_text_button(menu1,
                                  (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
                                  (cmd/commands_list.w)*command_buttonheight+commands_list.y,
                                  command_buttonwidth,
@@ -7210,8 +7229,8 @@ void refresh(int flags)
                                  (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
                                  vc(1),
                                  vc(14),
-                                 commands[favorite_commands[cmd]].flags,
-                                 true);
+                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags,
+                                 true);*///Old button style
             }
             
             font=tfont;
@@ -10520,7 +10539,26 @@ void domouse()
                     FONT *tfont=font;
                     font=pfont;
                     
-                    if(do_text_button_reset(check_x,check_y,command_buttonwidth, command_buttonheight, favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,vc(1),vc(14),true))
+                    if(draw_layer_button_reset(check_x,
+							check_y,
+							command_buttonwidth,
+							command_buttonheight,
+							favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+								? catchall_string[Map.CurrScr()->room]
+								: commands[favorite_commands[cmd]].name,
+							isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
+							true))
+						/*do_text_button_reset(check_x,
+							check_y,
+							command_buttonwidth,
+							command_buttonheight,
+							favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+								? catchall_string[Map.CurrScr()->room]
+								: commands[favorite_commands[cmd]].name,
+							vc(1),
+							vc(14),
+							true,
+							isFavCmdSelected(favorite_commands[cmd])))*///Old button style
                     {
                         font=tfont;
                         if(ctrl)
@@ -10981,7 +11019,17 @@ void domouse()
                     FONT *tfont=font;
                     font=pfont;
                     
-                    if(do_text_button_reset(check_x,check_y,command_buttonwidth, command_buttonheight, favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,vc(1),vc(14),true))
+                    if(do_text_button_reset(check_x,
+						check_y,
+						command_buttonwidth,
+						command_buttonheight,
+						favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+							? catchall_string[Map.CurrScr()->room]
+							: commands[favorite_commands[cmd]].name,
+						vc(1),
+						vc(14),
+						true,
+						isFavCmdSelected(cmd)))
                     {
                         favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
                     }
@@ -34489,7 +34537,7 @@ command_pair commands[cmdMAX]=
     { "Stop Tunes",                         0, (intF) stopMusic                                        },
     { "Strings",                            0, (intF) onStrings                                        },
     { "Subscreens",                         0, (intF) onEditSubscreens                                 },
-    { "Take Snapshot",                      0, (intF) onSnapshot                                       },
+    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                                       },
     { "Ambient Music",                      0, (intF) playTune1                                        },
     { "NES Dungeon Template",               0, (intF) onTemplate                                       },
     { "Edit Templates",                     0, (intF) onTemplates                                      },
@@ -34537,9 +34585,11 @@ command_pair commands[cmdMAX]=
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
     { "Rules - Hero",                       0, (intF) onHeroRules                                      },
     { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Rules - Weapons",                   0, (intF) onWeaponRules                        },
-    { "Screen Script",                   0, (intF) onScreenScript                        },
-    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                        }
+    { "Rules - Weapons",                    0, (intF) onWeaponRules                                    },
+    { "Screen Script",                      0, (intF) onScreenScript                                   },
+    { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
+    { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
+    { "View L3 as BG",                      0, (intF) onLayer3BG                                       }
 };
 
 /********************************/
