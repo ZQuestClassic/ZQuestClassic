@@ -121,6 +121,7 @@ int cursorColor(int col)
 	switch(col)
 	{
 		case dvc(1):
+		case dvc(4):
 			return jwin_pal[jcCURSORMISC];
 		case dvc(2):
 			return jwin_pal[jcCURSOROUTLINE];
