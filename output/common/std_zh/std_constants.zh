@@ -1,5 +1,5 @@
 // std_constants.zh
-// 18th March, 2021 for ZC 2.55.0 Alpha 91
+// 3rd July, 2021 for ZC 2.55.0 Alpha 93
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -109,6 +109,8 @@ const int MISC_SIZE			= 32;
 const int NPC_ATTRIBUTES_SIZE		= 32;
 const int ITEM_ATTRIBUTES_SIZE		= 10;
 const int GAMEMISC_SIZE 		= 32;
+const int MAX_DEFENSE 			= 42;
+const int MAX_DEFENCE 			= 42;
 
 /////////////////////
 /// Screen Dimensions
@@ -1964,16 +1966,16 @@ const int DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
 const int DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
 const int DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
 const int DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
-const int DMFS_MINIMAPCOLOURFIX 	= 11; //Use minimap foreground colour 2
-const int DMFS_SCRIPT1 			= 12; //DMap Script Flags
-const int DMFS_SCRIPT2 			= 13;
-const int DMFS_SCRIPT3 			= 14;
-const int DMFS_SCRIPT4 			= 15;
-const int DMFS_SCRIPT5 			= 16;
-const int DMFS_SIDEVIEW 		= 17; //DMap is Sideview
-const int DMFS_LAYER3ISBACKGROUND 	= 18; //Layer 3 is Background
-const int DMFS_LAYER2ISBACKGROUND 	= 19; //Layer 2 is bBackground
-const int DMFS_TRUECELLARENEMIES 	= 20; //True Cellar Enemies
+const int DMFS_MINIMAPCOLOURFIX 	= 10; //Use minimap foreground colour 2
+const int DMFS_SCRIPT1 			= 11; //DMap Script Flags
+const int DMFS_SCRIPT2 			= 12;
+const int DMFS_SCRIPT3 			= 13;
+const int DMFS_SCRIPT4 			= 14;
+const int DMFS_SCRIPT5 			= 15;
+const int DMFS_SIDEVIEW 		= 16; //DMap is Sideview
+const int DMFS_LAYER3ISBACKGROUND 	= 17; //Layer 3 is Background
+const int DMFS_LAYER2ISBACKGROUND 	= 18; //Layer 2 is bBackground
+const int DMFS_TRUECELLARENEMIES 	= 19; //True Cellar Enemies
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed

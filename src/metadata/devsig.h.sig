@@ -9,7 +9,7 @@
 #define V_ZC_DEVSIG  1 
 //DEVSIGS 
 //      ZORIARPG 1
-//      VENROB   2
+//      EMILY    2
 //      DIMENTIO 3
 //      GLEEOK   4
 //      JMAN     5

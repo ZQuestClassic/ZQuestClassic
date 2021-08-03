@@ -1821,7 +1821,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special, int Linked_Parent) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1846,7 +1846,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
-    linked_parent = 0;
+    linked_parent = Linked_Parent;
     quantity_iterator = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
@@ -10282,36 +10282,37 @@ void weapon::draw(BITMAP *dest)
         
     case ewBrang:
     case wBrang:
-        cs = o_cset&15;
-        
-        if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1))
-        {
-	    if ( do_animation ) 
-	    {
-		    tile = o_tile;
-		    
-		    if(BSZ)
-			flip = bszboomflip[(clk>>2)&3];
-		    else
-		    {
-			//tile = boomframe[clk&0xE] + o_tile;
-			update_weapon_frame(boomframe[clk&0xE],o_tile);
-			flip = boomframe[(clk&0xE)+1];
-		    }
-		    
-		    if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-		    {
-			update_weapon_frame((BSZ?1:4)*dir,tile);
-		    }
-	    }
-        }
-        else
-        {
-            if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-            {
-                if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
-            }
-        }
+		cs = o_cset&15;
+		
+		if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
+			|| (id == ewBrang && !get_bit(quest_rules,qr_CORRECTED_EW_BRANG_ANIM)))
+		{
+			if ( do_animation ) 
+			{
+				tile = o_tile;
+				
+				if(BSZ)
+				flip = bszboomflip[(clk>>2)&3];
+				else
+				{
+				//tile = boomframe[clk&0xE] + o_tile;
+				update_weapon_frame(boomframe[clk&0xE],o_tile);
+				flip = boomframe[(clk&0xE)+1];
+				}
+				
+				if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+				{
+				update_weapon_frame((BSZ?1:4)*dir,tile);
+				}
+			}
+		}
+		else
+		{
+			if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+			{
+				if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
+			}
+		}
         
         if(dead>0)
         {

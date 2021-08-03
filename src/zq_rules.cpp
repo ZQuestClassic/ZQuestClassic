@@ -128,7 +128,7 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,-1 
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -190,6 +190,7 @@ static DIALOG comborules_dlg[] =
     // 35
     { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Shallow Water Detection", NULL, NULL },
     { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fixed Smart Scrolling", NULL, NULL },
+    { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -204,6 +205,7 @@ static int comborules[] =
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
 	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
+	qr_NONHEAVY_BLOCKTRIGGER_PERM,
 	
 	-1
 };
@@ -237,7 +239,7 @@ int onComboRules()
 
 static int weapon_eweapon_rules_tab[] =
 {
-    6,
+    6,12,
 	-1
 };
 
@@ -282,6 +284,7 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Arrows Always Penetrate", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Swordbeams Always Penetrate", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang EWeapons Corrected Animation", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -289,7 +292,7 @@ static DIALOG weaponrules_dlg[] =
 static int weaponrules[] =
 {
    qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
-	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,
     -1
 };
 
@@ -338,7 +341,7 @@ static TABPANEL herorules_tabs[] =
 static DIALOG herorules_dlg[] =
 {
 	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Hero", NULL, NULL },
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Player", NULL, NULL },
 	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) herorules_tabs, NULL, (void *)herorules_dlg },
 	// 3
@@ -694,7 +697,7 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,
 	-1
 };
 
@@ -749,8 +752,9 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Scrolling Screen While In Air", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Reload On Death", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Higher Maximum Playtime", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Experimental X and Y Button Items", NULL, NULL },
-    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting X Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting Y Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -762,7 +766,7 @@ static int miscrules[] =
 	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
-	qr_GREATER_MAX_TIME,qr_SETXYBUTTONITEMS,qr_INSTANT_CONTINUE,
+	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
 	-1
 };
 

@@ -1153,6 +1153,7 @@ string ZScript::VarToString(long ID)
 	case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
 	case IDATAGAINLOWER: return "IDATAGAINLOWER";
 	case IDATAPSTRING: return "IDATAPSTRING";
+	case IDATAPFLAGS: return "IDATAPFLAGS";
 	
 	//idata arrays
 	case IDATAATTRIB: return "IDATAATTRIB";
@@ -1886,6 +1887,7 @@ string ZScript::VarToString(long ID)
 	case LONGDISTANCE: return "LONGDISTANCE ";
 	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
+	case HEROISWARPING: return "HEROISWARPING";
 	
 	
 	default:

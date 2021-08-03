@@ -164,7 +164,6 @@ void game_loop();
 
 void clearmsgnext(int str);
 void donewmsg(int str);
-int donew_shop_msg(int itmstr, int shopstr);
 void msg_bg(MsgStr const& msg);
 void msg_prt();
 void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
@@ -339,7 +338,7 @@ extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of bla
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 */
 extern bool ewind_restart;
-extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
+extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
        msg_h,
        msg_count,
        msgorig,

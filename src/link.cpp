@@ -1146,6 +1146,7 @@ void LinkClass::init()
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
+	is_warping = false;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -6749,9 +6750,8 @@ void LinkClass::addsparkle(int wpn)
         
         Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
                              (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
-                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true));
+                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true, 0, sparkle_type));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
-		    w->linked_parent = sparkle_type;
 	}
 }
 
@@ -8011,7 +8011,7 @@ bool LinkClass::animate(int)
 	//Link->WarpEx
 	if ( FFCore.warpex[wexActive] )
 	{
-	Z_scripterrlog("Running warpex from Link.cpp\n");
+	if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
 	FFCore.warpex[wexActive] = 0;
 	int temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
 	for ( int q = 0; q < wexActive; q++ ) 
@@ -8199,17 +8199,32 @@ bool LinkClass::animate(int)
 // to switch Link's weapon if his current weapon (bombs) was depleted.
 void LinkClass::deselectbombs(int super)
 {
-    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb) return;
+    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Bwpn = Bweapon(temp);
         directItemB = directItem;
         game->bwpn = temp;
     }
+    
+    else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    {
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        Xwpn = Bweapon(temp);
+        directItemX = directItem;
+        game->xwpn = temp;
+    }
+    else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    {
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
+        Xwpn = Bweapon(temp);
+        directItemY = directItem;
+        game->ywpn = temp;
+    }
     else
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn);
+        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Awpn = Bweapon(temp);
         directItemA = directItem;
         game->awpn = temp;
@@ -8320,7 +8335,7 @@ bool LinkClass::startwpn(int itemid)
 					setFall(fall - itemsbuf[itemid].power);
 				else
 				{
-					fall -= (FEATHERJUMP*(itemsbuf[itemid].power+2));
+					setFall(fall - (FEATHERJUMP*(itemsbuf[itemid].power+2)));
 				}
 				
 				setOnSideviewLadder(false);
@@ -10555,13 +10570,13 @@ void LinkClass::movelink()
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
-		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx1btn())
+		else if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
 			dowpn = Xwpn&0xFFF;
 			directWpn = directItemX;
 		}
-		else if(get_bit(quest_rules,qr_SETXYBUTTONITEMS) && DrunkrEx2btn())
+		else if(get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
 			dowpn = Ywpn&0xFFF;
@@ -18227,6 +18242,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	{
 		return false;
 	}
+	is_warping = true;
 	for ( int q = 0; q < Lwpns.Count(); ++q )
 	{
 		weapon *swd=NULL;
@@ -18882,6 +18898,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			didpit=false;
 			update_subscreens();
 			warp_sound = 0;
+			is_warping = false;
 			return false;
 		}
 	}
@@ -19219,6 +19236,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		didpit=false;
 		update_subscreens();
 		warp_sound = 0;
+		is_warping = false;
 		return false;
 	}
 	
@@ -19227,6 +19245,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         didpit=false;
         update_subscreens();
         warp_sound = 0;
+		is_warping = false;
 	if(reposition_sword_postwarp)
 	{
 		weapon *swd=NULL;
@@ -19415,6 +19434,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     FFCore.init_combo_doscript();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
+	is_warping = false;
     return true;
 }
 
@@ -22316,6 +22336,9 @@ bool isWpnPressed(int itype)
 	//Will crash on win10 without it! -Z
     
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
+	
+    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
     
     return false;
 }
@@ -22335,7 +22358,7 @@ void selectNextAWpn(int type)
     if(!get_bit(quest_rules,qr_SELECTAWPN))
         return;
         
-    int ret = selectWpn_new(type, game->awpn, game->bwpn);
+    int ret = selectWpn_new(type, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Awpn = Bweapon(ret);
     directItemA = directItem;
     game->awpn = ret;
@@ -22343,7 +22366,7 @@ void selectNextAWpn(int type)
 
 void selectNextBWpn(int type)
 {
-    int ret = selectWpn_new(type, game->bwpn, game->awpn);
+    int ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Bwpn = Bweapon(ret);
     directItemB = directItem;
     game->bwpn = ret;
@@ -22363,7 +22386,7 @@ void verifyAWpn()
     }
     else
     {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn);
+        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
         Awpn = Bweapon(game->awpn);
         directItemA = directItem;
     }
@@ -22376,25 +22399,55 @@ void verifyBWpn()
 		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
 		return;
 	}
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn);
+    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
     Bwpn = Bweapon(game->bwpn);
     directItemB = directItem;
+}
+
+void verifyXWpn()
+{
+	if ( (game->forced_xwpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
+	if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+		game->xwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
+	else game->xwpn = -1;
+    Xwpn = Bweapon(game->xwpn);
+    directItemX = directItem;
+}
+
+void verifyYWpn()
+{
+	if ( (game->forced_ywpn != -1) ) 
+	{ 
+		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+		return;
+	}
+	if(get_bit(quest_rules,qr_SET_YBUTTON_ITEMS))
+		game->ywpn = selectWpn_new(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
+	else game->ywpn = -1;
+    Ywpn = Bweapon(game->ywpn);
+    directItemY = directItem;
 }
 
 void verifyBothWeapons()
 {
     verifyAWpn();
     verifyBWpn();
+    verifyXWpn();
+    verifyYWpn();
 }
 
-int selectWpn_new(int type, int startpos, int forbiddenpos)
+int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
 {
     //what will be returned when all else fails.
     //don't return the forbiddenpos... no matter what -DD
     
     int failpos(0);
     
-    if(startpos == forbiddenpos)
+    if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
         failpos = 0xFF;
     else failpos = startpos;
     
@@ -22409,7 +22462,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
     {
         int wpn = Bweapon(startpos);
         
-        if(wpn != 0 && startpos != forbiddenpos)
+        if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
         {
             return startpos;
         }
@@ -22518,7 +22571,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
         oldPositions.insert(curpos);
         
         //see if this weapon is acceptable
-        if(Bweapon(curpos) != 0 && curpos != forbiddenpos)
+        if(Bweapon(curpos) != 0 && curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
             return curpos;
             
         //keep going otherwise
@@ -23103,10 +23156,10 @@ void LinkClass::checkitems(int index)
 	    
 	    
 	    //Show a message string, if set.
-	    if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
+	    /*if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
 	    {
 		    donewmsg(QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
-	    }
+	    }*/
 	    
             
             for(int i=0; i<3; i++)
@@ -23245,46 +23298,31 @@ void LinkClass::checkitems(int index)
                 
             holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
             freeze_guys=true;
-	    //show the info string
-	     
-	    
-	    //if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
-	     if ( pstr > 0 && pstr < msg_count )
-	    {
-		switch(tmpscr[tmp].room)
-		{
-			case rSHOP: 
+			//show the info string
+			 
+			
+			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
+			
+			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
-				if ( PriceIndex >= 0 )
+				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
 				{
-					//if it is a shop item, and not another item type.
-					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
-					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
-				}
-				else 
-				{
-					if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
-					{	
-						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-						if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-					}
-				}
-				break;
-			}
-			default: 
-			{
-				if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
-				{	
-					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
 					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 				}
-				break;
+				else pstr = 0;
+				if(shop_pstr)
+				{
+					donewmsg(shop_pstr);
+					enqueued_str = pstr;
+				}
+				else if(pstr)
+				{
+					donewmsg(pstr);
+				}
 			}
-		}																		
-		//donewmsg(pstr);
-	    }
-	    
-        }
+			
+		}
         
         if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
         {
@@ -23366,49 +23404,30 @@ void LinkClass::checkitems(int index)
             dismissmsg();
         }
 	
-	//general item pickup message
-        //show the info string
-	//non-held
-	//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-	if ( pstr > 0 && pstr < msg_count )
-	{
-		switch(tmpscr[tmp].room)
+		//general item pickup message
+		//show the info string
+		//non-held
+		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
+			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
-			case rSHOP: 
-			case rP_SHOP: 
-			case rTAKEONE: 
+			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
 			{
-				if ( PriceIndex >= 0 )
-				{
-					//if it is a shop item, and not another item type.
-					//if there is no shop string, use the item string
-					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
-					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
-				}
-				else 
-				{
-					if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
-					{
-						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-						if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-					}
-				}
-				break;
+				if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
 			}
-			default: 
+			else pstr = 0;
+			if(shop_pstr)
 			{
-				if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
-				{
-					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
-					if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) ) FFCore.SetItemMessagePlayed(id2);
-				}
-				break;
+				donewmsg(shop_pstr);
+				enqueued_str = pstr;
 			}
-		}		
-		//donewmsg(pstr);
-	}
-	
-	
+			else if(pstr)
+			{
+				donewmsg(pstr);
+			}
+		}
+		
+		
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
     }
@@ -23960,9 +23979,9 @@ void setup_red_screen_old()
 			if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip) || !(msg_portrait_display_buf->clip))
 			{
 				masked_blit(framebuf, subbmp, 0, playing_field_offset, 0, 0, 256, 168);
-				blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
-				blit_msgstr_prt(subbmp, 0, 0, 0, 0, 256, 168);
-				blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_bg_display_buf->clip)) blit_msgstr_bg(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_portrait_display_buf->clip)) blit_msgstr_prt(subbmp, 0, 0, 0, 0, 256, 168);
+				if(!(msg_txt_display_buf->clip)) blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
 			}
             for(int y=0; y<168; y++)
             {
@@ -23970,7 +23989,7 @@ void setup_red_screen_old()
                 {
                     int c1 = framebuf->line[y+playing_field_offset][x];
                     int c2 = subbmp->line[y][x];
-                    int c3 = pricesdisplaybuf->line[y][x];
+                    int c3 = pricesdisplaybuf->clip ? 0 : pricesdisplaybuf->line[y][x];
                     
                     if(c1 && c3)
                     {

@@ -771,7 +771,9 @@ enum
     cmdZScriptCompilerRules,
     cmdWeaponRules,
     cmdScreenScript,
-    cmdZQSNapshot,
+    cmdScreenSnapshot,
+	cmdViewL2BG,
+	cmdViewL3BG,
     cmdMAX
 };
 

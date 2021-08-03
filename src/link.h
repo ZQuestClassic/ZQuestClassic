@@ -253,6 +253,8 @@ public:
 	int steprate;
     byte defence[wMax];
 	int subscr_speed;
+	bool is_warping;
+	
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);
@@ -525,7 +527,7 @@ const int SEL_DOWN = 2;
 const int SEL_RIGHT = 3;
 const int SEL_VERIFY_LEFT = 4;
 const int SEL_VERIFY_RIGHT = 5;
-int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
+int selectWpn_new(int type, int startpos, int forbiddenpos = -1, int fp2 = -1, int fp3 = -1);
 bool isWpnPressed(int wpn);
 int getWpnPressed(int wpn);
 int selectSword();
@@ -534,6 +536,8 @@ void selectNextBWpn(int type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
+void verifyXWpn();
+void verifyYWpn();
 bool canget(int id);
 void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);

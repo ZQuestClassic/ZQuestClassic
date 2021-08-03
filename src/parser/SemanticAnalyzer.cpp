@@ -1123,6 +1123,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 					}
 				}
 			}
+			if(!current) break;
 		}
 		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
 		{

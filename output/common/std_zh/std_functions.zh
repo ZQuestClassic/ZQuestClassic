@@ -855,7 +855,7 @@ int DirRad(int dir)
 	}
 } 
 
-namestapce std
+namespace std
 {
 	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
 	float Distance(int x1, int y1, int x2, int y2) 

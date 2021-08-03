@@ -3151,6 +3151,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 58) )
+	{
+		//Rule used to be 'qr_SETXYBUTTONITEMS', now split.
+		if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+			set_bit(quest_rules,qr_SET_YBUTTON_ITEMS,1);
+	}
 	
     if ( tempheader.zelda_version < 0x254 )
     {
@@ -3451,6 +3457,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         if(keepdata)
         {
             init_msgstrings(0,msg_strings_size);
+			if(s_version < 7) set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
         }
 	
 	//zprint2("String version: (%d)", s_version);
@@ -3636,7 +3643,6 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 						return qe_invalid;
 					}
 				}
-				else set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
                 
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {

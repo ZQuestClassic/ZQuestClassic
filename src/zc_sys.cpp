@@ -5987,12 +5987,12 @@ static DIALOG gamepad_dlg[] =
 	{ d_jbutton_proc,      22,   90-20,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
 	{ d_jbutton_proc,      22,   118-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
 	{ d_jbutton_proc,      22,   146-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
-	{ d_jbutton_proc,      22,   178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
+	{ d_jbutton_proc,      22,   178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "X (EX1)",     NULL, &Exbtn1},
 	{ d_jbutton_proc,      22,   210-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
 	{ d_jbutton_proc,      167,  90-20,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
 	{ d_jbutton_proc,      167,  118-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
 	{ d_jbutton_proc,      167,  146-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
-	{ d_jbutton_proc,      167,  178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
+	{ d_jbutton_proc,      167,  178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Y (EX2)",     NULL, &Exbtn2},
 	{ d_jbutton_proc,      167,  210-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
 	{ d_jbutton_proc,      22,   242-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
 	// 29
@@ -6099,12 +6099,12 @@ static DIALOG keyboard_control_dlg[] =
 	{ d_kbutton_proc,      22,   100,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Akey},
 	{ d_kbutton_proc,      22,   128,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bkey},
 	{ d_kbutton_proc,      22,   156,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Skey},
-	{ d_kbutton_proc,      22,   188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exkey1},
+	{ d_kbutton_proc,      22,   188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "X (EX1)",     NULL, &Exkey1},
 	{ d_kbutton_proc,      22,   220,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exkey3},
 	{ d_kbutton_proc,      167,  100,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lkey},
 	{ d_kbutton_proc,      167,  128,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rkey},
 	{ d_kbutton_proc,      167,  156,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pkey},
-	{ d_kbutton_proc,      167,  188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exkey2},
+	{ d_kbutton_proc,      167,  188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Y (EX2)",     NULL, &Exkey2},
 	{ d_kbutton_proc,      167,  220,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exkey4},
 	// 31
 	{ d_k_clearbutton_proc,      22+91,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Akey},
@@ -11026,6 +11026,14 @@ bool DrunkcAbtn()
 bool DrunkcBbtn()
 {
     return getInput(btnB, false, true);
+}
+bool DrunkcEx1btn()
+{
+    return getInput(btnEx1, false, true);
+}
+bool DrunkcEx2btn()
+{
+    return getInput(btnEx2, false, true);
 }
 bool DrunkcSbtn()
 {

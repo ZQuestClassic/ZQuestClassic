@@ -109,7 +109,7 @@ public:
     void convertType(bool toLW);
     weapon(weapon const &other);
     //weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
-    weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0);
+    weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0, int Linked_Parent = 0);
     weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
     virtual ~weapon();
 	void cleanup_sfx();

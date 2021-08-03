@@ -129,6 +129,8 @@ bool AxisLeft();
 bool AxisRight();
 bool DrunkcAbtn();
 bool DrunkcBbtn();
+bool DrunkcEx1btn();
+bool DrunkcEx2btn();
 bool DrunkcSbtn();
 bool DrunkcMbtn();
 bool DrunkcLbtn();

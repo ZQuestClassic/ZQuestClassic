@@ -1857,8 +1857,8 @@ static MENU view_menu[] =
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
-    { (char *)"Layer 3 is Background",              onLayer3BG,              NULL,                     0,            NULL   },
-    { (char *)"Layer 2 is Background",              onLayer2BG,              NULL,                     0,            NULL   },
+    { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
+    { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -6307,6 +6307,18 @@ void side_warp_notification(int which, int dir, char *buf)
 
 static bool arrowcursor = true; // Used by combo aliases and Combo Brush cursors. -L
 
+bool isFavCmdSelected(int cmd)
+{
+	switch(cmd)
+	{
+		case cmdViewL2BG:
+			return ViewLayer2BG;
+		case cmdViewL3BG:
+			return ViewLayer3BG;
+	}
+	return false;
+}
+
 void refresh(int flags)
 {
     // CPage = Map.CurrScr()->cpage;
@@ -7202,7 +7214,14 @@ void refresh(int flags)
             
             for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
             {
-                draw_text_button(menu1,
+				draw_layer_button(menu1,
+                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
+                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
+                                 command_buttonwidth,
+                                 command_buttonheight,
+                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
+                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
+                /*draw_text_button(menu1,
                                  (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
                                  (cmd/commands_list.w)*command_buttonheight+commands_list.y,
                                  command_buttonwidth,
@@ -7210,8 +7229,8 @@ void refresh(int flags)
                                  (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
                                  vc(1),
                                  vc(14),
-                                 commands[favorite_commands[cmd]].flags,
-                                 true);
+                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags,
+                                 true);*///Old button style
             }
             
             font=tfont;
@@ -9648,6 +9667,7 @@ const char *commandlist(int index, int *list_size)
 
 int select_command(const char *prompt,int cmd)
 {
+	FONT* tfont = font;
     if(bic_cnt==-1)
         build_bic_list();
         
@@ -9671,6 +9691,7 @@ int select_command(const char *prompt,int cmd)
         large_dialog(clist_dlg);
         
     int ret=zc_popup_dialog(clist_dlg,2);
+	font = tfont;
     
     if(ret==0||ret==4)
     {
@@ -10518,8 +10539,28 @@ void domouse()
                     FONT *tfont=font;
                     font=pfont;
                     
-                    if(do_text_button_reset(check_x,check_y,command_buttonwidth, command_buttonheight, favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,vc(1),vc(14),true))
+                    if(draw_layer_button_reset(check_x,
+							check_y,
+							command_buttonwidth,
+							command_buttonheight,
+							favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+								? catchall_string[Map.CurrScr()->room]
+								: commands[favorite_commands[cmd]].name,
+							isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
+							true))
+						/*do_text_button_reset(check_x,
+							check_y,
+							command_buttonwidth,
+							command_buttonheight,
+							favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+								? catchall_string[Map.CurrScr()->room]
+								: commands[favorite_commands[cmd]].name,
+							vc(1),
+							vc(14),
+							true,
+							isFavCmdSelected(favorite_commands[cmd])))*///Old button style
                     {
+                        font=tfont;
                         if(ctrl)
                         {
                             favorite_commands[cmd]=0;
@@ -10530,7 +10571,6 @@ void domouse()
                         }
                         else
                         {
-                            font=tfont;
                             int (*pfun)();
                             pfun=commands[favorite_commands[cmd]].command;
                             pfun();
@@ -10979,7 +11019,17 @@ void domouse()
                     FONT *tfont=font;
                     font=pfont;
                     
-                    if(do_text_button_reset(check_x,check_y,command_buttonwidth, command_buttonheight, favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,vc(1),vc(14),true))
+                    if(do_text_button_reset(check_x,
+						check_y,
+						command_buttonwidth,
+						command_buttonheight,
+						favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+							? catchall_string[Map.CurrScr()->room]
+							: commands[favorite_commands[cmd]].name,
+						vc(1),
+						vc(14),
+						true,
+						isFavCmdSelected(cmd)))
                     {
                         favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
                     }
@@ -11160,7 +11210,7 @@ int onShowPal()
     
     if(!palbmp)
         return D_O_K;
-        
+	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
     showpal_dlg[0].dp2=lfont;
     
     for(int i=0; i<256; i++)
@@ -24980,7 +25030,7 @@ static int zscript_settings_instructions_1[] =
 };
 static int zscript_settings_instructions_2[] =
 {
-	44, 46, 47, 48,
+	44, 46, 47, 48, 49,
 	-1
 };
 
@@ -25082,7 +25132,8 @@ static DIALOG zscript_settings_dlg[] =
 	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
 	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
 	{ jwin_check_proc,      12, 47+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Combodata->InitD[]", NULL, NULL },
-	
+	{ jwin_check_proc,      12, 47+50,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Script writes to Hero->Step don't carry over", NULL, NULL },
+	// 50
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -25100,7 +25151,7 @@ static int zscriptrules[] =
 	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
 	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
 	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
-	qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK,
+	qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,
     -1
 };
 
@@ -34486,7 +34537,7 @@ command_pair commands[cmdMAX]=
     { "Stop Tunes",                         0, (intF) stopMusic                                        },
     { "Strings",                            0, (intF) onStrings                                        },
     { "Subscreens",                         0, (intF) onEditSubscreens                                 },
-    { "Take Snapshot",                      0, (intF) onSnapshot                                       },
+    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                                       },
     { "Ambient Music",                      0, (intF) playTune1                                        },
     { "NES Dungeon Template",               0, (intF) onTemplate                                       },
     { "Edit Templates",                     0, (intF) onTemplates                                      },
@@ -34534,9 +34585,11 @@ command_pair commands[cmdMAX]=
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
     { "Rules - Hero",                       0, (intF) onHeroRules                                      },
     { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Rules - Weapons",                   0, (intF) onWeaponRules                        },
-    { "Screen Script",                   0, (intF) onScreenScript                        },
-    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                        }
+    { "Rules - Weapons",                    0, (intF) onWeaponRules                                    },
+    { "Screen Script",                      0, (intF) onScreenScript                                   },
+    { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
+    { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
+    { "View L3 as BG",                      0, (intF) onLayer3BG                                       }
 };
 
 /********************************/
@@ -36498,7 +36551,7 @@ bool ZModule::init(bool d) //bool default
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
 			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
 			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
-			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3", 
 			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
 		};
 		const char lweapon_default_names[wIce+1][255]=
@@ -36507,14 +36560,13 @@ bool ZModule::init(bool d) //bool default
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
 			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle", 
 			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
-			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
 			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
 		};
 		for ( int q = 0; q < wIce+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
-			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
 		{

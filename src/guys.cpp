@@ -3737,89 +3737,36 @@ int enemy::resolveEnemyDefence(weapon *w)
 {
 	//sword edef is 9, but we're reading it at 0
 	//, 
-	int weapondef = -1; //To suppress compiler warnings. 
-	//al_trace("enemy::resolveEnemyDefence(), Step 0, initial weapondef should be -1, and is: %d\n", weapondef);
-	//Z_message("enemy::resolveEnemyDefence(), Step 0, initial weapondef should be -1, and is: %d\n", weapondef);
+	int weapondef = 0;
 	int wid = getWeaponID(w);
-	//al_trace("resolveEnemyDefence() wid is: %d\n",wid);
-	//al_trace("enemy::resolveEnemyDefence(), Step 1, initial wid: %d\n", wid);
-	//Z_message("enemy::resolveEnemyDefence(), Step 1, initial wid: %d\n", wid);
+	int wtype = (w->useweapon > 0 ? w->useweapon : wid);
+	int wdeftype = weaponToDefence(wtype);
+	int usedef = w->usedefence;
 	
-	if ( w->parentitem > -1 )
+	if ( usedef > 0 && (wdeftype < 0 || wdeftype >= edefLAST255 || defense[wdeftype] == 0)) 
 	{
-		//al_trace("resolveEnemyDefence() w->parentitem is %d\n",w->parentitem);
-		int usedef = itemsbuf[w->parentitem].usedefence;
-		al_trace("UseDefence is %d\n", usedef);
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
-		//Z_message("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		if ( usedef > 0 && defense[ ( itemsbuf[w->parentitem].useweapon > 0 ? weaponToDefence(itemsbuf[w->parentitem].useweapon) : usedef ) ] == 0 ) //only if that defence is set to none 
-		{
-			al_trace("Using a default defence of: %d\n", usedef);
-			weapondef = usedef*-1;
-		}
-		else
-		{
-			al_trace("weaponToDefence(wid) is %d\n", weaponToDefence(wid));
-			weapondef = weaponToDefence(wid);
-		}
-		/*
-		if ( defense[weaponToDefence(wid)] == 0 ) {
-			weapondef = usedef;
-			//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-			//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-		}
-		else weapondef = defense[weaponToDefence(wid)]; //defense] is not in the same order as weapon id enum, is it?
-		*/
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
-		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
-		//al_trace("resolveEnemyDefence() weapondef is: %d\n",weapondef);
-		return weapondef;
+		//zprint2("Using a default defence of: %d\n", usedef);
+		weapondef = usedef*-1;
 	}
-	if ( w->parentitem == -1 && w->ScriptGenerated )
+	else if(wdeftype < 0 || wdeftype >= edefLAST255)
 	{
-		int usedef = w->usedefence;
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
-		//Z_message("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		if ( usedef > 0 && defense[ ( w->useweapon > 0 ? weaponToDefence(w->useweapon) : usedef ) ] == 0 ) 
-		{
-			al_trace("Using a default defence of: %d\n", usedef);
-			weapondef = usedef*-1;
-		}
-		else
-		{
-			al_trace("weaponToDefence(wid) is %d\n", weaponToDefence(wid));
-			weapondef = weaponToDefence(wid);
-		}
-		/*
-		if ( defense[weaponToDefence(wid)] == 0 ) {
-			weapondef = usedef;
-			//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-			//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-		}
-		else weapondef = defense[weaponToDefence(wid)]; //defense] is not in the same order as weapon id enum, is it?
-		*/
-		
-		//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
-		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
-		//al_trace("resolveEnemyDefence() weapondef is: %d\n",weapondef);
-		return weapondef;
-		
-		
+		//zprint2("Invalid wdeftype %d, using no defense\n");
+		weapondef = 0;
 	}
-	//al_trace("enemy::resolveEnemyDefence(), Step 5, returning defense[wid]: %d\n", defense[wid]);
-	//Z_message("enemy::resolveEnemyDefence(), Step 5, returning defense[wid]: %d\n", defense[wid]);
-	//al_trace("resolveEnemyDefence() resolved to return defense[weaponToDefence(wid)]: %d\n",defense[weaponToDefence(wid)]);
-	//return defense[weaponToDefence(wid)];
-	return weaponToDefence(wid);
+	else
+	{
+		//zprint2("Using an engine defence of: %d\n", wdeftype);
+		weapondef = wdeftype;
+	}
+	/*
+	if ( defense[weaponToDefence(wid)] == 0 ) {
+		weapondef = usedef;
+		//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
+		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
+	}
+	else weapondef = defense[weaponToDefence(wid)]; //defense] is not in the same order as weapon id enum, is it?
+	*/
+	return weapondef;
 }
 
 
@@ -5291,23 +5238,29 @@ int enemy::takehit(weapon *w)
 	int wpnDir;
 	int parent_item = w->parentitem;
 	
-	if ( parent_item > -1 )
-	{
-		if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = itemsbuf[parent_item].useweapon;
-		}
+	//if ( parent_item > -1 )
+	//{
+	//	if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = itemsbuf[parent_item].useweapon;
+	//	}
 		
-	}
-	if ( parent_item == -1 && w->ScriptGenerated )
-	{
-		if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
-		{
-			wpnId = w->useweapon;
-		}
+	//}
+	//if ( parent_item == -1 && w->ScriptGenerated )
+	//{
+	//	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	//	{
+	//		wpnId = w->useweapon;
+	//	}
 		
+	//}
+	//al_trace("takehit wpnId is: %d\n",wpnId);
+   
+	//Shoud be set from idata from the weapon::weaon constructor. -Z
+	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+	{
+		wpnId = w->useweapon;
 	}
-	al_trace("takehit wpnId is: %d\n",wpnId);
 	
 	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
 	
@@ -20547,6 +20500,7 @@ void moneysign()
 
 void putprices(bool sign)
 {
+	if(fadeclk > 0) return;
 	// refresh what's under the prices
 	// for(int i=5; i<12; i++)
 	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
@@ -21227,7 +21181,11 @@ void putmsg()
 			if(cAbtn()||cBbtn())
 			{
 				msgstr=MsgStrings[msgstr].nextstring;
-				
+				if(!msgstr && enqueued_str)
+				{
+					msgstr = enqueued_str;
+					enqueued_str = 0;
+				}
 				if(!msgstr)
 				{
 					msgfont=zfont;
@@ -21458,7 +21416,7 @@ breakout:
 			;
 			
 		// Go to next string, or make it disappear by going to string 0.
-		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR))
+		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR) || enqueued_str)
 		{
 			linkedmsgclk=51;
 		}
