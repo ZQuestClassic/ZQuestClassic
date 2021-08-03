@@ -2373,22 +2373,22 @@ static DIALOG dialogs[] =
     //slash is also question mark
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH,          0, (void *) onKeySlash, NULL, NULL },
     // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '0',     0,       0,              0, (void *) on0, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '1',     0,       0,              0, (void *) on1, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '2',     0,       0,              0, (void *) on2, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '3',     0,       0,              0, (void *) on3, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '4',     0,       0,              0, (void *) on4, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '5',     0,       0,              0, (void *) on5, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '6',     0,       0,              0, (void *) on6, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '7',     0,       0,              0, (void *) on7, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '8',     0,       0,              0, (void *) on8, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '9',     0,       0,              0, (void *) on9, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ')',     0,       0,              0, (void *) on10, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '!',     0,       0,              0, (void *) on11, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '@',     0,       0,              0, (void *) on12, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '#',     0,       0,              0, (void *) on13, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '$',     0,       0,              0, (void *) on14, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '%',     0,       0,              0, (void *) on15, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0,          0, (void *) on0, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1,          0, (void *) on1, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2,          0, (void *) on2, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3,          0, (void *) on3, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4,          0, (void *) on4, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5,          0, (void *) on5, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6,          0, (void *) on6, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7,          0, (void *) on7, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8,          0, (void *) on8, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9,          0, (void *) on9, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on10, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on11, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on12, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on13, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on14, NULL, NULL },
+    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on15, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,              0, (void *) onDecMap, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,              0, (void *) onIncMap, NULL, NULL },
 
@@ -2409,6 +2409,16 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SPACE,      0, (void *) onSpacebar, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DEL,        0, (void *) onDelete, NULL, NULL },      //
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ENTER,      0, (void *) onEnter, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0_PAD,      0, (void *) on0, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1_PAD,      0, (void *) on1, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2_PAD,      0, (void *) on2, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3_PAD,      0, (void *) on3, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4_PAD,      0, (void *) on4, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5_PAD,      0, (void *) on5, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6_PAD,      0, (void *) on6, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7_PAD,      0, (void *) on7, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8_PAD,      0, (void *) on8, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9_PAD,      0, (void *) on9, NULL, NULL },
     { NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,              0,       NULL, NULL, NULL }
 };
 
@@ -4278,56 +4288,154 @@ int onDefault_MapStyles()
     return D_O_K;
 }
 
-
 int on0()
 {
     saved=false;
-    Map.setcolor(0);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on10();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		CurrentLayer = 0;
+		refresh(rALL);
+	}
+	else
+	{
+		Map.setcolor(0);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on1()
 {
     saved=false;
-    Map.setcolor(1);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on11();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		if(Map.CurrScr()->layermap[0])
+		{
+			CurrentLayer = 1;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(1);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on2()
 {
     saved=false;
-    Map.setcolor(2);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on12();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		if(Map.CurrScr()->layermap[1])
+		{
+			CurrentLayer = 2;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(2);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on3()
 {
     saved=false;
-    Map.setcolor(3);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on13();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		if(Map.CurrScr()->layermap[2])
+		{
+			CurrentLayer = 3;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(3);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on4()
 {
     saved=false;
-    Map.setcolor(4);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on14();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		if(Map.CurrScr()->layermap[3])
+		{
+			CurrentLayer = 4;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(4);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on5()
 {
     saved=false;
-    Map.setcolor(5);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		return on15();
+	}
+	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	{
+		if(Map.CurrScr()->layermap[4])
+		{
+			CurrentLayer = 5;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(5);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 
 int on6()
 {
     saved=false;
-    Map.setcolor(6);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+	// if(key_shifts & KB_CTRL_FLAG)
+	{
+		if(Map.CurrScr()->layermap[5])
+		{
+			CurrentLayer = 6;
+			refresh(rALL);
+		}
+	}
+	else
+	{
+		Map.setcolor(6);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int on7()
 {
@@ -4350,6 +4458,7 @@ int on9()
     refresh(rSCRMAP);
     return D_O_K;
 }
+
 int on10()
 {
     saved=false;
@@ -11019,7 +11128,16 @@ void domouse()
                     FONT *tfont=font;
                     font=pfont;
                     
-                    if(do_text_button_reset(check_x,
+                    if(draw_layer_button_reset(check_x,
+							check_y,
+							command_buttonwidth,
+							command_buttonheight,
+							favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+								? catchall_string[Map.CurrScr()->room]
+								: commands[favorite_commands[cmd]].name,
+							isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
+							true))
+						/*do_text_button_reset(check_x,
 						check_y,
 						command_buttonwidth,
 						command_buttonheight,
@@ -11029,7 +11147,7 @@ void domouse()
 						vc(1),
 						vc(14),
 						true,
-						isFavCmdSelected(cmd)))
+						isFavCmdSelected(favorite_commands[cmd])))*/
                     {
                         favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
                     }
