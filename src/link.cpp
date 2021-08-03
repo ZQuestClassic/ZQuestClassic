@@ -6385,171 +6385,216 @@ bool LinkClass::checkdamagecombos(int dx, int dy)
 
 bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer, bool solid) //layer = -1, solid = false
 {
-    if(hclk || superman || fallclk)
-        return false;
-        
-    int hp_mod[4];
-    
-    
-	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].usrflags&cflag1) 
-	{
-		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0]: %d\n",combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0]);
-		hp_mod[0] = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].attributes[0] * -1;
-	}
-	else 
-	{
-		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount: %d\n",combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount);
-		hp_mod[0]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)].type].modify_hp_amount;
-	}
+	if(hclk || superman || fallclk)
+		return false;
+		
+	int hp_mod[4] = {0};
+	byte hasKB = 0;
 	
-	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].usrflags&cflag1 ) 
 	{
-		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0]: %d\n", combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0]);
-		hp_mod[1] = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].attributes[0] * -1;
-	}
-	else 
-	{
-		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount);
-		hp_mod[1]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)].type].modify_hp_amount;
-	}
-	
-	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].usrflags&cflag1) 
-	{
-		//Z_scripterrlog("combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0]: %d\n",combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0]);
-		hp_mod[2] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].attributes[0] * -1;
-	}
-	else 
-	{
-		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount);
-		hp_mod[2]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)].type].modify_hp_amount;
-	}
-	if ( combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount && combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].usrflags&cflag1 ) 
-	{
-		//Z_scripterrlog("hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0]: %d\n", hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0]);
-		hp_mod[3] = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].attributes[0] * -1;
-	}
-	else 
-	{
-		//Z_scripterrlog("combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount: %d\n", combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount);
-		hp_mod[3]=combo_class_buf[combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)].type].modify_hp_amount;
-	}
-    
-    
-    int hp_modtotal=0;
-    
-    for (int i = 0; i <= 1; ++i)
-	{
-		if(tmpscr2[i].valid!=0)
+		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) hp_mod[0] = 0;
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) hp_mod[1] = 0;
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) hp_mod[2] = 0;
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) hp_mod[3] = 0;
+			if(cmb.usrflags&cflag1) 
+				hp_mod[0] = cmb.attributes[0] * -1;
+			else 
+				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<0;
 		}
 	}
-    
-    for(int i=0; i<4; i++)
-    {
-        if(get_bit(quest_rules,qr_DMGCOMBOPRI))
-        {
-            if(hp_modtotal >= 0)
-                hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
-            else if(hp_mod[i] < 0)
-                hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
-        }
-        else
-            hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
-    }
-    
-   
-	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy1)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx1,dy1)].usrflags&cflag1 ) hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
-	else hp_mod[0]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy1)].type].modify_hp_amount;
+	{
+		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1) 
+				hp_mod[1] = cmb.attributes[0] * -1;
+			else 
+				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<1;
+		}
+	}
+	{
+		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1) 
+				hp_mod[2] = cmb.attributes[0] * -1;
+			else 
+				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<2;
+		}
+	}
+	{
+		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1) 
+				hp_mod[3] = cmb.attributes[0] * -1;
+			else 
+				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<3;
+		}
+	}
 	
-	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy2)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx1,dy2)].usrflags&cflag1 ) hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy2)].attributes[0];
-	else hp_mod[1]=combo_class_buf[combobuf[MAPFFCOMBO(dx1,dy2)].type].modify_hp_amount;
-	    
-	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy1)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx2,dy1)].usrflags&cflag1 ) hp_mod[2] = combobuf[MAPFFCOMBO(dx2,dy1)].attributes[0];
-	else hp_mod[2]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy1)].type].modify_hp_amount;
-	    
-	if ( combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount && combobuf[MAPFFCOMBO(dx2,dy2)].usrflags&cflag1 ) hp_mod[4] = combobuf[MAPFFCOMBO(dx2,dy2)].attributes[0];
-	else hp_mod[3]=combo_class_buf[combobuf[MAPFFCOMBO(dx2,dy2)].type].modify_hp_amount;
-    
-    int hp_modtotalffc = 0;
-    
+	
+	int hp_modtotal=0;
+	
 	for (int i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) hp_mod[0] = 0;
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) hp_mod[1] = 0;
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) hp_mod[2] = 0;
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) hp_mod[3] = 0;
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
 		}
 	}
-    
-    for(int i=0; i<4; i++)
-    {
-        if(get_bit(quest_rules,qr_DMGCOMBOPRI))
-        {
-            if(hp_modtotalffc >= 0)
-                hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
-            else if(hp_mod[i] < 0)
-                hp_modtotalffc = zc_max(hp_modtotalffc, hp_mod[i]);
-        }
-        else
-            hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
-    }
-    
-    int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
-    
-    bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
-    bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
-    
-    int itemid = current_item_id(itype_boots);
-    
-    bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
-    
-    if(hp_modmin<0)
-    {
-        if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
-        {
-            if(NayrusLoveShieldClk<=0)
-            {
-                int ringpow = ringpower(-hp_modmin);
-                game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
-            }
-            
-            hitdir = (dir^1);
-            
-            if (action != rafting && action != freeze)
-            {
-                if (action == swimming || hopclk == 0xFF)
+	
+	for(int i=0; i<4; i++)
+	{
+		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
-                    action=swimhit; FFCore.setLinkAction(swimhit);
+			if(hp_modtotal >= 0)
+				hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+			else if(hp_mod[i] < 0)
+				hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
 		}
-                else
+		else
+			hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+	}
+	
+	{
+		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy1)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
 		{
-                    action=gothit; FFCore.setLinkAction(gothit);
+			if(cmb.usrflags&cflag1 )
+				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+			else
+				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<4;
 		}
-            }
-                
-                
-            hclk=48;
-            
-            if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-            {
-                spins = charging = attackclk = 0;
-                attack=none;
-                tapping = false;
-            }
-            
-            sfx(getHurtSFX(),pan(x.getInt()));
-            return true;
-        }
-        else paymagiccost(itemid); // Boots are successful
-    }
-    
-    return false;
+	}
+	{
+		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy2)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1 )
+				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+			else
+				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<5;
+		}
+	}
+	{
+		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy1)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1 )
+				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+			else
+				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<6;
+		}
+	}
+	{
+		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy2)];
+		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		{
+			if(cmb.usrflags&cflag1 )
+				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+			else
+				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
+			if(!(cmb.usrflags&cflag2))
+				hasKB |= 1<<7;
+		}
+	}
+	
+	int hp_modtotalffc = 0;
+	
+	for (int i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+		}
+	}
+	
+	for(int i=0; i<4; i++)
+	{
+		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
+		{
+			if(hp_modtotalffc >= 0)
+				hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+			else if(hp_mod[i] < 0)
+				hp_modtotalffc = zc_max(hp_modtotalffc, hp_mod[i]);
+		}
+		else
+			hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+	}
+	
+	int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
+	
+	bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
+	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+	
+	int itemid = current_item_id(itype_boots);
+	
+	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
+	
+	if(hp_modmin<0)
+	{
+		if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
+		{
+			if(NayrusLoveShieldClk<=0)
+			{
+				int ringpow = ringpower(-hp_modmin);
+				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
+			}
+			
+			if(hasKB)
+				hitdir = (dir^1);
+			else
+				hitdir = -1;
+			
+			if (action != rafting && action != freeze)
+			{
+				if (action == swimming || hopclk == 0xFF)
+				{
+					action=swimhit; FFCore.setLinkAction(swimhit);
+				}
+				else
+				{
+					action=gothit; FFCore.setLinkAction(gothit);
+				}
+			}
+				
+				
+			hclk=48;
+			
+			if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+			{
+				spins = charging = attackclk = 0;
+				attack=none;
+				tapping = false;
+			}
+			
+			sfx(getHurtSFX(),pan(x.getInt()));
+			return true;
+		}
+		else paymagiccost(itemid); // Boots are successful
+	}
+	
+	return false;
 }
 
 void LinkClass::hitlink(int hit2)
