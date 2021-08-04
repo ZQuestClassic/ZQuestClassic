@@ -16665,7 +16665,10 @@ static int combo_data_list[] =
     4,5,6,
 	7,8,9,10,11,12,13,
 	14,
-	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, -1
+	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+	37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+	136, 137, 138, 139, 140,
+	-1
 };
 
 static int combo_attributes_list[] =
@@ -18471,6 +18474,12 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	//136
+	{ d_comboframe_proc,   254,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      256,  48+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      256,  56+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      264,  48+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      264,  56+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    //141
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -18601,14 +18610,21 @@ int onCmb_dlg_h()
     
     zc_swap(combo_dlg[17].flags, combo_dlg[19].flags);
     zc_swap(combo_dlg[18].flags, combo_dlg[20].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[139].flags);
+    zc_swap(combo_dlg[138].flags, combo_dlg[140].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
     zc_swap(combo_dlg[24].flags, combo_dlg[25].flags);
     
-    for(int i=0; i<4; i++)
+    for(int i=0; i<4; ++i)
         if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
@@ -18625,6 +18641,8 @@ int onCmb_dlg_v()
     
     zc_swap(combo_dlg[17].flags, combo_dlg[18].flags);
     zc_swap(combo_dlg[19].flags, combo_dlg[20].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[138].flags);
+    zc_swap(combo_dlg[139].flags, combo_dlg[140].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
     zc_swap(combo_dlg[23].flags, combo_dlg[25].flags);
     
@@ -18633,6 +18651,11 @@ int onCmb_dlg_v()
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
@@ -18650,6 +18673,9 @@ int onCmb_dlg_r()
     zc_swap(combo_dlg[17].flags, combo_dlg[19].flags);
     zc_swap(combo_dlg[17].flags, combo_dlg[20].flags);
     zc_swap(combo_dlg[17].flags, combo_dlg[18].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[139].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[140].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[138].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[25].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
@@ -18659,6 +18685,11 @@ int onCmb_dlg_r()
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
@@ -18771,6 +18802,11 @@ bool edit_combo(int c,bool freshen,int cs)
 	for(int i=0; i<4; i++)
 	{
 		combo_dlg[i+17].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+137].flags = curr_combo.walk&(1<<(i+4)) ? D_SELECTED : 0;
 	}
 	
 	for(int i=0; i<4; i++)
@@ -18977,6 +19013,7 @@ bool edit_combo(int c,bool freshen,int cs)
 			large_dialog(combo_dlg);
 			combo_dlg[14].w=32;
 			combo_dlg[14].h=32;
+			
 			combo_dlg[17].x-=1;
 			combo_dlg[17].y-=1;
 			combo_dlg[18].x-=1;
@@ -18994,6 +19031,16 @@ bool edit_combo(int c,bool freshen,int cs)
 			combo_dlg[23].y-=1;
 			combo_dlg[25].x+=3;
 			combo_dlg[25].y+=3;
+			
+			
+			combo_dlg[137].x-=1;
+			combo_dlg[137].y-=1;
+			combo_dlg[138].x-=1;
+			combo_dlg[138].y+=3;
+			combo_dlg[139].x+=3;
+			combo_dlg[139].y-=1;
+			combo_dlg[140].x+=3;
+			combo_dlg[140].y+=3;
 		}
 	}
 	
@@ -19092,11 +19139,22 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			if(combo_dlg[i+17].flags & D_SELECTED)
 			{
-			curr_combo.walk |= 1<<i;
+				curr_combo.walk |= 1<<i;
 			}
 			else
 			{
-			curr_combo.walk &= ~(1<<i);
+				curr_combo.walk &= ~(1<<i);
+			}
+		}
+		for(int i=0; i<4; i++)
+		{
+			if(combo_dlg[i+137].flags & D_SELECTED)
+			{
+				curr_combo.walk |= 1<<(i+4);
+			}
+			else
+			{
+				curr_combo.walk &= ~(1<<(i+4));
 			}
 		}
 		
