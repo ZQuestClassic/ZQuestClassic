@@ -16575,9 +16575,9 @@ int d_combo_loader(int msg,DIALOG *d,int c)
     {
         FONT *f = is_large ? lfont_l : font;
         textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
+        textprintf_ex(screen,f,d->x+((!is_large ? 1 : 1.5)*36),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
+        textprintf_ex(screen,f,d->x+((!is_large ? 1 : 1.5)*36),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
     }
     
@@ -18310,7 +18310,7 @@ static DIALOG combo_dlg[] =
     { d_comboframe_proc,   158,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_combo_proc,    160,  48+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_ctile_proc,      160,  48+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_numedit_proc, 102+5,  68+17,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_numedit_proc, 88+5,  68+17,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
     // 16
     { d_comboframe_proc,   190,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_wflag_proc,      192,  48+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
@@ -18328,8 +18328,8 @@ static DIALOG combo_dlg[] =
     { jwin_droplist_proc,   89,   122+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       60,   90+17,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Frames:", NULL, NULL },
     { jwin_text_proc,       60,   108+17,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Speed:", NULL, NULL },
-    { jwin_numedit_proc,   102+5,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { jwin_numedit_proc,   102+5,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_numedit_proc,    88+5,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_numedit_proc,    88+5,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       192,  71+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle:", NULL, NULL },
     // 33
     { d_comboframe_proc,   190,  79+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
@@ -18337,10 +18337,10 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,       60,   144+17,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Flag:", NULL, NULL },
     { jwin_droplist_proc,   89,   140+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &flag_list, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0, (void *) click_d_combo_proc, NULL, NULL },
-    { jwin_text_proc,       140,   108+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipX:", NULL, NULL },
-    { jwin_numedit_proc,   180,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       210,   108+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipY:", NULL, NULL },
-    { jwin_numedit_proc,   250,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       122,   90+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipX:", NULL, NULL },
+    { jwin_numedit_proc,   152,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       122,   108+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipY:", NULL, NULL },
+    { jwin_numedit_proc,   152,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_check_proc,       60,   160+17,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_check_proc,       60,   169+17,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
