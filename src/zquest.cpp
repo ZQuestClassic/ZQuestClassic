@@ -11309,37 +11309,79 @@ void domouse()
     }
 }
 
+int d_viewpal_proc(int msg, DIALOG *d, int c)
+{
+	int ret = d_bitmap_proc(msg, d, c);
+	char* buf = (char*)d->dp2; //buffer to store the color code in
+	DIALOG* d2 = (DIALOG*)d->dp3; //DIALOG* to update the text proc
+	if(!buf)
+		return ret;
+	switch(msg)
+	{
+		case MSG_IDLE:
+		case MSG_GOTMOUSE:
+		case MSG_LOSTMOUSE:
+			break;
+		default:
+			return ret;
+	}
+	char t[16];
+	memcpy(t, buf, 16);
+	int x = gui_mouse_x() - d->x;
+	int y = gui_mouse_y() - d->y;
+	if(msg != MSG_LOSTMOUSE && isinRect(x, y, 0, 0, d->w-1, d->h-1))
+	{
+		float palscale = is_large ? 1.5 : 1;
+		for(int i = 0; i<256; ++i)
+			if(isinRect(x,y,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale)))
+			{
+				sprintf(buf, "0x%02X (%03d)     ", i, i); //Extra spaces to increase drawn width, so it draws the blank area
+				break;
+			}
+	}
+	else memset(buf, ' ', 15);
+	if(strcmp(buf, t) && d2 && d2->proc == jwin_text_proc && d2->dp == d->dp2)
+		object_message(d2, MSG_DRAW, 0);
+	return ret;
+}
+
 static DIALOG showpal_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   68,   272,  119,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "View Palette", NULL, NULL },
-    { jwin_frame_proc,   30,   76+16,   260,  68,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_bitmap_proc,     32,   76+18,   256,  64,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     130,  144+18,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+	/* (dialog proc)     (x)     (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,     24,      68,  272,  119,  vc(14),  vc(1),      0,    D_EXIT,        0,             0, (void *) "View Palette",        NULL,  NULL },
+	{ jwin_frame_proc,   30,   76+16,  260,   68,       0,      0,      0,         0,  FR_DEEP,             0, NULL,                           NULL,  NULL },
+	{ d_viewpal_proc,    32,   76+18,  256,   64,       0,      0,      0,         0,        0,             0, NULL,                           NULL,  NULL },
+	{ jwin_text_proc,  32+8,76+18+66,   20,    8,  vc(11),  vc(1),      0,         0,        0,             0, NULL,                           NULL,  NULL },
+	{ jwin_button_proc, 130,  144+18,   61,   21,  vc(14),  vc(1),     27,    D_EXIT,        0,             0, (void *) "OK",                  NULL,  NULL },
+	{ d_timer_proc,       0,       0,    0,    0,       0,      0,      0,         0,        0,             0, NULL,                           NULL,  NULL },
+	{ NULL,               0,       0,    0,    0,       0,      0,      0,         0,        0,             0, NULL,                           NULL,  NULL }
 };
 
 int onShowPal()
 {
-    float palscale = is_large ? 1.5 : 1;
-    
-    BITMAP *palbmp = create_bitmap_ex(8,(int)(256*palscale),(int)(64*palscale));
-    
-    if(!palbmp)
-        return D_O_K;
+	float palscale = is_large ? 1.5 : 1;
+	
+	BITMAP *palbmp = create_bitmap_ex(8,(int)(256*palscale),(int)(64*palscale));
+	
+	if(!palbmp)
+		return D_O_K;
 	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
-    showpal_dlg[0].dp2=lfont;
-    
-    for(int i=0; i<256; i++)
-        rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
-    showpal_dlg[2].dp=(void *)palbmp;
-    
-    if(is_large)
-        large_dialog(showpal_dlg);
-    zc_popup_dialog(showpal_dlg,2);
-    destroy_bitmap(palbmp);
-    return D_O_K;
+	showpal_dlg[0].dp2=lfont;
+	
+	for(int i=0; i<256; i++)
+		rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
+	showpal_dlg[2].dp=(void *)palbmp;
+	char buf[16] = {0};
+	showpal_dlg[2].dp2=(void *)buf;
+	showpal_dlg[2].dp3=(void *)&(showpal_dlg[3]);
+	showpal_dlg[3].dp=(void *)buf;
+	showpal_dlg[3].dp2=(void *)deffont;
+	
+	if(is_large)
+		large_dialog(showpal_dlg);
+	zc_popup_dialog(showpal_dlg,2);
+	destroy_bitmap(palbmp);
+	return D_O_K;
 }
 
 static DIALOG csetfix_dlg[] =
