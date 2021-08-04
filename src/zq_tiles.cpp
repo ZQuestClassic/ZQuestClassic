@@ -18307,22 +18307,22 @@ static DIALOG combo_dlg[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      't',     0,          0,             0, (void *) click_d_ctile_proc, NULL, NULL },
     // 11
     { d_combo_loader,    60,   48+17,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_comboframe_proc,   158,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,    160,  48+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_ctile_proc,      160,  48+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_comboframe_proc,   158,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_combo_proc,    160,  57+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_ctile_proc,      160,  57+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_numedit_proc, 88+5,  68+17,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
     // 16
-    { d_comboframe_proc,   190,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_wflag_proc,      192,  48+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      192,  56+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      200,  48+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      200,  56+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_comboframe_proc,   190,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      192,  57+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      192,  65+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      200,  57+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      200,  65+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     // 21
-    { d_comboframe_proc,   222,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_wflag_proc,      224,  48+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      232,  48+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      224,  56+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      232,  56+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_comboframe_proc,   222,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  57+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  57+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  65+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  65+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     // 26
     { jwin_text_proc,       60,   126+17,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Type:", NULL, NULL },
     { jwin_droplist_proc,   89,   122+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
@@ -18330,7 +18330,7 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,       60,   108+17,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Speed:", NULL, NULL },
     { jwin_numedit_proc,    88+5,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_numedit_proc,    88+5,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       192,  71+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle:", NULL, NULL },
+    { jwin_text_proc,       194,  102+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle", NULL, NULL },
     // 33
     { d_comboframe_proc,   190,  79+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_combo_proc,    192,  81+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -18474,12 +18474,17 @@ static DIALOG combo_dlg[] =
     { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	//136
-	{ d_comboframe_proc,   254,  46+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_wflag_proc,      256,  48+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      256,  56+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      264,  48+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      264,  56+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+	{ d_comboframe_proc,   222,  78+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  80+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  88+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  80+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  88+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     //141
+    { jwin_ctext_proc,       234,  102+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Effect", NULL, NULL },
+    { jwin_ctext_proc,       202,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Solid", NULL, NULL },
+    { jwin_ctext_proc,       234,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "CSet2", NULL, NULL },
+    { jwin_ctext_proc,       170,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Tile", NULL, NULL },
+	//145
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
