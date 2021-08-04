@@ -15977,7 +15977,7 @@ int combo_screen(int pg, int tl)
                 {
                     combobuf[i].flip^=1;
                     byte w2=combobuf[i].walk;
-                    combobuf[i].walk=(w2& ~3)>>2 | (w2&3)<<2;
+                    combobuf[i].walk=((w2& ~0x33)>>2 | (w2&0x33)<<2);
                     w2=combobuf[i].csets;
                     combobuf[i].csets= (((w2& ~0x50)>>1 | (w2&0x50)<<1) & ~0x0F) | (w2 & 0x0F);
                 }
@@ -16040,7 +16040,7 @@ int combo_screen(int pg, int tl)
                     {
                         combobuf[i].flip^=2;
                         byte w2=combobuf[i].walk;
-                        combobuf[i].walk=(w2&5)<<1 | (w2& ~5)>>1;
+                        combobuf[i].walk=(w2&0x55)<<1 | (w2& ~0x55)>>1;
                         w2=combobuf[i].csets;
                         combobuf[i].csets= (((w2&0x30)<<2 | (w2& ~0x30)>>2) & ~0x0F) | (w2 & 0x0F);
                     }

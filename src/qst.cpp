@@ -14366,7 +14366,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
 					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
 					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
-						tempguy.moveflags = FLAG_CAN_PITWALK|FLAG_CAN_WATERWALK;
+						tempguy.moveflags = FLAG_CAN_PITWALK;
 						break;
 					//No gravity, but falls in pits
 					case eeLEV:
@@ -14381,7 +14381,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						break;
 					//Gravity, floats over pits
 					case eeWIZZ: case eeWALLM: case eeGHINI:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK | FLAG_CAN_WATERWALK;
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
 						break;
 					//Gravity and falls in pits
 					case eeWALK: case eeOTHER:
@@ -14392,6 +14392,23 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
 					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
 						if (tempguy.misc9!=e9tPOLSVOICE&&tempguy.misc9!=e9tVIRE) tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+				}
+			}
+			if(guyversion < 43)
+			{
+				switch(tempguy.family)
+				{
+					//No gravity; floats over pits
+					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
+					case eePROJECTILE: case eeSPINTILE: case eeKEESE: case eeFIRE:
+					//Special (bosses, etc)
+					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
+					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
+					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
+					case eeWIZZ: case eeWALLM: case eeGHINI:
+					//Gravity, floats over pits
+						tempguy.moveflags |= FLAG_CAN_WATERWALK;
+						break;
 				}
 			}
 			
@@ -16570,7 +16587,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 	//al_trace("Read combo label\n");
 	if(section_version>=13) //attribytes[4]
 	{
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		for ( int q = 0; q < 4; q++ ) //Bad Zoria, don't mix constants with hardcodes
 		{
 		    if(!p_getc(&temp_combo.attribytes[q],f,true))
 		    {
@@ -16621,6 +16638,35 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		temp_combo.o_tile = temp_combo.tile;
 		temp_combo.cur_frame = 0;
 		temp_combo.aclk = 0;
+	}
+	if(section_version>=17) //attribytes[4]
+	{
+		for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+		{
+		    if(!p_getc(&temp_combo.attribytes[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+		{
+		    if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		
+	}
+	else
+	{
+		for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+		{
+		    temp_combo.attribytes[q] = 0;
+		}
+		for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+		{
+		    temp_combo.attrishorts[q] = 0;
+		}
 	}
         if(version < 0x193)
         {
