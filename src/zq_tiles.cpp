@@ -19497,7 +19497,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 		
 	} while ( ret != 0 && ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 ); //127 cancel, 128 OK
-	if ( ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || 134 ) //save it
+	if ( ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || ret == 134 ) //save it
 	{
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		combobuf[c] = curr_combo;
