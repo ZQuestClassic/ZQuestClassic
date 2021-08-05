@@ -230,7 +230,8 @@ public:
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	damageovertimeclk; // clock for determining when Link takes passive damage from combos beneath him.
+	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
+	newconveyorclk; // clock for determining when Link gets moved by a conveyor
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir; // scrolling direction

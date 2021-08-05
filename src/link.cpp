@@ -424,6 +424,7 @@ void LinkClass::resetflags(bool all)
 		hoverflags = 0;
     }
     damageovertimeclk = -1;
+    newconveyorclk = 0;
     hopclk=0;
     hopdir=-1;
     attackclk=0;
@@ -1136,6 +1137,7 @@ void LinkClass::init()
     onpassivedmg=false;
     dir = up;
     damageovertimeclk = -1;
+    newconveyorclk = 0;
     shiftdir = -1;
     holddir = -1;
     landswim = 0;
@@ -24691,28 +24693,44 @@ void LinkClass::check_conveyor()
     WalkflagInfo info;
     int xoff,yoff;
     int deltax=0, deltay=0;
-    
-    if(conveyclk<=0)
+    int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+    ++newconveyorclk;
+    if (newconveyorclk < 0) newconveyorclk = 0;
+    if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
     {
         is_on_conveyor=false;
         int ctype;
-        ctype=(combobuf[MAPCOMBO(x+7,y+(bigHitbox?8:12))].type);
+        ctype=(combobuf[cmb].type);
 	for (int i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) ctype = cNONE;
+			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
 		}
 	}
-	if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) ctype = cNONE;
+	if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
+	if((combobuf[cmb].usrflags&cflag2) && (newconveyorclk % zc_max(combobuf[cmb].attribytes[0], 1))) return;
+	
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
+	
+	if (combobuf[cmb].usrflags&cflag2)
+	{
+		deltax = combobuf[cmb].attributes[0];
+		deltay = combobuf[cmb].attributes[1];
+	}
         
         if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
         {
-            ctype=(combobuf[MAPCOMBO(x+8,y+16)].type);
-            deltax=combo_class_buf[ctype].conveyor_x_speed;
-            deltay=combo_class_buf[ctype].conveyor_y_speed;
+		cmb = MAPCOMBO(x+8,y+16);
+		ctype=(combobuf[cmb].type);
+		deltax=combo_class_buf[ctype].conveyor_x_speed;
+		deltay=combo_class_buf[ctype].conveyor_y_speed;
+		if (combobuf[cmb].usrflags&cflag2)
+		{
+			deltax = combobuf[cmb].attributes[0];
+			deltay = combobuf[cmb].attributes[1];
+		}
         }
         
         if(deltax!=0||deltay!=0)
