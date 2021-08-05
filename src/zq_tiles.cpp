@@ -18853,10 +18853,10 @@ bool edit_combo(int c,bool freshen,int cs)
 	sprintf(skip,"%d",curr_combo.skipanim);
 	sprintf(skipy,"%d",curr_combo.skipanimy);
 	//Attributes[]
-	sprintf(attrib0,"%d",curr_combo.attributes[0]);
-	sprintf(attrib1,"%d",curr_combo.attributes[1]);
-	sprintf(attrib2,"%d",curr_combo.attributes[2]);
-	sprintf(attrib3,"%d",curr_combo.attributes[3]);
+	sprintf(attrib0,"%d.%04d",curr_combo.attributes[0] / 10000L, curr_combo.attributes[0] % 10000L);
+	sprintf(attrib1,"%d.%04d",curr_combo.attributes[1] / 10000L, curr_combo.attributes[1] % 10000L);
+	sprintf(attrib2,"%d.%04d",curr_combo.attributes[2] / 10000L, curr_combo.attributes[2] % 10000L);
+	sprintf(attrib3,"%d.%04d",curr_combo.attributes[3] / 10000L, curr_combo.attributes[3] % 10000L);
 	
 	//Attribytes[]
 	sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
@@ -19526,10 +19526,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
-		curr_combo.attributes[0] = vbound(atoi(attrib0),-214747,214747);
-		curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
-		curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
-		curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
+		curr_combo.attributes[0] = vbound(ffparse(attrib0),-2147483648, 2147483647);
+		curr_combo.attributes[1] = vbound(ffparse(attrib1),-2147483648, 2147483647);
+		curr_combo.attributes[2] = vbound(ffparse(attrib2),-2147483648, 2147483647);
+		curr_combo.attributes[3] = vbound(ffparse(attrib3),-2147483648, 2147483647);
 		
 		//Attribytes[]
 		
@@ -19574,8 +19574,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
 		//initd and combo script
-		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
-		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
+		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483648, 2147483647);
+		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483648, 2147483647);
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		
 		curr_combo.animflags = 0;

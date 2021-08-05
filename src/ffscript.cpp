@@ -9979,7 +9979,25 @@ long get_register(const long arg)
 		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
 		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
-		case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBUTES:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx > 4 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				ret = -10000;
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].attributes[indx]);
+			}
+		}
+ 		GET_COMBO_VAR_INDEX(,	, ); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		//case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{
@@ -17828,7 +17846,23 @@ void set_register(const long arg, const long value)
 		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
-		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBUTES:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+			}
+			else if ( indx < 0 || indx > 4 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+			}
+			else
+			{
+				combobuf[ri->combosref].member[indx] = value;
+			}
+		}
+		SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		//case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{

@@ -1045,7 +1045,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int cid = MAPCOMBO(bx,by);
 	int flag = MAPFLAG(bx,by);
 	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = c[cid].attributes[3];
+	int ft = c[cid].attributes[3] / 10000L;
 	//if (!ft) return;
 	//zprint("ft: %d\n", ft);
 	int scombo=COMBOPOS(bx,by);
@@ -1061,13 +1061,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
-	//zprint("sfx is: %d\n", c[cid].attributes[2]);
+	//zprint("sfx is: %d\n", c[cid].attributes[2] / 10000L);
 	//zprint("scombo is: %d\n", scombo);
 	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	{
 		if ((c[cid].usrflags&cflag1)) 
 		{
-			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
+			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0] / 10000L);
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
 				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
@@ -1088,7 +1088,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			else it = select_dropitem(c[cid].attribytes[1]); 
 			
 		}
-		//zprint("dropset: %d\n", c[cid].attributes[1]);
+		//zprint("dropset: %d\n", c[cid].attributes[1] / 10000L);
 		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
 		//zprint("it: %d\n", it);
 		if( it != -1 )

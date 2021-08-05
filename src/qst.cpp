@@ -16672,6 +16672,13 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		{
 			temp_combo.walk |= 0xF0; //All on by default for old quests -E
 		}
+		if(section_version < 19)
+		{
+			for(int q = 0; q < 4; ++q)
+			{
+				temp_combo.attributes[q] *= 10000L;
+			}
+		}
 		
 		if(version < 0x193)
 		{
@@ -16783,7 +16790,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			{
 				if (combobuf[tmpcounter].type == cWATER)
 				{
-					combobuf[tmpcounter].attributes[0] = 4;
+					combobuf[tmpcounter].attributes[0] = 40000L;
 				}
 			}
 		}

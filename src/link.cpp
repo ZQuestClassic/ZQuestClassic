@@ -3025,7 +3025,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
         {
             int it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -3332,7 +3332,7 @@ void LinkClass::check_slash_block(int bx, int by)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -3777,7 +3777,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
         {
             int it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -4102,7 +4102,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -4785,7 +4785,7 @@ void LinkClass::check_slash_block(weapon *w)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -6398,7 +6398,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[0] = cmb.attributes[0] * -1;
+				hp_mod[0] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6410,7 +6410,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[1] = cmb.attributes[0] * -1;
+				hp_mod[1] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6422,7 +6422,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[2] = cmb.attributes[0] * -1;
+				hp_mod[2] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6434,7 +6434,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[3] = cmb.attributes[0] * -1;
+				hp_mod[3] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6474,7 +6474,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6486,7 +6486,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6498,7 +6498,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6510,7 +6510,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6915,9 +6915,9 @@ bool LinkClass::animate(int)
 						if (damageovertimeclk == 0)
 						{
 							int curhp = game->get_life();
-							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-							if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1]/10000L, 0, game->get_maxlife()));
+							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 							if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
 							{
 								hclk = 48;
@@ -6955,9 +6955,9 @@ bool LinkClass::animate(int)
 					if (damageovertimeclk == 0)
 					{
 						int curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
+						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
 					{
@@ -7640,7 +7640,7 @@ bool LinkClass::animate(int)
 		{
 			action=none; FFCore.setLinkAction(none);
 			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
-			int damage = combobuf[water].attributes[0];
+			int damage = combobuf[water].attributes[0]/10000L;
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (HP_PER_HEART/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
@@ -7802,9 +7802,9 @@ bool LinkClass::animate(int)
 					if (damageovertimeclk == 0)
 					{
 						int curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
+						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 						if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
 						{
 							hclk = 48;
@@ -15429,7 +15429,7 @@ void LinkClass::checklockblock()
     int requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
     int itemonly = combobuf[cid].usrflags&cflag2;
     int thecounter = combobuf[cid].attribytes[1];
-    int ctr_amount = combobuf[cid].attributes[0];
+    int ctr_amount = combobuf[cid].attributes[0]/10000L;
     if( requireditem && game->item[requireditem]) 
     {
 	    if ((combobuf[cid].usrflags&cflag5)) 
@@ -17745,7 +17745,7 @@ void LinkClass::checkspecial2(int *ls)
 		{
 			wpdir = rand()&3;
 		}
-		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0];
+		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
 		switch(wpn)
 		{
 			//eweapons
@@ -24716,8 +24716,8 @@ void LinkClass::check_conveyor()
 	
 	if (combobuf[cmb].usrflags&cflag2)
 	{
-		deltax = combobuf[cmb].attributes[0];
-		deltay = combobuf[cmb].attributes[1];
+		deltax = combobuf[cmb].attributes[0]/10000L;
+		deltay = combobuf[cmb].attributes[1]/10000L;
 	}
         
         if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
@@ -24728,8 +24728,8 @@ void LinkClass::check_conveyor()
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
 		if (combobuf[cmb].usrflags&cflag2)
 		{
-			deltax = combobuf[cmb].attributes[0];
-			deltay = combobuf[cmb].attributes[1];
+			deltax = combobuf[cmb].attributes[0]/10000L;
+			deltay = combobuf[cmb].attributes[1]/10000L;
 		}
         }
         
