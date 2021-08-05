@@ -423,7 +423,7 @@ extern int SnapshotFormat, NameEntryMode;
 
 extern int add_asparkle, add_bsparkle;
 
-extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts;
+extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags;
 
 extern int    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];
