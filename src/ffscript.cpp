@@ -9997,7 +9997,7 @@ long get_register(const long arg)
 				ret = (combobuf[ri->combosref].attributes[indx]);
 			}
 		}
- 		GET_COMBO_VAR_INDEX(,	, ); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		break;
 		//case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{
@@ -17859,10 +17859,9 @@ void set_register(const long arg, const long value)
 			}
 			else
 			{
-				combobuf[ri->combosref].member[indx] = value;
+				combobuf[ri->combosref].attributes[indx] = value;
 			}
-		}
-		SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		}break;
 		//case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{

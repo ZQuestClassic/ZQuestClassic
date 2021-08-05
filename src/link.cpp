@@ -24692,7 +24692,7 @@ void LinkClass::check_conveyor()
     
     WalkflagInfo info;
     int xoff,yoff;
-    int deltax=0, deltay=0;
+    zfix deltax(0), deltay(0);
     int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
     ++newconveyorclk;
     if (newconveyorclk < 0) newconveyorclk = 0;
@@ -24716,8 +24716,8 @@ void LinkClass::check_conveyor()
 	
 	if (combobuf[cmb].usrflags&cflag2)
 	{
-		deltax = combobuf[cmb].attributes[0]/10000L;
-		deltay = combobuf[cmb].attributes[1]/10000L;
+		deltax = zslongToFix(combobuf[cmb].attributes[0]);
+		deltay = zslongToFix(combobuf[cmb].attributes[1]);
 	}
         
         if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
@@ -24728,8 +24728,8 @@ void LinkClass::check_conveyor()
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
 		if (combobuf[cmb].usrflags&cflag2)
 		{
-			deltax = combobuf[cmb].attributes[0]/10000L;
-			deltay = combobuf[cmb].attributes[1]/10000L;
+			deltax = zslongToFix(combobuf[cmb].attributes[0]);
+			deltay = zslongToFix(combobuf[cmb].attributes[1]);
 		}
         }
         
@@ -24745,13 +24745,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<(abs(deltay)*(isSideViewLink()?2:1)))
                     {
-                        yoff=((int)y-step)&7;
+                        yoff=int(y-step)&7;
                         
                         if(!yoff) break;
                         
@@ -24764,7 +24764,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 y=y-step;
-                hs_starty-=step;
+                hs_starty-=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24790,13 +24790,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltay))
                     {
-                        yoff=((int)y+step)&7;
+                        yoff=int(y+step)&7;
                         
                         if(!yoff) break;
                         
@@ -24809,7 +24809,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 y=y+step;
-                hs_starty+=step;
+                hs_starty+=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24836,13 +24836,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {
-                        xoff=((int)x-step)&7;
+                        xoff=int(x-step)&7;
                         
                         if(!xoff) break;
                         
@@ -24855,7 +24855,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 x=x-step;
-                hs_startx-=step;
+                hs_startx-=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24881,13 +24881,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {
-                        xoff=((int)x+step)&7;
+                        xoff=int(x+step)&7;
                         
                         if(!xoff) break;
                         
@@ -24900,7 +24900,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 x=x+step;
-                hs_startx+=step;
+                hs_startx+=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
