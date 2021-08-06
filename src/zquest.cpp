@@ -6444,8 +6444,8 @@ void refresh(int flags)
         curscr=Map.getCurrScr();
         Map.setCurrScr(curscr);                                 // to update palette
         clear_to_color(mapscreenbmp,vc(0));
+        rebuild_trans_table();
         Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
-        
         if(showedges)
         {
             if(Map.getCurrScr()<128)
@@ -6845,11 +6845,12 @@ void refresh(int flags)
             {
                 char tbuf[10];
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-                draw_text_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,vc(1),vc(14),(btn==current_mappage?2:0),true);
+                draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
             }
             
             draw_text_button(menu1,combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),0,true);
         }
+	rebuild_trans_table();
     }
     
 	if(flags&rSCRMAP)
@@ -10199,13 +10200,15 @@ void domouse()
                 
                 if(isinRect(x,y,mapscreen_x+(btn*16*2*mapscreensize),mapscreen_y+((showedges?13:11)*16*mapscreensize),mapscreen_x+(btn*16*2*mapscreensize)+map_page_bar[btn].w,mapscreen_y+((showedges?13:11)*16*mapscreensize)+map_page_bar[btn].h))
                 {
-                    if(do_text_button(map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,vc(1),vc(14),true))
+                    if(draw_layer_button_reset(map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0)))
                     {
+			draw_layer_button(screen, map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,D_SELECTED);
                         map_page[current_mappage].map=Map.getCurrMap();
                         map_page[current_mappage].screen=Map.getCurrScr();
                         current_mappage=btn;
                         Map.setCurrMap(map_page[current_mappage].map);
                         Map.setCurrScr(map_page[current_mappage].screen);
+			rebuild_trans_table(); //Woo
                     }
                 }
             }
@@ -14795,6 +14798,8 @@ int onScreenPalette()
         Map.setcolor(screen_pal_dlg[2].d1);
         refresh(rALL);
     }
+    
+    rebuild_trans_table();
     
     return D_O_K;
 }
