@@ -4116,7 +4116,8 @@ struct zcmodule
 	//char module_base_nsf[255];
 	
         char combotypeCustomAttributes[20][4][32];
-        char combotypeCustomAttribytes[20][4][32];
+        char combotypeCustomAttribytes[20][8][32];
+        char combotypeCustomAttrishorts[20][8][32];
         char combotypeCustomFlags[20][16][32];
 	
 	unsigned char ignore;

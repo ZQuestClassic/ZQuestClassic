@@ -35939,29 +35939,54 @@ const char CustomComboATTRuteTypes[20][4][17] =
 	{ "cCUSTOM20ATTR0", "cCUSTOM20ATTR1", "cCUSTOM20ATTR2", "cCUSTOM20ATTR3" }
 };
 
-const char CustomComboAttribyteTypes[20][4][17] =
+const char CustomComboAttribyteTypes[20][8][17] =
 {
-	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3" }, 
-	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3" }, 
-	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3" }, 
-	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3" }, 
-	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3" }, 
-	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3" }, 
-	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3" }, 
-	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3" }, 
-	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3" }, 
-	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3" },
+	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3", "cCUSTOM1ATTRIB4", "cCUSTOM1ATTRIB5", "cCUSTOM1ATTRIB6", "cCUSTOM1ATTRIB7" }, 
+	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3", "cCUSTOM2ATTRIB4", "cCUSTOM2ATTRIB5", "cCUSTOM2ATTRIB6", "cCUSTOM2ATTRIB7" }, 
+	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3", "cCUSTOM3ATTRIB4", "cCUSTOM3ATTRIB5", "cCUSTOM3ATTRIB6", "cCUSTOM3ATTRIB7" }, 
+	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3", "cCUSTOM4ATTRIB4", "cCUSTOM4ATTRIB5", "cCUSTOM4ATTRIB6", "cCUSTOM4ATTRIB7" }, 
+	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3", "cCUSTOM5ATTRIB4", "cCUSTOM5ATTRIB5", "cCUSTOM5ATTRIB6", "cCUSTOM5ATTRIB7" }, 
+	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3", "cCUSTOM6ATTRIB4", "cCUSTOM6ATTRIB5", "cCUSTOM6ATTRIB6", "cCUSTOM6ATTRIB7" }, 
+	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3", "cCUSTOM7ATTRIB4", "cCUSTOM7ATTRIB5", "cCUSTOM7ATTRIB6", "cCUSTOM7ATTRIB7" }, 
+	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3", "cCUSTOM8ATTRIB4", "cCUSTOM8ATTRIB5", "cCUSTOM8ATTRIB6", "cCUSTOM8ATTRIB7" }, 
+	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3", "cCUSTOM9ATTRIB4", "cCUSTOM9ATTRIB5", "cCUSTOM9ATTRIB6", "cCUSTOM9ATTRIB7" }, 
+	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3", "cCUSTOM10ATTRIB4", "cCUSTOM10ATTRIB5", "cCUSTOM10ATTRIB6", "cCUSTOM10ATTRIB7" },
 	
-	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3" }, 
-	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3" }, 
-	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3" }, 
-	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3" }, 
-	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3" }, 
-	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3" }, 
-	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3" }, 
-	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3" }, 
-	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3" }, 
-	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3" }
+	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3", "cCUSTOM11ATTRIB4", "cCUSTOM11ATTRIB5", "cCUSTOM11ATTRIB6", "cCUSTOM11ATTRIB7" }, 
+	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3", "cCUSTOM12ATTRIB4", "cCUSTOM12ATTRIB5", "cCUSTOM12ATTRIB6", "cCUSTOM12ATTRIB7" }, 
+	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3", "cCUSTOM13ATTRIB4", "cCUSTOM13ATTRIB5", "cCUSTOM13ATTRIB6", "cCUSTOM13ATTRIB7" }, 
+	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3", "cCUSTOM14ATTRIB4", "cCUSTOM14ATTRIB5", "cCUSTOM14ATTRIB6", "cCUSTOM14ATTRIB7" }, 
+	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3", "cCUSTOM15ATTRIB4", "cCUSTOM15ATTRIB5", "cCUSTOM15ATTRIB6", "cCUSTOM15ATTRIB7" }, 
+	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3", "cCUSTOM16ATTRIB4", "cCUSTOM16ATTRIB5", "cCUSTOM16ATTRIB6", "cCUSTOM16ATTRIB7" }, 
+	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3", "cCUSTOM17ATTRIB4", "cCUSTOM17ATTRIB5", "cCUSTOM17ATTRIB6", "cCUSTOM17ATTRIB7" }, 
+	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3", "cCUSTOM18ATTRIB4", "cCUSTOM18ATTRIB5", "cCUSTOM18ATTRIB6", "cCUSTOM18ATTRIB7" }, 
+	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3", "cCUSTOM19ATTRIB4", "cCUSTOM19ATTRIB5", "cCUSTOM19ATTRIB6", "cCUSTOM19ATTRIB7" }, 
+	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3", "cCUSTOM20ATTRIB4", "cCUSTOM20ATTRIB5", "cCUSTOM20ATTRIB6", "cCUSTOM20ATTRIB7" }
+};
+
+const char CustomComboAttrishortTypes[20][8][17] =
+{
+	{ "cCUSTOM1ATTRSH0", "cCUSTOM1ATTRSH1", "cCUSTOM1ATTRSH2", "cCUSTOM1ATTRSH3", "cCUSTOM1ATTRSH4", "cCUSTOM1ATTRSH5", "cCUSTOM1ATTRSH6", "cCUSTOM1ATTRSH7" }, 
+	{ "cCUSTOM2ATTRSH0", "cCUSTOM2ATTRSH1", "cCUSTOM2ATTRSH2", "cCUSTOM2ATTRSH3", "cCUSTOM2ATTRSH4", "cCUSTOM2ATTRSH5", "cCUSTOM2ATTRSH6", "cCUSTOM2ATTRSH7" }, 
+	{ "cCUSTOM3ATTRSH0", "cCUSTOM3ATTRSH1", "cCUSTOM3ATTRSH2", "cCUSTOM3ATTRSH3", "cCUSTOM3ATTRSH4", "cCUSTOM3ATTRSH5", "cCUSTOM3ATTRSH6", "cCUSTOM3ATTRSH7" }, 
+	{ "cCUSTOM4ATTRSH0", "cCUSTOM4ATTRSH1", "cCUSTOM4ATTRSH2", "cCUSTOM4ATTRSH3", "cCUSTOM4ATTRSH4", "cCUSTOM4ATTRSH5", "cCUSTOM4ATTRSH6", "cCUSTOM4ATTRSH7" }, 
+	{ "cCUSTOM5ATTRSH0", "cCUSTOM5ATTRSH1", "cCUSTOM5ATTRSH2", "cCUSTOM5ATTRSH3", "cCUSTOM5ATTRSH4", "cCUSTOM5ATTRSH5", "cCUSTOM5ATTRSH6", "cCUSTOM5ATTRSH7" }, 
+	{ "cCUSTOM6ATTRSH0", "cCUSTOM6ATTRSH1", "cCUSTOM6ATTRSH2", "cCUSTOM6ATTRSH3", "cCUSTOM6ATTRSH4", "cCUSTOM6ATTRSH5", "cCUSTOM6ATTRSH6", "cCUSTOM6ATTRSH7" }, 
+	{ "cCUSTOM7ATTRSH0", "cCUSTOM7ATTRSH1", "cCUSTOM7ATTRSH2", "cCUSTOM7ATTRSH3", "cCUSTOM7ATTRSH4", "cCUSTOM7ATTRSH5", "cCUSTOM7ATTRSH6", "cCUSTOM7ATTRSH7" }, 
+	{ "cCUSTOM8ATTRSH0", "cCUSTOM8ATTRSH1", "cCUSTOM8ATTRSH2", "cCUSTOM8ATTRSH3", "cCUSTOM8ATTRSH4", "cCUSTOM8ATTRSH5", "cCUSTOM8ATTRSH6", "cCUSTOM8ATTRSH7" }, 
+	{ "cCUSTOM9ATTRSH0", "cCUSTOM9ATTRSH1", "cCUSTOM9ATTRSH2", "cCUSTOM9ATTRSH3", "cCUSTOM9ATTRSH4", "cCUSTOM9ATTRSH5", "cCUSTOM9ATTRSH6", "cCUSTOM9ATTRSH7" }, 
+	{ "cCUSTOM10ATTRSH0", "cCUSTOM10ATTRSH1", "cCUSTOM10ATTRSH2", "cCUSTOM10ATTRSH3", "cCUSTOM10ATTRSH4", "cCUSTOM10ATTRSH5", "cCUSTOM10ATTRSH6", "cCUSTOM10ATTRSH7" },
+	
+	{ "cCUSTOM11ATTRSH0", "cCUSTOM11ATTRSH1", "cCUSTOM11ATTRSH2", "cCUSTOM11ATTRSH3", "cCUSTOM11ATTRSH4", "cCUSTOM11ATTRSH5", "cCUSTOM11ATTRSH6", "cCUSTOM11ATTRSH7" }, 
+	{ "cCUSTOM12ATTRSH0", "cCUSTOM12ATTRSH1", "cCUSTOM12ATTRSH2", "cCUSTOM12ATTRSH3", "cCUSTOM12ATTRSH4", "cCUSTOM12ATTRSH5", "cCUSTOM12ATTRSH6", "cCUSTOM12ATTRSH7" }, 
+	{ "cCUSTOM13ATTRSH0", "cCUSTOM13ATTRSH1", "cCUSTOM13ATTRSH2", "cCUSTOM13ATTRSH3", "cCUSTOM13ATTRSH4", "cCUSTOM13ATTRSH5", "cCUSTOM13ATTRSH6", "cCUSTOM13ATTRSH7" }, 
+	{ "cCUSTOM14ATTRSH0", "cCUSTOM14ATTRSH1", "cCUSTOM14ATTRSH2", "cCUSTOM14ATTRSH3", "cCUSTOM14ATTRSH4", "cCUSTOM14ATTRSH5", "cCUSTOM14ATTRSH6", "cCUSTOM14ATTRSH7" }, 
+	{ "cCUSTOM15ATTRSH0", "cCUSTOM15ATTRSH1", "cCUSTOM15ATTRSH2", "cCUSTOM15ATTRSH3", "cCUSTOM15ATTRSH4", "cCUSTOM15ATTRSH5", "cCUSTOM15ATTRSH6", "cCUSTOM15ATTRSH7" }, 
+	{ "cCUSTOM16ATTRSH0", "cCUSTOM16ATTRSH1", "cCUSTOM16ATTRSH2", "cCUSTOM16ATTRSH3", "cCUSTOM16ATTRSH4", "cCUSTOM16ATTRSH5", "cCUSTOM16ATTRSH6", "cCUSTOM16ATTRSH7" }, 
+	{ "cCUSTOM17ATTRSH0", "cCUSTOM17ATTRSH1", "cCUSTOM17ATTRSH2", "cCUSTOM17ATTRSH3", "cCUSTOM17ATTRSH4", "cCUSTOM17ATTRSH5", "cCUSTOM17ATTRSH6", "cCUSTOM17ATTRSH7" }, 
+	{ "cCUSTOM18ATTRSH0", "cCUSTOM18ATTRSH1", "cCUSTOM18ATTRSH2", "cCUSTOM18ATTRSH3", "cCUSTOM18ATTRSH4", "cCUSTOM18ATTRSH5", "cCUSTOM18ATTRSH6", "cCUSTOM18ATTRSH7" }, 
+	{ "cCUSTOM19ATTRSH0", "cCUSTOM19ATTRSH1", "cCUSTOM19ATTRSH2", "cCUSTOM19ATTRSH3", "cCUSTOM19ATTRSH4", "cCUSTOM19ATTRSH5", "cCUSTOM19ATTRSH6", "cCUSTOM19ATTRSH7" }, 
+	{ "cCUSTOM20ATTRSH0", "cCUSTOM20ATTRSH1", "cCUSTOM20ATTRSH2", "cCUSTOM20ATTRSH3", "cCUSTOM20ATTRSH4", "cCUSTOM20ATTRSH5", "cCUSTOM20ATTRSH6", "cCUSTOM20ATTRSH7" }
 };
 
 const char CustomComboAttributeFlags[20][16][16] =
@@ -36113,28 +36138,52 @@ const char defaultCustomComboFlags[20][16][32]=
 
 };
 
-const char defaultCustomComboAttribytes[20][4][17]=
+const char defaultCustomComboAttribytes[20][8][17]=
 {
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]" }
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
+	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" }
+};
+
+const char defaultCustomComboAttrishorts[20][8][17]=
+{
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
+	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" }
 };
 
 const char defaultCustomComboAttributes[20][4][17]=
@@ -36749,8 +36798,13 @@ bool ZModule::init(bool d) //bool default
 		}
 		for ( int q = 0; q < 20; q++ )
 		{
-			for ( int w = 0; w < 4; w++ )
+			for ( int w = 0; w < 8; w++ )
 				strcpy(moduledata.combotypeCustomAttribytes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
+		}
+		for ( int q = 0; q < 20; q++ )
+		{
+			for ( int w = 0; w < 8; w++ )
+				strcpy(moduledata.combotypeCustomAttrishorts[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttrishortTypes[q][w],defaultCustomComboAttrishorts[q][w]));
 		}
 		for ( int q = 0; q < 20; q++ )
 		{
