@@ -5065,17 +5065,17 @@ bool _walkflag(int x,int y,int cnt)
 		if(y&8) b<<=1;
 	}
 	cwalkflag = c.walk;
-	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0)
 	{
-		if (c1.type == cBRIDGE || (iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag = 0;
+		if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (((*tmpscr).layermap[1]-1)>=0)
 	{
-		if (c2.type == cBRIDGE || (iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag = 0;
+		if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
 	return (cwalkflag&b) ? !dried : false;
