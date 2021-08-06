@@ -2179,7 +2179,7 @@ script_variable variable_list[]=
 	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
 	{ "COMBOED",           COMBOED,              0,             0 },
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
-	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	
