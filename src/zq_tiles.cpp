@@ -712,7 +712,7 @@ void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int
 		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
 }
 
-bool draw_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag)
+bool do_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag)
 {
     bool over=false;
     
