@@ -18390,16 +18390,16 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        46,     135+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //57
     { jwin_text_proc,           8+22+16,       30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //59
     { jwin_text_proc,           8+22+16,       45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //61
     { jwin_text_proc,           8+22+16,       60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //63
     { jwin_text_proc,           8+22+16,       75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //65 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -18800,30 +18800,30 @@ bool edit_combo(int c,bool freshen,int cs)
 	char skip[8];
 	char skipy[8];
 	//Attributes[]
-	char attrib0[8];
-	char attrib1[8];
-	char attrib2[8];
-	char attrib3[8];
+	char attrib0[16];
+	char attrib1[16];
+	char attrib2[16];
+	char attrib3[16];
 	
-	char attribyt0[8];
-	char attribyt1[8];
-	char attribyt2[8];
-	char attribyt3[8];
-	char attribyt4[8];
-	char attribyt5[8];
-	char attribyt6[8];
-	char attribyt7[8];
+	char attribyt0[16];
+	char attribyt1[16];
+	char attribyt2[16];
+	char attribyt3[16];
+	char attribyt4[16];
+	char attribyt5[16];
+	char attribyt6[16];
+	char attribyt7[16];
 	
-	char attrishrt0[8];
-	char attrishrt1[8];
-	char attrishrt2[8];
-	char attrishrt3[8];
-	char attrishrt4[8];
-	char attrishrt5[8];
-	char attrishrt6[8];
-	char attrishrt7[8];
+	char attrishrt0[16];
+	char attrishrt1[16];
+	char attrishrt2[16];
+	char attrishrt3[16];
+	char attrishrt4[16];
+	char attrishrt5[16];
+	char attrishrt6[16];
+	char attrishrt7[16];
 	
-	char minlevel[8];
+	char minlevel[16];
 	char the_label[11];
 	
 	char initiald0[16];
@@ -18853,10 +18853,10 @@ bool edit_combo(int c,bool freshen,int cs)
 	sprintf(skip,"%d",curr_combo.skipanim);
 	sprintf(skipy,"%d",curr_combo.skipanimy);
 	//Attributes[]
-	sprintf(attrib0,"%d.%04d",curr_combo.attributes[0] / 10000L, curr_combo.attributes[0] % 10000L);
-	sprintf(attrib1,"%d.%04d",curr_combo.attributes[1] / 10000L, curr_combo.attributes[1] % 10000L);
-	sprintf(attrib2,"%d.%04d",curr_combo.attributes[2] / 10000L, curr_combo.attributes[2] % 10000L);
-	sprintf(attrib3,"%d.%04d",curr_combo.attributes[3] / 10000L, curr_combo.attributes[3] % 10000L);
+	sprintf(attrib0,"%d.%04d",curr_combo.attributes[0] / 10000L, abs(curr_combo.attributes[0] % 10000L));
+	sprintf(attrib1,"%d.%04d",curr_combo.attributes[1] / 10000L, abs(curr_combo.attributes[1] % 10000L));
+	sprintf(attrib2,"%d.%04d",curr_combo.attributes[2] / 10000L, abs(curr_combo.attributes[2] % 10000L));
+	sprintf(attrib3,"%d.%04d",curr_combo.attributes[3] / 10000L, abs(curr_combo.attributes[3] % 10000L));
 	
 	//Attribytes[]
 	sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
@@ -19526,10 +19526,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
-		curr_combo.attributes[0] = vbound(ffparse(attrib0),-2147483648, 2147483647);
-		curr_combo.attributes[1] = vbound(ffparse(attrib1),-2147483648, 2147483647);
-		curr_combo.attributes[2] = vbound(ffparse(attrib2),-2147483648, 2147483647);
-		curr_combo.attributes[3] = vbound(ffparse(attrib3),-2147483648, 2147483647);
+		curr_combo.attributes[0] = ffparse2(attrib0);
+		curr_combo.attributes[1] = ffparse2(attrib1);
+		curr_combo.attributes[2] = ffparse2(attrib2);
+		curr_combo.attributes[3] = ffparse2(attrib3);
 		
 		//Attribytes[]
 		
@@ -19574,8 +19574,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
 		//initd and combo script
-		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483648, 2147483647);
-		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483648, 2147483647);
+		curr_combo.initd[0] = ffparse2(initiald0);
+		curr_combo.initd[1] = ffparse2(initiald1);
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		
 		curr_combo.animflags = 0;

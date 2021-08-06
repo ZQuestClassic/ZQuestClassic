@@ -2758,7 +2758,7 @@ void edit_itemdata(int index)
         test.wpn10 = biw[itemdata_dlg[158].d1].i;
         
         for(int j=0; j<8; j++)
-            test.initiald[j] = vbound(ffparse(da[j]),-2147483647, 2147483647);
+            test.initiald[j] = ffparse2(da[j]);
             
         test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
         test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
@@ -2772,7 +2772,7 @@ void edit_itemdata(int index)
         test.weaponscript = bilweapons[itemdata_dlg[292].d1].second + 1; 
 	for ( int q = 0; q < 8; q++ )
 	{
-		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		test.weap_initiald[q] = ffparse2(weap_initdvals[q]);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	}
         
@@ -7720,9 +7720,9 @@ void edit_enemydata(int index)
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 
 	for ( int q = 0; q < 8; q++ )
 	{
-		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		test.initD[q] = ffparse2(initdvals[q]);
 		
-		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		test.weap_initiald[q] = ffparse2(weap_initdvals[q]);
 		//vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
@@ -7749,9 +7749,9 @@ void edit_enemydata(int index)
             strcpy(guy_string[index],name);
 	    for ( int q = 0; q < 8; q++ )
 	    {
-		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		test.initD[q] = ffparse2(initdvals[q]);
 		
-		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		test.weap_initiald[q] = ffparse2(weap_initdvals[q]);
 		//test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 		//test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
