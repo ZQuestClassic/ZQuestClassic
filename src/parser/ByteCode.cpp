@@ -444,6 +444,9 @@ string ZScript::VarToString(long ID)
 	case COMBOSD:
 		return "COMBOSD";
 		
+	case COMBOED:
+		return "COMBOED";
+		
 	case COMBOIDM:
 		return "COMBOIDM";
 		
@@ -1422,6 +1425,7 @@ string ZScript::VarToString(long ID)
 	case MAPDATACOMBOTD: return "MAPDATACOMBOTD";
 	case MAPDATACOMBOID: return "MAPDATACOMBOID";
 	case MAPDATACOMBOSD: return "MAPDATACOMBOSD";
+	case MAPDATACOMBOED: return "MAPDATACOMBOED";
 	
 	
 	

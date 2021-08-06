@@ -3546,6 +3546,9 @@ int Script;
 untyped InitD[8];
  * The eight D args used by the screendata script for the current screen.
 
+int ComboE[176];
+ * The effect area bits of each of the 176 combos used on the screen.
+
 int GetRenderTarget();
  * Returns the present drawing render target ID.
  * Use in conjunction with SetRenderTarget(int) to cache the present RT, 
@@ -5816,8 +5819,14 @@ int ComboC[176];
 int ComboF[176];
  * The placed (map) flags for each of the 176 combo positions used by this screen.
 
-int ComboS[176];
+int ComboI[176];
  * The inherent flags of each of the 176 combos used on the screen.
+ 
+int ComboS[176];
+ * The solidity bits of each of the 176 combos used on the screen.
+ 
+int ComboE[176];
+ * The effect area bits of each of the 176 combos used on the screen.
 
 int State[32];
  * The screen states used by this screen. Identical to Screen->State[], but for mapdata screens.

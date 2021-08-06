@@ -7167,6 +7167,17 @@ long get_register(const long arg)
 				ret = (combobuf[tmpscr->data[pos]].walk & 0xF) * 10000;
 		}
 		break;
+			
+		case COMBOED:
+		{
+			int pos = ri->d[rINDEX] / 10000;
+			
+			if(BC::checkComboPos(pos, "Screen->ComboE[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((combobuf[tmpscr->data[pos]].walk & 0xF0)>>4) * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -9025,6 +9036,31 @@ long get_register(const long arg)
 			else
 			{
 				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboS[]", ri->mapsref);
+				ret = -10000;
+			}
+			break;
+		}
+			
+		case MAPDATACOMBOED:
+		{
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				//int ffindex = ri->d[rINDEX]/10000;
+				//int d = ri->d[rINDEX2]/10000;
+				//int v = (value/10000);
+				int pos = ri->d[rINDEX] / 10000;
+				if(BC::checkComboPos(pos, "mapdata->ComboE[pos]") != SH::_NoError)
+				{
+					ret = -10000;
+				}
+				else
+				{
+					ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
+				}	
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboE[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -14941,16 +14977,39 @@ void set_register(const long arg, const long value)
     {
         int pos = (ri->d[rINDEX])/10000;
         int val = (value/10000); //iflag
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
-	}
-	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
-	{
-		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
-	}
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+		}
         else
-            combobuf[tmpscr->data[pos]].walk=(val)&15;
+		{
+			combobuf[tmpscr->data[pos]].walk &= ~0x0F;
+            combobuf[tmpscr->data[pos]].walk |= (val)&0x0F;
+		}
+    }
+    break;
+    
+    case COMBOED:
+    {
+        int pos = (ri->d[rINDEX])/10000;
+        int val = (value/10000); //iflag
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboE[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboE[]\n", val);
+		}
+        else
+		{
+			combobuf[tmpscr->data[pos]].walk &= ~0xF0;
+            combobuf[tmpscr->data[pos]].walk |= ((val)&0x0F)<<4;
+		}
     }
     break;
 		
@@ -15211,8 +15270,8 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
 				break;
 			}
-
-			combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;	    
+			combobuf[TheMaps[scr].data[pos]].walk &= ~0x0F;
+			combobuf[TheMaps[scr].data[pos]].walk |= (value/10000)&15;	    
 		}
 		break;
 		
@@ -16986,11 +17045,42 @@ void set_register(const long arg, const long value)
 				}
 				
 				else
-					combobuf[m->data[pos]].walk=(val)&15;
+				{
+					combobuf[m->data[pos]].walk &= ~0x0F;
+					combobuf[m->data[pos]].walk |= (val)&0x0F;
+				}
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboI[]");
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboS[]");
+			}
+		}
+		break;
+		
+		case MAPDATACOMBOED:
+		{
+			int pos = (ri->d[rINDEX])/10000;
+			int val = (value/10000); //solidity
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboE[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 16 )
+				{
+					Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboE[]\n", val);
+				}
+				
+				else
+				{
+					combobuf[m->data[pos]].walk &= ~0xF0;
+					combobuf[m->data[pos]].walk |= ((val)&0x0F)<<4;
+				}
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboE[]");
 			}
 		}
 		break;
@@ -35452,8 +35542,8 @@ script_variable ZASMVars[]=
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
 	{ "LONGDISTANCE", LONGDISTANCE, 0, 0 },
 	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
-	{ "PADDINGR5", PADDINGR5, 0, 0 },
-	{ "PADDINGR6", PADDINGR6, 0, 0 },
+	{ "COMBOED",           COMBOED,              0,             0 },
+	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "PADDINGR7", PADDINGR7, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },

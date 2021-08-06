@@ -336,6 +336,8 @@ namespace ffdebug
 				
 			case COMBOSD:
 				return "COMBOSD";
+			case COMBOED:
+				return "COMBOED";
 				
 			case COMBOIDM:
 				return "COMBOIDM";
