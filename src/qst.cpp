@@ -2488,6 +2488,8 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 		{
 		    return qe_invalid;
 		}
+		if(!strcmp(tempheader.new_version_devsig, "Venrob"))
+			strcpy(tempheader.new_version_devsig, "EmilyV99");
 		if(!pfread(tempheader.new_version_compilername,256,f,true))
 		{
 		    return qe_invalid;
