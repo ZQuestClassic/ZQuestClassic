@@ -10001,7 +10001,32 @@ long get_register(const long arg)
 		case COMBODACLK:		GET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
 		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
-		case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
+		case COMBODWALK:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				ret = -10000;
+			}
+			else
+			{
+				ret = ((combobuf[ri->combosref].walk&0x0F) *10000);
+			}
+			break;
+		}
+		case COMBODEFFECT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				ret = -10000;
+			}
+			else
+			{
+				ret = (((combobuf[ri->combosref].walk&0xF0)>>4) *10000);
+			}
+			break;
+		}
 		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
 		case COMBODCSET:		GET_COMBO_VAR_BYTE(csets, "CSet"); break;					//C
 		case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
@@ -17923,7 +17948,32 @@ void set_register(const long arg, const long value)
 		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
-		case COMBODWALK:	SET_COMBO_VAR_BYTE(walk, "Walk"); break;						//char
+		case COMBODWALK:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+			}
+			else
+			{
+				combobuf[ri->combosref].walk &= ~0x0F;
+				combobuf[ri->combosref].walk |= (value / 10000)&0x0F;
+			}
+			break;
+		}
+		case COMBODEFFECT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+			}
+			else
+			{
+				combobuf[ri->combosref].walk &= ~0xF0;
+				combobuf[ri->combosref].walk |= ((value / 10000)&0x0F)<<4;
+			}
+			break;
+		}
 		case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
 		case COMBODCSET:	SET_COMBO_VAR_BYTE(csets, "CSet"); break;						//C
 		case COMBODFOO:		SET_COMBO_VAR_DWORD(foo, "Foo"); break;							//W
@@ -35544,7 +35594,7 @@ script_variable ZASMVars[]=
 	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
 	{ "COMBOED",           COMBOED,              0,             0 },
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
-	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },

@@ -1600,6 +1600,7 @@ string ZScript::VarToString(long ID)
 	case COMBODTILE: return "COMBODTILE";
 	case COMBODFLIP: return "COMBODFLIP";
 	case COMBODWALK: return "COMBODWALK";
+	case COMBODEFFECT: return "COMBODEFFECT";
 	case COMBODTYPE: return "COMBODTYPE";
 	case COMBODCSET: return "COMBODCSET";
 	case COMBODFOO: return "COMBODFOO";

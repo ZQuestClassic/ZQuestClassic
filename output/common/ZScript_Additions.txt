@@ -6002,7 +6002,10 @@ int Walk;
  * The walkability flags value. 
  * Walk flags are OR'd together using values of:
  *	
- *	
+ 
+int Effect;
+ * The effect area flags value.
+ * Uses the same binary values as 'Walk' above
 
 int CSet; 
 * The CSet values for the combo.
